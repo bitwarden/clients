@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
 import { OrganizationService } from "@bitwarden/common/abstractions/organization.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { SyncService } from "@bitwarden/common/abstractions/sync.service";
 import { TokenService } from "@bitwarden/common/abstractions/token.service";
 import { Utils } from "@bitwarden/common/misc/utils";
@@ -29,7 +29,7 @@ export class NavbarComponent implements OnInit {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private tokenService: TokenService,
-    private providerService: ProviderService,
+    private providerService: ProviderServiceAbstraction,
     private syncService: SyncService,
     private organizationService: OrganizationService,
     private i18nService: I18nService,

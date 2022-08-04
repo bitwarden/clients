@@ -9,7 +9,7 @@ import { LogService } from "../abstractions/log.service";
 import { MessagingService } from "../abstractions/messaging.service";
 import { OrganizationService } from "../abstractions/organization.service";
 import { PolicyService } from "../abstractions/policy.service";
-import { ProviderService } from "../abstractions/provider.service";
+import { InternalProviderService as InternalProviderServiceAbstraction } from "../abstractions/provider/provider.service.abstraction";
 import { SendService } from "../abstractions/send.service";
 import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
@@ -52,7 +52,7 @@ export class SyncService implements SyncServiceAbstraction {
     private keyConnectorService: KeyConnectorService,
     private stateService: StateService,
     private organizationService: OrganizationService,
-    private providerService: ProviderService,
+    private providerService: InternalProviderServiceAbstraction,
     private folderApiService: FolderApiServiceAbstraction,
     private logoutCallback: (expired: boolean) => Promise<void>
   ) {}

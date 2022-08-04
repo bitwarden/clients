@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 
 @Injectable()
 export class ProviderGuard implements CanActivate {
@@ -11,7 +11,7 @@ export class ProviderGuard implements CanActivate {
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private providerService: ProviderService
+    private providerService: ProviderServiceAbstraction
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot) {

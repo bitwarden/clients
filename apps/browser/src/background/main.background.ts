@@ -21,7 +21,7 @@ import { OrganizationService as OrganizationServiceAbstraction } from "@bitwarde
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@bitwarden/common/abstractions/passwordGeneration.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/abstractions/policy.service";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider.service";
+import { InternalProviderService as InternalProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { SendService as SendServiceAbstraction } from "@bitwarden/common/abstractions/send.service";
 import { SettingsService as SettingsServiceAbstraction } from "@bitwarden/common/abstractions/settings.service";
@@ -61,7 +61,7 @@ import { NotificationsService } from "@bitwarden/common/services/notifications.s
 import { OrganizationService } from "@bitwarden/common/services/organization.service";
 import { PasswordGenerationService } from "@bitwarden/common/services/passwordGeneration.service";
 import { PolicyService } from "@bitwarden/common/services/policy.service";
-import { ProviderService } from "@bitwarden/common/services/provider.service";
+import { ProviderService } from "@bitwarden/common/services/provider/provider.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { SendService } from "@bitwarden/common/services/send.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
@@ -142,7 +142,7 @@ export default class MainBackground {
   sendService: SendServiceAbstraction;
   fileUploadService: FileUploadServiceAbstraction;
   organizationService: OrganizationServiceAbstraction;
-  providerService: ProviderServiceAbstraction;
+  providerService: InternalProviderServiceAbstraction;
   keyConnectorService: KeyConnectorServiceAbstraction;
   userVerificationService: UserVerificationServiceAbstraction;
   twoFactorService: TwoFactorServiceAbstraction;

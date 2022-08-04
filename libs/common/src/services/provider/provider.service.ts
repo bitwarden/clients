@@ -1,9 +1,9 @@
-import { ProviderService as ProviderServiceAbstraction } from "../abstractions/provider.service";
-import { StateService } from "../abstractions/state.service";
-import { ProviderData } from "../models/data/providerData";
-import { Provider } from "../models/domain/provider";
+import { InternalProviderService as InternalProviderServiceAbstraction } from "../../abstractions/provider/provider.service.abstraction";
+import { StateService } from "../../abstractions/state.service";
+import { ProviderData } from "../../models/data/providerData";
+import { Provider } from "../../models/domain/provider";
 
-export class ProviderService implements ProviderServiceAbstraction {
+export class ProviderService implements InternalProviderServiceAbstraction {
   constructor(private stateService: StateService) {}
 
   async get(id: string): Promise<Provider> {

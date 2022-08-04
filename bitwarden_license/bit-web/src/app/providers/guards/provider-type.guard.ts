@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivate, Router } from "@angular/router";
 
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { Permissions } from "@bitwarden/common/enums/permissions";
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
-  constructor(private providerService: ProviderService, private router: Router) {}
+  constructor(private providerService: ProviderServiceAbstraction, private router: Router) {}
 
   async canActivate(route: ActivatedRouteSnapshot) {
     const provider = await this.providerService.get(route.params.providerId);

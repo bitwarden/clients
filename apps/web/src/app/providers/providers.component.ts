@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { Provider } from "@bitwarden/common/models/domain/provider";
 
@@ -14,7 +14,10 @@ export class ProvidersComponent implements OnInit {
   loaded = false;
   actionPromise: Promise<any>;
 
-  constructor(private providerService: ProviderService, private i18nService: I18nService) {}
+  constructor(
+    private providerService: ProviderServiceAbstraction,
+    private i18nService: I18nService
+  ) {}
 
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");

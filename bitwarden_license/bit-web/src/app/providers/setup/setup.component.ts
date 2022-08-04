@@ -3,10 +3,10 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { ValidationService } from "@bitwarden/angular/services/validation.service";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider-api.service.abstraction";
 import { SyncService } from "@bitwarden/common/abstractions/sync.service";
 import { ProviderSetupRequest } from "@bitwarden/common/models/request/provider/providerSetupRequest";
 
@@ -31,7 +31,7 @@ export class SetupComponent implements OnInit {
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private cryptoService: CryptoService,
-    private apiService: ApiService,
+    private providerApiService: ProviderApiServiceAbstraction,
     private syncService: SyncService,
     private validationService: ValidationService
   ) {}
@@ -57,7 +57,7 @@ export class SetupComponent implements OnInit {
 
       // Check if provider exists, redirect if it does
       try {
-        const provider = await this.apiService.getProvider(this.providerId);
+        const provider = await this.providerApiService.get(this.providerId);
         if (provider.name != null) {
           this.router.navigate(["/providers", provider.id], { replaceUrl: true });
         }
@@ -85,7 +85,7 @@ export class SetupComponent implements OnInit {
       request.token = this.token;
       request.key = key;
 
-      const provider = await this.apiService.postProviderSetup(this.providerId, request);
+      const provider = await this.providerApiService.setup(this.providerId, request);
       this.platformUtilsService.showToast("success", null, this.i18nService.t("providerSetup"));
       await this.syncService.fullSync(true);
 

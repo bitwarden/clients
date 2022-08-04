@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/abstractions/log.service";
 import { OrganizationService } from "@bitwarden/common/abstractions/organization.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PlanType } from "@bitwarden/common/enums/planType";
 import { ProviderUserType } from "@bitwarden/common/enums/providerUserType";
@@ -49,7 +49,7 @@ export class ClientsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private providerService: ProviderService,
+    private providerService: ProviderServiceAbstraction,
     private apiService: ApiService,
     private searchService: SearchService,
     private platformUtilsService: PlatformUtilsService,

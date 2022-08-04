@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ValidationService } from "@bitwarden/angular/services/validation.service";
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { Provider } from "@bitwarden/common/models/domain/provider";
 
@@ -23,7 +23,7 @@ export class AddOrganizationComponent implements OnInit {
   loading = true;
 
   constructor(
-    private providerService: ProviderService,
+    private providerService: ProviderServiceAbstraction,
     private webProviderService: WebProviderService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,

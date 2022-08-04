@@ -5,6 +5,7 @@ import * as program from "commander";
 import * as jsdom from "jsdom";
 
 import { InternalFolderService } from "@bitwarden/common/abstractions/folder/folder.service.abstraction";
+import { InternalProviderService as InternalProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums/clientType";
 import { KeySuffixOptions } from "@bitwarden/common/enums/keySuffixOptions";
 import { LogLevelType } from "@bitwarden/common/enums/logLevelType";
@@ -32,7 +33,7 @@ import { NoopMessagingService } from "@bitwarden/common/services/noopMessaging.s
 import { OrganizationService } from "@bitwarden/common/services/organization.service";
 import { PasswordGenerationService } from "@bitwarden/common/services/passwordGeneration.service";
 import { PolicyService } from "@bitwarden/common/services/policy.service";
-import { ProviderService } from "@bitwarden/common/services/provider.service";
+import { ProviderService } from "@bitwarden/common/services/provider/provider.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { SendService } from "@bitwarden/common/services/send.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
@@ -102,7 +103,7 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
-  providerService: ProviderService;
+  providerService: InternalProviderServiceAbstraction;
   twoFactorService: TwoFactorService;
   broadcasterService: BroadcasterService;
   folderApiService: FolderApiService;

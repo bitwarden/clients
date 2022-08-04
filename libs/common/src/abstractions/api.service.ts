@@ -63,8 +63,6 @@ import { PolicyRequest } from "../models/request/policyRequest";
 import { PreloginRequest } from "../models/request/preloginRequest";
 import { ProviderAddOrganizationRequest } from "../models/request/provider/providerAddOrganizationRequest";
 import { ProviderOrganizationCreateRequest } from "../models/request/provider/providerOrganizationCreateRequest";
-import { ProviderSetupRequest } from "../models/request/provider/providerSetupRequest";
-import { ProviderUpdateRequest } from "../models/request/provider/providerUpdateRequest";
 import { ProviderUserAcceptRequest } from "../models/request/provider/providerUserAcceptRequest";
 import { ProviderUserBulkConfirmRequest } from "../models/request/provider/providerUserBulkConfirmRequest";
 import { ProviderUserBulkRequest } from "../models/request/provider/providerUserBulkRequest";
@@ -151,7 +149,6 @@ import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
 } from "../models/response/provider/providerOrganizationResponse";
-import { ProviderResponse } from "../models/response/provider/providerResponse";
 import { ProviderUserBulkPublicKeyResponse } from "../models/response/provider/providerUserBulkPublicKeyResponse";
 import { ProviderUserBulkResponse } from "../models/response/provider/providerUserBulkResponse";
 import {
@@ -607,10 +604,6 @@ export abstract class ApiService {
     id: string,
     request: OrganizationKeysRequest
   ) => Promise<OrganizationKeysResponse>;
-
-  postProviderSetup: (id: string, request: ProviderSetupRequest) => Promise<ProviderResponse>;
-  getProvider: (id: string) => Promise<ProviderResponse>;
-  putProvider: (id: string, request: ProviderUpdateRequest) => Promise<ProviderResponse>;
 
   getProviderUsers: (providerId: string) => Promise<ListResponse<ProviderUserUserDetailsResponse>>;
   getProviderUser: (providerId: string, id: string) => Promise<ProviderUserResponse>;

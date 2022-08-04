@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/abstractions/log.service";
 import { OrganizationService } from "@bitwarden/common/abstractions/organization.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderService } from "@bitwarden/common/abstractions/provider.service";
+import { ProviderServiceAbstraction } from "@bitwarden/common/abstractions/provider/provider.service.abstraction";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { EventResponse } from "@bitwarden/common/models/response/eventResponse";
 
@@ -38,7 +38,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     logService: LogService,
     private userNamePipe: UserNamePipe,
     private organizationService: OrganizationService,
-    private providerService: ProviderService,
+    private providerService: ProviderServiceAbstraction,
     fileDownloadService: FileDownloadService
   ) {
     super(
