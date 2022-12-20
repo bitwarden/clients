@@ -89,8 +89,12 @@
     }}</a>
   </div>
 
-  <div [hidden]="!showCaptcha()">
-    <iframe id="hcaptcha_iframe" height="80"></iframe>
+  <div *ngIf="captchaSiteKey">
+    <app-captcha
+      [siteKey]="captchaSiteKey"
+      [token]="captchaToken"
+      (tokenChange)="setCaptchaToken($event)"
+    ></app-captcha>
   </div>
 
   <div class="tw-mb-3 tw-flex tw-space-x-4">

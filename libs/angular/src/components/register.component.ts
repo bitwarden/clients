@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, Output } from "@angular/core";
 import { AbstractControl, UntypedFormBuilder, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -16,6 +16,7 @@ import { PasswordGenerationService } from "@bitwarden/common/abstractions/passwo
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { DEFAULT_KDF_ITERATIONS, DEFAULT_KDF_TYPE } from "@bitwarden/common/enums/kdfType";
+import { Utils } from "@bitwarden/common/misc/utils";
 import { PasswordLogInCredentials } from "@bitwarden/common/models/domain/log-in-credentials";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
@@ -25,12 +26,13 @@ import { RegisterResponse } from "@bitwarden/common/models/response/authenticati
 import { PasswordColorText } from "../shared/components/password-strength/password-strength.component";
 import { InputsFieldMatch } from "../validators/inputsFieldMatch.validator";
 
-import { CaptchaProtectedComponent } from "./captchaProtected.component";
-
 @Directive()
-export class RegisterComponent extends CaptchaProtectedComponent implements OnInit {
+export class RegisterComponent {
   @Input() isInTrialFlow = false;
   @Output() createdAccount = new EventEmitter<string>();
+
+  protected captchaSiteKey?: string;
+  protected captchaToken?: string;
 
   showPassword = false;
   formPromise: Promise<RegisterResponse>;
@@ -78,21 +80,16 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     protected formBuilder: UntypedFormBuilder,
     protected authService: AuthService,
     protected router: Router,
-    i18nService: I18nService,
+    protected i18nService: I18nService,
     protected cryptoService: CryptoService,
     protected apiService: ApiService,
     protected stateService: StateService,
-    platformUtilsService: PlatformUtilsService,
+    protected platformUtilsService: PlatformUtilsService,
     protected passwordGenerationService: PasswordGenerationService,
-    environmentService: EnvironmentService,
+    protected environmentService: EnvironmentService,
     protected logService: LogService
   ) {
-    super(environmentService, i18nService, platformUtilsService);
     this.showTerms = !platformUtilsService.isSelfHost();
-  }
-
-  async ngOnInit() {
-    this.setupCaptcha();
   }
 
   async submit(showToast = true) {
@@ -136,6 +133,9 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
       }
     } catch (e) {
       this.logService.error(e);
+
+      // Invalidate the captcha
+      this.captchaToken = undefined;
     }
   }
 
@@ -295,5 +295,19 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
       return { captchaRequired: true };
     }
     return { captchaRequired: false };
+  }
+
+  private handleCaptchaRequired(response: any): boolean {
+    if (Utils.isNullOrWhitespace(response.captchaSiteKey)) {
+      return false;
+    }
+
+    this.captchaSiteKey = response.captchaSiteKey;
+    return true;
+  }
+
+  protected setCaptchaToken(token: string) {
+    this.captchaToken = token;
+    this.submit();
   }
 }

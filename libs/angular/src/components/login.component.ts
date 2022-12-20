@@ -22,10 +22,8 @@ import { Utils } from "@bitwarden/common/misc/utils";
 import { AuthResult } from "@bitwarden/common/models/domain/auth-result";
 import { PasswordLogInCredentials } from "@bitwarden/common/models/domain/log-in-credentials";
 
-import { CaptchaProtectedComponent } from "./captchaProtected.component";
-
 @Directive()
-export class LoginComponent extends CaptchaProtectedComponent implements OnInit {
+export class LoginComponent implements OnInit {
   showPassword = false;
   formPromise: Promise<AuthResult>;
   onSuccessfulLogin: () => Promise<any>;
@@ -36,6 +34,9 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   showLoginWithDevice: boolean;
   validatedEmail = false;
   paramEmailSet = false;
+
+  protected captchaSiteKey?: string;
+  protected captchaToken?: string;
 
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
@@ -56,10 +57,10 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     protected appIdService: AppIdService,
     protected authService: AuthService,
     protected router: Router,
-    platformUtilsService: PlatformUtilsService,
-    i18nService: I18nService,
+    protected platformUtilsService: PlatformUtilsService,
+    protected i18nService: I18nService,
     protected stateService: StateService,
-    environmentService: EnvironmentService,
+    protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
@@ -69,7 +70,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     protected route: ActivatedRoute,
     protected loginService: LoginService
   ) {
-    super(environmentService, i18nService, platformUtilsService);
     this.selfHosted = platformUtilsService.isSelfHost();
   }
 
@@ -107,8 +107,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   async submit(showToast = true) {
     const data = this.formGroup.value;
 
-    await this.setupCaptcha();
-
     this.formGroup.markAllAsTouched();
 
     //web
@@ -134,7 +132,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       const response = await this.formPromise;
       this.setFormValues();
       await this.loginService.saveEmailSettings();
-      if (this.handleCaptchaRequired(response)) {
+      if (!Utils.isNullOrWhitespace(response.captchaSiteKey)) {
+        this.captchaSiteKey = response.captchaSiteKey;
         return;
       } else if (response.requiresTwoFactor) {
         if (this.onSuccessfulLoginTwoFactorNavigate != null) {
@@ -162,6 +161,9 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       }
     } catch (e) {
       this.logService.error(e);
+
+      // Invalidate the captcha
+      this.captchaToken = undefined;
     }
   }
 
@@ -268,5 +270,10 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     } catch (e) {
       this.showLoginWithDevice = false;
     }
+  }
+
+  protected setCaptchaToken(token: string) {
+    this.captchaToken = token;
+    this.submit();
   }
 }

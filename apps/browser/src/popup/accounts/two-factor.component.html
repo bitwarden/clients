@@ -122,8 +122,12 @@
         </div>
       </div>
     </ng-container>
-    <div class="box-content-row" [hidden]="!showCaptcha()">
-      <iframe id="hcaptcha_iframe" height="80"></iframe>
+    <div class="box-content-row" *ngIf="captchaSiteKey">
+      <app-captcha
+        [siteKey]="captchaSiteKey"
+        [token]="captchaToken"
+        (tokenChange)="setCaptchaToken($event)"
+      ></app-captcha>
     </div>
     <div class="content" *ngIf="selectedProviderType == null">
       <p class="text-center">{{ "noTwoStepProviders" | i18n }}</p>

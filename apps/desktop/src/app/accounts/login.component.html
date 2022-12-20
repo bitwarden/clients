@@ -100,9 +100,14 @@
             </div>
           </div>
         </div>
-        <div class="box last" [hidden]="!showCaptcha()">
+        <div class="box last" *ngIf="captchaSiteKey">
           <div class="box-content">
-            <iframe id="hcaptcha_iframe" style="margin-top: 20px"></iframe>
+            <app-captcha
+              [siteKey]="captchaSiteKey"
+              [token]="captchaToken"
+              (tokenChange)="setCaptchaToken($event)"
+              style="display: block; padding-top: 20px"
+            ></app-captcha>
             <div class="box-content-row">
               <button
                 class="btn block"

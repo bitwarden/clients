@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { CaptchaProtectedComponent } from "@bitwarden/angular/components/captchaProtected.component";
 import { AnonymousHubService } from "@bitwarden/common/abstractions/anonymousHub.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AppIdService } from "@bitwarden/common/abstractions/appId.service";
@@ -30,10 +29,7 @@ import { StateService } from "../../core/state/state.service";
   selector: "app-login-with-device",
   templateUrl: "login-with-device.component.html",
 })
-export class LoginWithDeviceComponent
-  extends CaptchaProtectedComponent
-  implements OnInit, OnDestroy
-{
+export class LoginWithDeviceComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   email: string;
   showResendNotification = false;
@@ -65,8 +61,6 @@ export class LoginWithDeviceComponent
     private stateService: StateService,
     private loginService: LoginService
   ) {
-    super(environmentService, i18nService, platformUtilsService);
-
     const navigation = this.router.getCurrentNavigation();
     if (navigation) {
       this.email = this.loginService.getEmail();

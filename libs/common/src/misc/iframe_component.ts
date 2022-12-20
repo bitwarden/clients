@@ -1,4 +1,4 @@
-export abstract class IFrameComponent {
+export class IFrameComponent {
   iframe: HTMLIFrameElement;
   private connectorLink: HTMLAnchorElement;
   private parseFunction = this.parseMessage.bind(this);
@@ -43,7 +43,7 @@ export abstract class IFrameComponent {
     this.win.removeEventListener("message", this.parseFunction, false);
   }
 
-  protected createParams(data: any, version: number) {
+  createParams(data: any, version: number) {
     return new URLSearchParams({
       data: this.base64Encode(JSON.stringify(data)),
       parent: encodeURIComponent(this.win.document.location.href),
@@ -51,7 +51,7 @@ export abstract class IFrameComponent {
     });
   }
 
-  protected initComponent(params: URLSearchParams): void {
+  initComponent(params: URLSearchParams): void {
     this.connectorLink.href = `${this.webVaultUrl}/${this.path}?${params}`;
     this.iframe = this.win.document.getElementById(this.iframeId) as HTMLIFrameElement;
     this.iframe.src = this.connectorLink.href;

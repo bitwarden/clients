@@ -114,9 +114,15 @@
             <p>{{ "noTwoStepProviders2" | i18n }}</p>
           </ng-container>
           <hr />
-          <div [hidden]="!showCaptcha()">
-            <iframe id="hcaptcha_iframe" height="80"></iframe>
+
+          <div *ngIf="captchaSiteKey">
+            <app-captcha
+              [siteKey]="captchaSiteKey"
+              [token]="captchaToken"
+              (tokenChange)="setCaptchaToken($event)"
+            ></app-captcha>
           </div>
+
           <div class="d-flex mb-3">
             <button
               type="submit"

@@ -36,8 +36,12 @@
             </button>
           </div>
         </div>
-        <div class="box-content-row" [hidden]="!showCaptcha()">
-          <iframe id="hcaptcha_iframe" height="80"></iframe>
+        <div class="box-content-row" *ngIf="captchaSiteKey">
+          <app-captcha
+            [siteKey]="captchaSiteKey"
+            [token]="captchaToken"
+            (tokenChange)="setCaptchaToken($event)"
+          ></app-captcha>
         </div>
       </div>
       <div class="box-footer">

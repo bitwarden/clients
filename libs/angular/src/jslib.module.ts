@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { CalloutComponent } from "./components/callout.component";
+import { CaptchaComponent } from "./components/captcha.component";
 import { ExportScopeCalloutComponent } from "./components/export-scope-callout.component";
 import { IconComponent } from "./components/icon.component";
 import { BitwardenToastModule } from "./components/toastr.component";
@@ -49,6 +50,7 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     AutofocusDirective,
     BoxRowDirective,
     CalloutComponent,
+    CaptchaComponent,
     ColorPasswordCountPipe,
     ColorPasswordPipe,
     CreditCardNumberPipe,
@@ -60,6 +62,7 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     InputStripSpacesDirective,
     InputVerbatimDirective,
     NotPremiumDirective,
+    PasswordStrengthComponent,
     SearchCiphersPipe,
     SearchPipe,
     SelectCopyDirective,
@@ -69,7 +72,6 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
   ],
   exports: [
     A11yInvalidDirective,
@@ -79,6 +81,7 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     BitwardenToastModule,
     BoxRowDirective,
     CalloutComponent,
+    CaptchaComponent,
     ColorPasswordCountPipe,
     ColorPasswordPipe,
     CreditCardNumberPipe,
@@ -90,6 +93,7 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     InputStripSpacesDirective,
     InputVerbatimDirective,
     NotPremiumDirective,
+    PasswordStrengthComponent,
     SearchCiphersPipe,
     SearchPipe,
     SelectCopyDirective,
@@ -99,7 +103,6 @@ import { PasswordStrengthComponent } from "./shared/components/password-strength
     CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
   ],
   providers: [CreditCardNumberPipe, DatePipe, I18nPipe, SearchPipe, UserNamePipe],
 })

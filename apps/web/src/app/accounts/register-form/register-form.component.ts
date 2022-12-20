@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -21,7 +21,7 @@ import { ReferenceEventRequest } from "@bitwarden/common/models/request/referenc
   selector: "app-register-form",
   templateUrl: "./register-form.component.html",
 })
-export class RegisterFormComponent extends BaseRegisterComponent {
+export class RegisterFormComponent extends BaseRegisterComponent implements OnInit {
   @Input() queryParamEmail: string;
   @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions;
   @Input() referenceDataValue: ReferenceEventRequest;
@@ -60,7 +60,6 @@ export class RegisterFormComponent extends BaseRegisterComponent {
   }
 
   async ngOnInit() {
-    await super.ngOnInit();
     this.referenceData = this.referenceDataValue;
 
     if (this.queryParamEmail) {

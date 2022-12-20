@@ -24,7 +24,6 @@
 ./libs/angular/src/scss/webfonts/Open_Sans-normal-600.woff
 ./libs/angular/src/scss/webfonts/Open_Sans-normal-800.woff
 ./libs/angular/src/scss/webfonts/Open_Sans-normal-400.woff
-./libs/angular/src/components/captchaProtected.component.ts
 ./libs/angular/src/validators/inputsFieldMatch.validator.ts
 ./libs/angular/src/validators/notAllowedValueAsync.validator.ts
 ./libs/angular/src/services/passwordReprompt.service.ts

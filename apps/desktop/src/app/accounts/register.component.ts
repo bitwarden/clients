@@ -65,8 +65,6 @@ export class RegisterComponent extends BaseRegisterComponent implements OnInit, 
         }
       });
     });
-
-    super.ngOnInit();
   }
 
   ngOnDestroy() {

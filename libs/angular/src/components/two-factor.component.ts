@@ -14,16 +14,15 @@ import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUti
 import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { TwoFactorService } from "@bitwarden/common/abstractions/twoFactor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/enums/twoFactorProviderType";
+import { Utils } from "@bitwarden/common/misc/utils";
 import { WebAuthnIFrame } from "@bitwarden/common/misc/webauthn_iframe";
 import { AuthResult } from "@bitwarden/common/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/models/request/identity-token/token-two-factor.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/services/twoFactor.service";
 
-import { CaptchaProtectedComponent } from "./captchaProtected.component";
-
 @Directive()
-export class TwoFactorComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
+export class TwoFactorComponent implements OnInit, OnDestroy {
   token = "";
   remember = false;
   webAuthnReady = false;
@@ -48,6 +47,9 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected loginRoute = "login";
   protected successRoute = "vault";
 
+  protected captchaSiteKey?: string;
+  protected captchaToken?: string;
+
   constructor(
     protected authService: AuthService,
     protected router: Router,
@@ -63,7 +65,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected appIdService: AppIdService,
     protected loginService: LoginService
   ) {
-    super(environmentService, i18nService, platformUtilsService);
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
   }
 
@@ -161,8 +162,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async submit() {
-    await this.setupCaptcha();
-
     if (this.token == null || this.token === "") {
       this.platformUtilsService.showToast(
         "error",
@@ -195,36 +194,44 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async doSubmit() {
-    this.formPromise = this.authService.logInTwoFactor(
-      new TokenTwoFactorRequest(this.selectedProviderType, this.token, this.remember),
-      this.captchaToken
-    );
-    const response: AuthResult = await this.formPromise;
-    const disableFavicon = await this.stateService.getDisableFavicon();
-    await this.stateService.setDisableFavicon(!!disableFavicon);
-    if (this.handleCaptchaRequired(response)) {
-      return;
-    }
-    if (this.onSuccessfulLogin != null) {
-      this.loginService.clearValues();
-      this.onSuccessfulLogin();
-    }
-    if (response.resetMasterPassword) {
-      this.successRoute = "set-password";
-    }
-    if (response.forcePasswordReset) {
-      this.successRoute = "update-temp-password";
-    }
-    if (this.onSuccessfulLoginNavigate != null) {
-      this.loginService.clearValues();
-      this.onSuccessfulLoginNavigate();
-    } else {
-      this.loginService.clearValues();
-      this.router.navigate([this.successRoute], {
-        queryParams: {
-          identifier: this.identifier,
-        },
-      });
+    try {
+      this.formPromise = this.authService.logInTwoFactor(
+        new TokenTwoFactorRequest(this.selectedProviderType, this.token, this.remember),
+        this.captchaToken
+      );
+      const response: AuthResult = await this.formPromise;
+      const disableFavicon = await this.stateService.getDisableFavicon();
+      await this.stateService.setDisableFavicon(!!disableFavicon);
+      if (!Utils.isNullOrWhitespace(response.captchaSiteKey)) {
+        this.captchaSiteKey = response.captchaSiteKey;
+        return;
+      }
+      if (this.onSuccessfulLogin != null) {
+        this.loginService.clearValues();
+        this.onSuccessfulLogin();
+      }
+      if (response.resetMasterPassword) {
+        this.successRoute = "set-password";
+      }
+      if (response.forcePasswordReset) {
+        this.successRoute = "update-temp-password";
+      }
+      if (this.onSuccessfulLoginNavigate != null) {
+        this.loginService.clearValues();
+        this.onSuccessfulLoginNavigate();
+      } else {
+        this.loginService.clearValues();
+        this.router.navigate([this.successRoute], {
+          queryParams: {
+            identifier: this.identifier,
+          },
+        });
+      }
+    } catch (e) {
+      this.logService.debug(e);
+
+      // Invalidate the captcha
+      this.captchaToken = undefined;
     }
   }
 
@@ -288,5 +295,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
   get needsLock(): boolean {
     return this.authService.authingWithSso() || this.authService.authingWithUserApiKey();
+  }
+
+  protected setCaptchaToken(token: string) {
+    this.captchaToken = token;
+    this.submit();
   }
 }

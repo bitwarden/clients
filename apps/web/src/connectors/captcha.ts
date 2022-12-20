@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 let parentUrl: string = null;
 let parentOrigin: string = null;
 let mobileResponse: boolean = null;
-let sentSuccess = false;
 
 async function init() {
   await start();
@@ -26,8 +25,6 @@ async function init() {
 }
 
 async function start() {
-  sentSuccess = false;
-
   const data = getQsParam("data");
   if (!data) {
     error("No data.");
@@ -103,6 +100,10 @@ function onMessage() {
       if (event.data === "start") {
         start();
       }
+
+      if (event.data === "reload") {
+        hcaptcha.reset();
+      }
     },
     false
   );
@@ -113,11 +114,7 @@ function error(message: string) {
 }
 
 function success(data: string) {
-  if (sentSuccess) {
-    return;
-  }
   parent.postMessage("success|" + data, parentUrl);
-  sentSuccess = true;
 }
 
 function info(message: string | object) {
