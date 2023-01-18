@@ -105,10 +105,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   }
 
   async submit(showToast = true) {
-    const data = this.formGroup.value;
-
-    await this.setupCaptcha();
-
     this.formGroup.markAllAsTouched();
 
     //web
@@ -123,6 +119,10 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       return;
     }
 
+    const data = this.formGroup.value;
+
+    await this.setupCaptcha();
+
     try {
       const credentials = new PasswordLogInCredentials(
         data.email,
@@ -130,6 +130,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         this.captchaToken,
         null
       );
+      // TODO Remove formPromise when no clients use it
       this.formPromise = this.authService.logIn(credentials);
       const response = await this.formPromise;
       this.setFormValues();

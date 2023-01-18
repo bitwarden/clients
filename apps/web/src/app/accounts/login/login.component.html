@@ -1,10 +1,4 @@
-<form
-  #form
-  (ngSubmit)="submit()"
-  [appApiAction]="formPromise"
-  class="tw-container tw-mx-auto"
-  [formGroup]="formGroup"
->
+<form #form [bitSubmit]="submitHandler" class="tw-container tw-mx-auto" [formGroup]="formGroup">
   <div
     class="tw-mx-auto tw-mt-5 tw-flex tw-max-w-lg tw-flex-col tw-items-center tw-justify-center tw-p-8"
   >
@@ -61,65 +55,65 @@
       </div>
     </div>
   </div>
+
+  <ng-template #loginPage>
+    <div class="tw-mb-6 tw-h-28">
+      <bit-form-field class="!tw-mb-1">
+        <bit-label>{{ "masterPass" | i18n }}</bit-label>
+        <input
+          id="login_input_master-password"
+          type="password"
+          bitInput
+          formControlName="masterPassword"
+          appAutofocus
+        />
+        <button type="button" bitSuffix bitButton bitPasswordInputToggle></button>
+      </bit-form-field>
+      <a class="-tw-mt-2" routerLink="/hint" (mousedown)="goToHint()" (click)="setFormValues()">{{
+        "getMasterPasswordHint" | i18n
+      }}</a>
+    </div>
+
+    <div [hidden]="!showCaptcha()">
+      <iframe id="hcaptcha_iframe" height="80"></iframe>
+    </div>
+
+    <div class="tw-mb-3 tw-flex tw-space-x-4">
+      <button bitButton bitFormButton buttonType="primary" type="submit" [block]="true">
+        <span> {{ "loginWithMasterPassword" | i18n }} </span>
+      </button>
+    </div>
+
+    <div class="tw-mb-3" *ngIf="showLoginWithDevice && showPasswordless">
+      <button
+        bitButton
+        type="button"
+        [block]="true"
+        buttonType="secondary"
+        (click)="startPasswordlessLogin()"
+      >
+        <span> <i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }} </span>
+      </button>
+    </div>
+
+    <div class="tw-mb-3">
+      <a
+        routerLink="/sso"
+        (click)="saveEmailSettings()"
+        bitButton
+        buttonType="secondary"
+        class="tw-w-full"
+      >
+        <i class="bwi bwi-provider tw-mr-2"></i>
+        {{ "enterpriseSingleSignOn" | i18n }}
+      </a>
+    </div>
+
+    <hr />
+
+    <div class="tw-m-0 tw-text-sm">
+      <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
+      <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
+    </div>
+  </ng-template>
 </form>
-
-<ng-template [formGroup]="formGroup" #loginPage>
-  <div class="tw-mb-6 tw-h-28">
-    <bit-form-field class="!tw-mb-1">
-      <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input
-        id="login_input_master-password"
-        type="password"
-        bitInput
-        formControlName="masterPassword"
-        appAutofocus
-      />
-      <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
-    </bit-form-field>
-    <a class="-tw-mt-2" routerLink="/hint" (mousedown)="goToHint()" (click)="setFormValues()">{{
-      "getMasterPasswordHint" | i18n
-    }}</a>
-  </div>
-
-  <div [hidden]="!showCaptcha()">
-    <iframe id="hcaptcha_iframe" height="80"></iframe>
-  </div>
-
-  <div class="tw-mb-3 tw-flex tw-space-x-4">
-    <button bitButton buttonType="primary" type="submit" [block]="true" [loading]="form.loading">
-      <span> {{ "loginWithMasterPassword" | i18n }} </span>
-    </button>
-  </div>
-
-  <div class="tw-mb-3" *ngIf="showLoginWithDevice && showPasswordless">
-    <button
-      bitButton
-      type="button"
-      [block]="true"
-      buttonType="secondary"
-      (click)="startPasswordlessLogin()"
-    >
-      <span> <i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }} </span>
-    </button>
-  </div>
-
-  <div class="tw-mb-3">
-    <a
-      routerLink="/sso"
-      (click)="saveEmailSettings()"
-      bitButton
-      buttonType="secondary"
-      class="tw-w-full"
-    >
-      <i class="bwi bwi-provider tw-mr-2"></i>
-      {{ "enterpriseSingleSignOn" | i18n }}
-    </a>
-  </div>
-
-  <hr />
-
-  <div class="tw-m-0 tw-text-sm">
-    <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
-    <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
-  </div>
-</ng-template>
