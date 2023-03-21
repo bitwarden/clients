@@ -11,6 +11,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { Account } from "@bitwarden/common/models/domain/account";
+import { Guid } from "@bitwarden/common/types/guid";
 
 type ActiveAccount = {
   id: string;
@@ -153,21 +154,22 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   }
 
   private async createSwitcherAccounts(baseAccounts: {
-    [userId: string]: Account;
-  }): Promise<{ [userId: string]: SwitcherAccount }> {
-    const switcherAccounts: { [userId: string]: SwitcherAccount } = {};
+    [userId: Guid]: Account;
+  }): Promise<{ [userId: Guid]: SwitcherAccount }> {
+    const switcherAccounts: { [userId: Guid]: SwitcherAccount } = {};
     for (const userId in baseAccounts) {
-      if (userId == null || userId === (await this.stateService.getUserId())) {
+      const id = userId as Guid;
+      if (id == null || userId === (await this.stateService.getUserId())) {
         continue;
       }
 
       // environmentUrls are stored on disk and must be retrieved seperatly from the in memory state offered from subscribing to accounts
-      baseAccounts[userId].settings.environmentUrls = await this.stateService.getEnvironmentUrls({
-        userId: userId,
+      baseAccounts[id].settings.environmentUrls = await this.stateService.getEnvironmentUrls({
+        userId: id,
       });
-      switcherAccounts[userId] = new SwitcherAccount(baseAccounts[userId]);
-      switcherAccounts[userId].avatarColor = await this.stateService.getAvatarColor({
-        userId: userId,
+      switcherAccounts[id] = new SwitcherAccount(baseAccounts[id]);
+      switcherAccounts[id].avatarColor = await this.stateService.getAvatarColor({
+        userId: id,
       });
     }
     return switcherAccounts;

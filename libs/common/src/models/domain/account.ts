@@ -7,6 +7,7 @@ import { UriMatchType } from "../../enums/uriMatchType";
 import { Utils } from "../../misc/utils";
 import { GeneratedPasswordHistory } from "../../tools/generator/password";
 import { DeepJsonify } from "../../types/deep-jsonify";
+import { Guid } from "../../types/guid";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
@@ -94,8 +95,8 @@ export class AccountData {
   > = new EncryptionPair<GeneratedPasswordHistory[], GeneratedPasswordHistory[]>();
   addEditCipherInfo?: any;
   eventCollection?: EventData[];
-  organizations?: { [id: string]: OrganizationData };
-  providers?: { [id: string]: ProviderData };
+  organizations?: { [id: Guid]: OrganizationData };
+  providers?: { [id: Guid]: ProviderData };
 }
 
 export class AccountKeys {
@@ -108,11 +109,11 @@ export class AccountKeys {
     SymmetricCryptoKey
   >();
   organizationKeys?: EncryptionPair<
-    { [orgId: string]: EncryptedOrganizationKeyData },
-    Record<string, SymmetricCryptoKey>
+    { [orgId: Guid]: EncryptedOrganizationKeyData },
+    Record<Guid, SymmetricCryptoKey>
   > = new EncryptionPair<
-    { [orgId: string]: EncryptedOrganizationKeyData },
-    Record<string, SymmetricCryptoKey>
+    { [orgId: Guid]: EncryptedOrganizationKeyData },
+    Record<Guid, SymmetricCryptoKey>
   >();
   providerKeys?: EncryptionPair<any, Record<string, SymmetricCryptoKey>> = new EncryptionPair<
     any,
@@ -178,14 +179,14 @@ export class AccountProfile {
   name?: string;
   email?: string;
   emailVerified?: boolean;
-  entityId?: string;
+  entityId?: Guid;
   entityType?: string;
   everBeenUnlocked?: boolean;
   forcePasswordReset?: boolean;
   hasPremiumPersonally?: boolean;
   hasPremiumFromOrganization?: boolean;
   lastSync?: string;
-  userId?: string;
+  userId?: Guid;
   usesKeyConnector?: boolean;
   keyHash?: string;
   kdfIterations?: number;

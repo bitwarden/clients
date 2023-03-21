@@ -1,8 +1,9 @@
 import { EventType } from "../../enums/eventType";
+import { Guid } from "../../types/guid";
 
 export class EventRequest {
   type: EventType;
-  cipherId: string;
+  cipherId: Guid;
   date: string;
-  organizationId: string;
+  organizationId: Guid;
 }

@@ -1,14 +1,15 @@
 import { ProviderUserStatusType } from "../../enums/providerUserStatusType";
 import { ProviderUserType } from "../../enums/providerUserType";
+import { Guid } from "../../types/guid";
 import { ProviderData } from "../data/provider.data";
 
 export class Provider {
-  id: string;
+  id: Guid;
   name: string;
   status: ProviderUserStatusType;
   type: ProviderUserType;
   enabled: boolean;
-  userId: string;
+  userId: Guid;
   useEvents: boolean;
 
   constructor(obj?: ProviderData) {

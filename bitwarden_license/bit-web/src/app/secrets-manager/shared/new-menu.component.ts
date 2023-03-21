@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import {
@@ -23,7 +24,7 @@ import {
   templateUrl: "./new-menu.component.html",
 })
 export class NewMenuComponent implements OnInit, OnDestroy {
-  private organizationId: string;
+  private organizationId: Guid;
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(private route: ActivatedRoute, private dialogService: DialogService) {}

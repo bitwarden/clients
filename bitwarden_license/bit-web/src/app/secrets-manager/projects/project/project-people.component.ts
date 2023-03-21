@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { map, Observable, share, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ValidationService } from "@bitwarden/common/abstractions/validation.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService, SelectItemView } from "@bitwarden/components";
 
 import {
@@ -26,8 +27,8 @@ import {
 })
 export class ProjectPeopleComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private organizationId: string;
-  private projectId: string;
+  private organizationId: Guid;
+  private projectId: Guid;
   private rows: AccessSelectorRowView[];
 
   protected rows$: Observable<AccessSelectorRowView[]> =
@@ -75,7 +76,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
       .map((filtered) => {
         const view = new UserProjectAccessPolicyView();
         view.grantedProjectId = this.projectId;
-        view.organizationUserId = filtered.id;
+        view.organizationUserId = filtered.id as Guid;
         view.read = true;
         view.write = false;
         return view;
@@ -86,7 +87,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
       .map((filtered) => {
         const view = new GroupProjectAccessPolicyView();
         view.grantedProjectId = this.projectId;
-        view.groupId = filtered.id;
+        view.groupId = filtered.id as Guid;
         view.read = true;
         view.write = false;
         return view;

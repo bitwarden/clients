@@ -1,8 +1,10 @@
+import { Guid } from "../../types/guid";
+
 export class VerifyDeleteRecoverRequest {
-  userId: string;
+  userId: Guid;
   token: string;
 
-  constructor(userId: string, token: string) {
+  constructor(userId: Guid, token: string) {
     this.userId = userId;
     this.token = token;
   }

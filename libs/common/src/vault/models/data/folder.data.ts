@@ -1,7 +1,8 @@
+import { Guid } from "../../../types/guid";
 import { FolderResponse } from "../response/folder.response";
 
 export class FolderData {
-  id: string;
+  id: Guid;
   name: string;
   revisionDate: string;
 

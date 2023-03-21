@@ -35,6 +35,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -101,7 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private modal: ModalRef = null;
   private idleTimer: number = null;
   private isIdle = false;
-  private activeUserId: string = null;
+  private activeUserId: Guid = null;
 
   private destroy$ = new Subject<void>();
 
@@ -468,16 +469,17 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       const accounts: { [userId: string]: any } = {};
       for (const i in stateAccounts) {
-        if (i != null && stateAccounts[i]?.profile?.userId != null) {
-          const userId = stateAccounts[i].profile.userId;
+        const id = i as Guid;
+        if (id != null && stateAccounts[id]?.profile?.userId != null) {
+          const userId = stateAccounts[id].profile.userId;
           accounts[userId] = {
             isAuthenticated: await this.stateService.getIsAuthenticated({
               userId: userId,
             }),
             isLocked:
               (await this.authService.getAuthStatus(userId)) === AuthenticationStatus.Locked,
-            email: stateAccounts[i].profile.email,
-            userId: stateAccounts[i].profile.userId,
+            email: stateAccounts[id].profile.email,
+            userId: stateAccounts[id].profile.userId,
           };
         }
       }
@@ -491,7 +493,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.messagingService.send("updateAppMenu", { updateRequest: updateRequest });
   }
 
-  private async logOut(expired: boolean, userId?: string) {
+  private async logOut(expired: boolean, userId?: Guid) {
     const userBeingLoggedOut = await this.stateService.getUserId({ userId: userId });
     await Promise.all([
       this.eventUploadService.uploadEvents(userBeingLoggedOut),
@@ -624,19 +626,18 @@ export class AppComponent implements OnInit, OnDestroy {
   private async checkForSystemTimeout(timeout: number): Promise<void> {
     const accounts = await firstValueFrom(this.stateService.accounts$);
     for (const userId in accounts) {
-      if (userId == null) {
+      const id = userId as Guid;
+      if (id == null) {
         continue;
       }
-      const options = await this.getVaultTimeoutOptions(userId);
+      const options = await this.getVaultTimeoutOptions(id);
       if (options[0] === timeout) {
-        options[1] === "logOut"
-          ? this.logOut(false, userId)
-          : await this.vaultTimeoutService.lock(userId);
+        options[1] === "logOut" ? this.logOut(false, id) : await this.vaultTimeoutService.lock(id);
       }
     }
   }
 
-  private async getVaultTimeoutOptions(userId: string): Promise<[number, string]> {
+  private async getVaultTimeoutOptions(userId: Guid): Promise<[number, string]> {
     const timeout = await this.stateService.getVaultTimeout({ userId: userId });
     const action = await this.stateService.getVaultTimeoutAction({ userId: userId });
     return [timeout, action];

@@ -1,10 +1,11 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { SecretProjectResponse } from "./secret-project.response";
 
 export class SecretListItemResponse extends BaseResponse {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   name: string;
   creationDate: string;
   revisionDate: string;

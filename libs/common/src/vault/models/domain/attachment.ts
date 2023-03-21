@@ -4,6 +4,7 @@ import { Utils } from "../../../misc/utils";
 import Domain from "../../../models/domain/domain-base";
 import { EncString } from "../../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { AttachmentData } from "../data/attachment.data";
 import { AttachmentView } from "../view/attachment.view";
 
@@ -36,7 +37,7 @@ export class Attachment extends Domain {
     );
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<AttachmentView> {
+  async decrypt(orgId: Guid, encKey?: SymmetricCryptoKey): Promise<AttachmentView> {
     const view = await this.decryptObj(
       new AttachmentView(this),
       {
@@ -53,7 +54,7 @@ export class Attachment extends Domain {
     return view;
   }
 
-  private async decryptAttachmentKey(orgId: string, encKey?: SymmetricCryptoKey) {
+  private async decryptAttachmentKey(orgId: Guid, encKey?: SymmetricCryptoKey) {
     try {
       if (encKey == null) {
         encKey = await this.getKeyForDecryption(orgId);
@@ -67,7 +68,7 @@ export class Attachment extends Domain {
     }
   }
 
-  private async getKeyForDecryption(orgId: string) {
+  private async getKeyForDecryption(orgId: Guid) {
     const cryptoService = Utils.getContainerService().getCryptoService();
     return orgId != null
       ? await cryptoService.getOrgKey(orgId)

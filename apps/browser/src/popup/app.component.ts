@@ -17,6 +17,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { BrowserApi } from "../browser/browserApi";
 import { BrowserStateService } from "../services/abstractions/browser-state.service";
@@ -33,7 +34,7 @@ import { routerTransition } from "./app-routing.animations";
 })
 export class AppComponent implements OnInit, OnDestroy {
   private lastActivity: number = null;
-  private activeUserId: string;
+  private activeUserId: Guid;
 
   private destroy$ = new Subject<void>();
 

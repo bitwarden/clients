@@ -1,13 +1,14 @@
 import { View } from "@bitwarden/common/models/view/view";
+import { Guid } from "@bitwarden/common/types/guid";
 
 interface SelectionResponseLike {
-  id: string;
+  id: Guid;
   readOnly: boolean;
   hidePasswords: boolean;
 }
 
 export class CollectionAccessSelectionView extends View {
-  readonly id: string;
+  readonly id: Guid;
   readonly readOnly: boolean;
   readonly hidePasswords: boolean;
 

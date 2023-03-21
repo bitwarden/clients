@@ -13,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUti
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -35,7 +36,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
   groupingTitle: string;
   state: BrowserComponentState;
   folderId: string = null;
-  collectionId: string = null;
+  collectionId: Guid = null;
   type: CipherType = null;
   nestedFolders: TreeNode<FolderView>[];
   nestedCollections: TreeNode<CollectionView>[];

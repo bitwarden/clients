@@ -9,9 +9,10 @@ import { BillingSyncConfigApi } from "@bitwarden/common/models/api/billing-sync-
 import { BillingSyncConfigRequest } from "@bitwarden/common/models/request/billing-sync-config.request";
 import { OrganizationConnectionRequest } from "@bitwarden/common/models/request/organization-connection.request";
 import { OrganizationConnectionResponse } from "@bitwarden/common/models/response/organization-connection.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 export interface BillingSyncKeyModalData {
-  entityId: string;
+  entityId: Guid;
   existingConnectionId: string;
   billingSyncKey: string;
   setParentConnection: (connection: OrganizationConnectionResponse<BillingSyncConfigApi>) => void;
@@ -22,7 +23,7 @@ export interface BillingSyncKeyModalData {
   templateUrl: "billing-sync-key.component.html",
 })
 export class BillingSyncKeyComponent {
-  entityId: string;
+  entityId: Guid;
   existingConnectionId: string;
   billingSyncKey: string;
   setParentConnection: (connection: OrganizationConnectionResponse<BillingSyncConfigApi>) => void;

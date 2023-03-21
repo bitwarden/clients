@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { map, Observable, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ValidationService } from "@bitwarden/common/abstractions/validation.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { SelectItemView } from "@bitwarden/components";
 
 import {
@@ -21,8 +22,8 @@ import {
 })
 export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private organizationId: string;
-  private projectId: string;
+  private organizationId: Guid;
+  private projectId: Guid;
 
   protected rows$: Observable<AccessSelectorRowView[]> =
     this.accessPolicyService.projectAccessPolicyChanges$.pipe(
@@ -53,7 +54,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
       .map((filtered) => {
         const view = new ServiceAccountProjectAccessPolicyView();
         view.grantedProjectId = this.projectId;
-        view.serviceAccountId = filtered.id;
+        view.serviceAccountId = filtered.id as Guid;
         view.read = true;
         view.write = false;
         return view;

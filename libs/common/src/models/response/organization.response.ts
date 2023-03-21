@@ -1,10 +1,11 @@
 import { PlanType } from "../../enums/planType";
+import { Guid } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
 import { PlanResponse } from "./plan.response";
 
 export class OrganizationResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   businessName: string;
   businessAddress1: string;
@@ -31,7 +32,7 @@ export class OrganizationResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.name = this.getResponseProperty("Name");
     this.businessName = this.getResponseProperty("BusinessName");
     this.businessAddress1 = this.getResponseProperty("BusinessAddress1");

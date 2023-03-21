@@ -1,8 +1,9 @@
+import { Guid } from "../../types/guid";
 import { CollectionDetailsResponse } from "../response/collection.response";
 
 export class CollectionData {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   name: string;
   externalId: string;
   readOnly: boolean;

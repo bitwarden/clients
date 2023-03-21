@@ -1,8 +1,10 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 import { SecretProjectView } from "./secret-project.view";
 
 export class SecretView {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   name: string;
   value: string;
   note: string;

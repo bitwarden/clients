@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
@@ -14,8 +15,8 @@ export enum OperationType {
 }
 
 export interface ServiceAccountOperation {
-  organizationId: string;
-  serviceAccountId?: string;
+  organizationId: Guid;
+  serviceAccountId?: Guid;
   operation: OperationType;
 }
 

@@ -5,6 +5,7 @@ import { I18nService } from "../../../abstractions/i18n.service";
 import { StateService } from "../../../abstractions/state.service";
 import { Utils } from "../../../misc/utils";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../../vault/models/data/cipher.data";
@@ -124,7 +125,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     await this.stateService.setEncryptedFolders(folders);
   }
 
-  async clear(userId?: string): Promise<any> {
+  async clear(userId?: Guid): Promise<any> {
     if (userId == null || userId == (await this.stateService.getUserId())) {
       this._folders.next([]);
       this._folderViews.next([]);

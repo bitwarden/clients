@@ -4,6 +4,7 @@ import { LinkedIdType } from "../../../enums/linkedIdType";
 import { InitializerMetadata } from "../../../interfaces/initializer-metadata.interface";
 import { View } from "../../../models/view/view";
 import { InitializerKey } from "../../../services/cryptography/initializer-key";
+import { Guid } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { LocalData } from "../data/local.data";
@@ -20,9 +21,9 @@ import { SecureNoteView } from "./secure-note.view";
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
-  id: string = null;
-  organizationId: string = null;
-  folderId: string = null;
+  id: Guid = null;
+  organizationId: Guid = null;
+  folderId: Guid = null;
   name: string = null;
   notes: string = null;
   type: CipherType = null;
@@ -38,7 +39,7 @@ export class CipherView implements View, InitializerMetadata {
   attachments: AttachmentView[] = null;
   fields: FieldView[] = null;
   passwordHistory: PasswordHistoryView[] = null;
-  collectionIds: string[] = null;
+  collectionIds: Guid[] = null;
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;

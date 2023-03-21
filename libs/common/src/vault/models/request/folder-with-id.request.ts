@@ -1,9 +1,10 @@
+import { Guid } from "../../../types/guid";
 import { Folder } from "../domain/folder";
 
 import { FolderRequest } from "./folder.request";
 
 export class FolderWithIdRequest extends FolderRequest {
-  id: string;
+  id: Guid;
 
   constructor(folder: Folder) {
     super(folder);

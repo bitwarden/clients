@@ -130,9 +130,9 @@ describe("VaultFilter", () => {
 
     describe("given a cipher with folder id", () => {
       it("should return true when filter matches folder id", () => {
-        const cipher = createCipher({ folderId: "folderId" });
+        const cipher = createCipher({ folderId: "folderId" } as any);
         const filterFunction = createFilterFunction({
-          selectedFolderNode: createFolderFilterNode({ id: "folderId" }),
+          selectedFolderNode: createFolderFilterNode({ id: "folderId" } as any),
         });
 
         const result = filterFunction(cipher);
@@ -141,9 +141,9 @@ describe("VaultFilter", () => {
       });
 
       it("should return false when filter does not match folder id", () => {
-        const cipher = createCipher({ folderId: "folderId" });
+        const cipher = createCipher({ folderId: "folderId" } as any);
         const filterFunction = createFilterFunction({
-          selectedFolderNode: createFolderFilterNode({ id: "differentFolderId" }),
+          selectedFolderNode: createFolderFilterNode({ id: "differentFolderId" } as any),
         });
 
         const result = filterFunction(cipher);
@@ -170,14 +170,14 @@ describe("VaultFilter", () => {
       const cipher = createCipher({
         organizationId: "organizationId",
         collectionIds: ["collectionId", "anotherId"],
-      });
+      } as any);
 
       it("should return true when filter matches collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollectionNode: createCollectionFilterNode({
             id: "collectionId",
             organizationId: "organizationId",
-          }),
+          } as any),
         });
 
         const result = filterFunction(cipher);
@@ -190,7 +190,7 @@ describe("VaultFilter", () => {
           selectedCollectionNode: createCollectionFilterNode({
             id: "nonMatchingCollectionId",
             organizationId: "organizationId",
-          }),
+          } as any),
         });
 
         const result = filterFunction(cipher);
@@ -202,7 +202,7 @@ describe("VaultFilter", () => {
         const filterFunction = createFilterFunction({
           selectedOrganizationNode: createOrganizationFilterNode({
             id: "nonMatchingOrganizationId",
-          }),
+          } as any),
         });
 
         const result = filterFunction(cipher);
@@ -212,7 +212,7 @@ describe("VaultFilter", () => {
 
       it("should return false when filtering for my vault only", () => {
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" }),
+          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" } as any),
         });
 
         const result = filterFunction(cipher);
@@ -222,7 +222,7 @@ describe("VaultFilter", () => {
 
       it("should return false when filtering by All Collections", () => {
         const filterFunction = createFilterFunction({
-          selectedCollectionNode: createCollectionFilterNode({ id: "AllCollections" }),
+          selectedCollectionNode: createCollectionFilterNode({ id: "AllCollections" } as any),
         });
 
         const result = filterFunction(cipher);
@@ -232,7 +232,7 @@ describe("VaultFilter", () => {
     });
 
     describe("given an unassigned organizational cipher (with organization, without collection)", () => {
-      const cipher = createCipher({ organizationId: "organizationId", collectionIds: [] });
+      const cipher = createCipher({ organizationId: "organizationId", collectionIds: [] } as any);
 
       it("should return true when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({
@@ -246,7 +246,7 @@ describe("VaultFilter", () => {
 
       it("should return true when filter matches organization id", () => {
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "organizationId" }),
+          selectedOrganizationNode: createOrganizationFilterNode({ id: "organizationId" } as any),
         });
 
         const result = filterFunction(cipher);
@@ -271,7 +271,7 @@ describe("VaultFilter", () => {
       it("should return true when filtering for my vault only", () => {
         const cipher = createCipher({ organizationId: null });
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" }),
+          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" } as any),
         });
 
         const result = filterFunction(cipher);

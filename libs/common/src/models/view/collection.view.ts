@@ -1,3 +1,4 @@
+import { Guid } from "../../types/guid";
 import { Collection } from "../domain/collection";
 import { ITreeNodeObject } from "../domain/tree-node";
 import { CollectionAccessDetailsResponse } from "../response/collection.response";
@@ -5,8 +6,8 @@ import { CollectionAccessDetailsResponse } from "../response/collection.response
 import { View } from "./view";
 
 export class CollectionView implements View, ITreeNodeObject {
-  id: string = null;
-  organizationId: string = null;
+  id: Guid = null;
+  organizationId: Guid = null;
   name: string = null;
   externalId: string = null;
   readOnly: boolean = null;

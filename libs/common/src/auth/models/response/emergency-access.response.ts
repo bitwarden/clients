@@ -1,12 +1,13 @@
 import { KdfType } from "../../../enums/kdfType";
 import { BaseResponse } from "../../../models/response/base.response";
+import { Guid } from "../../../types/guid";
 import { CipherResponse } from "../../../vault/models/response/cipher.response";
 import { EmergencyAccessStatusType } from "../../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../enums/emergency-access-type";
 
 export class EmergencyAccessGranteeDetailsResponse extends BaseResponse {
-  id: string;
-  granteeId: string;
+  id: Guid;
+  granteeId: Guid;
   name: string;
   email: string;
   type: EmergencyAccessType;
@@ -17,8 +18,8 @@ export class EmergencyAccessGranteeDetailsResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.granteeId = this.getResponseProperty("GranteeId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.granteeId = this.getResponseProperty<Guid>("GranteeId");
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.type = this.getResponseProperty("Type");
@@ -30,8 +31,8 @@ export class EmergencyAccessGranteeDetailsResponse extends BaseResponse {
 }
 
 export class EmergencyAccessGrantorDetailsResponse extends BaseResponse {
-  id: string;
-  grantorId: string;
+  id: Guid;
+  grantorId: Guid;
   name: string;
   email: string;
   type: EmergencyAccessType;
@@ -42,8 +43,8 @@ export class EmergencyAccessGrantorDetailsResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.grantorId = this.getResponseProperty("GrantorId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.grantorId = this.getResponseProperty<Guid>("GrantorId");
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.type = this.getResponseProperty("Type");

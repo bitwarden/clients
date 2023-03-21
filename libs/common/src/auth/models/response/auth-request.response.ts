@@ -1,10 +1,11 @@
 import { DeviceType } from "../../../enums/deviceType";
 import { BaseResponse } from "../../../models/response/base.response";
+import { Guid } from "../../../types/guid";
 
 const RequestTimeOut = 60000 * 15; //15 Minutes
 
 export class AuthRequestResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   publicKey: string;
   requestDeviceType: DeviceType;
   requestIpAddress: string;
@@ -18,7 +19,7 @@ export class AuthRequestResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.publicKey = this.getResponseProperty("PublicKey");
     this.requestDeviceType = this.getResponseProperty("RequestDeviceType");
     this.requestIpAddress = this.getResponseProperty("RequestIpAddress");

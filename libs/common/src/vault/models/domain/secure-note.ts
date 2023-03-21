@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { SecureNoteType } from "../../../enums/secureNoteType";
 import Domain from "../../../models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { SecureNoteData } from "../data/secure-note.data";
 import { SecureNoteView } from "../view/secure-note.view";
 
@@ -18,7 +19,7 @@ export class SecureNote extends Domain {
     this.type = obj.type;
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SecureNoteView> {
+  decrypt(orgId: Guid, encKey?: SymmetricCryptoKey): Promise<SecureNoteView> {
     return Promise.resolve(new SecureNoteView(this));
   }
 

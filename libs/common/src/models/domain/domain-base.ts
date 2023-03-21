@@ -1,3 +1,4 @@
+import { Guid } from "../../types/guid";
 import { View } from "../view/view";
 
 import { EncString } from "./enc-string";
@@ -49,7 +50,7 @@ export default class Domain {
   protected async decryptObj<T extends View>(
     viewModel: T,
     map: any,
-    orgId: string,
+    orgId: Guid,
     key: SymmetricCryptoKey = null
   ): Promise<T> {
     const promises = [];

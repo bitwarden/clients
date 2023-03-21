@@ -11,6 +11,7 @@ import { VaultTimeoutSettingsService } from "../../abstractions/vaultTimeout/vau
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { KeyConnectorService } from "../../auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { Guid } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 
@@ -56,13 +57,14 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     const accounts = await firstValueFrom(this.stateService.accounts$);
     for (const userId in accounts) {
-      if (userId != null && (await this.shouldLock(userId))) {
-        await this.executeTimeoutAction(userId);
+      const id = userId as Guid;
+      if (id != null && (await this.shouldLock(id))) {
+        await this.executeTimeoutAction(id);
       }
     }
   }
 
-  async lock(userId?: string): Promise<void> {
+  async lock(userId?: Guid): Promise<void> {
     const authed = await this.stateService.getIsAuthenticated({ userId: userId });
     if (!authed) {
       return;
@@ -107,7 +109,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     }
   }
 
-  private async shouldLock(userId: string): Promise<boolean> {
+  private async shouldLock(userId: Guid): Promise<boolean> {
     const authStatus = await this.authService.getAuthStatus(userId);
     if (
       authStatus === AuthenticationStatus.Locked ||
@@ -131,7 +133,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     return diffSeconds >= vaultTimeoutSeconds;
   }
 
-  private async executeTimeoutAction(userId: string): Promise<void> {
+  private async executeTimeoutAction(userId: Guid): Promise<void> {
     const timeoutAction = await this.stateService.getVaultTimeoutAction({ userId: userId });
     timeoutAction === "logOut" ? await this.logOut(userId) : await this.lock(userId);
   }

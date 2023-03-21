@@ -1,6 +1,8 @@
+import { Guid } from "../../types/guid";
+
 export class BitPayInvoiceRequest {
-  userId: string;
-  organizationId: string;
+  userId: Guid;
+  organizationId: Guid;
   credit: boolean;
   amount: number;
   returnUrl: string;

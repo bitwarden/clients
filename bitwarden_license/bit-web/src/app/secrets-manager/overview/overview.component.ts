@@ -17,6 +17,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { OrganizationService } from "@bitwarden/common/abstractions/organization/organization.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { StateService } from "@bitwarden/common/abstractions/state.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../models/view/project-list.view";
@@ -65,7 +66,7 @@ type OrganizationTasks = {
 export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   private tableSize = 10;
-  private organizationId: string;
+  private organizationId: Guid;
   protected organizationName: string;
   protected userIsAdmin: boolean;
   protected showOnboarding = false;
@@ -203,7 +204,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   // Projects ---
 
-  openEditProject(projectId: string) {
+  openEditProject(projectId: Guid) {
     this.dialogService.open<unknown, ProjectOperation>(ProjectDialogComponent, {
       data: {
         organizationId: this.organizationId,
@@ -250,7 +251,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     });
   }
 
-  openEditSecret(secretId: string) {
+  openEditSecret(secretId: Guid) {
     this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,

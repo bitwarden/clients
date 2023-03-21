@@ -15,6 +15,7 @@ import { SsoLogInCredentials } from "@bitwarden/common/auth/models/domain/log-in
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Guid } from "@bitwarden/common/types/guid";
 
 @Directive()
 export class SsoComponent {
@@ -172,7 +173,7 @@ export class SsoComponent {
     return authorizeUrl;
   }
 
-  private async logIn(code: string, codeVerifier: string, orgIdFromState: string) {
+  private async logIn(code: string, codeVerifier: string, orgIdFromState: Guid) {
     this.loggingIn = true;
     try {
       const credentials = new SsoLogInCredentials(
@@ -237,13 +238,13 @@ export class SsoComponent {
     this.loggingIn = false;
   }
 
-  private getOrgIdentifierFromState(state: string): string {
+  private getOrgIdentifierFromState(state: string): Guid {
     if (state === null || state === undefined) {
       return null;
     }
 
     const stateSplit = state.split("_identifier=");
-    return stateSplit.length > 1 ? stateSplit[1] : null;
+    return (stateSplit.length > 1 ? stateSplit[1] : null) as Guid;
   }
 
   private checkState(state: string, checkState: string): boolean {

@@ -1,6 +1,7 @@
 import { SendService } from "@bitwarden/common/abstractions/send.service";
 import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { SendType } from "@bitwarden/common/enums/sendType";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { Response } from "../../models/response";
 import { SendResponse } from "../../models/response/send.response";
@@ -42,7 +43,7 @@ export class SendEditCommand {
     req.id = normalizedOptions.itemId || req.id;
 
     if (req.id != null) {
-      req.id = req.id.toLowerCase();
+      req.id = req.id.toLowerCase() as Guid;
     }
 
     const send = await this.sendService.get(req.id);
@@ -82,7 +83,7 @@ export class SendEditCommand {
 }
 
 class Options {
-  itemId: string;
+  itemId: Guid;
 
   constructor(passedOptions: Record<string, any>) {
     this.itemId = passedOptions?.itemId || passedOptions?.itemid;

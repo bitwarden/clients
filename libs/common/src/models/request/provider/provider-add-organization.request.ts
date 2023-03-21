@@ -1,4 +1,6 @@
+import { Guid } from "../../../types/guid";
+
 export class ProviderAddOrganizationRequest {
-  organizationId: string;
+  organizationId: Guid;
   key: string;
 }

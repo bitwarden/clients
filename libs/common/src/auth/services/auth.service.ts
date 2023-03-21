@@ -17,6 +17,7 @@ import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { PreloginRequest } from "../../models/request/prelogin.request";
 import { ErrorResponse } from "../../models/response/error.response";
 import { AuthRequestPushNotification } from "../../models/response/notification.response";
+import { Guid } from "../../types/guid";
 import { AuthService as AuthServiceAbstraction } from "../abstractions/auth.service";
 import { KeyConnectorService } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
@@ -65,7 +66,7 @@ export class AuthService implements AuthServiceAbstraction {
       : null;
   }
 
-  get authRequestId(): string {
+  get authRequestId(): Guid {
     return this.logInStrategy instanceof PasswordlessLogInStrategy
       ? this.logInStrategy.authRequestId
       : null;
@@ -78,7 +79,7 @@ export class AuthService implements AuthServiceAbstraction {
     | PasswordlessLogInStrategy;
   private sessionTimeout: any;
 
-  private pushNotificationSubject = new Subject<string>();
+  private pushNotificationSubject = new Subject<Guid>();
 
   constructor(
     protected cryptoService: CryptoService,
@@ -225,7 +226,7 @@ export class AuthService implements AuthServiceAbstraction {
     return this.logInStrategy instanceof PasswordlessLogInStrategy;
   }
 
-  async getAuthStatus(userId?: string): Promise<AuthenticationStatus> {
+  async getAuthStatus(userId?: Guid): Promise<AuthenticationStatus> {
     const isAuthenticated = await this.stateService.getIsAuthenticated({ userId: userId });
     if (!isAuthenticated) {
       return AuthenticationStatus.LoggedOut;
@@ -272,11 +273,11 @@ export class AuthService implements AuthServiceAbstraction {
     return this.cryptoService.makeKey(masterPassword, email, kdf, kdfConfig);
   }
 
-  async authResponsePushNotifiction(notification: AuthRequestPushNotification): Promise<any> {
+  async authResponsePushNotification(notification: AuthRequestPushNotification): Promise<any> {
     this.pushNotificationSubject.next(notification.id);
   }
 
-  getPushNotifcationObs$(): Observable<any> {
+  getPushNotificationObs$(): Observable<Guid> {
     return this.pushNotificationSubject.asObservable();
   }
 

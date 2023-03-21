@@ -1,7 +1,8 @@
 import { BaseResponse } from "../../../models/response/base.response";
+import { Guid } from "../../../types/guid";
 
 export class FolderResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   revisionDate: string;
 

@@ -1,3 +1,4 @@
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -60,7 +61,8 @@ export class VaultFilter {
       }
       if (this.selectedCollection && this.selectedCollectionId != null && cipherPassesFilter) {
         cipherPassesFilter =
-          cipher.collectionIds != null && cipher.collectionIds.includes(this.selectedCollectionId);
+          cipher.collectionIds != null &&
+          cipher.collectionIds.includes(this.selectedCollectionId as Guid);
       }
       if (this.selectedOrganizationId != null && cipherPassesFilter) {
         cipherPassesFilter = cipher.organizationId === this.selectedOrganizationId;

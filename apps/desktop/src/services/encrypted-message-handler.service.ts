@@ -6,6 +6,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PolicyType } from "@bitwarden/common/enums/policyType";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -90,10 +91,10 @@ export class EncryptedMessageHandlerService {
     return Promise.all(
       Object.keys(accounts).map(async (userId) => {
         const authStatus = await this.authService.getAuthStatus(userId);
-        const email = await this.stateService.getEmail({ userId });
+        const email = await this.stateService.getEmail({ userId: userId as Guid });
 
         return {
-          id: userId,
+          id: userId as Guid,
           email,
           status: authStatus === AuthenticationStatus.Unlocked ? "unlocked" : "locked",
           active: userId === activeUserId,

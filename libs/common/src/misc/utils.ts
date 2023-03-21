@@ -7,6 +7,7 @@ import { Merge } from "type-fest";
 import { CryptoService } from "../abstractions/crypto.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
+import { Guid } from "../types/guid";
 
 const nodeURL = typeof window === "undefined" ? require("url") : null;
 
@@ -211,15 +212,15 @@ export class Utils {
   }
 
   // ref: http://stackoverflow.com/a/2117523/1090359
-  static newGuid(): string {
+  static newGuid(): Guid {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
       const v = c === "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
-    });
+    }) as Guid;
   }
 
-  static isGuid(id: string) {
+  static isGuid(id: string | Guid) {
     return RegExp(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
       "i"

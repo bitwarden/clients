@@ -22,6 +22,7 @@ import { EncString } from "../models/domain/enc-string";
 import { GlobalState } from "../models/domain/global-state";
 import { StorageOptions } from "../models/domain/storage-options";
 import { GeneratedPasswordHistory } from "../tools/generator/password";
+import { Guid } from "../types/guid";
 import { CipherData } from "../vault/models/data/cipher.data";
 import { FolderData } from "../vault/models/data/folder.data";
 
@@ -513,7 +514,8 @@ export class StateMigrationService<
     const encryptedOrgKeys = account.keys?.organizationKeys?.encrypted;
     if (encryptedOrgKeys != null) {
       for (const [orgId, encKey] of Object.entries(encryptedOrgKeys)) {
-        encryptedOrgKeys[orgId] = {
+        const id = orgId as Guid;
+        encryptedOrgKeys[id] = {
           type: "organization",
           key: encKey as unknown as string, // Account v4 does not reflect the current account model so we have to cast
         };

@@ -2,10 +2,11 @@ import { Jsonify } from "type-fest";
 
 import { ITreeNodeObject } from "../../../models/domain/tree-node";
 import { View } from "../../../models/view/view";
+import { Guid } from "../../../types/guid";
 import { Folder } from "../domain/folder";
 
 export class FolderView implements View, ITreeNodeObject {
-  id: string = null;
+  id: Guid = null;
   name: string = null;
   revisionDate: Date = null;
 

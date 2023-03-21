@@ -1,11 +1,12 @@
 import { PolicyType } from "../../enums/policyType";
+import { Guid } from "../../types/guid";
 import { PolicyData } from "../data/policy.data";
 
 import Domain from "./domain-base";
 
 export class Policy extends Domain {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   type: PolicyType;
   data: any;
   enabled: boolean;

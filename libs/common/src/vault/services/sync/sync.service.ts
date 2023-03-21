@@ -26,6 +26,7 @@ import {
 import { PolicyResponse } from "../../../models/response/policy.response";
 import { ProfileResponse } from "../../../models/response/profile.response";
 import { SendResponse } from "../../../models/response/send.response";
+import { Guid } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -70,7 +71,7 @@ export class SyncService implements SyncServiceAbstraction {
     return null;
   }
 
-  async setLastSync(date: Date, userId?: string): Promise<any> {
+  async setLastSync(date: Date, userId?: Guid): Promise<any> {
     await this.stateService.setLastSync(date.toJSON(), { userId: userId });
   }
 

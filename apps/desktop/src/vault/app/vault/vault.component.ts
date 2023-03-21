@@ -22,6 +22,7 @@ import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUti
 import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { EventType } from "@bitwarden/common/enums/eventType";
+import { Guid } from "@bitwarden/common/types/guid";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -67,16 +68,16 @@ export class VaultComponent implements OnInit, OnDestroy {
   folderAddEditModalRef: ViewContainerRef;
 
   action: string;
-  cipherId: string = null;
+  cipherId: Guid = null;
   favorites = false;
   type: CipherType = null;
-  folderId: string = null;
-  collectionId: string = null;
-  organizationId: string = null;
+  folderId: Guid = null;
+  collectionId: Guid = null;
+  organizationId: Guid = null;
   myVaultOnly = false;
   addType: CipherType = null;
-  addOrganizationId: string = null;
-  addCollectionIds: string[] = null;
+  addOrganizationId: Guid = null;
+  addCollectionIds: Guid[] = null;
   showingModal = false;
   deleted = false;
   userHasPremiumAccess = false;
@@ -751,13 +752,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
       if (collection.length > 0) {
         this.addOrganizationId = collection[0].organizationId;
-        this.addCollectionIds = [this.activeFilter.selectedCollectionId];
+        this.addCollectionIds = [this.activeFilter.selectedCollectionId as Guid];
       }
     } else if (this.activeFilter.selectedOrganizationId) {
-      this.addOrganizationId = this.activeFilter.selectedOrganizationId;
+      this.addOrganizationId = this.activeFilter.selectedOrganizationId as Guid;
     }
     if (this.activeFilter.selectedFolderId && this.activeFilter.selectedFolder) {
-      this.folderId = this.activeFilter.selectedFolderId;
+      this.folderId = this.activeFilter.selectedFolderId as Guid;
     }
   }
 

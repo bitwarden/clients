@@ -76,6 +76,7 @@ import { ImportCiphersRequest } from "../../models/request/import-ciphers.reques
 import { ImportOrganizationCiphersRequest } from "../../models/request/import-organization-ciphers.request";
 import { KvpRequest } from "../../models/request/kvp.request";
 import { ErrorResponse } from "../../models/response/error.response";
+import { Guid } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -104,7 +105,7 @@ export class ImportService implements ImportServiceAbstraction {
   async import(
     importer: Importer,
     fileContents: string,
-    organizationId: string = null
+    organizationId: Guid = null
   ): Promise<ImportError> {
     const importResult = await importer.parse(fileContents);
     if (importResult.success) {
@@ -143,7 +144,7 @@ export class ImportService implements ImportServiceAbstraction {
 
   getImporter(
     format: ImportType | "bitwardenpasswordprotected",
-    organizationId: string = null,
+    organizationId: Guid = null,
     password: string = null
   ): Importer {
     const importer = this.getImporterInstance(format, password);
@@ -290,7 +291,7 @@ export class ImportService implements ImportServiceAbstraction {
     }
   }
 
-  private async postImport(importResult: ImportResult, organizationId: string = null) {
+  private async postImport(importResult: ImportResult, organizationId: Guid = null) {
     if (organizationId == null) {
       const request = new ImportCiphersRequest();
       for (let i = 0; i < importResult.ciphers.length; i++) {

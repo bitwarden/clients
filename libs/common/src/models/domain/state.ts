@@ -1,5 +1,7 @@
 import { Jsonify } from "type-fest";
 
+import { Guid } from "../../types/guid";
+
 import { Account } from "./account";
 import { GlobalState } from "./global-state";
 
@@ -7,11 +9,11 @@ export class State<
   TGlobalState extends GlobalState = GlobalState,
   TAccount extends Account = Account
 > {
-  accounts: { [userId: string]: TAccount } = {};
+  accounts: { [userId: Guid]: TAccount } = {};
   globals: TGlobalState;
-  activeUserId: string;
-  authenticatedAccounts: string[] = [];
-  accountActivity: { [userId: string]: number } = {};
+  activeUserId: Guid;
+  authenticatedAccounts: Guid[] = [];
+  accountActivity: { [userId: Guid]: number } = {};
 
   constructor(globals: TGlobalState) {
     this.globals = globals;
@@ -32,16 +34,16 @@ export class State<
   }
 
   private static buildAccountMapFromJSON<TAccount extends Account>(
-    jsonAccounts: { [userId: string]: Jsonify<TAccount> },
+    jsonAccounts: Record<Guid, Jsonify<TAccount>>,
     accountDeserializer: (json: Jsonify<TAccount>) => TAccount
   ) {
     if (!jsonAccounts) {
       return {};
     }
-    const accounts: { [userId: string]: TAccount } = {};
-    for (const userId in jsonAccounts) {
-      accounts[userId] = accountDeserializer(jsonAccounts[userId]);
-    }
+    const accounts: Record<Guid, TAccount> = {};
+    Object.entries(jsonAccounts).forEach(([userId, account]) => {
+      accounts[userId as Guid] = accountDeserializer(account);
+    });
     return accounts;
   }
 }

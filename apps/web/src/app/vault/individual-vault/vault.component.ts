@@ -23,6 +23,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { KdfType, DEFAULT_PBKDF2_ITERATIONS } from "@bitwarden/common/enums/kdfType";
 import { ServiceUtils } from "@bitwarden/common/misc/serviceUtils";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -317,16 +318,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     const component = await this.editCipher(null);
     component.type = this.activeFilter.cipherType;
     if (this.activeFilter.organizationId !== "MyVault") {
-      component.organizationId = this.activeFilter.organizationId;
+      component.organizationId = this.activeFilter.organizationId as Guid;
       component.collections = (
         await firstValueFrom(this.vaultFilterService.filteredCollections$)
       ).filter((c) => !c.readOnly && c.id != null);
     }
     const selectedColId = this.activeFilter.collectionId;
     if (selectedColId !== "AllCollections") {
-      component.collectionIds = [selectedColId];
+      component.collectionIds = [selectedColId as Guid];
     }
-    component.folderId = this.activeFilter.folderId;
+    component.folderId = this.activeFilter.folderId as Guid;
   }
 
   async navigateToCipher(cipher: CipherView) {
@@ -337,7 +338,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     return this.editCipherId(cipher?.id);
   }
 
-  async editCipherId(id: string) {
+  async editCipherId(id: Guid) {
     const cipher = await this.cipherService.get(id);
     if (cipher != null && cipher.reprompt != 0) {
       if (!(await this.passwordRepromptService.showPasswordPrompt())) {
@@ -415,6 +416,6 @@ export class VaultComponent implements OnInit, OnDestroy {
  * Allows backwards compatibility with
  * old links that used the original `cipherId` param
  */
-const getCipherIdFromParams = (params: Params): string => {
+const getCipherIdFromParams = (params: Params): Guid => {
   return params["itemId"] || params["cipherId"];
 };

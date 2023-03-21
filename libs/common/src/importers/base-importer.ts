@@ -7,6 +7,7 @@ import { Utils } from "../misc/utils";
 import { ImportResult } from "../models/domain/import-result";
 import { CollectionView } from "../models/view/collection.view";
 import { ConsoleLogService } from "../services/consoleLog.service";
+import { Guid } from "../types/guid";
 import { CipherType } from "../vault/enums/cipher-type";
 import { CipherView } from "../vault/models/view/cipher.view";
 import { FieldView } from "../vault/models/view/field.view";
@@ -16,7 +17,7 @@ import { LoginView } from "../vault/models/view/login.view";
 import { SecureNoteView } from "../vault/models/view/secure-note.view";
 
 export abstract class BaseImporter {
-  organizationId: string = null;
+  organizationId: Guid = null;
 
   protected logService: LogService = new ConsoleLogService(false);
 

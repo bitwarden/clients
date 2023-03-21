@@ -2,6 +2,7 @@ import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../../models/view/service-account.view";
@@ -85,8 +86,8 @@ export class AccessTokenCreateDialogComponent implements OnInit {
 
   static openNewAccessTokenDialog(
     dialogService: DialogService,
-    serviceAccountId: string,
-    organizationId: string
+    serviceAccountId: Guid,
+    organizationId: Guid
   ) {
     // TODO once service account names are implemented in service account contents page pass in here.
     const serviceAccountView = new ServiceAccountView();

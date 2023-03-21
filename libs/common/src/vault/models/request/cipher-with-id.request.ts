@@ -1,9 +1,10 @@
+import { Guid } from "../../../types/guid";
 import { Cipher } from "../domain/cipher";
 
 import { CipherRequest } from "./cipher.request";
 
 export class CipherWithIdRequest extends CipherRequest {
-  id: string;
+  id: Guid;
 
   constructor(cipher: Cipher) {
     super(cipher);

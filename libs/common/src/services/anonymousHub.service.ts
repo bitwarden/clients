@@ -53,7 +53,7 @@ export class AnonymousHubService implements AnonymousHubServiceAbstraction {
   }
 
   private async ProcessNotification(notification: NotificationResponse) {
-    await this.authService.authResponsePushNotifiction(
+    await this.authService.authResponsePushNotification(
       notification.payload as AuthRequestPushNotification
     );
   }

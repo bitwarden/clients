@@ -1,11 +1,12 @@
 import { SendType } from "../../enums/sendType";
+import { Guid } from "../../types/guid";
 import { SendFileApi } from "../api/send-file.api";
 import { SendTextApi } from "../api/send-text.api";
 
 import { BaseResponse } from "./base.response";
 
 export class SendResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   accessId: string;
   type: SendType;
   name: string;
@@ -24,7 +25,7 @@ export class SendResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.accessId = this.getResponseProperty("AccessId");
     this.type = this.getResponseProperty("Type");
     this.name = this.getResponseProperty("Name");

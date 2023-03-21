@@ -4,6 +4,7 @@ import { StateService } from "../../abstractions/state.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vaultTimeout/vaultTimeoutSettings.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { PolicyType } from "../../enums/policyType";
+import { Guid } from "../../types/guid";
 
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
@@ -49,7 +50,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return await this.stateService.getBiometricUnlock();
   }
 
-  async getVaultTimeout(userId?: string): Promise<number> {
+  async getVaultTimeout(userId?: Guid): Promise<number> {
     const vaultTimeout = await this.stateService.getVaultTimeout({ userId: userId });
 
     if (
@@ -74,7 +75,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return vaultTimeout;
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId?: Guid): Promise<void> {
     await this.stateService.setEverBeenUnlocked(false, { userId: userId });
     await this.stateService.setDecryptedPinProtected(null, { userId: userId });
     await this.stateService.setProtectedPin(null, { userId: userId });

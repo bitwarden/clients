@@ -1,4 +1,6 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export type CredentialRetrievePayload = {
-  userId: string;
+  userId: Guid;
   uri: string;
 };

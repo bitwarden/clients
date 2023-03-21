@@ -1,3 +1,5 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export class RevokeAccessTokensRequest {
-  ids: string[];
+  ids: Guid[];
 }

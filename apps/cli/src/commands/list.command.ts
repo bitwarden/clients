@@ -11,6 +11,7 @@ import {
   CollectionResponse as ApiCollectionResponse,
 } from "@bitwarden/common/models/response/collection.response";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -236,9 +237,9 @@ export class ListCommand {
 }
 
 class Options {
-  organizationId: string;
-  collectionId: string;
-  folderId: string;
+  organizationId: Guid;
+  collectionId: Guid;
+  folderId: Guid;
   search: string;
   url: string;
   trash: boolean;

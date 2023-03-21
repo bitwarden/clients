@@ -11,6 +11,7 @@ import { PaymentMethodType } from "@bitwarden/common/enums/paymentMethodType";
 import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
 import { BillingPaymentResponse } from "@bitwarden/common/models/response/billing-payment.response";
 import { OrganizationResponse } from "@bitwarden/common/models/response/organization.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { TaxInfoComponent } from "./tax-info.component";
 
@@ -29,7 +30,7 @@ export class PaymentMethodComponent implements OnInit {
   billing: BillingPaymentResponse;
   org: OrganizationResponse;
   paymentMethodType = PaymentMethodType;
-  organizationId: string;
+  organizationId: Guid;
 
   verifyBankPromise: Promise<any>;
   taxFormPromise: Promise<any>;

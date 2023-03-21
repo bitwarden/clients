@@ -1,4 +1,5 @@
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -150,7 +151,8 @@ export class VaultFilter {
           cipherPassesFilter
         ) {
           cipherPassesFilter =
-            cipher.collectionIds != null && cipher.collectionIds.includes(this.collectionId);
+            cipher.collectionIds != null &&
+            cipher.collectionIds.includes(this.collectionId as Guid);
         }
       }
       if (this.selectedOrganizationNode) {

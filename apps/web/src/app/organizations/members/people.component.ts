@@ -556,7 +556,7 @@ export class PeopleComponent
     users: OrganizationUserView[],
     filteredUsers: OrganizationUserView[],
     request: Promise<ListResponse<OrganizationUserBulkResponse>>,
-    successfullMessage: string
+    successfulMessage: string
   ) {
     const [modal, childComponent] = await this.modalService.openViewRef(
       BulkStatusComponent,
@@ -585,7 +585,7 @@ export class PeopleComponent
         const keyedFilteredUsers: any = filteredUsers.reduce((a, x) => ({ ...a, [x.id]: x }), {});
 
         childComponent.users = users.map((user) => {
-          let message = keyedErrors[user.id] ?? successfullMessage;
+          let message = keyedErrors[user.id] ?? successfulMessage;
           // eslint-disable-next-line
           if (!keyedFilteredUsers.hasOwnProperty(user.id)) {
             message = this.i18nService.t("bulkFilteredMessage");

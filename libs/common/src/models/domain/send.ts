@@ -1,5 +1,6 @@
 import { SendType } from "../../enums/sendType";
 import { Utils } from "../../misc/utils";
+import { Guid } from "../../types/guid";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
 
@@ -9,7 +10,7 @@ import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
 export class Send extends Domain {
-  id: string;
+  id: Guid;
   accessId: string;
   type: SendType;
   name: EncString;

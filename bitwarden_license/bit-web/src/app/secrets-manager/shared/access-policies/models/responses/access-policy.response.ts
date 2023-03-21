@@ -1,7 +1,8 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 export class BaseAccessPolicyResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   read: boolean;
   write: boolean;
   creationDate: string;
@@ -18,10 +19,10 @@ export class BaseAccessPolicyResponse extends BaseResponse {
 }
 
 export class UserProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
-  organizationUserId: string;
+  organizationUserId: Guid;
   organizationUserName: string;
-  grantedProjectId: string;
-  userId: string;
+  grantedProjectId: Guid;
+  userId: Guid;
 
   constructor(response: any) {
     super(response);
@@ -33,10 +34,10 @@ export class UserProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
 }
 
 export class UserServiceAccountAccessPolicyResponse extends BaseAccessPolicyResponse {
-  organizationUserId: string;
+  organizationUserId: Guid;
   organizationUserName: string;
-  grantedServiceAccountId: string;
-  userId: string;
+  grantedServiceAccountId: Guid;
+  userId: Guid;
 
   constructor(response: any) {
     super(response);
@@ -48,9 +49,9 @@ export class UserServiceAccountAccessPolicyResponse extends BaseAccessPolicyResp
 }
 
 export class GroupProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
-  groupId: string;
+  groupId: Guid;
   groupName: string;
-  grantedProjectId: string;
+  grantedProjectId: Guid;
   currentUserInGroup: boolean;
 
   constructor(response: any) {
@@ -63,9 +64,9 @@ export class GroupProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
 }
 
 export class GroupServiceAccountAccessPolicyResponse extends BaseAccessPolicyResponse {
-  groupId: string;
+  groupId: Guid;
   groupName: string;
-  grantedServiceAccountId: string;
+  grantedServiceAccountId: Guid;
   currentUserInGroup: boolean;
 
   constructor(response: any) {
@@ -78,9 +79,9 @@ export class GroupServiceAccountAccessPolicyResponse extends BaseAccessPolicyRes
 }
 
 export class ServiceAccountProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
-  serviceAccountId: string;
+  serviceAccountId: Guid;
   serviceAccountName: string;
-  grantedProjectId: string;
+  grantedProjectId: Guid;
   grantedProjectName: string;
 
   constructor(response: any) {

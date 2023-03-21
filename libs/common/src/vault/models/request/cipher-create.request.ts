@@ -1,10 +1,11 @@
+import { Guid } from "../../../types/guid";
 import { Cipher } from "../domain/cipher";
 
 import { CipherRequest } from "./cipher.request";
 
 export class CipherCreateRequest {
   cipher: CipherRequest;
-  collectionIds: string[];
+  collectionIds: Guid[];
 
   constructor(cipher: Cipher) {
     this.cipher = new CipherRequest(cipher);

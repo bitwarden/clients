@@ -4,15 +4,16 @@ import { IdentityApi } from "../../../models/api/identity.api";
 import { LoginApi } from "../../../models/api/login.api";
 import { SecureNoteApi } from "../../../models/api/secure-note.api";
 import { BaseResponse } from "../../../models/response/base.response";
+import { Guid } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
 
 export class CipherResponse extends BaseResponse {
-  id: string;
-  organizationId: string;
-  folderId: string;
+  id: Guid;
+  organizationId: Guid;
+  folderId: Guid;
   type: number;
   name: string;
   notes: string;
@@ -28,16 +29,16 @@ export class CipherResponse extends BaseResponse {
   revisionDate: string;
   attachments: AttachmentResponse[];
   passwordHistory: PasswordHistoryResponse[];
-  collectionIds: string[];
+  collectionIds: Guid[];
   creationDate: string;
   deletedDate: string;
   reprompt: CipherRepromptType;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.organizationId = this.getResponseProperty("OrganizationId");
-    this.folderId = this.getResponseProperty("FolderId") || null;
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.organizationId = this.getResponseProperty<Guid>("OrganizationId");
+    this.folderId = this.getResponseProperty<Guid>("FolderId") || null;
     this.type = this.getResponseProperty("Type");
     this.name = this.getResponseProperty("Name");
     this.notes = this.getResponseProperty("Notes");
@@ -50,7 +51,7 @@ export class CipherResponse extends BaseResponse {
     }
     this.organizationUseTotp = this.getResponseProperty("OrganizationUseTotp");
     this.revisionDate = this.getResponseProperty("RevisionDate");
-    this.collectionIds = this.getResponseProperty("CollectionIds");
+    this.collectionIds = this.getResponseProperty<Guid[]>("CollectionIds");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.deletedDate = this.getResponseProperty("DeletedDate");
 

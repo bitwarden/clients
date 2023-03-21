@@ -4,6 +4,7 @@ import { UriMatchType } from "../../../enums/uriMatchType";
 import Domain from "../../../models/domain/domain-base";
 import { EncString } from "../../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
 
@@ -28,7 +29,7 @@ export class LoginUri extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<LoginUriView> {
+  decrypt(orgId: Guid, encKey?: SymmetricCryptoKey): Promise<LoginUriView> {
     return this.decryptObj(
       new LoginUriView(this),
       {

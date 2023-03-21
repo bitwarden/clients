@@ -1,7 +1,8 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 export class AccessTokenCreationResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   clientSecret: string;
   expireAt?: string;
@@ -10,7 +11,7 @@ export class AccessTokenCreationResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.name = this.getResponseProperty("Name");
     this.clientSecret = this.getResponseProperty("ClientSecret");
     this.expireAt = this.getResponseProperty("ExpireAt");

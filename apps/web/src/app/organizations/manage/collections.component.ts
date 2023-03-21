@@ -21,6 +21,7 @@ import {
 } from "@bitwarden/common/models/response/collection.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import {
   DialogService,
   SimpleDialogCloseType,
@@ -45,7 +46,7 @@ export class CollectionsComponent implements OnInit {
   loading = true;
   organization: Organization;
   canCreate = false;
-  organizationId: string;
+  organizationId: Guid;
   collections: CollectionView[];
   assignedCollections: CollectionView[];
   pagedCollections: CollectionView[];

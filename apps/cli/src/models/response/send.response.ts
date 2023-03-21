@@ -1,6 +1,7 @@
 import { SendType } from "@bitwarden/common/enums/sendType";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { SendView } from "@bitwarden/common/models/view/send.view";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { BaseResponse } from "./base.response";
 import { SendFileResponse } from "./send-file.response";
@@ -68,7 +69,7 @@ export class SendResponse implements BaseResponse {
   }
 
   object = "send";
-  id: string;
+  id: Guid;
   accessId: string;
   accessUrl: string;
   name: string;

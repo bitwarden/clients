@@ -1,7 +1,9 @@
-export class ProviderUserBulkRequest {
-  ids: string[];
+import { Guid } from "../../../types/guid";
 
-  constructor(ids: string[]) {
+export class ProviderUserBulkRequest {
+  ids: Guid[];
+
+  constructor(ids: Guid[]) {
     this.ids = ids == null ? [] : ids;
   }
 }

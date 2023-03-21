@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { VerifyDeleteRecoverRequest } from "@bitwarden/common/models/request/verify-delete-recover.request";
+import { Guid } from "@bitwarden/common/types/guid";
 
 @Component({
   selector: "app-verify-recover-delete",
@@ -17,7 +18,7 @@ export class VerifyRecoverDeleteComponent implements OnInit {
   email: string;
   formPromise: Promise<any>;
 
-  private userId: string;
+  private userId: Guid;
   private token: string;
 
   constructor(

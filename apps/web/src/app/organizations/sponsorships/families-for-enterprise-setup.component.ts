@@ -14,6 +14,7 @@ import { PlanType } from "@bitwarden/common/enums/planType";
 import { ProductType } from "@bitwarden/common/enums/productType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { OrganizationSponsorshipRedeemRequest } from "@bitwarden/common/models/request/organization/organization-sponsorship-redeem.request";
+import { Guid } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { DeleteOrganizationComponent } from "../../organizations/settings";
@@ -50,7 +51,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
   showNewOrganization = false;
   _organizationPlansComponent: OrganizationPlansComponent;
-  _selectedFamilyOrganizationId = "";
+  _selectedFamilyOrganizationId = "" as Guid;
 
   private _destroy = new Subject<void>();
 
@@ -95,7 +96,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
     this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (orgs.length === 0) {
-        this.selectedFamilyOrganizationId = "createNew";
+        this.selectedFamilyOrganizationId = "createNew" as Guid;
       }
     });
   }
@@ -115,12 +116,12 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     return this._selectedFamilyOrganizationId;
   }
 
-  set selectedFamilyOrganizationId(value: string) {
+  set selectedFamilyOrganizationId(value: Guid) {
     this._selectedFamilyOrganizationId = value;
     this.showNewOrganization = value === "createNew";
   }
 
-  private async doSubmit(organizationId: string) {
+  private async doSubmit(organizationId: Guid) {
     try {
       const request = new OrganizationSponsorshipRedeemRequest();
       request.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;

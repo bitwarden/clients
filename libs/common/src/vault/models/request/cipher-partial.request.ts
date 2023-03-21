@@ -1,7 +1,8 @@
+import { Guid } from "../../../types/guid";
 import { Cipher } from "../domain/cipher";
 
 export class CipherPartialRequest {
-  folderId: string;
+  folderId: Guid;
   favorite: boolean;
 
   constructor(cipher: Cipher) {

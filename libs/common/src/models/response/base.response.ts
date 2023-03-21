@@ -5,11 +5,11 @@ export abstract class BaseResponse {
     this.response = response;
   }
 
-  protected getResponseProperty(
+  protected getResponseProperty<T = any>(
     propertyName: string,
     response: any = null,
     exactName = false
-  ): any {
+  ): T {
     if (propertyName == null || propertyName === "") {
       throw new Error("propertyName must not be null/empty.");
     }

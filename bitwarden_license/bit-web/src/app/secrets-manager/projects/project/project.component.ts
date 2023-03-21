@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, filter, Observable, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectPermissionDetailsView } from "../../models/view/project.view";
@@ -19,8 +20,8 @@ import { ProjectService } from "../project.service";
 export class ProjectComponent implements OnInit, OnDestroy {
   protected project$: Observable<ProjectPermissionDetailsView>;
 
-  private organizationId: string;
-  private projectId: string;
+  private organizationId: Guid;
+  private projectId: Guid;
 
   private destroy$ = new Subject<void>();
 

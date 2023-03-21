@@ -2,20 +2,21 @@ import { AppIdService as AppIdServiceAbstraction } from "../abstractions/appId.s
 import { AbstractStorageService } from "../abstractions/storage.service";
 import { HtmlStorageLocation } from "../enums/htmlStorageLocation";
 import { Utils } from "../misc/utils";
+import { Guid } from "../types/guid";
 
 export class AppIdService implements AppIdServiceAbstraction {
   constructor(private storageService: AbstractStorageService) {}
 
-  getAppId(): Promise<string> {
+  getAppId(): Promise<Guid> {
     return this.makeAndGetAppId("appId");
   }
 
-  getAnonymousAppId(): Promise<string> {
+  getAnonymousAppId(): Promise<Guid> {
     return this.makeAndGetAppId("anonymousAppId");
   }
 
   private async makeAndGetAppId(key: string) {
-    const existingId = await this.storageService.get<string>(key, {
+    const existingId = await this.storageService.get<Guid>(key, {
       htmlStorageLocation: HtmlStorageLocation.Local,
     });
     if (existingId != null) {

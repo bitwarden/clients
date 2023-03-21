@@ -6,13 +6,14 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { CollectionBulkDeleteRequest } from "@bitwarden/common/models/request/collection-bulk-delete.request";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
 import { DialogService } from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
-  cipherIds?: string[];
-  collectionIds?: string[];
+  cipherIds?: Guid[];
+  collectionIds?: Guid[];
   permanent?: boolean;
   organization?: Organization;
 }
@@ -42,8 +43,8 @@ export const openBulkDeleteDialog = (
   templateUrl: "bulk-delete-dialog.component.html",
 })
 export class BulkDeleteDialogComponent {
-  cipherIds: string[];
-  collectionIds: string[];
+  cipherIds: Guid[];
+  collectionIds: Guid[];
   permanent = false;
   organization: Organization;
 

@@ -15,6 +15,7 @@ import { BillingSyncConfigApi } from "@bitwarden/common/models/api/billing-sync-
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { OrganizationConnectionResponse } from "@bitwarden/common/models/response/organization-connection.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/models/response/organization-subscription.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import {
   BillingSyncKeyComponent,
@@ -32,7 +33,7 @@ enum LicenseOptions {
 })
 export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDestroy {
   sub: OrganizationSubscriptionResponse;
-  organizationId: string;
+  organizationId: Guid;
   userOrg: Organization;
 
   licenseOptions = LicenseOptions;

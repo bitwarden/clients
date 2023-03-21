@@ -4,6 +4,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { TableDataSource } from "@bitwarden/components";
 
 import { SecretListView } from "../models/view/secret-list.view";
@@ -34,7 +35,7 @@ export class SecretsListComponent implements OnDestroy {
 
   @Input() trash: boolean;
 
-  @Output() editSecretEvent = new EventEmitter<string>();
+  @Output() editSecretEvent = new EventEmitter<Guid>();
   @Output() copySecretNameEvent = new EventEmitter<string>();
   @Output() copySecretValueEvent = new EventEmitter<string>();
   @Output() onSecretCheckedEvent = new EventEmitter<string[]>();

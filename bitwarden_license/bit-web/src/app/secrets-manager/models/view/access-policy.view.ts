@@ -1,5 +1,7 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export class BaseAccessPolicyView {
-  id: string;
+  id: Guid;
   read: boolean;
   write: boolean;
   creationDate: string;
@@ -7,37 +9,37 @@ export class BaseAccessPolicyView {
 }
 
 export class UserProjectAccessPolicyView extends BaseAccessPolicyView {
-  organizationUserId: string;
+  organizationUserId: Guid;
   organizationUserName: string;
-  grantedProjectId: string;
-  userId: string;
+  grantedProjectId: Guid;
+  userId: Guid;
 }
 
 export class UserServiceAccountAccessPolicyView extends BaseAccessPolicyView {
-  organizationUserId: string;
+  organizationUserId: Guid;
   organizationUserName: string;
-  grantedServiceAccountId: string;
-  userId: string;
+  grantedServiceAccountId: Guid;
+  userId: Guid;
 }
 
 export class GroupProjectAccessPolicyView extends BaseAccessPolicyView {
-  groupId: string;
+  groupId: Guid;
   groupName: string;
-  grantedProjectId: string;
+  grantedProjectId: Guid;
   currentUserInGroup: boolean;
 }
 
 export class GroupServiceAccountAccessPolicyView extends BaseAccessPolicyView {
-  groupId: string;
+  groupId: Guid;
   groupName: string;
-  grantedServiceAccountId: string;
+  grantedServiceAccountId: Guid;
   currentUserInGroup: boolean;
 }
 
 export class ServiceAccountProjectAccessPolicyView extends BaseAccessPolicyView {
-  serviceAccountId: string;
+  serviceAccountId: Guid;
   serviceAccountName: string;
-  grantedProjectId: string;
+  grantedProjectId: Guid;
   grantedProjectName: string;
 }
 

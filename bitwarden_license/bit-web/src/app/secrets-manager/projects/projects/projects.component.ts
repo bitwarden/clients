@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, startWith, switchMap } from "rxjs";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
@@ -25,7 +26,7 @@ export class ProjectsComponent implements OnInit {
   protected projects$: Observable<ProjectListView[]>;
   protected search: string;
 
-  private organizationId: string;
+  private organizationId: Guid;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,7 +52,7 @@ export class ProjectsComponent implements OnInit {
     return await this.projectService.getProjects(this.organizationId);
   }
 
-  openEditProject(projectId: string) {
+  openEditProject(projectId: Guid) {
     this.dialogService.open<unknown, ProjectOperation>(ProjectDialogComponent, {
       data: {
         organizationId: this.organizationId,

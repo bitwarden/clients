@@ -1,6 +1,8 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export class ProjectListView {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   name: string;
   creationDate: string;
   revisionDate: string;

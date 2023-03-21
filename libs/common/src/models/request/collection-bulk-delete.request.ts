@@ -1,8 +1,10 @@
-export class CollectionBulkDeleteRequest {
-  ids: string[];
-  organizationId: string;
+import { Guid } from "../../types/guid";
 
-  constructor(ids: string[], organizationId?: string) {
+export class CollectionBulkDeleteRequest {
+  ids: Guid[];
+  organizationId: Guid;
+
+  constructor(ids: Guid[], organizationId?: Guid) {
     this.ids = ids == null ? [] : ids;
     this.organizationId = organizationId;
   }

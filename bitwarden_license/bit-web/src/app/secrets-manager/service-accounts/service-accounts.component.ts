@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, startWith, switchMap } from "rxjs";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../models/view/service-account.view";
@@ -26,7 +27,7 @@ export class ServiceAccountsComponent implements OnInit {
   protected serviceAccounts$: Observable<ServiceAccountView[]>;
   protected search: string;
 
-  private organizationId: string;
+  private organizationId: Guid;
 
   constructor(
     private route: ActivatedRoute,
@@ -57,7 +58,7 @@ export class ServiceAccountsComponent implements OnInit {
     });
   }
 
-  openEditServiceAccountDialog(serviceAccountId: string) {
+  openEditServiceAccountDialog(serviceAccountId: Guid) {
     this.dialogService.open<unknown, ServiceAccountOperation>(ServiceAccountDialogComponent, {
       data: {
         organizationId: this.organizationId,

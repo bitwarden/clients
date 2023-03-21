@@ -1,7 +1,9 @@
-export class CipherBulkRestoreRequest {
-  ids: string[];
+import { Guid } from "../../../types/guid";
 
-  constructor(ids: string[]) {
+export class CipherBulkRestoreRequest {
+  ids: Guid[];
+
+  constructor(ids: Guid[]) {
     this.ids = ids == null ? [] : ids;
   }
 }

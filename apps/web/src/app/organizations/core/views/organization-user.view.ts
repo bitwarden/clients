@@ -2,12 +2,13 @@ import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/abstracti
 import { OrganizationUserStatusType } from "@bitwarden/common/enums/organizationUserStatusType";
 import { OrganizationUserType } from "@bitwarden/common/enums/organizationUserType";
 import { PermissionsApi } from "@bitwarden/common/models/api/permissions.api";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 
 export class OrganizationUserView {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: Guid;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   accessAll: boolean;

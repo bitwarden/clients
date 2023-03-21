@@ -5,6 +5,7 @@ import { Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../../projects/project.service";
@@ -15,9 +16,9 @@ export enum OperationType {
 }
 
 export interface ProjectOperation {
-  organizationId: string;
+  organizationId: Guid;
   operation: OperationType;
-  projectId?: string;
+  projectId?: Guid;
 }
 
 @Component({

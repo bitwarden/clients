@@ -1,10 +1,12 @@
+import { Guid } from "../../types/guid";
+
 import { BaseResponse } from "./base.response";
 import { ProfileOrganizationResponse } from "./profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "./profile-provider-organization.response";
 import { ProfileProviderResponse } from "./profile-provider.response";
 
 export class ProfileResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   email: string;
   emailVerified: boolean;
@@ -25,7 +27,7 @@ export class ProfileResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.emailVerified = this.getResponseProperty("EmailVerified");

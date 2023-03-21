@@ -1,8 +1,10 @@
-export class CipherBulkMoveRequest {
-  ids: string[];
-  folderId: string;
+import { Guid } from "../../../types/guid";
 
-  constructor(ids: string[], folderId: string) {
+export class CipherBulkMoveRequest {
+  ids: Guid[];
+  folderId: Guid;
+
+  constructor(ids: Guid[], folderId: Guid) {
     this.ids = ids == null ? [] : ids;
     this.folderId = folderId;
   }

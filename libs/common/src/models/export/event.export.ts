@@ -1,17 +1,19 @@
 import { EventType } from "../../enums/eventType";
+import { Guid } from "../../types/guid";
 import { EventView } from "../view/event.view";
 
 export class EventExport {
   message: string;
   appIcon: string;
   appName: string;
-  userId: string;
+  userId: Guid;
   userName: string;
   userEmail: string;
   date: string;
   ip: string;
   type: string;
-  installationId: string;
+  installationId: Guid;
+  serviceAccountId: Guid;
 
   constructor(event: EventView) {
     this.message = event.humanReadableMessage;
@@ -24,5 +26,6 @@ export class EventExport {
     this.ip = event.ip;
     this.type = EventType[event.type];
     this.installationId = event.installationId;
+    this.serviceAccountId = event.serviceAccountId;
   }
 }

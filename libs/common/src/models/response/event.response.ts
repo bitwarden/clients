@@ -1,52 +1,53 @@
 import { DeviceType } from "../../enums/deviceType";
 import { EventSystemUser } from "../../enums/event-system-user";
 import { EventType } from "../../enums/eventType";
+import { Guid } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
 
 export class EventResponse extends BaseResponse {
   type: EventType;
-  userId: string;
-  organizationId: string;
-  providerId: string;
-  cipherId: string;
-  collectionId: string;
-  groupId: string;
-  policyId: string;
-  organizationUserId: string;
-  providerUserId: string;
-  providerOrganizationId: string;
-  actingUserId: string;
+  userId: Guid;
+  organizationId: Guid;
+  providerId: Guid;
+  cipherId: Guid;
+  collectionId: Guid;
+  groupId: Guid;
+  policyId: Guid;
+  organizationUserId: Guid;
+  providerUserId: Guid;
+  providerOrganizationId: Guid;
+  actingUserId: Guid;
   date: string;
   deviceType: DeviceType;
   ipAddress: string;
-  installationId: string;
+  installationId: Guid;
   systemUser: EventSystemUser;
   domainName: string;
-  secretId: string;
-  serviceAccountId: string;
+  secretId: Guid;
+  serviceAccountId: Guid;
 
   constructor(response: any) {
     super(response);
     this.type = this.getResponseProperty("Type");
-    this.userId = this.getResponseProperty("UserId");
-    this.organizationId = this.getResponseProperty("OrganizationId");
-    this.providerId = this.getResponseProperty("ProviderId");
-    this.cipherId = this.getResponseProperty("CipherId");
-    this.collectionId = this.getResponseProperty("CollectionId");
-    this.groupId = this.getResponseProperty("GroupId");
-    this.policyId = this.getResponseProperty("PolicyId");
-    this.organizationUserId = this.getResponseProperty("OrganizationUserId");
-    this.providerUserId = this.getResponseProperty("ProviderUserId");
-    this.providerOrganizationId = this.getResponseProperty("ProviderOrganizationId");
-    this.actingUserId = this.getResponseProperty("ActingUserId");
+    this.userId = this.getResponseProperty<Guid>("UserId");
+    this.organizationId = this.getResponseProperty<Guid>("OrganizationId");
+    this.providerId = this.getResponseProperty<Guid>("ProviderId");
+    this.cipherId = this.getResponseProperty<Guid>("CipherId");
+    this.collectionId = this.getResponseProperty<Guid>("CollectionId");
+    this.groupId = this.getResponseProperty<Guid>("GroupId");
+    this.policyId = this.getResponseProperty<Guid>("PolicyId");
+    this.organizationUserId = this.getResponseProperty<Guid>("OrganizationUserId");
+    this.providerUserId = this.getResponseProperty<Guid>("ProviderUserId");
+    this.providerOrganizationId = this.getResponseProperty<Guid>("ProviderOrganizationId");
+    this.actingUserId = this.getResponseProperty<Guid>("ActingUserId");
     this.date = this.getResponseProperty("Date");
     this.deviceType = this.getResponseProperty("DeviceType");
     this.ipAddress = this.getResponseProperty("IpAddress");
-    this.installationId = this.getResponseProperty("InstallationId");
+    this.installationId = this.getResponseProperty<Guid>("InstallationId");
     this.systemUser = this.getResponseProperty("SystemUser");
     this.domainName = this.getResponseProperty("DomainName");
-    this.secretId = this.getResponseProperty("SecretId");
-    this.serviceAccountId = this.getResponseProperty("ServiceAccountId");
+    this.secretId = this.getResponseProperty<Guid>("SecretId");
+    this.serviceAccountId = this.getResponseProperty<Guid>("ServiceAccountId");
   }
 }

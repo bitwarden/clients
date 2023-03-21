@@ -1,6 +1,7 @@
 import { SendType } from "../../enums/sendType";
 import { Utils } from "../../misc/utils";
 import { DeepJsonify } from "../../types/deep-jsonify";
+import { Guid } from "../../types/guid";
 import { Send } from "../domain/send";
 import { SymmetricCryptoKey } from "../domain/symmetric-crypto-key";
 
@@ -9,7 +10,7 @@ import { SendTextView } from "./send-text.view";
 import { View } from "./view";
 
 export class SendView implements View {
-  id: string = null;
+  id: Guid = null;
   accessId: string = null;
   name: string = null;
   notes: string = null;

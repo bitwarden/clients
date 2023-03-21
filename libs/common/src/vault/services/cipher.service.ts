@@ -20,6 +20,7 @@ import { EncString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { ErrorResponse } from "../../models/response/error.response";
 import { View } from "../../models/view/view";
+import { Guid } from "../../types/guid";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
@@ -82,7 +83,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  async clearCache(userId?: string): Promise<void> {
+  async clearCache(userId?: Guid): Promise<void> {
     await this.clearDecryptedCiphersState(userId);
   }
 
@@ -371,7 +372,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  async getAllDecryptedForGrouping(groupingId: string, folder = true): Promise<CipherView[]> {
+  async getAllDecryptedForGrouping(groupingId: Guid, folder = true): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted();
 
     return ciphers.filter((cipher) => {
@@ -636,8 +637,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   async shareWithServer(
     cipher: CipherView,
-    organizationId: string,
-    collectionIds: string[]
+    organizationId: Guid,
+    collectionIds: Guid[]
   ): Promise<any> {
     const attachmentPromises: Promise<any>[] = [];
     if (cipher.attachments != null) {
@@ -662,8 +663,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   async shareManyWithServer(
     ciphers: CipherView[],
-    organizationId: string,
-    collectionIds: string[]
+    organizationId: Guid,
+    collectionIds: Guid[]
   ): Promise<any> {
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
@@ -839,17 +840,17 @@ export class CipherService implements CipherServiceAbstraction {
     await this.replace(ciphers);
   }
 
-  async replace(ciphers: { [id: string]: CipherData }): Promise<any> {
+  async replace(ciphers: { [id: Guid]: CipherData }): Promise<any> {
     await this.clearDecryptedCiphersState();
     await this.stateService.setEncryptedCiphers(ciphers);
   }
 
-  async clear(userId?: string): Promise<any> {
+  async clear(userId?: Guid): Promise<any> {
     await this.clearEncryptedCiphersState(userId);
     await this.clearCache(userId);
   }
 
-  async moveManyWithServer(ids: string[], folderId: string): Promise<any> {
+  async moveManyWithServer(ids: Guid[], folderId: Guid): Promise<any> {
     await this.apiService.putMoveCiphers(new CipherBulkMoveRequest(ids, folderId));
 
     let ciphers = await this.stateService.getEncryptedCiphers();
@@ -894,7 +895,7 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(id);
   }
 
-  async deleteManyWithServer(ids: string[]): Promise<any> {
+  async deleteManyWithServer(ids: Guid[]): Promise<any> {
     await this.apiService.deleteManyCiphers(new CipherBulkDeleteRequest(ids));
     await this.delete(ids);
   }
@@ -1024,7 +1025,7 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(id);
   }
 
-  async softDeleteManyWithServer(ids: string[]): Promise<any> {
+  async softDeleteManyWithServer(ids: Guid[]): Promise<any> {
     await this.apiService.putDeleteManyCiphers(new CipherBulkDeleteRequest(ids));
     await this.softDelete(ids);
   }
@@ -1055,12 +1056,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.stateService.setEncryptedCiphers(ciphers);
   }
 
-  async restoreWithServer(id: string): Promise<any> {
+  async restoreWithServer(id: Guid): Promise<any> {
     const response = await this.apiService.putRestoreCipher(id);
     await this.restore({ id: id, revisionDate: response.revisionDate });
   }
 
-  async restoreManyWithServer(ids: string[]): Promise<any> {
+  async restoreManyWithServer(ids: Guid[]): Promise<any> {
     const response = await this.apiService.putRestoreManyCiphers(new CipherBulkRestoreRequest(ids));
     const restores: { id: string; revisionDate: string }[] = [];
     for (const cipher of response.data) {
@@ -1283,11 +1284,11 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  private async clearEncryptedCiphersState(userId?: string) {
+  private async clearEncryptedCiphersState(userId?: Guid) {
     await this.stateService.setEncryptedCiphers(null, { userId: userId });
   }
 
-  private async clearDecryptedCiphersState(userId?: string) {
+  private async clearDecryptedCiphersState(userId?: Guid) {
     await this.stateService.setDecryptedCiphers(null, { userId: userId });
     this.clearSortedCiphers();
   }

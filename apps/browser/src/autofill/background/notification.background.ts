@@ -6,6 +6,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { PolicyType } from "@bitwarden/common/enums/policyType";
 import { ThemeType } from "@bitwarden/common/enums/themeType";
 import { Utils } from "@bitwarden/common/misc/utils";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -284,7 +285,7 @@ export default class NotificationBackground {
       return;
     }
 
-    let id: string = null;
+    let id: Guid = null;
     const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url);
     if (changeData.currentPassword != null) {
       const passwordMatches = ciphers.filter(
@@ -302,7 +303,7 @@ export default class NotificationBackground {
   }
 
   private async pushChangePasswordToQueue(
-    cipherId: string,
+    cipherId: Guid,
     loginDomain: string,
     newPassword: string,
     tab: chrome.tabs.Tab,
@@ -323,7 +324,7 @@ export default class NotificationBackground {
     await this.checkNotificationQueue(tab);
   }
 
-  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
+  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: Guid) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
       if (queueMessage.tabId !== tab.id || !(queueMessage.type in NotificationQueueMessageType)) {

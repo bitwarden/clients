@@ -11,6 +11,7 @@ import { GlobalState } from "@bitwarden/common/models/domain/global-state";
 import { State } from "@bitwarden/common/models/domain/state";
 import { SendView } from "@bitwarden/common/models/view/send.view";
 import { StateMigrationService } from "@bitwarden/common/services/stateMigration.service";
+import { EMPTY_GUID } from "@bitwarden/common/types/guid";
 
 import { Account } from "../models/account";
 import { BrowserComponentState } from "../models/browserComponentState";
@@ -31,7 +32,7 @@ describe("Browser State Service", () => {
   let useAccountCache: boolean;
 
   let state: State<GlobalState, Account>;
-  const userId = "userId";
+  const userId = EMPTY_GUID;
 
   let sut: BrowserStateService;
 

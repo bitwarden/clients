@@ -7,6 +7,7 @@ import { PolicyType } from "../../../enums/policyType";
 import { EFFLongWordList } from "../../../misc/wordlist";
 import { EncString } from "../../../models/domain/enc-string";
 import { PasswordGeneratorPolicyOptions } from "../../../models/domain/password-generator-policy-options";
+import { Guid } from "../../../types/guid";
 
 import { GeneratedPasswordHistory } from "./generated-password-history";
 import { PasswordGenerationServiceAbstraction } from "./password-generation.service.abstraction";
@@ -382,7 +383,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
     return await this.stateService.setEncryptedPasswordGenerationHistory(newHistory);
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId?: Guid): Promise<void> {
     await this.stateService.setEncryptedPasswordGenerationHistory(null, { userId: userId });
     await this.stateService.setDecryptedPasswordGenerationHistory(null, { userId: userId });
   }

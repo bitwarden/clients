@@ -1,5 +1,6 @@
 import { StateService } from "../../abstractions/state.service";
 import { Utils } from "../../misc/utils";
+import { Guid } from "../../types/guid";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
@@ -82,7 +83,7 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.stateService.setTwoFactorToken(null);
   }
 
-  async clearToken(userId?: string): Promise<any> {
+  async clearToken(userId?: Guid): Promise<any> {
     await this.stateService.setAccessToken(null, { userId: userId });
     await this.stateService.setRefreshToken(null, { userId: userId });
     await this.stateService.setApiKeyClientId(null, { userId: userId });

@@ -5,19 +5,20 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Directive()
 export class CollectionsComponent implements OnInit {
-  @Input() cipherId: string;
+  @Input() cipherId: Guid;
   @Input() allowSelectNone = false;
   @Output() onSavedCollections = new EventEmitter();
 
   formPromise: Promise<any>;
   cipher: CipherView;
-  collectionIds: string[];
+  collectionIds: Guid[];
   collections: CollectionView[] = [];
 
   protected cipherDomain: Cipher;

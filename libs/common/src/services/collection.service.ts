@@ -8,6 +8,7 @@ import { CollectionData } from "../models/data/collection.data";
 import { Collection } from "../models/domain/collection";
 import { TreeNode } from "../models/domain/tree-node";
 import { CollectionView } from "../models/view/collection.view";
+import { Guid } from "../types/guid";
 
 const NestingDelimiter = "/";
 
@@ -18,7 +19,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     private stateService: StateService
   ) {}
 
-  async clearCache(userId?: string): Promise<void> {
+  async clearCache(userId?: Guid): Promise<void> {
     await this.stateService.setDecryptedCollections(null, { userId: userId });
   }
 
@@ -138,7 +139,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     await this.stateService.setEncryptedCollections(collections);
   }
 
-  async clear(userId?: string): Promise<any> {
+  async clear(userId?: Guid): Promise<any> {
     await this.clearCache(userId);
     await this.stateService.setEncryptedCollections(null, { userId: userId });
   }

@@ -10,6 +10,7 @@ import { OrganizationService } from "@bitwarden/common/abstractions/organization
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { CollectionView } from "@bitwarden/common/src/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { BitValidators, DialogService } from "@bitwarden/components";
 
 import {
@@ -33,10 +34,10 @@ export enum CollectionDialogTabType {
 }
 
 export interface CollectionDialogParams {
-  collectionId?: string;
-  organizationId: string;
+  collectionId?: Guid;
+  organizationId: Guid;
   initialTab?: CollectionDialogTabType;
-  parentCollectionId?: string;
+  parentCollectionId?: Guid;
 }
 
 export enum CollectionDialogResult {

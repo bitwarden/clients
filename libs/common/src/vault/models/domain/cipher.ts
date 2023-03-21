@@ -5,6 +5,7 @@ import Domain from "../../../models/domain/domain-base";
 import { EncString } from "../../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../services/cryptography/initializer-key";
+import { Guid } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../data/cipher.data";
@@ -22,9 +23,9 @@ import { SecureNote } from "./secure-note";
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
-  id: string;
-  organizationId: string;
-  folderId: string;
+  id: Guid;
+  organizationId: Guid;
+  folderId: Guid;
   name: EncString;
   notes: EncString;
   type: CipherType;
@@ -41,7 +42,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   attachments: Attachment[];
   fields: Field[];
   passwordHistory: Password[];
-  collectionIds: string[];
+  collectionIds: Guid[];
   creationDate: Date;
   deletedDate: Date;
   reprompt: CipherRepromptType;

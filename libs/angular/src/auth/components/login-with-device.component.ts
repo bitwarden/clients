@@ -23,6 +23,7 @@ import { Utils } from "@bitwarden/common/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/models/domain/symmetric-crypto-key";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
@@ -72,7 +73,7 @@ export class LoginWithDeviceComponent
 
     //gets signalR push notification
     this.authService
-      .getPushNotifcationObs$()
+      .getPushNotificationObs$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
         this.confirmResponse(id);
@@ -113,7 +114,7 @@ export class LoginWithDeviceComponent
     this.anonymousHubService.stopHubConnection();
   }
 
-  private async confirmResponse(requestId: string) {
+  private async confirmResponse(requestId: Guid) {
     try {
       const response = await this.apiService.getAuthResponse(
         requestId,
@@ -124,7 +125,7 @@ export class LoginWithDeviceComponent
         return;
       }
 
-      const credentials = await this.buildLoginCredntials(requestId, response);
+      const credentials = await this.buildLoginCredentials(requestId, response);
       const loginResponse = await this.authService.logIn(credentials);
 
       if (loginResponse.requiresTwoFactor) {
@@ -187,8 +188,8 @@ export class LoginWithDeviceComponent
     );
   }
 
-  private async buildLoginCredntials(
-    requestId: string,
+  private async buildLoginCredentials(
+    requestId: Guid,
     response: AuthRequestResponse
   ): Promise<PasswordlessLogInCredentials> {
     const decKey = await this.cryptoService.rsaDecrypt(response.key, this.authRequestKeyPair[1]);

@@ -4,6 +4,7 @@ import { SettingsService as SettingsServiceAbstraction } from "../abstractions/s
 import { StateService } from "../abstractions/state.service";
 import { Utils } from "../misc/utils";
 import { AccountSettingsSettings } from "../models/domain/account";
+import { Guid } from "../types/guid";
 
 export class SettingsService implements SettingsServiceAbstraction {
   protected _settings: BehaviorSubject<AccountSettingsSettings> = new BehaviorSubject({});
@@ -61,7 +62,7 @@ export class SettingsService implements SettingsServiceAbstraction {
     return result;
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId?: Guid): Promise<void> {
     if (userId == null || userId == (await this.stateService.getUserId())) {
       this._settings.next({});
     }

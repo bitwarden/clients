@@ -16,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUti
 import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { PaymentMethodType } from "@bitwarden/common/enums/paymentMethodType";
 import { BitPayInvoiceRequest } from "@bitwarden/common/models/request/bit-pay-invoice.request";
+import { Guid } from "@bitwarden/common/types/guid";
 
 @Component({
   selector: "app-add-credit",
@@ -25,7 +26,7 @@ export class AddCreditComponent implements OnInit {
   @Input() creditAmount: string;
   @Input() showOptions = true;
   @Input() method = PaymentMethodType.PayPal;
-  @Input() organizationId: string;
+  @Input() organizationId: Guid;
   @Output() onAdded = new EventEmitter();
   @Output() onCanceled = new EventEmitter();
 
@@ -40,7 +41,7 @@ export class AddCreditComponent implements OnInit {
   returnUrl: string;
   formPromise: Promise<any>;
 
-  private userId: string;
+  private userId: Guid;
   private name: string;
   private email: string;
 

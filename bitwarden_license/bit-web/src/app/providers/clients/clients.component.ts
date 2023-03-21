@@ -16,6 +16,7 @@ import { PlanType } from "@bitwarden/common/enums/planType";
 import { ProviderUserType } from "@bitwarden/common/enums/providerUserType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/models/response/provider/provider-organization.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { WebProviderService } from "../services/webProvider.service";
 
@@ -34,7 +35,7 @@ const DisallowedPlanTypes = [
 export class ClientsComponent implements OnInit {
   @ViewChild("add", { read: ViewContainerRef, static: true }) addModalRef: ViewContainerRef;
 
-  providerId: string;
+  providerId: Guid;
   searchText: string;
   addableOrganizations: Organization[];
   loading = true;

@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { switchMap } from "rxjs";
 
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
@@ -12,8 +13,8 @@ import { ServiceAccountService } from "./service-account.service";
   templateUrl: "./service-account.component.html",
 })
 export class ServiceAccountComponent {
-  private organizationId: string;
-  private serviceAccountId: string;
+  private organizationId: Guid;
+  private serviceAccountId: Guid;
 
   /**
    * TODO: remove when a server method is available that fetches a service account by ID

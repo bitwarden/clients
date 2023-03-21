@@ -5,6 +5,7 @@ import { lastValueFrom, Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
@@ -22,10 +23,10 @@ export enum OperationType {
 }
 
 export interface SecretOperation {
-  organizationId: string;
+  organizationId: Guid;
   operation: OperationType;
-  projectId?: string;
-  secretId?: string;
+  projectId?: Guid;
+  secretId?: Guid;
 }
 
 @Component({

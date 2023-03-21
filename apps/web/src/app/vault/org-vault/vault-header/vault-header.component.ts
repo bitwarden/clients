@@ -11,6 +11,7 @@ import { ProductType } from "@bitwarden/common/enums/productType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import {
   DialogService,
   SimpleDialogCloseType,
@@ -173,7 +174,7 @@ export class VaultHeaderComponent {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.organization?.id,
-        parentCollectionId: this.activeFilter.collectionId,
+        parentCollectionId: this.activeFilter.collectionId as Guid,
       },
     });
     const result = await lastValueFrom(dialog.closed);

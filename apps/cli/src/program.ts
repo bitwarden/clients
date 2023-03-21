@@ -3,6 +3,7 @@ import * as program from "commander";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { KeySuffixOptions } from "@bitwarden/common/enums/keySuffixOptions";
+import { EMPTY_GUID } from "@bitwarden/common/types/guid";
 
 import { LockCommand } from "./auth/commands/lock.command";
 import { LoginCommand } from "./auth/commands/login.command";
@@ -440,7 +441,7 @@ export class Program {
         writeLn('      "serverUrl": "https://bitwarden.example.com",');
         writeLn('      "lastSync": "2020-06-16T06:33:51.419Z",');
         writeLn('      "userEmail": "user@example.com,');
-        writeLn('      "userId": "00000000-0000-0000-0000-000000000000",');
+        writeLn(`      "userId": "${EMPTY_GUID}",`);
         writeLn('      "status": "locked"');
         writeLn("    }");
         writeLn("");

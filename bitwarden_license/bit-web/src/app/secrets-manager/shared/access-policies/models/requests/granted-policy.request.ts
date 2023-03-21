@@ -1,5 +1,7 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export class GrantedPolicyRequest {
-  grantedId: string;
+  grantedId: Guid;
   read: boolean;
   write: boolean;
 }

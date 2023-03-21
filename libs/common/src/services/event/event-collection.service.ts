@@ -4,6 +4,7 @@ import { OrganizationService } from "../../abstractions/organization/organizatio
 import { StateService } from "../../abstractions/state.service";
 import { EventType } from "../../enums/eventType";
 import { EventData } from "../../models/data/event.data";
+import { Guid } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 
 export class EventCollectionService implements EventCollectionServiceAbstraction {
@@ -16,9 +17,9 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
 
   async collect(
     eventType: EventType,
-    cipherId: string = null,
+    cipherId: Guid = null,
     uploadImmediately = false,
-    organizationId: string = null
+    organizationId: Guid = null
   ): Promise<any> {
     const authed = await this.stateService.getIsAuthenticated();
     if (!authed) {
@@ -28,7 +29,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     if (organizations == null) {
       return;
     }
-    const orgIds = new Set<string>(organizations.filter((o) => o.useEvents).map((o) => o.id));
+    const orgIds = new Set<Guid>(organizations.filter((o) => o.useEvents).map((o) => o.id));
     if (orgIds.size === 0) {
       return;
     }

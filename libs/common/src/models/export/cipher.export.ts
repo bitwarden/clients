@@ -1,3 +1,4 @@
+import { Guid } from "../../types/guid";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
@@ -100,9 +101,9 @@ export class CipherExport {
   }
 
   type: CipherType;
-  folderId: string;
-  organizationId: string;
-  collectionIds: string[];
+  folderId: Guid;
+  organizationId: Guid;
+  collectionIds: Guid[];
   name: string;
   notes: string;
   favorite: boolean;

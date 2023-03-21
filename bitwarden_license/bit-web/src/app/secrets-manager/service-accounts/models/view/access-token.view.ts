@@ -1,5 +1,7 @@
+import { Guid } from "@bitwarden/common/types/guid";
+
 export class AccessTokenView {
-  id: string;
+  id: Guid;
   name: string;
   scopes: string[];
   expireAt?: Date;

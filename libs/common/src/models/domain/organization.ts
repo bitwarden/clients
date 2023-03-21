@@ -3,11 +3,12 @@ import { Jsonify } from "type-fest";
 import { OrganizationUserStatusType } from "../../enums/organizationUserStatusType";
 import { OrganizationUserType } from "../../enums/organizationUserType";
 import { ProductType } from "../../enums/productType";
+import { Guid } from "../../types/guid";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
 export class Organization {
-  id: string;
+  id: Guid;
   name: string;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;
@@ -35,9 +36,9 @@ export class Organization {
   identifier: string;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
-  userId: string;
+  userId: Guid;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
+  providerId: Guid;
   providerName: string;
   isProviderUser: boolean;
   familySponsorshipFriendlyName: string;

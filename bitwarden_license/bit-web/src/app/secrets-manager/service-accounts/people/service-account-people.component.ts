@@ -13,6 +13,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/abstractions/validation.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService, SimpleDialogOptions, SimpleDialogType } from "@bitwarden/components";
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
@@ -37,8 +38,8 @@ import {
 })
 export class ServiceAccountPeopleComponent {
   private destroy$ = new Subject<void>();
-  private serviceAccountId: string;
-  private organizationId: string;
+  private serviceAccountId: Guid;
+  private organizationId: Guid;
   private rows: AccessSelectorRowView[];
 
   protected rows$: Observable<AccessSelectorRowView[]> =
@@ -90,7 +91,7 @@ export class ServiceAccountPeopleComponent {
       .map((filtered) => {
         const view = new UserServiceAccountAccessPolicyView();
         view.grantedServiceAccountId = this.serviceAccountId;
-        view.organizationUserId = filtered.id;
+        view.organizationUserId = filtered.id as Guid;
         view.read = true;
         view.write = true;
         return view;
@@ -101,7 +102,7 @@ export class ServiceAccountPeopleComponent {
       .map((filtered) => {
         const view = new GroupServiceAccountAccessPolicyView();
         view.grantedServiceAccountId = this.serviceAccountId;
-        view.groupId = filtered.id;
+        view.groupId = filtered.id as Guid;
         view.read = true;
         view.write = true;
         return view;

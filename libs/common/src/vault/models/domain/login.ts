@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../models/domain/domain-base";
 import { EncString } from "../../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { LoginData } from "../data/login.data";
 import { LoginView } from "../view/login.view";
 
@@ -44,7 +45,7 @@ export class Login extends Domain {
     }
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<LoginView> {
+  async decrypt(orgId: Guid, encKey?: SymmetricCryptoKey): Promise<LoginView> {
     const view = await this.decryptObj(
       new LoginView(this),
       {

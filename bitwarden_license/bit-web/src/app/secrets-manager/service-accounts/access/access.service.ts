@@ -9,6 +9,7 @@ import { Utils } from "@bitwarden/common/misc/utils";
 import { EncString } from "@bitwarden/common/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/models/domain/symmetric-crypto-key";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { AccessTokenRequest } from "../models/requests/access-token.request";
 import { RevokeAccessTokensRequest } from "../models/requests/revoke-access-tokens.request";
@@ -81,7 +82,7 @@ export class AccessService {
     return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${b64Key}`;
   }
 
-  async revokeAccessTokens(serviceAccountId: string, accessTokenIds: string[]): Promise<void> {
+  async revokeAccessTokens(serviceAccountId: Guid, accessTokenIds: Guid[]): Promise<void> {
     const request = new RevokeAccessTokensRequest();
     request.ids = accessTokenIds;
 

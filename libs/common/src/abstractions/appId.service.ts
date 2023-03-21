@@ -1,4 +1,6 @@
+import { Guid } from "../types/guid";
+
 export abstract class AppIdService {
-  getAppId: () => Promise<string>;
-  getAnonymousAppId: () => Promise<string>;
+  getAppId: () => Promise<Guid>;
+  getAnonymousAppId: () => Promise<Guid>;
 }

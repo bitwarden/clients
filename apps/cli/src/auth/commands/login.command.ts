@@ -29,6 +29,7 @@ import { NodeUtils } from "@bitwarden/common/misc/nodeUtils";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Guid } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { Response } from "../../models/response";
@@ -66,7 +67,7 @@ export class LoginCommand {
 
     let ssoCodeVerifier: string = null;
     let ssoCode: string = null;
-    let orgIdentifier: string = null;
+    let orgIdentifier: Guid = null;
 
     let clientId: string = null;
     let clientSecret: string = null;
@@ -598,7 +599,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string
-  ): Promise<{ ssoCode: string; orgIdentifier: string }> {
+  ): Promise<{ ssoCode: string; orgIdentifier: Guid }> {
     return new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {
         const urlString = "http://localhost" + req.url;
@@ -662,13 +663,13 @@ export class LoginCommand {
     });
   }
 
-  private getOrgIdentifierFromState(state: string): string {
+  private getOrgIdentifierFromState(state: string): Guid {
     if (state === null || state === undefined) {
       return null;
     }
 
     const stateSplit = state.split("_identifier=");
-    return stateSplit.length > 1 ? stateSplit[1] : null;
+    return (stateSplit.length > 1 ? stateSplit[1] : null) as Guid;
   }
 
   private checkState(state: string, checkState: string): boolean {

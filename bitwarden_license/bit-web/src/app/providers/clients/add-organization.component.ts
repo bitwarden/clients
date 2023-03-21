@@ -6,6 +6,7 @@ import { ProviderService } from "@bitwarden/common/abstractions/provider.service
 import { ValidationService } from "@bitwarden/common/abstractions/validation.service";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { Provider } from "@bitwarden/common/models/domain/provider";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { WebProviderService } from "../services/webProvider.service";
 
@@ -14,7 +15,7 @@ import { WebProviderService } from "../services/webProvider.service";
   templateUrl: "add-organization.component.html",
 })
 export class AddOrganizationComponent implements OnInit {
-  @Input() providerId: string;
+  @Input() providerId: Guid;
   @Input() organizations: Organization[];
   @Output() onAddedOrganization = new EventEmitter();
 

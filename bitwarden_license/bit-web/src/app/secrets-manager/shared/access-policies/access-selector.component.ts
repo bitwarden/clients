@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 
 import { Utils } from "@bitwarden/common/misc/utils";
+import { Guid } from "@bitwarden/common/types/guid";
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
 import { BaseAccessPolicyView } from "../../models/view/access-policy.view";
@@ -22,8 +23,8 @@ import { AccessPolicyService } from "./access-policy.service";
 export type AccessSelectorRowView = {
   type: "user" | "group" | "serviceAccount" | "project";
   name: string;
-  id: string;
-  accessPolicyId: string;
+  id: Guid;
+  accessPolicyId: Guid;
   read: boolean;
   write: boolean;
   icon: string;
@@ -148,7 +149,7 @@ export class AccessSelectorComponent implements OnInit {
     return firstValueFrom(this.selectItems$);
   };
 
-  private getPotentialGrantees(organizationId: string) {
+  private getPotentialGrantees(organizationId: Guid) {
     switch (this.granteeType) {
       case "people":
         return this.accessPolicyService.getPeoplePotentialGrantees(organizationId);

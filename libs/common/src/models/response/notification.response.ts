@@ -1,4 +1,5 @@
 import { NotificationType } from "../../enums/notificationType";
+import { Guid } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
 
@@ -48,49 +49,49 @@ export class NotificationResponse extends BaseResponse {
 }
 
 export class SyncCipherNotification extends BaseResponse {
-  id: string;
-  userId: string;
-  organizationId: string;
-  collectionIds: string[];
+  id: Guid;
+  userId: Guid;
+  organizationId: Guid;
+  collectionIds: Guid[];
   revisionDate: Date;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.userId = this.getResponseProperty("UserId");
-    this.organizationId = this.getResponseProperty("OrganizationId");
-    this.collectionIds = this.getResponseProperty("CollectionIds");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.userId = this.getResponseProperty<Guid>("UserId");
+    this.organizationId = this.getResponseProperty<Guid>("OrganizationId");
+    this.collectionIds = this.getResponseProperty<Guid[]>("CollectionIds");
     this.revisionDate = new Date(this.getResponseProperty("RevisionDate"));
   }
 }
 
 export class SyncFolderNotification extends BaseResponse {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: Guid;
   revisionDate: Date;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.userId = this.getResponseProperty("UserId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.userId = this.getResponseProperty<Guid>("UserId");
     this.revisionDate = new Date(this.getResponseProperty("RevisionDate"));
   }
 }
 
 export class UserNotification extends BaseResponse {
-  userId: string;
+  userId: Guid;
   date: Date;
 
   constructor(response: any) {
     super(response);
-    this.userId = this.getResponseProperty("UserId");
+    this.userId = this.getResponseProperty<Guid>("UserId");
     this.date = new Date(this.getResponseProperty("Date"));
   }
 }
 
 export class SyncSendNotification extends BaseResponse {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: Guid;
   revisionDate: Date;
 
   constructor(response: any) {
@@ -102,12 +103,12 @@ export class SyncSendNotification extends BaseResponse {
 }
 
 export class AuthRequestPushNotification extends BaseResponse {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: Guid;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.userId = this.getResponseProperty("UserId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.userId = this.getResponseProperty<Guid>("UserId");
   }
 }

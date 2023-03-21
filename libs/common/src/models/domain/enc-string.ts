@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { EncryptionType } from "../../enums/encryptionType";
 import { IEncrypted } from "../../interfaces/IEncrypted";
 import { Utils } from "../../misc/utils";
+import { Guid } from "../../types/guid";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
@@ -139,7 +140,7 @@ export class EncString implements IEncrypted {
     };
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null): Promise<string> {
+  async decrypt(orgId: Guid, key: SymmetricCryptoKey = null): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }
@@ -160,7 +161,7 @@ export class EncString implements IEncrypted {
     return this.decryptedValue;
   }
 
-  private async getKeyForDecryption(orgId: string) {
+  private async getKeyForDecryption(orgId: Guid) {
     const cryptoService = Utils.getContainerService().getCryptoService();
     return orgId != null
       ? await cryptoService.getOrgKey(orgId)

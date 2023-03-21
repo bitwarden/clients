@@ -15,6 +15,7 @@ import { OrganizationApiKeyRequest } from "@bitwarden/common/models/request/orga
 import { OrganizationConnectionRequest } from "@bitwarden/common/models/request/organization-connection.request";
 import { ScimConfigRequest } from "@bitwarden/common/models/request/scim-config.request";
 import { OrganizationConnectionResponse } from "@bitwarden/common/models/response/organization-connection.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 @Component({
   selector: "app-org-manage-scim",
@@ -23,8 +24,8 @@ import { OrganizationConnectionResponse } from "@bitwarden/common/models/respons
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ScimComponent implements OnInit {
   loading = true;
-  organizationId: string;
-  existingConnectionId: string;
+  organizationId: Guid;
+  existingConnectionId: Guid;
   formPromise: Promise<OrganizationConnectionResponse<ScimConfigApi>>;
   rotatePromise: Promise<ApiKeyResponse>;
   enabled = new FormControl(false);

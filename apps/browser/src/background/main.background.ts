@@ -76,6 +76,7 @@ import {
   UsernameGenerationService,
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/common/tools/generator/username";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -214,7 +215,7 @@ export default class MainBackground {
       }
     };
 
-    const logoutCallback = async (expired: boolean, userId?: string) =>
+    const logoutCallback = async (expired: boolean, userId?: Guid) =>
       await this.logout(expired, userId);
 
     this.messagingService = this.popupOnlyContext
@@ -673,7 +674,7 @@ export default class MainBackground {
     }
   }
 
-  async logout(expired: boolean, userId?: string) {
+  async logout(expired: boolean, userId?: Guid) {
     await this.eventUploadService.uploadEvents(userId);
 
     await Promise.all([

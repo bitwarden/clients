@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../models/domain/domain-base";
 import { EncString } from "../../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
 
@@ -59,7 +60,7 @@ export class Identity extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<IdentityView> {
+  decrypt(orgId: Guid, encKey?: SymmetricCryptoKey): Promise<IdentityView> {
     return this.decryptObj(
       new IdentityView(),
       {

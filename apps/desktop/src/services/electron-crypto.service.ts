@@ -6,6 +6,7 @@ import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/enums/keySuffixOptions";
 import { SymmetricCryptoKey } from "@bitwarden/common/models/domain/symmetric-crypto-key";
 import { CryptoService } from "@bitwarden/common/services/crypto.service";
+import { Guid } from "@bitwarden/common/types/guid";
 
 export class ElectronCryptoService extends CryptoService {
   constructor(
@@ -23,7 +24,7 @@ export class ElectronCryptoService extends CryptoService {
     return super.hasKeyStored(keySuffix);
   }
 
-  protected async storeKey(key: SymmetricCryptoKey, userId?: string) {
+  protected async storeKey(key: SymmetricCryptoKey, userId?: Guid) {
     if (await this.shouldStoreKey(KeySuffixOptions.Auto, userId)) {
       await this.stateService.setCryptoMasterKeyAuto(key.keyB64, { userId: userId });
     } else {
@@ -37,7 +38,7 @@ export class ElectronCryptoService extends CryptoService {
     }
   }
 
-  protected async retrieveKeyFromStorage(keySuffix: KeySuffixOptions, userId?: string) {
+  protected async retrieveKeyFromStorage(keySuffix: KeySuffixOptions, userId?: Guid) {
     await this.upgradeSecurelyStoredKey();
     return super.retrieveKeyFromStorage(keySuffix, userId);
   }

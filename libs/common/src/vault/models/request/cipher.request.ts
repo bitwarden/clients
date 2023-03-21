@@ -4,6 +4,7 @@ import { IdentityApi } from "../../../models/api/identity.api";
 import { LoginUriApi } from "../../../models/api/login-uri.api";
 import { LoginApi } from "../../../models/api/login.api";
 import { SecureNoteApi } from "../../../models/api/secure-note.api";
+import { Guid } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { Cipher } from "../domain/cipher";
@@ -13,8 +14,8 @@ import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
   type: CipherType;
-  folderId: string;
-  organizationId: string;
+  folderId: Guid;
+  organizationId: Guid;
   name: string;
   notes: string;
   favorite: boolean;

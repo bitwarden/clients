@@ -1,5 +1,6 @@
 import { OrganizationUserStatusType } from "@bitwarden/common/enums/organizationUserStatusType";
 import { OrganizationUserType } from "@bitwarden/common/enums/organizationUserType";
+import { Guid } from "@bitwarden/common/types/guid";
 import { SelectItemView } from "@bitwarden/components";
 
 import { CollectionAccessSelectionView } from "../../../core";
@@ -94,7 +95,7 @@ export const convertToPermission = (value: CollectionAccessSelectionView) => {
  */
 export const convertToSelectionView = (value: AccessItemValue) => {
   return new CollectionAccessSelectionView({
-    id: value.id,
+    id: value.id as Guid,
     readOnly: readOnly(value.permission),
     hidePasswords: hidePassword(value.permission),
   });

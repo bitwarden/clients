@@ -1,16 +1,18 @@
+import { Guid } from "../../types/guid";
+
 import { BaseResponse } from "./base.response";
 import { SelectionReadOnlyResponse } from "./selection-read-only.response";
 
 export class CollectionResponse extends BaseResponse {
-  id: string;
-  organizationId: string;
+  id: Guid;
+  organizationId: Guid;
   name: string;
   externalId: string;
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.organizationId = this.getResponseProperty<Guid>("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.externalId = this.getResponseProperty("ExternalId");
   }

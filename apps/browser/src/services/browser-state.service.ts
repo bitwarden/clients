@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 import { GlobalState } from "@bitwarden/common/models/domain/global-state";
 import { StorageOptions } from "@bitwarden/common/models/domain/storage-options";
 import { StateService as BaseStateService } from "@bitwarden/common/services/state.service";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { browserSession, sessionSync } from "../decorators/session-sync-observable";
 import { Account } from "../models/account";
@@ -21,9 +22,9 @@ export class BrowserStateService
     initializer: Account.fromJSON as any, // TODO: Remove this any when all any types are removed from Account
     initializeAs: "record",
   })
-  protected accountsSubject: BehaviorSubject<{ [userId: string]: Account }>;
-  @sessionSync({ initializer: (s: string) => s })
-  protected activeAccountSubject: BehaviorSubject<string>;
+  protected accountsSubject: BehaviorSubject<{ [userId: Guid]: Account }>;
+  @sessionSync({ initializer: (s: Guid) => s })
+  protected activeAccountSubject: BehaviorSubject<Guid>;
   @sessionSync({ initializer: (b: boolean) => b })
   protected activeAccountUnlockedSubject: BehaviorSubject<boolean>;
   @sessionSync({

@@ -1,4 +1,5 @@
 import { CryptoService } from "../../abstractions/crypto.service";
+import { Guid } from "../../types/guid";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
 
 import { EncString } from "./enc-string";
@@ -38,7 +39,7 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
 }
 
 export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
-  constructor(private key: string, private providerId: string) {}
+  constructor(private key: string, private providerId: Guid) {}
 
   async decrypt(cryptoService: CryptoService) {
     const providerKey = await cryptoService.getProviderKey(this.providerId);

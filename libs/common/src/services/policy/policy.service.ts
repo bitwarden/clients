@@ -14,6 +14,7 @@ import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 import { ListResponse } from "../../models/response/list.response";
 import { PolicyResponse } from "../../models/response/policy.response";
+import { Guid } from "../../types/guid";
 
 export class PolicyService implements InternalPolicyServiceAbstraction {
   protected _policies: BehaviorSubject<Policy[]> = new BehaviorSubject([]);
@@ -47,7 +48,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
   /**
    * @deprecated Do not call this, use the policies$ observable collection
    */
-  async getAll(type?: PolicyType, userId?: string): Promise<Policy[]> {
+  async getAll(type?: PolicyType, userId?: Guid): Promise<Policy[]> {
     let response: Policy[] = [];
     const decryptedPolicies = await this.stateService.getDecryptedPolicies({ userId: userId });
     if (decryptedPolicies != null) {
@@ -206,7 +207,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
   async policyAppliesToUser(
     policyType: PolicyType,
     policyFilter?: (policy: Policy) => boolean,
-    userId?: string
+    userId?: Guid
   ) {
     const policies = await this.getAll(policyType, userId);
 
@@ -232,7 +233,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     await this.stateService.setEncryptedPolicies(policies);
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId?: Guid): Promise<void> {
     if (userId == null || userId == (await this.stateService.getUserId())) {
       this._policies.next([]);
     }

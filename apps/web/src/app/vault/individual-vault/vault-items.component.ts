@@ -16,6 +16,7 @@ import { EventType } from "@bitwarden/common/enums/eventType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -313,7 +314,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnDe
     }
 
     const dialog = openBulkDeleteDialog(this.dialogService, {
-      data: { permanent: this.deleted, cipherIds: selectedIds },
+      data: { permanent: this.deleted, cipherIds: selectedIds as Guid[] },
     });
 
     const result = await lastValueFrom(dialog.closed);

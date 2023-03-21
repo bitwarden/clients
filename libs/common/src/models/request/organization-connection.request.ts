@@ -1,4 +1,5 @@
 import { OrganizationConnectionType } from "../../enums/organizationConnectionType";
+import { Guid } from "../../types/guid";
 
 import { BillingSyncConfigRequest } from "./billing-sync-config.request";
 import { ScimConfigRequest } from "./scim-config.request";
@@ -8,7 +9,7 @@ export type OrganizationConnectionRequestConfigs = BillingSyncConfigRequest | Sc
 
 export class OrganizationConnectionRequest {
   constructor(
-    public organizationId: string,
+    public organizationId: Guid,
     public type: OrganizationConnectionType,
     public enabled: boolean,
     public config: OrganizationConnectionRequestConfigs

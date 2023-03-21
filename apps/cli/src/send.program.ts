@@ -296,7 +296,7 @@ export class SendProgram extends Program {
   private makeSendJson(data: string, options: program.OptionValues) {
     let sendFile = null;
     let sendText = null;
-    let name = Utils.newGuid();
+    let name = Utils.newGuid() as string;
     let type = SendType.Text;
     if (options.file != null) {
       data = path.resolve(data);

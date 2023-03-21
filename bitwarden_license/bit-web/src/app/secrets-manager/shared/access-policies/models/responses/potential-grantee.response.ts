@@ -1,7 +1,8 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { Guid } from "@bitwarden/common/types/guid";
 
 export class PotentialGranteeResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   type: string;
   email: string;

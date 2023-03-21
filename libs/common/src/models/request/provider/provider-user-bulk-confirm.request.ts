@@ -1,5 +1,7 @@
+import { Guid } from "../../../types/guid";
+
 type ProviderUserBulkRequestEntry = {
-  id: string;
+  id: Guid;
   key: string;
 };
 

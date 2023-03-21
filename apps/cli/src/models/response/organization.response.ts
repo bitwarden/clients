@@ -1,12 +1,13 @@
 import { OrganizationUserStatusType } from "@bitwarden/common/enums/organizationUserStatusType";
 import { OrganizationUserType } from "@bitwarden/common/enums/organizationUserType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
+import { Guid } from "@bitwarden/common/types/guid";
 
 import { BaseResponse } from "./base.response";
 
 export class OrganizationResponse implements BaseResponse {
   object: string;
-  id: string;
+  id: Guid;
   name: string;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;

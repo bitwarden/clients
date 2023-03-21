@@ -22,6 +22,7 @@ import { UriMatchType } from "@bitwarden/common/enums/uriMatchType";
 import { Utils } from "@bitwarden/common/misc/utils";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
@@ -39,11 +40,11 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
   @Input() cloneMode = false;
-  @Input() folderId: string = null;
-  @Input() cipherId: string;
+  @Input() folderId: Guid = null;
+  @Input() cipherId: Guid;
   @Input() type: CipherType;
-  @Input() collectionIds: string[];
-  @Input() organizationId: string = null;
+  @Input() collectionIds: Guid[];
+  @Input() organizationId: Guid = null;
   @Output() onSavedCipher = new EventEmitter<CipherView>();
   @Output() onDeletedCipher = new EventEmitter<CipherView>();
   @Output() onRestoredCipher = new EventEmitter<CipherView>();
@@ -613,7 +614,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.cipherService.restoreWithServer(this.cipher.id);
   }
 
-  get defaultOwnerId(): string | null {
+  get defaultOwnerId(): Guid | null {
     return this.ownershipOptions[0].value;
   }
 

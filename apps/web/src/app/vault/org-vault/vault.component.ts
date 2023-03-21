@@ -18,6 +18,7 @@ import { MessagingService } from "@bitwarden/common/abstractions/messaging.servi
 import { OrganizationService } from "@bitwarden/common/abstractions/organization/organization.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { Organization } from "@bitwarden/common/models/domain/organization";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -226,7 +227,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       comp.type = this.activeFilter.cipherType;
       comp.collections = collections;
       if (this.activeFilter.collectionId) {
-        comp.collectionIds = [this.activeFilter.collectionId];
+        comp.collectionIds = [this.activeFilter.collectionId as Guid];
       }
     });
   }
@@ -243,7 +244,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherId(
-    cipherId: string,
+    cipherId: Guid,
     additionalComponentParameters?: (comp: AddEditComponent) => void
   ) {
     const cipher = await this.cipherService.get(cipherId);
@@ -337,6 +338,6 @@ export class VaultComponent implements OnInit, OnDestroy {
  * Allows backwards compatibility with
  * old links that used the original `cipherId` param
  */
-const getCipherIdFromParams = (params: Params): string => {
+const getCipherIdFromParams = (params: Params): Guid => {
   return params["itemId"] || params["cipherId"];
 };

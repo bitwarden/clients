@@ -1,3 +1,4 @@
+import { Guid } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherResponse } from "../response/cipher.response";
@@ -11,9 +12,9 @@ import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
 
 export class CipherData {
-  id: string;
-  organizationId: string;
-  folderId: string;
+  id: Guid;
+  organizationId: Guid;
+  folderId: Guid;
   edit: boolean;
   viewPassword: boolean;
   organizationUseTotp: boolean;
@@ -29,12 +30,12 @@ export class CipherData {
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
-  collectionIds?: string[];
+  collectionIds?: Guid[];
   creationDate: string;
   deletedDate: string;
   reprompt: CipherRepromptType;
 
-  constructor(response?: CipherResponse, collectionIds?: string[]) {
+  constructor(response?: CipherResponse, collectionIds?: Guid[]) {
     if (response == null) {
       return;
     }

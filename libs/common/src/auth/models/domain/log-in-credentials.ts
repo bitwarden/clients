@@ -1,4 +1,5 @@
 import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
+import { Guid } from "../../../types/guid";
 import { AuthenticationType } from "../../enums/authentication-type";
 import { TokenTwoFactorRequest } from "../request/identity-token/token-two-factor.request";
 
@@ -20,7 +21,7 @@ export class SsoLogInCredentials {
     public code: string,
     public codeVerifier: string,
     public redirectUrl: string,
-    public orgId: string,
+    public orgId: Guid,
     public twoFactor?: TokenTwoFactorRequest
   ) {}
 }
@@ -37,7 +38,7 @@ export class PasswordlessLogInCredentials {
   constructor(
     public email: string,
     public accessCode: string,
-    public authRequestId: string,
+    public authRequestId: Guid,
     public decKey: SymmetricCryptoKey,
     public localPasswordHash: string,
     public twoFactor?: TokenTwoFactorRequest

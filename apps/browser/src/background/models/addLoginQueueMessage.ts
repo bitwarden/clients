@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/misc/utils";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -13,7 +14,7 @@ export default class AddLoginQueueMessage extends NotificationQueueMessage {
   password: string;
   uri: string;
 
-  static toCipherView(message: AddLoginQueueMessage, folderId?: string): CipherView {
+  static toCipherView(message: AddLoginQueueMessage, folderId?: Guid): CipherView {
     const uriView = new LoginUriView();
     uriView.uri = message.uri;
 

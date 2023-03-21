@@ -3,6 +3,7 @@ import { EventUploadService as EventUploadServiceAbstraction } from "../../abstr
 import { LogService } from "../../abstractions/log.service";
 import { StateService } from "../../abstractions/state.service";
 import { EventRequest } from "../../models/request/event.request";
+import { Guid } from "../../types/guid";
 
 export class EventUploadService implements EventUploadServiceAbstraction {
   private inited = false;
@@ -24,7 +25,7 @@ export class EventUploadService implements EventUploadServiceAbstraction {
     }
   }
 
-  async uploadEvents(userId?: string): Promise<void> {
+  async uploadEvents(userId?: Guid): Promise<void> {
     const authed = await this.stateService.getIsAuthenticated({ userId: userId });
     if (!authed) {
       return;
@@ -49,7 +50,7 @@ export class EventUploadService implements EventUploadServiceAbstraction {
     }
   }
 
-  private async clearEvents(userId?: string): Promise<any> {
+  private async clearEvents(userId?: Guid): Promise<any> {
     await this.stateService.setEventCollection(null, { userId: userId });
   }
 }

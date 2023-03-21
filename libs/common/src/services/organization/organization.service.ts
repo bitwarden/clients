@@ -4,6 +4,7 @@ import { InternalOrganizationService as InternalOrganizationServiceAbstraction }
 import { StateService } from "../../abstractions/state.service";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { Guid } from "../../types/guid";
 
 export class OrganizationService implements InternalOrganizationServiceAbstraction {
   protected _organizations = new BehaviorSubject<Organization[]>([]);
@@ -30,7 +31,7 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
     return this.organizations$.pipe(map((orgs) => orgs.find((o) => o.id === id)));
   }
 
-  async getAll(userId?: string): Promise<Organization[]> {
+  async getAll(userId?: Guid): Promise<Organization[]> {
     const organizationsMap = await this.stateService.getOrganizations({ userId: userId });
     return Object.values(organizationsMap || {}).map((o) => new Organization(o));
   }

@@ -4,6 +4,7 @@ import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { UserVerificationPromptComponent } from "@bitwarden/web-vault/app/components/user-verification-prompt.component";
 
@@ -19,8 +20,8 @@ import { AccessTokenCreateDialogComponent } from "./dialogs/access-token-create-
 export class AccessTokenComponent implements OnInit {
   accessTokens$: Observable<AccessTokenView[]>;
 
-  private serviceAccountId: string;
-  private organizationId: string;
+  private serviceAccountId: Guid;
+  private organizationId: Guid;
 
   constructor(
     private route: ActivatedRoute,

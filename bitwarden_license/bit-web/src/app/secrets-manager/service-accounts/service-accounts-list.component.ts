@@ -4,6 +4,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { TableDataSource } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../models/view/service-account.view";
@@ -34,7 +35,7 @@ export class ServiceAccountsListComponent implements OnDestroy {
   @Output() newServiceAccountEvent = new EventEmitter();
   @Output() deleteServiceAccountsEvent = new EventEmitter<ServiceAccountView[]>();
   @Output() onServiceAccountCheckedEvent = new EventEmitter<string[]>();
-  @Output() editServiceAccountEvent = new EventEmitter<string>();
+  @Output() editServiceAccountEvent = new EventEmitter<Guid>();
 
   private destroy$: Subject<void> = new Subject<void>();
 

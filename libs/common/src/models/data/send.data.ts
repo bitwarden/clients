@@ -1,11 +1,12 @@
 import { SendType } from "../../enums/sendType";
+import { Guid } from "../../types/guid";
 import { SendResponse } from "../response/send.response";
 
 import { SendFileData } from "./send-file.data";
 import { SendTextData } from "./send-text.data";
 
 export class SendData {
-  id: string;
+  id: Guid;
   accessId: string;
   type: SendType;
   name: string;

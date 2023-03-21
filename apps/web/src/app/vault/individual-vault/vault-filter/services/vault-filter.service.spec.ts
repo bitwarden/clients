@@ -9,6 +9,7 @@ import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { PolicyType } from "@bitwarden/common/enums/policyType";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -257,7 +258,7 @@ describe("vault filter service", () => {
 
   function createOrganization(id: string, name: string) {
     const org = new Organization();
-    org.id = id;
+    org.id = id as Guid;
     org.name = name;
     org.identifier = name;
     return org;
@@ -265,24 +266,24 @@ describe("vault filter service", () => {
 
   function createCipherView(id: string, orgId: string, folderId: string) {
     const cipher = new CipherView();
-    cipher.id = id;
-    cipher.organizationId = orgId;
-    cipher.folderId = folderId;
+    cipher.id = id as Guid;
+    cipher.organizationId = orgId as Guid;
+    cipher.folderId = folderId as Guid;
     return cipher;
   }
 
   function createFolderView(id: string, name: string): FolderView {
     const folder = new FolderView();
-    folder.id = id;
+    folder.id = id as Guid;
     folder.name = name;
     return folder;
   }
 
   function createCollectionView(id: string, name: string, orgId: string): CollectionView {
     const collection = new CollectionView();
-    collection.id = id;
+    collection.id = id as Guid;
     collection.name = name;
-    collection.organizationId = orgId;
+    collection.organizationId = orgId as Guid;
     return collection;
   }
 });

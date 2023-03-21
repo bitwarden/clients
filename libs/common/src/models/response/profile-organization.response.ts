@@ -1,12 +1,13 @@
 import { OrganizationUserStatusType } from "../../enums/organizationUserStatusType";
 import { OrganizationUserType } from "../../enums/organizationUserType";
 import { ProductType } from "../../enums/productType";
+import { Guid } from "../../types/guid";
 import { PermissionsApi } from "../api/permissions.api";
 
 import { BaseResponse } from "./base.response";
 
 export class ProfileOrganizationResponse extends BaseResponse {
-  id: string;
+  id: Guid;
   name: string;
   usePolicies: boolean;
   useGroups: boolean;
@@ -36,8 +37,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
   identifier: string;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
-  userId: string;
-  providerId: string;
+  userId: Guid;
+  providerId: Guid;
   providerName: string;
   familySponsorshipFriendlyName: string;
   familySponsorshipAvailable: boolean;
@@ -51,7 +52,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
+    this.id = this.getResponseProperty<Guid>("Id");
     this.name = this.getResponseProperty("Name");
     this.usePolicies = this.getResponseProperty("UsePolicies");
     this.useGroups = this.getResponseProperty("UseGroups");
@@ -81,8 +82,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.identifier = this.getResponseProperty("Identifier");
     this.permissions = new PermissionsApi(this.getResponseProperty("permissions"));
     this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled");
-    this.userId = this.getResponseProperty("UserId");
-    this.providerId = this.getResponseProperty("ProviderId");
+    this.userId = this.getResponseProperty<Guid>("UserId");
+    this.providerId = this.getResponseProperty<Guid>("ProviderId");
     this.providerName = this.getResponseProperty("ProviderName");
     this.familySponsorshipFriendlyName = this.getResponseProperty("FamilySponsorshipFriendlyName");
     this.familySponsorshipAvailable = this.getResponseProperty("FamilySponsorshipAvailable");

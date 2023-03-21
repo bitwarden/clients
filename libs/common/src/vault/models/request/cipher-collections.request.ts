@@ -1,7 +1,9 @@
-export class CipherCollectionsRequest {
-  collectionIds: string[];
+import { Guid } from "../../../types/guid";
 
-  constructor(collectionIds: string[]) {
+export class CipherCollectionsRequest {
+  collectionIds: Guid[];
+
+  constructor(collectionIds: Guid[]) {
     this.collectionIds = collectionIds == null ? [] : collectionIds;
   }
 }

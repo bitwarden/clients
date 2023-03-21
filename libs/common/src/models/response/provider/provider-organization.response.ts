@@ -1,9 +1,10 @@
+import { Guid } from "../../../types/guid";
 import { BaseResponse } from "../base.response";
 
 export class ProviderOrganizationResponse extends BaseResponse {
-  id: string;
-  providerId: string;
-  organizationId: string;
+  id: Guid;
+  providerId: Guid;
+  organizationId: Guid;
   key: string;
   settings: string;
   creationDate: string;
@@ -14,9 +15,9 @@ export class ProviderOrganizationResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.id = this.getResponseProperty("Id");
-    this.providerId = this.getResponseProperty("ProviderId");
-    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.id = this.getResponseProperty<Guid>("Id");
+    this.providerId = this.getResponseProperty<Guid>("ProviderId");
+    this.organizationId = this.getResponseProperty<Guid>("OrganizationId");
     this.key = this.getResponseProperty("Key");
     this.settings = this.getResponseProperty("Settings");
     this.creationDate = this.getResponseProperty("CreationDate");

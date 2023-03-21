@@ -1,3 +1,4 @@
+import { EMPTY_GUID, Guid } from "../../types/guid";
 import { Collection as CollectionDomain } from "../domain/collection";
 import { EncString } from "../domain/enc-string";
 import { CollectionView } from "../view/collection.view";
@@ -5,7 +6,7 @@ import { CollectionView } from "../view/collection.view";
 export class CollectionExport {
   static template(): CollectionExport {
     const req = new CollectionExport();
-    req.organizationId = "00000000-0000-0000-0000-000000000000";
+    req.organizationId = EMPTY_GUID;
     req.name = "Collection name";
     req.externalId = null;
     return req;
@@ -29,7 +30,7 @@ export class CollectionExport {
     return domain;
   }
 
-  organizationId: string;
+  organizationId: Guid;
   name: string;
   externalId: string;
 

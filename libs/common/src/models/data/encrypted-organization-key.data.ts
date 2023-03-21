@@ -1,3 +1,5 @@
+import { Guid } from "../../types/guid";
+
 export type EncryptedOrganizationKeyData =
   | OrganizationEncryptedOrganizationKeyData
   | ProviderEncryptedOrganizationKeyData;
@@ -10,5 +12,5 @@ type OrganizationEncryptedOrganizationKeyData = {
 type ProviderEncryptedOrganizationKeyData = {
   type: "provider";
   key: string;
-  providerId: string;
+  providerId: Guid;
 };

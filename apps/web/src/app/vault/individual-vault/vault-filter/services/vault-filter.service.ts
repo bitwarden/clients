@@ -23,6 +23,7 @@ import { ServiceUtils } from "@bitwarden/common/misc/serviceUtils";
 import { Organization } from "@bitwarden/common/models/domain/organization";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+import { Guid } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -156,7 +157,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected getOrganizationFilterMyVault(): TreeNode<OrganizationFilter> {
     const myVault = new Organization() as OrganizationFilter;
-    myVault.id = "MyVault";
+    myVault.id = "MyVault" as Guid;
     myVault.icon = "bwi-user";
     myVault.enabled = true;
     myVault.hideOptions = true;

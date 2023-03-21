@@ -4,6 +4,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { Guid } from "@bitwarden/common/types/guid";
 import { TableDataSource } from "@bitwarden/components";
 
 import { ProjectListView } from "../models/view/project-list.view";
@@ -31,7 +32,7 @@ export class ProjectsListComponent implements OnDestroy {
     this.dataSource.filter = search;
   }
 
-  @Output() editProjectEvent = new EventEmitter<string>();
+  @Output() editProjectEvent = new EventEmitter<Guid>();
   @Output() deleteProjectEvent = new EventEmitter<ProjectListView[]>();
   @Output() onProjectCheckedEvent = new EventEmitter<string[]>();
   @Output() newProjectEvent = new EventEmitter();

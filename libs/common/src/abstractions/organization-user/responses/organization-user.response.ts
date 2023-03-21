@@ -4,10 +4,11 @@ import { OrganizationUserType } from "../../../enums/organizationUserType";
 import { PermissionsApi } from "../../../models/api/permissions.api";
 import { BaseResponse } from "../../../models/response/base.response";
 import { SelectionReadOnlyResponse } from "../../../models/response/selection-read-only.response";
+import { Guid } from "../../../types/guid";
 
 export class OrganizationUserResponse extends BaseResponse {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: Guid;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   externalId: string;
