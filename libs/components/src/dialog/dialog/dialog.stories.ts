@@ -5,6 +5,7 @@ import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { ButtonModule } from "../../button";
 import { IconButtonModule } from "../../icon-button";
 import { SharedModule } from "../../shared";
+import { SpinnerComponent } from "../../spinner";
 import { TabsModule } from "../../tabs";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
@@ -17,7 +18,7 @@ export default {
   component: DialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, SharedModule, IconButtonModule, TabsModule],
+      imports: [ButtonModule, SharedModule, IconButtonModule, TabsModule, SpinnerComponent],
       declarations: [DialogTitleContainerDirective, DialogCloseDirective],
       providers: [
         {

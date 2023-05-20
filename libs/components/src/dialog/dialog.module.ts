@@ -6,6 +6,7 @@ import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
+import { SpinnerComponent } from "../spinner";
 
 import { DialogComponent } from "./dialog/dialog.component";
 import { DialogService } from "./dialog.service";
@@ -15,7 +16,7 @@ import { SimpleConfigurableDialogComponent } from "./simple-configurable-dialog/
 import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dialog.component";
 
 @NgModule({
-  imports: [SharedModule, IconButtonModule, CdkDialogModule, ButtonModule],
+  imports: [SharedModule, IconButtonModule, CdkDialogModule, ButtonModule, SpinnerComponent],
   declarations: [
     DialogCloseDirective,
     DialogTitleContainerDirective,

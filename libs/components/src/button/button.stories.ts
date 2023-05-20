@@ -1,10 +1,17 @@
-import { Meta, Story } from "@storybook/angular";
+import { Meta, Story, moduleMetadata } from "@storybook/angular";
+
+import { SpinnerComponent } from "../spinner";
 
 import { ButtonComponent } from "./button.component";
 
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [SpinnerComponent],
+    }),
+  ],
   args: {
     buttonType: "primary",
     disabled: false,

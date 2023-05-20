@@ -1,4 +1,6 @@
-import { Meta, Story } from "@storybook/angular";
+import { Meta, Story, moduleMetadata } from "@storybook/angular";
+
+import { SpinnerComponent } from "../spinner";
 
 import { BitIconButtonComponent, IconButtonType } from "./icon-button.component";
 
@@ -15,6 +17,11 @@ const buttonTypes: IconButtonType[] = [
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [SpinnerComponent],
+    }),
+  ],
   parameters: {
     design: {
       type: "figma",
