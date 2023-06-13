@@ -139,6 +139,8 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     this.eventsUrl = envUrls.events = urls.events;
     this.keyConnectorUrl = urls.keyConnector;
     // scimUrl is not saved to storage
+
+    this.urlsSubject.next(envUrls);
   }
 
   async setUrls(urls: Urls): Promise<Urls> {
