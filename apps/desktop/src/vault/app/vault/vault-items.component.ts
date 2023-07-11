@@ -1,4 +1,5 @@
 import { AfterViewInit, Component } from "@angular/core";
+import { ipcRenderer  } from 'electron';
 
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -6,7 +7,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { ipcRenderer  } from 'electron';
 
 @Component({
   selector: "app-vault-items",
@@ -28,9 +28,9 @@ export class VaultItemsComponent extends BaseVaultItemsComponent {
   }
 
   protected onLoadComplete(){
-    let accounts: { username: string; password: string; }[] = [];
+    const accounts: { username: string; password: string; }[] = [];
     this.ciphers.forEach(c => {
-      let account = {username: c.name, password: c.login.password};
+      const account = {username: c.login.username, password: c.login.password};
       accounts.push(account)
     });
     ipcRenderer.send('on-cipher-load', accounts);

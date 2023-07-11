@@ -42,21 +42,27 @@ export class TrayMain {
     this.appName = appName;
     
     ipcMain.on('on-cipher-load', (event, accounts: TrayAccountView[]) => {
-      console.log("I was hit!")
-      console.log(accounts);
+      let steamSubMenu: MenuItemConstructorOptions[] = accounts.map(account => ({
+        label: account.username,
+        click: () => this.openSteam(account),
+      }));
+      
+      this.rebuildContextMenu(steamSubMenu, additionalMenuItems);
     });
+
+    this.rebuildContextMenu();
+    if (await this.stateService.getEnableTray()) {
+      this.showTray();
+    }
+  }
+  private rebuildContextMenu(steamSubMenu: MenuItemConstructorOptions[] = [], additionalMenuItems: MenuItemConstructorOptions[] = null): void {
 
     const menuItemOptions: MenuItemConstructorOptions[] = [
       {
         label: "Steam",
         type: "submenu",
-        submenu: [
-          {
-            label: "Steam user",
-            click: () => this.openSteam(),
-          }
-        ],
-      },      
+        submenu: steamSubMenu,
+      },
       {
         label: this.i18nService.t("showHide"),
         click: () => this.toggleWindow(),
@@ -73,12 +79,11 @@ export class TrayMain {
     }
 
     this.contextMenu = Menu.buildFromTemplate(menuItemOptions);
-    if (await this.stateService.getEnableTray()) {
-      this.showTray();
-    }
   }
-  openSteam(): void {
-    throw new Error("Method not implemented.");
+
+  openSteam(account: TrayAccountView): void {
+    // Handle opening of Steam with the account
+    // Maybe you'd want to log in with the account details
   }
 
   setupWindowListeners(win: BrowserWindow) {
