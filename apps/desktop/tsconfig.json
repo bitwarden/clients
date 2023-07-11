@@ -4,6 +4,8 @@
     "noImplicitAny": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "module": "ES2020",
     "target": "ES2016",
     "sourceMap": true,

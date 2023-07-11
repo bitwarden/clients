@@ -6,6 +6,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { WindowMain } from "./window.main";
+import { ipcMain } from 'electron';
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TrayAccountView } from "src/steam/account";
 
 export class TrayMain {
   contextMenu: Menu;
@@ -36,8 +40,23 @@ export class TrayMain {
 
   async init(appName: string, additionalMenuItems: MenuItemConstructorOptions[] = null) {
     this.appName = appName;
+    
+    ipcMain.on('on-cipher-load', (event, accounts: TrayAccountView[]) => {
+      console.log("I was hit!")
+      console.log(accounts);
+    });
 
     const menuItemOptions: MenuItemConstructorOptions[] = [
+      {
+        label: "Steam",
+        type: "submenu",
+        submenu: [
+          {
+            label: "Steam user",
+            click: () => this.openSteam(),
+          }
+        ],
+      },      
       {
         label: this.i18nService.t("showHide"),
         click: () => this.toggleWindow(),
@@ -57,6 +76,9 @@ export class TrayMain {
     if (await this.stateService.getEnableTray()) {
       this.showTray();
     }
+  }
+  openSteam(): void {
+    throw new Error("Method not implemented.");
   }
 
   setupWindowListeners(win: BrowserWindow) {
