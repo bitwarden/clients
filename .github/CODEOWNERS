@@ -16,6 +16,7 @@ apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/auth @bitwarden/team-auth-dev
 # web connectors used for auth
 apps/web/src/connectors @bitwarden/team-auth-dev
+bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
 libs/angular/src/auth @bitwarden/team-auth-dev
 libs/common/src/auth @bitwarden/team-auth-dev
 
@@ -68,8 +69,8 @@ apps/web/src/app/core @bitwarden/team-platform-dev
 apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 
-## Client Integrations team files ##
-apps/browser/src/autofill @bitwarden/team-client-integrations-dev
+## Autofill team files ##
+apps/browser/src/autofill @bitwarden/team-autofill-dev
 
 ## Component Library ##
 libs/components @bitwarden/team-platform-dev
@@ -78,8 +79,26 @@ libs/components @bitwarden/team-platform-dev
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 
 ## Multiple file owners ##
+apps/browser/package.json
+apps/browser/src/manifest.json
+apps/browser/src/manifest.v3.json
+
+apps/cli/package.json
+
+apps/desktop/package.json
+apps/desktop/src/package-lock.json
+apps/desktop/src/package.json
+
 /apps/web/config
 /apps/web/package.json
+
+package-lock.json
+
+## Locales ## 
+apps/browser/src/_locales/en/messages.json
+apps/cli/src/locales/en/messages.json
+apps/desktop/src/locales/en/messages.json
+apps/web/src/locales/en/messages.json
 
 ## DevOps team files ##
 /.github/workflows @bitwarden/dept-devops

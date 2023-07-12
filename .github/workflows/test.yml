@@ -22,7 +22,7 @@ defaults:
 jobs:
   test:
     name: Run tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
@@ -72,6 +72,9 @@ jobs:
           - windows-latest
 
     steps:
+      - name: Rust version check
+        run: rustup --version
+
       - name: Install gnome-keyring
         if: ${{ matrix.os=='ubuntu-latest' }}
         run: |
@@ -80,13 +83,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-
-      - name: Install rust
-        uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
 
       - name: Build
         working-directory: ./apps/desktop/desktop_native

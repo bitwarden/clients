@@ -67,7 +67,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -110,7 +110,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "aws-electron-access-id,
@@ -123,7 +123,7 @@ jobs:
 
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
@@ -132,7 +132,7 @@ jobs:
 
       - name: Dry Run - Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
@@ -185,7 +185,7 @@ jobs:
           --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
 
       - name: Get checksum files
-        uses: bitwarden/gh-actions/get-checksum@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-checksum@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           packages_dir: "apps/desktop/artifacts"
           file_path: "apps/desktop/artifacts/sha256-checksums.txt"
@@ -263,7 +263,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
@@ -279,7 +279,7 @@ jobs:
 
       - name: Download Snap artifact
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
@@ -289,7 +289,7 @@ jobs:
 
       - name: Dry Run - Download Snap artifact
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
@@ -329,7 +329,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
@@ -347,7 +347,7 @@ jobs:
 
       - name: Download choco artifact
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
@@ -357,7 +357,7 @@ jobs:
 
       - name: Dry Run - Download choco artifact
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success

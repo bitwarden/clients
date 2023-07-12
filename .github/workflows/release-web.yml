@@ -38,7 +38,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -70,7 +70,7 @@ jobs:
       ########## DockerHub ##########
       - name: Setup DCT
         id: setup-dct
-        uses: bitwarden/gh-actions/setup-docker-trust@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/setup-docker-trust@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           azure-creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
           azure-keyvault-name: "bitwarden-ci"
@@ -156,7 +156,7 @@ jobs:
 
       - name: Retrieve bot secrets
         id: retrieve-bot-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: bitwarden-ci
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
@@ -170,7 +170,7 @@ jobs:
 
       - name: Download latest cloud asset
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-web.yml
           path: assets
@@ -180,7 +180,7 @@ jobs:
 
       - name: Dry Run - Download latest cloud asset
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-web.yml
           path: assets
@@ -253,7 +253,7 @@ jobs:
 
       - name: Download latest build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-web.yml
           path: apps/web/artifacts
@@ -264,7 +264,7 @@ jobs:
 
       - name: Dry Run - Download latest build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-web.yml
           path: apps/web/artifacts

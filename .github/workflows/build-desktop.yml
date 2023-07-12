@@ -277,7 +277,7 @@ jobs:
           node-gyp install $(node -v)
 
       - name: Install AST
-        uses: bitwarden/gh-actions/install-ast@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/install-ast@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
 
       - name: Set up environmentF
         run: choco install checksum --no-progress
@@ -302,7 +302,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "code-signing-vault-url,
@@ -1190,7 +1190,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
@@ -1269,7 +1269,7 @@ jobs:
       - name: Retrieve secrets
         id: retrieve-secrets
         if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"

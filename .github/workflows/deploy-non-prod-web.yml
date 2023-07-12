@@ -7,12 +7,19 @@ on:
     inputs:
       environment:
         description: 'Environment'
-        required: true
         default: 'QA'
         type: choice
         options:
           - QA
 
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment'
+        default: 'QA'
+        type: choice
+        options:
+          - QA
 
 jobs:
   setup:
@@ -62,7 +69,7 @@ jobs:
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Download latest cloud asset
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-web.yml
           path: apps/web

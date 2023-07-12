@@ -49,7 +49,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
@@ -86,14 +86,14 @@ jobs:
 
       - name: Bump Browser Version - Manifest
         if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
-        uses: bitwarden/gh-actions/version-bump@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/version-bump@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           version: ${{ github.event.inputs.version_number }}
           file_path: "apps/browser/src/manifest.json"
 
       - name: Bump Browser Version - Manifest v3
         if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
-        uses: bitwarden/gh-actions/version-bump@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/version-bump@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           version: ${{ github.event.inputs.version_number }}
           file_path: "apps/browser/src/manifest.v3.json"
