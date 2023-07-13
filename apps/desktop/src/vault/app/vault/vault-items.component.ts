@@ -30,8 +30,10 @@ export class VaultItemsComponent extends BaseVaultItemsComponent {
   protected onLoadComplete(){
     const accounts: { username: string; password: string; }[] = [];
     this.ciphers.forEach(c => {
-      const account = {username: c.login.username, password: c.login.password};
-      accounts.push(account)
+      if (c.login.uri.includes('steamcommunity.com')) {
+        const account = {username: c.login.username, password: c.login.password};
+        accounts.push(account);
+      }
     });
     ipcRenderer.send('on-cipher-load', accounts);
   }

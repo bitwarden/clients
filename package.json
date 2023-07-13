@@ -171,6 +171,7 @@
     "core-js": "3.30.2",
     "date-input-polyfill": "2.14.0",
     "duo_web_sdk": "github:duosecurity/duo_web_sdk",
+    "find-process": "^1.4.7",
     "form-data": "4.0.0",
     "https-proxy-agent": "5.0.1",
     "inquirer": "8.2.5",

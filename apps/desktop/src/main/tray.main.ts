@@ -10,6 +10,7 @@ import { ipcMain } from 'electron';
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TrayAccountView } from "src/steam/account";
+import Steam from "src/steam/steam";
 
 export class TrayMain {
   contextMenu: Menu;
@@ -82,8 +83,7 @@ export class TrayMain {
   }
 
   openSteam(account: TrayAccountView): void {
-    // Handle opening of Steam with the account
-    // Maybe you'd want to log in with the account details
+    Steam.login(account);
   }
 
   setupWindowListeners(win: BrowserWindow) {

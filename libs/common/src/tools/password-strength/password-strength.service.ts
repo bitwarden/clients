@@ -1,4 +1,4 @@
-import * as zxcvbn from "zxcvbn";
+import zxcvbn from "zxcvbn";
 
 import { PasswordStrengthServiceAbstraction } from "./password-strength.service.abstraction";
 

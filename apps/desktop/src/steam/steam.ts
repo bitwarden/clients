@@ -12,15 +12,32 @@ class Steam {
   public static async login(account: TrayAccountView) {
     await this.logout();
     let steamDir = SteamPath.getSteamDir();
-    exec(`${steamDir} -login ${account.username} ${account.password}`, (_error: any, _stdout: any, _stderr: any) => {
-    });
+    console.log(steamDir);
+    exec(`"${steamDir}" -login ${account.username} ${account.password}`, (_error: any, _stdout: any, _stderr: any) => {
+      if (_error) {
+          console.log(`Error: ${_error.message}`);
+          return;
+      }
+      if (_stderr) {
+          console.log(`stderr: ${_stderr}`);
+          return;
+      }
+      console.log(`stdout: ${_stdout}`);
+    });    
   }
 
   public static async logout() {
     let hasExited = false;
-    while (hasExited == false) {
+    let attempts = 0;
+  
+    while (!hasExited && attempts < 10) {
       hasExited = await Steam.TryExit();
-      await Timer.sleep(100);
+      attempts++;
+  
+      if (!hasExited) {
+        await Timer.sleep(100);
+        console.log("Waiting!");
+      }
     }
   }
 

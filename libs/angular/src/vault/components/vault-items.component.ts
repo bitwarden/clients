@@ -38,6 +38,11 @@ export class VaultItemsComponent {
     this.deleted = deleted ?? false;
     await this.applyFilter(filter);
     this.loaded = true;
+    this.onLoadComplete();
+  }
+
+  protected onLoadComplete(){
+
   }
 
   async reload(filter: (cipher: CipherView) => boolean = null, deleted = false) {
