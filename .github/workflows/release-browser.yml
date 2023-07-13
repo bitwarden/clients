@@ -41,7 +41,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -103,7 +103,7 @@ jobs:
 
       - name: Download latest Release build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-browser.yml
           workflow_conclusion: success
@@ -116,7 +116,7 @@ jobs:
 
       - name: Dry Run - Download latest master build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@37ffa14164a7308bc273829edfe75c97cd562375
+        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
         with:
           workflow: build-browser.yml
           workflow_conclusion: success

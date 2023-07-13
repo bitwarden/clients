@@ -39,15 +39,11 @@ jobs:
           echo "new-version=$NEW_VER" >> $GITHUB_OUTPUT
 
   trigger_version_bump:
-    name: "Trigger desktop version bump workflow"
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-    steps:
-      - name: Bump version to ${{ needs.setup.outputs.version_number }}
-        uses: ./.github/workflows/version-bump.yml
-        secrets:
-          AZURE_PROD_KV_CREDENTIALS: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-        with:
-          version_number: ${{ needs.setup.outputs.version_number }}
-          client: "Desktop"
+    name: Bump version to ${{ needs.setup.outputs.version_number }}
+    needs: setup
+    uses: ./.github/workflows/version-bump.yml
+    secrets:
+      AZURE_PROD_KV_CREDENTIALS: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+    with:
+      version_number: ${{ needs.setup.outputs.version_number }}
+      client: "Desktop"
