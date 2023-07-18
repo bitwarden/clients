@@ -41,9 +41,7 @@ export class VaultItemsComponent {
     this.onLoadComplete();
   }
 
-  protected onLoadComplete(){
-
-  }
+  protected onLoadComplete() {}
 
   async reload(filter: (cipher: CipherView) => boolean = null, deleted = false) {
     this.loaded = false;

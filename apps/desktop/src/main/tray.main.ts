@@ -6,7 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { WindowMain } from "./window.main";
-import { ipcMain } from 'electron';
+import { ipcMain } from "electron";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TrayAccountView } from "src/steam/account";
@@ -41,13 +41,13 @@ export class TrayMain {
 
   async init(appName: string, additionalMenuItems: MenuItemConstructorOptions[] = null) {
     this.appName = appName;
-    
-    ipcMain.on('on-cipher-load', (event, accounts: TrayAccountView[]) => {
-      let steamSubMenu: MenuItemConstructorOptions[] = accounts.map(account => ({
+
+    ipcMain.on("on-cipher-load", (event, accounts: TrayAccountView[]) => {
+      let steamSubMenu: MenuItemConstructorOptions[] = accounts.map((account) => ({
         label: account.username,
         click: () => this.openSteam(account),
       }));
-      
+
       this.rebuildContextMenu(steamSubMenu, additionalMenuItems);
     });
 
@@ -56,8 +56,10 @@ export class TrayMain {
       this.showTray();
     }
   }
-  private rebuildContextMenu(steamSubMenu: MenuItemConstructorOptions[] = [], additionalMenuItems: MenuItemConstructorOptions[] = null): void {
-
+  private rebuildContextMenu(
+    steamSubMenu: MenuItemConstructorOptions[] = [],
+    additionalMenuItems: MenuItemConstructorOptions[] = null
+  ): void {
     const menuItemOptions: MenuItemConstructorOptions[] = [
       {
         label: "Steam",

@@ -5,14 +5,27 @@
         {{ "itemInformation" | i18n }}
       </h2>
       <div class="box-content">
-        <div class="box-content-row">
-          <span
-            class="row-label draggable"
-            draggable="true"
-            (dragstart)="setTextDataOnDrag($event, cipher.name)"
-            >{{ "name" | i18n }}</span
-          >
-          {{ cipher.name }}
+        <div class="box-content-row box-content-row-flex">
+          <div class="row-main">
+            <span
+              class="row-label draggable"
+              draggable="true"
+              (dragstart)="setTextDataOnDrag($event, cipher.name)"
+              >{{ "name" | i18n }}</span
+            >
+            {{ cipher.name }}
+          </div>
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="row-btn"
+              appStopClick
+              appA11yTitle="{{ 'copyUsername' | i18n }}"
+              (click)="login(cipher)"
+            >
+              <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
         <!-- Login -->
         <div *ngIf="cipher.login">
@@ -176,7 +189,7 @@
               </span>
             </div>
           </div>
-        </div>
+        </div>x
         <!-- Card -->
         <div *ngIf="cipher.card">
           <div class="box-content-row" *ngIf="cipher.card.cardholderName">

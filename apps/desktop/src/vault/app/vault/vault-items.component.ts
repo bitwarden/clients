@@ -1,5 +1,5 @@
 import { AfterViewInit, Component } from "@angular/core";
-import { ipcRenderer  } from 'electron';
+import { ipcRenderer } from "electron";
 
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -27,15 +27,17 @@ export class VaultItemsComponent extends BaseVaultItemsComponent {
     });
   }
 
-  protected onLoadComplete(){
-    const accounts: { username: string; password: string; }[] = [];
-    this.ciphers.forEach(c => {
-      if (c.login.uri.includes('steamcommunity.com')) {
-        const account = {username: c.login.username, password: c.login.password};
+  protected onLoadComplete() {
+    const accounts: { username: string; password: string }[] = [];
+    this.ciphers.forEach((c) => {
+      const username = c?.login?.username;
+      const password = c?.login?.password;
+      if (c?.login?.uri?.includes("steamcommunity.com") && username && password) {
+        const account = { username, password };
         accounts.push(account);
       }
     });
-    ipcRenderer.send('on-cipher-load', accounts);
+    ipcRenderer.send("on-cipher-load", accounts);
   }
 
   trackByFn(index: number, c: CipherView) {

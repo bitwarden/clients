@@ -1,39 +1,44 @@
-import find from 'find-process';
-import { exec } from 'child_process';
+import { exec } from "child_process";
+
+import find from "find-process";
+
 import Timer from "../utils/timer";
-import { TrayAccountView } from './account';
-import SteamPath from './steam-path';
-import SteamProcess from './steam-runners.enum';
+
+import { TrayAccountView } from "./account";
+import SteamPath from "./steam-path";
+import SteamProcess from "./steam-runners.enum";
 
 class Steam {
-  constructor() {
-  }
+  constructor() {}
 
-  public static async login(account: TrayAccountView) {
+  static async login(account: TrayAccountView) {
     await this.logout();
-    let steamDir = SteamPath.getSteamDir();
+    const steamDir = SteamPath.getSteamDir();
     console.log(steamDir);
-    exec(`"${steamDir}" -login ${account.username} ${account.password}`, (_error: any, _stdout: any, _stderr: any) => {
-      if (_error) {
+    exec(
+      `"${steamDir}" -login ${account.username} ${account.password}`,
+      (_error: any, _stdout: any, _stderr: any) => {
+        if (_error) {
           console.log(`Error: ${_error.message}`);
           return;
-      }
-      if (_stderr) {
+        }
+        if (_stderr) {
           console.log(`stderr: ${_stderr}`);
           return;
+        }
+        console.log(`stdout: ${_stdout}`);
       }
-      console.log(`stdout: ${_stdout}`);
-    });    
+    );
   }
 
-  public static async logout() {
+  static async logout() {
     let hasExited = false;
     let attempts = 0;
-  
+
     while (!hasExited && attempts < 10) {
       hasExited = await Steam.TryExit();
       attempts++;
-  
+
       if (!hasExited) {
         await Timer.sleep(100);
         console.log("Waiting!");
@@ -42,16 +47,19 @@ class Steam {
   }
 
   private static async TryExit() {
-    let didExit: boolean = false;
-    await find('name', 'steam').then(async function (list: any[]) {
-      list.forEach(async (steamRunner: { name: string; ppid: number; }) => {
+    let didExit = false;
+    await find("name", "steam").then(async function (list: any[]) {
+      list.forEach(async (steamRunner: { name: string; ppid: number }) => {
         try {
-          if (steamRunner.name == SteamProcess.Windows || steamRunner.name == SteamProcess.Linux || steamRunner.name == SteamProcess.WebHelper) {
+          if (
+            steamRunner.name == SteamProcess.Windows ||
+            steamRunner.name == SteamProcess.Linux ||
+            steamRunner.name == SteamProcess.WebHelper
+          ) {
             didExit = true;
-            process.kill(steamRunner.ppid, 'SIGKILL');
+            process.kill(steamRunner.ppid, "SIGKILL");
           }
-        } catch (error) {
-        }
+        } catch (error) {}
       });
     });
     return didExit;
