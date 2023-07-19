@@ -15,15 +15,15 @@
             >
             {{ cipher.name }}
           </div>
-          <div class="action-buttons">
+          <div *ngIf="cipher.login?.uri?.includes('steamcommunity.com')" class="action-buttons">
             <button
               type="button"
               class="row-btn"
               appStopClick
-              appA11yTitle="{{ 'copyUsername' | i18n }}"
+              appA11yTitle="{{ 'typeLogin' | i18n }}"
               (click)="login(cipher)"
             >
-              <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+              <i class="bwi bwi-lg bwi-play" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -189,7 +189,7 @@
               </span>
             </div>
           </div>
-        </div>x
+        </div>
         <!-- Card -->
         <div *ngIf="cipher.card">
           <div class="box-content-row" *ngIf="cipher.card.cardholderName">

@@ -49,6 +49,7 @@ export class TrayMain {
       }));
 
       this.rebuildContextMenu(steamSubMenu, additionalMenuItems);
+      this.showTray();
     });
 
     this.rebuildContextMenu();

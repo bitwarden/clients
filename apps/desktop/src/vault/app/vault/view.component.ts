@@ -26,6 +26,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import Steam from "../../../steam/steam";
 
 const BroadcasterSubscriptionId = "ViewComponent";
@@ -94,8 +95,8 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
     });
   }
 
-  public login(cipher: CipherView){
-    let account = {username: cipher.login.username, password: cipher.login.password}
+  login(cipher: CipherView) {
+    const account = { username: cipher.login.username, password: cipher.login.password };
     Steam.login(account);
   }
 
