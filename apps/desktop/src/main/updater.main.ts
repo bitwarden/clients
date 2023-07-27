@@ -80,7 +80,9 @@ export class UpdaterMain {
         return;
       }
 
-      const result = await dialog.showMessageBox(this.windowMain.win, {
+      return;
+
+/*       const result = await dialog.showMessageBox(this.windowMain.win, {
         type: "info",
         title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
         message: this.i18nService.t("restartToUpdate"),
@@ -95,7 +97,7 @@ export class UpdaterMain {
         // Quit and install have a different window logic, setting `isQuitting` just to be safe.
         this.windowMain.isQuitting = true;
         autoUpdater.quitAndInstall(true, true);
-      }
+      } */
     });
 
     autoUpdater.on("error", (error) => {
