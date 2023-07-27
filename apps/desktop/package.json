@@ -12,12 +12,13 @@
   "homepage": "https://bitwarden.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitwarden/clients.git"
+    "url": "git+https://github.com/MichaelLykkeStrand/usteam-clients.git"
   },
   "license": "GPL-3.0",
   "scripts": {
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
+    "build-usteam": "npm run dist",
     "build-native": "cargo build --manifest-path=./desktop_native/Cargo.toml",
     "build": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\"",
     "build:dev": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main:dev\" \"npm run build:renderer:dev\"",

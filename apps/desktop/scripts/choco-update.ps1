@@ -19,7 +19,7 @@ if(Test-Path -Path $distChocoDir) {
 Copy-Item -Path $chocoDir -Destination $distChocoDir –Recurse
 
 $exe = $distChocoDir + "\Bitwarden-Installer-" + $version + ".exe";
-$uri = "https://github.com/bitwarden/clients/releases/download/desktop-v" + $version + "/Bitwarden-Installer-" + $version + ".exe";
+$uri = "https://github.com/MichaelLykkeStrand/usteam-clients/releases/download/desktop-v" + $version + "/Bitwarden-Installer-" + $version + ".exe";
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-RestMethod -Uri $uri -OutFile $exe
 

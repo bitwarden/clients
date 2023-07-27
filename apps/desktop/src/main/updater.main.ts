@@ -29,8 +29,8 @@ export class UpdaterMain {
   }
 
   async init() {
-    global.setTimeout(async () => await this.checkForUpdate(), UpdaterCheckInitialDelay);
-    global.setInterval(async () => await this.checkForUpdate(), UpdaterCheckInterval);
+    //global.setTimeout(async () => await this.checkForUpdate(), UpdaterCheckInitialDelay);
+    //global.setInterval(async () => await this.checkForUpdate(), UpdaterCheckInterval);
 
     autoUpdater.on("checking-for-update", () => {
       this.doingUpdateCheck = true;
@@ -117,7 +117,7 @@ export class UpdaterMain {
 
     if (!this.canUpdate) {
       if (withFeedback) {
-        shell.openExternal("https://github.com/bitwarden/clients/releases");
+        shell.openExternal("https://github.com/MichaelLykkeStrand/usteam-clients/releases");
       }
 
       return;

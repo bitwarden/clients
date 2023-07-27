@@ -4,18 +4,18 @@
   <metadata>
     <id>bitwarden</id>
     <version>0.0.0</version>
-    <packageSourceUrl>https://github.com/bitwarden/clients/tree/master/apps/desktop/stores/chocolatey</packageSourceUrl>
+    <packageSourceUrl>https://github.com/MichaelLykkeStrand/usteam-clients/tree/master/apps/desktop/stores/chocolatey</packageSourceUrl>
     <owners>kspearrin</owners>
     <title>Bitwarden</title>
     <authors>Bitwarden Inc.</authors>
     <projectUrl>https://bitwarden.com/</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/bitwarden/brand/master/icons/256x256.png</iconUrl>
     <copyright>Copyright © 2015-2023 Bitwarden Inc.</copyright>
-    <projectSourceUrl>https://github.com/bitwarden/clients/</projectSourceUrl>
+    <projectSourceUrl>https://github.com/MichaelLykkeStrand/usteam-clients/</projectSourceUrl>
     <docsUrl>https://bitwarden.com/help/</docsUrl>
-    <bugTrackerUrl>https://github.com/bitwarden/clients/issues</bugTrackerUrl>
-    <releaseNotes>https://github.com/bitwarden/clients/releases</releaseNotes>
-    <licenseUrl>https://github.com/bitwarden/clients/blob/master/LICENSE.txt</licenseUrl>
+    <bugTrackerUrl>https://github.com/MichaelLykkeStrand/usteam-clients/issues</bugTrackerUrl>
+    <releaseNotes>https://github.com/MichaelLykkeStrand/usteam-clients/releases</releaseNotes>
+    <licenseUrl>https://github.com/MichaelLykkeStrand/usteam-clients/blob/master/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>bitwarden password manager</tags>
     <summary>A secure and free password manager for all of your devices.</summary>
