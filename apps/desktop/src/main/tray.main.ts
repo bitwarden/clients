@@ -1,16 +1,16 @@
 import * as path from "path";
 
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray , ipcMain } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-
-import { WindowMain } from "./window.main";
-import { ipcMain } from "electron";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import { TrayAccountView } from "src/steam/account";
 import Steam from "src/steam/steam";
+
+import { WindowMain } from "./window.main";
 
 export class TrayMain {
   contextMenu: Menu;
@@ -43,7 +43,7 @@ export class TrayMain {
     this.appName = appName;
 
     ipcMain.on("on-cipher-load", (event, accounts: TrayAccountView[]) => {
-      let steamSubMenu: MenuItemConstructorOptions[] = accounts.map((account) => ({
+      const steamSubMenu: MenuItemConstructorOptions[] = accounts.map((account) => ({
         label: account.username,
         click: () => this.openSteam(account),
       }));
@@ -117,10 +117,6 @@ export class TrayMain {
   removeTray(showWindow = true) {
     // Due to https://github.com/electron/electron/issues/17622
     // we cannot destroy the tray icon on linux.
-    if (this.tray != null && process.platform !== "linux") {
-      this.tray.destroy();
-      this.tray = null;
-    }
 
     if (showWindow && this.windowMain.win != null && !this.windowMain.win.isVisible()) {
       this.windowMain.win.show();

@@ -9,7 +9,7 @@
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitwarden/clients.git"
+    "url": "git+https://github.com/MichaelLykkeStrand/usteam-clients.git"
   },
   "dependencies": {
     "@bitwarden/desktop-native": "file:../desktop_native"

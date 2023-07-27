@@ -23,7 +23,9 @@
               appA11yTitle="{{ 'typeLogin' | i18n }}"
               (click)="login(cipher)"
             >
-              <i class="bwi bwi-lg bwi-play" aria-hidden="true"></i>
+            <i class="bwi bwi-lg" 
+            [ngClass]="isLoading ? 'bwi-spinner bwi-spin' : 'bwi-play'" 
+            aria-hidden="true"></i>
             </button>
           </div>
         </div>

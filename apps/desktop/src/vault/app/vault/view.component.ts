@@ -37,6 +37,7 @@ const BroadcasterSubscriptionId = "ViewComponent";
 })
 export class ViewComponent extends BaseViewComponent implements OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
+  isLoading: boolean = false;
 
   constructor(
     cipherService: CipherService,
@@ -95,9 +96,11 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
     });
   }
 
-  login(cipher: CipherView) {
+  async login(cipher: CipherView) {
     const account = { username: cipher.login.username, password: cipher.login.password };
-    Steam.login(account);
+    this.isLoading = true;
+    await Steam.login(account);
+    this.isLoading = false;
   }
 
   ngOnDestroy() {
