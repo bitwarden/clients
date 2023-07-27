@@ -29,14 +29,15 @@ export class UpdaterMain {
   }
 
   async init() {
-    //global.setTimeout(async () => await this.checkForUpdate(), UpdaterCheckInitialDelay);
-    //global.setInterval(async () => await this.checkForUpdate(), UpdaterCheckInterval);
+    global.setTimeout(async () => await this.checkForUpdate(), UpdaterCheckInitialDelay);
+    global.setInterval(async () => await this.checkForUpdate(), UpdaterCheckInterval);
 
     autoUpdater.on("checking-for-update", () => {
       this.doingUpdateCheck = true;
     });
 
     autoUpdater.on("update-available", async () => {
+
       if (this.doingUpdateCheckWithFeedback) {
         if (this.windowMain.win == null) {
           this.reset();
@@ -80,9 +81,7 @@ export class UpdaterMain {
         return;
       }
 
-      return;
-
-/*       const result = await dialog.showMessageBox(this.windowMain.win, {
+      const result = await dialog.showMessageBox(this.windowMain.win, {
         type: "info",
         title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
         message: this.i18nService.t("restartToUpdate"),
@@ -97,7 +96,7 @@ export class UpdaterMain {
         // Quit and install have a different window logic, setting `isQuitting` just to be safe.
         this.windowMain.isQuitting = true;
         autoUpdater.quitAndInstall(true, true);
-      } */
+      }
     });
 
     autoUpdater.on("error", (error) => {
@@ -113,6 +112,7 @@ export class UpdaterMain {
   }
 
   async checkForUpdate(withFeedback = false) {
+    return;
     if (this.doingUpdateCheck || isDev()) {
       return;
     }
