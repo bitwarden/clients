@@ -409,13 +409,6 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      const passwordFieldsForForm: AutofillField[] = [];
-      passwordFields.forEach((passField) => {
-        if (formKey === passField.form) {
-          passwordFieldsForForm.push(passField);
-        }
-      });
-
       passwordFields.forEach((passField) => {
         pf = passField;
         passwords.push(pf);
@@ -438,7 +431,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
           if (!totp && !options.onlyVisibleFields) {
             // not able to find any viewable totp fields. maybe there are some "hidden" ones?
-            totp = this.findTotpField(pageDetails, pf, true, true, true);
+            totp = this.findTotpField(pageDetails, pf, true, true, false);
           }
 
           if (totp) {
@@ -745,6 +738,15 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.MonthAbbr[i] +
               "/" +
+              CreditCardAutoFillConstants.YearAbbrLong[i]
+          )
+        ) {
+          exp = fullMonth + "/" + fullYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "/" +
               CreditCardAutoFillConstants.YearAbbrShort[i]
           ) &&
           partYear != null
@@ -753,12 +755,12 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.MonthAbbr[i] +
+            CreditCardAutoFillConstants.YearAbbrLong[i] +
               "/" +
-              CreditCardAutoFillConstants.YearAbbrLong[i]
+              CreditCardAutoFillConstants.MonthAbbr[i]
           )
         ) {
-          exp = fullMonth + "/" + fullYear;
+          exp = fullYear + "/" + fullMonth;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
@@ -772,12 +774,12 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.YearAbbrLong[i] +
-              "/" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "-" +
+              CreditCardAutoFillConstants.YearAbbrLong[i]
           )
         ) {
-          exp = fullYear + "/" + fullMonth;
+          exp = fullMonth + "-" + fullYear;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
@@ -791,12 +793,12 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.MonthAbbr[i] +
+            CreditCardAutoFillConstants.YearAbbrLong[i] +
               "-" +
-              CreditCardAutoFillConstants.YearAbbrLong[i]
+              CreditCardAutoFillConstants.MonthAbbr[i]
           )
         ) {
-          exp = fullMonth + "-" + fullYear;
+          exp = fullYear + "-" + fullMonth;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
@@ -810,12 +812,10 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.YearAbbrLong[i] +
-              "-" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+            CreditCardAutoFillConstants.YearAbbrLong[i] + CreditCardAutoFillConstants.MonthAbbr[i]
           )
         ) {
-          exp = fullYear + "-" + fullMonth;
+          exp = fullYear + fullMonth;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
@@ -827,10 +827,10 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.YearAbbrLong[i] + CreditCardAutoFillConstants.MonthAbbr[i]
+            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrLong[i]
           )
         ) {
-          exp = fullYear + fullMonth;
+          exp = fullMonth + fullYear;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
@@ -839,13 +839,6 @@ export default class AutofillService implements AutofillServiceInterface {
           partYear != null
         ) {
           exp = fullMonth + partYear;
-        } else if (
-          this.fieldAttrsContain(
-            fillFields.exp,
-            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrLong[i]
-          )
-        ) {
-          exp = fullMonth + fullYear;
         }
 
         if (exp != null) {
@@ -1340,7 +1333,8 @@ export default class AutofillService implements AutofillServiceInterface {
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form) &&
         (canBeHidden || f.viewable) &&
-        (f.type === "text" || f.type === "number")
+        (f.type === "text" || f.type === "number") &&
+        AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.TotpFieldNames)
       ) {
         totpField = f;
 
@@ -1516,7 +1510,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   static hasValue(str: string): boolean {
-    return str && str !== "";
+    return Boolean(str && str !== "");
   }
 
   static setFillScriptForFocus(

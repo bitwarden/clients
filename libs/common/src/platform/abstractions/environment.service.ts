@@ -65,9 +65,4 @@ export abstract class EnvironmentService {
   getUrls: () => Urls;
   isCloud: () => boolean;
   isEmpty: () => boolean;
-  /**
-   * @remarks For desktop and browser use only.
-   * For web, use PlatformUtilsService.isSelfHost()
-   */
-  isSelfHosted: () => boolean;
 }

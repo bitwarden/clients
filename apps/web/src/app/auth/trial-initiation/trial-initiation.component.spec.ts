@@ -51,7 +51,7 @@ describe("TrialInitiationComponent", () => {
             component: BlankComponent,
           },
           {
-            path: `organizations/${testOrgId}/manage/members`,
+            path: `organizations/${testOrgId}/members`,
             component: BlankComponent,
           },
         ]),
@@ -301,7 +301,7 @@ describe("TrialInitiationComponent", () => {
     describe("navigateToOrgVault", () => {
       it("should call verticalStepper.previous()", fakeAsync(() => {
         component.navigateToOrgInvite();
-        expect(routerSpy).toHaveBeenCalledWith(["organizations", testOrgId, "manage", "members"]);
+        expect(routerSpy).toHaveBeenCalledWith(["organizations", testOrgId, "members"]);
       }));
     });
   });

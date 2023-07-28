@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "Iniciar sessão com o dispositivo"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação móvel do Bitwarden. Necessita de outra opção?"
+  "loginWithDeviceEnabledNote": {
+    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Necessita de outra opção?"
   },
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Gestão da recuperação de contas"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Recuperar contas de membros quando a palavra-passe mestra ou dispositivos de confiança são esquecidos ou perdidos. O processo de recuperação baseia-se no método de encriptação da conta."
+  "accountRecoveryPolicyDesc": {
+    "message": "Com base no método de encriptação, recupere contas quando as palavras-passe mestras ou os dispositivos de confiança são esquecidos ou perdidos."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Os membros da organização terão de se inscrever ou serem inscritos automaticamente antes de os administradores poderem repor a sua palavra-passe mestra."
+  "accountRecoveryPolicyWarning": {
+    "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam automaticamente antes de os administradores poderem recuperar as suas contas. O registo automático ativará a recuperação de contas para novos membros."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "A política empresarial de organização única deve ser ativada antes de ativar esta política."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Todos os membros serão automaticamente inscritos na redefinição da palavra-passe assim que o seu convite for aceite e não poderão desistir."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Os membros que já pertencem à organização não serão inscritos retroativamente na reposição da palavra-passe. Terão de se inscrever automaticamente antes de os administradores poderem repor a sua palavra-passe mestra."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Exigir que os novos membros sejam inscritos automaticamente"
@@ -5008,7 +5005,7 @@
     "message": "Assertion consumer service (ACS) URL"
   },
   "spNameIdFormat": {
-    "message": "Name ID format"
+    "message": "Formato de identificador de nome"
   },
   "spOutboundSigningAlgorithm": {
     "message": "Outbound signing algorithm"
@@ -5224,7 +5221,7 @@
     "message": "Utilize a",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
+  "ssoPolicyHelpAnchor": {
     "message": "política de autenticação de início de sessão único",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Encriptação de dispositivo de confiança"
   },
-  "memberDecryptionTdeDescriptionStart": {
+  "memberDecryptionTdeDescriptionPartOne": {
     "message": "Uma vez autenticados, os membros desencriptam os dados do cofre utilizando uma chave armazenada no seu dispositivo. A",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "política de gestão da recuperação de contas",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "política de organização única",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "e a política de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "gestão da recuperação de contas",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
     "message": "com inscrição automática será ativada quando esta opção for utilizada.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ não encontrado(a)",

@@ -10,13 +10,13 @@ import { ApiActionDirective } from "./directives/api-action.directive";
 import { AutofocusDirective } from "./directives/autofocus.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
 import { CopyClickDirective } from "./directives/copy-click.directive";
+import { CopyTextDirective } from "./directives/copy-text.directive";
 import { FallbackSrcDirective } from "./directives/fallback-src.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
 import { InputStripSpacesDirective } from "./directives/input-strip-spaces.directive";
 import { InputVerbatimDirective } from "./directives/input-verbatim.directive";
 import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { NotPremiumDirective } from "./directives/not-premium.directive";
-import { SelectCopyDirective } from "./directives/select-copy.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
 import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
@@ -50,6 +50,7 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     BoxRowDirective,
     CalloutComponent,
+    CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
     ExportScopeCalloutComponent,
@@ -61,7 +62,6 @@ import { IconComponent } from "./vault/components/icon.component";
     NotPremiumDirective,
     SearchCiphersPipe,
     SearchPipe,
-    SelectCopyDirective,
     StopClickDirective,
     StopPropDirective,
     TrueFalseValueDirective,
@@ -81,6 +81,7 @@ import { IconComponent } from "./vault/components/icon.component";
     BitwardenToastModule,
     BoxRowDirective,
     CalloutComponent,
+    CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
     ExportScopeCalloutComponent,
@@ -92,7 +93,6 @@ import { IconComponent } from "./vault/components/icon.component";
     NotPremiumDirective,
     SearchCiphersPipe,
     SearchPipe,
-    SelectCopyDirective,
     StopClickDirective,
     StopPropDirective,
     TrueFalseValueDirective,

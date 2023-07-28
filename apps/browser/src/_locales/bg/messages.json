@@ -2236,10 +2236,10 @@
     "description": "United States"
   },
   "accessDenied": {
-    "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
+    "message": "Отказан достъп. Нямате право за преглед на страницата."
   },
   "general": {
-    "message": "General"
+    "message": "Общи"
   },
   "display": {
     "message": "Display"

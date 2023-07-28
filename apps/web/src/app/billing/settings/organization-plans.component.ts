@@ -7,7 +7,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { UntypedFormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -20,9 +20,11 @@ import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { BitwardenProductType, PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ProductType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -31,6 +33,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+
+import { secretsManagerSubscribeFormFactory } from "../organizations/secrets-manager/sm-subscribe.component";
 
 import { PaymentComponent } from "./payment.component";
 import { TaxInfoComponent } from "./tax-info.component";
@@ -51,24 +55,29 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   @Input() showFree = true;
   @Input() showCancel = false;
   @Input() acceptingSponsorship = false;
+
   @Input()
   get product(): ProductType {
     return this._product;
   }
+
   set product(product: ProductType) {
     this._product = product;
     this.formGroup?.controls?.product?.setValue(product);
   }
+
   private _product = ProductType.Free;
 
   @Input()
   get plan(): PlanType {
     return this._plan;
   }
+
   set plan(plan: PlanType) {
     this._plan = plan;
     this.formGroup?.controls?.plan?.setValue(plan);
   }
+
   private _plan = PlanType.Free;
   @Input() providerId?: string;
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
@@ -82,6 +91,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
   discount = 0;
+  showSecretsManagerSubscribe: boolean;
+
+  secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 
   formGroup = this.formBuilder.group({
     name: [""],
@@ -94,9 +106,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     businessName: [""],
     plan: [this.plan],
     product: [this.product],
+    secretsManager: this.secretsManagerSubscription,
   });
 
-  plans: PlanResponse[];
+  passwordManagerPlans: PlanResponse[];
+  secretsManagerPlans: PlanResponse[];
 
   private destroy$ = new Subject<void>();
 
@@ -111,8 +125,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private logService: LogService,
     private messagingService: MessagingService,
-    private formBuilder: UntypedFormBuilder,
-    private organizationApiService: OrganizationApiServiceAbstraction
+    private formBuilder: FormBuilder,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private configService: ConfigServiceAbstraction
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
   }
@@ -120,7 +135,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     if (!this.selfHosted) {
       const plans = await this.apiService.getPlans();
-      this.plans = plans.data;
+      this.passwordManagerPlans = plans.data.filter(
+        (plan) => plan.bitwardenProduct === BitwardenProductType.PasswordManager
+      );
+      this.secretsManagerPlans = plans.data.filter(
+        (plan) => plan.bitwardenProduct === BitwardenProductType.SecretsManager
+      );
+
       if (this.product === ProductType.Enterprise || this.product === ProductType.Teams) {
         this.formGroup.controls.businessOwned.setValue(true);
       }
@@ -131,12 +152,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.changedOwnedBusiness();
     }
 
-    if (!this.createOrganization || this.acceptingSponsorship) {
-      this.formGroup.controls.product.setValue(ProductType.Families);
-      this.changedProduct();
-    }
-
-    if (this.createOrganization) {
+    if (!this.createOrganization) {
+      this.upgradeFlowPrefillForm();
+    } else {
       this.formGroup.controls.name.addValidators([Validators.required, Validators.maxLength(50)]);
       this.formGroup.controls.billingEmail.addValidators(Validators.required);
     }
@@ -147,6 +165,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
+
+    this.showSecretsManagerSubscribe = await this.configService.getFeatureFlagBool(
+      FeatureFlag.SecretsManagerBilling,
+      false
+    );
 
     this.loading = false;
   }
@@ -165,7 +188,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get selectedPlan() {
-    return this.plans.find((plan) => plan.type === this.formGroup.controls.plan.value);
+    return this.passwordManagerPlans.find(
+      (plan) => plan.type === this.formGroup.controls.plan.value
+    );
+  }
+
+  get selectedSecretsManagerPlan() {
+    return this.secretsManagerPlans.find(
+      (plan) => plan.type === this.formGroup.controls.plan.value
+    );
   }
 
   get selectedPlanInterval() {
@@ -173,7 +204,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get selectableProducts() {
-    let validPlans = this.plans.filter((plan) => plan.type !== PlanType.Custom);
+    let validPlans = this.passwordManagerPlans.filter((plan) => plan.type !== PlanType.Custom);
 
     if (this.formGroup.controls.businessOwned.value) {
       validPlans = validPlans.filter((plan) => plan.canBeUsedByBusiness);
@@ -191,7 +222,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
 
     if (this.acceptingSponsorship) {
-      const familyPlan = this.plans.find((plan) => plan.type === PlanType.FamiliesAnnually);
+      const familyPlan = this.passwordManagerPlans.find(
+        (plan) => plan.type === PlanType.FamiliesAnnually
+      );
       this.discount = familyPlan.basePrice;
       validPlans = [familyPlan];
     }
@@ -200,7 +233,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get selectablePlans() {
-    return this.plans?.filter(
+    return this.passwordManagerPlans?.filter(
       (plan) =>
         !plan.legacyYear && !plan.disabled && plan.product === this.formGroup.controls.product.value
     );
@@ -231,21 +264,32 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
   }
 
-  seatTotal(plan: PlanResponse): number {
+  seatTotal(plan: PlanResponse, seats: number): number {
     if (!plan.hasAdditionalSeatsOption) {
       return 0;
     }
 
-    return plan.seatPrice * Math.abs(this.formGroup.controls.additionalSeats.value || 0);
+    return plan.seatPrice * Math.abs(seats || 0);
   }
 
-  get subtotal() {
+  additionalServiceAccountTotal(plan: PlanResponse): number {
+    if (!plan.hasAdditionalServiceAccountOption) {
+      return 0;
+    }
+
+    return (
+      plan.additionalPricePerServiceAccount *
+      Math.abs(this.secretsManagerForm.value.additionalServiceAccounts || 0)
+    );
+  }
+
+  get passwordManagerSubtotal() {
     let subTotal = this.selectedPlan.basePrice;
     if (
       this.selectedPlan.hasAdditionalSeatsOption &&
       this.formGroup.controls.additionalSeats.value
     ) {
-      subTotal += this.seatTotal(this.selectedPlan);
+      subTotal += this.seatTotal(this.selectedPlan, this.formGroup.value.additionalSeats);
     }
     if (
       this.selectedPlan.hasAdditionalStorageOption &&
@@ -262,18 +306,39 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return subTotal - this.discount;
   }
 
+  get secretsManagerSubtotal() {
+    const plan = this.selectedSecretsManagerPlan;
+    const formValues = this.secretsManagerForm.value;
+
+    if (!this.planOffersSecretsManager || !formValues.enabled) {
+      return 0;
+    }
+
+    let subTotal = plan.basePrice;
+    if (plan.hasAdditionalSeatsOption && formValues.userSeats) {
+      subTotal += this.seatTotal(plan, formValues.userSeats);
+    }
+
+    if (plan.hasAdditionalStorageOption && formValues.additionalServiceAccounts) {
+      subTotal += this.additionalServiceAccountTotal(this.selectedPlan);
+    }
+
+    return subTotal;
+  }
+
   get freeTrial() {
     return this.selectedPlan.trialPeriodDays != null;
   }
 
   get taxCharges() {
     return this.taxComponent != null && this.taxComponent.taxRate != null
-      ? (this.taxComponent.taxRate / 100) * this.subtotal
+      ? (this.taxComponent.taxRate / 100) *
+          (this.passwordManagerSubtotal + this.secretsManagerSubtotal)
       : 0;
   }
 
   get total() {
-    return this.subtotal + this.taxCharges || 0;
+    return this.passwordManagerSubtotal + this.secretsManagerSubtotal + this.taxCharges || 0;
   }
 
   get paymentDesc() {
@@ -284,6 +349,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval));
     }
+  }
+
+  get secretsManagerForm() {
+    return this.formGroup.controls.secretsManager;
+  }
+
+  get planOffersSecretsManager() {
+    return this.selectedSecretsManagerPlan != null;
   }
 
   changedProduct() {
@@ -303,6 +376,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     ) {
       this.formGroup.controls.additionalSeats.setValue(1);
     }
+
+    if (this.planOffersSecretsManager) {
+      this.secretsManagerForm.enable();
+    } else {
+      this.secretsManagerForm.disable();
+    }
+
+    this.secretsManagerForm.updateValueAndValidity();
   }
 
   changedOwnedBusiness() {
@@ -407,6 +488,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     request.billingAddressCountry = this.taxComponent.taxInfo.country;
     request.billingAddressPostalCode = this.taxComponent.taxInfo.postalCode;
 
+    // Secrets Manager
+    this.buildSecretsManagerRequest(request);
+
     // Retrieve org info to backfill pub/priv key if necessary
     const org = await this.organizationService.get(this.organizationId);
     if (!org.hasPublicAndPrivateKeys) {
@@ -462,6 +546,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       }
     }
 
+    // Secrets Manager
+    this.buildSecretsManagerRequest(request);
+
     if (this.providerId) {
       const providerRequest = new ProviderOrganizationCreateRequest(
         this.formGroup.controls.clientOwnerEmail.value,
@@ -516,5 +603,41 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
 
     return text;
+  }
+
+  private buildSecretsManagerRequest(
+    request: OrganizationCreateRequest | OrganizationUpgradeRequest
+  ): void {
+    const formValues = this.secretsManagerForm.value;
+
+    request.useSecretsManager = this.planOffersSecretsManager && formValues.enabled;
+
+    if (!request.useSecretsManager) {
+      return;
+    }
+
+    if (this.selectedSecretsManagerPlan.hasAdditionalSeatsOption) {
+      request.additionalSmSeats = formValues.userSeats;
+    }
+
+    if (this.selectedSecretsManagerPlan.hasAdditionalServiceAccountOption) {
+      request.additionalServiceAccounts = formValues.additionalServiceAccounts;
+    }
+  }
+
+  private upgradeFlowPrefillForm() {
+    if (this.acceptingSponsorship) {
+      this.formGroup.controls.product.setValue(ProductType.Families);
+      this.changedProduct();
+      return;
+    }
+
+    // If they already have SM enabled, bump them up to Teams and enable SM to maintain this access
+    const organization = this.organizationService.get(this.organizationId);
+    if (organization.useSecretsManager) {
+      this.formGroup.controls.product.setValue(ProductType.Teams);
+      this.secretsManagerForm.controls.enabled.setValue(true);
+      this.changedProduct();
+    }
   }
 }

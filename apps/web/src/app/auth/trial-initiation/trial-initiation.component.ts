@@ -227,7 +227,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   navigateToOrgInvite() {
-    this.router.navigate(["organizations", this.orgId, "manage", "members"]);
+    this.router.navigate(["organizations", this.orgId, "members"]);
   }
 
   previousStep() {

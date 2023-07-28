@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – Ilmainen salasananhallinta</value>
+    <value>Bitwarden – Ilmainen salasanahallinta</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Turvallinen ja ilmainen salasanojen hallinta kaikille laitteillesi</value>
+    <value>Turvallinen ja ilmainen salasanahallinta kaikille laitteillesi</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Bitwarden, Inc. on 8bit Solutions LLC:n emoyhtiö.
@@ -152,7 +152,7 @@ Suojaa, käytä ja jaa Bitwarden-holvisi arkaluontoisia tietoja kaikilla selaimi
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Turvallinen ja ilmainen salasanojen hallinta kaikille laitteillesi</value>
+    <value>Turvallinen ja ilmainen salasanahallinta kaikille laitteillesi</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkronoi ja hallitse holviasi useilla laitteilla</value>

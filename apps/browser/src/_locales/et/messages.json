@@ -2236,12 +2236,12 @@
     "description": "United States"
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "Ligipääs keelatud. Sul pole lubatud seda lehekülge vaadata."
   },
   "general": {
-    "message": "General"
+    "message": "Üldine"
   },
   "display": {
-    "message": "Display"
+    "message": "Kuvamine"
   }
 }

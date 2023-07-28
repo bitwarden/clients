@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "デバイスでログイン"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Bitwarden モバイルアプリの設定で有効化する必要があります。別のオプションが必要ですか？"
+  "loginWithDeviceEnabledNote": {
+    "message": "Bitwarden アプリで「デバイスでログイン」の設定をする必要があります。別のオプションが必要ですか？"
   },
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "アカウント回復の管理"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "マスターパスワードまたは信頼できるデバイスを忘れた、または紛失した場合にメンバーアカウントを回復できます。回復プロセスはアカウントの暗号化方式に基づきます。"
+  "accountRecoveryPolicyDesc": {
+    "message": "暗号化方法に基づいて、マスターパスワードまたは信頼できるデバイスを忘れたり紛失したりした場合にアカウントを回復します。"
   },
-  "resetPasswordPolicyWarning": {
-    "message": "管理者がマスターパスワードをリセットするには、組織内のユーザーは自己登録または自動登録する必要があります。"
+  "accountRecoveryPolicyWarning": {
+    "message": "マスターパスワードを持つ既存のアカウントでは、管理者がアカウントを回復する前にメンバーが自己登録する必要があります。 自動登録すると新規メンバーではアカウント復旧が有効になります。"
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "このポリシーを有効にする前に、単一の組織のエンタープライズポリシーを有効にする必要があります。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動登録"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "招待が承認されると、すべてのユーザーは自動的にパスワードリセットに登録されます。"
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "すでに組織にいるユーザーは、パスワードリセットに遡って登録されません。管理者がマスターパスワードをリセットできるようにするには、自己登録する必要があります。"
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "自動的に新規ユーザーを登録する"
@@ -5224,8 +5221,8 @@
     "message": "すべてのメンバーが SSO でログインするには",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
-    "message": "SSO ポリシー",
+  "ssoPolicyHelpAnchor": {
+    "message": "シングルサインオン認証ポリシーが必要です",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "信頼できるデバイスの暗号化"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "認証が完了すると、メンバーはデバイスに保存されているキーを使用して保管庫のデータを復号します。",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "認証が完了したあとメンバーはデバイスに保存されているキーを使用して保管庫のデータを復号します。このオプションを使用すると、",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "アカウント回復管理ポリシー",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "単一組織",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "このオプションを使用すると、自動登録が有効になります。",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "ポリシーと ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "アカウント回復の管理",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "の自動登録が有効になります。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ が見つかりません",

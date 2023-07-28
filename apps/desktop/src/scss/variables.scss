@@ -28,7 +28,7 @@ $brand-primary-accent: #1252a3;
 
 $background-color: white;
 $background-color-alt: #f9f9f9;
-$background-color-alt2: #ededed;
+$background-color-alt2: #ededed; // Ensure the `window.main.ts` is updated with this value
 
 $box-background-color: $background-color;
 $box-background-hover-color: $list-item-hover;
@@ -50,6 +50,7 @@ $themes: (
     backgroundColor: $background-color,
     borderColorAlt: $border-color-alt,
     backgroundColorAlt: $background-color-alt,
+    // Ensure the `window.main.ts` is updated with this value
     backgroundColorAlt2: $background-color-alt2,
     scrollbarColor: rgba(100, 100, 100, 0.2),
     scrollbarHoverColor: rgba(100, 100, 100, 0.4),
@@ -107,6 +108,7 @@ $themes: (
     backgroundColor: #363636,
     borderColorAlt: #6e788a,
     backgroundColorAlt: #3d3d3d,
+    // Ensure the `window.main.ts` is updated with this value
     backgroundColorAlt2: #222222,
     scrollbarColor: #4d4d4d,
     scrollbarHoverColor: #5f5f5f,
@@ -164,6 +166,7 @@ $themes: (
     backgroundColor: $nord2,
     borderColorAlt: $nord5,
     backgroundColorAlt: $nord1,
+    // Ensure the `window.main.ts` is updated with this value
     backgroundColorAlt2: $nord1,
     scrollbarColor: $nord4,
     scrollbarHoverColor: $nord6,

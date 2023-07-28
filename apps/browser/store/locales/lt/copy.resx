@@ -124,19 +124,19 @@
     <value>Saugi ir nemokama slaptažodžių tvarkyklė visiems įrenginiams</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. yra pagrindinė 8bit Solutions LLC įmonė.
+    <value>„Bitwarden, Inc.“ yra pagrindinė 8bit Solutions LLC įmonė.
 
 ĮVARDINTA GERIAUSIU SLAPTAŽODŽIŲ TVARKYTOJU.
 
-Tvarkykite, saugokite, saugokite ir bendrinkite neribotą skaičių slaptažodžių neribotuose įrenginiuose iš bet kurios vietos. „Bitwarden“ teikia atvirojo kodo slaptažodžių valdymo sprendimus visiems – tiek namuose, tiek darbe, tiek keliaujant.
+Tvarkykite, saugokite, saugokite ir bendrinkite neribotą skaičių slaptažodžių neribotuose įrenginiuose iš bet kurios vietos. Bitwarden teikia atvirojo kodo slaptažodžių valdymo sprendimus visiems – tiek namuose, tiek darbe, tiek keliaujant.
 
 Generuokite stiprius, unikalius ir atsitiktinius slaptažodžius pagal saugos reikalavimus kiekvienai lankomai svetainei.
 
-„Bitwarden Send“ greitai perduoda užšifruotą informaciją – failus ir paprastą tekstą – tiesiogiai bet kam.
+Bitwarden Send greitai perduoda užšifruotą informaciją – failus ir paprastą tekstą – tiesiogiai bet kam.
 
 Bitwarden siūlo komandų ir įmonių planus įmonėms, kad galėtumėte saugiai dalytis slaptažodžiais su kolegomis.
 
-Kodėl verta rinktis „Bitwarden“:
+Kodėl rinktis Bitwarden:
 
 Pasaulinės klasės šifravimas
 Slaptažodžiai yra apsaugoti naudojant pažangų šifravimą nuo galo iki galo (AES-256 bitai, žyma su grotelėmis ir PBKDF2 SHA-256), todėl jūsų duomenys išliks saugūs ir privatūs.
@@ -145,10 +145,10 @@ Integruotas slaptažodžių generatorius
 Generuokite stiprius, unikalius ir atsitiktinius slaptažodžius pagal saugos reikalavimus kiekvienai lankomai svetainei.
 
 Pasauliniai vertimai
-„Bitwarden“ vertimai egzistuoja 40 kalbų ir mūsų pasaulinės bendruomenės dėka auga.
+Bitwarden vertimai egzistuoja 40 kalbose ir vis daugėja mūsų pasaulinės bendruomenės dėka.
 
 Įvairių platformų programos
-Apsaugokite ir bendrinkite neskelbtinus duomenis savo „Bitwarden Vault“ iš bet kurios naršyklės, mobiliojo įrenginio ar stalinio kompiuterio OS ir kt.
+Apsaugokite ir bendrinkite neskelbtinus duomenis savo Bitwarden Vault iš bet kurios naršyklės, mobiliojo įrenginio ar stalinio kompiuterio OS ir kt.
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

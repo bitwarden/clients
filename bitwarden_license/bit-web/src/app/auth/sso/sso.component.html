@@ -14,7 +14,7 @@
 <form [formGroup]="ssoConfigForm" [bitSubmit]="submit" *ngIf="!loading">
   <p>
     {{ "ssoPolicyHelpStart" | i18n }}
-    <a routerLink="../policies">{{ "ssoPolicyHelpLink" | i18n }}</a>
+    <a routerLink="../policies">{{ "ssoPolicyHelpAnchor" | i18n }}</a>
     {{ "ssoPolicyHelpEnd" | i18n }}
     <br />
   </p>
@@ -81,9 +81,11 @@
           {{ "trustedDeviceEncryption" | i18n }}
         </bit-label>
         <bit-hint>
-          {{ "memberDecryptionTdeDescriptionStart" | i18n }}
-          <a routerLink="../policies">{{ "memberDecryptionTdeDescriptionLink" | i18n }}</a>
-          {{ "memberDecryptionTdeDescriptionEnd" | i18n }}
+          {{ "memberDecryptionTdeDescriptionPartOne" | i18n }}
+          <a routerLink="../policies">{{ "memberDecryptionTdeDescriptionLinkOne" | i18n }}</a>
+          {{ "memberDecryptionTdeDescriptionPartTwo" | i18n }}
+          <a routerLink="../policies">{{ "memberDecryptionTdeDescriptionLinkTwo" | i18n }}</a>
+          {{ "memberDecryptionTdeDescriptionPartThree" | i18n }}
         </bit-hint>
       </bit-radio-button>
     </bit-radio-group>

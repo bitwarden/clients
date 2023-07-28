@@ -16,7 +16,10 @@ body {
 
 body {
   color: $text-color;
-  background-color: $background-color-alt2;
+
+  // We initially rely on electron to provide the appropiate background color.
+  // This ensures the background color while reloading is correct to avoid a jarring missmatch.
+  background-color: transparent;
 
   @include themify($themes) {
     color: themed("textColor");

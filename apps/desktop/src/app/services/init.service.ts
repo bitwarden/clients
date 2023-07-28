@@ -44,6 +44,9 @@ export class InitService {
       this.nativeMessagingService.init();
       await this.stateService.init();
       await this.environmentService.setUrlsFromStorage();
+      // Workaround to ignore stateService.activeAccount until URLs are set
+      // TODO: Remove this when implementing ticket PM-2637
+      this.environmentService.initialized = true;
       this.syncService.fullSync(true);
       (this.vaultTimeoutService as VaultTimeoutService).init(true);
       const locale = await this.stateService.getLocale();

@@ -618,7 +618,7 @@
   "loginWithDevice": {
     "message": "Fazer login com dispositivo"
   },
-  "loginWithDeviceEnabledInfo": {
+  "loginWithDeviceEnabledNote": {
     "message": "Login com dispositivo deve ser habilitado nas configurações do aplicativo móvel do Bitwarden. Necessita de outra opção?"
   },
   "loginWithMasterPassword": {
@@ -965,13 +965,13 @@
     "message": "Confirmar Exportação de Cofre"
   },
   "confirmSecretsExport": {
-    "message": "Confirm secrets export"
+    "message": "Confirmar exportação de segredos"
   },
   "exportWarningDesc": {
     "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Exclua o arquivo imediatamente após terminar de usá-lo."
   },
   "exportSecretsWarningDesc": {
-    "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Esta exportação contém seus dados de segredos em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Exclua imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que você não será capaz de descriptografar este arquivo de exportação."
@@ -986,7 +986,7 @@
     "message": "Exportar Cofre"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Exportar segredos"
   },
   "fileFormat": {
     "message": "Formato do Arquivo"
@@ -2667,10 +2667,10 @@
     "message": "A tentativa de login falhou com o login incorreto em duas etapas."
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Senha incorreta"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Código incorreto"
   },
   "exportedVault": {
     "message": "Cofre exportado."
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Gerenciar recuperação de conta"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Recuperar contas de membros quando a senha mestra ou dispositivos confiáveis são esquecidos ou perdidos. Os processos de recuperação baseiam-se no método de criptografia da conta."
+  "accountRecoveryPolicyDesc": {
+    "message": "Baseado no método de criptografia, recupere contas quando senhas mestras ou dispositivos confiáveis forem esquecidos ou perdidos."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Os usuários da organização terão de se inscrever automaticamente ou serem inscritos automaticamente para que os administradores possam redefinir sua senha mestra."
+  "accountRecoveryPolicyWarning": {
+    "message": "Contas existentes com senhas mestras exigirá que os membros se inscrevam antes que os administradores possam recuperar suas contas. A inscrição automática irá ativar a recuperação de conta para novos membros."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "A política empresarial de organização única deve ser ativada antes de ativar esta política."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição Automática"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Todos os usuários serão inscritos automaticamente na redefinição de senha assim que o convite for aceito."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Os usuários que já estão na organização não serão inscritos retroativamente na redefinição de senha. Eles precisarão se inscrever para que os administradores possam redefinir sua senha mestra."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Inscrever automaticamente novos usuários"
@@ -5224,8 +5221,8 @@
     "message": "Ativar o",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
-    "message": "Política de SSO",
+  "ssoPolicyHelpAnchor": {
+    "message": "requer política de autenticação de logon único",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6624,13 +6621,13 @@
     "message": "Gerenciador de Segredos Beta"
   },
   "secretsManager": {
-    "message": "Secrets Manager"
+    "message": "Gerenciador de Segredos"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Ative o acesso do usuário ao Gerenciador Secretos."
   },
   "userAccessSecretsManagerGA": {
-    "message": "This user can access Secrets Manager"
+    "message": "Este usuário pode acessar o gerente secreto"
   },
   "important": {
     "message": "Importante:"
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "Uma vez autenticados, os membros descriptografarão os dados do cofre usando uma chave armazenada no seu dispositivo.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "account recovery administration policy",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "Organização única",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "política e ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "Gerenciar recuperação de conta",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "política com inscrição automática será ativada quando esta opção for utilizada.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ não encontrado",
@@ -6859,64 +6864,64 @@
     "message": "User updated a password issued through account recovery."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Acesso ativado ao Gerenciador de Segredos",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Ativar acesso"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "Grant the following members access to Secrets Manager. The role granted in the Password Manager will apply to Secrets Manager.",
+    "message": "Conceda aos seguintes membros acesso ao Gerenciador de Segredos. A função concedida no Gerenciador de Senhas será aplicada ao Gerenciador de Segredos.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Ativar Gerenciador de Segredos"
   },
   "yourOrganizationsFingerprint": {
-    "message": "Your organization's fingerprint phrase",
+    "message": "A frase biométrica da sua organização",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their organization's public key with another user, for the purposes of sharing."
   },
   "deviceApprovals": {
-    "message": "Device approvals"
+    "message": "Aprovações do dispositivo"
   },
   "deviceApprovalsDesc": {
-    "message": "Approve login requests below to allow the requesting member to finish logging in. Unapproved requests expire after 1 week. Verify the member’s information before approving."
+    "message": "Aprovar as solicitações de login abaixo para permitir que o membro solicitante termine o login. Solicitações não aprovadas expiram após 1 semana. Verifique as informações do membro antes de aprovar."
   },
   "deviceInfo": {
-    "message": "Device info"
+    "message": "Informações do dispositivo"
   },
   "time": {
-    "message": "Time"
+    "message": "Horário"
   },
   "denyAllRequests": {
-    "message": "Deny all requests"
+    "message": "Negar todas as solicitações"
   },
   "denyRequest": {
-    "message": "Deny request"
+    "message": "Negar pedido"
   },
   "approveRequest": {
-    "message": "Approve request"
+    "message": "Aprovar solicitação"
   },
   "noDeviceRequests": {
-    "message": "No device requests"
+    "message": "Nenhum pedido de dispositivo"
   },
   "noDeviceRequestsDesc": {
-    "message": "Member device approval requests will appear here"
+    "message": "Os pedidos de aprovação de dispositivo de membro aparecerão aqui"
   },
   "loginRequestDenied": {
-    "message": "Login request denied"
+    "message": "Solicitação de login negada"
   },
   "allLoginRequestsDenied": {
-    "message": "All login requests denied"
+    "message": "Todas as solicitações de login negadas"
   },
   "loginRequestApproved": {
-    "message": "Login request approved"
+    "message": "Solicitação de login aprovada"
   },
   "removeOrgUserNoMasterPasswordTitle": {
     "message": "A conta não tem uma senha mestre"
   },
   "removeOrgUserNoMasterPasswordDesc": {
-    "message": "Removing $USER$ without setting a master password for them may restrict access to their full account. Are you sure you want to continue?",
+    "message": "Remover $USER$ sem definir uma senha mestra pode restringir o acesso deles à conta toda. Tem certeza de que deseja continuar?",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6928,10 +6933,10 @@
     "message": "Nenhuma senha mestre"
   },
   "removeMembersWithoutMasterPasswordWarning": {
-    "message": "Removing members who do not have master passwords without setting one for them may restrict access to their full account."
+    "message": "Remover membros que não têm senhas mestres sem definir uma para eles pode restringir o acesso à sua conta completa."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
+    "message": "Comece o seu período de teste gratuito de 7 dias do Bitwarden para $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -6940,15 +6945,15 @@
     }
   },
   "next": {
-    "message": "Next"
+    "message": "Avançar"
   },
   "usFlag": {
-    "message": "US flag"
+    "message": "Bandeira dos EUA"
   },
   "euFlag": {
-    "message": "EU flag"
+    "message": "Bandeira Europa"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "Sinalização de região selecionada"
   }
 }

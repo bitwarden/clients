@@ -11,4 +11,8 @@ export class OrganizationUpgradeRequest {
   billingAddressCountry: string;
   billingAddressPostalCode: string;
   keys: OrganizationKeysRequest;
+
+  useSecretsManager: boolean;
+  additionalSmSeats: number;
+  additionalServiceAccounts: number;
 }

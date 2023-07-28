@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "Увійти з пристроєм"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях мобільної програми Bitwarden. Потрібен інший варіант?"
+  "loginWithDeviceEnabledNote": {
+    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
@@ -965,13 +965,13 @@
     "message": "Підтвердити експорт сховища"
   },
   "confirmSecretsExport": {
-    "message": "Confirm secrets export"
+    "message": "Підтвердити експорт секретів"
   },
   "exportWarningDesc": {
     "message": "Експортовані дані вашого сховища знаходяться в незашифрованому вигляді. Вам не слід зберігати чи надсилати їх через незахищені канали (наприклад, е-поштою). Після використання негайно видаліть їх."
   },
   "exportSecretsWarningDesc": {
-    "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Ваші експортовані секрети незашифровані. Не зберігайте і не надсилайте їх незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть їх."
   },
   "encExportKeyWarningDesc": {
     "message": "Цей експорт шифрує ваші дані за допомогою ключа шифрування облікового запису. Якщо ви коли-небудь оновите ключ шифрування облікового запису, необхідно виконати експорт знову, оскільки не зможете розшифрувати цей файл експорту."
@@ -986,7 +986,7 @@
     "message": "Експортувати сховище"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Експортувати секрети"
   },
   "fileFormat": {
     "message": "Формат файлу"
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Адміністрування відновлення облікового запису"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Відновлення облікових записів учасників у разі втрати головного пароля або довірених пристроїв. Процес відновлення базується на методі шифрування облікового запису."
+  "accountRecoveryPolicyDesc": {
+    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Учасники організації мають подати запит самостійно, або отримати автоматичне подання запиту, перш ніж адміністратори зможуть скинути їхній пароль."
+  "accountRecoveryPolicyWarning": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне подання запиту"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Для всіх учасників буде автоматично подано запит на скидання пароля одразу після схвалення запрошення без можливості його відкликання."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Вже наявні учасники організації не отримають запиту на скидання пароля. Їм необхідно буде самостійно подати запит, перш ніж адміністратори зможуть скинути їхній пароль."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Вимагати у нових учасників автоматичне подання запиту"
@@ -5224,8 +5221,8 @@
     "message": "Використовувати",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
-    "message": "обов'язкову політику єдиного входу (SSO)",
+  "ssoPolicyHelpAnchor": {
+    "message": "require single sign-on authentication policy",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6624,13 +6621,13 @@
     "message": "Керування секретами (бета-версія)"
   },
   "secretsManager": {
-    "message": "Secrets Manager"
+    "message": "Керування секретами"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Активувати доступ користувача до керування секретами."
   },
   "userAccessSecretsManagerGA": {
-    "message": "This user can access Secrets Manager"
+    "message": "Цей користувач має доступ до керування секретами"
   },
   "important": {
     "message": "Важливо:"
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Шифрування досвіреного пристрою"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Після авторизації учасники розшифровуватимуть дані сховища з використанням ключа, збереженого на їхньому пристрої.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "Політика адміністрування відновлення облікових записів",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "single organization",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "з автоматичним розгортанням активується, якщо використовується ця опція.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "policy and ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "account recovery administration",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ не знайдено",
@@ -6859,18 +6864,18 @@
     "message": "Користувач оновив пароль під час відновлення облікового запису."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Активовано доступ до керування секретами",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Активувати доступ"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "Grant the following members access to Secrets Manager. The role granted in the Password Manager will apply to Secrets Manager.",
+    "message": "Надати зазначеним учасникам доступ до керування секретами. Роль, надана в менеджері паролів, буде застосована до керування секретами.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Активувати керування секретами"
   },
   "yourOrganizationsFingerprint": {
     "message": "Фраза відбитка вашої організації",
@@ -6931,7 +6936,7 @@
     "message": "Вилучення учасників, які не мають головного пароля, попередньо не встановивши його для них, може призвести до обмеження доступу до їхніх облікових записів."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
+    "message": "Розпочніть 7-денний пробний період Bitwarden для $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -6940,15 +6945,15 @@
     }
   },
   "next": {
-    "message": "Next"
+    "message": "Далі"
   },
   "usFlag": {
-    "message": "US flag"
+    "message": "Прапор США"
   },
   "euFlag": {
-    "message": "EU flag"
+    "message": "Прапор ЄС"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "Прапор вибраного регіону"
   }
 }

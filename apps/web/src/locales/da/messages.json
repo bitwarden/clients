@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "Log ind med enhed"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
+  "loginWithDeviceEnabledNote": {
+    "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden-appen. Brug for en anden mulighed?"
   },
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Kontogendannelseshåndtering"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Gendan medlemskonti, når hovedadgangskode eller betroede enheder er glemt eller tabt. Gendannelsesprocesser er baseret på kontokrypteringsmetoden."
+  "accountRecoveryPolicyDesc": {
+    "message": "Gendanner baseret på krypteringsmetoden konti, når hovedadgangskoder eller betroede enheder er glemt eller tabt."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Organisationsmedlemmer skal selvindrullere eller være auto-indrulleret, før admins kan nulstille deres hovedadgangskode."
+  "accountRecoveryPolicyWarning": {
+    "message": "For eksisterende konti med hovedadgangskoder kræves, at medlemmer selv-indrullere sig, før administratorer kan gendanne deres konti. Automatisk indrullering vil slå kontogendannelse til for nye medlemmer."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "Enkeltorganisations Virksomhedspolitik skal være slået til, før denne politik aktiveres."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Auto-indrullering"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Adgangskodenulstilling indrullerer automatisk alle medlemmer (uden mulighed for afmelding), når deres invitation accepteres."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Adgangskodenulstilling indrullerer ikke allerede eksisterernde organisationmedlemmer med tilbagevirkende kraft. De skal selvindrullere, før admins kan nulstille deres hovedadgangskode."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Kræv auto-indrullering af nye brugere"
@@ -5224,7 +5221,7 @@
     "message": "Brug",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
+  "ssoPolicyHelpAnchor": {
     "message": "kræv Single Sign-On godkendelsespolitik",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
@@ -6627,7 +6624,7 @@
     "message": "Hemmelighedshåndtering"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Aktivér brugeradgang til Hemmelighedshåndtering."
   },
   "userAccessSecretsManagerGA": {
     "message": "Denne bruger kan tilgå Hemmelighedshåndtering"
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Betroet enhed-kryptering"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Når godkendt, dekrypterer medlemmet boksdata vha. en nøgle gemt på enheden.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "Når godkendt, dekrypterer medlemmet boksdata vha. en nøgle gemt på deres enhed. ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "Kontogendannelseshåndteringspolitikken",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "Enkeltorganisationspolitik",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "med automatisk indrullering aktiveres ved brug af denne indstilling.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "og ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "kontogendannelseshåndteringspolitik",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "med automatisk indrullering slås til ved brug af denne indstilling.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ ikke fundet",
@@ -6859,18 +6864,18 @@
     "message": "Bruger har opdateret en adgangskode udstedt via kontogendannelse."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Aktivér adgang til Hemmelighedshåndtering",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Aktivere adgang"
   },
   "bulkEnableSecretsManagerDescription": {
     "message": "Tildel flg. medlemmers adgang til Hemmelighedshåndtering. Den i Adgangskodehåndtering tildelte rolle vil gælde for Hemmelighedshåndtering.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Aktivere Hemmelighedshåndtering"
   },
   "yourOrganizationsFingerprint": {
     "message": "Din organisations fingeraftrykssætning",

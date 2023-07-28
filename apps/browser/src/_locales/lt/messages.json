@@ -56,7 +56,7 @@
     "message": "Saugykla"
   },
   "myVault": {
-    "message": "Saugykla"
+    "message": "Mano saugykla"
   },
   "allVaults": {
     "message": "Visos saugyklos"
@@ -613,10 +613,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "notificationAddDesc": {
-    "message": "Ar „Bitwarden“ turėtų prisiminti šį slaptažodį?"
+    "message": "Ar Bitwarden turėtų įsiminti šį slaptažodį už tave?"
   },
   "notificationAddSave": {
-    "message": "Taip, išsaugoti dabar"
+    "message": "Išsaugoti"
   },
   "enableChangedPasswordNotification": {
     "message": "Paprašyti atnaujinti esamą prisijungimą"
@@ -625,10 +625,10 @@
     "message": "Paprašyti atnaujinti prisijungimo slaptažodį, kai pakeitimas aptiktas svetainėje."
   },
   "notificationChangeDesc": {
-    "message": "Ar norite atnaujinti šį slaptažodį „Bitwarden“?"
+    "message": "Ar nori atnaujinti šį slaptažodį Bitwarden?"
   },
   "notificationChangeSave": {
-    "message": "Taip, atnaujinti dabar"
+    "message": "Atnaujinti"
   },
   "enableContextMenuItem": {
     "message": "Rodyti kontekstinio meniu pasririnkimus"
@@ -658,7 +658,7 @@
     "description": "Light color"
   },
   "solarizedDark": {
-    "message": "Solarized dark",
+    "message": "Saulėtas tamsą",
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportVault": {
@@ -748,7 +748,7 @@
     "message": "Priedų nėra."
   },
   "attachmentSaved": {
-    "message": "Priedas buvo išsaugotas."
+    "message": "Priedas išsaugotas"
   },
   "file": {
     "message": "Failas"
@@ -757,13 +757,13 @@
     "message": "Pasirinkite failą."
   },
   "maxFileSize": {
-    "message": "Failai negali būti didesni už 500 MB."
+    "message": "Didžiausias failo dydis – 500 MB."
   },
   "featureUnavailable": {
     "message": "Funkcija neprieinama"
   },
   "updateKey": {
-    "message": "Negalite naudoti šios funkcijos, kol neatnaujinsite šifravimo raktą."
+    "message": "Negali naudotis šia funkcija, kol neatnaujinsi šifravimo raktą."
   },
   "premiumMembership": {
     "message": "Premium narystė"
@@ -781,7 +781,7 @@
     "message": "Neturite Premium narystės."
   },
   "premiumSignUpAndGet": {
-    "message": "Prisijungite prie Premium narystės ir gaukite:"
+    "message": "Prisijunk prie Premium narystės ir gauk:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB užšifruotos vietos diske bylų prisegimams."
@@ -790,10 +790,10 @@
     "message": "Papildomos dviejų žingsių prisijungimo opcijos, tokios kaip YubiKey, FIDO U2F ir Duo."
   },
   "ppremiumSignUpReports": {
-    "message": "Slaptažodžio higiena, prieigos sveikata ir duomenų nutekinimo ataskaitos, kad jūsų seifas būtų saugus."
+    "message": "Slaptažodžio higiena, prieigos sveikata ir duomenų nutekinimo ataskaitos, kad tavo saugyklas būtų saugus."
   },
   "ppremiumSignUpTotp": {
-    "message": "TOTP patvirtinimo kodų (2FA) generatorius prisijungimams prie jūsų saugyklos."
+    "message": "TOTP patvirtinimo kodų (2FA) generatorius prisijungimams prie tavo saugyklos."
   },
   "ppremiumSignUpSupport": {
     "message": "Prioritetinis klientų aptarnavimas."
@@ -802,13 +802,13 @@
     "message": "Visos būsimos Premium savybės. Daugiau jau greitai!"
   },
   "premiumPurchase": {
-    "message": "Įsigyti Premium planą"
+    "message": "Įsigyti Premium"
   },
   "premiumPurchaseAlert": {
-    "message": "Jūs galite įsigyti Premium narystę bitwarden.com puslapyje. Ar norite aplankyti šį puslapį dabar?"
+    "message": "Gali įsigyti Premium narystę bitwarden.com interneto saugykloje. Ar nori aplankyti svetainėje dabar?"
   },
   "premiumCurrentMember": {
-    "message": "Jūs esate Premium narys!"
+    "message": "Tu esi Premium narys!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Dėkojame, kad remiate Bitwarden."
@@ -835,16 +835,16 @@
     "message": "Paleidžiant patvirtinti biometrinius duomenis"
   },
   "premiumRequired": {
-    "message": "Tik su Premium naryste"
+    "message": "Premium reikalinga"
   },
   "premiumRequiredDesc": {
     "message": "Premium narystė reikalinga šiai funkcijai naudoti."
   },
   "enterVerificationCodeApp": {
-    "message": "Įveskite 6 skaitmenų patvirtinimo kodą iš jūsų autentifikavimo aplikacijos."
+    "message": "Įvesk 6 skaitmenų patvirtinimo kodą iš tavo autentifikavimo aplikacijos."
   },
   "enterVerificationCodeEmail": {
-    "message": "Įveskite 6 skaitmenų prisijungimo kodą, kuris buvo išsiųstas $EMAIL$ el. paštu.",
+    "message": "Įvesk 6 skaitmenų prisijungimo kodą, kuris buvo išsiųstas $EMAIL$ el. paštu.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -871,34 +871,34 @@
     "message": "Naudoti dar vieną dviejų žingsnių prisijungimo metodą"
   },
   "insertYubiKey": {
-    "message": "Insert your YubiKey into your computer's USB port, then touch its button."
+    "message": "Įkišk YubiKey į savo kompiuterio USB prievadą, tada paliesk jo mygtuką."
   },
   "insertU2f": {
-    "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
+    "message": "Įkišk savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, paliesk jį."
   },
   "webAuthnNewTab": {
-    "message": "To start the WebAuthn 2FA verification. Click the button below to open a new tab and follow the instructions provided in the new tab."
+    "message": "Norint pradėti WebAuthn 2FA patikrinimą. Spustelėk toliau esantį mygtuką, kad atsidarytų naujas skirtukas, ir sek naujame skirtuke pateiktas instrukcijas."
   },
   "webAuthnNewTabOpen": {
     "message": "Atidaryti naują skirtuką"
   },
   "webAuthnAuthenticate": {
-    "message": "Authenticate WebAuthn"
+    "message": "Autentifikuoti WebAuthn"
   },
   "loginUnavailable": {
     "message": "Prisijungimas nepasiekiamas"
   },
   "noTwoStepProviders": {
-    "message": "This account has two-step login set up, however, none of the configured two-step providers are supported by this web browser."
+    "message": "Šioje paskyroje nustatytas dviejų žingsnių prisijungimas, tačiau, nė vienas iš sukonfigūruotų dviejų žingsnių paslaugų teikėjų nėra palaikomas šioje interneto naršyklėje."
   },
   "noTwoStepProviders2": {
-    "message": "Please use a supported web browser (such as Chrome) and/or add additional providers that are better supported across web browsers (such as an authenticator app)."
+    "message": "Prašome naudoti palaikomą interneto naršyklę (pvz., Chrome) ir/arba pridėti papildomus paslaugų teikėjus, kurie geriau palaikomi įvairiose interneto naršyklėse (pvz., autentifikavimo programėlę)."
   },
   "twoStepOptions": {
     "message": "Dviejų žingsnių prisijungimo parinktys"
   },
   "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers from your account."
+    "message": "Praradai prieigą prie visų savo dviejų veiksnių teikėjų? Naudok atkūrimo kodą, kad iš savo paskyros išjungtum visus dviejų veiksnių teikėjus."
   },
   "recoveryCodeTitle": {
     "message": "Atkūrimo kodas"
@@ -907,46 +907,46 @@
     "message": "Autentifikavimo programa"
   },
   "authenticatorAppDesc": {
-    "message": "Use an authenticator app (such as Authy or Google Authenticator) to generate time-based verification codes.",
+    "message": "Naudok autentifikatoriaus programėlę (pvz., Authy arba Google Autentifikatorius), kad sugeneruotum laiko patikrinimo kodus.",
     "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
   },
   "yubiKeyTitle": {
-    "message": "YubiKey OTP Security Key"
+    "message": "YubiKey OTP saugumo raktas"
   },
   "yubiKeyDesc": {
-    "message": "Use a YubiKey to access your account. Works with YubiKey 4, 4 Nano, 4C, and NEO devices."
+    "message": "Naudok YubiKey, kad prisijungtum prie savo paskyros. Veikia su YubiKey 4, 4 Nano, 4C ir NEO įrenginiais."
   },
   "duoDesc": {
-    "message": "Verify with Duo Security using the Duo Mobile app, SMS, phone call, or U2F security key.",
+    "message": "Patvirtink su Duo Security naudodami Duo Mobile programą, SMS žinutę, telefono skambutį arba U2F saugumo raktą.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Verify with Duo Security for your organization using the Duo Mobile app, SMS, phone call, or U2F security key.",
+    "message": "Patikrink su Duo Security savo organizacijai naudodamasis Duo Mobile programą, SMS žinutę, telefono skambutį arba U2F saugumo raktą.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Use any WebAuthn compatible security key to access your account."
+    "message": "Naudok bet kurį WebAuthn palaikantį saugumo raktą, kad galėtum naudotis savo paskyra."
   },
   "emailTitle": {
     "message": "El. paštas"
   },
   "emailDesc": {
-    "message": "Verification codes will be emailed to you."
+    "message": "Patvirtinimo kodai bus atsiųsti el. paštu tau."
   },
   "selfHostedEnvironment": {
-    "message": "Self-hosted environment"
+    "message": "Savarankiškai sukurta aplinka"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
+    "message": "Nurodyk pagrindinį URL adresą savo patalpose esančio Bitwarden diegimo."
   },
   "customEnvironment": {
     "message": "Individualizuota aplinka"
   },
   "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
+    "message": "Pažengusiems naudotojams. Galite nurodyti kiekvienos paslaugos pagrindinį URL adresą atskirai."
   },
   "baseUrl": {
     "message": "Serverio URL"
@@ -967,13 +967,13 @@
     "message": "Piktogramų serverio URL"
   },
   "environmentSaved": {
-    "message": "Environment URLs saved"
+    "message": "Aplinkos URL adresai išsaugoti"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Automatiškai užpildyti užsikrovus puslapiui"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "If a login form is detected, auto-fill when the web page loads."
+    "message": "Jei aptikta prisijungimo forma, automatiškai užpildyti, kai kraunamas tinklalapis."
   },
   "experimentalFeature": {
     "message": "Compromised or untrusted websites can exploit auto-fill on page load."
@@ -2105,10 +2105,10 @@
     }
   },
   "loginWithMasterPassword": {
-    "message": "Log in with master password"
+    "message": "Prisijungti su pagrindiniu slaptažodžiu"
   },
   "loggingInAs": {
-    "message": "Logging in as"
+    "message": "Prisijungimas kaip"
   },
   "notYou": {
     "message": "Ne jūs?"
@@ -2117,13 +2117,13 @@
     "message": "Ar jūs naujas čia?"
   },
   "rememberEmail": {
-    "message": "Remember email"
+    "message": "Prisiminti el. paštą"
   },
   "loginWithDevice": {
     "message": "Prisijunkite naudodami įrenginį"
   },
   "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Prisijungti su įrenginiu turi būti nustatyta Bitwarden aplikacijos nustatymuose. Reikia kito pasirinkimo?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
@@ -2177,10 +2177,10 @@
     "message": "Your organization policies have turned on auto-fill on page load."
   },
   "howToAutofill": {
-    "message": "How to auto-fill"
+    "message": "Kaip automatiškai užpildyti"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this page or use the shortcut: $COMMAND$",
+    "message": "Pasirink elementą iš šio puslapio arba naudok trumpąjį klavišą: $COMMAND$",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2228,20 +2228,20 @@
     "message": "Opens in a new window"
   },
   "eu": {
-    "message": "EU",
+    "message": "ES",
     "description": "European Union"
   },
   "us": {
-    "message": "US",
+    "message": "JAV",
     "description": "United States"
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "Prieiga uždrausta. Neturi teisės peržiūrėti šį puslapį."
   },
   "general": {
-    "message": "General"
+    "message": "Bendra"
   },
   "display": {
-    "message": "Display"
+    "message": "Rodyti"
   }
 }

@@ -8,7 +8,7 @@
   <div class="card-body">
     <bit-color-password
       [password]="type === 'password' ? password : username"
-      appSelectCopy
+      [appCopyText]="type === 'password' ? password : username"
     ></bit-color-password>
   </div>
 </div>

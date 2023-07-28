@@ -63,6 +63,11 @@ export class ConfigService implements ConfigServiceAbstraction {
     return await this.getFeatureFlag(key, defaultValue);
   }
 
+  async getCloudRegion(defaultValue = "US"): Promise<string> {
+    const serverConfig = await this.buildServerConfig();
+    return serverConfig.environment?.cloudRegion ?? defaultValue;
+  }
+
   private async getFeatureFlag<T>(key: FeatureFlag, defaultValue: T): Promise<T> {
     const serverConfig = await this.buildServerConfig();
     if (

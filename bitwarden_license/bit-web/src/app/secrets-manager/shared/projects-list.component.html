@@ -78,6 +78,10 @@
         ></button>
       </td>
       <bit-menu #projectMenu>
+        <a bitMenuItem [routerLink]="['/sm', project.organizationId, 'projects', project.id]">
+          <i class="bwi bwi-fw bwi-eye" aria-hidden="true"></i>
+          {{ "viewProject" | i18n }}
+        </a>
         <button
           *ngIf="project.write"
           type="button"
@@ -87,10 +91,6 @@
           <i class="bwi bwi-fw bwi-pencil" aria-hidden="true"></i>
           {{ "editProject" | i18n }}
         </button>
-        <a bitMenuItem [routerLink]="['/sm', project.organizationId, 'projects', project.id]">
-          <i class="bwi bwi-fw bwi-eye" aria-hidden="true"></i>
-          {{ "viewProject" | i18n }}
-        </a>
         <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
           <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
           <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { UntypedFormBuilder } from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -9,7 +9,7 @@ import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class ResetPasswordPolicy extends BasePolicy {
   name = "accountRecoveryPolicy";
-  description = "accountRecoveryPolicyDescription";
+  description = "accountRecoveryPolicyDesc";
   type = PolicyType.ResetPassword;
   component = ResetPasswordPolicyComponent;
 
@@ -26,14 +26,9 @@ export class ResetPasswordPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({
     autoEnrollEnabled: false,
   });
-
-  defaultTypes: { name: string; value: string }[];
   showKeyConnectorInfo = false;
 
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private organizationService: OrganizationService
-  ) {
+  constructor(private formBuilder: FormBuilder, private organizationService: OrganizationService) {
     super();
   }
 

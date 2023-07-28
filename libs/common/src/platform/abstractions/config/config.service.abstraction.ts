@@ -10,4 +10,5 @@ export abstract class ConfigServiceAbstraction {
   getFeatureFlagBool: (key: FeatureFlag, defaultValue?: boolean) => Promise<boolean>;
   getFeatureFlagString: (key: FeatureFlag, defaultValue?: string) => Promise<string>;
   getFeatureFlagNumber: (key: FeatureFlag, defaultValue?: number) => Promise<number>;
+  getCloudRegion: (defaultValue?: string) => Promise<string>;
 }

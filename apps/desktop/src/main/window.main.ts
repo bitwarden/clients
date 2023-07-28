@@ -1,11 +1,13 @@
+import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, screen } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
 
 import { WindowState } from "@bitwarden/common/models/domain/window-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 
 import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "../utils";
 
@@ -19,6 +21,7 @@ export class WindowMain {
   private windowStateChangeTimer: NodeJS.Timer;
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
+  private session: Electron.Session;
 
   readonly defaultWidth = 950;
   readonly defaultHeight = 600;
@@ -26,11 +29,26 @@ export class WindowMain {
   constructor(
     private stateService: StateService,
     private logService: LogService,
+    private storageService: AbstractStorageService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void
   ) {}
 
   init(): Promise<any> {
+    // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
+    // cleared, as the process itself will be completely garbage collected.
+    ipcMain.on("reload-process", async () => {
+      // User might have changed theme, ensure the window is updated.
+      this.win.setBackgroundColor(await this.getBackgroundColor());
+
+      const crashEvent = once(this.win.webContents, "render-process-gone");
+      this.win.webContents.forcefullyCrashRenderer();
+      await crashEvent;
+
+      this.win.webContents.reloadIgnoringCache();
+      this.session.clearCache();
+    });
+
     return new Promise<void>((resolve, reject) => {
       try {
         if (!isMacAppStore() && !isSnapStore()) {
@@ -108,6 +126,8 @@ export class WindowMain {
     );
     this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
 
+    this.session = session.fromPartition("persist:bitwarden", { cache: false });
+
     // Create the browser window.
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
@@ -120,13 +140,14 @@ export class WindowMain {
       icon: process.platform === "linux" ? path.join(__dirname, "/images/icon.png") : undefined,
       titleBarStyle: process.platform === "darwin" ? "hiddenInset" : undefined,
       show: false,
-      backgroundColor: "#fff",
+      backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
         spellcheck: false,
         nodeIntegration: true,
         backgroundThrottling: false,
         contextIsolation: false,
+        session: this.session,
       },
     });
 
@@ -198,6 +219,26 @@ export class WindowMain {
 
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
+    }
+  }
+
+  // Retrieve the background color
+  // Resolves background color missmatch when starting the application.
+  async getBackgroundColor(): Promise<string> {
+    const data: { theme?: string } = await this.storageService.get("global");
+    let theme = data?.theme;
+
+    if (theme == null || theme === "system") {
+      theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
+    }
+
+    switch (theme) {
+      case "light":
+        return "#ededed";
+      case "dark":
+        return "#222222";
+      case "nord":
+        return "#3b4252";
     }
   }
 

@@ -1284,7 +1284,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Palavra-passe atualizada",
+    "message": "Palavra-passe atualizada a",
     "description": "ex. Date this password was updated"
   },
   "exportVault": {

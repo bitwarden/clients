@@ -57,7 +57,16 @@ export class AccessSelectorComponent implements OnInit {
 
   protected rows$ = new Subject<AccessSelectorRowView[]>();
   @Input() private set rows(value: AccessSelectorRowView[]) {
-    this.rows$.next(value);
+    const sorted = value.sort((a, b) => {
+      if (a.icon == b.icon) {
+        return a.name.localeCompare(b.name);
+      }
+      if (a.icon == AccessSelectorComponent.userIcon) {
+        return -1;
+      }
+      return 1;
+    });
+    this.rows$.next(sorted);
   }
 
   private maxLength = 15;

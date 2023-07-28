@@ -98,6 +98,7 @@ export class Main {
     this.windowMain = new WindowMain(
       this.stateService,
       this.logService,
+      this.storageService,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win)
     );

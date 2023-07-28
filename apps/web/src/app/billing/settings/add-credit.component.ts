@@ -12,6 +12,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/bit-pay-invoice.request";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { PayPalConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,13 +44,15 @@ export class AddCreditComponent implements OnInit {
   private userId: string;
   private name: string;
   private email: string;
+  private region: string;
 
   constructor(
     private stateService: StateService,
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private organizationService: OrganizationService,
-    private logService: LogService
+    private logService: LogService,
+    private configService: ConfigServiceAbstraction
   ) {
     const payPalConfig = process.env.PAYPAL_CONFIG as PayPalConfig;
     this.ppButtonFormAction = payPalConfig.buttonAction;
@@ -76,7 +79,9 @@ export class AddCreditComponent implements OnInit {
       this.email = this.subject;
       this.ppButtonCustomField = "user_id:" + this.userId;
     }
+    this.region = await this.configService.getCloudRegion();
     this.ppButtonCustomField += ",account_credit:1";
+    this.ppButtonCustomField += `,region:${this.region}`;
     this.returnUrl = window.location.href;
   }
 

@@ -1,7 +1,7 @@
 <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
   <div>
     <div class="row">
-      <div class="form-group col-6">
+      <div class="form-group col-8">
         <label for="newSeatCount">{{ "subscriptionSeats" | i18n }}</label>
         <input
           id="newSeatCount"
@@ -41,7 +41,7 @@
         <label for="maxAutoscaleSeats">{{ "maxSeatLimit" | i18n }}</label>
         <input
           id="maxAutoscaleSeats"
-          class="form-control col-6"
+          class="form-control col-8"
           type="number"
           name="MaxAutoscaleSeats"
           [(ngModel)]="newMaxSeats"

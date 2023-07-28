@@ -17,9 +17,7 @@ on:
       environment:
         description: 'Environment'
         default: 'QA'
-        type: choice
-        options:
-          - QA
+        type: string
 
 jobs:
   setup:

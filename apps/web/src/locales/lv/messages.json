@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "Pieteikties ar ierīci"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden tālruņa lietotnes iestatījumos. Nepieciešama cita iespēja?"
+  "loginWithDeviceEnabledNote": {
+    "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden lietotnes iestatījumos. Nepieciešama cita iespēja?"
   },
   "loginWithMasterPassword": {
     "message": "Pieteikties ar galveno paroli"
@@ -3915,19 +3915,19 @@
     "message": "Piesaistīt SSO"
   },
   "singleOrg": {
-    "message": "Viena vienīga apvienība"
+    "message": "Viena apvienība"
   },
   "singleOrgDesc": {
     "message": "Ierobežo lietotāju iespēju pievienoties citām apvienībām."
   },
   "singleOrgBlockCreateMessage": {
-    "message": "Tavā pašreizējā apvienībā ir nosacījums, kas neļauj pievienoties vairāk kā vienai. Lūdzu, sazinies ar savas apvienības pārvaldniekiem vai piesakies no cita Bitwarden konta!"
+    "message": "Pašreizējā apvienībā ir nosacījums, kas neļauj pievienoties vairāk kā vienai apvienībai. Lūgums sazināties ar savas apvienības pārvaldītājiem vai pieteikties no cita Bitwarden konta."
   },
   "singleOrgPolicyWarning": {
     "message": "Apvienības dalībnieki, kas nav īpašnieki vai pārvaldītāji un jau ir dalībnieki citā apvienībā, tiks atbrīvoti."
   },
   "requireSso": {
-    "message": "Vienotās pieteikšanās autentificēšana"
+    "message": "Pieprasīt vienotās pieteikšanās autentificēšanos"
   },
   "requireSsoPolicyDesc": {
     "message": "Norāda, ka lietotājiem ir jāpiesakās ar uzņēmuma vienoto pieteikšanos."
@@ -3936,10 +3936,10 @@
     "message": "Priekšnosacījumi"
   },
   "requireSsoPolicyReq": {
-    "message": "Vienas vienīgas apvienības uzņēmuma nosacījumiem ir jābūt ieslēgtiem pirms šī nosacījuma uzstādīšanas."
+    "message": "Vienas apvienības uzņēmuma nosacījumam ir jābūt ieslēgtam pirms šī nosacījuma uzstādīšanas."
   },
   "requireSsoPolicyReqError": {
-    "message": "Vienas vienīgas apvienības nosacījumi nav iespējoti."
+    "message": "Nav uzstādīts vienas apvienības nosacījums."
   },
   "requireSsoExemption": {
     "message": "Uz apvienības īpašniekiem un pārvaldītājiem neattiecas šīs nosacījumu kopas piemērošana."
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Kontu atkopšanas pārvaldība"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Atkopj dalībnieku kontus, kad galvenā parole vai uzticamās ierīces ir aizmirstas vai pazaudētas. Atkopšanas pamatā ir konta šifrēšanas veids."
+  "accountRecoveryPolicyDesc": {
+    "message": "Atkarībā no šifrēšanas veida, var atkopt kontus, kad ir aizmirsta galvenā parole vai pazaudētas uzticamās ierīces."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Apvienības lietotājiem pašiem būs sevi jāievieto sarakstā vai viņiem jābūt automātiski ievietotiem sarakstā, pirms pārvaldnieki var atiestatīt galveno paroli."
+  "accountRecoveryPolicyWarning": {
+    "message": "Esošiem kontiem ar galveno paroli būs nepieciešams, lai dalībnieki paši piesakās, pirms pārvaldītāji var atkopt viņu kontus."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "Vienas apvienības uzņēmuma nosacījumiem ir jābūt ieslēgtiem pirms šī nosacījuma uzstādīšanas."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Visi lietotāji tiks automātiski ievietoti paroles atiestatīšanas sarakstā, tiklīdz viņi apstiprinās uzaicinājumu."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Apvienībā jau esošie lietotāji netiks ar atpakaļejošu spēku ievietoti paroles atiestatīšanas sarakstā. Viņiem būs tas jāizdara pašiem, pirms pārvaldnieki varēs atiestatīt viņu galveno paroli."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Automātiski ievietot sarakstā jaunos lietotājus"
@@ -5224,8 +5221,8 @@
     "message": "Izmantot",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
-    "message": "vienotās pieteikšanās nosacījumus",
+  "ssoPolicyHelpAnchor": {
+    "message": "Nepieciešamas vienotās pieteikšanās nosacījums",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6627,7 +6624,7 @@
     "message": "Noslēpumu pārvaldnieks"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Ieslēgt lietotāju piekļuvi Noslēpumu pārvaldniekam."
   },
   "userAccessSecretsManagerGA": {
     "message": "Šis lietotājs var piekļūt Noslēpumu pārvaldniekam"
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Uzticamo ierīču šifrēšana"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Pēc pieteikšanās dalībnieki atšifrēs glabātavas saturu ar ierīcē glabātu atslēgu.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "Pēc pieteikšanās dalībnieki atšifrēs glabātavas saturu ar ierīcē glabātu atslēgu. ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "Kontu atkopšanas pārvaldības nosacījumi",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "Vienas apvienības",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "ar automātisku ievietošanu sarakstā tiks ieslēgts, kad šī iespēja tiek izmantota.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "nosacījums un ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "kontu atkopšanas pārvaldības",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "nosacījums ar automātisku ievietošanu sarakstā tiks ieslēgts, kad šī iespēja tiek izmantota.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ netika atrasts",
@@ -6859,18 +6864,18 @@
     "message": "Lietotājs atjaunināja konta atkopšanas izsniegtu paroli."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Ieslēgta piekļuve Noslēpumu pārvaldniekam",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Ieslēgt piekļuvi"
   },
   "bulkEnableSecretsManagerDescription": {
     "message": "Nodrošināt zemāk uzskaitītajiem dalībniekiem piekļuvi Noslēpumu pārvaldniekam. Paroļu pārvaldniekā piešķirtā loma attiecas arī uz Noslēpumu pārvaldnieku.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Ieslēgt Noslēpumu pārvaldnieku"
   },
   "yourOrganizationsFingerprint": {
     "message": "Apvienības atpazīšanas vārdkopa",

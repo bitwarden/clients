@@ -946,7 +946,7 @@
     "message": "自定义环境"
   },
   "customEnvironmentFooter": {
-    "message": "适用于高级用户。你可以分别指定各个服务的基础 URL。"
+    "message": "适用于高级用户。您可以分别指定各个服务的基础 URL。"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -2123,7 +2123,7 @@
     "message": "设备登录"
   },
   "loginWithDeviceEnabledInfo": {
-    "message": "必须在 Bitwarden 应用程序的设置中启用设备登录。需要其他选项吗？"
+    "message": "设备登录必须在 Bitwarden 应用程序的设置中设启用。需要其他选项吗？"
   },
   "fingerprintPhraseHeader": {
     "message": "指纹短语"

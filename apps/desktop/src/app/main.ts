@@ -3,8 +3,8 @@ import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import { isDev } from "../utils";
 
-// tslint:disable-next-line
 require("../scss/styles.scss");
+require("../scss/tailwind.css");
 
 import { AppModule } from "./app.module";
 

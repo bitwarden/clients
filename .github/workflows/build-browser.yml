@@ -145,8 +145,8 @@ jobs:
       - name: Build
         run: npm run dist
 
-      - name: Build Manifest v3
-        run: npm run dist:mv3
+      # - name: Build Manifest v3
+      #   run: npm run dist:mv3
 
       - name: Gulp
         run: gulp ci
@@ -179,12 +179,12 @@ jobs:
           path: apps/browser/dist/dist-opera.zip
           if-no-files-found: error
 
-      - name: Upload Opera MV3 artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-opera-mv3.zip
-          if-no-files-found: error
+      # - name: Upload Opera MV3 artifact
+      #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      #   with:
+      #     name: dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
+      #     path: apps/browser/dist/dist-opera-mv3.zip
+      #     if-no-files-found: error
 
       - name: Upload Chrome artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
@@ -193,12 +193,12 @@ jobs:
           path: apps/browser/dist/dist-chrome.zip
           if-no-files-found: error
 
-      - name: Upload Chrome MV3 artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-chrome-mv3.zip
-          if-no-files-found: error
+      # - name: Upload Chrome MV3 artifact
+      #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      #   with:
+      #     name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
+      #     path: apps/browser/dist/dist-chrome-mv3.zip
+      #     if-no-files-found: error
 
       - name: Upload Firefox artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
@@ -214,12 +214,12 @@ jobs:
           path: apps/browser/dist/dist-edge.zip
           if-no-files-found: error
 
-      - name: Upload Edge MV3 artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-edge-mv3.zip
-          if-no-files-found: error
+      # - name: Upload Edge MV3 artifact
+      #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      #   with:
+      #     name: dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
+      #     path: apps/browser/dist/dist-edge-mv3.zip
+      #     if-no-files-found: error
 
       - name: Upload browser source
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2

@@ -10,8 +10,9 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
+      "@bitwarden/common/*": ["../../libs/common/src/*"],
+      "@bitwarden/components": ["../../libs/components/src"],
       "@bitwarden/exporter/*": ["../../libs/exporter/src/*"]
     },
     "useDefineForClassFields": false

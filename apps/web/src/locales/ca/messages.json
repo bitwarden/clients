@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "Inici de sessió amb dispositiu"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "L'inici de sessió amb el dispositiu ha d'estar activat a la configuració de l'aplicació mòbil Bitwarden. Necessiteu una altra opció?"
+  "loginWithDeviceEnabledNote": {
+    "message": "L'inici de sessió amb el dispositiu ha d'estar activat a la configuració de l'aplicació Bitwarden. Necessiteu una altra opció?"
   },
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Administració de recuperació de comptes"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Recupereu els comptes dels membres quan s'obliden o perden la contrasenya mestra o els dispositius de confiança. El procés de recuperació es basa en el mètode de xifratge del compte."
+  "accountRecoveryPolicyDesc": {
+    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
   },
-  "resetPasswordPolicyWarning": {
-    "message": "Els usuaris de l’organització hauran de registrar-se o ser registrats abans que els administradors puguen restablir la seua contrasenya mestra."
+  "accountRecoveryPolicyWarning": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscripció automàtica"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "Una vegada s'accepte la invitació, tots els usuaris s'inscriuran automàticament al restabliment de la contrasenya."
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "Els usuaris que ja formen part de l’organització no s’inscriuran retroactivament al restabliment de la contrasenya. Hauran de registrar-se abans que els administradors puguen restablir la seua contrasenya mestra."
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "Inscriviu automàticament usuaris nous"
@@ -5224,8 +5221,8 @@
     "message": "Habilita la",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
-    "message": "Política d'autenticació SSO",
+  "ssoPolicyHelpAnchor": {
+    "message": "require single sign-on authentication policy",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6627,7 +6624,7 @@
     "message": "Administrador de secrets"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Activa l'accés dels usuaris a l'administrador de secrets."
   },
   "userAccessSecretsManagerGA": {
     "message": "Aquest usuari pot accedir a l'administrador de secrets"
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Encriptació de dispositius de confiança"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Una vegada autenticats, els membres desxifraran les dades de la caixa forta mitjançant una clau emmagatzemada al seu dispositiu. El",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "política d'administració de recuperació de comptes",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "single organization",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "amb inscripció automàtica s'activarà quan s'utilitze aquesta opció.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "policy and ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "account recovery administration",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "No s'ha trobat $RESOURCE$",
@@ -6859,18 +6864,18 @@
     "message": "L'usuari ha actualitzat una contrasenya emesa mitjançant la recuperació del compte."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Activa l'accés a l'administrador de secrets",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Activa l'accés"
   },
   "bulkEnableSecretsManagerDescription": {
     "message": "Concedeix als membres següents accés a l'administrador de secrets. El rol concedit l'administrador de contrasenyes s'aplicarà a l'administrador de secrets.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Activa l'administrador de secrets"
   },
   "yourOrganizationsFingerprint": {
     "message": "Frase d'empremta digital de l'organització",
@@ -6931,7 +6936,7 @@
     "message": "La supressió de membres que no tenen contrasenyes mestres sense establir-ne una pot restringir l'accés al seu compte complet."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -6940,15 +6945,15 @@
     }
   },
   "next": {
-    "message": "Next"
+    "message": "Següent"
   },
   "usFlag": {
-    "message": "US flag"
+    "message": "Bandera EUA"
   },
   "euFlag": {
-    "message": "EU flag"
+    "message": "Bandera UE"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "Bandera de la regió seleccionada"
   }
 }

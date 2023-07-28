@@ -618,8 +618,8 @@
   "loginWithDevice": {
     "message": "使用裝置登入"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "裝置登入必須在 Bitwarden 行動應用程式的設定中啟用。需要其他選項嗎？"
+  "loginWithDeviceEnabledNote": {
+    "message": "必須先在 Bitwarden 應用程式設定中開啟後，才可以使用裝置登入。要改用其他選項嗎？"
   },
   "loginWithMasterPassword": {
     "message": "使用主密碼登入"
@@ -2598,13 +2598,13 @@
     "message": "管理員"
   },
   "adminDesc": {
-    "message": "管理員可以存取和管理組織内的所有項目、集合和使用者。"
+    "message": "管理組織成員存取權限、所有集合、成員、報表與安全性設定"
   },
   "user": {
     "message": "使用者"
   },
   "userDesc": {
-    "message": "具有組織内已指派集合的存取權限的一般使用者。"
+    "message": "存取受指派的集合，並新增項目到集合中"
   },
   "manager": {
     "message": "管理員"
@@ -2679,7 +2679,7 @@
     "message": "已匯出組織密碼庫。"
   },
   "editedOrgSettings": {
-    "message": "組織設定已儲存"
+    "message": "組織設定已儲存。"
   },
   "createdItemId": {
     "message": "已建立項目 $ID$。",
@@ -4594,20 +4594,17 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDescription": {
-    "message": "Recover member accounts when master password or trusted devices are forgotten or lost. The recovery processes is based on the account encryption method."
+  "accountRecoveryPolicyDesc": {
+    "message": "依照加密方式，當忘記主密碼或遺失受信任的裝置時，可救回帳號。"
   },
-  "resetPasswordPolicyWarning": {
-    "message": "組織成員需要先自行註冊或被自動註冊後，管理者才能重設他們的主密碼。"
+  "accountRecoveryPolicyWarning": {
+    "message": "現有主密碼的帳號，需要使用者自行加入後，管理員才可發起帳號救援。將為新使用者開啟自動加入。"
+  },
+  "accountRecoverySingleOrgRequirementDesc": {
+    "message": "必須先開啟「單一組織」企業原則，才能開啟此原則。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動註冊"
-  },
-  "resetPasswordPolicyAutoEnrollDescription": {
-    "message": "所有接受邀請的成員，將會被自動註冊密碼重設，並且不允許撤銷。"
-  },
-  "resetPasswordPolicyAutoEnrollWarning": {
-    "message": "已經在組織中的成員將不會被註冊密碼重設。他們需要先自行註冊後管理者才能重設他們的主密碼。"
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
     "message": "為新成員啟用自動註冊"
@@ -5224,7 +5221,7 @@
     "message": "使用",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
-  "ssoPolicyHelpLink": {
+  "ssoPolicyHelpAnchor": {
     "message": "要求單一登入驗證原則",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
@@ -6831,17 +6828,25 @@
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
-  "memberDecryptionTdeDescriptionStart": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartOne": {
+    "message": "通過驗證以後，成員將使用儲存在裝置的金鑰來解密密碼庫資料。開啟此選項後，將開啟",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLink": {
-    "message": "account recovery administration policy",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionLinkOne": {
+    "message": "單一組織",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionEnd": {
-    "message": "with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The master password reset policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionTdeDescriptionPartTwo": {
+    "message": "原則，以及自動加入",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionLinkTwo": {
+    "message": "帳號救援管理",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionTdeDescriptionPartThree": {
+    "message": "原則。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ not found",

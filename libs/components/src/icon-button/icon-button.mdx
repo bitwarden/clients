@@ -9,19 +9,75 @@ import * as stories from "./icon-button.stories";
 Icon buttons are used when no text accompanies the button. It consists of an icon that may be
 updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
 
-There are 3 common styles for button main, contrast, and danger. The main style is used on the
-theme’s main `background`; and the contrast style is used on a theme’s colored or contrasting
-backgrounds; danger is used for “trash” actions throughout the experience. The other styles are used
-sparingly.
-
 The most common use of the icon button is in the banner, toast, and modal components as a close
 button. It can also be found in tables as the 3 dot option menu, or on navigation list items when
 there are options that need to be collapsed into a menu.
 
-Similar to the main button components, spacing between icon buttons should be .5rem.
+Similar to the main button components, spacing between multiple icon buttons should be .5rem.
 
 <Primary />
 <Controls />
+
+## Usage
+
+Icon buttons can be found in other components such as: the
+[banner](?path=/docs/component-library-banner--docs)
+[dialog](?path=/docs/component-library-dialogs--docs), and
+[table](?path=/docs/component-library-table--docs).
+
+<Story id="component-library-banner--premium" />
+
+## Styles
+
+There are 4 common styles for button main, muted, contrast, and danger. The other styles follow the
+button component styles.
+
+### Main
+
+Used for general icon buttons appearing on the theme’s main `background`
+
+<Story id="component-library-icon-button--main" />
+
+### Muted
+
+Used for low emphasis icon buttons appearing on the theme’s main `background`
+
+<Story id="component-library-icon-button--muted" />
+
+### Contrast
+
+Used on a theme’s colored or contrasting backgrounds such as in the navigation or on toasts and
+banners.
+
+<Story id="component-library-icon-button--contrast" />
+
+### Danger
+
+Danger is used for “trash” actions throughout the experience, most commonly in the bottom right of
+the dialog component.
+
+<Story id="component-library-icon-button--danger" />
+
+### Primary
+
+Used in place of the main button component if no text is used. This allows the button to display
+square.
+
+<Story id="component-library-icon-button--primary" />
+
+### Secondary
+
+Used in place of the main button component if no text is used. This allows the button to display
+square.
+
+<Story id="component-library-icon-button--secondary" />
+
+### Light
+
+Used on a background that is dark in both light theme and dark theme. Example: end user navigation
+styles.
+
+<Story id="component-library-icon-button--light" />
 
 **Note:** Main and contrast styles appear on backgrounds where using `primary-700` as a focus
 indicator does not meet WCAG graphic contrast guidelines.
@@ -33,14 +89,13 @@ There are 2 sizes for the icon button: `small` and `default`.
 Default is typically used for most instances. Small is used if the implementation needs a variant
 with less padding around the icon, such as in the navigation component.
 
-## Usage
+### Small
 
-Icon buttons can be found in other components such as: the
-[banner](?path=/docs/component-library-banner--docs)
-[dialog](?path=/docs/component-library-dialogs--docs), and
-[table](?path=/docs/component-library-table--docs).
+<Story id="component-library-icon-button--small" />
 
-<Story id="component-library-banner--premium" />
+### Default
+
+<Story id="component-library-icon-button--default" />
 
 ## Accessibility
 

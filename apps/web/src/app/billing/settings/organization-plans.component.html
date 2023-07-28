@@ -28,7 +28,7 @@
   (ngSubmit)="submit()"
   [appApiAction]="formPromise"
   ngNativeValidate
-  *ngIf="!loading && !selfHosted && this.plans"
+  *ngIf="!loading && !selfHosted && this.passwordManagerPlans && this.secretsManagerPlans"
   class="tw-pt-6"
 >
   <app-org-info
@@ -119,7 +119,7 @@
       <span *ngIf="selectableProduct.product == productTypes.Free">{{ "freeForever" | i18n }}</span>
     </label>
   </div>
-  <div *ngIf="formGroup.controls['product'].value !== productTypes.Free">
+  <div *ngIf="formGroup.value.product !== productTypes.Free">
     <ng-container *ngIf="selectedPlan.hasAdditionalSeatsOption && !selectedPlan.baseSeats">
       <h2 class="mt-5">{{ "users" | i18n }}</h2>
       <div class="row">
@@ -230,7 +230,8 @@
             <span *ngIf="!selectablePlan.baseSeats">{{ "users" | i18n }}:</span>
             {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
             {{ selectablePlan.seatPrice / 12 | currency : "$" }} &times; 12
-            {{ "monthAbbr" | i18n }} = {{ seatTotal(selectablePlan) | currency : "$" }} /{{
+            {{ "monthAbbr" | i18n }} =
+            {{ seatTotal(selectablePlan, formGroup.value.additionalSeats) | currency : "$" }} /{{
               "year" | i18n
             }}
           </small>
@@ -256,7 +257,9 @@
             <span *ngIf="!selectablePlan.baseSeats">{{ "users" | i18n }}:</span>
             {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
             {{ selectablePlan.seatPrice | currency : "$" }} {{ "monthAbbr" | i18n }} =
-            {{ seatTotal(selectablePlan) | currency : "$" }} /{{ "month" | i18n }}
+            {{ seatTotal(selectablePlan, formGroup.value.additionalSeats) | currency : "$" }} /{{
+              "month" | i18n
+            }}
           </small>
           <small *ngIf="selectablePlan.hasAdditionalStorageOption">
             {{ "additionalStorageGb" | i18n }}:
@@ -268,8 +271,21 @@
         </ng-container>
       </label>
     </div>
-    <hr class="my-3" />
-    <h2 class="spaced-header mb-4">
+  </div>
+
+  <!-- Secrets Manager -->
+  <div class="tw-my-10">
+    <sm-subscribe
+      *ngIf="showSecretsManagerSubscribe && planOffersSecretsManager"
+      [formGroup]="formGroup.controls.secretsManager"
+      [selectedPlan]="selectedSecretsManagerPlan"
+      [upgradeOrganization]="!createOrganization"
+    ></sm-subscribe>
+  </div>
+
+  <!-- Payment info -->
+  <div *ngIf="formGroup.value.product !== productTypes.Free">
+    <h2 class="mb-4">
       {{ (createOrganization ? "paymentInformation" : "billingInformation") | i18n }}
     </h2>
     <small class="text-muted font-italic mb-3 d-block">
@@ -279,8 +295,12 @@
     <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
     <div id="price" class="my-4">
       <div class="text-muted text-sm">
-        {{ "planPrice" | i18n }}: {{ subtotal | currency : "USD $" }}
+        {{ "passwordManagerPlanPrice" | i18n }}: {{ passwordManagerSubtotal | currency : "USD $" }}
         <br />
+        <span *ngIf="planOffersSecretsManager && formGroup.value.secretsManager.enabled">
+          {{ "secretsManagerPlanPrice" | i18n }}: {{ secretsManagerSubtotal | currency : "USD $" }}
+          <br />
+        </span>
         <ng-container>
           {{ "estimatedTax" | i18n }}: {{ taxCharges | currency : "USD $" }}
         </ng-container>

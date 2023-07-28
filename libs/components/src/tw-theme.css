@@ -159,3 +159,41 @@
 }
 
 @import "./search/search.component.css";
+
+/** 
+ * tw-break-words does not work with table cells:
+ * https://github.com/tailwindlabs/tailwindcss/issues/835
+ */
+td.tw-break-words {
+  overflow-wrap: anywhere;
+}
+
+/** 
+ * tw-list-none hides summary arrow in Firefox & Chrome but not Safari:
+ * https://github.com/tailwindlabs/tailwindcss/issues/924#issuecomment-915509785
+ */
+summary.tw-list-none::marker,
+summary.tw-list-none::-webkit-details-marker {
+  display: none;
+}
+
+/** 
+ * Arbitrary values can't be used with `text-align`:
+ * https://github.com/tailwindlabs/tailwindcss/issues/802#issuecomment-849013311
+ */
+.tw-text-unset {
+  text-align: unset;
+}
+
+/**
+ * Bootstrap uses z-index: 1050 for modals, dialogs should appear above them.
+ * Remove once bootstrap is removed from our codebase.
+ * CL-XYZ
+ */
+.cdk-overlay-container,
+.cdk-global-overlay-wrapper,
+.cdk-overlay-connected-position-bounding-box,
+.cdk-overlay-backdrop,
+.cdk-overlay-pane {
+  z-index: 2000 !important;
+}

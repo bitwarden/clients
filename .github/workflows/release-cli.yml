@@ -243,7 +243,7 @@ jobs:
         shell: pwsh
         run: |
           cd dist
-          choco push
+          choco push --source=https://push.chocolatey.org/
 
   npm:
     name: Publish NPM

@@ -12,7 +12,11 @@
           {{ "passwordGeneratorPolicyInEffect" | i18n }}
         </app-callout>
         <div class="generated-block" *ngIf="type === 'password'">
-          <div class="generated-wrapper" [innerHTML]="password | colorPassword" appSelectCopy></div>
+          <div
+            class="generated-wrapper"
+            [innerHTML]="password | colorPassword"
+            [appCopyText]="password"
+          ></div>
           <div class="action-buttons">
             <button
               type="button"
@@ -35,7 +39,11 @@
           </div>
         </div>
         <div class="generated-block" *ngIf="type === 'username'">
-          <div class="generated-wrapper" [innerHTML]="username | colorPassword" appSelectCopy></div>
+          <div
+            class="generated-wrapper"
+            [innerHTML]="username | colorPassword"
+            [appCopyText]="username"
+          ></div>
           <div class="action-buttons" #form [appApiAction]="usernameGeneratingPromise">
             <button
               type="button"

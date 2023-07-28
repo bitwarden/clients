@@ -30,7 +30,11 @@ export class PremiumComponent extends BasePremiumComponent {
 
     // Support old price string. Can be removed in future once all translations are properly updated.
     const thePrice = this.currencyPipe.transform(this.price, "$");
-    this.priceString = i18nService.t("premiumPrice", thePrice);
+    // Safari extension crashes due to $1 appearing in the price string ($10.00). Escape the $ to fix.
+    const formattedPrice = this.platformUtilsService.isSafari()
+      ? thePrice.replace("$", "$$$")
+      : thePrice;
+    this.priceString = i18nService.t("premiumPrice", formattedPrice);
     if (this.priceString.indexOf("%price%") > -1) {
       this.priceString = this.priceString.replace("%price%", thePrice);
     }
