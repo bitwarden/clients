@@ -2,7 +2,7 @@
   <h1>{{ "encKeySettings" | i18n }}</h1>
 </div>
 <bit-callout type="warning">{{ "changeKdfLoggedOutWarning" | i18n }}</bit-callout>
-<form #form ngNativeValidate autocomplete="off">
+<form #form ngNativeValidate autocomplete="off" [formGroup]="kdfForm">
   <div class="row">
     <div class="col-6">
       <div class="form-group mb-0">
@@ -19,23 +19,23 @@
         <select
           id="kdf"
           name="Kdf"
-          [(ngModel)]="kdf"
-          (ngModelChange)="onChangeKdf($event)"
+          formControlName="kdf"
+          (change)="onChangeKdf()"
           class="form-control mb-3"
           required
         >
           <option *ngFor="let o of kdfOptions" [ngValue]="o.value">{{ o.name }}</option>
         </select>
-        <ng-container *ngIf="kdf == kdfType.Argon2id">
+        <ng-container *ngIf="kdfForm.value.kdf == kdfType.Argon2id">
           <label for="kdfMemory">{{ "kdfMemory" | i18n }}</label>
           <input
             id="kdfMemory"
             type="number"
-            min="16"
-            max="1024"
+            [min]="minimumArgon2Memory"
+            [max]="maximumArgon2Memory"
             name="Memory"
             class="form-control mb-3"
-            [(ngModel)]="kdfConfig.memory"
+            formControlName="memory"
             required
           />
         </ng-container>
@@ -43,7 +43,7 @@
     </div>
     <div class="col-6">
       <div class="form-group mb-0">
-        <ng-container *ngIf="kdf == kdfType.PBKDF2_SHA256">
+        <ng-container *ngIf="kdfForm.value.kdf == kdfType.PBKDF2_SHA256">
           <label for="kdfIterations">{{ "kdfIterations" | i18n }}</label>
           <a
             class="ml-auto"
@@ -57,42 +57,42 @@
           <input
             id="kdfIterations"
             type="number"
-            min="100000"
-            max="2000000"
+            [min]="minimumPbkdf2Iterations"
+            [max]="maximumPbkdf2Iterations"
             name="KdfIterations"
             class="form-control"
-            [(ngModel)]="kdfConfig.iterations"
+            formControlName="iterations"
             required
           />
         </ng-container>
-        <ng-container *ngIf="kdf == kdfType.Argon2id">
+        <ng-container *ngIf="kdfForm.value.kdf == kdfType.Argon2id">
           <label for="kdfIterations">{{ "kdfIterations" | i18n }}</label>
           <input
             id="iterations"
             type="number"
-            min="2"
-            max="10"
+            [min]="minimumArgon2Iterations"
+            [max]="maximumArgon2Iterations"
             name="Iterations"
             class="form-control mb-3"
-            [(ngModel)]="kdfConfig.iterations"
+            formControlName="iterations"
             required
           />
           <label for="kdfParallelism">{{ "kdfParallelism" | i18n }}</label>
           <input
             id="kdfParallelism"
             type="number"
-            min="1"
-            max="16"
+            [min]="minimumArgon2Parallelism"
+            [max]="maximumArgon2Parallelism"
             name="Parallelism"
             class="form-control"
-            [(ngModel)]="kdfConfig.parallelism"
+            formControlName="parallelism"
             required
           />
         </ng-container>
       </div>
     </div>
     <div class="col-12">
-      <ng-container *ngIf="kdf == kdfType.PBKDF2_SHA256">
+      <ng-container *ngIf="kdfForm.value.kdf == kdfType.PBKDF2_SHA256">
         <p class="small form-text text-muted">
           {{ "kdfIterationsDesc" | i18n : (recommendedPbkdf2Iterations | number) }}
         </p>
@@ -100,7 +100,7 @@
           {{ "kdfIterationsWarning" | i18n : (100000 | number) }}
         </bit-callout>
       </ng-container>
-      <ng-container *ngIf="kdf == kdfType.Argon2id">
+      <ng-container *ngIf="kdfForm.value.kdf == kdfType.Argon2id">
         <p class="small form-text text-muted">{{ "argon2Desc" | i18n }}</p>
         <bit-callout type="warning"> {{ "argon2Warning" | i18n }}</bit-callout>
       </ng-container>
@@ -111,7 +111,7 @@
     type="button"
     buttonType="primary"
     bitButton
-    [loading]="form.loading"
+    [disabled]="kdfForm.invalid"
   >
     {{ "changeKdf" | i18n }}
   </button>
