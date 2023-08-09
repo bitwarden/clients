@@ -90,7 +90,7 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
     const userSymKey = new SymmetricCryptoKey(decValue);
 
     // Re-encrypt User's Symmetric Key with the Device Public Key
-    return await this.cryptoService.rsaEncrypt(userSymKey.key, devicePubKey.buffer);
+    return await this.cryptoService.rsaEncrypt(userSymKey.key, devicePubKey);
   }
 
   async approveRequest(authRequest: PendingAuthRequestView) {

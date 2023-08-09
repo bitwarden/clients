@@ -72,24 +72,26 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
       : this.options.additionalServiceAccountPrice / 12;
   }
 
-  get serviceAccountTotal(): number {
+  get serviceAccountTotalCost(): number {
     return Math.abs(
       this.formGroup.value.additionalServiceAccounts * this.options.additionalServiceAccountPrice
     );
   }
 
-  get seatTotal(): number {
+  get seatTotalCost(): number {
     return Math.abs(this.formGroup.value.seatCount * this.options.seatPrice);
   }
 
-  get maxServiceAccountTotal(): number {
-    return Math.abs(
-      (this.formGroup.value.maxAutoscaleServiceAccounts ?? 0) *
-        this.options.additionalServiceAccountPrice
-    );
+  get maxAdditionalServiceAccounts(): number {
+    const maxTotalServiceAccounts = this.formGroup.value.maxAutoscaleServiceAccounts ?? 0;
+    return Math.max(0, maxTotalServiceAccounts - this.options.baseServiceAccountCount);
   }
 
-  get maxSeatTotal(): number {
+  get maxServiceAccountTotalCost(): number {
+    return this.maxAdditionalServiceAccounts * this.options.additionalServiceAccountPrice;
+  }
+
+  get maxSeatTotalCost(): number {
     return Math.abs((this.formGroup.value.maxAutoscaleSeats ?? 0) * this.options.seatPrice);
   }
 
@@ -115,7 +117,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
       if (value.limitServiceAccounts) {
         maxAutoscaleServiceAccountsControl.setValidators([
-          Validators.min(value.additionalServiceAccounts),
+          Validators.min(value.additionalServiceAccounts + this.options.baseServiceAccountCount),
         ]);
         maxAutoscaleServiceAccountsControl.enable({ emitEvent: false });
       } else {

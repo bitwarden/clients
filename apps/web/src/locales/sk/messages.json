@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ webový trezor",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Aký typ položky to je?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "bitWebVault": {
+    "message": "Webový trezor Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Prihlásený."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Nastavte limit počtu používateľov predplatného. Po jeho dosiahnutí nebudete môcť pozvať nových používateľov."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Nastavte limit počtu používateľov predplatného pre Secrets Manager. Po jeho dosiahnutí nebudete môcť pozvať nových používateľov."
   },
   "maxSeatLimit": {
     "message": "Maximálny počet miest (voliteľné)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Spravovať používateľov"
   },
-  "manageResetPassword": {
-    "message": "Správa resetovania hesla"
+  "manageAccountRecovery": {
+    "message": "Spravovať obnovu konta"
   },
   "disableRequiredError": {
     "message": "Pred zakázaním tejto zásady musíte ručne vypnúť zásadu $POLICYNAME$.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Chyba"
   },
-  "resetPasswordManageUsers": {
-    "message": "Správa používateľov musí byť povolená aj s oprávnením spravovať obnovenie hesla"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Nastavenie poskytovateľa"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Beta verzia Secrets Manager"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Beta verzia Secrets Manager"
   },
   "secretsManagerAccessDescription": {
     "message": "Aktivovať používateľovi prístup k Secrets Manager."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Aktualizovať nastavenia KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Trusted device encryption"
+  "trustedDevices": {
+    "message": "Dôveryhodné zariadenia"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Žiadne aktívne Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Použite Send na bezpečné zdieľanie zašifrovaných informácii s kýmkoľvek.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Pozvať používateľov"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager pre $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Pre inžinierske tímy a tímy DevOps na správu tajomstiev počas celého životného cyklu vývoja softvéru."
+  },
+  "free2PersonOrganization": {
+    "message": "2-členné organizácie zadarmo"
+  },
+  "unlimitedSecrets": {
+    "message": "Neobmedzený počet položiek"
+  },
+  "unlimitedProjects": {
+    "message": "Neobmedzený počet projektov"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ zahrnutých projektov",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ zahrnutých služobných kont",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ mesačne pre dodatočné služobné kontá",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Pridať Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Do aktualizovaného plánu pridajte Secret Manager, aby ste si zachovali prístup k všetkým tajomstvám vytvoreným v predchádzajúcom pláne."
+  },
+  "additionalServiceAccounts": {
+    "message": "Dodatočné služobné kontá"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Váš plán zahŕňa $COUNT$ služobných kont. Ďalšie služobné kontá môžete pridať za $COST$ mesačne.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Cena plánu Správcu Hesiel"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Cena plánu Secrets Manager"
+  },
+  "passwordManager": {
+    "message": "Správca hesiel"
+  },
+  "freeOrganization": {
+    "message": "Organizácia zadarmo"
+  },
+  "limitServiceAccounts": {
+    "message": "Limitovať služobné kontá (voliteľné)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Nastavte limit počtu služobných kont. Po jeho dosiahnutí nebudete môcť vytvoriť nové služobné kontá."
+  },
+  "serviceAccountLimit": {
+    "message": "Limit služobných kont (voliteľné)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Maximálna možná cena služobných kont"
   }
 }

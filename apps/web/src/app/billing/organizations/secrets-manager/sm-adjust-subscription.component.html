@@ -5,7 +5,7 @@
     <bit-hint>
       <strong>{{ "total" | i18n }}:</strong>
       {{ formGroup.value.seatCount || 0 }} &times; {{ options.seatPrice | currency : "$" }} =
-      {{ seatTotal | currency : "$" }} / {{ options.interval | i18n }}
+      {{ seatTotalCost | currency : "$" }} / {{ options.interval | i18n }}
     </bit-hint>
   </bit-form-field>
   <bit-form-control>
@@ -28,7 +28,7 @@
     <bit-hint>
       <strong>{{ "maxSeatCost" | i18n }}:</strong>
       {{ formGroup.value.maxAutoscaleSeats || 0 }} &times;
-      {{ options.seatPrice | currency : "$" }} = {{ maxSeatTotal | currency : "$" }} /
+      {{ options.seatPrice | currency : "$" }} = {{ maxSeatTotalCost | currency : "$" }} /
       {{ options.interval | i18n }}
     </bit-hint>
   </bit-form-field>
@@ -44,16 +44,14 @@
     />
     <bit-hint>
       <div>
-        {{
-          "additionalServiceAccountsDesc"
-            | i18n : options.baseServiceAccountCount : (monthlyServiceAccountPrice | currency : "$")
-        }}
+        {{ "includedServiceAccounts" | i18n : options.baseServiceAccountCount }}
+        {{ "addAdditionalServiceAccounts" | i18n : (monthlyServiceAccountPrice | currency : "$") }}
       </div>
       <div>
         <strong>{{ "total" | i18n }}:</strong>
         {{ formGroup.value.additionalServiceAccounts || 0 }} &times;
         {{ options.additionalServiceAccountPrice | currency : "$" }} =
-        {{ serviceAccountTotal | currency : "$" }} / {{ options.interval | i18n }}
+        {{ serviceAccountTotalCost | currency : "$" }} / {{ options.interval | i18n }}
       </div>
     </bit-hint>
   </bit-form-field>
@@ -80,10 +78,13 @@
       [min]="formGroup.value.additionalServiceAccounts"
     />
     <bit-hint>
+      <div>
+        {{ "includedServiceAccounts" | i18n : options.baseServiceAccountCount }}
+      </div>
       <strong>{{ "maxServiceAccountCost" | i18n }}:</strong>
-      {{ formGroup.value.maxAutoscaleServiceAccounts || 0 }} &times;
+      {{ maxAdditionalServiceAccounts }} &times;
       {{ options.additionalServiceAccountPrice | currency : "$" }} =
-      {{ maxServiceAccountTotal | currency : "$" }} / {{ options.interval | i18n }}
+      {{ maxServiceAccountTotalCost | currency : "$" }} / {{ options.interval | i18n }}
     </bit-hint>
   </bit-form-field>
   <button type="submit" bitButton buttonType="primary" bitFormButton>

@@ -9,7 +9,7 @@ import { SettingsService as SettingsServiceAbstraction } from "@bitwarden/common
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/abstractions/totp.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeout.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeoutSettings.service";
-import { InternalOrganizationService as InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -114,6 +114,7 @@ import { Account } from "../models/account";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
+import BrowserPopoutWindowService from "../platform/popup/browser-popout-window.service";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -195,6 +196,7 @@ export default class MainBackground {
   cipherContextMenuHandler: CipherContextMenuHandler;
   configService: ConfigServiceAbstraction;
   configApiService: ConfigApiServiceAbstraction;
+  browserPopoutWindowService: BrowserPopoutWindowService;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -512,6 +514,7 @@ export default class MainBackground {
       this.authService,
       this.environmentService
     );
+    this.browserPopoutWindowService = new BrowserPopoutWindowService();
 
     const systemUtilsServiceReloadCallback = () => {
       const forceWindowReload =
@@ -543,7 +546,8 @@ export default class MainBackground {
       this.environmentService,
       this.messagingService,
       this.logService,
-      this.configService
+      this.configService,
+      this.browserPopoutWindowService
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.cryptoService,
@@ -570,7 +574,8 @@ export default class MainBackground {
       this.authService,
       this.policyService,
       this.folderService,
-      this.stateService
+      this.stateService,
+      this.environmentService
     );
 
     this.tabsBackground = new TabsBackground(this, this.notificationBackground);

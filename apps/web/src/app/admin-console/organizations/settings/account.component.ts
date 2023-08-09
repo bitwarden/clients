@@ -61,7 +61,7 @@ export class AccountComponent {
   });
 
   protected organizationId: string;
-  protected publicKeyBuffer: ArrayBuffer;
+  protected publicKeyBuffer: Uint8Array;
 
   private destroy$ = new Subject<void>();
 
@@ -106,7 +106,7 @@ export class AccountComponent {
         this.org = orgResponse;
 
         // Public Key Buffer for Org Fingerprint Generation
-        this.publicKeyBuffer = Utils.fromB64ToArray(orgKeys?.publicKey)?.buffer;
+        this.publicKeyBuffer = Utils.fromB64ToArray(orgKeys?.publicKey);
 
         // Patch existing values
         this.formGroup.patchValue({

@@ -217,6 +217,10 @@ export class Organization {
     return this.isAdmin || this.permissions.manageResetPassword;
   }
 
+  get canManageDeviceApprovals() {
+    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
+  }
+
   get isExemptFromPolicies() {
     return this.canManagePolicies;
   }

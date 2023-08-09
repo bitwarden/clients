@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ 網頁版密碼庫",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "這是什麼類型的項目？"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "網頁版密碼庫"
   },
+  "bitWebVault": {
+    "message": "Bitwarden Web vault"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "已登入"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "為您的訂閲設定席位限制。達到此限制後，您將無法邀請新的成員。"
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "為您的 Secrets Manger 訂閲設定席位限制。達到此限制後，就無法邀請新成員。"
   },
   "maxSeatLimit": {
     "message": "席位限制（選用）",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "管理使用者"
   },
-  "manageResetPassword": {
-    "message": "管理密碼重設"
+  "manageAccountRecovery": {
+    "message": "Manage account recovery"
   },
   "disableRequiredError": {
     "message": "您必須先手動停用 $POLICYNAME$ 原則，然後才能停用此原則。",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "錯誤"
   },
-  "resetPasswordManageUsers": {
-    "message": "必須啟用管理密碼重設權限後才能啟用管理使用者權限"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "提供者設定"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "更新 KDF 設定"
   },
-  "trustedDeviceEncryption": {
-    "message": "Trusted device encryption"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "通過驗證以後，成員將使用儲存在裝置的金鑰來解密密碼庫資料。開啟此選項後，將開啟",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invite Users"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager for $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "提供工程與 DevOps 團隊一套在軟體開發生命週期中，管理秘密資訊的功能。"
+  },
+  "free2PersonOrganization": {
+    "message": "2 人組織免費版"
+  },
+  "unlimitedSecrets": {
+    "message": "無限秘密資訊"
+  },
+  "unlimitedProjects": {
+    "message": "無限專案"
+  },
+  "projectsIncluded": {
+    "message": "包含 $COUNT$ 個專案",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "包含 $COUNT$ 組服務帳號",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "每新增一組服務帳號，每月收費 $COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "新增 Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "將 Secrets Manager 加入您的升級方案，來記錄維持存取於先前方案中保存的秘密資訊。"
+  },
+  "additionalServiceAccounts": {
+    "message": "新增服務帳號"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "您的方案內含 $COUNT$ 組服務帳號，可再以每月 $COST$ 費用新增更多服務帳號。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "密碼管理器方案價格"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager 方案價格"
+  },
+  "passwordManager": {
+    "message": "密碼管理器"
+  },
+  "freeOrganization": {
+    "message": "免費組織"
+  },
+  "limitServiceAccounts": {
+    "message": "限制服務帳號數量（選填）"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "為您的服務帳號數量設定限制。達到此限制後，就無法再新增服務帳號資訊。"
+  },
+  "serviceAccountLimit": {
+    "message": "服務帳號數量限制（選填）"
+  },
+  "maxServiceAccountCost": {
+    "message": "可能的最大服務帳號成本"
   }
 }

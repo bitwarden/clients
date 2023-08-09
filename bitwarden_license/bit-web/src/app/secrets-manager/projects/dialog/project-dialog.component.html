@@ -7,7 +7,7 @@
       </div>
       <bit-form-field *ngIf="!loading">
         <bit-label>{{ "projectName" | i18n }}</bit-label>
-        <input formControlName="name" maxlength="1000" bitInput />
+        <input appAutofocus formControlName="name" bitInput />
       </bit-form-field>
     </span>
     <ng-container bitDialogFooter>

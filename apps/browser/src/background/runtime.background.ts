@@ -8,6 +8,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import { BrowserPopoutWindowService } from "../platform/popup/abstractions/browser-popout-window.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 
@@ -30,7 +31,8 @@ export default class RuntimeBackground {
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
-    private configService: ConfigServiceAbstraction
+    private configService: ConfigServiceAbstraction,
+    private browserPopoutWindowService: BrowserPopoutWindowService
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -66,7 +68,7 @@ export default class RuntimeBackground {
 
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
-          BrowserApi.closeBitwardenExtensionTab();
+          await this.browserPopoutWindowService.closeLoginPrompt();
         }
 
         await this.main.refreshBadge();
@@ -105,7 +107,8 @@ export default class RuntimeBackground {
         await this.main.openPopup();
         break;
       case "promptForLogin":
-        BrowserApi.openBitwardenExtensionTab("popup/index.html", true);
+      case "bgReopenPromptForLogin":
+        await this.browserPopoutWindowService.openLoginPrompt(sender.tab?.windowId);
         break;
       case "openAddEditCipher": {
         const addEditCipherUrl =

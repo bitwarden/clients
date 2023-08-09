@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Веб сховище $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Який це тип запису?"
   },
@@ -619,7 +609,7 @@
     "message": "Увійти з пристроєм"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях програми Bitwarden. Потрібен інший варіант?"
   },
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Веб сховище"
   },
+  "bitWebVault": {
+    "message": "Веб сховище Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Менеджер секретів Bitwarden"
+  },
   "loggedIn": {
     "message": "Вхід виконано"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Встановіть обмеження кількості місць для вашої передплати. Після досягнення цього обмеження ви не зможете запросити нових користувачів."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Встановіть обмеження кількості місць для вашої передплати Менеджера секретів. Після досягнення цього обмеження ви не зможете запросити нових користувачів."
   },
   "maxSeatLimit": {
     "message": "Обмеження кількості місць (необов'язково)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Керувати користувачами"
   },
-  "manageResetPassword": {
-    "message": "Керувати скиданням пароля"
+  "manageAccountRecovery": {
+    "message": "Керувати відновленням облікового запису"
   },
   "disableRequiredError": {
     "message": "Перш ніж вимкнути цю політику, вам необхідно вручну вимкнути політику $POLICYNAME$.",
@@ -4595,13 +4594,13 @@
     "message": "Адміністрування відновлення облікового запису"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "На основі методу шифрування, відновлення облікових записів у разі втрати головного пароля чи довірених пристроїв."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "Учасники наявних облікових записів з головним паролем мають самостійно подати запит, щоб адміністратори мали змогу відновлювати їхні облікові записи."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "Для активації цієї політики необхідно увімкнути політику єдиної організації."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне подання запиту"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Помилка"
   },
-  "resetPasswordManageUsers": {
-    "message": "Разом із дозволом на керування скиданням пароля також необхідно надати дозвіл на керування користувачами"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Налаштування постачальника"
@@ -5222,7 +5221,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "обов'язкову політику єдиного входу (SSO)",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Продовжуючи, ви вийдете з усіх активних сеансів. Необхідно буде повторно виконати вхід і пройти двоетапну перевірку. Перед зміною налаштувань шифрування ми рекомендуємо експортувати ваше сховище, щоб запобігти можливій втраті даних."
   },
-  "secretsManagerBeta": {
-    "message": "Керування секретами (бета-версія)"
-  },
   "secretsManager": {
     "message": "Керування секретами"
+  },
+  "secretsManagerBeta": {
+    "message": "Керування секретами (бета-версія)"
   },
   "secretsManagerAccessDescription": {
     "message": "Активувати доступ користувача до керування секретами."
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "Оновити налаштування KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Шифрування досвіреного пристрою"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "Після авторизації учасники розшифровуватимуть дані сховища з використанням ключа, збереженого на їхньому пристрої.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "Якщо використовується",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "ця опція, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "буде увімкнено політику єдиної",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "організації та адміністрування відновлення облікового запису.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Прапор вибраного регіону"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Немає активних відправлень",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Використовуйте відправлення, щоб безпечно надавати доступ іншим до зашифрованої інформації.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Запросити користувачів"
+  },
+  "secretsManagerForPlan": {
+    "message": "Менеджер секретів для $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Для команд розробників та DevOps, щоб керувати секретами протягом життєвого циклу розробки програмного забезпечення."
+  },
+  "free2PersonOrganization": {
+    "message": "Безплатно для організацій з 2 користувачами"
+  },
+  "unlimitedSecrets": {
+    "message": "Необмежена кількість секретів"
+  },
+  "unlimitedProjects": {
+    "message": "Необмежена кількість проєктів"
+  },
+  "projectsIncluded": {
+    "message": "Включає $COUNT$ проєкти",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "Включає $COUNT$ службові облікові записи",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ на місяць за додаткові службові облікові записи",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Додати менеджер секретів"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Додайте Менеджер секретів до свого оновленого плану, щоб підтримувати доступ до будь-яких секретів, створених у вашому минулому плані."
+  },
+  "additionalServiceAccounts": {
+    "message": "Додаткові службові облікові записи"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Ваш план включає $COUNT$ службових облікових записів. Ви можете додати більше службових облікових записів за $COST$ на місяць.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Ціна плану менеджера паролів"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Ціна плану менеджера секретів"
+  },
+  "passwordManager": {
+    "message": "Менеджер паролів"
+  },
+  "freeOrganization": {
+    "message": "Безплатна організація"
+  },
+  "limitServiceAccounts": {
+    "message": "Обмеження службових облікових записів (необов'язково)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Встановіть обмеження кількості службових облікових записів. Після досягнення ліміту ви не зможете створювати нові службові облікові записи."
+  },
+  "serviceAccountLimit": {
+    "message": "Обмеження службових облікових записів (необов'язково)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Потенційна максимальна вартість службового облікового запису"
   }
 }

@@ -21,6 +21,8 @@ export default class TabsBackground {
       }
 
       this.focusedWindowId = windowId;
+      await this.main.refreshBadge();
+      await this.main.refreshMenu();
       this.main.messagingService.send("windowChanged");
     });
 

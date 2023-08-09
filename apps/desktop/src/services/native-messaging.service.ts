@@ -56,7 +56,7 @@ export class NativeMessagingService {
 
     // Request to setup secure encryption
     if ("command" in rawMessage && rawMessage.command === "setupEncryption") {
-      const remotePublicKey = Utils.fromB64ToArray(rawMessage.publicKey).buffer;
+      const remotePublicKey = Utils.fromB64ToArray(rawMessage.publicKey);
 
       // Validate the UserId to ensure we are logged into the same account.
       const accounts = await firstValueFrom(this.stateService.accounts$);
@@ -169,7 +169,7 @@ export class NativeMessagingService {
     ipcRenderer.send("nativeMessagingReply", { appId: appId, message: encrypted });
   }
 
-  private async secureCommunication(remotePublicKey: ArrayBuffer, appId: string) {
+  private async secureCommunication(remotePublicKey: Uint8Array, appId: string) {
     const secret = await this.cryptoFunctionService.randomBytes(64);
     this.sharedSecrets.set(appId, new SymmetricCryptoKey(secret));
 

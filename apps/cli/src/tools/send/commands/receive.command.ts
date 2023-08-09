@@ -121,7 +121,7 @@ export class SendReceiveCommand extends DownloadCommand {
     }
   }
 
-  private async getUnlockedPassword(password: string, keyArray: ArrayBuffer) {
+  private async getUnlockedPassword(password: string, keyArray: Uint8Array) {
     const passwordHash = await this.cryptoFunctionService.pbkdf2(
       password,
       keyArray,
@@ -134,7 +134,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private async sendRequest(
     url: string,
     id: string,
-    key: ArrayBuffer
+    key: Uint8Array
   ): Promise<Response | SendAccessView> {
     try {
       const sendResponse = await this.sendApiService.postSendAccess(

@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ Caja fuerte Web",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "¿Qué tipo de elemento es este?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Caja fuerte Web"
   },
+  "bitWebVault": {
+    "message": "Bitwarden bóveda web"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Identificado."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Establezca un límite de asientos para su suscripción. Una vez alcanzado este límite, no podrá invitar a nuevos usuarios."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Establezca un límite de asientos para su suscripción al gestor de secretos. Una vez alcanzado este límite, no podrá invitar a nuevos miembros."
   },
   "maxSeatLimit": {
     "message": "Límite máximo de asientos (opcional)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Administrar usuarios"
   },
-  "manageResetPassword": {
-    "message": "Gestionar restablecimiento de contraseña"
+  "manageAccountRecovery": {
+    "message": "Gestionar recuperación de cuenta"
   },
   "disableRequiredError": {
     "message": "Debe deshabilitar manualmente la política $POLICYNAME$ antes de que esta política pueda ser deshabilitada.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Error"
   },
-  "resetPasswordManageUsers": {
-    "message": "Administrar usuarios también debe estar habilitado con el permiso de Gestionar Contraseña Restablecer"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Configurador del proveedor"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Al continuar, saldrá de todas las sesiones activas. Deberá volver a iniciar sesión y completar la configuración de inicio de sesión en dos pasos. Le recomendamos que exporte su caja fuerte antes de cambiar la configuración de cifrado para evitar la pérdida de datos."
   },
-  "secretsManagerBeta": {
-    "message": "Administrador de secretos Beta"
-  },
   "secretsManager": {
     "message": "Administrador de secretos"
+  },
+  "secretsManagerBeta": {
+    "message": "Administrador de secretos Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Activar el acceso de usuario al Administrador Secretario."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Actualizar ajustes de KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Cifrado de dispositivo de confianza"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Región seleccionada"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invitar usuarios"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager for $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
+  },
+  "free2PersonOrganization": {
+    "message": "Free 2-person Organizations"
+  },
+  "unlimitedSecrets": {
+    "message": "Unlimited secrets"
+  },
+  "unlimitedProjects": {
+    "message": "Unlimited projects"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projects included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ service accounts included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ per month for additional service accounts",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Add Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
+  },
+  "additionalServiceAccounts": {
+    "message": "Additional service accounts"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Your plan comes with $COUNT$ service accounts. You can add additional service accounts for $COST$ per month.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Password Manager plan price"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager plan price"
+  },
+  "passwordManager": {
+    "message": "Administrador de contraseñas"
+  },
+  "freeOrganization": {
+    "message": "Free Organization"
+  },
+  "limitServiceAccounts": {
+    "message": "Limit service accounts (optional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Set a limit for your service accounts. Once this limit is reached, you will not be able to create new service accounts."
+  },
+  "serviceAccountLimit": {
+    "message": "Service account limit (optional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Max potential service account cost"
   }
 }

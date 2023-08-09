@@ -30,7 +30,7 @@ export class ExportScopeCalloutComponent implements OnInit {
       this.organizationId != null
         ? {
             title: "exportingOrganizationVaultTitle",
-            description: "exportingOrganizationVaultDescription",
+            description: "exportingOrganizationVaultDesc",
             scopeIdentifier: this.organizationService.get(this.organizationId).name,
           }
         : {

@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Caixa forta web $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Quin tipus d'element és aquest?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Caixa forta web"
   },
+  "bitWebVault": {
+    "message": "Caixa forta web de Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Administrador de secrets de Bitwarden"
+  },
   "loggedIn": {
     "message": "Heu iniciat sessió."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Estableix un límit de places per a la teua subscripció. Un vegada s'arribe a aquest límit, no podreu convidar usuaris nous."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Estableix un límit de places per a la teua subscripció a Secrets Manager. Una vegada s'arribe a aquest límit, no podreu convidar nous membres."
   },
   "maxSeatLimit": {
     "message": "Límit màxim de places (opcional)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Administra usuaris"
   },
-  "manageResetPassword": {
-    "message": "Gestiona el restabliment de la contrasenya"
+  "manageAccountRecovery": {
+    "message": "Administra la recuperació del compte"
   },
   "disableRequiredError": {
     "message": "Heu de desactivar manualment la política $POLICYNAME$ abans que aquesta política es puga desactivar.",
@@ -4595,13 +4594,13 @@
     "message": "Administració de recuperació de comptes"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "Segons el mètode d'encriptació, recupera els comptes quan s'obliden o es perden contrasenyes mestres o dispositius de confiança."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "Els comptes existents amb contrasenyes mestres requeriran que els membres s'autoinscriguen abans que els administradors puguen recuperar els seus comptes. La inscripció automàtica activarà la recuperació del compte per als nous membres."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "La política empresarial d'una organització única s'ha d'activar abans d'activar aquesta política."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscripció automàtica"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Error"
   },
-  "resetPasswordManageUsers": {
-    "message": "L'administració d'usuaris també ha d'estar habilitada amb el permís de l'administració de restabliment de contrasenyes"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Configuració del proveïdor"
@@ -5222,7 +5221,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "requereix una política d'autenticació d'inici de sessió únic",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Si continueu, tancareu totes les sessions actives. Haureu de tornar a iniciar sessió i completar la configuració d'inici de sessió en dos passos. Recomanem que exporteu la caixa forta abans de canviar la configuració d'encriptació per evitar la pèrdua de dades."
   },
-  "secretsManagerBeta": {
-    "message": "Administrador de secrets Beta"
-  },
   "secretsManager": {
     "message": "Administrador de secrets"
+  },
+  "secretsManagerBeta": {
+    "message": "Administrador de secrets Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Activa l'accés dels usuaris a l'administrador de secrets."
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "Actualitza la configuració de KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Encriptació de dispositius de confiança"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "Una vegada autenticats, els membres desxifraran les dades de la caixa forta mitjançant una clau emmagatzemada al seu dispositiu. La",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "política d'organització",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "única y ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "la política d'administració de recuperació de comptes",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "amb inscripció automàtica s'activarà quan s'utilitze aquesta opció.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Bandera de la regió seleccionada"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No hi ha Sends actius",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Utilitzeu Send per compartir informació xifrada de manera segura amb qualsevol persona.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Convida usuaris"
+  },
+  "secretsManagerForPlan": {
+    "message": "Administrador de secrets per a $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Per als equips d'enginyeria i DevOps per gestionar secrets al llarg del cicle de vida del desenvolupament de programari."
+  },
+  "free2PersonOrganization": {
+    "message": "Organitzacions gratuïtes de 2 persones"
+  },
+  "unlimitedSecrets": {
+    "message": "Secrets il·limitats"
+  },
+  "unlimitedProjects": {
+    "message": "Projectes il·limitats"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projectes inclosos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ comptes de servei inclosos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ al mes per a comptes de servei addicionals",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Afig administrador de secrets"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Afegiu administrador de secrets al vostre pla actualitzat per mantindre l'accés a tots els secrets creats amb el vostre pla anterior."
+  },
+  "additionalServiceAccounts": {
+    "message": "Comptes de serveis addicionals"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "El vostre pla inclou $COUNT$ comptes de servei. Podeu afegir comptes de servei addicionals per $COST$ al mes.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Preu del pla Administrador de contrasenyes"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Preu del pla Administrador de secrets"
+  },
+  "passwordManager": {
+    "message": "Administrador de contrasenyes"
+  },
+  "freeOrganization": {
+    "message": "Organització gratuïta"
+  },
+  "limitServiceAccounts": {
+    "message": "Limita els comptes de servei (opcional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Estableix un límit pels comptes de servei. Una vegada assolit aquest límit, no podreu crear nous comptes de servei."
+  },
+  "serviceAccountLimit": {
+    "message": "Límit del compte de servei (opcional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Cost potencial màxim del compte de servei"
   }
 }

@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ Webkluis",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Webkluis"
   },
+  "bitWebVault": {
+    "message": "Bitwarden Webkluis"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Ingelogd."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Stel een limiet voor gebruikersplaatsen in voor je abonnement. Zodra deze limiet is bereikt, kun je geen nieuwe gebruikers uitnodigen."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Stel een limiet voor gebruikersplaatsen in voor je Secrets Manager-abonnement. Zodra deze limiet is bereikt, kun je geen nieuwe leden uitnodigen."
   },
   "maxSeatLimit": {
     "message": "Maximale gebruikersplaatsen (optioneel)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Gebruikers beheren"
   },
-  "manageResetPassword": {
-    "message": "Wachtwoordherstel beheren"
+  "manageAccountRecovery": {
+    "message": "Accountherstel beheren"
   },
   "disableRequiredError": {
     "message": "Je moet handmatig het $POLICYNAME$-beleid uitschakelen voordat je dit beleid kunt uitschakelen.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Fout"
   },
-  "resetPasswordManageUsers": {
-    "message": "Gebruikers beheren moet ingeschakeld zijn met de optie Wachtwoordherstel beheren"
+  "accountRecoveryManageUsers": {
+    "message": "Gebruikers beheren moet je ook accountherstel beheren toekennen"
   },
   "setupProvider": {
     "message": "Providerinstellingen"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Bèta"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Bèta"
   },
   "secretsManagerAccessDescription": {
     "message": "Gebruikerstoegang tot Secrets Manager inschakelen."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "KDF instellingen bijwerken"
   },
-  "trustedDeviceEncryption": {
-    "message": "Vertrouwde apparaat encryptie"
+  "trustedDevices": {
+    "message": "Vertrouwde apparaten"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Geen actieve Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Gebruik Verzenden voor het veilig delen van versleutelde informatie met wie dan ook.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Gebruikers uitnodigen"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager voor $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Voor het beheren van geheimen tijdens de ontwikkelcyclus van software door ontwikkel- en DevOpsteams."
+  },
+  "free2PersonOrganization": {
+    "message": "Gratis 2-persoonsorganisaties"
+  },
+  "unlimitedSecrets": {
+    "message": "Onbeperkte geheimen"
+  },
+  "unlimitedProjects": {
+    "message": "Onbeperkte projecten"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projecten inbegrepen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ service accounts inbegrepen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ per maand voor extra service accounts",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Secrets Manager toevoegen"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Secrets Manager toevoegen aan je geüpgraded abonnement zodat je toegang houdt tot geheimen die met je vorige abonnement zijn aangemaakt."
+  },
+  "additionalServiceAccounts": {
+    "message": "Extra service accounts"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Bij je abonnement zijn $COUNT$ service accounts ingegrepen. Je kunt meer service accounts toevoegen voor $COST$ per maand.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Abonnementskosten wachtwoordbeheerder"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager abonnementskosten"
+  },
+  "passwordManager": {
+    "message": "Wachtwoordbeheerder"
+  },
+  "freeOrganization": {
+    "message": "Gratis organisatie"
+  },
+  "limitServiceAccounts": {
+    "message": "Service accounts beperken (optioneel)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Stel een limiet in voor service accounts. Zodra deze limiet is bereikt, kun je geen nieuwe service accounts toevoegen."
+  },
+  "serviceAccountLimit": {
+    "message": "Service account limiet (optioneel)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Max potential service account cost"
   }
 }

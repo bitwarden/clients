@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Sejf internetowy $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Jakiego rodzaju jest to element?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Sejf internetowy"
   },
+  "bitWebVault": {
+    "message": "Sejf internetowy Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Menedżer sekretów Bitwarden"
+  },
   "loggedIn": {
     "message": "Zalogowano"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Ustaw limit liczby stanowisk subskrypcji. Po osiągnięciu tego limitu nie będziesz mógł zapraszać nowych użytkowników."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Ustaw limit liczby subskrypcji menedżera sekretów. Po osiągnięciu tego limitu nie będziesz mógł zapraszać nowych użytkowników."
   },
   "maxSeatLimit": {
     "message": "Maksymalna liczba stanowisk (opcjonalnie)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Zarządzaj użytkownikami"
   },
-  "manageResetPassword": {
-    "message": "Zarządzaj resetowaniem hasła"
+  "manageAccountRecovery": {
+    "message": "Zarządzaj odzyskiwaniem konta"
   },
   "disableRequiredError": {
     "message": "Przed wyłączeniem tej zasady, musisz wyłączyć zasadę $POLICYNAME$.",
@@ -4595,13 +4594,13 @@
     "message": "Administracja odzyskiwaniem konta"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "Na podstawie metody szyfrowania odzyskaj konta, gdy hasła główne lub zaufane urządzenia zostaną zapomniane lub utracone."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "Istniejące konta z hasłami głównymi będą wymagały od członków samodzielnej rejestracji, zanim administratorzy będą mogli odzyskać ich konta. Automatyczna rejestracja włączy odzyskiwanie konta dla nowych użytkowników."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "Najpierw musisz włączyć zasadę pojedynczej organizacji."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatyczne rejestrowanie użytkowników"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Błąd"
   },
-  "resetPasswordManageUsers": {
-    "message": "Zasada \"Zarządzaj użytkownikami\" musi być włączona wraz z uprawnieniem \"Zarządzaj resetowaniem hasła\""
+  "accountRecoveryManageUsers": {
+    "message": "Zarządzanie użytkownikami musi być również przyznane z uprawnieniem do zarządzania odzyskiwaniem kont"
   },
   "setupProvider": {
     "message": "Ustawienia dostawcy"
@@ -5222,7 +5221,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "zasadę uwierzytelniania wymagającą logowania jednokrotnego",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6617,14 +6616,14 @@
   "changeKdfLoggedOutWarning": {
     "message": "Kontynuowanie spowoduje wylogowanie ze wszystkich aktywnych sesji. Będzie trzeba zalogować się ponownie i ukończyć konfigurację logowania dwuetapowego. Zalecamy wyeksportowanie sejfu przed zmianą ustawień szyfrowania, aby zapobiec utracie danych."
   },
-  "secretsManagerBeta": {
-    "message": "Menedżer sekretów beta"
-  },
   "secretsManager": {
     "message": "Menedżer sekretów"
   },
+  "secretsManagerBeta": {
+    "message": "Menedżer sekretów beta"
+  },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Aktywuj dostęp użytkownikom do menedżera sekretów."
   },
   "userAccessSecretsManagerGA": {
     "message": "Ten użytkownik może uzyskać dostęp do menedżera sekretów"
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "Zaktualizuj ustawienia KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Szyfrowanie zaufanego urządzenia"
+  "trustedDevices": {
+    "message": "Zaufane urządzenia"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "Po uwierzytelnieniu użytkownicy odszyfrowają dane sejfu przy użyciu klucza zapisanego na ich urządzeniu.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "pojedyncza organizacja",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "polityka i ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "administracja odzyskiwaniem konta",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "polityka z automatycznym zapisem włączy się, gdy ta opcja jest używana.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6864,18 +6863,18 @@
     "message": "Użytkownik zaktualizował hasło wydane poprzez odzyskiwanie konta."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Aktywowano dostęp do menedżera sekretów",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
-    "message": "Activate access"
+    "message": "Aktywuj dostęp"
   },
   "bulkEnableSecretsManagerDescription": {
     "message": "Udziel następującym członkom dostępu do menedżera sekretów. Rola przyznana w menedżerze haseł będzie miała zastosowanie do menedżera sekretów.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Aktywuj menedżer sekretów"
   },
   "yourOrganizationsFingerprint": {
     "message": "Unikalny identyfikator Twojej organizacji",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Flaga wybranego regionu"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Brak aktywnych wysyłek",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Użyj wysyłki, aby bezpiecznie dzielić się zaszyfrowanymi informacjami ze wszystkimi.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Zaproś użytkowników"
+  },
+  "secretsManagerForPlan": {
+    "message": "Menedżer sekretów dla $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Dla zespołów inżynieryjnych i DevOps do zarządzania tajemnicami przez cały cykl rozwoju oprogramowania."
+  },
+  "free2PersonOrganization": {
+    "message": "Darmowa dwuosobowa organizacja"
+  },
+  "unlimitedSecrets": {
+    "message": "Nieograniczone sekrety"
+  },
+  "unlimitedProjects": {
+    "message": "Nieograniczone projekty"
+  },
+  "projectsIncluded": {
+    "message": "Wliczone projekty: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "Uwzględnione konta serwisowe: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ miesięcznie za dodatkowe konta serwisowe",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Dodaj menedżera sekretów"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Dodaj menedżera sekretów do zaktualizowanego planu, aby zachować dostęp do wszelkich sekretów utworzonych w poprzednim planie."
+  },
+  "additionalServiceAccounts": {
+    "message": "Dodatkowe konto serwisowe"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "W twoim planie możesz mieć $COUNT$ kont(a) serwisowe. Możesz dodać dodatkowe konta serwisowe za $COST$ miesięcznie.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Cennik menedżera haseł"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Cennik menedżera sekretów"
+  },
+  "passwordManager": {
+    "message": "Menedżer haseł"
+  },
+  "freeOrganization": {
+    "message": "Darmowa organizacja"
+  },
+  "limitServiceAccounts": {
+    "message": "Limit kont serwisów (opcjonalnie)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Ustaw limit liczby kont serwisowych. Po osiągnięciu tego limitu nie będziesz mógł zapraszać nowych użytkowników."
+  },
+  "serviceAccountLimit": {
+    "message": "Limit kont serwisowych (opcjonalnie)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Maksymalny potencjalny koszt kont serwisowych"
   }
 }

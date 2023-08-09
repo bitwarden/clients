@@ -13,7 +13,7 @@ export class SendView implements View {
   accessId: string = null;
   name: string = null;
   notes: string = null;
-  key: ArrayBuffer;
+  key: Uint8Array;
   cryptoKey: SymmetricCryptoKey;
   type: SendType = null;
   text = new SendTextView();
@@ -82,7 +82,7 @@ export class SendView implements View {
     }
 
     return Object.assign(new SendView(), json, {
-      key: Utils.fromB64ToArray(json.key)?.buffer,
+      key: Utils.fromB64ToArray(json.key),
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),

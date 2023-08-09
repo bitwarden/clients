@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Kho lưu trữ trên web $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Mục này là gì?"
   },
@@ -980,7 +970,7 @@
     "message": "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account."
   },
   "export": {
-    "message": "Export"
+    "message": "Xuất"
   },
   "exportVault": {
     "message": "Trích xuất kho"
@@ -1265,7 +1255,7 @@
     "message": "Dữ liệu đã được nhập vào kho thành công."
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Đã nhập tổng cộng $AMOUNT$ mục.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -1431,7 +1421,7 @@
     "message": "Kích hoạt"
   },
   "restoreAccess": {
-    "message": "Restore access"
+    "message": "Khôi phục quyền truy cập"
   },
   "premium": {
     "message": "Cao cấp",
@@ -1459,7 +1449,7 @@
     "message": "Vô hiệu hoá"
   },
   "revokeAccess": {
-    "message": "Revoke access"
+    "message": "Thu hồi quyền truy cập"
   },
   "twoStepLoginProviderEnabled": {
     "message": "This two-step login provider is active on your account."
@@ -1969,7 +1959,7 @@
     "message": "# of additional GB"
   },
   "additionalStorageIntervalDesc": {
-    "message": "Your plan comes with $SIZE$ of encrypted file storage. You can add additional storage for $PRICE$ per GB /$INTERVAL$.",
+    "message": "Gói của bạn có $SIZE$ dung lượng lưu trữ tập tin có mã hóa. Bạn có thể mua thêm dung lượng với giá $PRICE$ cho mỗi GB/$INTERVAL$.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1989,7 +1979,7 @@
     "message": "Summary"
   },
   "total": {
-    "message": "Total"
+    "message": "Tổng"
   },
   "year": {
     "message": "năm"
@@ -2008,7 +1998,7 @@
     "message": "Phương thức thanh toán của bạn sẽ được thu phí ngay lập tức và sau đó sẽ định kỳ thu phí mỗi năm. Bạn có thể hủy bỏ bất cứ lúc nào."
   },
   "paymentCharged": {
-    "message": "Your payment method will be charged immediately and then on a recurring basis each $INTERVAL$. You may cancel at any time.",
+    "message": "Phương thức thanh toán của bạn sẽ được thu phí ngay lập tức và sau đó sẽ thu phí định kỳ mỗi $INTERVAL$. Bạn có thể hủy bất cứ lúc nào.",
     "placeholders": {
       "interval": {
         "content": "$1",
@@ -2026,7 +2016,7 @@
     "message": "Thông Tin Hóa Đơn"
   },
   "billingTrialSubLabel": {
-    "message": "Your payment method will not be charged during the 7 day free trial."
+    "message": "Phương thức thanh toán của bạn sẽ không bị thu phí trong 7 ngày dùng thử miễn phí."
   },
   "creditCard": {
     "message": "Thẻ Tín Dụng"
@@ -2035,34 +2025,34 @@
     "message": "Nhấn vào nút PayPal để đăng nhập vào tài khoản PayPal của bạn, sau đó nhấn vào nút Submit bên dưới để tiếp tục."
   },
   "cancelSubscription": {
-    "message": "Cancel subscription"
+    "message": "Hủy thuê bao"
   },
   "subscriptionExpiration": {
-    "message": "Subscription expiration"
+    "message": "Thuê bao hết hạn vào"
   },
   "subscriptionCanceled": {
-    "message": "The subscription has been canceled."
+    "message": "Thuê bao của bạn đã bị hủy."
   },
   "pendingCancellation": {
-    "message": "Pending cancellation"
+    "message": "Đang chờ hủy"
   },
   "subscriptionPendingCanceled": {
-    "message": "The subscription has been marked for cancellation at the end of the current billing period."
+    "message": "Thuê bao của bạn sẽ được huỷ tại cuối kì thanh toán hiện tại."
   },
   "reinstateSubscription": {
-    "message": "Reinstate subscription"
+    "message": "Kích hoạt lại thuê bao"
   },
   "reinstateConfirmation": {
-    "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
+    "message": "Bạn có chắc muốn bỏ yêu cầu hủy đang chờ duyệt và kích hoạt lại thuê bao?"
   },
   "reinstated": {
-    "message": "The subscription has been reinstated."
+    "message": "Đã kích hoạt lại thuê bao."
   },
   "cancelConfirmation": {
-    "message": "Are you sure you want to cancel? You will lose access to all of this subscription's features at the end of this billing cycle."
+    "message": "Bạn có chắc muốn hủy không? Bạn sẽ mất hết quyền truy cập tất cả các tính năng của thuê bao này khi kì thanh toán kết thúc."
   },
   "canceledSubscription": {
-    "message": "Subscription canceled"
+    "message": "Đã hủy thuê bao"
   },
   "neverExpires": {
     "message": "Never expires"
@@ -2083,7 +2073,7 @@
     "message": "Update license"
   },
   "manageSubscription": {
-    "message": "Manage subscription"
+    "message": "Quản lý thuê bao"
   },
   "launchCloudSubscription": {
     "message": "Bắt Đầu Đăng Ký Đám Mây"
@@ -2098,7 +2088,7 @@
     "message": "Remove storage"
   },
   "subscriptionStorage": {
-    "message": "Your subscription has a total of $MAX_STORAGE$ GB of encrypted file storage. You are currently using $USED_STORAGE$.",
+    "message": "Thuê bao của bạn có tổng cộng $MAX_STORAGE$ GB dung lượng lưu trữ tập tin có mã hóa. Bạn đã dùng $USED_STORAGE$ rồi.",
     "placeholders": {
       "max_storage": {
         "content": "$1",
@@ -2397,7 +2387,7 @@
     }
   },
   "trialPaidInfoMessage": {
-    "message": "Your $PLAN$ 7 day free trial will be converted to a paid subscription after 7 days.",
+    "message": "Gói dùng thử 7 ngày $PLAN$ miễn phí của bạn sẽ được chuyển đổi thành thuê bao trả phí sau 7 ngày.",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2644,6 +2634,12 @@
   },
   "webVault": {
     "message": "Web vault"
+  },
+  "bitWebVault": {
+    "message": "Bitwarden Web vault"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
   },
   "loggedIn": {
     "message": "Logged in"
@@ -3280,7 +3276,7 @@
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make two micro-deposits within the next 1-2 business days. Enter these amounts on the organization's billing page to verify the bank account."
   },
   "verifyBankAccountFailureWarning": {
-    "message": "Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Nếu không xác nhận tài khoản ngân hàng, bạn có thể lỡ hạn thanh toán khiến cho thuê bao bị ngừng."
   },
   "verifiedBankAccount": {
     "message": "Bank account verified"
@@ -3323,6 +3319,9 @@
   "limitSubscriptionDesc": {
     "message": "Set a seat limit for your subscription. Once this limit is reached, you will not be able to invite new members."
   },
+  "limitSmSubscriptionDesc": {
+    "message": "Set a seat limit for your Secrets Manger subscription. Once this limit is reached, you will not be able to invite new members."
+  },
   "maxSeatLimit": {
     "message": "Seat Limit (optional)",
     "description": "Upper limit of seats to allow through autoscaling"
@@ -3357,7 +3356,7 @@
     "message": "Subscription seats"
   },
   "subscriptionUpdated": {
-    "message": "Subscription updated"
+    "message": "Đã cập nhật thuê bao"
   },
   "additionalOptions": {
     "message": "Additional options"
@@ -3456,7 +3455,7 @@
     "message": "Any encrypted exports that you have saved will also become invalid."
   },
   "subscription": {
-    "message": "Subscription"
+    "message": "Thuê bao"
   },
   "loading": {
     "message": "Loading"
@@ -3664,7 +3663,7 @@
     "message": "You cannot perform this action while using an in-app purchase payment method."
   },
   "manageSubscriptionFromStore": {
-    "message": "You must manage your subscription from the store where your in-app purchase was made."
+    "message": "Bạn chỉ có thể quản lý thuê bao của mình từ cửa hàng ứng dụng mà bạn đã thanh toán."
   },
   "minLength": {
     "message": "Minimum length"
@@ -4308,11 +4307,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseLink": {
-    "message": "enterprise feature",
+    "message": "tính năng cho doanh nghiệp",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseEnd": {
-    "message": ". Contact our support team to upgrade your subscription",
+    "message": ". Hãy liên lạc với đội ngũ hỗ trợ của chúng tôi để nâng cấp thuê bao của bạn",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customNonEnterpriseError": {
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Quản Lý Người Dùng"
   },
-  "manageResetPassword": {
-    "message": "Manage password reset"
+  "manageAccountRecovery": {
+    "message": "Manage account recovery"
   },
   "disableRequiredError": {
     "message": "You must manually turn the $POLICYNAME$ policy before this policy can be turned off.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Error"
   },
-  "resetPasswordManageUsers": {
-    "message": "Manage users must also be granted with the manage password reset permission"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Provider setup"
@@ -5152,7 +5151,7 @@
     "message": "Remove sponsorship"
   },
   "removeSponsorshipConfirmation": {
-    "message": "After removing a sponsorship, you will be responsible for this subscription and related invoices. Are you sure you want to continue?"
+    "message": "Nếu xóa người tài trợ, bạn sẽ chịu trách nhiệm cho chi phí của thuê bao này và cước phát sinh về sau. Bạn có chắc muốn tiếp tục không?"
   },
   "sponsorshipCreated": {
     "message": "Sponsorship created"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Update KDF settings"
   },
-  "trustedDeviceEncryption": {
-    "message": "Trusted device encryption"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invite Users"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager for $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
+  },
+  "free2PersonOrganization": {
+    "message": "Free 2-person Organizations"
+  },
+  "unlimitedSecrets": {
+    "message": "Unlimited secrets"
+  },
+  "unlimitedProjects": {
+    "message": "Unlimited projects"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projects included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ service accounts included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ per month for additional service accounts",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Add Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
+  },
+  "additionalServiceAccounts": {
+    "message": "Additional service accounts"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Your plan comes with $COUNT$ service accounts. You can add additional service accounts for $COST$ per month.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Password Manager plan price"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager plan price"
+  },
+  "passwordManager": {
+    "message": "Password Manager"
+  },
+  "freeOrganization": {
+    "message": "Free Organization"
+  },
+  "limitServiceAccounts": {
+    "message": "Limit service accounts (optional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Set a limit for your service accounts. Once this limit is reached, you will not be able to create new service accounts."
+  },
+  "serviceAccountLimit": {
+    "message": "Service account limit (optional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Max potential service account cost"
   }
 }

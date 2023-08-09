@@ -1,6 +1,9 @@
 export default class LockedVaultPendingNotificationsItem {
   commandToRetry: {
-    msg: any;
+    msg: {
+      command: string;
+      data?: any;
+    };
     sender: chrome.runtime.MessageSender;
   };
   target: string;

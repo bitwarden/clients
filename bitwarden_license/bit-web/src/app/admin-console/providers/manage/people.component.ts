@@ -138,7 +138,7 @@ export class PeopleComponent
 
   async confirmUser(user: ProviderUserUserDetailsResponse, publicKey: Uint8Array): Promise<any> {
     const providerKey = await this.cryptoService.getProviderKey(this.providerId);
-    const key = await this.cryptoService.rsaEncrypt(providerKey.key, publicKey.buffer);
+    const key = await this.cryptoService.rsaEncrypt(providerKey.key, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;
     await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);

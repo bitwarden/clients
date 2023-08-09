@@ -12,6 +12,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
   expiration: string;
   expirationWithoutGracePeriod: string;
+  secretsManagerBeta: boolean;
 
   constructor(response: any) {
     super(response);
@@ -26,5 +27,6 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
+    this.secretsManagerBeta = this.getResponseProperty("SecretsManagerBeta");
   }
 }

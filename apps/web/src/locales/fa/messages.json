@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "گاوصندوق وب $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "این چه نوع موردی است؟"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "گاوصندوق وب"
   },
+  "bitWebVault": {
+    "message": "گاوصندوق وب Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "مدیر اسرار Bitwarden"
+  },
   "loggedIn": {
     "message": "وارد شده"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "برای اشتراک خود محدودیت جایگاه تعیین کنید. پس از رسیدن به این محدودیت، نمی‌توانید اعضای جدید را دعوت کنید."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "برای اشتراک خود مدیر اسرار محدودیت جایگاه تعیین کنید. پس از رسیدن به این محدودیت، نمی‌توانید اعضای جدید را دعوت کنید."
   },
   "maxSeatLimit": {
     "message": "محدودیت جایگاه (اختیاری)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "مدیریت کاربران"
   },
-  "manageResetPassword": {
-    "message": "مدیریت بازنشانی کلمه عبور"
+  "manageAccountRecovery": {
+    "message": "مدیریت بازیابی حساب"
   },
   "disableRequiredError": {
     "message": "قبل از اینکه این سیاست غیرفعال شود، باید سیاست $POLICYNAME$ را به صورت دستی تغییر دهید.",
@@ -4595,13 +4594,13 @@
     "message": "مدیریت بازیابی حساب کاربری"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "بر اساس روش رمزگذاری، زمانی که کلمات عبور اصلی یا دستگاه‌های مورد اعتماد فراموش یا گم می‌شوند، حساب‌ها را بازیابی کنید."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "حساب‌های موجود با کلمه عبور اصلی، اعضای خود را ملزم می‌کنند تا قبل از اینکه سرپرستان بتوانند حساب‌هایشان را بازیابی کنند، ثبت‌نام کنند. ثبت نام خودکار، بازیابی حساب را برای اعضای جدید فعال می‌کند."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "قبل از فعال کردن این سیاست، سیاست سازمانی واحد باید روشن باشد."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "ثبت نام خودکار"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "خطا"
   },
-  "resetPasswordManageUsers": {
-    "message": "مدیر کاربران همچنین باید مجوز مدیریت بازنشانی کلمه عبور را داشته باشد"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "راه اندازی ارائه دهنده"
@@ -5222,7 +5221,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "نیاز به سیاست احراز هویت با یک علامت وجود دارد",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "ادامه، شما را از تمام نشست‌های فعال خارج می‌کند. شما باید دوباره وارد شوید و راه اندازی دو مرحله ای ورود را تکمیل کنید. توصیه می‌کنیم قبل از تغییر در تنظیمات رمزگذاری برای جلوگیری از، از دست رفتن داده‌ها، گاوصندوق خود را برون ریزی کنید."
   },
-  "secretsManagerBeta": {
-    "message": "بتا مدیر اسرار"
-  },
   "secretsManager": {
     "message": "مدیر رازها"
+  },
+  "secretsManagerBeta": {
+    "message": "بتا مدیر اسرار"
   },
   "secretsManagerAccessDescription": {
     "message": "دسترسی کاربر به مدیر رازها را فعال کنید."
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "تنظیمات KDF را به‌روز کنید"
   },
-  "trustedDeviceEncryption": {
-    "message": "رمزگذاری دستگاه مورد اعتماد"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "پس از احراز هویت، اعضا با استفاده از کلید ذخیره شده در دستگاه خود، داده‌های گاوصندوق را رمزگشایی می‌کنند.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "سازمان واحد",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "سیاست‌ها و",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "مدیریت بازیابی حساب کاربری",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "سیاست‌ها با ثبت نام خودکار زمانی که از این گزینه استفاده می‌شود روشن می‌شود.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "پرچم منطقه انتخاب شد"
+  },
+  "sendsNoItemsTitle": {
+    "message": "ارسال‌های فعالی نیست",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "از ارسال برای اشتراک‌گذاری امن اطلاعات رمزگذاری شده با هر کسی استفاده کنید.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "دعوت کاربران"
+  },
+  "secretsManagerForPlan": {
+    "message": "مدیر اسرار برای $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "برای تیم‌های مهندسی و DevOps برای مدیریت اسرار در طول چرخه عمر توسعه نرم افزار."
+  },
+  "free2PersonOrganization": {
+    "message": "سازمان‌های ۲ نفره رایگان"
+  },
+  "unlimitedSecrets": {
+    "message": "اسرار نامحدود"
+  },
+  "unlimitedProjects": {
+    "message": "پروژه‌های نامحدود"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ پروژه گنجانده شده است",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ حساب خدمات گنجانده شده است",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ در ماه برای حساب‌های خدمات اضافی",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "افزودن مدیر رازها"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "مدیر رازها را به برنامه ارتقا یافته خود اضافه کنید تا دسترسی به رازهای ایجاد شده با برنامه قبلی خود را حفظ کنید."
+  },
+  "additionalServiceAccounts": {
+    "message": "حساب‌های خدمات اضافی"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "طرح شما با حساب خدمات $COUNT$ همراه است. می‌توانید حساب‌های سرویس اضافی را با $COST$ در ماه اضافه کنید.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "قیمت طرح مدیریت کلمه عبور"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "قیمت طرح مدیریت رازها"
+  },
+  "passwordManager": {
+    "message": "مدیر کلمه عبور"
+  },
+  "freeOrganization": {
+    "message": "سازمان رایگان"
+  },
+  "limitServiceAccounts": {
+    "message": "محدود کردن حساب‌های خدمات (اختیاری)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "برای حساب‌های خدمات خود محدودیتی تعیین کنید. پس از رسیدن به این محدودیت، نمی‌توانید حساب‌های سرویس جدید ایجاد کنید."
+  },
+  "serviceAccountLimit": {
+    "message": "محدودیت حساب خدمات (اختیاری)"
+  },
+  "maxServiceAccountCost": {
+    "message": "حداکثر هزینه حساب خدمات بالقوه"
   }
 }

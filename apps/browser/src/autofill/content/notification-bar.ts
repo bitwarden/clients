@@ -834,6 +834,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       isVaultLocked: typeData.isVaultLocked,
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
+      webVaultURL: typeData.webVaultURL,
     };
     const barQueryString = new URLSearchParams(barQueryParams).toString();
     const barPage = "notification/bar.html?" + barQueryString;

@@ -27,7 +27,7 @@ export interface ProjectOperation {
 export class ProjectDialogComponent implements OnInit {
   protected formGroup = new FormGroup({
     name: new FormControl("", {
-      validators: [Validators.required, BitValidators.trimValidator],
+      validators: [Validators.required, Validators.maxLength(500), BitValidators.trimValidator],
       updateOn: "submit",
     }),
   });

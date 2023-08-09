@@ -6,13 +6,13 @@ import { EncString } from "../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class EncryptService {
-  abstract encrypt(plainValue: string | ArrayBuffer, key: SymmetricCryptoKey): Promise<EncString>;
+  abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   abstract encryptToBytes: (
-    plainValue: ArrayBuffer,
+    plainValue: Uint8Array,
     key?: SymmetricCryptoKey
   ) => Promise<EncArrayBuffer>;
   abstract decryptToUtf8: (encString: EncString, key: SymmetricCryptoKey) => Promise<string>;
-  abstract decryptToBytes: (encThing: Encrypted, key: SymmetricCryptoKey) => Promise<ArrayBuffer>;
+  abstract decryptToBytes: (encThing: Encrypted, key: SymmetricCryptoKey) => Promise<Uint8Array>;
   abstract resolveLegacyKey: (key: SymmetricCryptoKey, encThing: Encrypted) => SymmetricCryptoKey;
   abstract decryptItems: <T extends InitializerMetadata>(
     items: Decryptable<T>[],

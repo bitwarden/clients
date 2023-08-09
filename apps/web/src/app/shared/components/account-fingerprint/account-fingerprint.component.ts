@@ -12,7 +12,7 @@ import { SharedModule } from "../../shared.module";
 })
 export class AccountFingerprintComponent implements OnInit {
   @Input() fingerprintMaterial: string;
-  @Input() publicKeyBuffer: ArrayBuffer;
+  @Input() publicKeyBuffer: Uint8Array;
   @Input() fingerprintLabel: string;
 
   protected fingerprint: string;

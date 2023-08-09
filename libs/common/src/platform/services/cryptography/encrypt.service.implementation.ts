@@ -18,7 +18,7 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean
   ) {}
 
-  async encrypt(plainValue: string | ArrayBuffer, key: SymmetricCryptoKey): Promise<EncString> {
+  async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -27,9 +27,9 @@ export class EncryptServiceImplementation implements EncryptService {
       return Promise.resolve(null);
     }
 
-    let plainBuf: ArrayBuffer;
+    let plainBuf: Uint8Array;
     if (typeof plainValue === "string") {
-      plainBuf = Utils.fromUtf8ToArray(plainValue).buffer;
+      plainBuf = Utils.fromUtf8ToArray(plainValue);
     } else {
       plainBuf = plainValue;
     }
@@ -41,7 +41,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return new EncString(encObj.key.encType, data, iv, mac);
   }
 
-  async encryptToBytes(plainValue: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
+  async encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -60,7 +60,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     encBytes.set(new Uint8Array(encValue.data), 1 + encValue.iv.byteLength + macLen);
-    return new EncArrayBuffer(encBytes.buffer);
+    return new EncArrayBuffer(encBytes);
   }
 
   async decryptToUtf8(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
@@ -102,7 +102,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return await this.cryptoFunctionService.aesDecryptFast(fastParams);
   }
 
-  async decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<ArrayBuffer> {
+  async decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -125,11 +125,7 @@ export class EncryptServiceImplementation implements EncryptService {
       const macData = new Uint8Array(encThing.ivBytes.byteLength + encThing.dataBytes.byteLength);
       macData.set(new Uint8Array(encThing.ivBytes), 0);
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
-      const computedMac = await this.cryptoFunctionService.hmac(
-        macData.buffer,
-        key.macKey,
-        "sha256"
-      );
+      const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
       if (computedMac === null) {
         return null;
       }
@@ -161,7 +157,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return await Promise.all(items.map((item) => item.decrypt(key)));
   }
 
-  private async aesEncrypt(data: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncryptedObject> {
+  private async aesEncrypt(data: Uint8Array, key: SymmetricCryptoKey): Promise<EncryptedObject> {
     const obj = new EncryptedObject();
     obj.key = key;
     obj.iv = await this.cryptoFunctionService.randomBytes(16);
@@ -171,7 +167,7 @@ export class EncryptServiceImplementation implements EncryptService {
       const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
       macData.set(new Uint8Array(obj.iv), 0);
       macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
-      obj.mac = await this.cryptoFunctionService.hmac(macData.buffer, obj.key.macKey, "sha256");
+      obj.mac = await this.cryptoFunctionService.hmac(macData, obj.key.macKey, "sha256");
     }
 
     return obj;

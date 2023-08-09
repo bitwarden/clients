@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ webes széf",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Milyen típusú elem ez?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Webes széf"
   },
+  "bitWebVault": {
+    "message": "Bitwarden webes széf"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden titkos kód kezelő"
+  },
   "loggedIn": {
     "message": "Megtörtént a bejelentkezés."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Állítsunk be helykorlátot az előfizetéshez. Ha elérjük ezt a korlátot, nem tudunk új felhasználókat meghívni."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Állítsunk be egy korlátot a Secrets Manger előfizetéshez. Ha elérjük ezt a korlátot, nem tudunk új tagokat meghívni."
   },
   "maxSeatLimit": {
     "message": "Maximális helykorlát (opcionális)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Felhasználók kezelése"
   },
-  "manageResetPassword": {
-    "message": "Jelszó alaphelyzet kezelés"
+  "manageAccountRecovery": {
+    "message": "Fiók helyreállítás lezelése"
   },
   "disableRequiredError": {
     "message": "A szabály letiltása előtt manuálisan le kell tiltani $POLICYNAME$ házirendet.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Hiba"
   },
-  "resetPasswordManageUsers": {
-    "message": "A felhasználók kezelését engedélyezni kell a Jelszó visszaállításának kezelése jogosultsággal is."
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Szolgáltató beállítása"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "A folytatással minden aktív munkamenetből kijelentkezik. Újra be kell jelentkeznie, és ki kell töltenie a kétlépcsős bejelentkezési beállításokat. Az adatvesztés elkerülése érdekében javasoljuk, hogy a titkosítási beállítások módosítása előtt exportálja a széfet."
   },
-  "secretsManagerBeta": {
-    "message": "Titkos kód kezelő béta"
-  },
   "secretsManager": {
     "message": "Titkos kód kezelő"
+  },
+  "secretsManagerBeta": {
+    "message": "Titkos kód kezelő béta"
   },
   "secretsManagerAccessDescription": {
     "message": "A felhasználói hozzáférés bekapcsolása a Titkos kód kezelőhöz."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "KDF beállítások frissítése"
   },
-  "trustedDeviceEncryption": {
-    "message": "Megbízható eszköztitkosítás"
+  "trustedDevices": {
+    "message": "Megbízható eszközök"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "A hitelesítés után a tagok az eszközükön tárolt kulccsal visszafejtik a tároló adatait. A",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Kiválasztott régió zászló"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Nincsenek natív Send elemek.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "A Send használatával biztonságosan megoszthatjuk a titkosított információkat bárkivel.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Felhasználók meghívása"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager $PLAN$ csomaghoz",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "A mérnökök és a DevOps csapatok számára a titkos kódok kezeléséhez a szoftverfejlesztés teljes életciklusa során."
+  },
+  "free2PersonOrganization": {
+    "message": "Díjmentes 2 személyes szervezetek"
+  },
+  "unlimitedSecrets": {
+    "message": "Korlátlan titkos kód"
+  },
+  "unlimitedProjects": {
+    "message": "Korlátlan projekt"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projekt belefoglalva",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ szolgáltatás fiók belefoglalva",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ havonta kiegészítő szolgáltatás fiókokhoz",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Titkos kódkezelő hozzáadása"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Titkkos kód kezelő hozzáadása a felminősített csomaghoz, hogy az előző csomaggal létrehozott titkos kódok megtartásához."
+  },
+  "additionalServiceAccounts": {
+    "message": "Kiegészítő szolgáltatás fiókok"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "A csomag $COUNT$ szolgáltatás fiókot tartalmaz. További szolgáltatási fiókokat vehetünk fel havi $COST$ áron.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Jelszókezelő csomag ár"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Titkos kód kezelő csomag ár"
+  },
+  "passwordManager": {
+    "message": "Jelszókezelő"
+  },
+  "freeOrganization": {
+    "message": "Díjmentes szervezet"
+  },
+  "limitServiceAccounts": {
+    "message": "Szolgálttaás fiókok korlátozása (opcionális)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Állítsunk be korlátot a szolgáltatás fiókokhoz. Ha elérjük ezt a korlátot, nem tudunk új szolgáltatási fiókokat létrehozni."
+  },
+  "serviceAccountLimit": {
+    "message": "Szolgáltatás fiók korlát (opcionális)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Maximális lehetséges szolgáltatás fiókköltség"
   }
 }

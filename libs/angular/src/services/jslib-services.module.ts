@@ -22,7 +22,7 @@ import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarde
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeoutSettings.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  InternalOrganizationService,
+  InternalOrganizationServiceAbstraction,
   OrganizationService as OrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -583,7 +583,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       deps: [StateServiceAbstraction],
     },
     {
-      provide: InternalOrganizationService,
+      provide: InternalOrganizationServiceAbstraction,
       useExisting: OrganizationServiceAbstraction,
     },
     {

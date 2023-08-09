@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Трезор по уеб „$APP_NAME$“",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
   },
@@ -959,7 +949,7 @@
     "message": "Копиране на кода за потвърждаване"
   },
   "warning": {
-    "message": "ВНИМАНИЕ"
+    "message": "Внимание"
   },
   "confirmVaultExport": {
     "message": "Потвърждаване на изнасянето на трезора"
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Трезор по уеб"
   },
+  "bitWebVault": {
+    "message": "Трезор по уеб"
+  },
+  "bitSecretsManager": {
+    "message": "Управление на тайни"
+  },
   "loggedIn": {
     "message": "Вписани сте."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Задайте ограничение на броя потребители за абонамента си. Когато то бъде достигнато, няма да можете да каните нови потребители."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Задайте ограничение на броя потребители за абонамента си за Управлението на тайни. Когато то бъде достигнато, няма да можете да каните нови членове."
   },
   "maxSeatLimit": {
     "message": "Максимален брой потребители (по избор)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Управление на потребителите"
   },
-  "manageResetPassword": {
-    "message": "Управление на помощта при смяната на паролата"
+  "manageAccountRecovery": {
+    "message": "Управление на възстановяването на регистрации"
   },
   "disableRequiredError": {
     "message": "За да изключите тази политика, първо трябва ръчно да изключите $POLICYNAME$.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Грешка"
   },
-  "resetPasswordManageUsers": {
-    "message": "Управлението на потребителите трябва също да бъде включено с разрешението за „Управление на помощта при смяната на паролата“"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Настройка на доставчика"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Управление на тайни (Бета)"
-  },
   "secretsManager": {
     "message": "Управление на тайни"
+  },
+  "secretsManagerBeta": {
+    "message": "Управление на тайни (Бета)"
   },
   "secretsManagerAccessDescription": {
     "message": "Включване на достъпа на потребителите до Управлението на тайни."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Промяна на настройките за KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Шифроване чрез доверено устройство"
+  "trustedDevices": {
+    "message": "Доверени устройства"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "След вписване, членовете ще дешифрират данните от трезорите си чрез ключ, който се съхранява на устройство. Политиката за",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Знаме на избрания регион"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Няма активни Изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Използвайте Изпращане, за да споделите безопасно шифрована информация с някого.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Канене на потребители"
+  },
+  "secretsManagerForPlan": {
+    "message": "Управление на тайни за $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "За екипите по разработка и DevOps, за да управляват тайните си през целия цикъл на софтуерна разработка."
+  },
+  "free2PersonOrganization": {
+    "message": "Безплатни организации с 2-ма човека"
+  },
+  "unlimitedSecrets": {
+    "message": "Неограничени тайни"
+  },
+  "unlimitedProjects": {
+    "message": "Неограничени проекти"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ включени проекта",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ включени сервизни акаунта",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ на месец за допълнителни сервизни акаунти",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Добавяне на Управление на тайни"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Добавете Управление на тайни към своя надграден план, за да продължите да имате достъп до тайните създадени при предишния Ви план."
+  },
+  "additionalServiceAccounts": {
+    "message": "Допълнителни сервизни акаунти"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Планът Ви включва $COUNT$ сервизни акаунта. Можете да добавите още за $COST$ на месец.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Цена на плана за Управителя на пароли"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Цена на плана за Управлението на тайни"
+  },
+  "passwordManager": {
+    "message": "Управител на пароли"
+  },
+  "freeOrganization": {
+    "message": "Безплатна организация"
+  },
+  "limitServiceAccounts": {
+    "message": "Ограничаване на сервизните акаунти (незадължително)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Задайте ограничение за броя на сервизните акаунти. Когато то бъде достигнато, няма да можете да създавате нови сервизни акаунти."
+  },
+  "serviceAccountLimit": {
+    "message": "Ограничение на сервизните акаунти (незадължително)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Максимална възможна цена за сервизни акаунти"
   }
 }

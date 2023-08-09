@@ -385,7 +385,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.collections = collections;
           this.selectedCollection = selectedCollection;
 
-          this.canCreateCollections = allOrganizations?.some((o) => o.canCreateNewCollections);
+          this.canCreateCollections = allOrganizations?.some(
+            (o) => o.canCreateNewCollections && !o.isProviderUser
+          );
 
           this.showBulkMove =
             filter.type !== "trash" &&

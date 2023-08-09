@@ -9,6 +9,7 @@ import { AppComponent } from "./app.component";
 import { CoreModule } from "./core";
 import { OssRoutingModule } from "./oss-routing.module";
 import { OssModule } from "./oss.module";
+import { SendComponent } from "./tools/send/send.component";
 import { WildcardRoutingModule } from "./wildcard-routing.module";
 
 @NgModule({
@@ -21,6 +22,7 @@ import { WildcardRoutingModule } from "./wildcard-routing.module";
     DragDropModule,
     LayoutModule,
     OssRoutingModule,
+    SendComponent,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
   ],
   declarations: [AppComponent],

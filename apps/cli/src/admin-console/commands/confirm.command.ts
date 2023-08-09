@@ -51,7 +51,7 @@ export class ConfirmCommand {
       }
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey.buffer);
+      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
       await this.organizationUserService.postOrganizationUserConfirm(

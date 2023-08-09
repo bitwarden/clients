@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Webový trezor $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "O jaký typ položky se jedná?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "bitWebVault": {
+    "message": "Webový trezor Bitwardenu"
+  },
+  "bitSecretsManager": {
+    "message": "Správce tajných klíčů Bitwardenu"
+  },
   "loggedIn": {
     "message": "Přihlášen"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Nastavte limit počtu uživatelů pro Vaše předplatné. Jakmile tohoto limitu dosáhnete, nebudete moci pozvat nové členy."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Nastavte limit počtu uživatelů pro předplatné správce klíčů. Jakmile tohoto limitu dosáhnete, nebudete moci pozvat nové členy."
   },
   "maxSeatLimit": {
     "message": "Limit uživatelů (volitelné)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Správa uživatelů"
   },
-  "manageResetPassword": {
-    "message": "Správa resetování hesla"
+  "manageAccountRecovery": {
+    "message": "Spravovat obnovení účtu"
   },
   "disableRequiredError": {
     "message": "Před vypnutím této zásady musíte ručně změnit zásadu $POLICYNAME$.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Chyba"
   },
-  "resetPasswordManageUsers": {
-    "message": "Správa uživatelů musí být také povolena s oprávněním spravovat obnovení hesla"
+  "accountRecoveryManageUsers": {
+    "message": "S oprávněním spravovat obnovení hesla musí být povolena také správa uživatelů"
   },
   "setupProvider": {
     "message": "Nastavení poskytovatele"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Pokračováním se odhlásíte ze všech aktivních relací. Budete se muset znovu přihlásit a dokončit nastavení dvoufázového přihlášení. Před změnou nastavení šifrování doporučujeme exportovat trezor, aby nedošlo ke ztrátě dat."
   },
-  "secretsManagerBeta": {
-    "message": "Správce tajných klíčů v programu Beta"
-  },
   "secretsManager": {
     "message": "Správce tajných klíčů"
+  },
+  "secretsManagerBeta": {
+    "message": "Správce tajných klíčů v programu Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Aktivuje přístup uživatele ke správci tajných klíčů."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Aktualizovat nastavení KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Šifrování důvěryhodného zařízení"
+  "trustedDevices": {
+    "message": "Důvěryhodná zařízení"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Po ověření budou členové dešifrovat data v trezoru pomocí klíče uloženého na jejich zařízení. ",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Vlajka zvoleného regionu"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Žádná aktivní Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Použijte Send pro bezpečné sdílení šifrovaných informací s kýmkoliv.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Pozvat uživatele"
+  },
+  "secretsManagerForPlan": {
+    "message": "Správce klíčů pro $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Pro inženýrské týmy a týmy DevOps ke správě klíčů v celém životním cyklu vývoje softwaru."
+  },
+  "free2PersonOrganization": {
+    "message": "Zdarma organizace do 2 osob"
+  },
+  "unlimitedSecrets": {
+    "message": "Neomezené klíče"
+  },
+  "unlimitedProjects": {
+    "message": "Neomezené projekty"
+  },
+  "projectsIncluded": {
+    "message": "Do $COUNT$ projektů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "Do $COUNT$ účtů služby",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "Pro další účty služby $COST$ měsíčně",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Přidat správce tajných klíčů"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Přidáním správce klíčů k aktualizovanému plánu si zachováte přístup ke všem klíčům vytvořeným v předchozím plánu."
+  },
+  "additionalServiceAccounts": {
+    "message": "Další účty služby"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Vaše předplatné obsahuje $COUNT$ účtů služby. Další účty služby můžete přidat za $COST$ měsíčně.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Cena předplatného správce hesel"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Cena předplatného správce klíčů"
+  },
+  "passwordManager": {
+    "message": "Správce hesel"
+  },
+  "freeOrganization": {
+    "message": "Organizace zdarma"
+  },
+  "limitServiceAccounts": {
+    "message": "Omezit účty služby (volitelné)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Nastavte limit počtu uživatelů pro Vaše účty služby. Jakmile tohoto limitu dosáhnete, nebudete moci vytvářet nové účty služby."
+  },
+  "serviceAccountLimit": {
+    "message": "Limit účtů služby (volitelné)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Max. potenciální náklady na účet služby"
   }
 }

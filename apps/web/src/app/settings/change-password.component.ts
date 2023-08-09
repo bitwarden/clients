@@ -274,7 +274,7 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
       const publicKeyResponse = await this.apiService.getUserPublicKey(details.granteeId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
-      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey.buffer);
+      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey);
 
       const updateRequest = new EmergencyAccessUpdateRequest();
       updateRequest.type = details.type;
@@ -299,7 +299,7 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
       const publicKey = Utils.fromB64ToArray(response?.publicKey);
 
       // Re-enroll - encrypt user's encKey.key with organization public key
-      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey.buffer);
+      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey);
 
       // Create/Execute request
       const request = new OrganizationUserResetPasswordEnrollmentRequest();

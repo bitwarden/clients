@@ -6,6 +6,11 @@ import { onCommandListener } from "./on-command-listener";
 import { onInstallListener } from "./on-install-listener";
 import { UpdateBadge } from "./update-badge";
 
+const windowsOnFocusChangedListener = combine([
+  UpdateBadge.windowsOnFocusChangedListener,
+  CipherContextMenuHandler.windowsOnFocusChangedListener,
+]);
+
 const tabsOnActivatedListener = combine([
   UpdateBadge.tabsOnActivatedListener,
   CipherContextMenuHandler.tabsOnActivatedListener,
@@ -33,6 +38,7 @@ const runtimeMessageListener = combine<
 ]);
 
 export {
+  windowsOnFocusChangedListener,
   tabsOnActivatedListener,
   tabsOnReplacedListener,
   tabsOnUpdatedListener,

@@ -538,6 +538,16 @@ export class Utils {
     return of(undefined).pipe(switchMap(() => generator()));
   }
 
+  /**
+   * Return the number of days remaining before a target date arrives.
+   * Returns 0 if the day has already passed.
+   */
+  static daysRemaining(targetDate: Date): number {
+    const diffTime = targetDate.getTime() - Date.now();
+    const msPerDay = 86400000;
+    return Math.max(0, Math.floor(diffTime / msPerDay));
+  }
+
   private static isAppleMobile(win: Window) {
     return (
       win.navigator.userAgent.match(/iPhone/i) != null ||

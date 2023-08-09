@@ -162,7 +162,7 @@ export class TotpService implements TotpServiceAbstraction {
     timeBytes: Uint8Array,
     alg: "sha1" | "sha256" | "sha512"
   ) {
-    const signature = await this.cryptoFunctionService.hmac(timeBytes.buffer, keyBytes.buffer, alg);
+    const signature = await this.cryptoFunctionService.hmac(timeBytes, keyBytes, alg);
     return new Uint8Array(signature);
   }
 }

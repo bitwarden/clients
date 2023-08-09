@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ 网页密码库",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
   },
@@ -1079,7 +1069,7 @@
     "message": "单词分隔符"
   },
   "capitalize": {
-    "message": "大写",
+    "message": "首字母大写",
     "description": "Make the first letter of a word uppercase."
   },
   "includeNumber": {
@@ -1396,7 +1386,7 @@
     "message": "两步登录"
   },
   "twoStepLoginEnforcement": {
-    "message": "两步登录实施"
+    "message": "强制两步登录"
   },
   "twoStepLoginDesc": {
     "message": "在登录时要求使用额外的步骤来保护您的账户。"
@@ -2245,7 +2235,7 @@
     "message": "# 用户席位"
   },
   "userSeatsAdditionalDesc": {
-    "message": "您的计划包含 $BASE_SEATS$ 个用户席位。添加附加用户的价格是 $SEAT_PRICE$ 每用户每月。",
+    "message": "您的计划包含 $BASE_SEATS$ 个用户席位。您也可以以 $SEAT_PRICE$ 每用户每月购买附加用户。",
     "placeholders": {
       "base_seats": {
         "content": "$1",
@@ -2645,8 +2635,14 @@
   "webVault": {
     "message": "网页密码库"
   },
+  "bitWebVault": {
+    "message": "Bitwarden 网页密码库"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden 机密管理器"
+  },
   "loggedIn": {
-    "message": "已登录"
+    "message": "登录了"
   },
   "changedPassword": {
     "message": "更改了帐户密码"
@@ -3323,6 +3319,9 @@
   "limitSubscriptionDesc": {
     "message": "为您的订阅设置席位限制。达到此限制后，您将无法邀请新的成员。"
   },
+  "limitSmSubscriptionDesc": {
+    "message": "为您的机密管理器订阅设置席位限制。达到此限制后，您将无法邀请新的成员。"
+  },
   "maxSeatLimit": {
     "message": "席位限制（可选）",
     "description": "Upper limit of seats to allow through autoscaling"
@@ -3718,7 +3717,7 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "至少包含一个大写字母"
+    "message": "至少包含一个大写字符"
   },
   "policyInEffectLowercase": {
     "message": "至少包含一个小写字母"
@@ -4250,7 +4249,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disableSendExemption": {
-    "message": "可以管理组织策略的组织成员豁免此策略的执行。"
+    "message": "可以管理组织策略的组织成员豁免此策略。"
   },
   "sendDisabled": {
     "message": "Send 已禁用",
@@ -4269,7 +4268,7 @@
     "description": "'Sends' is a plural noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptionsExemption": {
-    "message": "可以管理组织策略的组织成员豁免此策略的执行。"
+    "message": "可以管理组织策略的组织成员豁免此策略。"
   },
   "disableHideEmail": {
     "message": "在创建或编辑 Send 时，始终向收件人显示成员的电子邮件地址。",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "管理用户"
   },
-  "manageResetPassword": {
-    "message": "管理密码重置"
+  "manageAccountRecovery": {
+    "message": "管理账户恢复"
   },
   "disableRequiredError": {
     "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能停用此策略。",
@@ -4595,10 +4594,10 @@
     "message": "账户恢复管理"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "基于加密方式，当主密码或受信任设备被遗忘或丢失时恢复账户。"
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "对于具有主密码的现有账户，需要他们自行注册后，管理员才可以恢复他们的账户。对于新的成员，将自动注册以打开账户恢复功能。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "激活此策略前，需先开启「单一组织」企业策略。"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "错误"
   },
-  "resetPasswordManageUsers": {
-    "message": "管理用户也必须获得管理密码重置权限"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "提供商设置"
@@ -5222,11 +5221,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "要求单点登录身份验证策略",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
-    "message": "将要求所有成员使用 SSO 登录。",
+    "message": "以要求所有成员使用 SSO 登录。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "memberDecryptionOption": {
@@ -5239,15 +5238,15 @@
     "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The",
+    "message": "连接 SSO 登录到您的自托管解密密钥服务器。使用此选项后，成员将不再需要使用主密码解密密码库数据。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
-    "message": "require SSO authentication and single organization policies",
+    "message": "要求 SSO 身份验证和单一组织策略",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.",
+    "message": "被用于设置 Key Connector 解密。请联系 Bitwarden 支持获取协助。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
@@ -5404,7 +5403,7 @@
     "message": "如果实体 ID 不是一个 URL，则必填。"
   },
   "openIdOptionalCustomizations": {
-    "message": "可选定制"
+    "message": "定制（可选）"
   },
   "openIdAuthorityRequired": {
     "message": "如果授权无效，则必填。"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "接下来将会注销您所有的活动会话。您将需要重新登录并完成两步登录设置。我们建议在更改您的加密设置之前导出您的密码库，以防数据丢失。"
   },
-  "secretsManagerBeta": {
-    "message": "机密管理器 Beta 版"
-  },
   "secretsManager": {
     "message": "机密管理器"
+  },
+  "secretsManagerBeta": {
+    "message": "机密管理器 Beta 版"
   },
   "secretsManagerAccessDescription": {
     "message": "激活用户对机密管理器的访问权限。"
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "更新 KDF 设置"
   },
-  "trustedDeviceEncryption": {
-    "message": "受信任的设备加密"
+  "trustedDevices": {
+    "message": "受信任的设备"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "验证后，成员将使用存储在他们的设备上的密钥解密密码库数据。使用此选项后，",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "单一组织",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "策略和具有自动注册的",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "账户恢复管理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "策略将被开启。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6954,6 +6953,111 @@
     "message": "EU flag"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "选定的区域标志"
+  },
+  "sendsNoItemsTitle": {
+    "message": "没有活跃的 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "使用 Send 与任何人安全地分享加密信息。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "邀请用户"
+  },
+  "secretsManagerForPlan": {
+    "message": "用于 $PLAN$ 的机密管理器",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "供工程和 DevOps 团队在整个软件开发生命周期中管理机密。"
+  },
+  "free2PersonOrganization": {
+    "message": "免费的 2 人组织"
+  },
+  "unlimitedSecrets": {
+    "message": "无限制的机密"
+  },
+  "unlimitedProjects": {
+    "message": "无限制的工程"
+  },
+  "projectsIncluded": {
+    "message": "包含了 $COUNT$ 个工程",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "包含了 $COUNT$ 个服务账户",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "附加服务账户 $COST$ 每月",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "添加机密管理器"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "将机密管理器添加到升级后的计划中，以保留对使用之前的计划创建的所有机密的访问权限。"
+  },
+  "additionalServiceAccounts": {
+    "message": "附加服务账户"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "您的计划包含 $COUNT$ 个服务账户。您也可以以 $COST$ 每月购买附加服务账户。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "密码管理器计划价格"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "机密管理器计划价格"
+  },
+  "passwordManager": {
+    "message": "密码管理器"
+  },
+  "freeOrganization": {
+    "message": "免费组织"
+  },
+  "limitServiceAccounts": {
+    "message": "限制服务账户（可选）"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "为您的服务账户设置一个限制。达到此限制后，您将无法创建新的服务账户。"
+  },
+  "serviceAccountLimit": {
+    "message": "服务账户限制（可选）"
+  },
+  "maxServiceAccountCost": {
+    "message": "最大潜在服务账户费用"
   }
 }

@@ -21,9 +21,7 @@ describe("Browser Session Storage Service", () => {
   let localStorage: BrowserLocalStorageService;
   let sessionStorage: BrowserMemoryStorageService;
 
-  const key = new SymmetricCryptoKey(
-    Utils.fromUtf8ToArray("00000000000000000000000000000000").buffer
-  );
+  const key = new SymmetricCryptoKey(Utils.fromUtf8ToArray("00000000000000000000000000000000"));
   let getSessionKeySpy: jest.SpyInstance;
   const mockEnc = (input: string) => Promise.resolve(new EncString("ENCRYPTED" + input));
 

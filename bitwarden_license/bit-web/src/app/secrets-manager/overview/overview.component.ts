@@ -130,7 +130,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       orgId$,
       this.serviceAccountService.serviceAccount$.pipe(startWith(null)),
     ]).pipe(
-      switchMap(([orgId]) => this.serviceAccountService.getServiceAccounts(orgId)),
+      switchMap(([orgId]) => this.serviceAccountService.getServiceAccounts(orgId, false)),
       share()
     );
 
@@ -288,6 +288,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
       this.i18nService,
       this.secretService
     );
+  }
+
+  copySecretUuid(id: string) {
+    SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
   }
 
   protected hideOnboarding() {

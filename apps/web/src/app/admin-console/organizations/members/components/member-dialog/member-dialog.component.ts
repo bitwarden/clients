@@ -302,7 +302,7 @@ export class MemberDialogComponent implements OnInit, OnDestroy {
   }
 
   handleDependentPermissions() {
-    // Manage Password Reset must have Manage Users enabled
+    // Manage Password Reset (Account Recovery) must have Manage Users enabled
     if (
       this.permissionsGroup.value.manageResetPassword &&
       !this.permissionsGroup.value.manageUsers
@@ -312,7 +312,7 @@ export class MemberDialogComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "info",
         null,
-        this.i18nService.t("resetPasswordManageUsers")
+        this.i18nService.t("accountRecoveryManageUsers")
       );
     }
   }

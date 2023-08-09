@@ -46,7 +46,7 @@ export class LoginWithDeviceComponent
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
   private resendTimeout = 12000;
-  private authRequestKeyPair: [publicKey: ArrayBuffer, privateKey: ArrayBuffer];
+  private authRequestKeyPair: [publicKey: Uint8Array, privateKey: Uint8Array];
 
   constructor(
     protected router: Router,

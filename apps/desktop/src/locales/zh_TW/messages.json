@@ -542,7 +542,7 @@
     "message": "必須再次輸入主密碼。"
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "主密碼需要至少 $VALUE$ 個字元。",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -771,7 +771,7 @@
     "message": "聯絡我們"
   },
   "helpAndFeedback": {
-    "message": "Help and feedback"
+    "message": "幫助和意見回饋"
   },
   "getHelp": {
     "message": "尋求幫助"
@@ -1393,7 +1393,7 @@
     "message": "使用 Windows Hello 解鎖"
   },
   "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
+    "message": "額外的 Windows Hello 設定"
   },
   "windowsHelloConsentMessage": {
     "message": "驗證 Bitwarden。"
@@ -1402,7 +1402,7 @@
     "message": "使用 Touch ID 解鎖"
   },
   "additionalTouchIdSettings": {
-    "message": "Additional Touch ID settings"
+    "message": "額外的 Touch ID 設定"
   },
   "touchIdConsentMessage": {
     "message": "解鎖您的密碼庫"
@@ -1540,7 +1540,7 @@
     "message": "要完成 SSO 登入設定，請設定一組主密碼以存取和保護您的密碼庫。"
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "目前的主密碼"
   },
   "newMasterPass": {
     "message": "新的主密碼"
@@ -2116,7 +2116,7 @@
     "message": "Log in initiated"
   },
   "notificationSentDevice": {
-    "message": "A notification has been sent to your device."
+    "message": "已傳送通知至您的裝置。"
   },
   "fingerprintMatchInfo": {
     "message": "Please make sure your vault is unlocked and Fingerprint phrase matches the other device."
@@ -2128,17 +2128,17 @@
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "viewAllLoginOptions": {
-    "message": "View all login options"
+    "message": "檢視所有登入選項"
   },
   "resendNotification": {
-    "message": "Resend notification"
+    "message": "重新傳送通知"
   },
   "toggleCharacterCount": {
     "message": "切換字元計數",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "您正在嘗試登入嗎？"
   },
   "logInAttemptBy": {
     "message": "Login attempt by $EMAIL$",
@@ -2150,22 +2150,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "裝置類別"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP 位址"
   },
   "time": {
-    "message": "Time"
+    "message": "時間"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "確認登入"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "拒絕登入"
   },
   "approveLoginRequests": {
-    "message": "Approve login requests"
+    "message": "批准登入要求"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Login confirmed for $EMAIL$ on $DEVICE$",
@@ -2214,7 +2214,7 @@
     }
   },
   "logInRequested": {
-    "message": "Log in requested"
+    "message": "已要求登入"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -2229,16 +2229,16 @@
     "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
   },
   "checkForBreaches": {
-    "message": "Check known data breaches for this password"
+    "message": "檢查外洩密碼資料庫中是否有此密碼"
   },
   "important": {
-    "message": "Important:"
+    "message": "重要："
   },
   "masterPasswordHint": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "如果您忘記主密碼，沒有復原的方法！"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ character minimum",
+    "message": "$LENGTH$ 個字元以上",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2253,20 +2253,20 @@
     "message": "Recommended Settings Update"
   },
   "region": {
-    "message": "Region"
+    "message": "區域"
   },
   "eu": {
-    "message": "EU",
+    "message": "歐洲 (EU)",
     "description": "European Union"
   },
   "us": {
-    "message": "US",
+    "message": "美國 (US)",
     "description": "United States"
   },
   "selfHosted": {
-    "message": "Self-hosted"
+    "message": "自建"
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "拒絕存取。您沒有檢視此頁面的權限。"
   }
 }

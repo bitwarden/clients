@@ -763,13 +763,13 @@ export class StateService<
     );
   }
 
-  async getDecryptedPrivateKey(options?: StorageOptions): Promise<ArrayBuffer> {
+  async getDecryptedPrivateKey(options?: StorageOptions): Promise<Uint8Array> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
     )?.keys?.privateKey.decrypted;
   }
 
-  async setDecryptedPrivateKey(value: ArrayBuffer, options?: StorageOptions): Promise<void> {
+  async setDecryptedPrivateKey(value: Uint8Array, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultInMemoryOptions())
     );
@@ -2097,14 +2097,14 @@ export class StateService<
     );
   }
 
-  async getPublicKey(options?: StorageOptions): Promise<ArrayBuffer> {
+  async getPublicKey(options?: StorageOptions): Promise<Uint8Array> {
     const keys = (
       await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
     )?.keys;
     return keys?.publicKey;
   }
 
-  async setPublicKey(value: ArrayBuffer, options?: StorageOptions): Promise<void> {
+  async setPublicKey(value: Uint8Array, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultInMemoryOptions())
     );

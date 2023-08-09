@@ -96,4 +96,8 @@ export class SecretsComponent implements OnInit {
       this.secretService
     );
   }
+
+  copySecretUuid(id: string) {
+    SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
 }

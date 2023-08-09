@@ -25,11 +25,9 @@ export class SendComponent implements OnInit, OnDestroy {
   expired = false;
   type: SendType = null;
   sends: SendView[] = [];
-  filteredSends: SendView[] = [];
   searchText: string;
   selectedType: SendType;
   selectedAll: boolean;
-  searchPlaceholder: string;
   filter: (cipher: SendView) => boolean;
   searchPending = false;
   hasSearched = false; // search() function called - returns true if text qualifies for search
@@ -41,6 +39,15 @@ export class SendComponent implements OnInit, OnDestroy {
 
   private searchTimeout: any;
   private destroy$ = new Subject<void>();
+  private _filteredSends: SendView[];
+
+  get filteredSends(): SendView[] {
+    return this._filteredSends;
+  }
+
+  set filteredSends(filteredSends: SendView[]) {
+    this._filteredSends = filteredSends;
+  }
 
   constructor(
     protected sendService: SendService,

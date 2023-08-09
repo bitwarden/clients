@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ Webkluis",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Welke tipe item is dit?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Webkluis"
   },
+  "bitWebVault": {
+    "message": "Bitwarden Web vault"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Aangeteken"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Set a seat limit for your subscription. Once this limit is reached, you will not be able to invite new members."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Set a seat limit for your Secrets Manger subscription. Once this limit is reached, you will not be able to invite new members."
   },
   "maxSeatLimit": {
     "message": "Seat Limit (optional)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Bestuur gebruikers"
   },
-  "manageResetPassword": {
-    "message": "Bestuur wagwoordherstel"
+  "manageAccountRecovery": {
+    "message": "Manage account recovery"
   },
   "disableRequiredError": {
     "message": "U moet die $POLICYNAME$-beleid handmatig af voordat u die beleid kan afskakel.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Fout"
   },
-  "resetPasswordManageUsers": {
-    "message": "Bestuur gebruikers moet geaktiveer wees met die Wagwoordherstel-toestemming"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Aanbiederopstelling"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "As u voortgaan word u uit alle aktiewe sessies geteken. U sal weer aan moet teken en tweestapwaarmerking moet voltooi. Om dataverlies te voorkom, beveel ons aan dat u u kluis uitstuur alvorens u u enkripsie-instellings verander."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManager": {
     "message": "Geheimebestuurder"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Aktiveer gebruikerstoegang tot Geheimebestuurder."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Werk KDF-instellings by"
   },
-  "trustedDeviceEncryption": {
-    "message": "Vertroude toestelenkripsie"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Gekose streekvlag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invite Users"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager for $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
+  },
+  "free2PersonOrganization": {
+    "message": "Free 2-person Organizations"
+  },
+  "unlimitedSecrets": {
+    "message": "Unlimited secrets"
+  },
+  "unlimitedProjects": {
+    "message": "Unlimited projects"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projects included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ service accounts included",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ per month for additional service accounts",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Add Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
+  },
+  "additionalServiceAccounts": {
+    "message": "Additional service accounts"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Your plan comes with $COUNT$ service accounts. You can add additional service accounts for $COST$ per month.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Password Manager plan price"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager plan price"
+  },
+  "passwordManager": {
+    "message": "Password Manager"
+  },
+  "freeOrganization": {
+    "message": "Free Organization"
+  },
+  "limitServiceAccounts": {
+    "message": "Limit service accounts (optional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Set a limit for your service accounts. Once this limit is reached, you will not be able to create new service accounts."
+  },
+  "serviceAccountLimit": {
+    "message": "Service account limit (optional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Max potential service account cost"
   }
 }

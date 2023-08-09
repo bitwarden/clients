@@ -47,7 +47,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
       throw new Error("No session key available.");
     }
     const encValue = await this.cryptoService().encryptToBytes(
-      Utils.fromB64ToArray(plainValue).buffer,
+      Utils.fromB64ToArray(plainValue),
       sessionKey
     );
     if (encValue == null) {
@@ -81,7 +81,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
   private getSessionKey() {
     try {
       if (process.env.BW_SESSION != null) {
-        const sessionBuffer = Utils.fromB64ToArray(process.env.BW_SESSION).buffer;
+        const sessionBuffer = Utils.fromB64ToArray(process.env.BW_SESSION);
         if (sessionBuffer != null) {
           const sessionKey = new SymmetricCryptoKey(sessionBuffer);
           if (sessionBuffer != null) {

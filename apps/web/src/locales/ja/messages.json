@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ ウェブ保管庫",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "このアイテムのタイプは何ですか？"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "ウェブ保管庫"
   },
+  "bitWebVault": {
+    "message": "Bitwarden ウェブ保管庫"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden シークレットマネージャー"
+  },
   "loggedIn": {
     "message": "ログイン"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "サブスクリプションの上限数を設定します。この制限に達すると、新しいユーザーを招待することができなくなります。"
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "シークレットマネージャーサブスクリプションの制限数を設定します。この制限に達すると、新しいメンバーを招待することができなくなります。"
   },
   "maxSeatLimit": {
     "message": "最大ユーザー数(オプション)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "ユーザーを管理"
   },
-  "manageResetPassword": {
-    "message": "パスワードリセットの管理"
+  "manageAccountRecovery": {
+    "message": "アカウントの回復を管理する"
   },
   "disableRequiredError": {
     "message": "このポリシーを無効にするには、まず $POLICYNAME$ ポリシーを手動で無効にする必要があります。",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "エラー"
   },
-  "resetPasswordManageUsers": {
-    "message": "パスワードリセットの管理権限を持つユーザーの管理も有効にする必要があります"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "プロバイダーのセットアップ"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "続行すると、すべてのアクティブなセッションからログアウトします。再度ログインし、2段階認証を完了する必要があります。 暗号化設定を変更する前に、保管庫をエクスポートしてデータの損失を防ぐことをおすすめします。"
   },
-  "secretsManagerBeta": {
-    "message": "ベータ版シークレットマネージャー"
-  },
   "secretsManager": {
     "message": "シークレットマネージャー"
+  },
+  "secretsManagerBeta": {
+    "message": "ベータ版シークレットマネージャー"
   },
   "secretsManagerAccessDescription": {
     "message": "シークレットマネージャーへのユーザーのアクセスを有効にします。"
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "KDF の設定を更新する"
   },
-  "trustedDeviceEncryption": {
-    "message": "信頼できるデバイスの暗号化"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "認証が完了したあとメンバーはデバイスに保存されているキーを使用して保管庫のデータを復号します。このオプションを使用すると、",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "リージョン選択"
+  },
+  "sendsNoItemsTitle": {
+    "message": "アクティブな Send なし",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Send を使用すると暗号化された情報を誰とでも安全に共有できます。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "ユーザーを招待"
+  },
+  "secretsManagerForPlan": {
+    "message": "$PLAN$ のシークレットマネージャー",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "エンジニアリングチームと DevOps チームがソフトウェア開発ライフサイクル全体のシークレットを管理できます。"
+  },
+  "free2PersonOrganization": {
+    "message": "二人用無料組織"
+  },
+  "unlimitedSecrets": {
+    "message": "無制限のシークレット"
+  },
+  "unlimitedProjects": {
+    "message": "無制限のプロジェクト"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ 個のプロジェクトを含む",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ 個のサービスアカウントを含む",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "追加のサービスアカウントは月額 $COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "シークレットマネージャーを追加"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "アップグレードしたプランにシークレットマネージャーを追加して、以前のプランで作成されたシークレットへのアクセスを維持します。"
+  },
+  "additionalServiceAccounts": {
+    "message": "追加のサービスアカウント"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "あなたのプランには、 $COUNT$ 個のサービスアカウントが付属しています。月額 $COST$ でサービスアカウントを追加できます。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "パスワードマネージャーのプラン価格"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "シークレットマネージャーのプラン価格"
+  },
+  "passwordManager": {
+    "message": "パスワード マネージャー"
+  },
+  "freeOrganization": {
+    "message": "無料組織"
+  },
+  "limitServiceAccounts": {
+    "message": "サービスアカウントの制限 (オプション)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "サービスアカウントの上限を設定します。この制限に達すると、新しいサービスアカウントを作成することはできません。"
+  },
+  "serviceAccountLimit": {
+    "message": "サービスアカウントの上限 (オプション)"
+  },
+  "maxServiceAccountCost": {
+    "message": "潜在的なサービスアカウントのコストの最大値"
   }
 }

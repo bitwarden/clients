@@ -81,6 +81,12 @@ export class CipherContextMenuHandler {
     );
   }
 
+  static async windowsOnFocusChangedListener(windowId: number, serviceCache: CachedServices) {
+    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
+    const tab = await BrowserApi.getTabFromCurrentWindow();
+    await cipherContextMenuHandler.update(tab?.url);
+  }
+
   static async tabsOnActivatedListener(
     activeInfo: chrome.tabs.TabActiveInfo,
     serviceCache: CachedServices

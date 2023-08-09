@@ -4,6 +4,6 @@ import { Opaque } from "type-fest";
 // represents an array or string value generated from a
 // cryptographic secure pseudorandom number generator (CSPRNG)
 
-type CsprngArray = Opaque<ArrayBuffer, "CSPRNG">;
+type CsprngArray = Opaque<Uint8Array, "CSPRNG">;
 
 type CsprngString = Opaque<string, "CSPRNG">;

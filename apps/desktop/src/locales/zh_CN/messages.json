@@ -422,7 +422,7 @@
     "message": "单词分隔符"
   },
   "capitalize": {
-    "message": "大写",
+    "message": "首字母大写",
     "description": "Make the first letter of a word uppercase."
   },
   "includeNumber": {
@@ -824,7 +824,7 @@
     "message": "解锁​​​​"
   },
   "loggedInAsOn": {
-    "message": "已使用 $EMAIL$ 在 $HOSTNAME$ 上登录。",
+    "message": "已在 $HOSTNAME$ 上以 $EMAIL$ 身份登录。",
     "placeholders": {
       "email": {
         "content": "$1",

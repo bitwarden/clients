@@ -22,9 +22,9 @@ export abstract class CryptoService {
   getKeyHash: () => Promise<string>;
   compareAndUpdateKeyHash: (masterPassword: string, key: SymmetricCryptoKey) => Promise<boolean>;
   getEncKey: (key?: SymmetricCryptoKey) => Promise<SymmetricCryptoKey>;
-  getPublicKey: () => Promise<ArrayBuffer>;
-  getPrivateKey: () => Promise<ArrayBuffer>;
-  getFingerprint: (fingerprintMaterial: string, publicKey?: ArrayBuffer) => Promise<string[]>;
+  getPublicKey: () => Promise<Uint8Array>;
+  getPrivateKey: () => Promise<Uint8Array>;
+  getFingerprint: (fingerprintMaterial: string, publicKey?: Uint8Array) => Promise<string[]>;
   getOrgKeys: () => Promise<Map<string, SymmetricCryptoKey>>;
   getOrgKey: (orgId: string) => Promise<SymmetricCryptoKey>;
   getProviderKey: (providerId: string) => Promise<SymmetricCryptoKey>;
@@ -63,7 +63,7 @@ export abstract class CryptoService {
     kdf: KdfType,
     kdfConfig: KdfConfig
   ) => Promise<SymmetricCryptoKey>;
-  makeSendKey: (keyMaterial: ArrayBuffer) => Promise<SymmetricCryptoKey>;
+  makeSendKey: (keyMaterial: Uint8Array) => Promise<SymmetricCryptoKey>;
   hashPassword: (
     password: string,
     key: SymmetricCryptoKey,
@@ -74,13 +74,13 @@ export abstract class CryptoService {
     key: SymmetricCryptoKey,
     encKey?: SymmetricCryptoKey
   ) => Promise<[SymmetricCryptoKey, EncString]>;
-  encrypt: (plainValue: string | ArrayBuffer, key?: SymmetricCryptoKey) => Promise<EncString>;
-  encryptToBytes: (plainValue: ArrayBuffer, key?: SymmetricCryptoKey) => Promise<EncArrayBuffer>;
-  rsaEncrypt: (data: ArrayBuffer, publicKey?: ArrayBuffer) => Promise<EncString>;
-  rsaDecrypt: (encValue: string, privateKeyValue?: ArrayBuffer) => Promise<ArrayBuffer>;
-  decryptToBytes: (encString: EncString, key?: SymmetricCryptoKey) => Promise<ArrayBuffer>;
+  encrypt: (plainValue: string | Uint8Array, key?: SymmetricCryptoKey) => Promise<EncString>;
+  encryptToBytes: (plainValue: Uint8Array, key?: SymmetricCryptoKey) => Promise<EncArrayBuffer>;
+  rsaEncrypt: (data: Uint8Array, publicKey?: Uint8Array) => Promise<EncString>;
+  rsaDecrypt: (encValue: string, privateKeyValue?: Uint8Array) => Promise<Uint8Array>;
+  decryptToBytes: (encString: EncString, key?: SymmetricCryptoKey) => Promise<Uint8Array>;
   decryptToUtf8: (encString: EncString, key?: SymmetricCryptoKey) => Promise<string>;
-  decryptFromBytes: (encBuffer: EncArrayBuffer, key: SymmetricCryptoKey) => Promise<ArrayBuffer>;
+  decryptFromBytes: (encBuffer: EncArrayBuffer, key: SymmetricCryptoKey) => Promise<Uint8Array>;
   randomNumber: (min: number, max: number) => Promise<number>;
   validateKey: (key: SymmetricCryptoKey) => Promise<boolean>;
 }

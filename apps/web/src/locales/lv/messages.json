@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ tīmekļa glabātava",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Kāda veida vienums tas ir?"
   },
@@ -658,7 +648,7 @@
     "message": "Galvenā parole ir parole, ko izmantojat, lai piekļūtu glabātuvei. Ir ļoti svarīgi neaizmirst savu galveno paroli. Ja aizmirstat paroli, nav iespējams to atgūt."
   },
   "masterPassImportant": {
-    "message": "Galvenā parole nevar tikt atkopta, ja tā tiek aizmirsta."
+    "message": "Galveno paroli nevar atgūt, ja tā tiek aizmirsta."
   },
   "masterPassHintDesc": {
     "message": "Galvenās paroles norāde var palīdzēt atcerēties paroli, ja tā ir aizmirsta."
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Tīmekļa glabātava"
   },
+  "bitWebVault": {
+    "message": "Bitwarden tīmekļa glabātava"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden noslēpumu pārvaldnieks"
+  },
   "loggedIn": {
     "message": "Pieteicies"
   },
@@ -2658,7 +2654,7 @@
     "message": "Divpakāpju pieteikšanās ir izslēgta"
   },
   "recovered2fa": {
-    "message": "Konts divpakāpju pieteikšanās ir atkopta."
+    "message": "Konts atgūts ar divpakāpju pieteikšanos."
   },
   "failedLogin": {
     "message": "Pieteikšanās mēģinājums neizdevās nepareizas paroles dēļ."
@@ -3323,6 +3319,9 @@
   "limitSubscriptionDesc": {
     "message": "Uzstāda abonentu skaita ierobežojumu. Kad tas tiks sasniegts, nebūs iespējams uzaicināt jaunus lietotājus."
   },
+  "limitSmSubscriptionDesc": {
+    "message": "Uzstāda Noslēpumu pārvaldnieka abonentu skaita ierobežojumu. Kad tas tiks sasniegts, nebūs iespējams uzaicināt jaunus dalībniekus."
+  },
   "maxSeatLimit": {
     "message": "Lielākais iespējamais vietu skaits (var nenorādīt)",
     "description": "Upper limit of seats to allow through autoscaling"
@@ -3486,7 +3485,7 @@
     "message": "Atzīmējot šo rūtiņu, Tu piekrīti sekojošajam:"
   },
   "acceptPoliciesRequired": {
-    "message": "Nav apstiprināti izmantošanas nosacījumi un privātuma politika."
+    "message": "Nav apstiprināti izmantošanas noteikumi un privātuma nosacījumi."
   },
   "termsOfService": {
     "message": "Izmantošanas nosacījumi"
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Pārvaldīt lietotājus"
   },
-  "manageResetPassword": {
-    "message": "Pārvaldīt paroles atiestatīšanu"
+  "manageAccountRecovery": {
+    "message": "Pārvaldīt konta atkopšanu"
   },
   "disableRequiredError": {
     "message": "Vispirms pašrocīgi ir jāatspējo nosacījums $POLICYNAME$, lai varētu atspējot šo.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Kļūda"
   },
-  "resetPasswordManageUsers": {
-    "message": "Lietotāju pārvaldīšanai ir jābūt iespējotai arī ar paroļu atiestatīšanas pārvaldīšanas atļauju"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Sniedzēja iestatīšana"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Turpinot notiks atteikšanās no visām aktīvām sesijām. Jums būs atkārtoti jāpiesakās un jāveic divpakapāju autentifikācijas uzstādīšana. Mēs iesakām eksportēt savu glabātavu pirms šifrēšanas iestatījumu maiņas lai novērstu datu zudumu."
   },
-  "secretsManagerBeta": {
-    "message": "Noslēpumu pārvaldnieks Beta"
-  },
   "secretsManager": {
     "message": "Noslēpumu pārvaldnieks"
+  },
+  "secretsManagerBeta": {
+    "message": "Noslēpumu pārvaldnieks Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Ieslēgt lietotāju piekļuvi Noslēpumu pārvaldniekam."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Atjaunināt KDF iestatījumus"
   },
-  "trustedDeviceEncryption": {
-    "message": "Uzticamo ierīču šifrēšana"
+  "trustedDevices": {
+    "message": "Trusted devices"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Pēc pieteikšanās dalībnieki atšifrēs glabātavas saturu ar ierīcē glabātu atslēgu. ",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Atlasītā apgabala karogs"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Nav spēkā esošu Sūtījumu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Sūtījumi ir izmantojami, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Uzaicināt lietotājus"
+  },
+  "secretsManagerForPlan": {
+    "message": "Noslēpumu pārvaldnieks $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Inženieru un DevOps komandām noslēpumu pārvaldīšanai viscaur programmatūras izstrādes dzīves ciklam."
+  },
+  "free2PersonOrganization": {
+    "message": "Bezmaksas divu cilvēku apvienības"
+  },
+  "unlimitedSecrets": {
+    "message": "Neierobežoti noslēpumi"
+  },
+  "unlimitedProjects": {
+    "message": "Neierobežoti projekti"
+  },
+  "projectsIncluded": {
+    "message": "Iekļauti $COUNT$ projekti",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "Iekļauti $COUNT$ pakalpojumu konti",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ mēnesī par papildu pakalpojumu kontiem",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Pievienot Noslēpumu pārvaldnieku"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Noslēpumu pārvaldnieks jāpievieno uzlabotajam plānam, lai saglabātu piekļuvi visiem noslēpumiem, kas tika izveidoti iepriekšējā plānā."
+  },
+  "additionalServiceAccounts": {
+    "message": "Papildu pakalpojumu konti"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Plānā ir iekļauti $COUNT$ pakalpojumu konti. Papildu pakalpojumu kontus var pievienot par $COST$ mēnesī.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Paroļu pārvaldnieka plāna cena"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Noslēpumu pārvaldnieka plāna cena"
+  },
+  "passwordManager": {
+    "message": "Paroļu pārvaldnieks"
+  },
+  "freeOrganization": {
+    "message": "Bezmaksas apvienība"
+  },
+  "limitServiceAccounts": {
+    "message": "Ierobežot pakalpojumu kontus (izvēles)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Uzstāda pakalpojumu kontu skaita ierobežojumu. Tiklīdz tas ir sasniegts, nebūs iespējams izveidot jaunus pakalpojumu kontus."
+  },
+  "serviceAccountLimit": {
+    "message": "Pakalpojumu kontu skaita ierobežojums (izvēles)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Lielākās iespējamās pakalpojumu kontu izmaksas"
   }
 }

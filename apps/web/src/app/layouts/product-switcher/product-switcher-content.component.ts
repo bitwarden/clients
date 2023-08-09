@@ -64,7 +64,7 @@ export class ProductSwitcherContentComponent {
           isActive: !this.router.url.includes("/sm/"),
         },
         sm: {
-          name: "Secrets Manager Beta",
+          name: "Secrets Manager",
           icon: "bwi-cli",
           appRoute: ["/sm", smOrg?.id],
           marketingRoute: "https://bitwarden.com/products/secrets-manager/",

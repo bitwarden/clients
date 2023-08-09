@@ -210,7 +210,7 @@ export abstract class OrganizationUserService {
   abstract putOrganizationUserBulkEnableSecretsManager(
     organizationId: string,
     ids: string[]
-  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
+  ): Promise<void>;
 
   /**
    * Delete an organization user

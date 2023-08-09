@@ -4,67 +4,67 @@ import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class CryptoFunctionService {
   pbkdf2: (
-    password: string | ArrayBuffer,
-    salt: string | ArrayBuffer,
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
     algorithm: "sha256" | "sha512",
     iterations: number
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   argon2: (
-    password: string | ArrayBuffer,
-    salt: string | ArrayBuffer,
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   hkdf: (
-    ikm: ArrayBuffer,
-    salt: string | ArrayBuffer,
-    info: string | ArrayBuffer,
+    ikm: Uint8Array,
+    salt: string | Uint8Array,
+    info: string | Uint8Array,
     outputByteSize: number,
     algorithm: "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   hkdfExpand: (
-    prk: ArrayBuffer,
-    info: string | ArrayBuffer,
+    prk: Uint8Array,
+    info: string | Uint8Array,
     outputByteSize: number,
     algorithm: "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   hash: (
-    value: string | ArrayBuffer,
+    value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512" | "md5"
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   hmac: (
-    value: ArrayBuffer,
-    key: ArrayBuffer,
+    value: Uint8Array,
+    key: Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
-  compare: (a: ArrayBuffer, b: ArrayBuffer) => Promise<boolean>;
+  ) => Promise<Uint8Array>;
+  compare: (a: Uint8Array, b: Uint8Array) => Promise<boolean>;
   hmacFast: (
-    value: ArrayBuffer | string,
-    key: ArrayBuffer | string,
+    value: Uint8Array | string,
+    key: Uint8Array | string,
     algorithm: "sha1" | "sha256" | "sha512"
-  ) => Promise<ArrayBuffer | string>;
-  compareFast: (a: ArrayBuffer | string, b: ArrayBuffer | string) => Promise<boolean>;
-  aesEncrypt: (data: ArrayBuffer, iv: ArrayBuffer, key: ArrayBuffer) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array | string>;
+  compareFast: (a: Uint8Array | string, b: Uint8Array | string) => Promise<boolean>;
+  aesEncrypt: (data: Uint8Array, iv: Uint8Array, key: Uint8Array) => Promise<Uint8Array>;
   aesDecryptFastParameters: (
     data: string,
     iv: string,
     mac: string,
     key: SymmetricCryptoKey
-  ) => DecryptParameters<ArrayBuffer | string>;
-  aesDecryptFast: (parameters: DecryptParameters<ArrayBuffer | string>) => Promise<string>;
-  aesDecrypt: (data: ArrayBuffer, iv: ArrayBuffer, key: ArrayBuffer) => Promise<ArrayBuffer>;
+  ) => DecryptParameters<Uint8Array | string>;
+  aesDecryptFast: (parameters: DecryptParameters<Uint8Array | string>) => Promise<string>;
+  aesDecrypt: (data: Uint8Array, iv: Uint8Array, key: Uint8Array) => Promise<Uint8Array>;
   rsaEncrypt: (
-    data: ArrayBuffer,
-    publicKey: ArrayBuffer,
+    data: Uint8Array,
+    publicKey: Uint8Array,
     algorithm: "sha1" | "sha256"
-  ) => Promise<ArrayBuffer>;
+  ) => Promise<Uint8Array>;
   rsaDecrypt: (
-    data: ArrayBuffer,
-    privateKey: ArrayBuffer,
+    data: Uint8Array,
+    privateKey: Uint8Array,
     algorithm: "sha1" | "sha256"
-  ) => Promise<ArrayBuffer>;
-  rsaExtractPublicKey: (privateKey: ArrayBuffer) => Promise<ArrayBuffer>;
-  rsaGenerateKeyPair: (length: 1024 | 2048 | 4096) => Promise<[ArrayBuffer, ArrayBuffer]>;
+  ) => Promise<Uint8Array>;
+  rsaExtractPublicKey: (privateKey: Uint8Array) => Promise<Uint8Array>;
+  rsaGenerateKeyPair: (length: 1024 | 2048 | 4096) => Promise<[Uint8Array, Uint8Array]>;
   randomBytes: (length: number) => Promise<CsprngArray>;
 }

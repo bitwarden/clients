@@ -87,13 +87,32 @@
               <td bitCell>{{ "passwordManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
               <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
             </tr>
-            <tr bitRow *ngIf="userOrg.useSecretsManager">
+            <tr bitRow *ngIf="userOrg.useSecretsManager && !sub.secretsManagerBeta">
               <td bitCell>{{ "secretsManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
               <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
             </tr>
           </ng-container>
+          <tr bitRow *ngIf="sub.secretsManagerBeta">
+            <td bitCell>
+              {{ "secretsManager" | i18n }} -
+              {{ "beta" | i18n }}
+              ({{ "annually" | i18n }}) @
+              {{ 0 | currency : "$" }}
+              <span bitBadge badgeType="warning" class="tw-ml-2">{{
+                "betaEnding" | i18n | uppercase
+              }}</span>
+            </td>
+            <td bitCell class="tw-text-right">{{ 0 | currency : "$" }} /{{ "year" | i18n }}</td>
+          </tr>
         </ng-template>
       </bit-table>
+      <bit-callout
+        *ngIf="sub.secretsManagerBeta && !userOrg.isFreeOrg"
+        type="warning"
+        class="tw-mt-4 tw-block"
+      >
+        {{ smBetaEndedDesc }}
+      </bit-callout>
     </div>
   </ng-container>
 

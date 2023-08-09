@@ -13,20 +13,36 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { Icons } from "@bitwarden/components";
+import { NoItemsModule, SearchModule, TableDataSource } from "@bitwarden/components";
+
+import { SharedModule } from "../../shared";
 
 import { AddEditComponent } from "./add-edit.component";
+import { NoSend } from "./icons/no-send.icon";
 
 const BroadcasterSubscriptionId = "SendComponent";
 
 @Component({
   selector: "app-send",
+  standalone: true,
+  imports: [SharedModule, SearchModule, NoItemsModule],
   templateUrl: "send.component.html",
 })
 export class SendComponent extends BaseSendComponent {
   @ViewChild("sendAddEdit", { read: ViewContainerRef, static: true })
   sendAddEditModalRef: ViewContainerRef;
-  noItemIcon = Icons.Search;
+  noItemIcon = NoSend;
+
+  override set filteredSends(filteredSends: SendView[]) {
+    super.filteredSends = filteredSends;
+    this.dataSource.data = filteredSends;
+  }
+
+  override get filteredSends() {
+    return super.filteredSends;
+  }
+
+  protected dataSource = new TableDataSource<SendView>();
 
   constructor(
     sendService: SendService,

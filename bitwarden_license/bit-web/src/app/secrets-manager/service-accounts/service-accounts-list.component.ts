@@ -6,25 +6,28 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TableDataSource } from "@bitwarden/components";
 
-import { ServiceAccountView } from "../models/view/service-account.view";
+import {
+  ServiceAccountSecretsDetailsView,
+  ServiceAccountView,
+} from "../models/view/service-account.view";
 
 @Component({
   selector: "sm-service-accounts-list",
   templateUrl: "./service-accounts-list.component.html",
 })
 export class ServiceAccountsListComponent implements OnDestroy {
-  protected dataSource = new TableDataSource<ServiceAccountView>();
+  protected dataSource = new TableDataSource<ServiceAccountSecretsDetailsView>();
 
   @Input()
-  get serviceAccounts(): ServiceAccountView[] {
+  get serviceAccounts(): ServiceAccountSecretsDetailsView[] {
     return this._serviceAccounts;
   }
-  set serviceAccounts(serviceAccounts: ServiceAccountView[]) {
+  set serviceAccounts(serviceAccounts: ServiceAccountSecretsDetailsView[]) {
     this.selection.clear();
     this._serviceAccounts = serviceAccounts;
     this.dataSource.data = serviceAccounts;
   }
-  private _serviceAccounts: ServiceAccountView[];
+  private _serviceAccounts: ServiceAccountSecretsDetailsView[];
 
   @Input()
   set search(search: string) {
@@ -72,8 +75,8 @@ export class ServiceAccountsListComponent implements OnDestroy {
     }
   }
 
-  delete(serviceAccount: ServiceAccountView) {
-    this.deleteServiceAccountsEvent.emit([serviceAccount]);
+  delete(serviceAccount: ServiceAccountSecretsDetailsView) {
+    this.deleteServiceAccountsEvent.emit([serviceAccount as ServiceAccountView]);
   }
 
   bulkDeleteServiceAccounts() {

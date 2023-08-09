@@ -241,7 +241,7 @@ export class SendService implements InternalSendServiceAbstraction {
     key: SymmetricCryptoKey
   ): Promise<[EncString, EncArrayBuffer]> {
     const encFileName = await this.cryptoService.encrypt(fileName, key);
-    const encFileData = await this.cryptoService.encryptToBytes(data, key);
+    const encFileData = await this.cryptoService.encryptToBytes(new Uint8Array(data), key);
     return [encFileName, encFileData];
   }
 

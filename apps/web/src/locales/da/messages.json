@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ web-boks",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Hvilken emnetype er denne?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Web-boks"
   },
+  "bitWebVault": {
+    "message": "Bitwarden Web-boks"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Logget ind"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Opsæt pladskvote for abonnementet. Når kvoten er opbrugt, vil du ikke kunne invitere nye brugere."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Opsæt pladskvote for Secrets Manager-abonnementet. Når kvoten er opbrugt, vil nye brugere ikke kunne inviteres."
   },
   "maxSeatLimit": {
     "message": "Pladskvote (valgfrit)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Håndtér brugere"
   },
-  "manageResetPassword": {
-    "message": "Håndtér nulstilling af adgangskode"
+  "manageAccountRecovery": {
+    "message": "Håndtér kontogendannelse"
   },
   "disableRequiredError": {
     "message": "$POLICYNAME$-politikken skal deaktiveres manuelt, før denne politik kan deaktiveres.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Fejl"
   },
-  "resetPasswordManageUsers": {
-    "message": "\"Håndtér brugere\" skal også tildeles med tilladelsen \"Håndtér adgangskodenulstilling\""
+  "accountRecoveryManageUsers": {
+    "message": "Håndtér brugere skal også tildeles med tilladelsen håndtér kontogendannelse"
   },
   "setupProvider": {
     "message": "Udbyderopsætning"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManager": {
     "message": "Hemmelighedshåndtering"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Aktivér brugeradgang til Hemmelighedshåndtering."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Opdatér KDF-indstillinger"
   },
-  "trustedDeviceEncryption": {
-    "message": "Betroet enhed-kryptering"
+  "trustedDevices": {
+    "message": "Betroede enheder"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Når godkendt, dekrypterer medlemmet boksdata vha. en nøgle gemt på deres enhed. ",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Valgte områdeflag"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Ingen aktive Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Brug Send til at dele krypterede oplysninger sikkert med nogen.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invitér bruger"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager til $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Til udviklings- og DevOps-teams håndtering af hemmeligheder i hele softwareudviklingslivscyklussen."
+  },
+  "free2PersonOrganization": {
+    "message": "Gratis 2-personersorganisationer"
+  },
+  "unlimitedSecrets": {
+    "message": "Ubegrænsede hemmeligheder"
+  },
+  "unlimitedProjects": {
+    "message": "Ubegrænset projektantal"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projekter inkluderet",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ tjenestekonti inkluderet",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ pr. måned for yderligere tjenestekonti",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Tilføj Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Føj Secrets Manager til den opgraderede abonnementstype for at bibeholde adgang til alle hemmeligheder oprettet med det tidligere abonnement."
+  },
+  "additionalServiceAccounts": {
+    "message": "Yderligere tjenestekonti"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Abonnementstypen inkluderer $COUNT$ tjenestekonti. Yderligere tjenestekonti kan tilføjes for $COST$ pr. måned.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Password Manager-abonnementspris"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager-abonnementspris"
+  },
+  "passwordManager": {
+    "message": "Password Manager"
+  },
+  "freeOrganization": {
+    "message": "Gratis organisation"
+  },
+  "limitServiceAccounts": {
+    "message": "Begræns tjenestekonti (valgfrit)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Opsæt kvote for tjenestekonti. Når kvoten er opbrugt, vil nye tjenestekonti ikke kunne oprettes."
+  },
+  "serviceAccountLimit": {
+    "message": "Tjenestekontokvote (valgfrit)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Maks. potentiel tjenestekontomkostning"
   }
 }

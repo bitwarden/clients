@@ -2252,16 +2252,14 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Recommended Settings Update"
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "selfHosted": {
     "message": "Self-hosted"

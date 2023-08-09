@@ -27,16 +27,16 @@ export class EncString implements Encrypted {
     }
   }
 
-  get ivBytes(): ArrayBuffer {
-    return this.iv == null ? null : Utils.fromB64ToArray(this.iv).buffer;
+  get ivBytes(): Uint8Array {
+    return this.iv == null ? null : Utils.fromB64ToArray(this.iv);
   }
 
-  get macBytes(): ArrayBuffer {
-    return this.mac == null ? null : Utils.fromB64ToArray(this.mac).buffer;
+  get macBytes(): Uint8Array {
+    return this.mac == null ? null : Utils.fromB64ToArray(this.mac);
   }
 
-  get dataBytes(): ArrayBuffer {
-    return this.data == null ? null : Utils.fromB64ToArray(this.data).buffer;
+  get dataBytes(): Uint8Array {
+    return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
 
   toJSON() {

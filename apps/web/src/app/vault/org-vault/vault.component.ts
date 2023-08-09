@@ -695,7 +695,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const dialog = openBulkRestoreDialog(this.dialogService, {
-      data: { cipherIds: selectedCipherIds },
+      data: { cipherIds: selectedCipherIds, organization: this.organization },
     });
 
     const result = await lastValueFrom(dialog.closed);

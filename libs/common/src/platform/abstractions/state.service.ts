@@ -113,8 +113,8 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated Do not call this, use PolicyService
    */
   setDecryptedPolicies: (value: Policy[], options?: StorageOptions) => Promise<void>;
-  getDecryptedPrivateKey: (options?: StorageOptions) => Promise<ArrayBuffer>;
-  setDecryptedPrivateKey: (value: ArrayBuffer, options?: StorageOptions) => Promise<void>;
+  getDecryptedPrivateKey: (options?: StorageOptions) => Promise<Uint8Array>;
+  setDecryptedPrivateKey: (value: Uint8Array, options?: StorageOptions) => Promise<void>;
   getDecryptedProviderKeys: (options?: StorageOptions) => Promise<Map<string, SymmetricCryptoKey>>;
   setDecryptedProviderKeys: (
     value: Map<string, SymmetricCryptoKey>,
@@ -331,8 +331,8 @@ export abstract class StateService<T extends Account = Account> {
   setProtectedPin: (value: string, options?: StorageOptions) => Promise<void>;
   getProviders: (options?: StorageOptions) => Promise<{ [id: string]: ProviderData }>;
   setProviders: (value: { [id: string]: ProviderData }, options?: StorageOptions) => Promise<void>;
-  getPublicKey: (options?: StorageOptions) => Promise<ArrayBuffer>;
-  setPublicKey: (value: ArrayBuffer, options?: StorageOptions) => Promise<void>;
+  getPublicKey: (options?: StorageOptions) => Promise<Uint8Array>;
+  setPublicKey: (value: Uint8Array, options?: StorageOptions) => Promise<void>;
   getRefreshToken: (options?: StorageOptions) => Promise<string>;
   setRefreshToken: (value: string, options?: StorageOptions) => Promise<void>;
   getRememberedEmail: (options?: StorageOptions) => Promise<string>;

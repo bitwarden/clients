@@ -56,10 +56,13 @@
         <bit-form-field>
           <bit-label>{{ "additionalServiceAccounts" | i18n }}</bit-label>
           <input bitInput formControlName="additionalServiceAccounts" type="number" />
-          <bit-hint>{{
-            "additionalServiceAccountsDesc"
-              | i18n : serviceAccountsIncluded : (monthlyCostPerServiceAccount | currency : "$")
-          }}</bit-hint>
+          <bit-hint>
+            {{ "includedServiceAccounts" | i18n : serviceAccountsIncluded }}
+            {{
+              "addAdditionalServiceAccounts"
+                | i18n : (monthlyCostPerServiceAccount | currency : "$")
+            }}
+          </bit-hint>
         </bit-form-field>
       </div>
 

@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Cassaforte web di $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Che tipo di elemento è questo?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Cassaforte web"
   },
+  "bitWebVault": {
+    "message": "Cassaforte web Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Gestore dei Segreti Bitwarden"
+  },
   "loggedIn": {
     "message": "Accesso effettuato"
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Imposta un limite di slot utenti per il tuo abbonamento. Una volta raggiunto questo limite, non potrai invitare nuovi membri."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Imposta un limite di slot per il tuo abbonamento al Gestore dei Segreti. Una volta raggiunto questo limite, non potrai invitare nuovi membri."
   },
   "maxSeatLimit": {
     "message": "Numero massimo di slot (facoltativo)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Gestisci gli utenti"
   },
-  "manageResetPassword": {
-    "message": "Gestisci il ripristino della password"
+  "manageAccountRecovery": {
+    "message": "Gestisci il recupero dell'account"
   },
   "disableRequiredError": {
     "message": "Devi disabilitare la politica $POLICYNAME$ prima di poter disabilitare questa politica.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Errore"
   },
-  "resetPasswordManageUsers": {
-    "message": "Gestisci utenti deve essere abilitato con il permesso di gestire il ripristino delle password"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Configurazione del fornitore"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Procedere ti farà uscire da tutte le sessioni attive. Dovrai accedere di nuovo e completare la configurazione della verifica in due passaggi. Ti consigliamo di esportare la tua cassaforte prima di cambiare le impostazioni di criptografia per prevenire perdite di dati."
   },
-  "secretsManagerBeta": {
-    "message": "Beta del Gestore dei Segreti"
-  },
   "secretsManager": {
     "message": "Gestore dei Segreti"
+  },
+  "secretsManagerBeta": {
+    "message": "Beta del Gestore dei Segreti"
   },
   "secretsManagerAccessDescription": {
     "message": "Attiva l'accesso dell'utente al Gestore dei Segreti."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Aggiorna impostazioni KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Criptografia dispositivo fidato"
+  "trustedDevices": {
+    "message": "Dispositivi fidati"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Una volta autenticati, i membri decriptograferanno i dati della cassaforte usando una chiave memorizzata sul proprio dispositivo. La",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Bandiera della regione selezionata"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Nessun Send attivo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Usa Send per condividere informazioni criptate in modo sicuro con chiunque.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Invita utenti"
+  },
+  "secretsManagerForPlan": {
+    "message": "Gestore dei Segreti per $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Per i team di ingegneria e DevOps per gestire i segreti durante l'intero ciclo di vita dello sviluppo del software."
+  },
+  "free2PersonOrganization": {
+    "message": "Organizzazioni gratis per 2 persone"
+  },
+  "unlimitedSecrets": {
+    "message": "Segreti illimitati"
+  },
+  "unlimitedProjects": {
+    "message": "Progetti illimitati"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ progetti inclusi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ account di servizio inclusi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ al mese per account di servizio aggiuntivi",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Aggiungi Gestore dei Segreti"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Aggiungi il Gestore dei Segreti al tuo piano aggiornato per mantenere l'accesso a tutti i secret creati con il tuo piano precedente."
+  },
+  "additionalServiceAccounts": {
+    "message": "Account di servizio aggiuntivi"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Il tuo piano include $COUNT$ account di servizio. Puoi aggiungere più account di servizio a $COST$ al mese.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Prezzo del piano del gestore di password"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Prezzo del piano del Gestore dei Segreti"
+  },
+  "passwordManager": {
+    "message": "Gestore di password"
+  },
+  "freeOrganization": {
+    "message": "Organizzazione gratis"
+  },
+  "limitServiceAccounts": {
+    "message": "Limita gli account di servizio (facoltativo)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Imposta un limite per i tuoi account di servizio. Una volta raggiunto questo limite, non potrai creare nuovi account di servizio."
+  },
+  "serviceAccountLimit": {
+    "message": "Limite account di servizio (facoltativo)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Costo massimo potenziale dell'account di servizio"
   }
 }

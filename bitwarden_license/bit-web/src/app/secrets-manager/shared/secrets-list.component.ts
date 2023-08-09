@@ -38,6 +38,7 @@ export class SecretsListComponent implements OnDestroy {
   @Output() editSecretEvent = new EventEmitter<string>();
   @Output() copySecretNameEvent = new EventEmitter<string>();
   @Output() copySecretValueEvent = new EventEmitter<string>();
+  @Output() copySecretUuidEvent = new EventEmitter<string>();
   @Output() onSecretCheckedEvent = new EventEmitter<string[]>();
   @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
   @Output() newSecretEvent = new EventEmitter();
@@ -147,6 +148,19 @@ export class SecretsListComponent implements OnDestroy {
         i18nService.t("valueCopied", i18nService.t("value"))
       );
     });
+  }
+
+  static copySecretUuid(
+    id: string,
+    platformUtilsService: PlatformUtilsService,
+    i18nService: I18nService
+  ) {
+    platformUtilsService.copyToClipboard(id);
+    platformUtilsService.showToast(
+      "success",
+      null,
+      i18nService.t("valueCopied", i18nService.t("uuid"))
+    );
   }
 
   /**

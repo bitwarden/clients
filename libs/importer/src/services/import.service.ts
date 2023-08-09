@@ -13,6 +13,8 @@ import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.req
 import { CollectionWithIdRequest } from "@bitwarden/common/vault/models/request/collection-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import {
   AscendoCsvImporter,
@@ -106,7 +108,9 @@ export class ImportService implements ImportServiceAbstraction {
   async import(
     importer: Importer,
     fileContents: string,
-    organizationId: string = null
+    organizationId: string = null,
+    selectedImportTarget: string = null,
+    isUserAdmin: boolean
   ): Promise<ImportResult> {
     let importResult: ImportResult;
     try {
@@ -142,7 +146,17 @@ export class ImportService implements ImportServiceAbstraction {
       }
     }
 
+    if (organizationId && Utils.isNullOrWhitespace(selectedImportTarget) && !isUserAdmin) {
+      const hasUnassignedCollections = importResult.ciphers.some(
+        (c) => !Array.isArray(c.collectionIds) || c.collectionIds.length == 0
+      );
+      if (hasUnassignedCollections) {
+        throw new Error(this.i18nService.t("importUnassignedItemsError"));
+      }
+    }
+
     try {
+      await this.setImportTarget(importResult, organizationId, selectedImportTarget);
       if (organizationId != null) {
         await this.handleOrganizationalImport(importResult, organizationId);
       } else {
@@ -402,5 +416,70 @@ export class ImportService implements ImportServiceAbstraction {
     });
 
     return new Error(errorMessage);
+  }
+
+  private async setImportTarget(
+    importResult: ImportResult,
+    organizationId: string,
+    importTarget: string
+  ) {
+    if (Utils.isNullOrWhitespace(importTarget)) {
+      return;
+    }
+
+    if (organizationId) {
+      const collectionViews: CollectionView[] = await this.collectionService.getAllDecrypted();
+      const targetCollection = collectionViews.find((c) => c.id === importTarget);
+
+      const noCollectionRelationShips: [number, number][] = [];
+      importResult.ciphers.forEach((c, index) => {
+        if (!Array.isArray(c.collectionIds) || c.collectionIds.length == 0) {
+          c.collectionIds = [targetCollection.id];
+          noCollectionRelationShips.push([index, 0]);
+        }
+      });
+
+      const collections: CollectionView[] = [...importResult.collections];
+      importResult.collections = [targetCollection];
+      collections.map((x) => {
+        const f = new CollectionView();
+        f.name = `${targetCollection.name}/${x.name}`;
+        importResult.collections.push(f);
+      });
+
+      const relationships: [number, number][] = [...importResult.collectionRelationships];
+      importResult.collectionRelationships = [...noCollectionRelationShips];
+      relationships.map((x) => {
+        importResult.collectionRelationships.push([x[0], x[1] + 1]);
+      });
+
+      return;
+    }
+
+    const folderViews = await this.folderService.getAllDecryptedFromState();
+    const targetFolder = folderViews.find((f) => f.id === importTarget);
+
+    const noFolderRelationShips: [number, number][] = [];
+    importResult.ciphers.forEach((c, index) => {
+      if (Utils.isNullOrEmpty(c.folderId)) {
+        c.folderId = targetFolder.id;
+        noFolderRelationShips.push([index, 0]);
+      }
+    });
+
+    const folders: FolderView[] = [...importResult.folders];
+    importResult.folders = [targetFolder];
+    folders.map((x) => {
+      const newFolderName = `${targetFolder.name}/${x.name}`;
+      const f = new FolderView();
+      f.name = newFolderName;
+      importResult.folders.push(f);
+    });
+
+    const relationships: [number, number][] = [...importResult.folderRelationships];
+    importResult.folderRelationships = [...noFolderRelationShips];
+    relationships.map((x) => {
+      importResult.folderRelationships.push([x[0], x[1] + 1]);
+    });
   }
 }

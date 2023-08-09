@@ -68,7 +68,7 @@ describe("SymmetricCryptoKey", () => {
   });
 
   it("toJSON creates object for serialization", () => {
-    const key = new SymmetricCryptoKey(makeStaticByteArray(64).buffer);
+    const key = new SymmetricCryptoKey(makeStaticByteArray(64));
     const actual = key.toJSON();
 
     const expected = { keyB64: key.keyB64 };
@@ -77,7 +77,7 @@ describe("SymmetricCryptoKey", () => {
   });
 
   it("fromJSON hydrates new object", () => {
-    const expected = new SymmetricCryptoKey(makeStaticByteArray(64).buffer);
+    const expected = new SymmetricCryptoKey(makeStaticByteArray(64));
     const actual = SymmetricCryptoKey.fromJSON({ keyB64: expected.keyB64 });
 
     expect(actual).toEqual(expected);

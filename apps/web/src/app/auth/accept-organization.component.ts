@@ -142,7 +142,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
 
       // RSA Encrypt user's encKey.key with organization public key
       const encKey = await this.cryptoService.getEncKey();
-      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey.buffer);
+      const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey);
 
       // Add reset password key to accept request
       request.resetPasswordKey = encryptedKey.encryptedString;

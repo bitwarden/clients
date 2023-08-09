@@ -70,7 +70,7 @@ export class NativeMessageHandlerService {
     }
 
     try {
-      const remotePublicKey = Utils.fromB64ToArray(publicKey).buffer;
+      const remotePublicKey = Utils.fromB64ToArray(publicKey);
       const ddgEnabled = await this.stateService.getEnableDuckDuckGoBrowserIntegration();
 
       if (!ddgEnabled) {

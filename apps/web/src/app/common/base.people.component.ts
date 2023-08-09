@@ -374,7 +374,7 @@ export abstract class BasePeopleComponent<
       }
 
       try {
-        const fingerprint = await this.cryptoService.getFingerprint(user.userId, publicKey.buffer);
+        const fingerprint = await this.cryptoService.getFingerprint(user.userId, publicKey);
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
       } catch (e) {
         this.logService.error(e);

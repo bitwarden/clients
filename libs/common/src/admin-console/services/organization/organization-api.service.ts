@@ -29,6 +29,7 @@ import { OrganizationApiKeyInformationResponse } from "../../models/response/org
 import { OrganizationAutoEnrollStatusResponse } from "../../models/response/organization-auto-enroll-status.response";
 import { OrganizationKeysResponse } from "../../models/response/organization-keys.response";
 import { OrganizationResponse } from "../../models/response/organization.response";
+import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
 export class OrganizationApiService implements OrganizationApiServiceAbstraction {
   constructor(private apiService: ApiService, private syncService: SyncService) {}
@@ -311,13 +312,14 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   async subscribeToSecretsManager(
     id: string,
     request: SecretsManagerSubscribeRequest
-  ): Promise<void> {
-    return await this.apiService.send(
+  ): Promise<ProfileOrganizationResponse> {
+    const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/subscribe-secrets-manager",
       request,
       true,
-      false
+      true
     );
+    return new ProfileOrganizationResponse(r);
   }
 }

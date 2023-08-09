@@ -309,13 +309,13 @@ export class EmergencyAccessComponent implements OnInit {
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.cryptoService.getFingerprint(details.granteeId, publicKey.buffer)).join("-")
+          (await this.cryptoService.getFingerprint(details.granteeId, publicKey)).join("-")
       );
     } catch {
       // Ignore errors since it's just a debug message
     }
 
-    const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey.buffer);
+    const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey);
     const request = new EmergencyAccessConfirmRequest();
     request.key = encryptedKey.encryptedString;
     await this.apiService.postEmergencyAccessConfirm(details.id, request);

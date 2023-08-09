@@ -98,7 +98,7 @@ export class ElectronStateService
       options
     );
 
-    return new SymmetricCryptoKey(Utils.fromB64ToArray(b64DeviceKey).buffer) as DeviceKey;
+    return new SymmetricCryptoKey(Utils.fromB64ToArray(b64DeviceKey)) as DeviceKey;
   }
 
   override async setDeviceKey(value: DeviceKey, options?: StorageOptions): Promise<void> {

@@ -133,6 +133,7 @@ import { Utils } from "../platform/misc/utils";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
+import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
 import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
 import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
@@ -614,9 +615,16 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async putRestoreManyCiphers(
-    request: CipherBulkDeleteRequest
+    request: CipherBulkRestoreRequest
   ): Promise<ListResponse<CipherResponse>> {
     const r = await this.send("PUT", "/ciphers/restore", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
+  }
+
+  async putRestoreManyCiphersAdmin(
+    request: CipherBulkRestoreRequest
+  ): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/restore-admin", request, true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 

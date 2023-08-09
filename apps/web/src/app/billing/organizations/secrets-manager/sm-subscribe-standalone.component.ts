@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SecretsManagerSubscribeRequest } from "@bitwarden/common/billing/models/request/sm-subscribe.request";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
@@ -25,7 +27,8 @@ export class SecretsManagerSubscribeStandaloneComponent {
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private organizationApiService: OrganizationApiServiceAbstraction
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private organizationService: InternalOrganizationServiceAbstraction
   ) {}
 
   submit = async () => {
@@ -37,7 +40,15 @@ export class SecretsManagerSubscribeStandaloneComponent {
       ? this.formGroup.value.additionalServiceAccounts
       : 0;
 
-    await this.organizationApiService.subscribeToSecretsManager(this.organization.id, request);
+    const profileOrganization = await this.organizationApiService.subscribeToSecretsManager(
+      this.organization.id,
+      request
+    );
+    const organizationData = new OrganizationData(profileOrganization, {
+      isMember: this.organization.isMember,
+      isProviderUser: this.organization.isProviderUser,
+    });
+    await this.organizationService.upsert(organizationData);
 
     this.platformUtilsService.showToast("success", null, this.i18nService.t("subscriptionUpdated"));
 

@@ -302,13 +302,13 @@ export class AuthService implements AuthServiceAbstraction {
       (
         await this.cryptoService.getKey()
       ).encKey,
-      pubKey.buffer
+      pubKey
     );
     let encryptedMasterPassword = null;
     if ((await this.stateService.getKeyHash()) != null) {
       encryptedMasterPassword = await this.cryptoService.rsaEncrypt(
         Utils.fromUtf8ToArray(await this.stateService.getKeyHash()),
-        pubKey.buffer
+        pubKey
       );
     }
     const request = new PasswordlessAuthRequest(

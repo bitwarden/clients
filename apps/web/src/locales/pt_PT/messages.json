@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Cofre Web $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Que tipo de item é este?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Cofre Web"
   },
+  "bitWebVault": {
+    "message": "Cofre Web Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Gestor de Segredos Bitwarden"
+  },
   "loggedIn": {
     "message": "Sessão iniciada"
   },
@@ -3323,6 +3319,9 @@
   "limitSubscriptionDesc": {
     "message": "Defina um limite de lugares para a sua subscrição. Quando este limite for atingido, não será possível convidar novos membros."
   },
+  "limitSmSubscriptionDesc": {
+    "message": "Defina um limite de lugares para o seu Gestor de Segredos. Quando este limite for atingido, não será possível convidar novos membros."
+  },
   "maxSeatLimit": {
     "message": "Limite de lugares (opcional)",
     "description": "Upper limit of seats to allow through autoscaling"
@@ -3533,7 +3532,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Palavra-passe atualizada",
+    "message": "Palavra-passe atualizada a",
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Gerir utilizadores"
   },
-  "manageResetPassword": {
-    "message": "Gerir a redefinição da palavra-passe"
+  "manageAccountRecovery": {
+    "message": "Gerir a recuperação da conta"
   },
   "disableRequiredError": {
     "message": "Tem de ativar manualmente a política $POLICYNAME$ antes de esta política poder ser desativada.",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Erro"
   },
-  "resetPasswordManageUsers": {
-    "message": "A permissão para gerir utilizadores deve também ser concedida com a permissão para gerir a reposição da palavra-passe"
+  "accountRecoveryManageUsers": {
+    "message": "A permissão para gerir utilizadores deve também ser concedida com a permissão para gerir a recuperação da conta"
   },
   "setupProvider": {
     "message": "Configuração do fornecedor"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Ao prosseguir, terminará todas as sessões ativas. Terá de iniciar sessão novamente e concluir a configuração da verificação de dois passos. Recomendamos que exporte o seu cofre antes de alterar as definições de encriptação para evitar a perda de dados."
   },
-  "secretsManagerBeta": {
-    "message": "Gestor de Segredos Beta"
-  },
   "secretsManager": {
     "message": "Gestor de Segredos"
+  },
+  "secretsManagerBeta": {
+    "message": "Gestor de Segredos Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Ativar o acesso do utilizador ao Gestor de Segredos."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Atualizar as definições do KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Encriptação de dispositivo de confiança"
+  "trustedDevices": {
+    "message": "Dispositivos de confiança"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Uma vez autenticados, os membros desencriptam os dados do cofre utilizando uma chave armazenada no seu dispositivo. A",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Bandeira da região selecionada"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Sem Sends ativos",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Utilize o Send para partilhar de forma segura informações encriptadas com qualquer pessoa.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Convidar utilizadores"
+  },
+  "secretsManagerForPlan": {
+    "message": "Gestor de Segredos para $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Para as equipas de engenharia e DevOps gerirem os segredos ao longo do ciclo de vida do desenvolvimento de software."
+  },
+  "free2PersonOrganization": {
+    "message": "Organizações gratuitas de 2 pessoas"
+  },
+  "unlimitedSecrets": {
+    "message": "Segredos ilimitados"
+  },
+  "unlimitedProjects": {
+    "message": "Projetos ilimitados"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projetos incluídos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ contas de serviço incluídas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ por mês para contas de serviço adicionais",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Adicionar Gestor de Segredos"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Adicione o Gestor de Segredos ao seu plano atualizado para manter o acesso a quaisquer segredos criados com o seu plano anterior."
+  },
+  "additionalServiceAccounts": {
+    "message": "Contas de serviço adicionais"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "O seu plano é fornecido com $COUNT$ contas de serviço. Pode adicionar contas de serviço adicionais por $COST$ por mês.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Preço do plano do Gestor de Palavras-passe"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Preço do plano do Gestor de Segredos"
+  },
+  "passwordManager": {
+    "message": "Gestor de Palavras-passe"
+  },
+  "freeOrganization": {
+    "message": "Organização gratuita"
+  },
+  "limitServiceAccounts": {
+    "message": "Limitar contas de serviço (opcional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Defina um limite para as suas contas de serviço. Quando este limite for atingido, não será possível criar novas contas de serviço."
+  },
+  "serviceAccountLimit": {
+    "message": "Limite de contas de serviço (opcional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Custo máximo potencial da conta de serviço"
   }
 }

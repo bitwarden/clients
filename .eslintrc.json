@@ -135,6 +135,18 @@
       }
     },
     {
+      "files": ["libs/angular/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/angular/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["libs/auth/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/auth/*", "src/**/*"] }]
+      }
+    },
+    {
       "files": ["libs/common/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/common/*", "src/**/*"] }]
@@ -147,15 +159,9 @@
       }
     },
     {
-      "files": ["libs/angular/src/**/*.ts"],
+      "files": ["libs/exporter/src/**/*.ts"],
       "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/angular/*", "src/**/*"] }]
-      }
-    },
-    {
-      "files": ["libs/node/src/**/*.ts"],
-      "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/node/*", "src/**/*"] }]
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/exporter/*", "src/**/*"] }]
       }
     },
     {
@@ -165,9 +171,9 @@
       }
     },
     {
-      "files": ["libs/exporter/src/**/*.ts"],
+      "files": ["libs/node/src/**/*.ts"],
       "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/exporter/*", "src/**/*"] }]
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/node/*", "src/**/*"] }]
       }
     }
   ]

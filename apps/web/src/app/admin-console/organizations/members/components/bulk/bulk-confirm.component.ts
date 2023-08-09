@@ -47,7 +47,7 @@ export class BulkConfirmComponent implements OnInit {
 
     for (const entry of response.data) {
       const publicKey = Utils.fromB64ToArray(entry.key);
-      const fingerprint = await this.cryptoService.getFingerprint(entry.userId, publicKey.buffer);
+      const fingerprint = await this.cryptoService.getFingerprint(entry.userId, publicKey);
       if (fingerprint != null) {
         this.publicKeys.set(entry.id, publicKey);
         this.fingerprints.set(entry.id, fingerprint.join("-"));
@@ -67,7 +67,7 @@ export class BulkConfirmComponent implements OnInit {
         if (publicKey == null) {
           continue;
         }
-        const encryptedKey = await this.cryptoService.rsaEncrypt(key.key, publicKey.buffer);
+        const encryptedKey = await this.cryptoService.rsaEncrypt(key.key, publicKey);
         userIdsWithKeys.push({
           id: user.id,
           key: encryptedKey.encryptedString,

@@ -133,10 +133,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
 
             // RSA Encrypt user's encKey.key with organization public key
             const userEncKey = await this.cryptoService.getEncKey();
-            const encryptedKey = await this.cryptoService.rsaEncrypt(
-              userEncKey.key,
-              publicKey.buffer
-            );
+            const encryptedKey = await this.cryptoService.rsaEncrypt(userEncKey.key, publicKey);
 
             const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
             resetRequest.masterPasswordHash = masterPasswordHash;

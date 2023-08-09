@@ -4,7 +4,10 @@ import { combineLatest, Observable, startWith, switchMap } from "rxjs";
 
 import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 
-import { ServiceAccountView } from "../models/view/service-account.view";
+import {
+  ServiceAccountSecretsDetailsView,
+  ServiceAccountView,
+} from "../models/view/service-account.view";
 import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
 
 import {
@@ -23,7 +26,7 @@ import { ServiceAccountService } from "./service-account.service";
   templateUrl: "./service-accounts.component.html",
 })
 export class ServiceAccountsComponent implements OnInit {
-  protected serviceAccounts$: Observable<ServiceAccountView[]>;
+  protected serviceAccounts$: Observable<ServiceAccountSecretsDetailsView[]>;
   protected search: string;
 
   private organizationId: string;
@@ -78,7 +81,7 @@ export class ServiceAccountsComponent implements OnInit {
     );
   }
 
-  private async getServiceAccounts(): Promise<ServiceAccountView[]> {
-    return await this.serviceAccountService.getServiceAccounts(this.organizationId);
+  private async getServiceAccounts(): Promise<ServiceAccountSecretsDetailsView[]> {
+    return await this.serviceAccountService.getServiceAccounts(this.organizationId, true);
   }
 }

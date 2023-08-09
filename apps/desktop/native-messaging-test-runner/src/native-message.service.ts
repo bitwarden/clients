@@ -225,8 +225,8 @@ export default class NativeMessageService {
   }
 
   private async getSharedKeyForKey(key: string): Promise<SymmetricCryptoKey> {
-    const dataBuffer = Utils.fromB64ToArray(key).buffer;
-    const privKey = Utils.fromB64ToArray(config.testRsaPrivateKey).buffer;
+    const dataBuffer = Utils.fromB64ToArray(key);
+    const privKey = Utils.fromB64ToArray(config.testRsaPrivateKey);
 
     return new SymmetricCryptoKey(
       await this.nodeCryptoFunctionService.rsaDecrypt(dataBuffer, privKey, "sha1")

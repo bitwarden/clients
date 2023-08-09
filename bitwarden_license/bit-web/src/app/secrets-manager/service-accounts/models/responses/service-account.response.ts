@@ -16,3 +16,12 @@ export class ServiceAccountResponse extends BaseResponse {
     this.revisionDate = this.getResponseProperty("RevisionDate");
   }
 }
+
+export class ServiceAccountSecretsDetailsResponse extends ServiceAccountResponse {
+  accessToSecrets: number;
+
+  constructor(response: any) {
+    super(response);
+    this.accessToSecrets = this.getResponseProperty("AccessToSecrets");
+  }
+}

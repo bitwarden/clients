@@ -15,10 +15,7 @@ export class FingerprintPipe {
         publicKey = Utils.fromB64ToArray(publicKey);
       }
 
-      const fingerprint = await this.cryptoService.getFingerprint(
-        fingerprintMaterial,
-        publicKey.buffer
-      );
+      const fingerprint = await this.cryptoService.getFingerprint(fingerprintMaterial, publicKey);
 
       if (fingerprint != null) {
         return fingerprint.join("-");

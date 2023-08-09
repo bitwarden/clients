@@ -513,7 +513,7 @@ export class GetCommand extends DownloadCommand {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.cryptoService.getFingerprint(id, pubKey.buffer);
+        fingerprint = await this.cryptoService.getFingerprint(id, pubKey);
       } catch {
         // eslint-disable-next-line
       }

@@ -20,7 +20,7 @@ describe("encArrayBuffer", () => {
       array.set(mac, 1 + iv.byteLength);
       array.set(data, 1 + iv.byteLength + mac.byteLength);
 
-      const actual = new EncArrayBuffer(array.buffer);
+      const actual = new EncArrayBuffer(array);
 
       expect(actual.encryptionType).toEqual(encType);
       expect(actual.ivBytes).toEqualBuffer(iv);
@@ -39,11 +39,11 @@ describe("encArrayBuffer", () => {
       array.set(iv, 1);
       array.set(data, 1 + iv.byteLength);
 
-      const actual = new EncArrayBuffer(array.buffer);
+      const actual = new EncArrayBuffer(array);
 
       expect(actual.encryptionType).toEqual(encType);
-      expect(actual.ivBytes).toEqualBuffer(iv);
-      expect(actual.dataBytes).toEqualBuffer(data);
+      expect(actual.ivBytes).toEqual(iv);
+      expect(actual.dataBytes).toEqual(data);
       expect(actual.macBytes).toBeNull();
     });
   });
@@ -58,13 +58,11 @@ describe("encArrayBuffer", () => {
       // Minus 1 to leave room for the encType, minus 1 to make it invalid
       const invalidBytes = makeStaticByteArray(minLength - 2);
 
-      const invalidArray = new Uint8Array(1 + invalidBytes.buffer.byteLength);
+      const invalidArray = new Uint8Array(1 + invalidBytes.byteLength);
       invalidArray.set([encType]);
       invalidArray.set(invalidBytes, 1);
 
-      expect(() => new EncArrayBuffer(invalidArray.buffer)).toThrow(
-        "Error parsing encrypted ArrayBuffer"
-      );
+      expect(() => new EncArrayBuffer(invalidArray)).toThrow("Error parsing encrypted ArrayBuffer");
     });
   });
 

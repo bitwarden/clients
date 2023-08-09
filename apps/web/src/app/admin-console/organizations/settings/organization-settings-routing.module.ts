@@ -70,6 +70,9 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManageScim) {
     return "scim";
   }
+  if (organization.canManageDeviceApprovals) {
+    return "device-approvals";
+  }
   return undefined;
 }
 

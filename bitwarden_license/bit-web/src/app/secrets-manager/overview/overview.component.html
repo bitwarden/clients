@@ -63,6 +63,7 @@
         (editSecretEvent)="openEditSecret($event)"
         (copySecretNameEvent)="copySecretName($event)"
         (copySecretValueEvent)="copySecretValue($event)"
+        (copySecretUuidEvent)="copySecretUuid($event)"
         [secrets]="view.latestSecrets"
       ></sm-secrets-list>
       <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">

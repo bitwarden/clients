@@ -160,7 +160,7 @@ describe("WebCrypto Function Service", () => {
       const a = new Uint8Array(2);
       a[0] = 1;
       a[1] = 2;
-      const equal = await cryptoFunctionService.compare(a.buffer, a.buffer);
+      const equal = await cryptoFunctionService.compare(a, a);
       expect(equal).toBe(true);
     });
 
@@ -172,7 +172,7 @@ describe("WebCrypto Function Service", () => {
       const b = new Uint8Array(2);
       b[0] = 3;
       b[1] = 4;
-      const equal = await cryptoFunctionService.compare(a.buffer, b.buffer);
+      const equal = await cryptoFunctionService.compare(a, b);
       expect(equal).toBe(false);
     });
 
@@ -183,7 +183,7 @@ describe("WebCrypto Function Service", () => {
       a[1] = 2;
       const b = new Uint8Array(2);
       b[0] = 3;
-      const equal = await cryptoFunctionService.compare(a.buffer, b.buffer);
+      const equal = await cryptoFunctionService.compare(a, b);
       expect(equal).toBe(false);
     });
   });
@@ -200,7 +200,7 @@ describe("WebCrypto Function Service", () => {
       const a = new Uint8Array(2);
       a[0] = 1;
       a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a.buffer);
+      const aByteString = Utils.fromBufferToByteString(a);
       const equal = await cryptoFunctionService.compareFast(aByteString, aByteString);
       expect(equal).toBe(true);
     });
@@ -210,11 +210,11 @@ describe("WebCrypto Function Service", () => {
       const a = new Uint8Array(2);
       a[0] = 1;
       a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a.buffer);
+      const aByteString = Utils.fromBufferToByteString(a);
       const b = new Uint8Array(2);
       b[0] = 3;
       b[1] = 4;
-      const bByteString = Utils.fromBufferToByteString(b.buffer);
+      const bByteString = Utils.fromBufferToByteString(b);
       const equal = await cryptoFunctionService.compareFast(aByteString, bByteString);
       expect(equal).toBe(false);
     });
@@ -224,10 +224,10 @@ describe("WebCrypto Function Service", () => {
       const a = new Uint8Array(2);
       a[0] = 1;
       a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a.buffer);
+      const aByteString = Utils.fromBufferToByteString(a);
       const b = new Uint8Array(2);
       b[0] = 3;
-      const bByteString = Utils.fromBufferToByteString(b.buffer);
+      const bByteString = Utils.fromBufferToByteString(b);
       const equal = await cryptoFunctionService.compareFast(aByteString, bByteString);
       expect(equal).toBe(false);
     });
@@ -239,7 +239,7 @@ describe("WebCrypto Function Service", () => {
       const iv = makeStaticByteArray(16);
       const key = makeStaticByteArray(32);
       const data = Utils.fromUtf8ToArray("EncryptMe!");
-      const encValue = await cryptoFunctionService.aesEncrypt(data.buffer, iv.buffer, key.buffer);
+      const encValue = await cryptoFunctionService.aesEncrypt(data, iv, key);
       expect(Utils.fromBufferToB64(encValue)).toBe("ByUF8vhyX4ddU9gcooznwA==");
     });
 
@@ -249,10 +249,10 @@ describe("WebCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
-      const encValue = await cryptoFunctionService.aesEncrypt(data.buffer, iv.buffer, key.buffer);
+      const encValue = await cryptoFunctionService.aesEncrypt(data, iv, key);
       const encData = Utils.fromBufferToB64(encValue);
-      const b64Iv = Utils.fromBufferToB64(iv.buffer);
-      const symKey = new SymmetricCryptoKey(key.buffer);
+      const b64Iv = Utils.fromBufferToB64(iv);
+      const symKey = new SymmetricCryptoKey(key);
       const params = cryptoFunctionService.aesDecryptFastParameters(encData, b64Iv, null, symKey);
       const decValue = await cryptoFunctionService.aesDecryptFast(params);
       expect(decValue).toBe(value);
@@ -264,8 +264,8 @@ describe("WebCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
-      const encValue = await cryptoFunctionService.aesEncrypt(data.buffer, iv.buffer, key.buffer);
-      const decValue = await cryptoFunctionService.aesDecrypt(encValue, iv.buffer, key.buffer);
+      const encValue = new Uint8Array(await cryptoFunctionService.aesEncrypt(data, iv, key));
+      const decValue = await cryptoFunctionService.aesDecrypt(encValue, iv, key);
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -273,8 +273,8 @@ describe("WebCrypto Function Service", () => {
   describe("aesDecryptFast", () => {
     it("should successfully decrypt data", async () => {
       const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = Utils.fromBufferToB64(makeStaticByteArray(16).buffer);
-      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32).buffer);
+      const iv = Utils.fromBufferToB64(makeStaticByteArray(16));
+      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
       const data = "ByUF8vhyX4ddU9gcooznwA==";
       const params = cryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
       const decValue = await cryptoFunctionService.aesDecryptFast(params);
@@ -288,7 +288,7 @@ describe("WebCrypto Function Service", () => {
       const iv = makeStaticByteArray(16);
       const key = makeStaticByteArray(32);
       const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
-      const decValue = await cryptoFunctionService.aesDecrypt(data.buffer, iv.buffer, key.buffer);
+      const decValue = await cryptoFunctionService.aesDecrypt(data, iv, key);
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
@@ -300,8 +300,8 @@ describe("WebCrypto Function Service", () => {
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
-      const encValue = await cryptoFunctionService.rsaEncrypt(data.buffer, pubKey.buffer, "sha1");
-      const decValue = await cryptoFunctionService.rsaDecrypt(encValue, privKey.buffer, "sha1");
+      const encValue = new Uint8Array(await cryptoFunctionService.rsaEncrypt(data, pubKey, "sha1"));
+      const decValue = await cryptoFunctionService.rsaDecrypt(encValue, privKey, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -316,7 +316,7 @@ describe("WebCrypto Function Service", () => {
           "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
           "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw=="
       );
-      const decValue = await cryptoFunctionService.rsaDecrypt(data.buffer, privKey.buffer, "sha1");
+      const decValue = await cryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
@@ -325,7 +325,7 @@ describe("WebCrypto Function Service", () => {
     it("should successfully extract key", async () => {
       const cryptoFunctionService = getWebCryptoFunctionService();
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
-      const publicKey = await cryptoFunctionService.rsaExtractPublicKey(privKey.buffer);
+      const publicKey = await cryptoFunctionService.rsaExtractPublicKey(privKey);
       expect(Utils.fromBufferToB64(publicKey)).toBe(RsaPublicKey);
     });
   });
@@ -390,8 +390,8 @@ function testPbkdf2(
   it("should create valid " + algorithm + " key from array buffer input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const key = await cryptoFunctionService.pbkdf2(
-      Utils.fromUtf8ToArray(regularPassword).buffer,
-      Utils.fromUtf8ToArray(regularEmail).buffer,
+      Utils.fromUtf8ToArray(regularPassword),
+      Utils.fromUtf8ToArray(regularEmail),
       algorithm,
       5000
     );
@@ -437,8 +437,8 @@ function testHkdf(
     const cryptoFunctionService = getWebCryptoFunctionService();
     const key = await cryptoFunctionService.hkdf(
       ikm,
-      Utils.fromUtf8ToArray(regularSalt).buffer,
-      Utils.fromUtf8ToArray(regularInfo).buffer,
+      Utils.fromUtf8ToArray(regularSalt),
+      Utils.fromUtf8ToArray(regularInfo),
       32,
       algorithm
     );
@@ -496,10 +496,7 @@ function testHash(
 
   it("should create valid " + algorithm + " hash from array buffer input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
-    const hash = await cryptoFunctionService.hash(
-      Utils.fromUtf8ToArray(regularValue).buffer,
-      algorithm
-    );
+    const hash = await cryptoFunctionService.hash(Utils.fromUtf8ToArray(regularValue), algorithm);
     expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
   });
 }
@@ -508,8 +505,8 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
   it("should create valid " + algorithm + " hmac", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const computedMac = await cryptoFunctionService.hmac(
-      Utils.fromUtf8ToArray("SignMe!!").buffer,
-      Utils.fromUtf8ToArray("secretkey").buffer,
+      Utils.fromUtf8ToArray("SignMe!!"),
+      Utils.fromUtf8ToArray("secretkey"),
       algorithm
     );
     expect(Utils.fromBufferToHex(computedMac)).toBe(mac);
@@ -519,14 +516,14 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
 function testHmacFast(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
   it("should create valid " + algorithm + " hmac", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
-    const keyByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("secretkey").buffer);
-    const dataByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("SignMe!!").buffer);
+    const keyByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("secretkey"));
+    const dataByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("SignMe!!"));
     const computedMac = await cryptoFunctionService.hmacFast(
       dataByteString,
       keyByteString,
       algorithm
     );
-    expect(Utils.fromBufferToHex(Utils.fromByteStringToArray(computedMac).buffer)).toBe(mac);
+    expect(Utils.fromBufferToHex(Utils.fromByteStringToArray(computedMac))).toBe(mac);
   });
 }
 
@@ -535,7 +532,9 @@ function testRsaGenerateKeyPair(length: 1024 | 2048 | 4096) {
     "should successfully generate a " + length + " bit key pair",
     async () => {
       const cryptoFunctionService = getWebCryptoFunctionService();
-      const keyPair = await cryptoFunctionService.rsaGenerateKeyPair(length);
+      const keyPair = (await cryptoFunctionService.rsaGenerateKeyPair(length)).map(
+        (k) => new Uint8Array(k)
+      );
       expect(keyPair[0] == null || keyPair[1] == null).toBe(false);
       const publicKey = await cryptoFunctionService.rsaExtractPublicKey(keyPair[1]);
       expect(Utils.fromBufferToB64(keyPair[0])).toBe(Utils.fromBufferToB64(publicKey));

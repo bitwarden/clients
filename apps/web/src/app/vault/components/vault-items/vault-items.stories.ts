@@ -277,7 +277,7 @@ function createCipherView(i: number, deleted = false): CipherView {
     view.attachments = [attachment];
   } else if (i % 5 === 0) {
     const attachment = new AttachmentView();
-    attachment.key = new SymmetricCryptoKey(new ArrayBuffer(32));
+    attachment.key = new SymmetricCryptoKey(new Uint8Array(32));
     view.attachments = [attachment];
   }
 

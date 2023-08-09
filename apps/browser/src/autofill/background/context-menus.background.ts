@@ -30,6 +30,7 @@ export default class ContextMenusBackground {
             msg.data.commandToRetry.msg.data,
             msg.data.commandToRetry.sender.tab
           );
+          await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
         }
       }
     );

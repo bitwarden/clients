@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "$APP_NAME$ Web-Tresor",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
   },
@@ -906,7 +896,7 @@
     "message": "Bearbeite die Sammlungen, mit denen dieser Eintrag geteilt wird. Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen werden diesen Eintrag sehen können."
   },
   "deleteSelectedItemsDesc": {
-    "message": "$COUNT$ Einträge werden in den Papierkorb verschoben.",
+    "message": "$COUNT$ Eintrag/Einträge werden in den Papierkorb verschoben.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -936,7 +926,7 @@
     }
   },
   "moveSelectedItemsCountDesc": {
-    "message": "Du hast $COUNT$ Element(e) ausgewählt. $MOVEABLE_COUNT$ Element(e) können in eine Organisation verschoben werden, $NONMOVEABLE_COUNT$ nicht.",
+    "message": "Du hast $COUNT$ Eintrag/Einträge ausgewählt. $MOVEABLE_COUNT$ Eintrag/Einträge kann/können in eine Organisation verschoben werden, $NONMOVEABLE_COUNT$ nicht.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Web-Tresor"
   },
+  "bitWebVault": {
+    "message": "Bitwarden Web-Tresor"
+  },
+  "bitSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
   "loggedIn": {
     "message": "Angemeldet"
   },
@@ -3323,6 +3319,9 @@
   "limitSubscriptionDesc": {
     "message": "Lege ein Benutzerplatzlimit für dein Abonnement fest. Sobald dieses Limit erreicht ist, kannst du keine neuen Benutzer mehr einladen."
   },
+  "limitSmSubscriptionDesc": {
+    "message": "Lege ein Benutzerplätze-Limit für dein Secrets Manager Abonnement fest. Sobald dieses Limit erreicht ist, kannst du keine neuen Mitglieder mehr einladen."
+  },
   "maxSeatLimit": {
     "message": "Benutzerplatzlimit (optional)",
     "description": "Upper limit of seats to allow through autoscaling"
@@ -3786,7 +3785,7 @@
     "message": "Einträge dauerhaft gelöscht"
   },
   "permanentlyDeleteSelectedItemsDesc": {
-    "message": "Sie haben $COUNT$ Eintrag/Einträge zum unwiderruflichen Löschen ausgewählt. Sind Sie sicher, dass Sie diese(n) Eintrag/Einträge dauerhaft löschen möchten?",
+    "message": "Du hast $COUNT$ Eintrag/Einträge zum dauerhaften Löschen ausgewählt. Bist du sicher, dass du diese(n) Eintrag/Einträge dauerhaft löschen möchtest?",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3825,7 +3824,7 @@
     "message": "Einträge wiederherstellen"
   },
   "restoreSelectedItemsDesc": {
-    "message": "Sie haben $COUNT$ Eintrag/Einträge zum Wiederherstellen ausgewählt. Sind Sie sicher, dass Sie diese(n) Eintrag/Einträge dauerhaft löschen möchten?",
+    "message": "Du hast $COUNT$ Eintrag/Einträge zum Wiederherstellen ausgewählt. Bist du sicher, dass du diese(n) Eintrag/Einträge dauerhaft löschen möchtest?",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Benutzer verwalten"
   },
-  "manageResetPassword": {
-    "message": "Passwortzurücksetzung verwalten"
+  "manageAccountRecovery": {
+    "message": "Kontowiederherstellung verwalten"
   },
   "disableRequiredError": {
     "message": "Du musst die $POLICYNAME$-Richtlinie manuell deaktivieren, bevor diese Richtlinie deaktiviert werden kann.",
@@ -4595,13 +4594,13 @@
     "message": "Kontowiederherstellungsverwaltung"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "Basierend auf der Verschlüsselungsmethode kannst du Konten wiederherstellen, wenn Master-Passwörter oder vertrauenswürdige Geräte vergessen oder verloren gehen."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "Bestehende Konten mit Master-Passwörtern müssen sich selbst anmelden, bevor Administratoren ihre Konten wiederherstellen können. Die automatische Anmeldung wird die Kontowiederherstellung für neue Mitglieder aktivieren."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "Die Unternehmensrichtlinie für eine einzelne Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische Registrierung"
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Fehler"
   },
-  "resetPasswordManageUsers": {
-    "message": "\"Benutzer verwalten\" muss ebenfalls mit der \"Passwort zurücksetzen\"-Berechtigung aktiviert werden"
+  "accountRecoveryManageUsers": {
+    "message": "Manage users must also be granted with the manage account recovery permission"
   },
   "setupProvider": {
     "message": "Anbieter-Einrichtung"
@@ -5222,7 +5221,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "\"Single Sign-on-Authentifizierung erfordern\"-Richtlinie",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "Wenn du fortfährst, wirst du von allen aktiven Sitzungen abgemeldet. Du musst dich erneut anmelden und die Zwei-Faktor-Authentifizierung durchführen. Wir empfehlen, deinen Tresor zu exportieren, bevor du deine Verschlüsselungseinstellungen änderst, um Datenverluste zu vermeiden."
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Secrets Manager Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Benutzerzugriff zum Secrets Manager aktivieren"
@@ -6680,11 +6679,11 @@
     "message": "Dienstkonto erstellen"
   },
   "downloadThe": {
-    "message": "Download von",
+    "message": "Lade die",
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
-    "message": "Secrets Manager CLI"
+    "message": "Secrets Manager CLI herunter"
   },
   "importSecrets": {
     "message": "Geheimnisse importieren"
@@ -6825,27 +6824,27 @@
   "updateKdfSettings": {
     "message": "KDF-Einstellungen aktualisieren"
   },
-  "trustedDeviceEncryption": {
-    "message": "Vertrauenswürdige Geräteverschlüsselung"
+  "trustedDevices": {
+    "message": "Vertrauenswürdige Geräte"
   },
   "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
+    "message": "Einmal authentifiziert, entschlüsseln Mitglieder Tresordaten mit einem Schlüssel auf ihrem Gerät. Die",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
+    "message": "Unternehmensrichtlinie für eine einzelne Organisation",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
+    "message": "und die",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
+    "message": "Richtlinie für die Kontowiederherstellungsverwaltung",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
+    "message": "mit automatischer Registrierung wird aktiviert, wenn diese Option verwendet wird.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Flagge der ausgewählten Region"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Keine aktiven Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Verwende Send, um verschlüsselte Informationen sicher mit anderen zu teilen.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Benutzer einladen"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager für $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Für Entwicklungs- und DevOps-Teams zur Verwaltung von Geheimnissen während des gesamten Softwareentwicklungszyklus."
+  },
+  "free2PersonOrganization": {
+    "message": "Free 2-person Organizations"
+  },
+  "unlimitedSecrets": {
+    "message": "Unbegrenzte Geheimnisse"
+  },
+  "unlimitedProjects": {
+    "message": "Unbegrenzte Projekte"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ Projekte enthalten",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ Dienstkonten enthalten",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ pro Monat für zusätzliche Dienstkonten",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Secrets Manager hinzufügen"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Füge den Secrets Manager zu deinem aktualisierten Abonnement hinzu, um den Zugriff auf alle Geheimnisse zu erhalten, die mit deinem vorherigen Abonnement erstellt wurden."
+  },
+  "additionalServiceAccounts": {
+    "message": "Zusätzliche Dienstkonten"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Dein Abonnement enthält $COUNT$ Dienstkonten. Du kannst zusätzliche Dienstkonten für $COST$ pro Monat hinzufügen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Passwort-Manager Abonnementpreis"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Secrets Manager Abonnementpreis"
+  },
+  "passwordManager": {
+    "message": "Passwort-Manager"
+  },
+  "freeOrganization": {
+    "message": "Free Organization"
+  },
+  "limitServiceAccounts": {
+    "message": "Dienstkonten beschränken (optional)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Lege ein Limit für deine Dienstkonten fest. Sobald dieses Limit erreicht ist, kannst du keine neuen Dienstkonten mehr erstellen."
+  },
+  "serviceAccountLimit": {
+    "message": "Dienstkontenlimit (optional)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Maximale potentielle Kosten für Dienstkonten"
   }
 }

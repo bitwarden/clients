@@ -1,5 +1,5 @@
 {
   "extends": "../shared/tsconfig.libs",
-  "include": ["src", "spec"],
+  "include": ["src", "spec", "./custom-matchers.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

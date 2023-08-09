@@ -302,7 +302,7 @@ export class PeopleComponent
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
     const orgKey = await this.cryptoService.getOrgKey(this.organization.id);
-    const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey.buffer);
+    const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey);
     const request = new OrganizationUserConfirmRequest();
     request.key = key.encryptedString;
     await this.organizationUserService.postOrganizationUserConfirm(

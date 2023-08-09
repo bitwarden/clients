@@ -1,20 +1,69 @@
-<div class="page-header">
-  <h1>{{ "importData" | i18n }}</h1>
-</div>
-<app-callout type="info" *ngIf="importBlockedByPolicy">
+<h1 bitTypography="h1">{{ "importData" | i18n }}</h1>
+
+<bit-callout type="info" *ngIf="importBlockedByPolicy">
   {{ "personalOwnershipPolicyInEffectImports" | i18n }}
-</app-callout>
-<form #form (ngSubmit)="submit()" ngNativeValidate>
+</bit-callout>
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-form-field>
+    <bit-label
+      >{{ "importDestination" | i18n }}
+      <a
+        target="_blank"
+        rel="noopener"
+        appA11yTitle="{{ 'learnAboutImportOptions' | i18n }}"
+        href="https://bitwarden.com/help/import-data/"
+      >
+        <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+      </a>
+    </bit-label>
+    <bit-select formControlName="vaultSelector">
+      <bit-option
+        *ngIf="!importBlockedByPolicy"
+        [label]="'myVault' | i18n"
+        value="myVault"
+        icon="bwi-user"
+      />
+      <bit-option
+        *ngFor="let o of organizations$ | async"
+        [value]="o.id"
+        [label]="o.name"
+        icon="bwi-business"
+      />
+    </bit-select>
+  </bit-form-field>
+
+  <bit-form-field>
+    <bit-label>{{ organizationId ? ("collection" | i18n) : ("folder" | i18n) }}</bit-label>
+    <bit-select formControlName="targetSelector">
+      <ng-container *ngIf="!organizationId">
+        <bit-option [value]="null" label="-- {{ 'selectImportFolder' | i18n }} --" />
+        <bit-option
+          *ngFor="let f of folders$ | async"
+          [value]="f.id"
+          [label]="f.name"
+          icon="bwi-folder"
+        />
+      </ng-container>
+      <ng-container *ngIf="organizationId">
+        <bit-option [value]="null" label="-- {{ 'selectImportCollection' | i18n }} --" />
+        <bit-option
+          *ngFor="let c of collections$ | async"
+          [value]="c.id"
+          [label]="c.name"
+          icon="bwi-collection"
+        />
+      </ng-container>
+    </bit-select>
+    <bit-hint>{{
+      "importTargetHint"
+        | i18n
+          : (organizationId ? ("collection" | i18n | lowercase) : ("folder" | i18n | lowercase))
+    }}</bit-hint>
+  </bit-form-field>
+
   <bit-form-field class="tw-w-1/2">
-    <bit-label for="type">1. {{ "selectFormat" | i18n }}</bit-label>
-    <bit-select
-      id="type"
-      name="Format"
-      bitInput
-      [(ngModel)]="format"
-      [disabled]="importBlockedByPolicy"
-      required
-    >
+    <bit-label>{{ "fileFormat" | i18n }}</bit-label>
+    <bit-select formControlName="format">
       <bit-option *ngFor="let o of featuredImportOptions" [value]="o.id" [label]="o.name" />
       <ng-container *ngIf="importOptions && importOptions.length">
         <bit-option value="-" disabled />
@@ -22,7 +71,7 @@
       </ng-container>
     </bit-select>
   </bit-form-field>
-  <app-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
+  <bit-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
     <ng-container *ngIf="format === 'bitwardencsv' || format === 'bitwardenjson'">
       See detailed instructions on our help site at
       <a target="_blank" rel="noopener" href="https://bitwarden.com/help/export-your-data/">
@@ -292,53 +341,48 @@
       Log in to "https://vault.passky.org" &rarr; "Import & Export" &rarr; "Export" in the Passky
       section. ("Backup" is unsupported as it is encrypted).
     </ng-container>
-  </app-callout>
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <label for="file">2. {{ "selectImportFile" | i18n }}</label>
-        <br />
-        <div class="file-selector">
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="fileSelector.click()"
-            [disabled]="importBlockedByPolicy"
-          >
-            {{ "chooseFile" | i18n }}
-          </button>
-          {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
-        </div>
-        <input
-          #fileSelector
-          type="file"
-          id="file"
-          class="form-control-file"
-          name="file"
-          (change)="setSelectedFile($event)"
-          hidden
-          [disabled]="importBlockedByPolicy"
-        />
-      </div>
+  </bit-callout>
+  <bit-form-field>
+    <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
+    <div class="file-selector">
+      <button
+        bitButton
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="fileSelector.click()"
+      >
+        {{ "chooseFile" | i18n }}
+      </button>
+      {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
     </div>
-  </div>
-  <div class="form-group">
-    <label for="fileContents">{{ "orCopyPasteFileContents" | i18n }}</label>
+    <input
+      bitInput
+      #fileSelector
+      type="file"
+      id="file"
+      class="form-control-file"
+      name="file"
+      formControlName="file"
+      (change)="setSelectedFile($event)"
+      hidden
+    />
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "orCopyPasteFileContents" | i18n }}</bit-label>
     <textarea
       id="fileContents"
-      class="form-control"
+      bitInput
       name="FileContents"
-      [(ngModel)]="fileContents"
-      [disabled]="importBlockedByPolicy"
+      formControlName="fileContents"
     ></textarea>
-  </div>
+  </bit-form-field>
   <button
+    bitButton
+    bitFormButton
     type="submit"
-    class="btn btn-primary btn-submit"
-    [disabled]="loading || importBlockedByPolicy"
-    [ngClass]="{ manual: importBlockedByPolicy }"
+    buttonType="primary"
+    [disabled]="importBlockedByPolicy"
   >
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "importData" | i18n }}</span>
+    {{ "importData" | i18n }}
   </button>
 </form>

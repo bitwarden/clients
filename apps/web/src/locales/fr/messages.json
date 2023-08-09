@@ -1,14 +1,4 @@
 {
-  "pageTitle": {
-    "message": "Coffre web $APP_NAME$",
-    "description": "The title of the website in the browser window.",
-    "placeholders": {
-      "app_name": {
-        "content": "$1",
-        "example": "Bitwarden"
-      }
-    }
-  },
   "whatTypeOfItem": {
     "message": "Quel type d'élément est-ce ?"
   },
@@ -2645,6 +2635,12 @@
   "webVault": {
     "message": "Coffre web"
   },
+  "bitWebVault": {
+    "message": "Coffre web de Bitwarden"
+  },
+  "bitSecretsManager": {
+    "message": "Secrets Manager de Bitwarden"
+  },
   "loggedIn": {
     "message": "Connecté."
   },
@@ -3322,6 +3318,9 @@
   },
   "limitSubscriptionDesc": {
     "message": "Définissez une limite de licences pour votre abonnement. Une fois cette limite atteinte, vous ne pourrez plus inviter de nouveaux membres."
+  },
+  "limitSmSubscriptionDesc": {
+    "message": "Définissez une limite de places pour votre abonnement au Secrets Manager. Une fois cette limite atteinte, vous ne pourrez plus inviter de nouveaux membres."
   },
   "maxSeatLimit": {
     "message": "Nombre de licences maximum (optionnel)",
@@ -4375,8 +4374,8 @@
   "manageUsers": {
     "message": "Gérer les utilisateurs"
   },
-  "manageResetPassword": {
-    "message": "Gérer la réinitialisation du mot de passe"
+  "manageAccountRecovery": {
+    "message": "Gérer la récupération de compte"
   },
   "disableRequiredError": {
     "message": "Afin de désactiver cette politique, vous devez préalablement manuellement désactiver la politique \"$POLICYNAME$\".",
@@ -4705,8 +4704,8 @@
   "error": {
     "message": "Erreur"
   },
-  "resetPasswordManageUsers": {
-    "message": "La permission \"Gérer la réinitialisation du mot de passe\" requiert l'activation de la permission \"Gérer les utilisateurs\""
+  "accountRecoveryManageUsers": {
+    "message": "Gérer les utilisateurs exige également d'avoir l'autorisation de gérer la restauration de compte"
   },
   "setupProvider": {
     "message": "Configuration du fournisseur"
@@ -6617,11 +6616,11 @@
   "changeKdfLoggedOutWarning": {
     "message": "En poursuivant, vous serez déconnecté de toutes les sessions actives. Vous devrez vous reconnecter et terminer le paramétrage de l'authentification à deux facteurs. Nous vous recommandons d'exporter votre coffre avant de modifier vos paramètres de chiffrement afin d'éviter toute perte de données."
   },
-  "secretsManagerBeta": {
-    "message": "Bêta du Secrets Manager"
-  },
   "secretsManager": {
     "message": "Secrets Manager"
+  },
+  "secretsManagerBeta": {
+    "message": "Bêta du Secrets Manager"
   },
   "secretsManagerAccessDescription": {
     "message": "Activer l'accès utilisateur au Secrets Manager."
@@ -6825,8 +6824,8 @@
   "updateKdfSettings": {
     "message": "Mettre à jour les paramètres KDF"
   },
-  "trustedDeviceEncryption": {
-    "message": "Chiffrement de l'appareil de confiance"
+  "trustedDevices": {
+    "message": "Appareils de confiance"
   },
   "memberDecryptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6955,5 +6954,110 @@
   },
   "selectedRegionFlag": {
     "message": "Drapeau de la région sélectionnée"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Aucun Send actif",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Utiliser Send pour partager des informations chiffrées de façon sécuritaire.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inviteUsers": {
+    "message": "Inviter des utilisateurs"
+  },
+  "secretsManagerForPlan": {
+    "message": "Secrets Manager pour $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "secretsManagerForPlanDesc": {
+    "message": "Pour gérer les secrets tout au long du cycle de vie du développement par les équipes d'ingénérie et DevOps."
+  },
+  "free2PersonOrganization": {
+    "message": "Organisations à 2 personnes gratuites"
+  },
+  "unlimitedSecrets": {
+    "message": "Secrets illimités"
+  },
+  "unlimitedProjects": {
+    "message": "Projets illimités"
+  },
+  "projectsIncluded": {
+    "message": "$COUNT$ projets inclus",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "serviceAccountsIncluded": {
+    "message": "$COUNT$ comptes de service inclus",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalServiceAccountCost": {
+    "message": "$COST$ par mois pour des comptes de service supplémentaires",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "addSecretsManager": {
+    "message": "Ajouter Secrets Manager"
+  },
+  "addSecretsManagerUpgradeDesc": {
+    "message": "Ajoutez Secrets Manager à votre plan mis à niveau pour conserver l'accès à tous les secrets créés avec votre plan précédent."
+  },
+  "additionalServiceAccounts": {
+    "message": "Comptes de service supplémentaires"
+  },
+  "additionalServiceAccountsDesc": {
+    "message": "Votre plan inclut $COUNT$ comptes de service. Vous pouvez ajouter des comptes de service supplémentaires pour $COST$ par mois.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      },
+      "cost": {
+        "content": "$2",
+        "example": "$0.50"
+      }
+    }
+  },
+  "passwordManagerPlanPrice": {
+    "message": "Prix du plan du Gestionnaire de Mots de Passe"
+  },
+  "secretsManagerPlanPrice": {
+    "message": "Prix du plan du Secrets Manager"
+  },
+  "passwordManager": {
+    "message": "Gestionnaire de Mots de Passe"
+  },
+  "freeOrganization": {
+    "message": "Organisation gratuite"
+  },
+  "limitServiceAccounts": {
+    "message": "Limiter les comptes de service (facultatif)"
+  },
+  "limitServiceAccountsDesc": {
+    "message": "Définissez une limite pour vos comptes de service. Une fois cette limite atteinte, vous ne pourrez plus créer de nouveauz comptes de service."
+  },
+  "serviceAccountLimit": {
+    "message": "Limite de compte de service (facultatif)"
+  },
+  "maxServiceAccountCost": {
+    "message": "Coût potentiel maximum du compte de service"
   }
 }

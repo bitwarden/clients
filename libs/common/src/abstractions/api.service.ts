@@ -243,6 +243,9 @@ export abstract class ApiService {
   putRestoreManyCiphers: (
     request: CipherBulkRestoreRequest
   ) => Promise<ListResponse<CipherResponse>>;
+  putRestoreManyCiphersAdmin: (
+    request: CipherBulkRestoreRequest
+  ) => Promise<ListResponse<CipherResponse>>;
 
   /**
    * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.

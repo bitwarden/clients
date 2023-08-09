@@ -33,7 +33,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
       const publicKeyResponse = await this.apiService.getUserPublicKey(this.userId);
       if (publicKeyResponse != null) {
         const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-        const fingerprint = await this.cryptoService.getFingerprint(this.userId, publicKey.buffer);
+        const fingerprint = await this.cryptoService.getFingerprint(this.userId, publicKey);
         if (fingerprint != null) {
           this.fingerprint = fingerprint.join("-");
         }

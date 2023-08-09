@@ -26,6 +26,7 @@ import { OrganizationApiKeyInformationResponse } from "../../models/response/org
 import { OrganizationAutoEnrollStatusResponse } from "../../models/response/organization-auto-enroll-status.response";
 import { OrganizationKeysResponse } from "../../models/response/organization-keys.response";
 import { OrganizationResponse } from "../../models/response/organization.response";
+import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
 export class OrganizationApiServiceAbstraction {
   get: (id: string) => Promise<OrganizationResponse>;
@@ -68,5 +69,8 @@ export class OrganizationApiServiceAbstraction {
   getSso: (id: string) => Promise<OrganizationSsoResponse>;
   updateSso: (id: string, request: OrganizationSsoRequest) => Promise<OrganizationSsoResponse>;
   selfHostedSyncLicense: (id: string) => Promise<void>;
-  subscribeToSecretsManager: (id: string, request: SecretsManagerSubscribeRequest) => Promise<void>;
+  subscribeToSecretsManager: (
+    id: string,
+    request: SecretsManagerSubscribeRequest
+  ) => Promise<ProfileOrganizationResponse>;
 }

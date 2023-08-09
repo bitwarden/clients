@@ -5,12 +5,13 @@
     "module": "ES2020",
     "resolveJsonModule": true,
     "paths": {
-      "@bitwarden/web-vault/*": ["src/*"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
+      "@bitwarden/auth": ["../../libs/auth/src"],
+      "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/components": ["../../libs/components/src"],
+      "@bitwarden/exporter/*": ["../../libs/exporter/src/*"],
       "@bitwarden/importer": ["../../libs/importer/src"],
-      "@bitwarden/exporter/*": ["../../libs/exporter/src/*"]
+      "@bitwarden/web-vault/*": ["src/*"]
     }
   },
   "angularCompilerOptions": {

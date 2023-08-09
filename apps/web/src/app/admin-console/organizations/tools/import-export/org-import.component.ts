@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap, takeUntil } from "rxjs/operators";
 
@@ -13,6 +14,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction } from "@bitwarden/importer";
 
@@ -37,11 +40,14 @@ export class OrganizationImportComponent extends ImportComponent {
     private route: ActivatedRoute,
     platformUtilsService: PlatformUtilsService,
     policyService: PolicyService,
-    private organizationService: OrganizationService,
+    organizationService: OrganizationService,
     logService: LogService,
     modalService: ModalService,
     syncService: SyncService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogServiceAbstraction,
+    folderService: FolderService,
+    collectionService: CollectionService,
+    formBuilder: FormBuilder
   ) {
     super(
       i18nService,
@@ -52,7 +58,11 @@ export class OrganizationImportComponent extends ImportComponent {
       logService,
       modalService,
       syncService,
-      dialogService
+      dialogService,
+      folderService,
+      collectionService,
+      organizationService,
+      formBuilder
     );
   }
 
@@ -74,11 +84,10 @@ export class OrganizationImportComponent extends ImportComponent {
       await this.router.navigate(["organizations", this.organizationId, "vault"]);
     } else {
       this.fileSelected = null;
-      this.fileContents = "";
     }
   }
 
-  async submit() {
+  protected async performImport() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "warning" },
       content: { key: "importWarning", placeholders: [this.organization.name] },
@@ -88,6 +97,6 @@ export class OrganizationImportComponent extends ImportComponent {
     if (!confirmed) {
       return;
     }
-    super.submit();
+    await super.performImport();
   }
 }

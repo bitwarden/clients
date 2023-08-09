@@ -5,3 +5,7 @@ export class ServiceAccountView {
   creationDate: string;
   revisionDate: string;
 }
+
+export class ServiceAccountSecretsDetailsView extends ServiceAccountView {
+  accessToSecrets: number;
+}

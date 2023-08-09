@@ -37,10 +37,8 @@ describe("EncryptService", () => {
 
     describe("encrypts data", () => {
       beforeEach(() => {
-        cryptoFunctionService.randomBytes
-          .calledWith(16)
-          .mockResolvedValueOnce(iv.buffer as CsprngArray);
-        cryptoFunctionService.aesEncrypt.mockResolvedValue(encryptedData.buffer);
+        cryptoFunctionService.randomBytes.calledWith(16).mockResolvedValueOnce(iv as CsprngArray);
+        cryptoFunctionService.aesEncrypt.mockResolvedValue(encryptedData);
       });
 
       it("using a key which supports mac", async () => {
@@ -50,7 +48,7 @@ describe("EncryptService", () => {
 
         key.macKey = makeStaticByteArray(16, 20);
 
-        cryptoFunctionService.hmac.mockResolvedValue(mac.buffer);
+        cryptoFunctionService.hmac.mockResolvedValue(mac);
 
         const actual = await encryptService.encryptToBytes(plainValue, key);
 
@@ -86,7 +84,7 @@ describe("EncryptService", () => {
   describe("decryptToBytes", () => {
     const encType = EncryptionType.AesCbc256_HmacSha256_B64;
     const key = new SymmetricCryptoKey(makeStaticByteArray(64, 100), encType);
-    const computedMac = new Uint8Array(1).buffer;
+    const computedMac = new Uint8Array(1);
     const encBuffer = new EncArrayBuffer(makeStaticByteArray(60, encType));
 
     beforeEach(() => {
@@ -106,9 +104,9 @@ describe("EncryptService", () => {
     });
 
     it("decrypts data with provided key", async () => {
-      const decryptedBytes = makeStaticByteArray(10, 200).buffer;
+      const decryptedBytes = makeStaticByteArray(10, 200);
 
-      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(1).buffer);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(1));
       cryptoFunctionService.compare.mockResolvedValue(true);
       cryptoFunctionService.aesDecrypt.mockResolvedValueOnce(decryptedBytes);
 

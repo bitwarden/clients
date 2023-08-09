@@ -62,7 +62,7 @@ const routes: Routes = [
               canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
             ],
             data: {
-              organizationPermissions: (org: Organization) => org.canManageUsersPassword,
+              organizationPermissions: (org: Organization) => org.canManageDeviceApprovals,
               titleId: "deviceApprovals",
             },
           },

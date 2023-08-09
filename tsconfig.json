@@ -15,12 +15,13 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
-      "@bitwarden/node/*": ["./libs/node/src/*"],
+      "@bitwarden/auth": ["./libs/auth/src"],
+      "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
-      "@bitwarden/importer": ["./libs/importer/src"],
       "@bitwarden/exporter/*": ["./libs/exporter/src/*"],
+      "@bitwarden/importer": ["./libs/importer/src"],
+      "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"]
     },
     "plugins": [

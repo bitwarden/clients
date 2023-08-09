@@ -8,6 +8,7 @@ import {
   onCommandListener,
   onInstallListener,
   runtimeMessageListener,
+  windowsOnFocusChangedListener,
   tabsOnActivatedListener,
   tabsOnReplacedListener,
   tabsOnUpdatedListener,
@@ -18,6 +19,7 @@ if (BrowserApi.manifestVersion === 3) {
   chrome.runtime.onInstalled.addListener(onInstallListener);
   chrome.alarms.onAlarm.addListener(onAlarmListener);
   registerAlarms();
+  chrome.windows.onFocusChanged.addListener(windowsOnFocusChangedListener);
   chrome.tabs.onActivated.addListener(tabsOnActivatedListener);
   chrome.tabs.onReplaced.addListener(tabsOnReplacedListener);
   chrome.tabs.onUpdated.addListener(tabsOnUpdatedListener);

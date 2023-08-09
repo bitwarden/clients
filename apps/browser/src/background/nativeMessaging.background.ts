@@ -59,8 +59,8 @@ export class NativeMessagingBackground {
   private port: browser.runtime.Port | chrome.runtime.Port;
 
   private resolver: any = null;
-  private privateKey: ArrayBuffer = null;
-  private publicKey: ArrayBuffer = null;
+  private privateKey: Uint8Array = null;
+  private publicKey: Uint8Array = null;
   private secureSetupResolve: any = null;
   private sharedSecret: SymmetricCryptoKey;
   private appId: string;
@@ -129,7 +129,7 @@ export class NativeMessagingBackground {
 
             const encrypted = Utils.fromB64ToArray(message.sharedSecret);
             const decrypted = await this.cryptoFunctionService.rsaDecrypt(
-              encrypted.buffer,
+              encrypted,
               this.privateKey,
               EncryptionAlgorithm
             );
@@ -321,7 +321,7 @@ export class NativeMessagingBackground {
 
         if (message.response === "unlocked") {
           await this.cryptoService.setKey(
-            new SymmetricCryptoKey(Utils.fromB64ToArray(message.keyB64).buffer)
+            new SymmetricCryptoKey(Utils.fromB64ToArray(message.keyB64))
           );
 
           // Verify key is correct by attempting to decrypt a secret

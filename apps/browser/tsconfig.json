@@ -11,6 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
+      "@bitwarden/auth": ["../../libs/auth/src"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/components": ["../../libs/components/src"],
       "@bitwarden/exporter/*": ["../../libs/exporter/src/*"]

@@ -17,6 +17,24 @@ export class BrowserApi {
     return chrome.runtime.getManifest().manifest_version;
   }
 
+  static getWindow(windowId?: number): Promise<chrome.windows.Window> | void {
+    if (!windowId) {
+      return;
+    }
+
+    return new Promise((resolve) =>
+      chrome.windows.get(windowId, { populate: true }, (window) => resolve(window))
+    );
+  }
+
+  static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
+    return new Promise((resolve) =>
+      chrome.windows.create(options, (window) => {
+        resolve(window);
+      })
+    );
+  }
+
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
     return await BrowserApi.tabsQueryFirst({
       active: true,
@@ -105,6 +123,10 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
+  static async removeTab(tabId: number) {
+    await chrome.tabs.remove(tabId);
+  }
+
   static async getPrivateModeWindows(): Promise<browser.windows.Window[]> {
     return (await browser.windows.getAll()).filter((win) => win.incognito);
   }
@@ -165,7 +187,7 @@ export class BrowserApi {
     }
 
     const tabToClose = tabs[tabs.length - 1];
-    chrome.tabs.remove(tabToClose.id);
+    BrowserApi.removeTab(tabToClose.id);
   }
 
   private static registeredMessageListeners: any[] = [];

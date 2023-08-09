@@ -110,7 +110,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.organizations$ = this.organizationService.organizations$.pipe(
         map((orgs) =>
           orgs
-            .filter((o) => o.canCreateNewCollections)
+            .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
             .sort(Utils.getSortFunction(this.i18nService, "name"))
         )
       );
