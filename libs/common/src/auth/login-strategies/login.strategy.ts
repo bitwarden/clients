@@ -12,6 +12,7 @@ import {
   AccountKeys,
   AccountProfile,
   AccountTokens,
+  LoginState,
 } from "../../platform/models/domain/account";
 import { TokenService } from "../abstractions/token.service";
 import { TwoFactorService } from "../abstractions/two-factor.service";
@@ -146,6 +147,7 @@ export abstract class LogInStrategy {
         decryptionOptions: AccountDecryptionOptions.fromResponse(
           tokenResponse.userDecryptionOptions
         ),
+        loginState: new LoginState(),
         adminAuthRequest: adminAuthRequest?.toJSON(),
       })
     );
