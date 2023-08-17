@@ -1,6 +1,5 @@
 import { Directive, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import * as DuoWebSDK from "duo_web_sdk";
 import { first } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -39,6 +38,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   formPromise: Promise<any>;
   emailPromise: Promise<any>;
   identifier: string = null;
+  broadcastChannel: BroadcastChannel;
   onSuccessfulLogin: () => Promise<any>;
   onSuccessfulLoginNavigate: () => Promise<any>;
 
@@ -131,20 +131,14 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
-        setTimeout(() => {
-          DuoWebSDK.init({
-            iframe: undefined,
-            host: providerData.Host,
-            sig_request: providerData.Signature,
-            submit_callback: async (f: HTMLFormElement) => {
-              const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
-              if (sig != null) {
-                this.token = sig.value;
-                await this.submit();
-              }
-            },
-          });
-        }, 0);
+        this.broadcastChannel = new BroadcastChannel("duo-broadcast");
+        this.broadcastChannel.onmessage = (message) => {
+          if (message.data.command && message.data.command === "duoResult") {
+            // TODO: send code to server for validation
+          }
+        };
+
+        this.platformUtilsService.launchUri(providerData.Host);
         break;
       case TwoFactorProviderType.Email:
         this.twoFactorEmail = providerData.Email;
@@ -234,20 +228,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return;
     }
 
-    if (this.authService.email == null) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("sessionTimeout")
-      );
-      return;
-    }
-
     try {
       const request = new TwoFactorEmailRequest();
       request.email = this.authService.email;
       request.masterPasswordHash = this.authService.masterPasswordHash;
-      request.ssoEmail2FaSessionToken = this.authService.ssoEmail2FaSessionToken;
       request.deviceIdentifier = await this.appIdService.getAppId();
       request.authRequestAccessCode = this.authService.accessCode;
       request.authRequestId = this.authService.authRequestId;
