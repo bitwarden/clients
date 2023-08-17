@@ -17,7 +17,7 @@ import {
   stateServiceFactory as stateServiceFactory,
   StateServiceInitOptions,
 } from "../../../platform/background/service-factories/state-service.factory";
-import { BrowserFolderService } from "../../services/browser-folder.service";
+import { BackgroundFolderService } from "../services/background-folder.service";
 
 import { cipherServiceFactory, CipherServiceInitOptions } from "./cipher-service.factory";
 
@@ -38,7 +38,7 @@ export function folderServiceFactory(
     "folderService",
     opts,
     async () =>
-      new BrowserFolderService(
+      new BackgroundFolderService(
         await cryptoServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
         await cipherServiceFactory(cache, opts),

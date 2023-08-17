@@ -43,4 +43,8 @@ export class Folder extends Domain {
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     return Object.assign(new Folder(), obj, { name: EncString.fromJSON(obj.name), revisionDate });
   }
+
+  static fromKeyValuePair(obj: Partial<Folder>): Folder {
+    return Object.assign(new Folder(), obj, { name: EncString.fromKeyValuePair(obj.name) });
+  }
 }

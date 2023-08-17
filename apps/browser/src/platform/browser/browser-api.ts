@@ -222,8 +222,11 @@ export class BrowserApi {
     }
   }
 
-  static sendMessage(subscriber: string, arg: any = {}) {
+  static sendMessage(subscriber: string, arg: any = {}, callback?: (response: any) => void) {
     const message = Object.assign({}, { command: subscriber }, arg);
+    if (callback) {
+      return chrome.runtime.sendMessage(message, callback);
+    }
     return chrome.runtime.sendMessage(message);
   }
 

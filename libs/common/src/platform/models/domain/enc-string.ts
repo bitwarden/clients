@@ -51,6 +51,14 @@ export class EncString implements Encrypted {
     return new EncString(obj);
   }
 
+  static fromKeyValuePair(obj: Partial<EncString>): EncString {
+    if (obj == null) {
+      return null;
+    }
+
+    return new EncString(obj.encryptedString);
+  }
+
   private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
     if (iv != null) {
       this.encryptedString = encType + "." + iv + "|" + data;

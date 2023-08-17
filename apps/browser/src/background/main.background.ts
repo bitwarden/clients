@@ -129,7 +129,7 @@ import { LocalBackedSessionStorageService } from "../platform/services/local-bac
 import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vaultTimeout/vaultTimeout.service";
-import { BrowserFolderService } from "../vault/services/browser-folder.service";
+import { BackgroundFolderService } from "../vault/background/services/background-folder.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -329,7 +329,7 @@ export default class MainBackground {
       this.encryptService,
       this.cipherFileUploadService
     );
-    this.folderService = new BrowserFolderService(
+    this.folderService = new BackgroundFolderService(
       this.cryptoService,
       this.i18nService,
       this.cipherService,
