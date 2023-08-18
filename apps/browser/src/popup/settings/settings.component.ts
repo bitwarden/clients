@@ -22,6 +22,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { NavigatableListComponent } from "../components/navigatable-list.component";
 import { SetPinComponent } from "../components/set-pin.component";
 import { PopupUtilsService } from "../services/popup-utils.service";
 
@@ -68,6 +69,8 @@ export class SettingsComponent implements OnInit {
   });
 
   private destroy$ = new Subject<void>();
+
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
 
   constructor(
     private policyService: PolicyService,

@@ -11,90 +11,100 @@
   <div class="right"></div>
 </header>
 <main tabindex="-1">
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="autofill">{{ "enableAutoFillOnPageLoad" | i18n }}</label>
-        <input
-          id="autofill"
-          type="checkbox"
-          aria-describedby="autofillHelp"
-          (change)="updateAutoFillOnPageLoad()"
-          [(ngModel)]="enableAutoFillOnPageLoad"
-        />
-      </div>
-    </div>
-    <div id="autofillHelp" class="box-footer">
-      {{ "enableAutoFillOnPageLoadDesc" | i18n }}
-      <b>{{ "warning" | i18n }}</b
-      >: {{ "experimentalFeature" | i18n }}
-      <a
-        href="https://bitwarden.com/help/auto-fill-browser/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {{ "learnMoreAboutAutofill" | i18n }}.
-        <i
-          [attr.aria-label]="'opensInANewWindow' | i18n"
-          class="bwi bwi-external-link bwi-sm bwi-fw"
-        ></i>
-      </a>
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row" appBoxRow>
-        <label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</label>
-        <select
-          id="defaultAutofill"
-          name="DefaultAutofill"
-          aria-describedby="defaultAutofillHelp"
-          [(ngModel)]="autoFillOnPageLoadDefault"
-          (change)="updateAutoFillOnPageLoadDefault()"
-          [disabled]="!enableAutoFillOnPageLoad"
+  <navigatable-list>
+    <div class="box">
+      <navigatable-list-item>
+        <div class="box-content">
+          <div class="box-content-row box-content-row-checkbox" appBoxRow>
+            <label for="autofill">{{ "enableAutoFillOnPageLoad" | i18n }}</label>
+            <input
+              id="autofill"
+              type="checkbox"
+              aria-describedby="autofillHelp"
+              (change)="updateAutoFillOnPageLoad()"
+              [(ngModel)]="enableAutoFillOnPageLoad"
+            />
+          </div>
+        </div>
+      </navigatable-list-item>
+      <div id="autofillHelp" class="box-footer">
+        {{ "enableAutoFillOnPageLoadDesc" | i18n }}
+        <b>{{ "warning" | i18n }}</b
+        >: {{ "experimentalFeature" | i18n }}
+        <a
+          href="https://bitwarden.com/help/auto-fill-browser/"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          <option *ngFor="let o of autoFillOnPageLoadOptions" [ngValue]="o.value">
-            {{ o.name }}
-          </option>
-        </select>
+          {{ "learnMoreAboutAutofill" | i18n }}.
+          <i
+            [attr.aria-label]="'opensInANewWindow' | i18n"
+            class="bwi bwi-external-link bwi-sm bwi-fw"
+          ></i>
+        </a>
       </div>
     </div>
-    <div id="defaultAutofillHelp" class="box-footer">
-      {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row" appBoxRow>
-        <label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</label>
-        <select
-          id="defaultUriMatch"
-          name="DefaultUriMatch"
-          aria-describedby="defaultUriMatchHelp"
-          [(ngModel)]="defaultUriMatch"
-          (change)="saveDefaultUriMatch()"
-        >
-          <option *ngFor="let o of uriMatchOptions" [ngValue]="o.value">{{ o.name }}</option>
-        </select>
+    <div class="box">
+      <navigatable-list-item>
+        <div class="box-content">
+          <div class="box-content-row" appBoxRow>
+            <label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</label>
+            <select
+              id="defaultAutofill"
+              name="DefaultAutofill"
+              aria-describedby="defaultAutofillHelp"
+              [(ngModel)]="autoFillOnPageLoadDefault"
+              (change)="updateAutoFillOnPageLoadDefault()"
+              [disabled]="!enableAutoFillOnPageLoad"
+            >
+              <option *ngFor="let o of autoFillOnPageLoadOptions" [ngValue]="o.value">
+                {{ o.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </navigatable-list-item>
+      <div id="defaultAutofillHelp" class="box-footer">
+        {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
       </div>
     </div>
-    <div id="defaultUriMatchHelp" class="box-footer">
-      {{ "defaultUriMatchDetectionDesc" | i18n }}
+    <div class="box">
+      <navigatable-list-item>
+        <div class="box-content">
+          <div class="box-content-row" appBoxRow>
+            <label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</label>
+            <select
+              id="defaultUriMatch"
+              name="DefaultUriMatch"
+              aria-describedby="defaultUriMatchHelp"
+              [(ngModel)]="defaultUriMatch"
+              (change)="saveDefaultUriMatch()"
+            >
+              <option *ngFor="let o of uriMatchOptions" [ngValue]="o.value">{{ o.name }}</option>
+            </select>
+          </div>
+        </div>
+      </navigatable-list-item>
+      <div id="defaultUriMatchHelp" class="box-footer">
+        {{ "defaultUriMatchDetectionDesc" | i18n }}
+      </div>
     </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <button
-        type="button"
-        class="box-content-row box-content-row-link box-content-row-flex"
-        (click)="commandSettings()"
-      >
-        <div class="row-main">{{ "autofillShortcut" | i18n }}</div>
-        <i class="bwi bwi-external-link bwi-lg bwi-fw" aria-hidden="true"></i>
-      </button>
+    <div class="box">
+      <navigatable-list-item>
+        <div class="box-content">
+          <button
+            type="button"
+            class="box-content-row box-content-row-link box-content-row-flex"
+            (click)="commandSettings()"
+          >
+            <div class="row-main">{{ "autofillShortcut" | i18n }}</div>
+            <i class="bwi bwi-external-link bwi-lg bwi-fw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </navigatable-list-item>
+      <div id="autofillKeyboardHelp" class="box-footer">
+        {{ autofillKeyboardHelperText }}
+      </div>
     </div>
-    <div id="autofillKeyboardHelp" class="box-footer">
-      {{ autofillKeyboardHelperText }}
-    </div>
-  </div>
+  </navigatable-list>
 </main>

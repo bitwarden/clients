@@ -4,7 +4,7 @@
   class="virtual-scroll-item"
   [ngClass]="{ 'override-last': !last }"
 >
-  <div class="box-content-row box-content-row-flex">
+  <div class="box-content-row box-content-row-flex" tabindex="0">
     <button
       type="button"
       (click)="selectCipher(cipher)"
@@ -12,6 +12,7 @@
       appStopClick
       title="{{ title }} - {{ cipher.name }}"
       class="row-main"
+      tabindex="-1"
     >
       <app-vault-icon [cipher]="cipher"></app-vault-icon>
       <div class="row-main-content">

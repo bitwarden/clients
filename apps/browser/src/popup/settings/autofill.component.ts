@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 
 import { UriMatchType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -6,6 +6,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { NavigatableListComponent } from "../components/navigatable-list.component";
 
 @Component({
   selector: "app-autofill",
@@ -18,6 +19,8 @@ export class AutofillComponent implements OnInit {
   defaultUriMatch = UriMatchType.Domain;
   uriMatchOptions: any[];
   autofillKeyboardHelperText: string;
+
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
 
   constructor(
     private stateService: StateService,

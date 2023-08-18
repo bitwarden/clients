@@ -25,188 +25,212 @@
       </button>
     </h2>
   </div>
-  <ng-container *ngIf="showGeneral">
-    <div class="box" *ngIf="showClearClipboard">
-      <div class="box-content">
-        <div class="box-content-row" appBoxRow>
-          <label for="clearClipboard">{{ "clearClipboard" | i18n }}</label>
-          <select
-            id="clearClipboard"
-            name="ClearClipboard"
-            aria-describedby="clearClipboardHelp"
-            [(ngModel)]="clearClipboard"
-            (change)="saveClearClipboard()"
-          >
-            <option *ngFor="let o of clearClipboardOptions" [ngValue]="o.value">
-              {{ o.name }}
-            </option>
-          </select>
+  <navigatable-list>
+    <ng-container *ngIf="showGeneral">
+      <navigatable-list-item>
+        <div class="box" *ngIf="showClearClipboard">
+          <div class="box-content">
+            <div class="box-content-row" appBoxRow>
+              <label for="clearClipboard">{{ "clearClipboard" | i18n }}</label>
+              <select
+                id="clearClipboard"
+                name="ClearClipboard"
+                aria-describedby="clearClipboardHelp"
+                [(ngModel)]="clearClipboard"
+                (change)="saveClearClipboard()"
+              >
+                <option *ngFor="let o of clearClipboardOptions" [ngValue]="o.value">
+                  {{ o.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div id="clearClipboardHelp" class="box-footer">{{ "clearClipboardDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="clearClipboardHelp" class="box-footer">{{ "clearClipboardDesc" | i18n }}</div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="totp">{{ "enableAutoTotpCopy" | i18n }}</label>
-          <input
-            id="totp"
-            type="checkbox"
-            aria-describedby="totpHelp"
-            (change)="updateAutoTotpCopy()"
-            [(ngModel)]="enableAutoTotpCopy"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="totp">{{ "enableAutoTotpCopy" | i18n }}</label>
+              <input
+                id="totp"
+                type="checkbox"
+                aria-describedby="totpHelp"
+                (change)="updateAutoTotpCopy()"
+                [(ngModel)]="enableAutoTotpCopy"
+              />
+            </div>
+          </div>
+          <div id="totpHelp" class="box-footer">{{ "disableAutoTotpCopyDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="totpHelp" class="box-footer">{{ "disableAutoTotpCopyDesc" | i18n }}</div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="addlogin-notification-bar">{{ "enableAddLoginNotification" | i18n }}</label>
-          <input
-            id="addlogin-notification-bar"
-            type="checkbox"
-            aria-describedby="addlogin-notification-barHelp"
-            (change)="updateAddLoginNotification()"
-            [(ngModel)]="enableAddLoginNotification"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="addlogin-notification-bar">{{
+                "enableAddLoginNotification" | i18n
+              }}</label>
+              <input
+                id="addlogin-notification-bar"
+                type="checkbox"
+                aria-describedby="addlogin-notification-barHelp"
+                (change)="updateAddLoginNotification()"
+                [(ngModel)]="enableAddLoginNotification"
+              />
+            </div>
+          </div>
+          <div id="addlogin-notification-barHelp" class="box-footer">
+            {{ "addLoginNotificationDesc" | i18n }}
+          </div>
         </div>
-      </div>
-      <div id="addlogin-notification-barHelp" class="box-footer">
-        {{ "addLoginNotificationDesc" | i18n }}
-      </div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="changedpass-notification-bar">{{
-            "enableChangedPasswordNotification" | i18n
-          }}</label>
-          <input
-            id="changedpass-notification-bar"
-            type="checkbox"
-            aria-describedby="changedpass-notification-barHelp"
-            (change)="updateChangedPasswordNotification()"
-            [(ngModel)]="enableChangedPasswordNotification"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="changedpass-notification-bar">{{
+                "enableChangedPasswordNotification" | i18n
+              }}</label>
+              <input
+                id="changedpass-notification-bar"
+                type="checkbox"
+                aria-describedby="changedpass-notification-barHelp"
+                (change)="updateChangedPasswordNotification()"
+                [(ngModel)]="enableChangedPasswordNotification"
+              />
+            </div>
+          </div>
+          <div id="changedpass-notification-barHelp" class="box-footer">
+            {{ "changedPasswordNotificationDesc" | i18n }}
+          </div>
         </div>
-      </div>
-      <div id="changedpass-notification-barHelp" class="box-footer">
-        {{ "changedPasswordNotificationDesc" | i18n }}
-      </div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="context-menu">{{ "enableContextMenuItem" | i18n }}</label>
-          <input
-            id="context-menu"
-            type="checkbox"
-            aria-describedby="context-menuHelp"
-            (change)="updateContextMenuItem()"
-            [(ngModel)]="enableContextMenuItem"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="context-menu">{{ "enableContextMenuItem" | i18n }}</label>
+              <input
+                id="context-menu"
+                type="checkbox"
+                aria-describedby="context-menuHelp"
+                (change)="updateContextMenuItem()"
+                [(ngModel)]="enableContextMenuItem"
+              />
+            </div>
+          </div>
+          <div id="context-menuHelp" class="box-footer">{{ "contextMenuItemDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="context-menuHelp" class="box-footer">{{ "contextMenuItemDesc" | i18n }}</div>
+      </navigatable-list-item>
+    </ng-container>
+    <div class="box box-section-divider">
+      <h2>
+        <button
+          type="button"
+          class="box-header-expandable"
+          (click)="showDisplay = !showDisplay"
+          [attr.aria-expanded]="showDisplay"
+        >
+          <i *ngIf="!showDisplay" class="bwi bwi-angle-right bwi-sm icon" aria-hidden="true"></i>
+          <i *ngIf="showDisplay" class="bwi bwi-angle-down bwi-sm icon" aria-hidden="true"></i>
+          {{ "display" | i18n }}
+        </button>
+      </h2>
     </div>
-  </ng-container>
-  <div class="box box-section-divider">
-    <h2>
-      <button
-        type="button"
-        class="box-header-expandable"
-        (click)="showDisplay = !showDisplay"
-        [attr.aria-expanded]="showDisplay"
-      >
-        <i *ngIf="!showDisplay" class="bwi bwi-angle-right bwi-sm icon" aria-hidden="true"></i>
-        <i *ngIf="showDisplay" class="bwi bwi-angle-down bwi-sm icon" aria-hidden="true"></i>
-        {{ "display" | i18n }}
-      </button>
-    </h2>
-  </div>
-  <ng-container *ngIf="showDisplay">
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="showCardsCurrentTab">{{ "showCardsCurrentTab" | i18n }}</label>
-          <input
-            id="showCardsCurrentTab"
-            type="checkbox"
-            aria-describedby="showCardsCurrentTabHelp"
-            (change)="updateShowCardsCurrentTab()"
-            [(ngModel)]="showCardsCurrentTab"
-          />
+    <ng-container *ngIf="showDisplay">
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="showCardsCurrentTab">{{ "showCardsCurrentTab" | i18n }}</label>
+              <input
+                id="showCardsCurrentTab"
+                type="checkbox"
+                aria-describedby="showCardsCurrentTabHelp"
+                (change)="updateShowCardsCurrentTab()"
+                [(ngModel)]="showCardsCurrentTab"
+              />
+            </div>
+          </div>
+          <div id="showCardsCurrentTabHelp" class="box-footer">
+            {{ "showCardsCurrentTabDesc" | i18n }}
+          </div>
         </div>
-      </div>
-      <div id="showCardsCurrentTabHelp" class="box-footer">
-        {{ "showCardsCurrentTabDesc" | i18n }}
-      </div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="showIdentitiesCurrentTab">{{ "showIdentitiesCurrentTab" | i18n }}</label>
-          <input
-            id="showIdentitiesCurrentTab"
-            type="checkbox"
-            aria-describedby="showIdentitiesCurrentTabHelp"
-            (change)="updateShowIdentitiesCurrentTab()"
-            [(ngModel)]="showIdentitiesCurrentTab"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="showIdentitiesCurrentTab">{{ "showIdentitiesCurrentTab" | i18n }}</label>
+              <input
+                id="showIdentitiesCurrentTab"
+                type="checkbox"
+                aria-describedby="showIdentitiesCurrentTabHelp"
+                (change)="updateShowIdentitiesCurrentTab()"
+                [(ngModel)]="showIdentitiesCurrentTab"
+              />
+            </div>
+          </div>
+          <div id="showIdentitiesCurrentTabHelp" class="box-footer">
+            {{ "showIdentitiesCurrentTabDesc" | i18n }}
+          </div>
         </div>
-      </div>
-      <div id="showIdentitiesCurrentTabHelp" class="box-footer">
-        {{ "showIdentitiesCurrentTabDesc" | i18n }}
-      </div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="favicon">{{ "enableFavicon" | i18n }}</label>
-          <input
-            id="favicon"
-            type="checkbox"
-            aria-describedby="faviconHelp"
-            (change)="updateFavicon()"
-            [(ngModel)]="enableFavicon"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="favicon">{{ "enableFavicon" | i18n }}</label>
+              <input
+                id="favicon"
+                type="checkbox"
+                aria-describedby="faviconHelp"
+                (change)="updateFavicon()"
+                [(ngModel)]="enableFavicon"
+              />
+            </div>
+          </div>
+          <div id="faviconHelp" class="box-footer">{{ "faviconDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="faviconHelp" class="box-footer">{{ "faviconDesc" | i18n }}</div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row box-content-row-checkbox" appBoxRow>
-          <label for="badge">{{ "enableBadgeCounter" | i18n }}</label>
-          <input
-            id="badge"
-            type="checkbox"
-            aria-describedby="badgeHelp"
-            (change)="updateBadgeCounter()"
-            [(ngModel)]="enableBadgeCounter"
-          />
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row box-content-row-checkbox" appBoxRow>
+              <label for="badge">{{ "enableBadgeCounter" | i18n }}</label>
+              <input
+                id="badge"
+                type="checkbox"
+                aria-describedby="badgeHelp"
+                (change)="updateBadgeCounter()"
+                [(ngModel)]="enableBadgeCounter"
+              />
+            </div>
+          </div>
+          <div id="badgeHelp" class="box-footer">{{ "badgeCounterDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="badgeHelp" class="box-footer">{{ "badgeCounterDesc" | i18n }}</div>
-    </div>
-    <div class="box">
-      <div class="box-content">
-        <div class="box-content-row" appBoxRow>
-          <label for="theme">{{ "theme" | i18n }}</label>
-          <select
-            id="theme"
-            name="Theme"
-            aria-describedby="themeHelp"
-            [(ngModel)]="theme"
-            (change)="saveTheme()"
-          >
-            <option *ngFor="let o of themeOptions" [ngValue]="o.value">{{ o.name }}</option>
-          </select>
+      </navigatable-list-item>
+      <navigatable-list-item>
+        <div class="box">
+          <div class="box-content">
+            <div class="box-content-row" appBoxRow>
+              <label for="theme">{{ "theme" | i18n }}</label>
+              <select
+                id="theme"
+                name="Theme"
+                aria-describedby="themeHelp"
+                [(ngModel)]="theme"
+                (change)="saveTheme()"
+              >
+                <option *ngFor="let o of themeOptions" [ngValue]="o.value">{{ o.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div id="themeHelp" class="box-footer">{{ "themeDesc" | i18n }}</div>
         </div>
-      </div>
-      <div id="themeHelp" class="box-footer">{{ "themeDesc" | i18n }}</div>
-    </div>
-  </ng-container>
+      </navigatable-list-item>
+    </ng-container>
+  </navigatable-list>
 </main>

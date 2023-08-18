@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
@@ -7,6 +7,8 @@ import { ThemeType, UriMatchType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+
+import { NavigatableListComponent } from "../components/navigatable-list.component";
 
 @Component({
   selector: "app-options",
@@ -34,6 +36,8 @@ export class OptionsComponent implements OnInit {
   showGeneral = true;
   showAutofill = true;
   showDisplay = true;
+
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
 
   constructor(
     private messagingService: MessagingService,

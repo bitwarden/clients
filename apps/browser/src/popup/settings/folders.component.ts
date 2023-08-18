@@ -1,9 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { map, Observable } from "rxjs";
 
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+
+import { NavigatableListComponent } from "../components/navigatable-list.component";
 
 @Component({
   selector: "app-folders",
@@ -11,6 +13,8 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 })
 export class FoldersComponent {
   folders$: Observable<FolderView[]>;
+
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
 
   constructor(private folderService: FolderService, private router: Router) {
     this.folders$ = this.folderService.folderViews$.pipe(

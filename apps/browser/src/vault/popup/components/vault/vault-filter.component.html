@@ -38,162 +38,181 @@
     </ng-container>
   </div>
   <ng-container *ngIf="ciphers && ciphers.length && !showSearching()">
-    <div class="box list" *ngIf="favoriteCiphers">
-      <h2 class="box-header">
-        {{ "favorites" | i18n }}
-        <span class="flex-right">{{ favoriteCiphers.length }}</span>
-      </h2>
-      <div class="box-content">
-        <app-cipher-row
-          *ngFor="let favoriteCipher of favoriteCiphers"
-          [cipher]="favoriteCipher"
-          title="{{ 'viewItem' | i18n }}"
-          (onSelected)="selectCipher($event)"
-          (launchEvent)="launchCipher($event)"
-        >
-        </app-cipher-row>
+    <navigatable-list>
+      <div class="box list" *ngIf="favoriteCiphers">
+        <h2 class="box-header">
+          {{ "favorites" | i18n }}
+          <span class="flex-right">{{ favoriteCiphers.length }}</span>
+        </h2>
+        <div class="box-content">
+          <navigatable-list-item *ngFor="let favoriteCipher of favoriteCiphers">
+            <app-cipher-row
+              [cipher]="favoriteCipher"
+              title="{{ 'viewItem' | i18n }}"
+              (onSelected)="selectCipher($event)"
+              (launchEvent)="launchCipher($event)"
+            >
+            </app-cipher-row>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
-    <div class="box list">
-      <h2 class="box-header">
-        {{ "types" | i18n }}
-        <span class="flex-right">4</span>
-      </h2>
-      <div class="box-content single-line">
-        <button
-          type="button"
-          class="box-content-row"
-          appStopClick
-          (click)="selectType(cipherType.Login)"
-        >
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-globe"></i></div>
-            <span class="text">{{ "typeLogin" | i18n }}</span>
-          </div>
-          <span class="row-sub-label">{{ typeCounts.get(cipherType.Login) || 0 }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
-        <button
-          type="button"
-          class="box-content-row"
-          appStopClick
-          (click)="selectType(cipherType.Card)"
-        >
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-credit-card"></i></div>
-            <span class="text">{{ "typeCard" | i18n }}</span>
-          </div>
-          <span class="row-sub-label">{{ typeCounts.get(cipherType.Card) || 0 }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
-        <button
-          type="button"
-          class="box-content-row"
-          appStopClick
-          (click)="selectType(cipherType.Identity)"
-        >
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-id-card"></i></div>
-            <span class="text">{{ "typeIdentity" | i18n }}</span>
-          </div>
-          <span class="row-sub-label">{{ typeCounts.get(cipherType.Identity) || 0 }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
-        <button
-          type="button"
-          class="box-content-row"
-          appStopClick
-          (click)="selectType(cipherType.SecureNote)"
-        >
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-sticky-note"></i></div>
-            <span class="text">{{ "typeSecureNote" | i18n }}</span>
-          </div>
-          <span class="row-sub-label">{{ typeCounts.get(cipherType.SecureNote) || 0 }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
+      <div class="box list">
+        <h2 class="box-header">
+          {{ "types" | i18n }}
+          <span class="flex-right">4</span>
+        </h2>
+        <div class="box-content single-line">
+          <navigatable-list-item>
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectType(cipherType.Login)"
+            >
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-globe"></i></div>
+                <span class="text">{{ "typeLogin" | i18n }}</span>
+              </div>
+              <span class="row-sub-label">{{ typeCounts.get(cipherType.Login) || 0 }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+          <navigatable-list-item>
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectType(cipherType.Card)"
+            >
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-credit-card"></i></div>
+                <span class="text">{{ "typeCard" | i18n }}</span>
+              </div>
+              <span class="row-sub-label">{{ typeCounts.get(cipherType.Card) || 0 }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+          <navigatable-list-item>
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectType(cipherType.Identity)"
+            >
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-id-card"></i></div>
+                <span class="text">{{ "typeIdentity" | i18n }}</span>
+              </div>
+              <span class="row-sub-label">{{ typeCounts.get(cipherType.Identity) || 0 }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+          <navigatable-list-item>
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectType(cipherType.SecureNote)"
+            >
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-sticky-note"></i></div>
+                <span class="text">{{ "typeSecureNote" | i18n }}</span>
+              </div>
+              <span class="row-sub-label">{{ typeCounts.get(cipherType.SecureNote) || 0 }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
-    <div class="box list" *ngIf="nestedFolders?.length">
-      <h2 class="box-header">
-        {{ "folders" | i18n }}
-        <span class="flex-right">{{ folderCount }}</span>
-      </h2>
-      <div class="box-content single-line">
-        <button
-          type="button"
-          *ngFor="let f of nestedFolders"
-          class="box-content-row"
-          appStopClick
-          (click)="selectFolder(f.node)"
-        >
-          <div class="row-main">
-            <div class="icon">
-              <i class="bwi bwi-fw bwi-lg bwi-folder"></i>
-            </div>
-            <span class="text">{{ f.node.name }}</span>
-          </div>
-          <span class="row-sub-label">{{ folderCounts.get(f.node.id) || 0 }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
+      <div class="box list" *ngIf="nestedFolders?.length">
+        <h2 class="box-header">
+          {{ "folders" | i18n }}
+          <span class="flex-right">{{ folderCount }}</span>
+        </h2>
+        <div class="box-content single-line">
+          <navigatable-list-item *ngFor="let f of nestedFolders">
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectFolder(f.node)"
+            >
+              <div class="row-main">
+                <div class="icon">
+                  <i class="bwi bwi-fw bwi-lg bwi-folder"></i>
+                </div>
+                <span class="text">{{ f.node.name }}</span>
+              </div>
+              <span class="row-sub-label">{{ folderCounts.get(f.node.id) || 0 }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
-    <div class="box list" *ngIf="showCollections && nestedCollections && nestedCollections.length">
-      <h2 class="box-header">
-        {{ "collections" | i18n }}
-        <span class="flex-right">{{ nestedCollections.length }}</span>
-      </h2>
-      <div class="box-content single-line">
-        <button
-          type="button"
-          *ngFor="let nestedCollection of nestedCollections"
-          class="box-content-row"
-          appStopClick
-          (click)="selectCollection(nestedCollection.node)"
-        >
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-collection"></i></div>
-            <span class="text">{{ nestedCollection.node.name }}</span>
-          </div>
-          <span class="row-sub-label">{{
-            collectionCounts.get(nestedCollection.node.id) || 0
-          }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
+      <div
+        class="box list"
+        *ngIf="showCollections && nestedCollections && nestedCollections.length"
+      >
+        <h2 class="box-header">
+          {{ "collections" | i18n }}
+          <span class="flex-right">{{ nestedCollections.length }}</span>
+        </h2>
+        <div class="box-content single-line">
+          <navigatable-list-item *ngFor="let nestedCollection of nestedCollections">
+            <button
+              type="button"
+              class="box-content-row"
+              appStopClick
+              (click)="selectCollection(nestedCollection.node)"
+            >
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-collection"></i></div>
+                <span class="text">{{ nestedCollection.node.name }}</span>
+              </div>
+              <span class="row-sub-label">{{
+                collectionCounts.get(nestedCollection.node.id) || 0
+              }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
-    <div class="box list" *ngIf="showNoFolderCiphers">
-      <h2 class="box-header">
-        {{ "noneFolder" | i18n }}
-        <div class="flex-right">{{ noFolderCiphers.length }}</div>
-      </h2>
-      <div class="box-content">
-        <app-cipher-row
-          *ngFor="let noFolderCipher of noFolderCiphers"
-          [cipher]="noFolderCipher"
-          title="{{ 'viewItem' | i18n }}"
-          (onSelected)="selectCipher($event)"
-          (launchEvent)="launchCipher($event)"
-        >
-        </app-cipher-row>
+      <div class="box list" *ngIf="showNoFolderCiphers">
+        <h2 class="box-header">
+          {{ "noneFolder" | i18n }}
+          <div class="flex-right">{{ noFolderCiphers.length }}</div>
+        </h2>
+        <div class="box-content">
+          <navigatable-list-item *ngFor="let noFolderCipher of noFolderCiphers">
+            <app-cipher-row
+              [cipher]="noFolderCipher"
+              title="{{ 'viewItem' | i18n }}"
+              (onSelected)="selectCipher($event)"
+              (launchEvent)="launchCipher($event)"
+            >
+            </app-cipher-row>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
-    <div class="box list" *ngIf="deletedCount">
-      <h2 class="box-header">
-        {{ "trash" | i18n }}
-        <span class="flex-right">{{ deletedCount }}</span>
-      </h2>
-      <div class="box-content single-line">
-        <button type="button" class="box-content-row" appStopClick (click)="selectTrash()">
-          <div class="row-main">
-            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-trash"></i></div>
-            <span class="text">{{ "trash" | i18n }}</span>
-          </div>
-          <span class="row-sub-label">{{ deletedCount }}</span>
-          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
-        </button>
+      <div class="box list" *ngIf="deletedCount">
+        <h2 class="box-header">
+          {{ "trash" | i18n }}
+          <span class="flex-right">{{ deletedCount }}</span>
+        </h2>
+        <div class="box-content single-line">
+          <navigatable-list-item>
+            <button type="button" class="box-content-row" appStopClick (click)="selectTrash()">
+              <div class="row-main">
+                <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-trash"></i></div>
+                <span class="text">{{ "trash" | i18n }}</span>
+              </div>
+              <span class="row-sub-label">{{ deletedCount }}</span>
+              <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+            </button>
+          </navigatable-list-item>
+        </div>
       </div>
-    </div>
+    </navigatable-list>
   </ng-container>
   <ng-container *ngIf="showSearching()">
     <div class="no-items" *ngIf="!ciphers || !ciphers.length">
@@ -206,16 +225,19 @@
       *ngIf="ciphers && ciphers.length > 0"
     >
       <div class="box list full-list">
-        <div class="box-content">
-          <app-cipher-row
-            *cdkVirtualFor="let searchedCipher of ciphers"
-            [cipher]="searchedCipher"
-            title="{{ 'viewItem' | i18n }}"
-            (onSelected)="selectCipher($event)"
-            (launchEvent)="launchCipher($event)"
-          >
-          </app-cipher-row>
-        </div>
+        <navigatable-list>
+          <div class="box-content">
+            <navigatable-list-item *cdkVirtualFor="let searchedCipher of ciphers">
+              <app-cipher-row
+                [cipher]="searchedCipher"
+                title="{{ 'viewItem' | i18n }}"
+                (onSelected)="selectCipher($event)"
+                (launchEvent)="launchCipher($event)"
+              >
+              </app-cipher-row>
+            </navigatable-list-item>
+          </div>
+        </navigatable-list>
       </div>
     </cdk-virtual-scroll-viewport>
   </ng-container>

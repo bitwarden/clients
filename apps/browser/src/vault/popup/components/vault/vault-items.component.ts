@@ -1,5 +1,14 @@
 import { Location } from "@angular/common";
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -22,6 +31,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { BrowserComponentState } from "../../../../models/browserComponentState";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { BrowserStateService } from "../../../../platform/services/abstractions/browser-state.service";
+import { NavigatableListComponent } from "../../../../popup/components/navigatable-list.component";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
 import { VaultFilterService } from "../../../services/vault-filter.service";
 
@@ -51,6 +61,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
   private applySavedState = true;
   private scrollingContainer = "cdk-virtual-scroll-viewport";
 
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
+
   constructor(
     searchService: SearchService,
     private organizationService: OrganizationService,
@@ -67,7 +79,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     private collectionService: CollectionService,
     private platformUtilsService: PlatformUtilsService,
     cipherService: CipherService,
-    private vaultFilterService: VaultFilterService
+    private vaultFilterService: VaultFilterService,
+    private element: ElementRef
   ) {
     super(searchService, cipherService);
     this.applySavedState =
@@ -292,5 +305,19 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
       searchText: this.searchText,
     };
     await this.stateService.setBrowserVaultItemsComponentState(this.state);
+  }
+
+  @HostListener("keydown", ["$event"])
+  onKeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowDown" && !this.navigatableListComponent.isFocused()) {
+      this.navigatableListComponent.focusTop();
+      event.preventDefault();
+    } else if (event.ctrlKey && event.key === "f") {
+      this.element.nativeElement.querySelector("#search").focus();
+      event.preventDefault();
+    } else if (event.key == "Escape") {
+      this.back();
+      event.preventDefault();
+    }
   }
 }

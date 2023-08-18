@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
+import { ChangeDetectorRef, Component, HostListener, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
@@ -366,5 +366,14 @@ export class ViewComponent extends BaseViewComponent {
     }
 
     return true;
+  }
+
+  @HostListener("keydown", ["$event"])
+  onKeydown(event: KeyboardEvent) {
+    if (event.key == "Escape") {
+      this.close();
+    }
+
+    event.preventDefault();
   }
 }

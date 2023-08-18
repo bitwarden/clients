@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
@@ -19,6 +28,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
+import { NavigatableListComponent } from "../../../../popup/components/navigatable-list.component";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
 import { VaultFilterService } from "../../../services/vault-filter.service";
 
@@ -52,6 +62,8 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   private loadedTimeout: number;
   private searchTimeout: number;
 
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
+
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private cipherService: CipherService,
@@ -67,7 +79,8 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private stateService: StateService,
     private passwordRepromptService: PasswordRepromptService,
     private organizationService: OrganizationService,
-    private vaultFilterService: VaultFilterService
+    private vaultFilterService: VaultFilterService,
+    private element: ElementRef
   ) {}
 
   async ngOnInit() {
@@ -309,6 +322,17 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
       this.autofillCalloutText = this.i18nService.t("autofillSelectInfoWithCommand", command);
     } else {
       this.autofillCalloutText = this.i18nService.t("autofillSelectInfoWithoutCommand");
+    }
+  }
+
+  @HostListener("keydown", ["$event"])
+  onKeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowDown" && !this.navigatableListComponent.isFocused()) {
+      this.navigatableListComponent.focusTop();
+      event.preventDefault();
+    } else if (event.ctrlKey && event.key === "f") {
+      this.element.nativeElement.querySelector("#search").focus();
+      event.preventDefault();
     }
   }
 }

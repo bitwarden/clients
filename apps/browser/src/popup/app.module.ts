@@ -56,6 +56,8 @@ import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { NavigatableListItemComponent } from "./components/navigatable-list-item.component";
+import { NavigatableListComponent } from "./components/navigatable-list.component";
 import { PopOutComponent } from "./components/pop-out.component";
 import { PrivateModeWarningComponent } from "./components/private-mode-warning.component";
 import { SetPinComponent } from "./components/set-pin.component";
@@ -155,6 +157,8 @@ import "../platform/popup/locales";
     HelpAndFeedbackComponent,
     AutofillComponent,
     EnvironmentSelectorComponent,
+    NavigatableListComponent,
+    NavigatableListItemComponent,
   ],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],

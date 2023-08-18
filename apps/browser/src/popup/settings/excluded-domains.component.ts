@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -8,6 +8,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { NavigatableListComponent } from "../components/navigatable-list.component";
 
 interface ExcludedDomain {
   uri: string;
@@ -25,6 +26,8 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
   existingExcludedDomains: ExcludedDomain[] = [];
   currentUris: string[];
   loadCurrentUrisTimeout: number;
+
+  @ViewChild(NavigatableListComponent) navigatableListComponent: NavigatableListComponent;
 
   constructor(
     private stateService: StateService,

@@ -17,58 +17,60 @@
     <div class="box">
       <div class="box-content">
         <ng-container *ngIf="excludedDomains">
-          <div
-            class="box-content-row box-content-row-multi"
-            appBoxRow
-            *ngFor="let domain of excludedDomains; let i = index; trackBy: trackByFunction"
-          >
-            <button
-              type="button"
-              appStopClick
-              (click)="removeUri(i)"
-              appA11yTitle="{{ 'remove' | i18n }}"
+          <navigatable-list>
+            <navigatable-list-item
+              *ngFor="let domain of excludedDomains; let i = index; trackBy: trackByFunction"
             >
-              <i class="bwi bwi-minus-circle bwi-lg" aria-hidden="true"></i>
-            </button>
-            <div class="row-main">
-              <label for="excludedDomain{{ i }}">{{ "uriPosition" | i18n : i + 1 }}</label>
-              <input
-                id="excludedDomain{{ i }}"
-                name="excludedDomain{{ i }}"
-                type="text"
-                [(ngModel)]="domain.uri"
-                placeholder="{{ 'ex' | i18n }} https://google.com"
-                inputmode="url"
-                appInputVerbatim
-              />
-              <label for="currentUris{{ i }}" class="sr-only">
-                {{ "currentUri" | i18n }} {{ i + 1 }}
-              </label>
-              <select
-                *ngIf="currentUris && currentUris.length"
-                id="currentUris{{ i }}"
-                name="currentUris{{ i }}"
-                [(ngModel)]="domain.uri"
-                [hidden]="!domain.showCurrentUris"
-              >
-                <option [ngValue]="null">-- {{ "select" | i18n }} --</option>
-                <option *ngFor="let u of currentUris" [ngValue]="u">{{ u }}</option>
-              </select>
-            </div>
-            <div class="action-buttons">
-              <button
-                type="button"
-                *ngIf="currentUris && currentUris.length"
-                class="row-btn"
-                appStopClick
-                appA11yTitle="{{ 'toggleCurrentUris' | i18n }}"
-                (click)="toggleUriInput(domain)"
-                [attr.aria-pressed]="domain.showCurrentUris === true"
-              >
-                <i aria-hidden="true" class="bwi bwi-lg bwi-list"></i>
-              </button>
-            </div>
-          </div>
+              <div class="box-content-row box-content-row-multi" appBoxRow>
+                <button
+                  type="button"
+                  appStopClick
+                  (click)="removeUri(i)"
+                  appA11yTitle="{{ 'remove' | i18n }}"
+                >
+                  <i class="bwi bwi-minus-circle bwi-lg" aria-hidden="true"></i>
+                </button>
+                <div class="row-main">
+                  <label for="excludedDomain{{ i }}">{{ "uriPosition" | i18n : i + 1 }}</label>
+                  <input
+                    id="excludedDomain{{ i }}"
+                    name="excludedDomain{{ i }}"
+                    type="text"
+                    [(ngModel)]="domain.uri"
+                    placeholder="{{ 'ex' | i18n }} https://google.com"
+                    inputmode="url"
+                    appInputVerbatim
+                  />
+                  <label for="currentUris{{ i }}" class="sr-only">
+                    {{ "currentUri" | i18n }} {{ i + 1 }}
+                  </label>
+                  <select
+                    *ngIf="currentUris && currentUris.length"
+                    id="currentUris{{ i }}"
+                    name="currentUris{{ i }}"
+                    [(ngModel)]="domain.uri"
+                    [hidden]="!domain.showCurrentUris"
+                  >
+                    <option [ngValue]="null">-- {{ "select" | i18n }} --</option>
+                    <option *ngFor="let u of currentUris" [ngValue]="u">{{ u }}</option>
+                  </select>
+                </div>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    *ngIf="currentUris && currentUris.length"
+                    class="row-btn"
+                    appStopClick
+                    appA11yTitle="{{ 'toggleCurrentUris' | i18n }}"
+                    (click)="toggleUriInput(domain)"
+                    [attr.aria-pressed]="domain.showCurrentUris === true"
+                  >
+                    <i aria-hidden="true" class="bwi bwi-lg bwi-list"></i>
+                  </button>
+                </div>
+              </div>
+            </navigatable-list-item>
+          </navigatable-list>
         </ng-container>
         <button
           type="button"
