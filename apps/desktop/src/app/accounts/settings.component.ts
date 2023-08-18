@@ -20,7 +20,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { flagEnabled } from "../../platform/flags";
 import { ElectronStateService } from "../../platform/services/electron-state.service.abstraction";
-import { isWindowsStore } from "../../utils";
+import { isSnapStore, isFlatpak, isWindowsStore } from "../../utils";
 import { SetPinComponent } from "../components/set-pin.component";
 
 @Component({
@@ -45,6 +45,7 @@ export class SettingsComponent implements OnInit {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   isWindows: boolean;
+  isLinux: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -190,6 +191,7 @@ export class SettingsComponent implements OnInit {
 
   async ngOnInit() {
     this.isWindows = (await this.platformUtilsService.getDevice()) === DeviceType.WindowsDesktop;
+    this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
 
     if ((await this.stateService.getUserId()) == null) {
       return;
@@ -260,6 +262,8 @@ export class SettingsComponent implements OnInit {
     this.additionalBiometricSettingsText =
       this.biometricText === "unlockWithTouchId"
         ? "additionalTouchIdSettings"
+        : this.biometricText == "unlockWithPolkit"
+        ? "additionalPolkitSettings"
         : "additionalWindowsHelloSettings";
     this.autoPromptBiometricsText = await this.stateService.getNoAutoPromptBiometricsText();
     this.previousVaultTimeout = this.form.value.vaultTimeout;
@@ -392,9 +396,20 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
+    if (await this.platformUtilsService.biometricsNeedsSetup()) {
+      await this.platformUtilsService.biometricsSetup();
+    }
+
     await this.stateService.setBiometricUnlock(true);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
+      this.form.controls.requirePasswordOnStart.setValue(true);
+      this.form.controls.autoPromptBiometrics.setValue(false);
+      await this.stateService.setDisableAutoBiometricsPrompt(true);
+      await this.stateService.setBiometricRequirePasswordOnStart(true);
+      await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+    } else if (this.isLinux) {
+      // Similar to Windows
       this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.stateService.setDisableAutoBiometricsPrompt(true);
@@ -543,7 +558,7 @@ export class SettingsComponent implements OnInit {
 
       this.form.controls.enableBrowserIntegration.setValue(false);
       return;
-    } else if (process.platform == "linux") {
+    } else if (isSnapStore() || isFlatpak()) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationLinuxDesc" },

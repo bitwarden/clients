@@ -1,6 +1,8 @@
 export enum BiometricStorageAction {
   EnabledForUser = "enabled",
   OsSupported = "osSupported",
+  NeedsSetup = "needsSetup",
+  Setup = "setup",
 }
 
 export type BiometricMessage = {

@@ -149,6 +149,18 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     } as BiometricMessage);
   }
 
+  async biometricsNeedsSetup(): Promise<boolean> {
+    return await ipcRenderer.invoke("biometric", {
+      action: BiometricStorageAction.NeedsSetup,
+    } as BiometricMessage);
+  }
+
+  async biometricsSetup(): Promise<void> {
+    await ipcRenderer.invoke("biometric", {
+      action: BiometricStorageAction.Setup,
+    } as BiometricMessage);
+  }
+
   /** This method is used to authenticate the user presence _only_.
    * It should not be used in the process to retrieve
    * biometric keys, which has a separate authentication mechanism.

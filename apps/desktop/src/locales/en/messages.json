@@ -1395,7 +1395,16 @@
   "additionalWindowsHelloSettings": {
     "message": "Additional Windows Hello settings"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with Polkit"
+  },
+  "additionalPolkitSettings": {
+    "message": "Additional Polkit settings"
+  },
   "windowsHelloConsentMessage": {
+    "message": "Verify for Bitwarden."
+  },
+  "polkitConsentMessage": {
     "message": "Verify for Bitwarden."
   },
   "unlockWithTouchId": {
@@ -1409,6 +1418,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Ask for Windows Hello on app start"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for Polkit on launch"
   },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"

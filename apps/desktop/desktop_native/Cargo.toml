@@ -15,6 +15,7 @@ manual_test = []
 [dependencies]
 aes = "=0.8.2"
 anyhow = "=1.0.71"
+async-trait = "0.1.69"
 base64 = "=0.21.2"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 napi = { version = "=2.13.1", features = ["async"] }
@@ -26,6 +27,8 @@ sha2 = "=0.10.6"
 thiserror = "=1.0.40"
 tokio = { version = "=1.28.2", features = ["full"] }
 typenum = "=1.16.0"
+zbus = "3.14.1"
+zbus_polkit = "3.0.1"
 
 [build-dependencies]
 napi-build = "=2.0.1"

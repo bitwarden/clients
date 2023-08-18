@@ -54,6 +54,10 @@ export function isSnapStore() {
   return process.platform === "linux" && process.env.SNAP_USER_DATA != null;
 }
 
+export function isFlatpak() {
+  return process.platform === "linux" && process.env.container != null;
+}
+
 export function isWindowsPortable() {
   return process.platform === "win32" && process.env.PORTABLE_EXECUTABLE_DIR != null;
 }

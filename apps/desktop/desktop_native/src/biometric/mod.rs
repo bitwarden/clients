@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use anyhow::Result;
 
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
@@ -9,8 +10,9 @@ pub use biometric::Biometric;
 
 use crate::biometrics::{KeyMaterial, OsDerivedKey};
 
+#[async_trait]
 pub trait BiometricTrait {
-    fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool>;
+    async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool>;
     fn available() -> Result<bool>;
     fn derive_key_material(secret: Option<&str>) -> Result<OsDerivedKey>;
     fn set_biometric_secret(

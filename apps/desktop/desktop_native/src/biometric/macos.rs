@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use anyhow::{bail, Result};
 
 use crate::biometrics::{KeyMaterial, OsDerivedKey};
@@ -5,8 +6,9 @@ use crate::biometrics::{KeyMaterial, OsDerivedKey};
 /// The MacOS implementation of the biometric trait.
 pub struct Biometric {}
 
+#[async_trait]
 impl super::BiometricTrait for Biometric {
-    fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
+    async fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
         bail!("platform not supported");
     }
 

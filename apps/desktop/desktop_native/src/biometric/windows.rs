@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use std::str::FromStr;
 
 use aes::cipher::generic_array::GenericArray;
@@ -36,9 +38,10 @@ use crate::{
 
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
+#[async_trait]
 
 impl super::BiometricTrait for Biometric {
-    fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
+    async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
         let h = isize::from_le_bytes(hwnd.clone().try_into().unwrap());
         let window = HWND(h);
 

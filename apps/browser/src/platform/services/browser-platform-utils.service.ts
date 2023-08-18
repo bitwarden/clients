@@ -317,6 +317,14 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     return true;
   }
 
+  async biometricsNeedsSetup(): Promise<boolean> {
+    return false;
+  }
+
+  async biometricsSetup(): Promise<void> {
+    return;
+  }
+
   authenticateBiometric() {
     return this.biometricCallback();
   }
