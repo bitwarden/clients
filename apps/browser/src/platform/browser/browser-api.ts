@@ -250,12 +250,8 @@ export class BrowserApi {
     return chrome.i18n.getUILanguage();
   }
 
-  static reloadExtension(win: Window) {
-    if (win != null) {
-      return (win.location as any).reload(true);
-    } else {
-      return chrome.runtime.reload();
-    }
+  static reloadExtension() {
+    return chrome.runtime.reload();
   }
 
   static reloadOpenWindows(exemptCurrentHref = false) {

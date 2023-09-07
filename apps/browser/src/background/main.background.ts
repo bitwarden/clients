@@ -541,11 +541,7 @@ export default class MainBackground {
     this.browserPopoutWindowService = new BrowserPopoutWindowService();
 
     const systemUtilsServiceReloadCallback = () => {
-      const forceWindowReload =
-        this.platformUtilsService.isSafari() ||
-        this.platformUtilsService.isFirefox() ||
-        this.platformUtilsService.isOpera();
-      BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension();
       return Promise.resolve();
     };
 
