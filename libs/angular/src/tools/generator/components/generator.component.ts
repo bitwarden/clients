@@ -8,8 +8,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { GeneratorOptions } from "@bitwarden/common/tools/generator/generator-options";
+import {
+  PasswordGenerationServiceAbstraction,
+  PasswordGeneratorOptions,
+} from "@bitwarden/common/tools/generator/password";
+import {
+  UsernameGenerationServiceAbstraction,
+  UsernameGeneratorOptions,
+} from "@bitwarden/common/tools/generator/username";
 
 @Directive()
 export class GeneratorComponent implements OnInit {
@@ -24,8 +31,8 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: any = {};
-  passwordOptions: any = {};
+  usernameOptions: UsernameGeneratorOptions = {};
+  passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
   showOptions = false;
@@ -118,7 +125,7 @@ export class GeneratorComponent implements OnInit {
   }
 
   async typeChanged() {
-    await this.stateService.setGeneratorOptions({ type: this.type });
+    await this.stateService.setGeneratorOptions({ type: this.type } as GeneratorOptions);
     if (this.regenerateWithoutButtonPress()) {
       await this.regenerate();
     }
@@ -237,7 +244,7 @@ export class GeneratorComponent implements OnInit {
 
   private async initForwardOptions() {
     this.forwardOptions = [
-      { name: "AnonAddy", value: "anonaddy", validForSelfHosted: true },
+      { name: "addy.io", value: "anonaddy", validForSelfHosted: true },
       { name: "DuckDuckGo", value: "duckduckgo", validForSelfHosted: false },
       { name: "Fastmail", value: "fastmail", validForSelfHosted: true },
       { name: "Firefox Relay", value: "firefoxrelay", validForSelfHosted: false },

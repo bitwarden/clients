@@ -30,15 +30,15 @@ describe("canAccessFeature", () => {
 
     // Mock the correct getter based on the type of flagValue; also mock default values if one is not provided
     if (typeof flagValue === "boolean") {
-      mockConfigService.getFeatureFlagBool.mockImplementation((flag, defaultValue = false) =>
+      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = false) =>
         flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
       );
     } else if (typeof flagValue === "string") {
-      mockConfigService.getFeatureFlagString.mockImplementation((flag, defaultValue = "") =>
+      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = "") =>
         flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
       );
     } else if (typeof flagValue === "number") {
-      mockConfigService.getFeatureFlagNumber.mockImplementation((flag, defaultValue = 0) =>
+      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = 0) =>
         flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
       );
     }
@@ -143,7 +143,7 @@ describe("canAccessFeature", () => {
   it("fails to navigate when the config service throws an unexpected exception", async () => {
     const { router } = setup(canAccessFeature(testFlag), true);
 
-    mockConfigService.getFeatureFlagBool.mockImplementation(() => Promise.reject("Some error"));
+    mockConfigService.getFeatureFlag.mockImplementation(() => Promise.reject("Some error"));
 
     await router.navigate([featureRoute]);
 

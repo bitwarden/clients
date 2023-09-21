@@ -6,7 +6,9 @@ export type InputTypes =
   | "email"
   | "checkbox"
   | "search"
-  | "file";
+  | "file"
+  | "date"
+  | "time";
 
 export abstract class BitFormFieldControl {
   ariaDescribedBy: string;

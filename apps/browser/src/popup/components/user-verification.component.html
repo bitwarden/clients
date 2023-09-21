@@ -1,4 +1,4 @@
-<ng-container *ngIf="!usesKeyConnector">
+<ng-container *ngIf="hasMasterPassword">
   <div class="box-content-row" appBoxRow>
     <label for="masterPassword">{{ "masterPass" | i18n }}</label>
     <input
@@ -14,7 +14,7 @@
     />
   </div>
 </ng-container>
-<ng-container *ngIf="usesKeyConnector">
+<ng-container *ngIf="!hasMasterPassword">
   <div class="box-content-row" appBoxRow>
     <label class="d-block">{{ "sendVerificationCode" | i18n }}</label>
     <button

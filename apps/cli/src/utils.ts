@@ -46,7 +46,7 @@ export class CliUtils {
     });
   }
 
-  static extract1PuxContent(input: string): Promise<string> {
+  static extractZipContent(input: string, filepath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       let p: string = null;
       if (input != null && input !== "") {
@@ -65,7 +65,7 @@ export class CliUtils {
         }
         JSZip.loadAsync(data).then(
           (zip) => {
-            resolve(zip.file("export.data").async("string"));
+            resolve(zip.file(filepath).async("string"));
           },
           (reason) => {
             reject(reason);
@@ -74,6 +74,7 @@ export class CliUtils {
       });
     });
   }
+
   /**
    * Save the given data to a file and determine the target file if necessary.
    * If output is non-empty, it is used as target filename. Otherwise the target filename is
@@ -251,5 +252,21 @@ export class CliUtils {
 
   static convertBooleanOption(optionValue: any) {
     return optionValue || optionValue === "" ? true : false;
+  }
+
+  static convertNumberOption(optionValue: any, defaultValue: number) {
+    try {
+      if (optionValue != null) {
+        const numVal = parseInt(optionValue);
+        return !Number.isNaN(numVal) ? numVal : defaultValue;
+      }
+      return defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  static convertStringOption(optionValue: any, defaultValue: string) {
+    return optionValue != null ? String(optionValue) : defaultValue;
   }
 }

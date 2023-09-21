@@ -8,7 +8,7 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "../../tools/password-strength";
 import { AuthService } from "../abstractions/auth.service";
 import { TokenService } from "../abstractions/token.service";
@@ -35,8 +35,8 @@ export class PasswordLogInStrategy extends LogInStrategy {
 
   tokenRequest: PasswordTokenRequest;
 
-  private localHashedPassword: string;
-  private key: SymmetricCryptoKey;
+  private localMasterKeyHash: string;
+  private masterKey: MasterKey;
 
   /**
    * Options to track if the user needs to update their password due to a password that does not meet an organization's
@@ -71,12 +71,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
     );
   }
 
-  async setUserKey() {
-    await this.cryptoService.setKey(this.key);
-    await this.cryptoService.setKeyHash(this.localHashedPassword);
-  }
-
-  async logInTwoFactor(
+  override async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
     captchaResponse: string
   ): Promise<AuthResult> {
@@ -96,28 +91,29 @@ export class PasswordLogInStrategy extends LogInStrategy {
     return result;
   }
 
-  async logIn(credentials: PasswordLogInCredentials) {
+  override async logIn(credentials: PasswordLogInCredentials) {
     const { email, masterPassword, captchaToken, twoFactor } = credentials;
 
-    this.key = await this.authService.makePreloginKey(masterPassword, email);
+    this.masterKey = await this.authService.makePreloginKey(masterPassword, email);
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    this.localHashedPassword = await this.cryptoService.hashPassword(
+    this.localMasterKeyHash = await this.cryptoService.hashMasterKey(
       masterPassword,
-      this.key,
+      this.masterKey,
       HashPurpose.LocalAuthorization
     );
-    const hashedPassword = await this.cryptoService.hashPassword(masterPassword, this.key);
+    const masterKeyHash = await this.cryptoService.hashMasterKey(masterPassword, this.masterKey);
 
     this.tokenRequest = new PasswordTokenRequest(
       email,
-      hashedPassword,
+      masterKeyHash,
       captchaToken,
       await this.buildTwoFactor(twoFactor),
       await this.buildDeviceRequest()
     );
 
     const [authResult, identityResponse] = await this.startLogIn();
+
     const masterPasswordPolicyOptions =
       this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
 
@@ -143,6 +139,35 @@ export class PasswordLogInStrategy extends LogInStrategy {
       }
     }
     return authResult;
+  }
+
+  protected override async setMasterKey(response: IdentityTokenResponse) {
+    await this.cryptoService.setMasterKey(this.masterKey);
+    await this.cryptoService.setMasterKeyHash(this.localMasterKeyHash);
+  }
+
+  protected override async setUserKey(response: IdentityTokenResponse): Promise<void> {
+    // If migration is required, we won't have a user key to set yet.
+    if (this.encryptionKeyMigrationRequired(response)) {
+      return;
+    }
+    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
+
+    const masterKey = await this.cryptoService.getMasterKey();
+    if (masterKey) {
+      const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
+      await this.cryptoService.setUserKey(userKey);
+    }
+  }
+
+  protected override async setPrivateKey(response: IdentityTokenResponse): Promise<void> {
+    await this.cryptoService.setPrivateKey(
+      response.privateKey ?? (await this.createKeyPairForOldAccount())
+    );
+  }
+
+  protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
+    return !response.key;
   }
 
   private getMasterPasswordPolicyOptionsFromResponse(

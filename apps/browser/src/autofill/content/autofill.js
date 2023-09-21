@@ -768,8 +768,16 @@
 
       // Detect if within an iframe, and the iframe is sandboxed
       function isSandboxed() {
-          // self.origin is 'null' if inside a frame with sandboxed csp or iframe tag
-          return self.origin == null || self.origin === 'null';
+        // self.origin is 'null' if inside a frame with sandboxed csp or iframe tag
+        if (String(self.origin).toLowerCase() === "null") {
+          return true;
+        }
+
+        if (window.frameElement?.hasAttribute("sandbox")) {
+          return true;
+        }
+
+        return location.hostname === "";
       }
 
       function doFill(fillScript) {
@@ -978,13 +986,18 @@
           styleTimeout = 200;
 
       /**
-       * Fll an element `el` using the value `op` from the fill script
+       * Fill an element `el` using the value `op` from the fill script
        * @param {HTMLElement} el
        * @param {string} op
        */
       function fillTheElement(el, op) {
           var shouldCheck;
           if (el && null !== op && void 0 !== op && !(el.disabled || el.a || el.readOnly)) {
+              const tabURLChanged = !fillScript.savedUrls?.some(url => url.startsWith(window.location.origin))
+              // Check to make sure the page location didn't change
+              if (tabURLChanged) {
+                return;
+              }
               switch (markTheFilling && el.form && !el.form.opfilled && (el.form.opfilled = true),
               el.type ? el.type.toLowerCase() : null) {
                   case 'checkbox':

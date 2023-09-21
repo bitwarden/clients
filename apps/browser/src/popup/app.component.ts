@@ -9,20 +9,20 @@ import {
 import { DomSanitizer } from "@angular/platform-browser";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
-import { filter, concatMap, Subject, takeUntil } from "rxjs";
-import Swal from "sweetalert2";
+import { filter, concatMap, Subject, takeUntil, firstValueFrom } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogOptions } from "@bitwarden/angular/services/dialog";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
+import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
 @Component({
   selector: "app-root",
@@ -50,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private sanitizer: DomSanitizer,
     private platformUtilsService: PlatformUtilsService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -86,41 +86,33 @@ export class AppComponent implements OnInit, OnDestroy {
       sendResponse: any
     ) => {
       if (msg.command === "doneLoggingOut") {
-        this.ngZone.run(async () => {
-          this.authService.logOut(async () => {
-            if (msg.expired) {
-              this.showToast({
-                type: "warning",
-                title: this.i18nService.t("loggedOut"),
-                text: this.i18nService.t("loginExpired"),
-              });
-            }
+        this.authService.logOut(async () => {
+          if (msg.expired) {
+            this.showToast({
+              type: "warning",
+              title: this.i18nService.t("loggedOut"),
+              text: this.i18nService.t("loginExpired"),
+            });
+          }
 
-            if (this.activeUserId === null) {
-              this.router.navigate(["home"]);
-            }
-          });
-          this.changeDetectorRef.detectChanges();
+          if (this.activeUserId === null) {
+            this.router.navigate(["home"]);
+          }
         });
+        this.changeDetectorRef.detectChanges();
       } else if (msg.command === "authBlocked") {
-        this.ngZone.run(() => {
-          this.router.navigate(["home"]);
-        });
+        this.router.navigate(["home"]);
       } else if (msg.command === "locked") {
         if (msg.userId == null || msg.userId === (await this.stateService.getUserId())) {
-          this.ngZone.run(() => {
-            this.router.navigate(["lock"]);
-          });
+          this.router.navigate(["lock"]);
         }
       } else if (msg.command === "showDialog") {
-        await this.showDialog(msg);
+        await this.ngZone.run(() => this.showDialog(msg));
       } else if (msg.command === "showNativeMessagingFinterprintDialog") {
         // TODO: Should be refactored to live in another service.
-        await this.showNativeMessagingFingerprintDialog(msg);
+        await this.ngZone.run(() => this.showNativeMessagingFingerprintDialog(msg));
       } else if (msg.command === "showToast") {
-        this.ngZone.run(() => {
-          this.showToast(msg);
-        });
+        this.showToast(msg);
       } else if (msg.command === "reloadProcess") {
         const forceWindowReload =
           this.platformUtilsService.isSafari() ||
@@ -132,13 +124,9 @@ export class AppComponent implements OnInit, OnDestroy {
           2000
         );
       } else if (msg.command === "reloadPopup") {
-        this.ngZone.run(() => {
-          this.router.navigate(["/"]);
-        });
+        this.router.navigate(["/"]);
       } else if (msg.command === "convertAccountToKeyConnector") {
-        this.ngZone.run(async () => {
-          this.router.navigate(["/remove-password"]);
-        });
+        this.router.navigate(["/remove-password"]);
       } else {
         msg.webExtSender = sender;
         this.broadcasterService.send(msg);
@@ -242,19 +230,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async showNativeMessagingFingerprintDialog(msg: any) {
-    await Swal.fire({
-      heightAuto: false,
-      buttonsStyling: false,
-      icon: "warning",
-      iconHtml: '<i class="swal-custom-icon bwi bwi-exclamation-triangle text-warning"></i>',
-      html: `${this.i18nService.t("desktopIntegrationVerificationText")}<br><br><strong>${
-        msg.fingerprint
-      }</strong>`,
-      titleText: this.i18nService.t("desktopSyncVerificationTitle"),
-      showConfirmButton: true,
-      confirmButtonText: this.i18nService.t("ok"),
-      timer: 300000,
+    const dialogRef = DesktopSyncVerificationDialogComponent.open(this.dialogService, {
+      fingerprint: msg.fingerprint,
     });
+
+    return firstValueFrom(dialogRef.closed);
   }
 
   private async clearComponentStates() {

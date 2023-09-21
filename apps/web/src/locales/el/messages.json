@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
   },
+  "expirationDateError": {
+    "message": "Please select an expiration date that is in the future."
+  },
   "emailAddress": {
     "message": "Διεύθυνση Email"
   },
   "yourVaultIsLocked": {
     "message": "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κύριο κωδικό πρόσβασης για να συνεχίσετε."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Ξεκλείδωμα"
@@ -947,6 +953,9 @@
   },
   "copyVerificationCode": {
     "message": "Αντιγραφή Κωδικού Επαλήθευσης"
+  },
+  "copyUuid": {
+    "message": "Copy UUID"
   },
   "warning": {
     "message": "Προειδοποίηση"
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Σφάλμα αποκρυπτογράφησης του εξαγόμενου αρχείου. Το κλειδί κρυπτογράφησης δεν ταιριάζει με το κλειδί κρυπτογράφησης που χρησιμοποιήθηκε για την εξαγωγή των δεδομένων."
   },
+  "importDestination": {
+    "message": "Import destination"
+  },
+  "learnAboutImportOptions": {
+    "message": "Learn about your import options"
+  },
+  "selectImportFolder": {
+    "message": "Select a folder"
+  },
+  "selectImportCollection": {
+    "message": "Select a collection"
+  },
+  "importTargetHint": {
+    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "File contains unassigned items."
+  },
   "selectFormat": {
     "message": "Επιλέξτε μορφή του αρχείου εισαγωγής"
   },
@@ -1391,7 +1425,10 @@
   "twoStepLoginDesc": {
     "message": "Ασφαλίστε το λογαριασμό σας απαιτώντας ένα επιπλέον βήμα κατά τη σύνδεση."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB κρυπτογραφημένο αποθηκευτικό χώρο για συνημμένα αρχεία."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Πρόσθετες επιλογές σύνδεσης δύο παραγόντων, όπως το YubiKey, το FIDO U2F και το Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Πρόσβαση Έκτακτης Ανάγκης"
@@ -2005,6 +2042,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
   },
   "paymentChargedWithTrial": {
     "message": "Το πακέτο σας έρχεται με δωρεάν δοκιμή 7 ημερών. Ο τρόπος πληρωμής σας δεν θα χρεωθεί μέχρι να τελειώσει η δοκιμή. Η χρέωση θα πραγματοποιείται σε επαναλαμβανόμενη βάση κάθε $INTERVAL$. Μπορείτε να το ακυρώσετε οποιαδήποτε στιγμή."
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Επιλέξτε πότε θα λήξει το vault και πραγματοποιήστε την επιλεγμένη ενέργεια."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Choose when your vault will be logged out."
+  },
   "oneMinute": {
     "message": "1 λεπτό"
   },
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Αυτό το στοιχείο έχει παλιά συνημμένα αρχεία που πρέπει να διορθωθούν."
   },
-  "attachmentFixDesc": {
-    "message": "Αυτό είναι ένα παλιό συνημμένο αρχείο που πρέπει να διορθωθεί. Κάντε κλικ για να μάθετε περισσότερα."
+  "attachmentFixDescription": {
+    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
   },
   "fix": {
     "message": "Επιδιόρθωση",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Επαναφορά Επιλεγμένων"
   },
-  "restoreItem": {
-    "message": "Ανάκτηση Στοιχείου"
-  },
   "restoredItem": {
     "message": "Στοιχείο που έχει Ανακτηθεί"
   },
   "restoredItems": {
     "message": "Στοιχεία που έχουν Ανακτηθεί"
-  },
-  "restoreItemConfirmation": {
-    "message": "Είστε βέβαιοι ότι θέλετε να ανακτήσετε αυτό το στοιχείο;"
-  },
-  "restoreItems": {
-    "message": "Ανάκτηση Στοιχείων"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "Έχετε επιλέξει $COUNT$ στοιχείο(α) για ανάκτηση. Είστε βέβαιοι ότι θέλετε να ανακτήσετε όλα αυτά τα στοιχεία;",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Στοιχείο που έχει ανακτηθεί $ID$.",
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Απενεργοποίηση Εξαγωγής Προσωπικών Vault"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Προσελκύει τους χρήστες να εξάγουν τα προσωπικά τους δεδομένα από το vault."
+  "disablePersonalVaultExportDescription": {
+    "message": "Do not allow members to export data from their individual vault."
   },
   "vaultExportDisabled": {
     "message": "Εξαγωγή vault Απενεργοποιημένη"
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "Εξαγωγή Vault Οργανισμού"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Θα εξαχθούν μόνο τα προσωπικά αντικείμενα Vault που σχετίζονται με το $EMAIL$. Τα αντικείμενα Vault οργανισμού δεν θα συμπεριληφθούν.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,8 +5454,8 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
-    "message": "Μόνο το vault οργανισμού που σχετίζεται με το $ORGANIZATION$ θα εξαχθεί. Προσωπικά αντικείμενα και αντικείμενα από άλλους οργανισμούς δεν θα συμπεριληφθούν.",
+  "exportingOrganizationVaultDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Require existing members to change their passwords"
   },
-  "region": {
-    "message": "Region"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "You don't have permissions to delete this project",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "Update KDF settings"
   },
+  "loginInitiated": {
+    "message": "Login initiated"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Trusted device encryption"
+  },
   "trustedDevices": {
     "message": "Trusted devices"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
+  "memberDecryptionOptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
     "message": "single organization",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": "policy,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "SSO required",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "policy, and",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
     "message": "account recovery administration",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescriptionPartFour": {
     "message": "policy with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ not found",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "Removing members who do not have master passwords without setting one for them may restrict access to their full account."
   },
+  "approvedAuthRequest": {
+    "message": "Approved device for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Denied device for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "Requested device approval."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Next"
   },
-  "usFlag": {
-    "message": "US flag"
-  },
-  "euFlag": {
-    "message": "EU flag"
-  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
   },
   "sendsNoItemsTitle": {
     "message": "No active Sends",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Additional service accounts"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "Your plan comes with $COUNT$ service accounts. You can add additional service accounts for $COST$ per month.",
+  "includedServiceAccounts": {
+    "message": "Your plan comes with $COUNT$ service accounts.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "You can add additional service accounts for $COST$ per month.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Max potential service account cost"
+  },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
+  "smBetaEndedDesc": {
+    "message": "The Secrets Manager Beta ended $BETA_ENDING_DATE$. You have $DAYS$ days left to add Secrets Manager to your paid subscription and maintain access to Secrets Manager data. Contact Customer Success to add Secrets Manager to your subscription.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta Ending"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Already have an account?"
   }
 }

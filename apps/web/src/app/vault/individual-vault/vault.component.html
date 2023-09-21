@@ -77,19 +77,6 @@
       </div>
     </div>
     <div class="col-3">
-      <div class="card border-warning mb-4" *ngIf="showUpdateKey">
-        <div class="card-header bg-warning text-white">
-          <i class="bwi bwi-exclamation-triangle bwi-fw" aria-hidden="true"></i>
-          {{ "updateKeyTitle" | i18n }}
-        </div>
-        <div class="card-body">
-          <p>{{ "updateEncryptionKeyShortDesc" | i18n }}</p>
-          <button class="btn btn-block btn-outline-secondary" type="button" (click)="updateKey()">
-            {{ "updateEncryptionKey" | i18n }}
-          </button>
-        </div>
-      </div>
-
       <app-low-kdf class="d-block mb-4" *ngIf="showLowKdf"> </app-low-kdf>
 
       <app-verify-email

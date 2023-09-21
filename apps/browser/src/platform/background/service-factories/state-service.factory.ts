@@ -7,10 +7,6 @@ import { BrowserStateService } from "../../services/browser-state.service";
 import { CachedServices, factory, FactoryOptions } from "./factory-options";
 import { logServiceFactory, LogServiceInitOptions } from "./log-service.factory";
 import {
-  stateMigrationServiceFactory,
-  StateMigrationServiceInitOptions,
-} from "./state-migration-service.factory";
-import {
   diskStorageServiceFactory,
   secureStorageServiceFactory,
   memoryStorageServiceFactory,
@@ -30,8 +26,7 @@ export type StateServiceInitOptions = StateServiceFactoryOptions &
   DiskStorageServiceInitOptions &
   SecureStorageServiceInitOptions &
   MemoryStorageServiceInitOptions &
-  LogServiceInitOptions &
-  StateMigrationServiceInitOptions;
+  LogServiceInitOptions;
 
 export async function stateServiceFactory(
   cache: { stateService?: BrowserStateService } & CachedServices,
@@ -47,7 +42,6 @@ export async function stateServiceFactory(
         await secureStorageServiceFactory(cache, opts),
         await memoryStorageServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
-        await stateMigrationServiceFactory(cache, opts),
         opts.stateServiceOptions.stateFactory,
         opts.stateServiceOptions.useAccountCache
       )

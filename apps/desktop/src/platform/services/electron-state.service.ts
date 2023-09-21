@@ -98,6 +98,10 @@ export class ElectronStateService
       options
     );
 
+    if (b64DeviceKey == null) {
+      return null;
+    }
+
     return new SymmetricCryptoKey(Utils.fromB64ToArray(b64DeviceKey)) as DeviceKey;
   }
 

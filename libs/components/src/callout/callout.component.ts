@@ -16,6 +16,9 @@ const defaultI18n: Partial<Record<CalloutTypes, string>> = {
   danger: "error",
 };
 
+// Increments for each instance of this component
+let nextId = 0;
+
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
@@ -25,6 +28,7 @@ export class CalloutComponent implements OnInit {
   @Input() icon: string;
   @Input() title: string;
   @Input() useAlertRole = false;
+  protected titleId = `bit-callout-title-${nextId++}`;
 
   constructor(private i18nService: I18nService) {}
 

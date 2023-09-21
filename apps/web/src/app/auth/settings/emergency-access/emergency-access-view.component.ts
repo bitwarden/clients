@@ -5,7 +5,10 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EmergencyAccessViewResponse } from "@bitwarden/common/auth/models/response/emergency-access.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  SymmetricCryptoKey,
+  UserKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -87,13 +90,13 @@ export class EmergencyAccessViewComponent implements OnInit {
 
     const decCiphers: CipherView[] = [];
     const oldKeyBuffer = await this.cryptoService.rsaDecrypt(response.keyEncrypted);
-    const oldEncKey = new SymmetricCryptoKey(oldKeyBuffer);
+    const oldUserKey = new SymmetricCryptoKey(oldKeyBuffer) as UserKey;
 
     const promises: any[] = [];
     ciphers.forEach((cipherResponse) => {
       const cipherData = new CipherData(cipherResponse);
       const cipher = new Cipher(cipherData);
-      promises.push(cipher.decrypt(oldEncKey).then((c) => decCiphers.push(c)));
+      promises.push(cipher.decrypt(oldUserKey).then((c) => decCiphers.push(c)));
     });
 
     await Promise.all(promises);

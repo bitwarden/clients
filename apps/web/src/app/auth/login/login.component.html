@@ -83,7 +83,11 @@
           </div>
 
           <div [hidden]="!showCaptcha()">
-            <iframe id="hcaptcha_iframe" height="80"></iframe>
+            <iframe
+              id="hcaptcha_iframe"
+              height="80"
+              sandbox="allow-scripts allow-same-origin"
+            ></iframe>
           </div>
 
           <div class="tw-mb-3 tw-flex tw-space-x-4">

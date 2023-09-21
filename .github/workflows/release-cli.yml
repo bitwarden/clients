@@ -57,7 +57,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/release-version-check@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -78,7 +78,7 @@ jobs:
 
       - name: Download all Release artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli
@@ -87,7 +87,7 @@ jobs:
 
       - name: Dry Run - Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli
@@ -150,7 +150,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
@@ -162,7 +162,7 @@ jobs:
 
       - name: Download artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli
@@ -172,7 +172,7 @@ jobs:
 
       - name: Dry Run - Download artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli
@@ -182,6 +182,8 @@ jobs:
 
       - name: Publish Snap & logout
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
           snapcraft push bw_${{ env._PKG_VERSION }}_amd64.snap --release stable
           snapcraft logout
@@ -204,7 +206,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
@@ -220,7 +222,7 @@ jobs:
 
       - name: Download artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli/dist
@@ -230,7 +232,7 @@ jobs:
 
       - name: Dry Run - Download artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli/dist
@@ -263,14 +265,14 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           keyvault: "bitwarden-ci"
           secrets: "npm-api-key"
 
       - name: Download artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli/build
@@ -280,7 +282,7 @@ jobs:
 
       - name: Dry Run - Download artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-cli.yml
           path: apps/cli/build

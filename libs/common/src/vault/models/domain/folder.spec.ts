@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -47,7 +47,7 @@ describe("Folder", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
         revisionDate: revisionDate.toISOString(),
-        name: "name",
+        name: "name" as EncryptedString,
         id: "id",
       });
 

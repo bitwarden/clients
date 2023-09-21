@@ -2,12 +2,12 @@ import { formatDate } from "@angular/common";
 import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "[sponsoring-org-row]",
@@ -32,7 +32,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     private i18nService: I18nService,
     private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -73,7 +73,7 @@ export class SponsoringOrgRowComponent implements OnInit {
       title: `${this.i18nService.t("remove")} ${this.sponsoringOrg.familySponsorshipFriendlyName}?`,
       content: { key: "revokeSponsorshipConfirmation" },
       acceptButtonText: { key: "remove" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

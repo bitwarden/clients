@@ -18,7 +18,7 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
   private _loading$ = new BehaviorSubject<boolean>(false);
   private _disabled$ = new BehaviorSubject<boolean>(false);
 
-  @Input("bitSubmit") protected handler: FunctionReturningAwaitable;
+  @Input("bitSubmit") handler: FunctionReturningAwaitable;
 
   @Input() allowDisabledFormSubmit?: boolean = false;
 

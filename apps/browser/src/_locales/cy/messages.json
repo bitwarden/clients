@@ -7,7 +7,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "A secure and free password manager for all of your devices.",
+    "message": "Rheolydd cyfrineiriau diogel a rhad ac am ddim ar gyfer eich holl ddyfeisiau.",
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
@@ -29,7 +29,7 @@
     "message": "Cau"
   },
   "submit": {
-    "message": "Submit"
+    "message": "Cyflwyno"
   },
   "emailAddress": {
     "message": "Cyfeiriad ebost"
@@ -227,10 +227,10 @@
     "message": "Cell we Bitwarden"
   },
   "importItems": {
-    "message": "Import items"
+    "message": "Mewnforio eitemau"
   },
   "select": {
-    "message": "Select"
+    "message": "Dewis"
   },
   "generatePassword": {
     "message": "Cynhyrchu cyfrinair"
@@ -338,11 +338,14 @@
   "other": {
     "message": "Other"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "Rate the extension"
   },
   "rateExtensionDesc": {
-    "message": "Please consider helping us out with a good review!"
+    "message": "Ystyriwch ein helpu ni gydag adolygiad da!"
   },
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
@@ -357,7 +360,7 @@
     "message": "Datgloi"
   },
   "loggedInAsOn": {
-    "message": "Logged in as $EMAIL$ on $HOSTNAME$.",
+    "message": "Wedi mewngofnodi gyda $EMAIL$ ar $HOSTNAME$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -376,7 +379,7 @@
     "message": "Cloi'r gell"
   },
   "lockNow": {
-    "message": "Lock now"
+    "message": "Cloi nawr"
   },
   "immediately": {
     "message": "ar unwaith"
@@ -424,7 +427,7 @@
     "message": "Diogelwch"
   },
   "errorOccurred": {
-    "message": "An error has occurred"
+    "message": "Bu gwall"
   },
   "emailRequired": {
     "message": "Mae angen cyfeiriad ebost."
@@ -510,13 +513,13 @@
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "editedFolder": {
-    "message": "Folder saved"
+    "message": "Ffolder wedi'i chadw"
   },
   "deleteFolderConfirmation": {
     "message": "Are you sure you want to delete this folder?"
   },
   "deletedFolder": {
-    "message": "Folder deleted"
+    "message": "Ffolder wedi'i dileu"
   },
   "gettingStartedTutorial": {
     "message": "Getting started tutorial"
@@ -531,7 +534,7 @@
     "message": "Syncing failed"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Cyfrinair wedi'i gopïo"
   },
   "uri": {
     "message": "URI"
@@ -550,10 +553,10 @@
     "message": "URI newydd"
   },
   "addedItem": {
-    "message": "Item added"
+    "message": "Eitem wedi'i hychwanegu"
   },
   "editedItem": {
-    "message": "Item saved"
+    "message": "Eitem wedi'i chadw"
   },
   "deleteItemConfirmation": {
     "message": "Ydych chi wir eisiau anfon i'r sbwriel?"
@@ -562,13 +565,13 @@
     "message": "Anfonwyd yr eitem i'r sbwriel"
   },
   "overwritePassword": {
-    "message": "Overwrite password"
+    "message": "Trosysgrifo'r cyfrinair"
   },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },
   "overwriteUsername": {
-    "message": "Overwrite username"
+    "message": "Trosysgrifo'r enw defnyddiwr"
   },
   "overwriteUsernameConfirmation": {
     "message": "Are you sure you want to overwrite the current username?"
@@ -605,7 +608,7 @@
     "message": "List identity items on the Tab page for easy auto-fill."
   },
   "clearClipboard": {
-    "message": "Clear clipboard",
+    "message": "Clirio'r clipfwrdd",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
@@ -629,6 +632,12 @@
   },
   "notificationChangeSave": {
     "message": "Diweddaru"
+  },
+  "notificationUnlockDesc": {
+    "message": "Unlock your Bitwarden vault to complete the auto-fill request."
+  },
+  "notificationUnlock": {
+    "message": "Datgloi"
   },
   "enableContextMenuItem": {
     "message": "Show context menu options"
@@ -702,7 +711,7 @@
     "message": "Rhannu"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ moved to $ORGNAME$",
+    "message": "Symudwyd $ITEMNAME$ i $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -742,10 +751,10 @@
     "message": "Attachment deleted"
   },
   "newAttachment": {
-    "message": "Add new attachment"
+    "message": "Ychwanegu atodiad newydd"
   },
   "noAttachments": {
-    "message": "No attachments."
+    "message": "Dim atodiadau."
   },
   "attachmentSaved": {
     "message": "Attachment saved"
@@ -754,7 +763,7 @@
     "message": "Ffeil"
   },
   "selectFile": {
-    "message": "Select a file"
+    "message": "Dewis ffeil"
   },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
@@ -778,40 +787,40 @@
     "message": "Adnewyddu'ch aelodaeth"
   },
   "premiumNotCurrentMember": {
-    "message": "You are not currently a Premium member."
+    "message": "Does gennych chi ddim aeloaeth uwch ar hyn o bryd."
   },
   "premiumSignUpAndGet": {
-    "message": "Sign up for a Premium membership and get:"
+    "message": "Cofrestrwch ar gyfer aelodaeth uwch i gael:"
   },
   "ppremiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "Storfa 1GB wedi'i hamgryptio ar gyfer atodiadau ffeiliau."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Additional two-step login options such as YubiKey, FIDO U2F, and Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Dewisiadau mewngofnodi dau gam perchenogol megis YubiKey a Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
   "ppremiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "Cynhyrchydd codau dilysu TOTP (2FA) ar gyfer manylion mewngofnodi yn eich cell."
   },
   "ppremiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "Cymorth wedi'i flaenoriaethu."
   },
   "ppremiumSignUpFuture": {
     "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
-    "message": "Purchase Premium"
+    "message": "Prynu aelodaeth uwch"
   },
   "premiumPurchaseAlert": {
     "message": "You can purchase Premium membership on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "premiumCurrentMember": {
-    "message": "You are a Premium member!"
+    "message": "Mae gennych aelodaeth uwch!"
   },
   "premiumCurrentMemberThanks": {
-    "message": "Thank you for supporting Bitwarden."
+    "message": "Diolch am gefnogi Bitwarden."
   },
   "premiumPrice": {
     "message": "Hyn oll am $PRICE$ y flwyddyn!",
@@ -835,10 +844,10 @@
     "message": "Ask for biometrics on launch"
   },
   "premiumRequired": {
-    "message": "Premium required"
+    "message": "Mae angen aelodaeth uwch"
   },
   "premiumRequiredDesc": {
-    "message": "A Premium membership is required to use this feature."
+    "message": "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon."
   },
   "enterVerificationCodeApp": {
     "message": "Enter the 6 digit verification code from your authenticator app."
@@ -895,7 +904,7 @@
     "message": "Please use a supported web browser (such as Chrome) and/or add additional providers that are better supported across web browsers (such as an authenticator app)."
   },
   "twoStepOptions": {
-    "message": "Two-step login options"
+    "message": "Dewisiadau mewngofnodi dau gam"
   },
   "recoveryCodeDesc": {
     "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers from your account."
@@ -1024,7 +1033,7 @@
     "message": "Copy value"
   },
   "value": {
-    "message": "Value"
+    "message": "Gwerth"
   },
   "newCustomField": {
     "message": "Maes addasedig newydd"
@@ -1039,7 +1048,7 @@
     "message": "Hidden"
   },
   "cfTypeBoolean": {
-    "message": "Boolean"
+    "message": "Gwerth Boole"
   },
   "cfTypeLinked": {
     "message": "Linked",
@@ -1125,7 +1134,7 @@
     "message": "Cod diogelwch"
   },
   "ex": {
-    "message": "ex."
+    "message": "engh."
   },
   "title": {
     "message": "Teitl"
@@ -1288,7 +1297,7 @@
     "message": "Starts with"
   },
   "regEx": {
-    "message": "Regular expression",
+    "message": "Mynegiant rheolaidd",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -1418,7 +1427,7 @@
     "message": "Vault timeout action"
   },
   "lock": {
-    "message": "Lock",
+    "message": "Cloi",
     "description": "Verb form: to make secure or inaccesible by"
   },
   "trash": {
@@ -1429,19 +1438,16 @@
     "message": "Chwilio drwy'r sbwriel"
   },
   "permanentlyDeleteItem": {
-    "message": "Permanently delete item"
+    "message": "Dileu'r eitem yn barhaol"
   },
   "permanentlyDeleteItemConfirmation": {
     "message": "Are you sure you want to permanently delete this item?"
   },
   "permanentlyDeletedItem": {
-    "message": "Item permanently deleted"
+    "message": "Eitem wedi'i dileu'n barhaol"
   },
   "restoreItem": {
     "message": "Adfer yr eitem"
-  },
-  "restoreItemConfirmation": {
-    "message": "Are you sure you want to restore this item?"
   },
   "restoredItem": {
     "message": "Item restored"
@@ -1540,7 +1546,7 @@
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
   },
   "termsOfService": {
-    "message": "Terms of Service"
+    "message": "Telerau gwasanaeth"
   },
   "privacyPolicy": {
     "message": "Polisi preifatrwydd"
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Browser biometrics is not supported on this device."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Permission not provided"
@@ -1659,7 +1671,7 @@
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "expired": {
-    "message": "Expired"
+    "message": "Wedi dod i ben"
   },
   "pendingDeletion": {
     "message": "Pending deletion"
@@ -1732,10 +1744,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
-    "message": "1 day"
+    "message": "1 diwrnod"
   },
   "days": {
-    "message": "$DAYS$ days",
+    "message": "$DAYS$ o ddyddiau",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -1842,7 +1854,7 @@
     "message": "There was an error saving your deletion and expiration dates."
   },
   "hideEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Cuddio fy nghyfeiriad ebost rhag derbynwyr."
   },
   "sendOptionsPolicyInEffect": {
     "message": "One or more organization policies are affecting your Send options."
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1995,10 +2007,10 @@
     "message": "Regenerate username"
   },
   "generateUsername": {
-    "message": "Generate username"
+    "message": "Cynhyrchu enw defnyddiwr"
   },
   "usernameType": {
-    "message": "Username type"
+    "message": "Math o enw defnyddiwr"
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -2014,10 +2026,10 @@
     "message": "Use your domain's configured catch-all inbox."
   },
   "random": {
-    "message": "Random"
+    "message": "Hap"
   },
   "randomWord": {
-    "message": "Random word"
+    "message": "Gair ar hap"
   },
   "websiteName": {
     "message": "Website name"
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Server version"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Third-party"
@@ -2117,7 +2129,7 @@
     "message": "New around here?"
   },
   "rememberEmail": {
-    "message": "Remember email"
+    "message": "Cofio'r ebost"
   },
   "loginWithDevice": {
     "message": "Mewngofnodi â dyfais"
@@ -2140,8 +2152,8 @@
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
-  "logInInitiated": {
-    "message": "Log in initiated"
+  "loginInitiated": {
+    "message": "Login initiated"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -2153,19 +2165,19 @@
     "message": "Weak and Exposed Master Password"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
+    "message": "Cyfrinair gwan a gafodd ei ganfod mewn achos o ddatgelu data. Defnyddiwch gyfrinair cryf ac unigryw i ddiogelu eich cyfrif. Ydych chi wir eisiau defnyddio cyfrinair sydd wedi'i ddatgelu?"
   },
   "checkForBreaches": {
-    "message": "Check known data breaches for this password"
+    "message": "Chwilio am achosion o ddatgelu data sy'n cynnwys y cyfrinair hwn"
   },
   "important": {
     "message": "Pwysig:"
   },
   "masterPasswordHint": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "Allwch chi ddim adfer eich prif gyfrinair os caiff ei anghofio!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ character minimum",
+    "message": "Isafswm o $LENGTH$ nod",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
   "opensInANewWindow": {
     "message": "Opens in a new window"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Cofio'r ddyfais hon"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
   },
   "eu": {
     "message": "UE",
     "description": "European Union"
   },
-  "us": {
-    "message": "UDA",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Mynediad wedi ei wrthod. Does gennych chi ddim caniatâd i weld y dudalen hon."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Display"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "Chwilio"
+  },
+  "inputMinLength": {
+    "message": "Input must be at least $COUNT$ characters long.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Dewis --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Teipiwch i hidlo --"
+  },
+  "multiSelectLoading": {
+    "message": "Yn nôl dewisiadau..."
+  },
+  "multiSelectNotFound": {
+    "message": "Heb ganfod eitemau"
+  },
+  "multiSelectClearAll": {
+    "message": "Clirio'r cyfan"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Is-ddewislen"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

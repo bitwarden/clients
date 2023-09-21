@@ -271,6 +271,15 @@ describe("NodeCrypto Function Service", () => {
       ).toBeTruthy();
     });
   });
+
+  describe("aesGenerateKey", () => {
+    it("should delegate to randomBytes", async () => {
+      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
+      const spy = jest.spyOn(nodeCryptoFunctionService, "randomBytes");
+      await nodeCryptoFunctionService.aesGenerateKey(256);
+      expect(spy).toHaveBeenCalledWith(32);
+    });
+  });
 });
 
 function testPbkdf2(

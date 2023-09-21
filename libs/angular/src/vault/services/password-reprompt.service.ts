@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 
 import { ModalService } from "../../services/modal.service";
@@ -16,7 +16,7 @@ export class PasswordRepromptService implements PasswordRepromptServiceAbstracti
 
   constructor(
     private modalService: ModalService,
-    private keyConnectorService: KeyConnectorService
+    private userVerificationService: UserVerificationService
   ) {}
 
   protectedFields() {
@@ -39,6 +39,6 @@ export class PasswordRepromptService implements PasswordRepromptServiceAbstracti
   }
 
   async enabled() {
-    return !(await this.keyConnectorService.getUsesKeyConnector());
+    return await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
   }
 }

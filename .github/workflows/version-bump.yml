@@ -1,19 +1,26 @@
 ---
 name: Version Bump
+run-name: Version Bump - ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
     inputs:
-      client:
-        description: "Client Project"
-        required: true
-        type: choice
-        options:
-          - Browser
-          - CLI
-          - Desktop
-          - Web
-          - All
+      bump_browser:
+        description: "Browser Project Version Bump"
+        type: boolean
+        default: false
+      bump_cli:
+        description: "CLI Project Version Bump"
+        type: boolean
+        default: false
+      bump_desktop:
+        description: "Desktop Project Version Bump"
+        type: boolean
+        default: false
+      bump_web:
+        description: "Web Project Version Bump"
+        type: boolean
+        default: false
       version_number:
         description: "New Version"
         required: true
@@ -23,12 +30,10 @@ on:
       version_number:
         required: true
         type: string
-      client:
-        required: true
-        type: string
-    secrets:
-      AZURE_PROD_KV_CREDENTIALS:
-        required: true
+      bump_desktop:
+        description: "Desktop Project Version Bump"
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -36,8 +41,8 @@ defaults:
 
 jobs:
   bump_version:
-    name: "Bump ${{ github.event.inputs.client }} Version"
-    runs-on: ubuntu-20.04
+    name: "Bump Version"
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Branch
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
@@ -45,11 +50,11 @@ jobs:
       - name: Login to Azure - Prod Subscription
         uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
         with:
-         creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
@@ -65,72 +70,166 @@ jobs:
       - name: Create Version Branch
         id: branch
         env:
-          CLIENT_NAME: ${{ github.event.inputs.client }}
-          VERSION: ${{ github.event.inputs.version_number }}
+          VERSION: ${{ inputs.version_number }}
         run: |
-          CLIENT=$(python -c "print('$CLIENT_NAME'.lower())")
-          echo "client=$CLIENT" >> $GITHUB_OUTPUT
+          CLIENTS=()
+          if [[ ${{ inputs.bump_browser }} == true ]]; then
+            CLIENTS+=("browser")
+          fi
+          if [[ ${{ inputs.bump_cli }} == true ]]; then
+            CLIENTS+=("cli")
+          fi
+          if [[ ${{ inputs.bump_desktop }} == true ]]; then
+            CLIENTS+=("desktop")
+          fi
+          if [[ ${{ inputs.bump_web }} == true ]]; then
+            CLIENTS+=("web")
+          fi
+          printf -v joined '%s,' "${CLIENTS[@]}"
+          echo "client=${joined%,}" >> $GITHUB_OUTPUT
 
-          git switch -c ${CLIENT}_version_bump_${VERSION}
+          BRANCH=version_bump_${VERSION}_${GITHUB_SHA:0:7}
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          git switch -c ${BRANCH}
 
       ########################
       # VERSION BUMP SECTION #
       ########################
 
       ### Browser
-      - name: Bump Browser Version
-        if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
+      - name: Browser - Verify input version
+        if: ${{ inputs.bump_browser == true }}
         env:
-          VERSION: ${{ github.event.inputs.version_number }}
+          NEW_VERSION: ${{ inputs.version_number }}  
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+
+          # Error if version has not changed.
+          if [[ "$NEW_VERSION" == "$CURRENT_VERSION" ]]; then
+            echo "Version has not changed."
+            exit 1
+          fi
+
+          # Check if version is newer.
+          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
+          if [ $? -eq 0 ]; then 
+            echo "Version check successful." 
+          fi
+        working-directory: apps/browser
+
+      - name: Bump Browser Version
+        if: ${{ inputs.bump_browser == true }}
+        env:
+          VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/browser ${VERSION}
 
       - name: Bump Browser Version - Manifest
-        if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
-        uses: bitwarden/gh-actions/version-bump@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        if: ${{ inputs.bump_browser == true }}
+        uses: bitwarden/gh-actions/version-bump@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
-          version: ${{ github.event.inputs.version_number }}
+          version: ${{ inputs.version_number }}
           file_path: "apps/browser/src/manifest.json"
 
       - name: Bump Browser Version - Manifest v3
-        if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
-        uses: bitwarden/gh-actions/version-bump@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        if: ${{ inputs.bump_browser == true }}
+        uses: bitwarden/gh-actions/version-bump@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
-          version: ${{ github.event.inputs.version_number }}
+          version: ${{ inputs.version_number }}
           file_path: "apps/browser/src/manifest.v3.json"
 
       - name: Run Prettier after Browser Version Bump
-        if: ${{ github.event.inputs.client == 'Browser' || github.event.inputs.client == 'All' }}
+        if: ${{ inputs.bump_browser == true }}
         run: |
           npm install -g prettier
           prettier --write apps/browser/src/manifest.json
           prettier --write apps/browser/src/manifest.v3.json
 
       ### CLI
-      - name: Bump CLI Version
-        if: ${{ github.event.inputs.client == 'CLI' || github.event.inputs.client == 'All' }}
+      - name: CLI - Verify input version
+        if: ${{ inputs.bump_cli == true }}
         env:
-          VERSION: ${{ github.event.inputs.version_number }}
+          NEW_VERSION: ${{ inputs.version_number }}  
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+
+          # Error if version has not changed.
+          if [[ "$NEW_VERSION" == "$CURRENT_VERSION" ]]; then
+            echo "Version has not changed."
+            exit 1
+          fi
+
+          # Check if version is newer.
+          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
+          if [ $? -eq 0 ]; then 
+            echo "Version check successful." 
+          fi
+        working-directory: apps/cli
+
+      - name: Bump CLI Version
+        if: ${{ inputs.bump_cli == true }}
+        env:
+          VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/cli ${VERSION}
 
       ### Desktop
-      - name: Bump Desktop Version - Root
-        if: ${{ github.event.inputs.client == 'Desktop' || github.event.inputs.client == 'All' }}
+      - name: Desktop - Verify input version
+        if: ${{ inputs.bump_desktop == true }}
         env:
-          VERSION: ${{ github.event.inputs.version_number }}
+          NEW_VERSION: ${{ inputs.version_number }}  
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+
+          # Error if version has not changed.
+          if [[ "$NEW_VERSION" == "$CURRENT_VERSION" ]]; then
+            echo "Version has not changed."
+            exit 1
+          fi
+
+          # Check if version is newer.
+          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
+          if [ $? -eq 0 ]; then 
+            echo "Version check successful." 
+          fi
+        working-directory: apps/desktop
+
+      - name: Bump Desktop Version - Root
+        if: ${{ inputs.bump_desktop == true }}
+        env:
+          VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/desktop ${VERSION}
 
       - name: Bump Desktop Version - App
-        if: ${{ github.event.inputs.client == 'Desktop' || github.event.inputs.client == 'All' }}
+        if: ${{ inputs.bump_desktop == true }}
         env:
-          VERSION: ${{ github.event.inputs.version_number }}
+          VERSION: ${{ inputs.version_number }}
         run: npm version ${VERSION}
         working-directory: "apps/desktop/src"
 
       ### Web
-      - name: Bump Web Version
-        if: ${{ github.event.inputs.client == 'Web' || github.event.inputs.client == 'All' }}
+      - name: Web - Verify input version
+        if: ${{ inputs.bump_web == true }}
         env:
-          VERSION: ${{ github.event.inputs.version_number }}
+          NEW_VERSION: ${{ inputs.version_number }}  
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+
+          # Error if version has not changed.
+          if [[ "$NEW_VERSION" == "$CURRENT_VERSION" ]]; then
+            echo "Version has not changed."
+            exit 1
+          fi
+
+          # Check if version is newer.
+          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
+          if [ $? -eq 0 ]; then 
+            echo "Version check successful." 
+          fi
+        working-directory: apps/web
+
+      - name: Bump Web Version
+        if: ${{ inputs.bump_web == true }}
+        env:
+          VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/web-vault ${VERSION}
 
       ########################
@@ -154,27 +253,26 @@ jobs:
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         env:
           CLIENT: ${{ steps.branch.outputs.client }}
-          VERSION: ${{ github.event.inputs.version_number }}
+          VERSION: ${{ inputs.version_number }}
         run: git commit -m "Bumped ${CLIENT} version to ${VERSION}" -a
 
       - name: Push changes
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        if: ${{ (github.ref == 'refs/heads/master') && (steps.version-changed.outputs.changes_to_commit == 'TRUE') }}
         env:
-          CLIENT: ${{ steps.branch.outputs.client }}
-          VERSION: ${{ github.event.inputs.version_number }}
-        run: git push -u origin ${CLIENT}_version_bump_${VERSION}
+          BRANCH: ${{ steps.branch.outputs.branch }}
+        run: git push -u origin ${BRANCH}
 
       - name: Create Bump Version PR
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        if: ${{ (github.ref == 'refs/heads/master') && (steps.version-changed.outputs.changes_to_commit == 'TRUE') }}
         env:
-          PR_BRANCH: "${{ steps.branch.outputs.client }}_version_bump_${{ github.event.inputs.version_number }}"
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           BASE_BRANCH: master
-          TITLE: "Bump ${{ github.event.inputs.client }} version to ${{ github.event.inputs.version_number }}"
+          BRANCH: ${{ steps.branch.outputs.branch }}
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          TITLE: "Bump ${{ steps.branch.outputs.client }} version to ${{ inputs.version_number }}"
         run: |
           gh pr create --title "$TITLE" \
-            --base "$BASE" \
-            --head "$PR_BRANCH" \
+            --base "$BASE_BRANCH" \
+            --head "$BRANCH" \
             --label "version update" \
             --label "automated pr" \
             --body "
@@ -186,5 +284,4 @@ jobs:
               - [X] Other
 
               ## Objective
-              Automated ${{ github.event.inputs.client }} version bump to ${{ github.event.inputs.version_number }}"
-
+              Automated ${{ steps.branch.outputs.client }} version bump to ${{ inputs.version_number }}"

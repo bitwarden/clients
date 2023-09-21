@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,6 +14,7 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { BrowserSendComponentState } from "../../../models/browserSendComponentState";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
@@ -51,7 +51,7 @@ export class SendGroupingsComponent extends BaseSendComponent {
     private broadcasterService: BroadcasterService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       sendService,

@@ -35,7 +35,7 @@ export class ExportScopeCalloutComponent implements OnInit {
           }
         : {
             title: "exportingPersonalVaultTitle",
-            description: "exportingPersonalVaultDescription",
+            description: "exportingIndividualVaultDescription",
             scopeIdentifier: await this.stateService.getEmail(),
           };
     this.show = true;

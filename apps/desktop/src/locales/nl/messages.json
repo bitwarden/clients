@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Extra opties voor tweestapsaanmelding zoals YubiKey, FIDO U2F en Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
   },
   "premiumSignUpReports": {
     "message": "Rapportage op wachtwoordhygiëne, gezondheid van je account en gegevensinbreuk om je kluis veilig te houden."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Om toegang te krijgen tot een uitgelogde kluis te krijgen moet je opnieuw inloggen."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
+  },
   "lock": {
     "message": "Vergrendelen",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Definitief verwijderd item"
-  },
-  "restoreItem": {
-    "message": "Item herstellen"
-  },
-  "restoreItemConfirmation": {
-    "message": "Weet je zeker dat je dit item wilt herstellen?"
   },
   "restoredItem": {
     "message": "Hersteld item"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Persoonlijke kluis exporteren"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Inloggen met een ander apparaat"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Inloggen gestart"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aanbevolen instellingen"
   },
+  "deviceApprovalRequired": {
+    "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
+  },
+  "rememberThisDevice": {
+    "message": "Dit apparaat onthouden"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uitschakelen als je openbaar apparaat gebruikt"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Goedkeuren vanaf je andere apparaat"
+  },
+  "requestAdminApproval": {
+    "message": "Goedkeuring van beheerder vragen"
+  },
+  "approveWithMasterPassword": {
+    "message": "Goedkeuren met hoofdwachtwoord"
+  },
   "region": {
     "message": "Regio"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organisatie SSO-identificatie vereist."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Inloggen op"
   },
-  "selfHosted": {
-    "message": "Zelfgehost"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "zelfgehost"
   },
   "accessDenied": {
     "message": "Toegang geweigerd. Je hebt geen toestemming om deze pagina te bekijken."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account succesvol aangemaakt!"
+  },
+  "adminApprovalRequested": {
+    "message": "Goedkeuring van beheerder aangevraagd"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Je verzoek is naar je beheerder verstuurd."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Je krijgt een melding zodra je bent goedgekeurd."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemen met inloggen?"
+  },
+  "loginApproved": {
+    "message": "Inloggen goedgekeurd"
+  },
+  "userEmailMissing": {
+    "message": "Gebruikerse-mailadres ontbreekt"
+  },
+  "deviceTrusted": {
+    "message": "Vertrouwd apparaat"
+  },
+  "inputRequired": {
+    "message": "Invoer vereist."
+  },
+  "required": {
+    "message": "vereist"
+  },
+  "search": {
+    "message": "Zoeken"
+  },
+  "inputMinLength": {
+    "message": "Invoer moet minimaal $COUNT$ tekens lang zijn.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Invoer mag niet meer dan $COUNT$ tekens lang zijn.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "De volgende tekens zijn niet toegestaan: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Invoer moet minimaal $MIN$ zijn.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Invoer mag niet hoger zijn dan $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Een of meer e-mailadressen zijn ongeldig"
+  },
+  "inputTrimValidator": {
+    "message": "Invoer mag niet alleen witruimte bevatten.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Invoer is geen e-mailadres."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ veld(en) hierboven hebben je aandacht nodig.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Selecteer --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type om te filteren --"
+  },
+  "multiSelectLoading": {
+    "message": "Opties ophalen..."
+  },
+  "multiSelectNotFound": {
+    "message": "Geen items gevonden"
+  },
+  "multiSelectClearAll": {
+    "message": "Alles wissen"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ meer",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
   }
 }

@@ -338,6 +338,9 @@
   "other": {
     "message": "Iншае"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "Ацаніць пашырэнне"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Абнавіць"
   },
+  "notificationUnlockDesc": {
+    "message": "Unlock your Bitwarden vault to complete the auto-fill request."
+  },
+  "notificationUnlock": {
+    "message": "Unlock"
+  },
   "enableContextMenuItem": {
     "message": "Паказваць параметры кантэкстнага меню"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашыфраванага сховішча для далучаных файлаў."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Дадатковыя варыянты двухэтапнага ўваходу, такія як YubiKey, FIDO U2F і Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Гігіена пароляў, здароўе ўліковага запісу і справаздачы аб уцечках даных для забеспячэння бяспекі вашага сховішча."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Аднавіць элемент"
   },
-  "restoreItemConfirmation": {
-    "message": "Вы сапраўды хочаце аднавіць гэты элемент?"
-  },
   "restoredItem": {
     "message": "Элемент адноўлены"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Біяметрыя ў браўзеры не падтрымліваецца на гэтай прыладзе."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Дазволы не прадастаўлены"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Экспартаванне асабістага сховішча"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будуць экспартаваны толькі асабістыя элементы сховішча, якія звязаны з $EMAIL$. Элементы сховішча арганізацыі не будуць уключаны.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Версія сервера"
   },
-  "selfHosted": {
-    "message": "Уласнае размяшчэнне"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Іншы пастаўшчык"
@@ -2140,8 +2152,8 @@
   "notificationSentDevice": {
     "message": "Апавяшчэнне было адпраўлена на вашу прыладу."
   },
-  "logInInitiated": {
-    "message": "Ініцыяваны ўваход"
+  "loginInitiated": {
+    "message": "Login initiated"
   },
   "exposedMasterPassword": {
     "message": "Скампраметаваны асноўны пароль"
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Рэгіён"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
   "opensInANewWindow": {
     "message": "Адкрываць у новым акне"
   },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
+  },
   "eu": {
-    "message": "ЕС",
+    "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "ЗША",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Доступ забаронены. У вас не дастаткова правоў для прагляду гэтай старонкі."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Адлюстраванне"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "inputMinLength": {
+    "message": "Input must be at least $COUNT$ characters long.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Select --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "Retrieving options..."
+  },
+  "multiSelectNotFound": {
+    "message": "No items found"
+  },
+  "multiSelectClearAll": {
+    "message": "Clear all"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

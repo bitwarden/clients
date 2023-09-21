@@ -44,6 +44,7 @@ export { PasswordBossJsonImporter } from "./passwordboss-json-importer";
 export { PasswordDragonXmlImporter } from "./passworddragon-xml-importer";
 export { PasswordSafeXmlImporter } from "./passwordsafe-xml-importer";
 export { PasswordWalletTxtImporter } from "./passwordwallet-txt-importer";
+export { ProtonPassJsonImporter } from "./protonpass/protonpass-json-importer";
 export { PsonoJsonImporter } from "./psono/psono-json-importer";
 export { RememBearCsvImporter } from "./remembear-csv-importer";
 export { RoboFormCsvImporter } from "./roboform-csv-importer";

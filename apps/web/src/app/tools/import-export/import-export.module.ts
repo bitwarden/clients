@@ -15,7 +15,11 @@ import {
 
 import { LooseComponentsModule, SharedModule } from "../../shared";
 
-import { ImportSuccessDialogComponent, FilePasswordPromptComponent } from "./dialog";
+import {
+  ImportErrorDialogComponent,
+  ImportSuccessDialogComponent,
+  FilePasswordPromptComponent,
+} from "./dialog";
 import { ExportComponent } from "./export.component";
 import { ImportExportRoutingModule } from "./import-export-routing.module";
 import { ImportComponent } from "./import.component";
@@ -26,6 +30,7 @@ import { ImportComponent } from "./import.component";
     ImportComponent,
     ExportComponent,
     FilePasswordPromptComponent,
+    ImportErrorDialogComponent,
     ImportSuccessDialogComponent,
   ],
   providers: [

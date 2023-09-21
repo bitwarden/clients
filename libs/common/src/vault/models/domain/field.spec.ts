@@ -1,6 +1,6 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { FieldType } from "../../../enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
 
@@ -67,8 +67,8 @@ describe("Field", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = Field.fromJSON({
-        name: "myName",
-        value: "myValue",
+        name: "myName" as EncryptedString,
+        value: "myValue" as EncryptedString,
       });
 
       expect(actual).toEqual({

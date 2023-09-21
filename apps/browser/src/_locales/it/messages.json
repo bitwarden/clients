@@ -338,6 +338,9 @@
   "other": {
     "message": "Altro"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Imposta un metodo di sblocco per modificare l'azione timeout cassaforte."
+  },
   "rateExtension": {
     "message": "Valuta l'estensione"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Aggiorna"
   },
+  "notificationUnlockDesc": {
+    "message": "Sblocca la tua cassaforte di Bitwarden per completare la richiesta di riempimento automatico."
+  },
+  "notificationUnlock": {
+    "message": "Sblocca"
+  },
   "enableContextMenuItem": {
     "message": "Mostra opzioni nel menu contestuale"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB di spazio di archiviazione criptato per gli allegati."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Più opzioni di verifica in due passaggi come YubiKey, FIDO U2F, e Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Sicurezza delle password, integrità dell'account, e rapporti su violazioni di dati per mantenere sicura la tua cassaforte."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Ripristina elemento"
   },
-  "restoreItemConfirmation": {
-    "message": "Sei sicuro di voler ripristinare questo elemento?"
-  },
   "restoredItem": {
     "message": "Elemento ripristinato"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "L'autenticazione biometrica del browser non è supportata su questo dispositivo."
+  },
+  "biometricsFailedTitle": {
+    "message": "Autenticazione biometrica fallita"
+  },
+  "biometricsFailedDesc": {
+    "message": "L'autenticazione biometrica non può essere completata, prova a usare una password principale o a uscire. Se il problema persiste, contatta l'assistenza di Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Permesso non fornito"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Esportazione cassaforte personale"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi.",
+  "exportingIndividualVaultDescription": {
+    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi. Solo le informazioni sugli elementi della cassaforte saranno esportate e non includeranno gli allegati.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Versione Server"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Terze parti"
@@ -2140,8 +2152,8 @@
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
   },
-  "logInInitiated": {
-    "message": "Login avviato"
+  "loginInitiated": {
+    "message": "Accesso avviato"
   },
   "exposedMasterPassword": {
     "message": "Password principale violata"
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Regione"
+  "loggingInOn": {
+    "message": "Accedendo su"
   },
   "opensInANewWindow": {
     "message": "Si apre in una nuova finestra"
   },
+  "deviceApprovalRequired": {
+    "message": "Approvazione del dispositivo obbligatoria. Seleziona un'opzione di approvazione:"
+  },
+  "rememberThisDevice": {
+    "message": "Ricorda questo dispositivo"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Deseleziona se stai usando un dispositivo pubblico"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approva dall'altro tuo dispositivo"
+  },
+  "requestAdminApproval": {
+    "message": "Richiedi approvazione dell'amministratore"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approva con password principale"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Identificatore SSO dell'organizzazione obbligatorio."
+  },
   "eu": {
-    "message": "UE",
+    "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Accesso negato. Non hai i permessi necessari per visualizzare questa pagina."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Schermo"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account creato!"
+  },
+  "adminApprovalRequested": {
+    "message": "Approvazione dell'amministratore richiesta"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "La tua richiesta è stata inviata al tuo amministratore."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Riceverai una notifica una volta approvato."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemi ad accedere?"
+  },
+  "loginApproved": {
+    "message": "Accesso approvato"
+  },
+  "userEmailMissing": {
+    "message": "Email utente mancante"
+  },
+  "deviceTrusted": {
+    "message": "Dispositivo fidato"
+  },
+  "inputRequired": {
+    "message": "Input obbligatorio."
+  },
+  "required": {
+    "message": "obbligatorio"
+  },
+  "search": {
+    "message": "Cerca"
+  },
+  "inputMinLength": {
+    "message": "L'input deve essere lungo almeno $COUNT$ caratteri.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "L'input non deve essere più lungo di $COUNT$ caratteri.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Questi caratteri non sono permessi: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Il valore immesso deve essere almeno $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Il valore immesso non deve superare $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Una o più email non sono valide"
+  },
+  "inputTrimValidator": {
+    "message": "L'input non può contenere solo spazi.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "L'input non è un indirizzo email."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ campi qui sopra richiedono la tua attenzione.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Seleziona --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Digita per filtrare --"
+  },
+  "multiSelectLoading": {
+    "message": "Ottenendo opzioni..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nessun elemento trovato"
+  },
+  "multiSelectClearAll": {
+    "message": "Cancella tutto"
+  },
+  "plusNMore": {
+    "message": "+$QUANTITY$ in più",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Sottomenu"
+  },
+  "toggleCollapse": {
+    "message": "Comprimi/espandi",
+    "description": "Toggling an expand/collapse state."
   }
 }

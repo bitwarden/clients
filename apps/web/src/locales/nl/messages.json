@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "Er is een onverwachte fout opgetreden."
   },
+  "expirationDateError": {
+    "message": "Kies een vervaldatum in de toekomst."
+  },
   "emailAddress": {
     "message": "E-mailadres"
   },
   "yourVaultIsLocked": {
     "message": "Je kluis is vergrendeld. Voer je hoofdwachtwoord in om door te gaan."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Ontgrendelen"
@@ -947,6 +953,9 @@
   },
   "copyVerificationCode": {
     "message": "Verificatiecode kopiëren"
+  },
+  "copyUuid": {
+    "message": "UUID kopiëren"
   },
   "warning": {
     "message": "Waarschuwing"
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Fout bij het decoderen van het geëxporteerde bestand. Je encryptiesleutel komt niet overeen met de gebruikte sleutel waarmee de gegevens zijn geëxporteerd."
   },
+  "importDestination": {
+    "message": "Importbestemming"
+  },
+  "learnAboutImportOptions": {
+    "message": "Leer meer over je importopties"
+  },
+  "selectImportFolder": {
+    "message": "Map selecteren"
+  },
+  "selectImportCollection": {
+    "message": "Collectie selecteren"
+  },
+  "importTargetHint": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Bestand bevat niet-toegewezen items."
+  },
   "selectFormat": {
     "message": "Selecteer het formaat van het importbestand"
   },
@@ -1391,8 +1425,11 @@
   "twoStepLoginDesc": {
     "message": "Beveilig je account door een extra stap te vereisen bij het inloggen."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Bitwarden tweestapsaanmeldingsopties afdwingen voor leden door gebruik te maken van de ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Tweestapsaanmelding voor je organisatie activeren."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Bitwarden-tweestapsaanmeldingsinstellingen afdwingen voor leden via het ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Extra tweestapsaanmeldingsopties zoals YubiKey, FIDO U2F en Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Noodtoegang"
@@ -2005,6 +2042,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "We brengen onbetaalde abonnementen in rekening bij je betalingsmethode."
   },
   "paymentChargedWithTrial": {
     "message": "Je lidmaatschap omvat een gratis proefperiode van 7 dagen. Kosten worden pas in rekening gebracht als de proefperiode voorbij is. De betaling vindt ieder(e) $INTERVAL$ op terugkerende basis plaats. Je kunt op ieder moment opzeggen."
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Kies wanneer je kluis wordt uitgelogd."
+  },
   "oneMinute": {
     "message": "1 minuut"
   },
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Dit item heeft oude bestandsbijlagen die aangepast moeten worden."
   },
-  "attachmentFixDesc": {
-    "message": "Dit is een oude bestandsbijlage die moet worden aangepast. Klik voor meer informatie."
+  "attachmentFixDescription": {
+    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
   },
   "fix": {
     "message": "Oplossen",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Selectie herstellen"
   },
-  "restoreItem": {
-    "message": "Item herstellen"
-  },
   "restoredItem": {
     "message": "Hersteld item"
   },
   "restoredItems": {
     "message": "Herstelde items"
-  },
-  "restoreItemConfirmation": {
-    "message": "Weet je zeker dat je dit item wilt herstellen?"
-  },
-  "restoreItems": {
-    "message": "Items herstellen"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "Je hebt $COUNT$ item(s) geselecteerd voor herstel. Weet je zeker dat je al deze items wilt herstellen?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Hersteld item $ID$.",
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Persoonlijke kluis exporteren uitschakelen"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Verbiedt gebruikers om hun privékluisgegevens te exporteren."
+  "disablePersonalVaultExportDescription": {
+    "message": "Exporteren van gegevens uit hun individuele kluis niet toestaan."
   },
   "vaultExportDisabled": {
     "message": "Kluis exporteren uitgeschakeld"
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "Organisatiekluis exporteren"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie.",
+  "exportingIndividualVaultDescription": {
+    "message": "Alleen de individuele kluisitems geassocieerd met $EMAIL$ worden geëxporteerd. Kluisitems van de organisatie worden niet meegenomen. Alleen informatie over kluisitem wordt geëxporteerd en bevat geen bijlagen.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,7 +5454,7 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
+  "exportingOrganizationVaultDesc": {
     "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items of items van andere organisaties.",
     "placeholders": {
       "organization": {
@@ -5703,7 +5728,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "Je invoer mag niet hoger zxijn dan $MAX$.",
+    "message": "Invoer mag niet hoger zijn dan $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Verplicht bestaande leden hun wachtwoord te wijzigen"
   },
-  "region": {
-    "message": "Regio"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "VS",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Je hebt geen rechten om dit project te verwijderen",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "KDF instellingen bijwerken"
   },
+  "loginInitiated": {
+    "message": "Inloggen gestart"
+  },
+  "deviceApprovalRequired": {
+    "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
+  },
+  "rememberThisDevice": {
+    "message": "Dit apparaat onthouden"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uitschakelen als je openbaar apparaat gebruikt"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Goedkeuren vanaf je andere apparaat"
+  },
+  "requestAdminApproval": {
+    "message": "Goedkeuring van beheerder vragen"
+  },
+  "approveWithMasterPassword": {
+    "message": "Goedkeuren met hoofdwachtwoord"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Vertrouwde apparaat encryptie"
+  },
   "trustedDevices": {
     "message": "Vertrouwde apparaten"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartOne": {
+    "message": "Eenmaal ingelogd, ontsleutelen leden kluisgegevens met een op hun apparaat opgeslagen sleutel. Het",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "single organization",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
+    "message": "enkele organisatie",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": "beleid,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "account recovery administration",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "SSO vereist",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "beleid en",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
+    "message": "accountherstel-administratie",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartFour": {
+    "message": "beleid met automatische inschrijving wordt ingeschakeld wanneer je deze optie gebruikt.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ niet gevonden",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "Het verwijderen van leden die geen hoofdwachtwoorden hebben zonder er een in te stellen, kan de toegang tot hun volledige account beperken."
   },
+  "approvedAuthRequest": {
+    "message": "Apparaat goedgekeurd voor $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Apparaat geweigerd voor $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "Apparaatgoedkeuring gevraagd."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Begin je 7-daagse gratis Bitwarden-proefperiode voor $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Volgende"
   },
-  "usFlag": {
-    "message": "VS-vlag"
-  },
-  "euFlag": {
-    "message": "EU-vlag"
-  },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account succesvol aangemaakt!"
+  },
+  "adminApprovalRequested": {
+    "message": "Goedkeuring van beheerder aangevraagd"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Je verzoek is naar je beheerder verstuurd."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Je krijgt een melding zodra je bent goedgekeurd."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemen met inloggen?"
+  },
+  "loginApproved": {
+    "message": "Inloggen goedgekeurd"
+  },
+  "userEmailMissing": {
+    "message": "Gebruikerse-mailadres ontbreekt"
+  },
+  "deviceTrusted": {
+    "message": "Vertrouwd apparaat"
   },
   "sendsNoItemsTitle": {
     "message": "Geen actieve Sends",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Extra service accounts"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "Bij je abonnement zijn $COUNT$ service accounts ingegrepen. Je kunt meer service accounts toevoegen voor $COST$ per maand.",
+  "includedServiceAccounts": {
+    "message": "Bij je abonnement horen $COUNT$ serviceaccounts.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "Je kunt extra serviceaccounts toevoegen voor $COST$ per maand.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Max potential service account cost"
+  },
+  "loggedInExclamation": {
+    "message": "Ingelogd!"
+  },
+  "smBetaEndedDesc": {
+    "message": "De Secrets Manager Beta eindigde $BETA_ENDING_DATE$. Je hebt nog $DAYS$ dagen over voor het toevoegen van Secrets Manager aan je betaalde abonnement en toegang te houden tot de gegevens in Secrets Manager. Neem contact op met Customer Success voor het toevoegen van Secrets Manager aan je abonnement.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta beëindigd"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Already have an account?"
   }
 }

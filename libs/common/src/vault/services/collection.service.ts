@@ -79,7 +79,7 @@ export class CollectionService implements CollectionServiceAbstraction {
       return decryptedCollections;
     }
 
-    const hasKey = await this.cryptoService.hasKey();
+    const hasKey = await this.cryptoService.hasUserKey();
     if (!hasKey) {
       throw new Error("No key.");
     }

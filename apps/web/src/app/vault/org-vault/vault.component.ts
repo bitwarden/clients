@@ -30,7 +30,6 @@ import {
 } from "rxjs/operators";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -53,7 +52,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
-import { Icons } from "@bitwarden/components";
+import { DialogService, Icons } from "@bitwarden/components";
 
 import { GroupService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
@@ -71,10 +70,6 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import {
-  BulkRestoreDialogResult,
-  openBulkRestoreDialog,
-} from "../individual-vault/bulk-action-dialogs/bulk-restore-dialog/bulk-restore-dialog.component";
 import { RoutedVaultFilterBridgeService } from "../individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { createFilterFunction } from "../individual-vault/vault-filter/shared/models/filter-function";
@@ -143,7 +138,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private syncService: SyncService,
     private i18nService: I18nService,
     private modalService: ModalService,
-    private dialogService: DialogServiceAbstraction,
+    private dialogService: DialogService,
     private messagingService: MessagingService,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
@@ -517,6 +512,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherAttachments(cipher: CipherView) {
+    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
+
     if (this.organization.maxStorageGb == null || this.organization.maxStorageGb === 0) {
       this.messagingService.send("upgradeOrganization", { organizationId: cipher.organizationId });
       return;
@@ -595,11 +595,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     additionalComponentParameters?: (comp: AddEditComponent) => void
   ) {
     const cipher = await this.cipherService.get(cipherId);
-    if (cipher != null && cipher.reprompt != 0) {
-      if (!(await this.passwordRepromptService.showPasswordPrompt())) {
-        this.go({ cipherId: null, itemId: null });
-        return;
-      }
+    // if cipher exists (cipher is null when new) and MP reprompt
+    // is on for this cipher, then show password reprompt
+    if (
+      cipher &&
+      cipher.reprompt !== 0 &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      // didn't pass password prompt, so don't open add / edit modal
+      this.go({ cipherId: null, itemId: null });
+      return;
     }
 
     const defaultComponentParameters = (comp: AddEditComponent) => {
@@ -659,16 +664,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "restoreItem" },
-      content: { key: "restoreItemConfirmation" },
-      type: SimpleDialogType.WARNING,
-    });
-
-    if (!confirmed) {
-      return false;
-    }
-
     try {
       const asAdmin = this.organization?.canEditAnyCollection;
       await this.cipherService.restoreWithServer(c.id, asAdmin);
@@ -694,14 +689,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialog = openBulkRestoreDialog(this.dialogService, {
-      data: { cipherIds: selectedCipherIds, organization: this.organization },
-    });
-
-    const result = await lastValueFrom(dialog.closed);
-    if (result === BulkRestoreDialogResult.Restored) {
-      this.refresh();
-    }
+    await this.cipherService.restoreManyWithServer(selectedCipherIds);
+    this.platformUtilsService.showToast("success", null, this.i18nService.t("restoredItems"));
+    this.refresh();
   }
 
   async deleteCipher(c: CipherView): Promise<boolean> {
@@ -714,7 +704,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: permanent ? "permanentlyDeleteItem" : "deleteItem" },
       content: { key: permanent ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -749,7 +739,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: collection.name,
       content: { key: "deleteCollectionConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

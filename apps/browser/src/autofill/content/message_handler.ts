@@ -28,6 +28,7 @@ window.addEventListener(
 
 const forwardCommands = [
   "promptForLogin",
+  "passwordReprompt",
   "addToLockedVaultPendingNotifications",
   "unlockCompleted",
   "addedCipher",

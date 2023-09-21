@@ -27,7 +27,8 @@ export class PasswordRepromptComponent {
   }
 
   async submit() {
-    if (!(await this.cryptoService.compareAndUpdateKeyHash(this.masterPassword, null))) {
+    const storedMasterKey = await this.cryptoService.getOrDeriveMasterKey(this.masterPassword);
+    if (!(await this.cryptoService.compareAndUpdateKeyHash(this.masterPassword, storedMasterKey))) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),

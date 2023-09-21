@@ -37,11 +37,11 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
-        uses: chromaui/action@44caff7e88d584b04f79f04e31e819f9a95d4d8f
+        uses: chromaui/action@a45a922b9a7522a4cbb59a7bb7b288a768968924
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           storybookBuildDir: ./storybook-static
           exitOnceUploaded: true
           onlyChanged: true
-          externals: "[\"libs/components/**/*.scss\", \"libs/components/tailwind.config*.js\"]"
+          externals: "[\"libs/components/**/*.scss\", \"libs/components/**/*.css\", \"libs/components/tailwind.config*.js\"]"

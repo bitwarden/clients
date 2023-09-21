@@ -126,8 +126,8 @@ export class CreateCommand {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    const encKey = await this.cryptoService.getEncKey();
-    if (encKey == null) {
+    const userKey = await this.cryptoService.getUserKey();
+    if (userKey == null) {
       return Response.error(
         "You must update your encryption key before you can use this feature. " +
           "See https://help.bitwarden.com/article/update-encryption-key/"

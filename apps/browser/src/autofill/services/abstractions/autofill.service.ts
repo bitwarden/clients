@@ -1,3 +1,4 @@
+import { UriMatchType } from "@bitwarden/common/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import AutofillField from "../../models/autofill-field";
@@ -31,13 +32,28 @@ export interface FormData {
   passwords: AutofillField[];
 }
 
+export interface GenerateFillScriptOptions {
+  skipUsernameOnlyFill: boolean;
+  onlyEmptyFields: boolean;
+  onlyVisibleFields: boolean;
+  fillNewPassword: boolean;
+  allowTotpAutofill: boolean;
+  cipher: CipherView;
+  tabUrl: string;
+  defaultUriMatch: UriMatchType;
+}
+
 export abstract class AutofillService {
+  injectAutofillScripts: (
+    sender: chrome.runtime.MessageSender,
+    autofillV2?: boolean
+  ) => Promise<void>;
   getFormsWithPasswordFields: (pageDetails: AutofillPageDetails) => FormData[];
-  doAutoFill: (options: AutoFillOptions) => Promise<string>;
+  doAutoFill: (options: AutoFillOptions) => Promise<string | null>;
   doAutoFillOnTab: (
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean
-  ) => Promise<string>;
-  doAutoFillActiveTab: (pageDetails: PageDetail[], fromCommand: boolean) => Promise<string>;
+  ) => Promise<string | null>;
+  doAutoFillActiveTab: (pageDetails: PageDetail[], fromCommand: boolean) => Promise<string | null>;
 }

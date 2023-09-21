@@ -1,3 +1,9 @@
 {
-  "cSpell.words": ["Csprng", "decryptable", "Popout", "Reprompt", "takeuntil"]
+  "cSpell.words": ["Csprng", "decryptable", "Popout", "Reprompt", "takeuntil"],
+  "search.exclude": {
+    "**/locales/[^e]*/messages.json": true,
+    "**/locales/*[^n]/messages.json": true,
+    "**/_locales/[^e]*/messages.json": true,
+    "**/_locales/*[^n]/messages.json": true
+  }
 }

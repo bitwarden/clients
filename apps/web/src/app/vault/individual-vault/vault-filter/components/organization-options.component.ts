@@ -1,7 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { map, Subject, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
@@ -15,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
@@ -42,7 +42,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserService: OrganizationUserService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -85,7 +85,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: org.name,
       content: { key: "unlinkSsoConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -107,7 +107,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: org.name,
       content: { key: "leaveOrganizationConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

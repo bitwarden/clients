@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -12,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService } from "@bitwarden/components";
 
 import { TwoFactorBaseComponent } from "./two-factor-base.component";
 
@@ -36,7 +36,7 @@ export class TwoFactorEmailComponent extends TwoFactorBaseComponent {
     logService: LogService,
     userVerificationService: UserVerificationService,
     private stateService: StateService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       apiService,

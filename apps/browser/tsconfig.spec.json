@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig.json",
-  "files": ["./test.setup.ts"]
+  "files": ["./test.setup.ts"],
+  "compilerOptions": {
+    "esModuleInterop": true
+  }
 }

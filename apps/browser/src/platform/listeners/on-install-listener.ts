@@ -23,9 +23,6 @@ export async function onInstallListener(details: chrome.runtime.InstalledDetails
     stateServiceOptions: {
       stateFactory: new StateFactory(GlobalState, Account),
     },
-    stateMigrationServiceOptions: {
-      stateFactory: new StateFactory(GlobalState, Account),
-    },
   };
   const environmentService = await environmentServiceFactory(cache, opts);
 

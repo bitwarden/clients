@@ -11,7 +11,7 @@
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
-    "message": "Logga in eller skapa ett nytt konto för att komma åt dina lösenord."
+    "message": "Logga in eller skapa ett nytt konto för att komma åt ditt säkra valv."
   },
   "createAccount": {
     "message": "Skapa konto"
@@ -338,11 +338,14 @@
   "other": {
     "message": "Annat"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "Betygsätt tillägget"
   },
   "rateExtensionDesc": {
-    "message": "Överväg gärna att hjälpa oss genom att ge oss en bra recension!"
+    "message": "Överväg gärna att skriva en recension om oss!"
   },
   "browserNotSupportClipboard": {
     "message": "Din webbläsare har inte stöd för att enkelt kopiera till urklipp. Kopiera till urklipp manuellt istället."
@@ -370,7 +373,7 @@
     }
   },
   "invalidMasterPassword": {
-    "message": "Felaktigt huvudlösenord"
+    "message": "Ogiltigt huvudlösenord"
   },
   "vaultTimeout": {
     "message": "Valvets tidsgräns"
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Uppdatera"
   },
+  "notificationUnlockDesc": {
+    "message": "Lås upp ditt Bitwarden-valv för att slutföra begäran om automatisk ifyllnad."
+  },
+  "notificationUnlock": {
+    "message": "Lås upp"
+  },
   "enableContextMenuItem": {
     "message": "Visa alternativ för snabbmenyn"
   },
@@ -730,7 +739,7 @@
     "message": "Kopiera verifieringskod"
   },
   "attachments": {
-    "message": "Bifogade filer"
+    "message": "Bilagor"
   },
   "deleteAttachment": {
     "message": "Radera bilaga"
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB lagring av krypterade filer."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Ytterligare alternativ för tvåstegsverifiering såsom YubiKey, FIDO U2F och Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Återställ objekt"
   },
-  "restoreItemConfirmation": {
-    "message": "Är du säker på att du vill återställa detta objekt?"
-  },
   "restoredItem": {
     "message": "Återställde objekt"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Biometri i webbläsaren stöds inte på den här enheten."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Behörighet ej beviljad"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exporterar individuellt valv"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Endast de personliga valvobjekt som är associerade med $EMAIL$ kommer att exporteras. Organisationens valvobjekt kommer inte att inkluderas.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Serverversion"
   },
-  "selfHosted": {
-    "message": "Lokalt installerad"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Tredje part"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "En avisering har skickats till din enhet."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Inloggning påbörjad"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logga in på"
   },
   "opensInANewWindow": {
     "message": "Öppnas i ett nytt fönster"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Kom ihåg denna enhet"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Godkänn med huvudlösenord"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "USA",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Display"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Du kommer att meddelas vid godkännande."
+  },
+  "troubleLoggingIn": {
+    "message": "Problem med att logga in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "obligatoriskt"
+  },
+  "search": {
+    "message": "Sök"
+  },
+  "inputMinLength": {
+    "message": "Inmatningen måste innehålla minst $COUNT$ tecken.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Följande tecken är inte tillåtna: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "En eller flera e-postadresser är ogiltiga"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Inmatningen är inte en e-postadress."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ fält ovan kräver din uppmärksamhet.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Välj --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Skriv för att filtrera --"
+  },
+  "multiSelectLoading": {
+    "message": "Hämtar alternativ..."
+  },
+  "multiSelectNotFound": {
+    "message": "Inga objekt hittades"
+  },
+  "multiSelectClearAll": {
+    "message": "Rensa alla"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ till",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Undermeny"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

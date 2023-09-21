@@ -336,7 +336,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   }
 
   async getHistory(): Promise<GeneratedPasswordHistory[]> {
-    const hasKey = await this.cryptoService.hasKey();
+    const hasKey = await this.cryptoService.hasUserKey();
     if (!hasKey) {
       return new Array<GeneratedPasswordHistory>();
     }
@@ -356,7 +356,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
 
   async addHistory(password: string): Promise<void> {
     // Cannot add new history if no key is available
-    const hasKey = await this.cryptoService.hasKey();
+    const hasKey = await this.cryptoService.hasUserKey();
     if (!hasKey) {
       return;
     }

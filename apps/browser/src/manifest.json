@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "short_name": "__MSG_appName__",
-  "version": "2023.7.1",
+  "version": "2023.9.1",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -17,12 +17,7 @@
   "content_scripts": [
     {
       "all_frames": true,
-      "js": [
-        "content/autofill.js",
-        "content/autofiller.js",
-        "content/notificationBar.js",
-        "content/contextMenuHandler.js"
-      ],
+      "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "run_at": "document_start"
     },
@@ -105,7 +100,7 @@
   "applications": {
     "gecko": {
       "id": "{446900e4-71c2-419f-a6a7-df9c091e268b}",
-      "strict_min_version": "42.0"
+      "strict_min_version": "91.0"
     }
   },
   "sidebar_action": {

@@ -1,25 +1,29 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { Observable } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { ButtonModule, DialogModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 @Component({
-  selector: "app-about",
   templateUrl: "about.component.html",
+  standalone: true,
+  imports: [CommonModule, JslibModule, DialogModule, ButtonModule],
 })
 export class AboutComponent {
-  serverConfig$: Observable<ServerConfig>;
+  protected serverConfig$: Observable<ServerConfig> = this.configService.serverConfig$;
 
-  year = new Date().getFullYear();
-  version = BrowserApi.getApplicationVersion();
-  isCloud: boolean;
+  protected year = new Date().getFullYear();
+  protected version = BrowserApi.getApplicationVersion();
+  protected isCloud = this.environmentService.isCloud();
 
-  constructor(configService: ConfigServiceAbstraction, environmentService: EnvironmentService) {
-    this.serverConfig$ = configService.serverConfig$;
-    this.isCloud = environmentService.isCloud();
-  }
+  constructor(
+    private configService: ConfigServiceAbstraction,
+    private environmentService: EnvironmentService
+  ) {}
 }

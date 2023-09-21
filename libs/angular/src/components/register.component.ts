@@ -19,13 +19,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { DialogService } from "@bitwarden/components";
 
 import { CaptchaProtectedComponent } from "../auth/components/captcha-protected.component";
 import {
   AllValidationErrors,
   FormValidationErrorsService,
 } from "../platform/abstractions/form-validation-errors.service";
-import { DialogServiceAbstraction, SimpleDialogType } from "../services/dialog";
 import { PasswordColorText } from "../shared/components/password-strength/password-strength.component";
 import { InputsFieldMatch } from "../validators/inputsFieldMatch.validator";
 
@@ -92,7 +92,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     environmentService: EnvironmentService,
     protected logService: LogService,
     protected auditService: AuditService,
-    protected dialogService: DialogServiceAbstraction
+    protected dialogService: DialogService
   ) {
     super(environmentService, i18nService, platformUtilsService);
     this.showTerms = !platformUtilsService.isSelfHost();
@@ -232,7 +232,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
       const result = await this.dialogService.openSimpleDialog({
         title: { key: "weakAndExposedMasterPassword" },
         content: { key: "weakAndBreachedMasterPasswordDesc" },
-        type: SimpleDialogType.WARNING,
+        type: "warning",
       });
 
       if (!result) {
@@ -242,7 +242,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
       const result = await this.dialogService.openSimpleDialog({
         title: { key: "weakMasterPassword" },
         content: { key: "weakMasterPasswordDesc" },
-        type: SimpleDialogType.WARNING,
+        type: "warning",
       });
 
       if (!result) {
@@ -252,7 +252,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
       const result = await this.dialogService.openSimpleDialog({
         title: { key: "exposedMasterPassword" },
         content: { key: "exposedMasterPasswordDesc" },
-        type: SimpleDialogType.WARNING,
+        type: "warning",
       });
 
       if (!result) {
@@ -271,16 +271,16 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     const hint = this.formGroup.value.hint;
     const kdf = DEFAULT_KDF_TYPE;
     const kdfConfig = DEFAULT_KDF_CONFIG;
-    const key = await this.cryptoService.makeKey(masterPassword, email, kdf, kdfConfig);
-    const encKey = await this.cryptoService.makeEncKey(key);
-    const hashedPassword = await this.cryptoService.hashPassword(masterPassword, key);
-    const keys = await this.cryptoService.makeKeyPair(encKey[0]);
+    const key = await this.cryptoService.makeMasterKey(masterPassword, email, kdf, kdfConfig);
+    const newUserKey = await this.cryptoService.makeUserKey(key);
+    const masterKeyHash = await this.cryptoService.hashMasterKey(masterPassword, key);
+    const keys = await this.cryptoService.makeKeyPair(newUserKey[0]);
     const request = new RegisterRequest(
       email,
       name,
-      hashedPassword,
+      masterKeyHash,
       hint,
-      encKey[1].encryptedString,
+      newUserKey[1].encryptedString,
       this.referenceData,
       this.captchaToken,
       kdf,

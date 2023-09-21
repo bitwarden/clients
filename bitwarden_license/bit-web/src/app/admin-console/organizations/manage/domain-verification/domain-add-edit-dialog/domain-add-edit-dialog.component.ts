@@ -3,7 +3,6 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/abstractions/organization-domain/responses/organization-domain.response";
@@ -15,6 +14,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationDomainRequest } from "@bitwarden/common/services/organization-domain/requests/organization-domain.request";
+import { DialogService } from "@bitwarden/components";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";
@@ -66,7 +66,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private orgDomainService: OrgDomainServiceAbstraction,
     private validationService: ValidationService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   // Angular Method Implementations
@@ -253,7 +253,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "removeDomain" },
       content: { key: "removeDomainWarning" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

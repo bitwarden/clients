@@ -338,6 +338,9 @@
   "other": {
     "message": "其他"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "為本套件評分"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "更新"
   },
+  "notificationUnlockDesc": {
+    "message": "Unlock your Bitwarden vault to complete the auto-fill request."
+  },
+  "notificationUnlock": {
+    "message": "解鎖"
+  },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 加密儲存空間。"
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "YubiKey、FIDO U2F 和 Duo 等額外的兩步驟登入選項。"
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "密碼健康度檢查、提供帳戶體檢以及資料外洩報告，以保障您的密碼庫安全。"
@@ -976,7 +985,7 @@
     "message": "網頁載入時如果偵測到登入表單，則執行自動填入。"
   },
   "experimentalFeature": {
-    "message": "被入侵或不可信任的網站可以利用自動填入功能在網頁載入時竊取資訊。"
+    "message": "被入侵或不可信任的網站可以利用網頁載入時的自動填入功能。"
   },
   "learnMoreAboutAutofill": {
     "message": "進一步瞭解「自動填入」功能"
@@ -1255,10 +1264,10 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "checkPassword": {
-    "message": "檢查密碼是否已外洩。"
+    "message": "檢查密碼是否已暴露。"
   },
   "passwordExposed": {
-    "message": "此密碼已外洩了 $VALUE$ 次，應立即變更密碼。",
+    "message": "此密碼在資料外洩事件中被暴露了 $VALUE$ 次，應立即變更它。",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "還原項目"
   },
-  "restoreItemConfirmation": {
-    "message": "您確定要還原此項目嗎？"
-  },
   "restoredItem": {
     "message": "項目已還原"
   },
@@ -1489,7 +1495,7 @@
     "message": "新的主密碼"
   },
   "confirmNewMasterPass": {
-    "message": "確認新主密碼"
+    "message": "確認新的主密碼"
   },
   "masterPasswordPolicyInEffect": {
     "message": "一個或多個組織原則要求您的主密碼須符合下列條件："
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "此裝置不支援瀏覽器生物特徵辨識。"
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "未提供權限"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "正匯出個人密碼庫"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "只會匯出與 $EMAIL$ 關聯的個人密碼庫項目。組織密碼庫的項目不包含在內。",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "伺服器版本"
   },
-  "selfHosted": {
-    "message": "自我裝載"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "第三方"
@@ -2140,14 +2152,14 @@
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
-  "logInInitiated": {
-    "message": "登入已起始"
+  "loginInitiated": {
+    "message": "登入已發起"
   },
   "exposedMasterPassword": {
     "message": "已暴露的主密碼"
   },
   "exposedMasterPasswordDesc": {
-    "message": "在其他資料庫中找到您的密碼。我們建議您使用一個獨特的密碼來保護您的帳號，您確定要用這個密碼嗎？"
+    "message": "在資料外洩事件中找到了密碼。我們建議您使用一個獨特的密碼來保護您的帳戶，您確定要使用已暴露的密碼嗎？"
   },
   "weakAndExposedMasterPassword": {
     "message": "強度不足且已暴露的主密碼"
@@ -2159,7 +2171,7 @@
     "message": "檢查外洩密碼資料庫中是否有此密碼"
   },
   "important": {
-    "message": "重要事項："
+    "message": "重要："
   },
   "masterPasswordHint": {
     "message": "如果您忘記主密碼，沒有復原的方法！"
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "區域"
+  "loggingInOn": {
+    "message": "正登入到"
   },
   "opensInANewWindow": {
     "message": "在新視窗開啟"
   },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
+  },
   "eu": {
-    "message": "歐洲 (EU)",
+    "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "美國 (US)",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "顯示"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "已成功建立帳戶！"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "搜尋"
+  },
+  "inputMinLength": {
+    "message": "必須輸入至少 $COUNT$ 個字元。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "輸入的內容長度不得超過 $COUNT$ 字元。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Select --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "Retrieving options..."
+  },
+  "multiSelectNotFound": {
+    "message": "No items found"
+  },
+  "multiSelectClearAll": {
+    "message": "Clear all"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

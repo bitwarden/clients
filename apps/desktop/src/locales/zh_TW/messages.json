@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
-  "premiumSignUpTwoStep": {
-    "message": "YubiKey、FIDO U2F 和 Duo 等額外的兩步驟登入選項。"
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpReports": {
     "message": "密碼健康度檢查、提供帳戶體檢以及資料外洩報告，以保障您的密碼庫安全。"
@@ -1207,10 +1207,10 @@
     "message": "視窗"
   },
   "checkPassword": {
-    "message": "檢查密碼是否已外洩。"
+    "message": "檢查密碼是否已暴露。"
   },
   "passwordExposed": {
-    "message": "此密碼已外洩了 $VALUE$ 次，應立即變更密碼。",
+    "message": "此密碼在資料外洩事件中被暴露了 $VALUE$ 次，應立即變更它。",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -1414,7 +1414,7 @@
     "message": "啟動時詢問 Touch ID"
   },
   "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
+    "message": "需要在啟動應用程式時輸入密碼或 PIN 碼。"
   },
   "recommendedForSecurity": {
     "message": "Recommended for security."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新驗證才能再次存取密碼庫。"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "lock": {
     "message": "鎖定",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
-  },
-  "restoreItem": {
-    "message": "還原項目"
-  },
-  "restoreItemConfirmation": {
-    "message": "您確定要恢復此項目嗎？"
   },
   "restoredItem": {
     "message": "項目已還原"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "正匯出個人密碼庫"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "只會匯出與 $EMAIL$ 關聯的個人密碼庫。組織密碼庫的項目不包含在內。",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,8 +2109,8 @@
   "logInWithAnotherDevice": {
     "message": "使用其他裝置登入"
   },
-  "logInInitiated": {
-    "message": "Log in initiated"
+  "loginInitiated": {
+    "message": "登入已發起"
   },
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
@@ -2184,7 +2181,7 @@
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "剛剛"
   },
   "requestedXMinutesAgo": {
     "message": "Requested $MINUTES$ minutes ago",
@@ -2196,16 +2193,16 @@
     }
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "登入要求已逾期。"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "此請求已失效"
   },
   "approveLoginRequestDesc": {
-    "message": "Use this device to approve login requests made from other devices."
+    "message": "使用此裝置準予來自其他裝置的登入要求。"
   },
   "confirmLoginAtemptForMail": {
-    "message": "Confirm login attempt for $EMAIL$",
+    "message": "確認 $EMAIL$ 的登入嘗試",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2217,13 +2214,13 @@
     "message": "已要求登入"
   },
   "exposedMasterPassword": {
-    "message": "Exposed Master Password"
+    "message": "已暴露的主密碼"
   },
   "exposedMasterPasswordDesc": {
-    "message": "Password found in a data breach. Use a unique password to protect your account. Are you sure you want to use an exposed password?"
+    "message": "在資料外洩事件中找到了密碼。我們建議您使用一個獨特的密碼來保護您的帳戶，您確定要使用已暴露的密碼嗎？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Weak and Exposed Master Password"
+    "message": "強度不足且已暴露的主密碼"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Recommended Settings Update"
   },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "記住這個裝置"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "從其他裝置批准"
+  },
+  "requestAdminApproval": {
+    "message": "要求管理員核准"
+  },
+  "approveWithMasterPassword": {
+    "message": "使用主密碼批准"
+  },
   "region": {
     "message": "區域"
   },
+  "ssoIdentifierRequired": {
+    "message": "需要單一登入 (SSO) 組織識別碼。"
+  },
   "eu": {
-    "message": "歐洲 (EU)",
+    "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "美國 (US)",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
-  "selfHosted": {
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
     "message": "自建"
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "已成功建立帳戶！"
+  },
+  "adminApprovalRequested": {
+    "message": "需要管理員批准"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "登入時遇到困難？"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "裝置已信任"
+  },
+  "inputRequired": {
+    "message": "必須輸入內容。"
+  },
+  "required": {
+    "message": "必填"
+  },
+  "search": {
+    "message": "搜尋"
+  },
+  "inputMinLength": {
+    "message": "必須輸入至少 $COUNT$ 個字元。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "輸入的內容長度不得超過 $COUNT$ 字元。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "一個或多個電子郵件無效。"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- 選擇 --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "正在取得選項…"
+  },
+  "multiSelectNotFound": {
+    "message": "找不到任何項目"
+  },
+  "multiSelectClearAll": {
+    "message": "全部清除"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "子選單"
   }
 }

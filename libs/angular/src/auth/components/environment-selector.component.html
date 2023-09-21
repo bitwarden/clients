@@ -1,40 +1,51 @@
-<label class="environment-selector-btn">
+<div class="environment-selector-btn">
   {{ "loggingInOn" | i18n }}:
-  <a
+  <button
+    type="button"
     (click)="toggle(null)"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
-    aria-haspopup="menu"
+    aria-haspopup="dialog"
     aria-controls="cdk-overlay-container"
     [ngSwitch]="selectedEnvironment"
   >
-    <label *ngSwitchCase="ServerEnvironmentType.US" class="text-primary">{{
+    <span *ngSwitchCase="ServerEnvironmentType.US" class="text-primary">{{
       "usDomain" | i18n
-    }}</label>
-    <label *ngSwitchCase="ServerEnvironmentType.EU" class="text-primary">{{
+    }}</span>
+    <span *ngSwitchCase="ServerEnvironmentType.EU" class="text-primary">{{
       "euDomain" | i18n
-    }}</label>
-    <label *ngSwitchCase="ServerEnvironmentType.SelfHosted" class="text-primary">{{
-      "selfHosted" | i18n
-    }}</label>
+    }}</span>
+    <span *ngSwitchCase="ServerEnvironmentType.SelfHosted" class="text-primary">{{
+      "selfHostedServer" | i18n
+    }}</span>
     <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
-  </a>
-</label>
+  </button>
+</div>
 
 <ng-template
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
-  (backdropClick)="close()"
-  (detach)="close()"
   [cdkConnectedOverlayOpen]="isOpen"
   [cdkConnectedOverlayPositions]="overlayPosition"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+  (backdropClick)="isOpen = false"
+  (detach)="close()"
 >
   <div class="box-content">
-    <div class="environment-selector-dialog" [@transformPanel]="'open'" role="dialog">
+    <div
+      class="environment-selector-dialog"
+      [@transformPanel]="'open'"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
         class="environment-selector-dialog-item"
         (click)="toggle(ServerEnvironmentType.US)"
+        [attr.aria-pressed]="selectedEnvironment === ServerEnvironmentType.US ? 'true' : 'false'"
       >
         <i
           class="bwi bwi-fw bwi-sm bwi-check"
@@ -44,7 +55,6 @@
             selectedEnvironment === ServerEnvironmentType.US ? 'visible' : 'hidden'
           "
         ></i>
-        <img class="img-us" alt="" />
         <span>{{ "usDomain" | i18n }}</span>
       </button>
       <br />
@@ -52,6 +62,7 @@
         type="button"
         class="environment-selector-dialog-item"
         (click)="toggle(ServerEnvironmentType.EU)"
+        [attr.aria-pressed]="selectedEnvironment === ServerEnvironmentType.EU ? 'true' : 'false'"
         *ngIf="euServerFlagEnabled"
       >
         <i
@@ -62,7 +73,6 @@
             selectedEnvironment === ServerEnvironmentType.EU ? 'visible' : 'hidden'
           "
         ></i>
-        <img class="img-eu" alt="" />
         <span>{{ "euDomain" | i18n }}</span>
       </button>
       <br *ngIf="euServerFlagEnabled" />
@@ -70,6 +80,9 @@
         type="button"
         class="environment-selector-dialog-item"
         (click)="toggle(ServerEnvironmentType.SelfHosted)"
+        [attr.aria-pressed]="
+          selectedEnvironment === ServerEnvironmentType.SelfHosted ? 'true' : 'false'
+        "
       >
         <i
           class="bwi bwi-fw bwi-sm bwi-check"
@@ -79,12 +92,7 @@
             selectedEnvironment === ServerEnvironmentType.SelfHosted ? 'visible' : 'hidden'
           "
         ></i>
-        <i
-          class="bwi bwi-fw bwi-md bwi-pencil-square"
-          style="padding-bottom: 1px; margin-right: 5px"
-          aria-hidden="true"
-        ></i>
-        <span>{{ "selfHosted" | i18n }}</span>
+        <span>{{ "selfHostedServer" | i18n }}</span>
       </button>
     </div>
   </div>

@@ -89,7 +89,7 @@
     </div>
 
     <div [hidden]="!showCaptcha()">
-      <iframe id="hcaptcha_iframe" height="80"></iframe>
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
     <div class="tw-mb-4 tw-flex tw-items-start">
       <input
@@ -123,8 +123,7 @@
       </bit-label>
     </div>
 
-    <hr />
-    <div class="tw-flex tw-space-x-2 tw-pt-2">
+    <div class="tw-space-x-2 tw-pt-2">
       <ng-container *ngIf="!accountCreated">
         <button
           [block]="true"
@@ -135,10 +134,6 @@
         >
           {{ "createAccount" | i18n }}
         </button>
-        <a bitButton [block]="true" buttonType="secondary" routerLink="/login">
-          <i class="bwi bwi-sign-in tw-mr-2"></i>
-          {{ "logIn" | i18n }}
-        </a>
       </ng-container>
       <ng-container *ngIf="accountCreated">
         <button
@@ -152,6 +147,10 @@
         </button>
       </ng-container>
     </div>
+    <p class="tw-m-0 tw-mt-5 tw-text-sm">
+      {{ "alreadyHaveAccount" | i18n }}
+      <a routerLink="/login">{{ "logIn" | i18n }}</a>
+    </p>
     <bit-error-summary *ngIf="showErrorSummary" [formGroup]="formGroup"></bit-error-summary>
   </div>
 </form>

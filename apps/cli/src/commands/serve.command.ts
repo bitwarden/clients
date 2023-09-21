@@ -5,7 +5,6 @@ import * as koa from "koa";
 import * as koaBodyParser from "koa-bodyparser";
 import * as koaJson from "koa-json";
 
-import { KeySuffixOptions } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ConfirmCommand } from "../admin-console/commands/confirm.command";
@@ -425,11 +424,7 @@ export class ServeCommand {
       this.processResponse(res, Response.error("You are not logged in."));
       return true;
     }
-    if (await this.main.cryptoService.hasKeyInMemory()) {
-      return false;
-    } else if (await this.main.cryptoService.hasKeyStored(KeySuffixOptions.Auto)) {
-      // load key into memory
-      await this.main.cryptoService.getKey();
+    if (await this.main.cryptoService.hasUserKey()) {
       return false;
     }
     this.processResponse(res, Response.error("Vault is locked."));

@@ -1,0 +1,23 @@
+<bit-simple-dialog>
+  <i bitDialogIcon class="bwi bwi-info-circle tw-text-3xl" aria-hidden="true"></i>
+  <span bitDialogTitle>{{ "yourAccountsFingerprint" | i18n }}:</span>
+  <span bitDialogContent>
+    <strong>{{ data.fingerprint.join("-") }}</strong>
+  </span>
+  <ng-container bitDialogFooter>
+    <a
+      bitButton
+      href="https://bitwarden.com/help/fingerprint-phrase/"
+      target="_blank"
+      rel="noopener"
+      buttonType="primary"
+      bitDialogClose
+    >
+      {{ "learnMore" | i18n }}
+      <i class="bwi bwi-external-link bwi-fw" aria-hidden="true"></i>
+    </a>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

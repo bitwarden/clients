@@ -338,6 +338,9 @@
   "other": {
     "message": "Други"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
   "rateExtension": {
     "message": "Оценяване на разширението"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Да, нека се обнови сега"
   },
+  "notificationUnlockDesc": {
+    "message": "Отключете трезора си в Битуорден, за да завършите заявката за автоматично попълване."
+  },
+  "notificationUnlock": {
+    "message": "Отключване"
+  },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Двустепенно удостоверяване чрез YubiKey, FIDO U2F и Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Възстановяване на запис"
   },
-  "restoreItemConfirmation": {
-    "message": "Сигурни ли сте, че искате да възстановите записа?"
-  },
   "restoredItem": {
     "message": "Записът е възстановен"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Устройството не поддържа потвърждаване с биометрични данни."
+  },
+  "biometricsFailedTitle": {
+    "message": "Неуспешно удостоверяване чрез биометрични данни"
+  },
+  "biometricsFailedDesc": {
+    "message": "Удостоверяването чрез биометрични данни не може да бъде завършено. Опитайте да използвате главната си парола или се отпишете. Ако този проблем продължи да се случва, свържете се с поддръжката на Битуорден."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Правото не е дадено"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Изнасяне на личния трезор"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Ще бъдат изнесени само записите от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
+  "exportingIndividualVaultDescription": {
+    "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Версия на сървъра"
   },
-  "selfHosted": {
-    "message": "Собствен хостинг"
+  "selfHostedServer": {
+    "message": "собствен хостинг"
   },
   "thirdParty": {
     "message": "Third-party"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Вписването е стартирано"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Регион"
+  "loggingInOn": {
+    "message": "Вписване в"
   },
   "opensInANewWindow": {
     "message": "Отваря се в нов прозорец"
+  },
+  "deviceApprovalRequired": {
+    "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
+  },
+  "rememberThisDevice": {
+    "message": "Запомняне на това устройство"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Махнете отметката, ако използвате публично устройство"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Одобряване с другото Ви устройство"
+  },
+  "requestAdminApproval": {
+    "message": "Подаване на заявка за одобрение от администратор"
+  },
+  "approveWithMasterPassword": {
+    "message": "Одобряване с главната парола"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
   },
   "eu": {
     "message": "ЕС",
     "description": "European Union"
   },
-  "us": {
-    "message": "САЩ",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Отказан достъп. Нямате право за преглед на страницата."
@@ -2242,6 +2277,134 @@
     "message": "Общи"
   },
   "display": {
-    "message": "Display"
+    "message": "Външен вид"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Регистрацията е създадена успешно!"
+  },
+  "adminApprovalRequested": {
+    "message": "Заявено е одобрение от администратор"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Вашата заявка беше изпратена до администратора Ви."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Ще получите известие, когато тя бъде одобрена."
+  },
+  "troubleLoggingIn": {
+    "message": "Имате проблем с вписването?"
+  },
+  "loginApproved": {
+    "message": "Вписването е одобрено"
+  },
+  "userEmailMissing": {
+    "message": "Липсва е-поща на потребителя"
+  },
+  "deviceTrusted": {
+    "message": "Устройството е доверено"
+  },
+  "inputRequired": {
+    "message": "Полето е задължтелно да бъде попълнено."
+  },
+  "required": {
+    "message": "задължително"
+  },
+  "search": {
+    "message": "Търсене"
+  },
+  "inputMinLength": {
+    "message": "Въведеният в полето текст трябва да бъде с дължина поне $COUNT$ знака.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Полето не може да съдържа повече от $COUNT$ знака.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Следните знаци не са позволени: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Въведената стойност трябва да бъде поне $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Въведената стойност не трябва да бъде по-голяма от $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 или повече е-пощи са неправилни"
+  },
+  "inputTrimValidator": {
+    "message": "Въведеното не може да съдържа само интервали.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Въведеният в полето текст не е адрес на е-поща."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ поле(та) по-горе се нуждае/ят от вниманието Ви.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Изберете --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Пишете тук за филтриране --"
+  },
+  "multiSelectLoading": {
+    "message": "Зареждане на опциите…"
+  },
+  "multiSelectNotFound": {
+    "message": "Няма намерени елементи"
+  },
+  "multiSelectClearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "plusNMore": {
+    "message": "+ още $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Подменю"
+  },
+  "toggleCollapse": {
+    "message": "Превключване на свиването",
+    "description": "Toggling an expand/collapse state."
   }
 }

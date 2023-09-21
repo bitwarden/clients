@@ -1,5 +1,4 @@
-.btn-primary,
-.swal2-confirm {
+.btn-primary {
   @include themify($themes) {
     background-color: themed("btnPrimary");
     border-color: themed("btnPrimary");
@@ -37,8 +36,7 @@
   }
 }
 
-.btn-secondary,
-.swal2-cancel {
+.btn-secondary {
   @include themify($themes) {
     background-color: themed("btnSecondary");
     border-color: themed("btnSecondaryBorder");
@@ -103,8 +101,7 @@
   }
 }
 
-.btn-danger,
-.swal2-deny {
+.btn-danger {
   @include themify($themes) {
     background-color: themed("btnDanger");
     border-color: themed("btnDanger");

@@ -354,6 +354,20 @@ describe("WebCrypto Function Service", () => {
       ).toBeTruthy();
     });
   });
+
+  describe("aesGenerateKey", () => {
+    it.each([128, 192, 256, 512])("Should make a key of %s bits long", async (length) => {
+      const cryptoFunctionService = getWebCryptoFunctionService();
+      const key = await cryptoFunctionService.aesGenerateKey(length);
+      expect(key.byteLength * 8).toBe(length);
+    });
+
+    it("should not repeat itself for 512 length special case", async () => {
+      const cryptoFunctionService = getWebCryptoFunctionService();
+      const key = await cryptoFunctionService.aesGenerateKey(512);
+      expect(key.slice(0, 32)).not.toEqual(key.slice(32, 64));
+    });
+  });
 });
 
 function testPbkdf2(

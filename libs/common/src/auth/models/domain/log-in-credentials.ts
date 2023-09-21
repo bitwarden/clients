@@ -1,4 +1,4 @@
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey, UserKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { AuthenticationType } from "../../enums/authentication-type";
 import { TokenTwoFactorRequest } from "../request/identity-token/token-two-factor.request";
 
@@ -38,8 +38,9 @@ export class PasswordlessLogInCredentials {
     public email: string,
     public accessCode: string,
     public authRequestId: string,
-    public decKey: SymmetricCryptoKey,
-    public localPasswordHash: string,
+    public decryptedUserKey: UserKey,
+    public decryptedMasterKey: MasterKey,
+    public decryptedMasterKeyHash: string,
     public twoFactor?: TokenTwoFactorRequest
   ) {}
 }

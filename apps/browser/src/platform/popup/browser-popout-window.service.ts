@@ -11,20 +11,45 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
     height: 800,
   };
 
-  async openLoginPrompt(senderWindowId: number) {
-    await this.closeLoginPrompt();
-    await this.openPopoutWindow(
+  async openUnlockPrompt(senderWindowId: number) {
+    await this.openSingleActionPopout(
       senderWindowId,
       "popup/index.html?uilocation=popout",
-      "loginPrompt"
+      "unlockPrompt"
     );
   }
 
-  async closeLoginPrompt() {
-    await this.closeSingleActionPopout("loginPrompt");
+  async closeUnlockPrompt() {
+    await this.closeSingleActionPopout("unlockPrompt");
   }
 
-  private async openPopoutWindow(
+  async openPasswordRepromptPrompt(
+    senderWindowId: number,
+    {
+      cipherId,
+      senderTabId,
+      action,
+    }: {
+      cipherId: string;
+      senderTabId: number;
+      action: string;
+    }
+  ) {
+    const promptWindowPath =
+      "popup/index.html#/view-cipher" +
+      "?uilocation=popout" +
+      `&cipherId=${cipherId}` +
+      `&senderTabId=${senderTabId}` +
+      `&action=${action}`;
+
+    await this.openSingleActionPopout(senderWindowId, promptWindowPath, "passwordReprompt");
+  }
+
+  async closePasswordRepromptPrompt() {
+    await this.closeSingleActionPopout("passwordReprompt");
+  }
+
+  private async openSingleActionPopout(
     senderWindowId: number,
     popupWindowURL: string,
     singleActionPopoutKey: string
@@ -45,18 +70,16 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
 
     const popupWindow = await BrowserApi.createWindow(windowOptions);
 
-    if (!singleActionPopoutKey) {
-      return;
-    }
+    await this.closeSingleActionPopout(singleActionPopoutKey);
     this.singleActionPopoutTabIds[singleActionPopoutKey] = popupWindow?.tabs[0].id;
   }
 
   private async closeSingleActionPopout(popoutKey: string) {
     const tabId = this.singleActionPopoutTabIds[popoutKey];
-    if (!tabId) {
-      return;
+
+    if (tabId) {
+      await BrowserApi.removeTab(tabId);
     }
-    await BrowserApi.removeTab(tabId);
     this.singleActionPopoutTabIds[popoutKey] = null;
   }
 }

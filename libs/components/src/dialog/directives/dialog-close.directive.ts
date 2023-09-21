@@ -5,9 +5,9 @@ import { Directive, HostListener, Input, Optional } from "@angular/core";
   selector: "[bitDialogClose]",
 })
 export class DialogCloseDirective {
-  @Input("bit-dialog-close") dialogResult: any;
+  @Input("bitDialogClose") dialogResult: any;
 
-  constructor(@Optional() public dialogRef: DialogRef<any>) {}
+  constructor(@Optional() public dialogRef: DialogRef) {}
 
   @HostListener("click") close(): void {
     this.dialogRef.close(this.dialogResult);

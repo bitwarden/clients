@@ -3,7 +3,6 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap, takeUntil } from "rxjs/operators";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   canAccessVaultTab,
@@ -17,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 import { ImportServiceAbstraction } from "@bitwarden/importer";
 
 import { ImportComponent } from "../../../../tools/import-export/import.component";
@@ -44,7 +44,7 @@ export class OrganizationImportComponent extends ImportComponent {
     logService: LogService,
     modalService: ModalService,
     syncService: SyncService,
-    dialogService: DialogServiceAbstraction,
+    dialogService: DialogService,
     folderService: FolderService,
     collectionService: CollectionService,
     formBuilder: FormBuilder
@@ -91,7 +91,7 @@ export class OrganizationImportComponent extends ImportComponent {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "warning" },
       content: { key: "importWarning", placeholders: [this.organization.name] },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

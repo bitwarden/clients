@@ -1,4 +1,4 @@
-<ng-container *ngIf="!usesKeyConnector">
+<ng-container *ngIf="hasMasterPassword">
   <bit-form-field disableMargin>
     <bit-label>{{ "masterPass" | i18n }}</bit-label>
     <input
@@ -14,7 +14,7 @@
     <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
   </bit-form-field>
 </ng-container>
-<ng-container *ngIf="usesKeyConnector">
+<ng-container *ngIf="!hasMasterPassword">
   <div class="tw-mb-6">
     <label class="tw-block">{{ "sendVerificationCode" | i18n }}</label>
     <button type="button" bitButton buttonType="secondary" [bitAction]="requestOTP" appAutofocus>

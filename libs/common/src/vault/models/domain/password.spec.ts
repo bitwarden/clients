@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 
@@ -55,7 +55,7 @@ describe("Password", () => {
       const lastUsedDate = new Date("2022-01-31T12:00:00.000Z");
 
       const actual = Password.fromJSON({
-        password: "myPassword",
+        password: "myPassword" as EncryptedString,
         lastUsedDate: lastUsedDate.toISOString(),
       });
 

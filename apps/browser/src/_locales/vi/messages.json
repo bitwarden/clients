@@ -338,6 +338,9 @@
   "other": {
     "message": "Khác"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "Đánh giá tiện ích mở rộng"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Cập nhật"
   },
+  "notificationUnlockDesc": {
+    "message": "Vui lòng mở khóa Kho Bitwarden của bạn để hoàn thành quá trình tự động điền."
+  },
+  "notificationUnlock": {
+    "message": "Mở khóa"
+  },
   "enableContextMenuItem": {
     "message": "Hiển thị tuỳ chọn menu ngữ cảnh"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ tập tin được mã hóa."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Tuỳ chọn đăng nhập 2 bước bổ sung như YubiKey, FIDO U2F, và Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Thanh lọc mật khẩu, kiểm tra an toàn tài khoản và các báo cáo rò rĩ dữ liệu là để giữ cho kho của bạn an toàn."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Khôi phục mục"
   },
-  "restoreItemConfirmation": {
-    "message": "Bạn có chắc chắn muốn khôi phục mục này không?"
-  },
   "restoredItem": {
     "message": "Mục đã được khôi phục"
   },
@@ -1462,16 +1468,16 @@
     "message": "Đã tự động điền mục "
   },
   "insecurePageWarning": {
-    "message": "Warning: This is an unsecured HTTP page, and any information you submit can potentially be seen and changed by others. This Login was originally saved on a secure (HTTPS) page."
+    "message": "Cảnh báo: Đây là một trang HTTP không an toàn, và mọi thông tin bạn nhập ở đây có khả năng được xem & thay đổi bởi người khác. Thông tin Đăng nhập này ban đầu được lưu ở một trang an toàn (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Do you still wish to fill this login?"
+    "message": "Bạn vẫn muốn điền thông tin đăng nhập?"
   },
   "autofillIframeWarning": {
-    "message": "The form is hosted by a different domain than the URI of your saved login. Choose OK to auto-fill anyway, or Cancel to stop."
+    "message": "Mẫu điền thông tin này được lưu tại một tên miền khác với URI lưu tại thông tin đăng nhập của bạn. Hãy chọn OK để tiếp tục tự động điền, hoặc Hủy bỏ để dừng lại."
   },
   "autofillIframeWarningTip": {
-    "message": "To prevent this warning in the future, save this URI, $HOSTNAME$, to your Bitwarden login item for this site.",
+    "message": "Để chặn cảnh báo này trong tương lai, hãy lưu URI này, $HOSTNAME$, vào thông tin đăng nhập của bạn cho trang này ở Kho Bitwarden.",
     "placeholders": {
       "hostname": {
         "content": "$1",
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này"
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Quyền chưa được cấp"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Phiên bản máy chủ"
   },
-  "selfHosted": {
-    "message": "Tự lưu trữ"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Bên thứ ba"
@@ -2140,8 +2152,8 @@
   "notificationSentDevice": {
     "message": "Một thông báo đã được gửi đến thiết bị của bạn."
   },
-  "logInInitiated": {
-    "message": "Log in initiated"
+  "loginInitiated": {
+    "message": "Login initiated"
   },
   "exposedMasterPassword": {
     "message": "Mật khẩu chính bị lộ"
@@ -2174,10 +2186,10 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Your organization policies have turned on auto-fill on page load."
+    "message": "Chính sách quản lí của bạn đã bật chức năng tự động điền khi tải trang."
   },
   "howToAutofill": {
-    "message": "How to auto-fill"
+    "message": "Cách tự đồng điền"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this page or use the shortcut: $COMMAND$",
@@ -2195,16 +2207,16 @@
     "message": "Got it"
   },
   "autofillSettings": {
-    "message": "Auto-fill settings"
+    "message": "Cài đặt tự động điền"
   },
   "autofillShortcut": {
-    "message": "Auto-fill keyboard shortcut"
+    "message": "Phím tắt tự động điền"
   },
   "autofillShortcutNotSet": {
-    "message": "The auto-fill shortcut is not set. Change this in the browser's settings."
+    "message": "Chưa cài đặt phím tắt cho chức năng tự động điền. Vui lòng thay đổi trong cài đặt của trình duyệt."
   },
   "autofillShortcutText": {
-    "message": "The auto-fill shortcut is: $COMMAND$. Change this in the browser's settings.",
+    "message": "Phím tắt cho chức năng tự động điền là $COMMAND$. Vui lòng thay đổi trong cài đặt của trình duyệt.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2213,7 +2225,7 @@
     }
   },
   "autofillShortcutTextSafari": {
-    "message": "Default auto-fill shortcut: $COMMAND$.",
+    "message": "Phím tắt mặc định cho chức năng tự động điền: $COMMAND$.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
   "opensInANewWindow": {
     "message": "Opens in a new window"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Display"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "inputMinLength": {
+    "message": "Input must be at least $COUNT$ characters long.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Select --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "Retrieving options..."
+  },
+  "multiSelectNotFound": {
+    "message": "No items found"
+  },
+  "multiSelectClearAll": {
+    "message": "Clear all"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

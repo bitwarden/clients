@@ -69,7 +69,7 @@ describe("CipherContextMenuHandler", () => {
       expect(mainContextMenuHandler.noLogins).toHaveBeenCalledTimes(1);
     });
 
-    it("only adds valid ciphers", async () => {
+    it("only adds login ciphers including ciphers that require reprompt", async () => {
       authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
 
       mainContextMenuHandler.init.mockResolvedValue(true);
@@ -81,13 +81,20 @@ describe("CipherContextMenuHandler", () => {
         name: "Test Cipher",
         login: { username: "Test Username" },
       };
+      const repromptCipher = {
+        id: "6",
+        type: CipherType.Login,
+        reprompt: CipherRepromptType.Password,
+        name: "Test Reprompt Cipher",
+        login: { username: "Test Username" },
+      };
 
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
-        null,
-        undefined,
-        { type: CipherType.Card },
-        { type: CipherType.Login, reprompt: CipherRepromptType.Password },
-        realCipher,
+        null, // invalid cipher
+        undefined, // invalid cipher
+        { type: CipherType.Card }, // invalid cipher
+        realCipher, // valid cipher
+        repromptCipher,
       ] as any[]);
 
       await sut.update("https://test.com");
@@ -96,13 +103,20 @@ describe("CipherContextMenuHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com");
 
-      expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledTimes(1);
+      expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledTimes(2);
 
       expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledWith(
         "Test Cipher (Test Username)",
         "5",
         "https://test.com",
         realCipher
+      );
+
+      expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledWith(
+        "Test Reprompt Cipher (Test Username)",
+        "6",
+        "https://test.com",
+        repromptCipher
       );
     });
   });

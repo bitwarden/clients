@@ -338,6 +338,9 @@
   "other": {
     "message": "Egyéb"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
   "rateExtension": {
     "message": "Bővítmény értékelése"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Frissítés"
   },
+  "notificationUnlockDesc": {
+    "message": "A Bitwarden széf feloldása az automatikus kitöltési kérés teljesítéséhez."
+  },
+  "notificationUnlock": {
+    "message": "Feloldás"
+  },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "További két lépcsős bejelentkezés lehetőségek, mint például YubiKey, FIDO U2F és Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Jelszó higiénia, fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Elem visszaállítása"
   },
-  "restoreItemConfirmation": {
-    "message": "Biztosan visszaállításra kerüljön ezt az elem?"
-  },
   "restoredItem": {
     "message": "Visszaállított elem"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "A böngésző biometrikus adatait ez az eszköz nem támogatja."
+  },
+  "biometricsFailedTitle": {
+    "message": "A biometria nem sikerült."
+  },
+  "biometricsFailedDesc": {
+    "message": "A biometrikus adatokat nem lehet kitölteni, fontoljuk meg a mesterjelszó használatát vagy a kijelentkezést. Ha ez továbbra is fennáll, forduljunk a Bitwarden ügyfélszolgálatához."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "A jogosultság nincs megadva."
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Személyes széf exportálása"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
+  "exportingIndividualVaultDescription": {
+    "message": "$EMAIL$ email címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Szerver verzió"
   },
-  "selfHosted": {
-    "message": "Saját kiszolgáló"
+  "selfHostedServer": {
+    "message": "saját üzemeltetésű"
   },
   "thirdParty": {
     "message": "Harmadik fél"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "A bejelentkezés elindításra került."
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Régió"
+  "loggingInOn": {
+    "message": "Bejelentkezés:"
   },
   "opensInANewWindow": {
     "message": "Megnyitás új ablakban"
+  },
+  "deviceApprovalRequired": {
+    "message": "Az eszköz jóváhagyása szükséges. Válasszunk egy jóváhagyási lehetőséget lentebb:"
+  },
+  "rememberThisDevice": {
+    "message": "Eszköz megjegyzése"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Töröljük a jelölést, ha nyilvános eszközt használunk."
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Jóváhagyás másik eszközzel"
+  },
+  "requestAdminApproval": {
+    "message": "Adminisztrátori jóváhagyás kérés"
+  },
+  "approveWithMasterPassword": {
+    "message": "Jóváhagyás mesterjelszóval"
+  },
+  "ssoIdentifierRequired": {
+    "message": "A szervezeti SSO azonosító megadása szükséges."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "A hozzáférés megtagadásra került. Nincs jogosultság az oldal megtekintésére."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Megjelenítés"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "A fiók sikeresen létrehozásra került."
+  },
+  "adminApprovalRequested": {
+    "message": "Adminisztrátori jóváhagyás kérés történt"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "A kérés elküldésre került az adminisztrátornak."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "A jóváhagyás után értesítés érkezik."
+  },
+  "troubleLoggingIn": {
+    "message": "Probléma van a bejelentkezéssel?"
+  },
+  "loginApproved": {
+    "message": "A bejelentkezés jóváhagyásra került."
+  },
+  "userEmailMissing": {
+    "message": "A felhasználói email cím hiányzik."
+  },
+  "deviceTrusted": {
+    "message": "Az eszköz megbízható."
+  },
+  "inputRequired": {
+    "message": "Az adatbevitel kötelező."
+  },
+  "required": {
+    "message": "kötelező"
+  },
+  "search": {
+    "message": "Keresés"
+  },
+  "inputMinLength": {
+    "message": "A bevitel legyen legalább $COUNT$ karakter hosszú.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "A bevitel nem haladhatja meg $COUNT$ karakter hosszt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "A következő karakterek nem engedélyezettek: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "A beviteli érték legyen legalább $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "A beviteli érték ne haladja meg $MAX$ értéket.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 vagy több email cím érvénytelen."
+  },
+  "inputTrimValidator": {
+    "message": "A bevitel nem tartalmazhat csak fehér szóköz karaktert.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Az megadott bevitel nem email cím."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ mező fentebb figyelmet érdemel.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Választás --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Gépelés a szűréshez --"
+  },
+  "multiSelectLoading": {
+    "message": "Az opciók beolvasása folyamatban can..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nem található elem."
+  },
+  "multiSelectClearAll": {
+    "message": "Összes törlése"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ további",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Almenü"
+  },
+  "toggleCollapse": {
+    "message": "Összezárás váltás",
+    "description": "Toggling an expand/collapse state."
   }
 }

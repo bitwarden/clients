@@ -1,4 +1,10 @@
-document.addEventListener("DOMContentLoaded", (event) => {
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", loadAutofiller);
+} else {
+  loadAutofiller();
+}
+
+function loadAutofiller() {
   let pageHref: string = null;
   let filledThisHref = false;
   let delayFillTimeout: number;
@@ -49,4 +55,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
       chrome.runtime.sendMessage(msg);
     }
   }
-});
+}

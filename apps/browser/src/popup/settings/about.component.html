@@ -1,52 +1,46 @@
-<div class="modal fade" role="dialog" aria-modal="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <p class="text-center">
-          <i class="bwi bwi-shield bwi-3x" aria-hidden="true"></i>
-        </p>
-        <p class="text-center">
-          <b>Bitwarden</b>
-        </p>
-        <p class="text-center">&copy; Bitwarden Inc. 2015-{{ year }}</p>
-        <p class="text-center">{{ "version" | i18n }}: {{ version }}</p>
-        <ng-container *ngIf="serverConfig$ | async as serverConfig">
-          <p class="text-center" *ngIf="isCloud">
-            {{ "serverVersion" | i18n }}: {{ this.serverConfig?.version }}
+<bit-simple-dialog>
+  <div bitDialogIcon>
+    <i class="bwi bwi-shield bwi-3x" aria-hidden="true"></i>
+  </div>
+  <div bitDialogTitle>Bitwarden</div>
+  <div bitDialogContent>
+    <p>&copy; Bitwarden Inc. 2015-{{ year }}</p>
+    <p>{{ "version" | i18n }}: {{ version }}</p>
+    <ng-container *ngIf="serverConfig$ | async as serverConfig">
+      <p *ngIf="isCloud">
+        {{ "serverVersion" | i18n }}: {{ this.serverConfig?.version }}
+        <span *ngIf="!serverConfig.isValid()">
+          ({{ "lastSeenOn" | i18n : (serverConfig.utcDate | date : "mediumDate") }})
+        </span>
+      </p>
+
+      <ng-container *ngIf="!isCloud">
+        <ng-container *ngIf="serverConfig.server">
+          <p>
+            {{ "serverVersion" | i18n }} <small>({{ "thirdParty" | i18n }})</small>:
+            {{ this.serverConfig?.version }}
             <span *ngIf="!serverConfig.isValid()">
               ({{ "lastSeenOn" | i18n : (serverConfig.utcDate | date : "mediumDate") }})
             </span>
           </p>
-
-          <ng-container *ngIf="!isCloud">
-            <ng-container *ngIf="serverConfig.server">
-              <p class="text-center">
-                {{ "serverVersion" | i18n }} <small>({{ "thirdParty" | i18n }})</small>:
-                {{ this.serverConfig?.version }}
-                <span *ngIf="!serverConfig.isValid()">
-                  ({{ "lastSeenOn" | i18n : (serverConfig.utcDate | date : "mediumDate") }})
-                </span>
-              </p>
-              <div class="text-center">
-                <small>{{ "thirdPartyServerMessage" | i18n : serverConfig.server?.name }}</small>
-              </div>
-            </ng-container>
-
-            <p class="text-center" *ngIf="!serverConfig.server">
-              {{ "serverVersion" | i18n }} <small>({{ "selfHosted" | i18n }})</small>:
-              {{ this.serverConfig?.version }}
-              <span *ngIf="!serverConfig.isValid()">
-                ({{ "lastSeenOn" | i18n : (serverConfig.utcDate | date : "mediumDate") }})
-              </span>
-            </p>
-          </ng-container>
+          <div>
+            <small>{{ "thirdPartyServerMessage" | i18n : serverConfig.server?.name }}</small>
+          </div>
         </ng-container>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "close" | i18n }}
-        </button>
-      </div>
-    </div>
+
+        <p *ngIf="!serverConfig.server">
+          {{ "serverVersion" | i18n }} <small>({{ "selfHostedServer" | i18n }})</small>:
+          {{ this.serverConfig?.version }}
+          <span *ngIf="!serverConfig.isValid()">
+            ({{ "lastSeenOn" | i18n : (serverConfig.utcDate | date : "mediumDate") }})
+          </span>
+        </p>
+      </ng-container>
+    </ng-container>
   </div>
-</div>
+  <div bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">
+      {{ "close" | i18n }}
+    </button>
+  </div>
+</bit-simple-dialog>

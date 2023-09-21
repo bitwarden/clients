@@ -12,10 +12,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { DialogService } from "@bitwarden/components";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "../../services/dialog";
 import { PasswordColorText } from "../../shared/components/password-strength/password-strength.component";
 
 @Directive()
@@ -44,7 +44,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
     protected stateService: StateService,
-    protected dialogService: DialogServiceAbstraction
+    protected dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -79,23 +79,28 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     if (this.kdfConfig == null) {
       this.kdfConfig = await this.stateService.getKdfConfig();
     }
-    const key = await this.cryptoService.makeKey(
+
+    // Create new master key
+    const newMasterKey = await this.cryptoService.makeMasterKey(
       this.masterPassword,
       email.trim().toLowerCase(),
       this.kdf,
       this.kdfConfig
     );
-    const masterPasswordHash = await this.cryptoService.hashPassword(this.masterPassword, key);
+    const newMasterKeyHash = await this.cryptoService.hashMasterKey(
+      this.masterPassword,
+      newMasterKey
+    );
 
-    let encKey: [SymmetricCryptoKey, EncString] = null;
-    const existingEncKey = await this.cryptoService.getEncKey();
-    if (existingEncKey == null) {
-      encKey = await this.cryptoService.makeEncKey(key);
+    let newProtectedUserKey: [UserKey, EncString] = null;
+    const userKey = await this.cryptoService.getUserKey();
+    if (userKey == null) {
+      newProtectedUserKey = await this.cryptoService.makeUserKey(newMasterKey);
     } else {
-      encKey = await this.cryptoService.remakeEncKey(key);
+      newProtectedUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey);
     }
 
-    await this.performSubmitActions(masterPasswordHash, key, encKey);
+    await this.performSubmitActions(newMasterKeyHash, newMasterKey, newProtectedUserKey);
   }
 
   async setupSubmitActions(): Promise<boolean> {
@@ -105,9 +110,9 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
   }
 
   async performSubmitActions(
-    masterPasswordHash: string,
-    key: SymmetricCryptoKey,
-    encKey: [SymmetricCryptoKey, EncString]
+    newMasterKeyHash: string,
+    newMasterKey: MasterKey,
+    newUserKey: [UserKey, EncString]
   ) {
     // Override in sub-class
   }
@@ -162,7 +167,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
       const result = await this.dialogService.openSimpleDialog({
         title: { key: "weakAndExposedMasterPassword" },
         content: { key: "weakAndBreachedMasterPasswordDesc" },
-        type: SimpleDialogType.WARNING,
+        type: "warning",
       });
 
       if (!result) {
@@ -173,7 +178,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
         const result = await this.dialogService.openSimpleDialog({
           title: { key: "weakMasterPassword" },
           content: { key: "weakMasterPasswordDesc" },
-          type: SimpleDialogType.WARNING,
+          type: "warning",
         });
 
         if (!result) {
@@ -184,7 +189,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
         const result = await this.dialogService.openSimpleDialog({
           title: { key: "exposedMasterPassword" },
           content: { key: "exposedMasterPasswordDesc" },
-          type: SimpleDialogType.WARNING,
+          type: "warning",
         });
 
         if (!result) {
@@ -201,7 +206,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
       title: { key: "logOut" },
       content: { key: "logOutConfirmation" },
       acceptButtonText: { key: "logOut" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (confirmed) {

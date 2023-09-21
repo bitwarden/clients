@@ -1,11 +1,10 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { TableDataSource } from "@bitwarden/components";
+import { DialogService, TableDataSource } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../../../core";
 
@@ -44,7 +43,7 @@ export class BulkEnableSecretsManagerDialogComponent implements OnInit {
     this.dialogRef.close();
   };
 
-  static open(dialogService: DialogServiceAbstraction, data: BulkEnableSecretsManagerDialogData) {
+  static open(dialogService: DialogService, data: BulkEnableSecretsManagerDialogData) {
     return dialogService.open<unknown, BulkEnableSecretsManagerDialogData>(
       BulkEnableSecretsManagerDialogComponent,
       { data }

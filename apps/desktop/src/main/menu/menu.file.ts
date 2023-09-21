@@ -51,9 +51,10 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     updater: UpdaterMain,
     window: BrowserWindow,
     accounts: { [userId: string]: MenuAccount },
-    isLocked: boolean
+    isLocked: boolean,
+    isLockable: boolean
   ) {
-    super(i18nService, messagingService, updater, window, accounts, isLocked);
+    super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
 
   private get addNewLogin(): MenuItemConstructorOptions {

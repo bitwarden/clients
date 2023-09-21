@@ -18,12 +18,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "../auth/components/change-password.component";
-import { DialogServiceAbstraction } from "../services/dialog";
 
 @Directive()
 export class SetPasswordComponent extends BaseChangePasswordComponent {
@@ -52,7 +52,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
     stateService: StateService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserService: OrganizationUserService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       i18nService,
@@ -101,16 +101,16 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
 
   async performSubmitActions(
     masterPasswordHash: string,
-    key: SymmetricCryptoKey,
-    encKey: [SymmetricCryptoKey, EncString]
+    masterKey: MasterKey,
+    userKey: [UserKey, EncString]
   ) {
-    const keys = await this.cryptoService.makeKeyPair(encKey[0]);
+    const newKeyPair = await this.cryptoService.makeKeyPair(userKey[0]);
     const request = new SetPasswordRequest(
       masterPasswordHash,
-      encKey[1].encryptedString,
+      userKey[1].encryptedString,
       this.hint,
       this.identifier,
-      new KeysRequest(keys[0], keys[1].encryptedString),
+      new KeysRequest(newKeyPair[0], newKeyPair[1].encryptedString),
       this.kdf,
       this.kdfConfig.iterations,
       this.kdfConfig.memory,
@@ -121,7 +121,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
         this.formPromise = this.apiService
           .setPassword(request)
           .then(async () => {
-            await this.onSetPasswordSuccess(key, encKey, keys);
+            await this.onSetPasswordSuccess(masterKey, userKey, newKeyPair);
             return this.organizationApiService.getKeys(this.orgId);
           })
           .then(async (response) => {
@@ -131,13 +131,13 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
             const userId = await this.stateService.getUserId();
             const publicKey = Utils.fromB64ToArray(response.publicKey);
 
-            // RSA Encrypt user's encKey.key with organization public key
-            const userEncKey = await this.cryptoService.getEncKey();
-            const encryptedKey = await this.cryptoService.rsaEncrypt(userEncKey.key, publicKey);
+            // RSA Encrypt user key with organization public key
+            const userKey = await this.cryptoService.getUserKey();
+            const encryptedUserKey = await this.cryptoService.rsaEncrypt(userKey.key, publicKey);
 
             const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
             resetRequest.masterPasswordHash = masterPasswordHash;
-            resetRequest.resetPasswordKey = encryptedKey.encryptedString;
+            resetRequest.resetPasswordKey = encryptedUserKey.encryptedString;
 
             return this.organizationUserService.putOrganizationUserResetPasswordEnrollment(
               this.orgId,
@@ -147,7 +147,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
           });
       } else {
         this.formPromise = this.apiService.setPassword(request).then(async () => {
-          await this.onSetPasswordSuccess(key, encKey, keys);
+          await this.onSetPasswordSuccess(masterKey, userKey, newKeyPair);
         });
       }
 
@@ -169,21 +169,21 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
   }
 
   private async onSetPasswordSuccess(
-    key: SymmetricCryptoKey,
-    encKey: [SymmetricCryptoKey, EncString],
-    keys: [string, EncString]
+    masterKey: MasterKey,
+    userKey: [UserKey, EncString],
+    keyPair: [string, EncString]
   ) {
     await this.stateService.setKdfType(this.kdf);
     await this.stateService.setKdfConfig(this.kdfConfig);
-    await this.cryptoService.setKey(key);
-    await this.cryptoService.setEncKey(encKey[1].encryptedString);
-    await this.cryptoService.setEncPrivateKey(keys[1].encryptedString);
+    await this.cryptoService.setMasterKey(masterKey);
+    await this.cryptoService.setUserKey(userKey[0]);
+    await this.cryptoService.setPrivateKey(keyPair[1].encryptedString);
 
-    const localKeyHash = await this.cryptoService.hashPassword(
+    const localMasterKeyHash = await this.cryptoService.hashMasterKey(
       this.masterPassword,
-      key,
+      masterKey,
       HashPurpose.LocalAuthorization
     );
-    await this.cryptoService.setKeyHash(localKeyHash);
+    await this.cryptoService.setMasterKeyHash(localMasterKeyHash);
   }
 }

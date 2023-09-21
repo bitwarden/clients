@@ -276,7 +276,7 @@
   <!-- Secrets Manager -->
   <div class="tw-my-10">
     <sm-subscribe
-      *ngIf="showSecretsManagerSubscribe && planOffersSecretsManager"
+      *ngIf="planOffersSecretsManager"
       [formGroup]="formGroup.controls.secretsManager"
       [selectedPlan]="selectedSecretsManagerPlan"
       [upgradeOrganization]="!createOrganization"
@@ -329,7 +329,7 @@
     >
       {{ "submit" | i18n }}
     </button>
-    <button type="button" class="btn btn-outline-secondary" (click)="cancel()" *ngIf="showCancel">
+    <button type="button" buttonType="secondary" bitButton (click)="cancel()" *ngIf="showCancel">
       {{ "cancel" | i18n }}
     </button>
   </div>

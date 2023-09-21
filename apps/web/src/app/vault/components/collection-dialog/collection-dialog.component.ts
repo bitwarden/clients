@@ -12,7 +12,6 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/abstractions/organization-user/responses";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -22,7 +21,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
-import { BitValidators } from "@bitwarden/components";
+import { DialogService, BitValidators } from "@bitwarden/components";
 
 import { GroupService, GroupView } from "../../../admin-console/organizations/core";
 import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
@@ -95,7 +94,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private organizationUserService: OrganizationUserService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -249,7 +248,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: this.collection?.name,
       content: { key: "deleteCollectionConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed && this.params.collectionId) {
@@ -335,7 +334,7 @@ function mapToAccessSelections(collectionDetails: CollectionAdminView): AccessIt
  * @param config Configuration for the dialog
  */
 export function openCollectionDialog(
-  dialogService: DialogServiceAbstraction,
+  dialogService: DialogService,
   config: DialogConfig<CollectionDialogParams>
 ) {
   return dialogService.open<CollectionDialogResult, CollectionDialogParams>(

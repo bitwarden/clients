@@ -3,11 +3,13 @@
   "compilerOptions": {
     "paths": {
       "@bitwarden/angular/*": ["../angular/src/*"],
-      "@bitwarden/auth": ["../auth/src/*"],
+      "@bitwarden/auth": ["../auth/src"],
       "@bitwarden/common/*": ["../common/src/*"],
+      "@bitwarden/components": ["../components/src"],
       "@bitwarden/exporter/*": ["../exporter/src/*"],
       "@bitwarden/importer": ["../importer/src"],
-      "@bitwarden/node/*": ["../node/src/*"]
+      "@bitwarden/node/*": ["../node/src/*"],
+      "@bitwarden/vault": ["../vault/src"]
     }
   }
 }

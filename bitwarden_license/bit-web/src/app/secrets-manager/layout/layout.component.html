@@ -1,10 +1,4 @@
-<div class="tw-flex tw-w-full">
-  <nav
-    class="tw-fixed tw-max-h-screen tw-min-h-screen tw-w-60 tw-overflow-auto tw-bg-background-alt3"
-  >
-    <router-outlet name="sidebar"></router-outlet>
-  </nav>
-  <main class="tw-ml-60 tw-min-h-screen tw-min-w-0 tw-flex-1 tw-p-6">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+<bit-layout>
+  <router-outlet slot="sidebar" name="sidebar"></router-outlet>
+  <router-outlet></router-outlet>
+</bit-layout>

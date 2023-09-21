@@ -55,7 +55,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       description: null as string,
       priority: 4,
       sort: 5,
-      premium: true,
+      premium: false,
     },
   };
 

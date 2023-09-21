@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Дополнительные варианты двухэтапной аутентификации, такие как YubiKey, FIDO U2F и Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
   },
   "premiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
@@ -1288,7 +1288,7 @@
     "description": "ex. Date this password was updated"
   },
   "exportVault": {
-    "message": "Экспортировать хранилище"
+    "message": "Экспорт хранилища"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Чтобы получить доступ к хранилищу после выхода из него требуется повторная авторизация."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
+  },
   "lock": {
     "message": "Блокировка",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
-  },
-  "restoreItem": {
-    "message": "Восстановить элемент"
-  },
-  "restoreItemConfirmation": {
-    "message": "Вы уверены, что хотите восстановить этот элемент?"
   },
   "restoredItem": {
     "message": "Элемент восстановлен"
@@ -1859,7 +1856,7 @@
     "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить его сейчас. В результате текущий сеанс будет завершен, потребуется повторный вход. Сеансы на других устройствах могут оставаться активными в течение одного часа."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа."
+    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
   "hours": {
     "message": "Час."
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Экспорт личного хранилища"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будут экспортированы только личные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут.",
+  "exportingIndividualVaultDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут. Экспортируется только информация об элементах хранилища, не включая связанные вложения.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,14 +2109,14 @@
   "logInWithAnotherDevice": {
     "message": "Войти с другого устройства"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Вход инициирован"
   },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
   "fingerprintMatchInfo": {
-    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка пальца совпадает на другом устройстве."
+    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка совпадает на другом устройстве."
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -2229,7 +2226,7 @@
     "message": "Обнаружен слабый пароль, найденный в утечке данных. Используйте надежный и уникальный пароль для защиты вашего аккаунта. Вы уверены, что хотите использовать этот пароль?"
   },
   "checkForBreaches": {
-    "message": "Проверьте известные случаи утечки данных для этого пароля"
+    "message": "Проверять известные случаи утечки данных для этого пароля"
   },
   "important": {
     "message": "Важно:"
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Рекомендуемое обновление настроек"
   },
+  "deviceApprovalRequired": {
+    "message": "Требуется одобрение устройства. Выберите вариант ниже:"
+  },
+  "rememberThisDevice": {
+    "message": "Запомнить это устройство"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Снимите флажок, если используете общедоступное устройство"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Одобрить с другого устройства"
+  },
+  "requestAdminApproval": {
+    "message": "Запросить одобрение администратора"
+  },
+  "approveWithMasterPassword": {
+    "message": "Одобрить с мастер-паролем"
+  },
   "region": {
     "message": "Регион"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Требуется идентификатор SSO организации."
   },
   "eu": {
     "message": "Европа",
     "description": "European Union"
   },
-  "us": {
-    "message": "США",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Войти на"
   },
-  "selfHosted": {
-    "message": "Собственный хостинг"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "собственный хостинг"
   },
   "accessDenied": {
     "message": "Доступ запрещен. У вас нет разрешения на просмотр этой страницы."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Аккаунт успешно создан!"
+  },
+  "adminApprovalRequested": {
+    "message": "Запрошено одобрение администратора"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Ваш запрос был отправлен администратору."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Вас уведомят об одобрении."
+  },
+  "troubleLoggingIn": {
+    "message": "Не удалось войти?"
+  },
+  "loginApproved": {
+    "message": "Вход одобрен"
+  },
+  "userEmailMissing": {
+    "message": "Отсутствует email пользователя"
+  },
+  "deviceTrusted": {
+    "message": "Доверенное устройство"
+  },
+  "inputRequired": {
+    "message": "Необходимо ввести данные."
+  },
+  "required": {
+    "message": "обязательно"
+  },
+  "search": {
+    "message": "Поиск"
+  },
+  "inputMinLength": {
+    "message": "Вводимые данные должны содержать не менее $COUNT$ символов.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Длина вводимых данных не должна превышать $COUNT$ символов.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Не допускаются следующие символы: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Вводимое значение должно быть не менее $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Вводимое значение не должно превышать $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Один или несколько адресов email недействительны"
+  },
+  "inputTrimValidator": {
+    "message": "Введенные данные не должны содержать только пробелы.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Введенные данные не являются адресом email."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ поля(ей) выше требуют вашего внимания.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Выбрать --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Введите для фильтрации --"
+  },
+  "multiSelectLoading": {
+    "message": "Получение параметров..."
+  },
+  "multiSelectNotFound": {
+    "message": "Элементов не найдено"
+  },
+  "multiSelectClearAll": {
+    "message": "Очистить все"
+  },
+  "plusNMore": {
+    "message": "еще + $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Подменю"
   }
 }

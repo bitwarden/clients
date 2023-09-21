@@ -9,4 +9,5 @@
   (restoreSecretsEvent)="openRestoreSecret($event)"
   [secrets]="secrets$ | async"
   [trash]="true"
+  (copySecretUuidEvent)="copySecretUuid($event)"
 ></sm-secrets-list>

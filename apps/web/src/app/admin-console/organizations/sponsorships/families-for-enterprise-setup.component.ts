@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -14,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { OrganizationPlansComponent } from "../../../billing/settings/organization-plans.component";
 import {
@@ -62,7 +62,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     private syncService: SyncService,
     private validationService: ValidationService,
     private organizationService: OrganizationService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {

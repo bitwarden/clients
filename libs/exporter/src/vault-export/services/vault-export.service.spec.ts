@@ -8,7 +8,7 @@ import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -94,7 +94,7 @@ function generateFolderView() {
 function generateFolder() {
   const actual = Folder.fromJSON({
     revisionDate: new Date("2022-08-04T01:06:40.441Z").toISOString(),
-    name: "name",
+    name: "name" as EncryptedString,
     id: "id",
   });
   return actual;
@@ -217,8 +217,8 @@ describe("VaultExportService", () => {
         mac = Substitute.for<EncString>();
         data = Substitute.for<EncString>();
 
-        mac.encryptedString.returns("mac");
-        data.encryptedString.returns("encData");
+        mac.encryptedString.returns("mac" as EncryptedString);
+        data.encryptedString.returns("encData" as EncryptedString);
 
         jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted().resolves(UserCipherViews.slice(0, 1));

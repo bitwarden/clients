@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -63,6 +64,7 @@ describe("ContextMenuClickedHandler", () => {
   let cipherService: MockProxy<CipherService>;
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
+  let userVerificationService: MockProxy<UserVerificationService>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -82,7 +84,8 @@ describe("ContextMenuClickedHandler", () => {
       authService,
       cipherService,
       totpService,
-      eventCollectionService
+      eventCollectionService,
+      userVerificationService
     );
   });
 

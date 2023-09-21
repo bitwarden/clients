@@ -71,28 +71,29 @@
       <div class="box-content-row display-block" appBoxRow>
         <label for="vaultTimeoutAction">{{ "vaultTimeoutAction" | i18n }}</label>
         <select
-          #vaultTimeoutActionSelect
           id="vaultTimeoutAction"
           name="VaultTimeoutActions"
           formControlName="vaultTimeoutAction"
         >
-          <option *ngFor="let o of vaultTimeoutActionOptions" [ngValue]="o.value">
-            {{ o.name }}
+          <option *ngFor="let action of availableVaultTimeoutActions" [ngValue]="action">
+            {{ action | i18n }}
           </option>
         </select>
       </div>
+      <div
+        *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
+        id="unlockMethodHelp"
+        class="box-footer"
+      >
+        {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}
+      </div>
       <div class="box-content-row box-content-row-checkbox" appBoxRow>
         <label for="pin">{{ "unlockWithPin" | i18n }}</label>
-        <input id="pin" type="checkbox" (change)="updatePin()" formControlName="pin" />
+        <input id="pin" type="checkbox" formControlName="pin" />
       </div>
       <div class="box-content-row box-content-row-checkbox" appBoxRow *ngIf="supportsBiometric">
         <label for="biometric">{{ "unlockWithBiometrics" | i18n }}</label>
-        <input
-          id="biometric"
-          type="checkbox"
-          (change)="updateBiometric()"
-          formControlName="biometric"
-        />
+        <input id="biometric" type="checkbox" formControlName="biometric" />
       </div>
       <div
         class="box-content-row box-content-row-checkbox"
@@ -108,6 +109,7 @@
         />
       </div>
       <button
+        *ngIf="availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
         type="button"
         class="box-content-row box-content-row-flex text-default"
         appStopClick

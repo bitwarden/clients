@@ -173,9 +173,7 @@ code {
 }
 
 .btn:focus,
-.swal2-popup .swal2-actions button:focus,
 .btn.focus,
-.swal2-popup .swal2-actions button.focus,
 .form-control:focus {
   @include themify($themes) {
     box-shadow: 0 0 0 0.2rem themed("focus");

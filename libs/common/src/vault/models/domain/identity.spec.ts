@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
 
@@ -137,24 +137,24 @@ describe("Identity", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = Identity.fromJSON({
-        firstName: "mockFirstName",
-        lastName: "mockLastName",
-        address1: "mockAddress1",
-        address2: "mockAddress2",
-        address3: "mockAddress3",
-        city: "mockCity",
-        company: "mockCompany",
-        country: "mockCountry",
-        email: "mockEmail",
-        licenseNumber: "mockLicenseNumber",
-        middleName: "mockMiddleName",
-        passportNumber: "mockPassportNumber",
-        phone: "mockPhone",
-        postalCode: "mockPostalCode",
-        ssn: "mockSsn",
-        state: "mockState",
-        title: "mockTitle",
-        username: "mockUsername",
+        firstName: "mockFirstName" as EncryptedString,
+        lastName: "mockLastName" as EncryptedString,
+        address1: "mockAddress1" as EncryptedString,
+        address2: "mockAddress2" as EncryptedString,
+        address3: "mockAddress3" as EncryptedString,
+        city: "mockCity" as EncryptedString,
+        company: "mockCompany" as EncryptedString,
+        country: "mockCountry" as EncryptedString,
+        email: "mockEmail" as EncryptedString,
+        licenseNumber: "mockLicenseNumber" as EncryptedString,
+        middleName: "mockMiddleName" as EncryptedString,
+        passportNumber: "mockPassportNumber" as EncryptedString,
+        phone: "mockPhone" as EncryptedString,
+        postalCode: "mockPostalCode" as EncryptedString,
+        ssn: "mockSsn" as EncryptedString,
+        state: "mockState" as EncryptedString,
+        title: "mockTitle" as EncryptedString,
+        username: "mockUsername" as EncryptedString,
       });
 
       expect(actual).toEqual({

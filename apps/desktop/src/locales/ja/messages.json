@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1GB の暗号化されたファイルストレージ。"
   },
-  "premiumSignUpTwoStep": {
-    "message": "YubiKey、FIDO U2F、Duoなどの追加の2段階認証ログインオプション"
+  "premiumSignUpTwoStepOptions": {
+    "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
   },
   "premiumSignUpReports": {
     "message": "保管庫を安全に保つための、パスワードやアカウントの健全性、データ侵害に関するレポート。"
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "ログアウトした保管庫にアクセスするには、再認証してください。"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "保管庫のタイムアウト動作を変更するには、ロック解除方法を設定してください。"
+  },
   "lock": {
     "message": "ロック",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "完全に削除されたアイテム"
-  },
-  "restoreItem": {
-    "message": "アイテムをリストア"
-  },
-  "restoreItemConfirmation": {
-    "message": "このアイテムをリストアしますか？"
   },
   "restoredItem": {
     "message": "リストアされたアイテム"
@@ -1684,7 +1681,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "myVault": {
-    "message": "保管庫"
+    "message": "自分の保管庫"
   },
   "text": {
     "message": "テキスト"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "個人保管庫のエクスポート"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "$EMAIL$ に関連付けられた個人用保管庫アイテムのみがエクスポートされます。組織用保管庫アイテムは含まれません。",
+  "exportingIndividualVaultDescription": {
+    "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2052,7 +2049,7 @@
     "message": "組織の検索"
   },
   "searchMyVault": {
-    "message": "保管庫を検索"
+    "message": "自分の保管庫内を検索"
   },
   "forwardedEmail": {
     "message": "転送されたメールエイリアス"
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "別のデバイスでログイン"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "ログイン開始"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "設定の更新を推奨"
   },
+  "deviceApprovalRequired": {
+    "message": "デバイスの承認が必要です。以下から承認オプションを選択してください:"
+  },
+  "rememberThisDevice": {
+    "message": "このデバイスを記憶する"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "パブリックデバイスを使用している場合はチェックしないでください"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "他のデバイスから承認する"
+  },
+  "requestAdminApproval": {
+    "message": "管理者の承認を要求する"
+  },
+  "approveWithMasterPassword": {
+    "message": "マスターパスワードで承認する"
+  },
   "region": {
     "message": "リージョン"
+  },
+  "ssoIdentifierRequired": {
+    "message": "組織の SSO ID が必要です。"
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "米国",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "ログイン先"
   },
-  "selfHosted": {
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
     "message": "自己ホスト型"
   },
   "accessDenied": {
     "message": "アクセスが拒否されました。このページを表示する権限がありません。"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "アカウントを正常に作成しました！"
+  },
+  "adminApprovalRequested": {
+    "message": "管理者の承認を要求しました"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "要求を管理者に送信しました。"
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "承認されると通知されます。 "
+  },
+  "troubleLoggingIn": {
+    "message": "ログインできない場合"
+  },
+  "loginApproved": {
+    "message": "ログインが承認されました"
+  },
+  "userEmailMissing": {
+    "message": "ユーザーのメールアドレスがありません"
+  },
+  "deviceTrusted": {
+    "message": "信頼されたデバイス"
+  },
+  "inputRequired": {
+    "message": "入力が必要です。"
+  },
+  "required": {
+    "message": "必須"
+  },
+  "search": {
+    "message": "検索"
+  },
+  "inputMinLength": {
+    "message": "$COUNT$ 文字以上でなければなりません。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "$COUNT$ 文字を超えてはいけません。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "次の文字は許可されていません: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "入力値は少なくとも$MIN$桁でなければなりません。",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "入力値は$MAX$桁を超えてはいけません。",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1つ以上のメールアドレスが無効です"
+  },
+  "inputTrimValidator": {
+    "message": "値を空白のみにしないでください。",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "入力したものはメールアドレスではありません。"
+  },
+  "fieldsNeedAttention": {
+    "message": "上記の $COUNT$ 点を確認してください。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- 選択 --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- 入力して絞り込み --"
+  },
+  "multiSelectLoading": {
+    "message": "オプションを取得中..."
+  },
+  "multiSelectNotFound": {
+    "message": "アイテムが見つかりません"
+  },
+  "multiSelectClearAll": {
+    "message": "すべてクリア"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ 個以上",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "サブメニュー"
   }
 }

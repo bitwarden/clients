@@ -80,6 +80,9 @@ export class EventService {
       case EventType.User_MigratedKeyToKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("migratedKeyConnector");
         break;
+      case EventType.User_RequestedDeviceApproval:
+        msg = humanReadableMsg = this.i18nService.t("requestedDeviceApproval");
+        break;
       // Cipher
       case EventType.Cipher_Created:
         msg = this.i18nService.t("createdItemId", this.formatCipherId(ev, options));
@@ -304,6 +307,20 @@ export class EventService {
         msg = this.i18nService.t("restoredUserId", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
           "restoredUserId",
+          this.getShortId(ev.organizationUserId)
+        );
+        break;
+      case EventType.OrganizationUser_ApprovedAuthRequest:
+        msg = this.i18nService.t("approvedAuthRequest", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "approvedAuthRequest",
+          this.getShortId(ev.organizationUserId)
+        );
+        break;
+      case EventType.OrganizationUser_RejectedAuthRequest:
+        msg = this.i18nService.t("rejectedAuthRequest", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "rejectedAuthRequest",
           this.getShortId(ev.organizationUserId)
         );
         break;

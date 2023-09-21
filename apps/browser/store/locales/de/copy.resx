@@ -139,7 +139,7 @@ Bitwarden bietet Teams und Enterprise Pläne für Unternehmen an, damit du Passw
 Warum Bitwarden:
 
 Weltklasse Verschlüsselung
-Passwörter sind durch erweiterte Ende-zu-Ende-Verschlüsselung (AES-256 Bit, salted hashtag und PBKDF2 SHA-256) so bleiben deine Daten sicher und privat.
+Passwörter sind durch erweiterte Ende-zu-Ende-Verschlüsselung (AES-256 Bit, salted hashing und PBKDF2 SHA-256) so bleiben deine Daten sicher und privat.
 
 Integrierter Passwortgenerator
 Generiere starke, einzigartige und zufällige Passwörter basierend auf Sicherheitsanforderungen für jede Website, die du häufig besuchst.

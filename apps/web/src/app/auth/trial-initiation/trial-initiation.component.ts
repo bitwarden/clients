@@ -94,6 +94,13 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
 
     if (this.referenceData.id === "") {
       this.referenceData.id = null;
+    } else {
+      // Matches "_ga_QBRN562QQQ=value1.value2.session" and captures values and session.
+      const regex = /_ga_QBRN562QQQ=([^.]+)\.([^.]+)\.(\d+)/;
+      const match = document.cookie.match(regex);
+      if (match) {
+        this.referenceData.session = match[3];
+      }
     }
   }
 

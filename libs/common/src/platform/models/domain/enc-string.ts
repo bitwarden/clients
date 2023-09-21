@@ -1,4 +1,4 @@
-import { Jsonify } from "type-fest";
+import { Jsonify, Opaque } from "type-fest";
 
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../enums";
 import { Utils } from "../../../platform/misc/utils";
@@ -7,7 +7,7 @@ import { Encrypted } from "../../interfaces/encrypted";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 export class EncString implements Encrypted {
-  encryptedString?: string;
+  encryptedString?: EncryptedString;
   encryptionType?: EncryptionType;
   decryptedValue?: string;
   data?: string;
@@ -53,14 +53,14 @@ export class EncString implements Encrypted {
 
   private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
     if (iv != null) {
-      this.encryptedString = encType + "." + iv + "|" + data;
+      this.encryptedString = (encType + "." + iv + "|" + data) as EncryptedString;
     } else {
-      this.encryptedString = encType + "." + data;
+      this.encryptedString = (encType + "." + data) as EncryptedString;
     }
 
     // mac
     if (mac != null) {
-      this.encryptedString += "|" + mac;
+      this.encryptedString = (this.encryptedString + "|" + mac) as EncryptedString;
     }
 
     this.encryptionType = encType;
@@ -70,7 +70,7 @@ export class EncString implements Encrypted {
   }
 
   private initFromEncryptedString(encryptedString: string) {
-    this.encryptedString = encryptedString as string;
+    this.encryptedString = encryptedString as EncryptedString;
     if (!this.encryptedString) {
       return;
     }
@@ -162,6 +162,8 @@ export class EncString implements Encrypted {
     const cryptoService = Utils.getContainerService().getCryptoService();
     return orgId != null
       ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getKeyForUserEncryption();
+      : await cryptoService.getUserKeyWithLegacySupport();
   }
 }
+
+export type EncryptedString = Opaque<string, "EncString">;

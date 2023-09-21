@@ -1,13 +1,14 @@
 import { CurrencyPipe, Location } from "@angular/common";
 import { Component } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-premium",
@@ -24,9 +25,18 @@ export class PremiumComponent extends BasePremiumComponent {
     logService: LogService,
     private location: Location,
     private currencyPipe: CurrencyPipe,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    environmentService: EnvironmentService
   ) {
-    super(i18nService, platformUtilsService, apiService, logService, stateService, dialogService);
+    super(
+      i18nService,
+      platformUtilsService,
+      apiService,
+      logService,
+      stateService,
+      dialogService,
+      environmentService
+    );
 
     // Support old price string. Can be removed in future once all translations are properly updated.
     const thePrice = this.currencyPipe.transform(this.price, "$");

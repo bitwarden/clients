@@ -46,11 +46,6 @@ export class ChangeKdfConfirmationComponent {
 
   async submit() {
     this.loading = true;
-    const hasEncKey = await this.cryptoService.hasEncKey();
-    if (!hasEncKey) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("updateKey"));
-      return;
-    }
 
     try {
       this.formPromise = this.makeKeyAndSaveAsync();
@@ -75,17 +70,21 @@ export class ChangeKdfConfirmationComponent {
     request.kdfIterations = this.kdfConfig.iterations;
     request.kdfMemory = this.kdfConfig.memory;
     request.kdfParallelism = this.kdfConfig.parallelism;
-    request.masterPasswordHash = await this.cryptoService.hashPassword(masterPassword, null);
+    const masterKey = await this.cryptoService.getOrDeriveMasterKey(masterPassword);
+    request.masterPasswordHash = await this.cryptoService.hashMasterKey(masterPassword, masterKey);
     const email = await this.stateService.getEmail();
-    const newKey = await this.cryptoService.makeKey(
+    const newMasterKey = await this.cryptoService.makeMasterKey(
       masterPassword,
       email,
       this.kdf,
       this.kdfConfig
     );
-    request.newMasterPasswordHash = await this.cryptoService.hashPassword(masterPassword, newKey);
-    const newEncKey = await this.cryptoService.remakeEncKey(newKey);
-    request.key = newEncKey[1].encryptedString;
+    request.newMasterPasswordHash = await this.cryptoService.hashMasterKey(
+      masterPassword,
+      newMasterKey
+    );
+    const newUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey);
+    request.key = newUserKey[1].encryptedString;
 
     await this.apiService.postAccountKdf(request);
   }

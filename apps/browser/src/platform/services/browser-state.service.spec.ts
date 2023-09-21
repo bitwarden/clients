@@ -8,7 +8,6 @@ import {
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { State } from "@bitwarden/common/platform/models/domain/state";
-import { StateMigrationService } from "@bitwarden/common/platform/services/state-migration.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 
@@ -26,7 +25,6 @@ describe("Browser State Service", () => {
   let secureStorageService: MockProxy<AbstractStorageService>;
   let diskStorageService: MockProxy<AbstractStorageService>;
   let logService: MockProxy<LogService>;
-  let stateMigrationService: MockProxy<StateMigrationService>;
   let stateFactory: MockProxy<StateFactory<GlobalState, Account>>;
   let useAccountCache: boolean;
 
@@ -39,9 +37,9 @@ describe("Browser State Service", () => {
     secureStorageService = mock();
     diskStorageService = mock();
     logService = mock();
-    stateMigrationService = mock();
     stateFactory = mock();
-    useAccountCache = true;
+    // turn off account cache for tests
+    useAccountCache = false;
 
     state = new State(new GlobalState());
     state.accounts[userId] = new Account({
@@ -63,7 +61,6 @@ describe("Browser State Service", () => {
         secureStorageService,
         memoryStorageService,
         logService,
-        stateMigrationService,
         stateFactory,
         useAccountCache
       );

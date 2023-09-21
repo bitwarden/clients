@@ -687,7 +687,7 @@
     "message": "Hovedadgangskode kræves angivet igen."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Hovedadgangskoden skal udgøre minimum $VALUE$ tegn.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "En uventet fejl opstod."
   },
+  "expirationDateError": {
+    "message": "Udløbsdato skal være i fremtiden."
+  },
   "emailAddress": {
     "message": "E-mailadresse"
   },
   "yourVaultIsLocked": {
     "message": "Din boks er låst. Bekræft din hovedadgangskode for at fortsætte."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Oplås"
@@ -947,6 +953,9 @@
   },
   "copyVerificationCode": {
     "message": "Kopiér bekræftelseskoden"
+  },
+  "copyUuid": {
+    "message": "Kopiér UUID"
   },
   "warning": {
     "message": "Advarsel"
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Fejl under dekryptering af den eksporterede fil. Krypteringsnøglen matcher ikke den til dataeksporten anvendte krypteringsnøgle."
   },
+  "importDestination": {
+    "message": "Importér destination"
+  },
+  "learnAboutImportOptions": {
+    "message": "Læs om importmuligheder"
+  },
+  "selectImportFolder": {
+    "message": "Vælg en mappe"
+  },
+  "selectImportCollection": {
+    "message": "Vælg en samling"
+  },
+  "importTargetHint": {
+    "message": "Vælg denne indstilling, hvis importeret filindhold skal flyttet til en $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Filen indeholder ikke-tildelte emner."
+  },
   "selectFormat": {
     "message": "Vælg formatet for importfilen"
   },
@@ -1391,7 +1425,10 @@
   "twoStepLoginDesc": {
     "message": "Beskyt kontoen ved at kræve et ekstra trin under indlogning."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Aktivér totrins-login for organisationen."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Håndhæv Bitwarden totrins-login indstillinger for medlemmer vha. ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB krypteret lager til vedhæftede filer."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Yderligere totrins login-muligheder, såsom YubiKey, FIDO U2F og Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietære totrins-login muligheder, såsom YubiKey og Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Nødadgang"
@@ -2005,6 +2042,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Der vil ske opkrævning for evt. ubetalte abonnementer via betalingsmetoden."
   },
   "paymentChargedWithTrial": {
     "message": "Dit abonnement indeholder en gratis 7-dages prøveperiode. Din betalingsmetode vil ikke blive debiteret, før prøveperioden er slut. Du kan til enhver tid annullere."
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Vælg hvornår din boks skal udføre timeout-handlingen."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Vælg, hvornår udlogning af din boks vil ske."
+  },
   "oneMinute": {
     "message": "1 minut"
   },
@@ -3576,7 +3619,7 @@
     "message": "Svag hovedadgangskode"
   },
   "weakMasterPasswordDesc": {
-    "message": "Hovedadgangskoden du har valgt er svag. Du skal bruge en stærk hovedadgangskode (eller en adgangssætning) for at beskytte din Bitwarden-konto korrekt. Er du sikker på, at du vil bruge denne hovedadgangskode?"
+    "message": "Svag adgangskode fundet. Brug en stærk adgangskode for at beskytte kontoen. Sikker på, at du vil bruge en svag adgangskode?"
   },
   "rotateAccountEncKey": {
     "message": "Rotér også min kontos krypteringsnøgle"
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Dette element har gamle filvedhæftninger, der skal repareres."
   },
-  "attachmentFixDesc": {
-    "message": "Dette er en gammel filvedhæftning, der skal repareres. Klik for at lære mere."
+  "attachmentFixDescription": {
+    "message": "Denne vedhæftning har forældet kryptering. Vælg 'Korrigér' for at downloade, gen-kryptere og gen-uploade vedhæftningen."
   },
   "fix": {
     "message": "Reparér",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Gendan valgte"
   },
-  "restoreItem": {
-    "message": "Gendan emne"
-  },
   "restoredItem": {
     "message": "Emne gendannet"
   },
   "restoredItems": {
     "message": "Emner gendannet"
-  },
-  "restoreItemConfirmation": {
-    "message": "Sikker på, at dette emne skal gendannes?"
-  },
-  "restoreItems": {
-    "message": "Gendan emner"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "$COUNT$ emne(r) valgt til gendannelse. Sikker på, at de skal gendannes?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Emnet $ID$ gendannet",
@@ -4863,7 +4888,7 @@
     "message": "Minutter"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Organisationspolitikkerne påvirker din boks-timeout. Maks. tilladt boks-timeout udgør $HOURS$ time(r) og $MINUTES$ minut(ter)",
+    "message": "Organisationspolitikker har sat din maks. tilladte boks-timeout. til $HOURS$ time(r) og $MINUTES$ minut(ter).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Fjern individuel bokseksport"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Tillad ikke medlemmer at eksportere deres individuelle boksdata."
+  "disablePersonalVaultExportDescription": {
+    "message": "Tillad ikke medlemmer at eksportere data fra deres individuelle bokse."
   },
   "vaultExportDisabled": {
     "message": "Bokseksport fjernet"
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "Eksport af organisationsboks"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Kun individuelle boksemner tilknyttet $EMAIL$ eksporteres. Organisationsboksemner medtages ikke. Kun boksemneinformation uden tilhørende adgangskodehistorik eller filvedhæftninger eksporteres.",
+  "exportingIndividualVaultDescription": {
+    "message": "Kun individuelle boksemner tilknyttet $EMAIL$ eksporteres. Organisationsboksemner medtages ikke. Kun boksemneinformation uden tilhørende vedhæftninger eksporteres.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,8 +5454,8 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
-    "message": "Kun organisationsboksen tilknyttet $ORGANIZATION$ eksporteres. Individuelle boksemner, samt emner fra andre organisationer, medtages ikke.",
+  "exportingOrganizationVaultDesc": {
+    "message": "Kun organisationsboksen tilknyttet $ORGANIZATION$ eksporteres. Emner i individuelle bokse eller andre organisationer medtages ikke.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5835,7 +5860,7 @@
     "description": "Action to create a new secret."
   },
   "copySecretName": {
-    "message": "Kopiér hemmeligheds navn",
+    "message": "Kopiér hemmeligt navn",
     "description": "Action to copy the name of a secret to the system's clipboard."
   },
   "copySecretValue": {
@@ -6060,7 +6085,7 @@
     "description": "Instructions for selecting projects or secrets for a new service account"
   },
   "newSaTypeToFilter": {
-    "message": "Angiv for at filtrere",
+    "message": "Skriv for at filtrere",
     "description": "Instructions for filtering a list of projects or secrets"
   },
   "deleteProjectsToast": {
@@ -6068,7 +6093,7 @@
     "description": "Notifies that the selected projects have been deleted"
   },
   "deleteProjectToast": {
-    "message": "Projektet og alle tilknyttede hemmeligheder er slettet",
+    "message": "Projekt slettet",
     "description": "Notifies that a project has been deleted"
   },
   "deleteProjectDialogMessage": {
@@ -6195,13 +6220,13 @@
     "description": "Invalidates / cancels an access token and as such removes access to secrets for the client application."
   },
   "revokeAccessTokens": {
-    "message": "Revoke access tokens"
+    "message": "Ophæv adgangstokener"
   },
   "revokeAccessTokenDesc": {
-    "message": "Revoking access tokens is permanent and irreversible."
+    "message": "Ophævning af adgangstokener er permanent og irreversibelt."
   },
   "accessTokenRevoked": {
-    "message": "Access tokens revoked",
+    "message": "Adgangstokener ophævet",
     "description": "Toast message after deleting one or multiple access tokens."
   },
   "noAccessTokenSelected": {
@@ -6614,7 +6639,7 @@
     "message": "Opdatér krypteringsindstillingerne for at opfylde nye sikkerhedsanbefalinger og forbedre kontobeskyttelsen."
   },
   "changeKdfLoggedOutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
+    "message": "Fortsættes, logges man ud af alle aktive sessioner. Man vil skulle logge ind igen og færdiggøre opsætningen af totrinsindlogning. For at forhindre datatab anbefales det, at boksen eksporteres, inden krypteringsindstillingerne ændres."
   },
   "secretsManager": {
     "message": "Hemmelighedshåndtering"
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Kræv, at eksisterende medlemmer ændrer deres adgangskoder"
   },
-  "region": {
-    "message": "Region"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Ingen tilladelse til at slette dette objekt",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "Opdatér KDF-indstillinger"
   },
+  "loginInitiated": {
+    "message": "Indlogning påbegyndt"
+  },
+  "deviceApprovalRequired": {
+    "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
+  },
+  "rememberThisDevice": {
+    "message": "Husk denne enhed"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Slå fra, hvis en offentlig enhed benyttes"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Godkend med min anden enhed"
+  },
+  "requestAdminApproval": {
+    "message": "Anmod om admin-godkendelse"
+  },
+  "approveWithMasterPassword": {
+    "message": "Godkend med hovedadgangskode"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Betroet enhedskryptering"
+  },
   "trustedDevices": {
     "message": "Betroede enheder"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
+  "memberDecryptionOptionTdeDescriptionPartOne": {
     "message": "Når godkendt, dekrypterer medlemmet boksdata vha. en nøgle gemt på deres enhed. ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "Enkeltorganisationspolitik",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
+    "message": "Den enkelte organisations",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "og ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": "politik,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "SSO-påkrævede",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "politik samt",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
     "message": "kontogendannelseshåndteringspolitik",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescriptionPartFour": {
     "message": "med automatisk indrullering slås til ved brug af denne indstilling.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ ikke fundet",
@@ -6920,7 +6972,7 @@
     "message": "Konto har ikke hovedadgangskode"
   },
   "removeOrgUserNoMasterPasswordDesc": {
-    "message": "Fjernelse af $USER$ uden opsætning af en hovedadgangskode for brugeren kan begrænse den fulde kontoadgang. Fortsæt alligevel?",
+    "message": "Fjernelse af $USER$ uden opsætning af en hovedadgangskode for brugeren kan begrænse vedkommendes fulde kontoadgang. Fortsæt alligevel?",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "Fjernelse af medlemmer uden hovedadgangskoder uden at opsætte én for dem, kan begrænse den fulde kontoadgang."
   },
+  "approvedAuthRequest": {
+    "message": "Godkendt enhed til $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Nægtet enhed for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "Godkendelse af anmodet enhed."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Start din 7-dages gratis prøveperiode af Bitwarden til $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Næste"
   },
-  "usFlag": {
-    "message": "Amerikansk flag"
-  },
-  "euFlag": {
-    "message": "EU-flag"
-  },
   "selectedRegionFlag": {
     "message": "Valgte områdeflag"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konto oprettet!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin-godkendelse udbedt"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Anmodningen er sendt til din gruppe-admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Du underrettes, når godkendelse foreligger."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemer med at logge ind?"
+  },
+  "loginApproved": {
+    "message": "Indlogning godkendt"
+  },
+  "userEmailMissing": {
+    "message": "Brugers e-mail mangler"
+  },
+  "deviceTrusted": {
+    "message": "Enhed betroet"
   },
   "sendsNoItemsTitle": {
     "message": "Ingen aktive Sends",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Yderligere tjenestekonti"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "Abonnementstypen inkluderer $COUNT$ tjenestekonti. Yderligere tjenestekonti kan tilføjes for $COST$ pr. måned.",
+  "includedServiceAccounts": {
+    "message": "Abonnementstypen er inkl. $COUNT$ tjenestekonti.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "Yderligere tjenestekonti kan tilføjes for $COST$ pr. måned.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Maks. potentiel tjenestekontomkostning"
+  },
+  "loggedInExclamation": {
+    "message": "Indlogget!"
+  },
+  "smBetaEndedDesc": {
+    "message": "Secrets Manager Beta ophørte $BETA_ENDING_DATE$. Der er $DAYS$ dage tilbage til at føje Secrets Manager til dit betalte abonnement og bevare adgangen til Secrets Manager-data. Kontakt Customer Success for at føje Secrets Manager til abonnementet.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta ophører"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Har allerede en konto?"
   }
 }

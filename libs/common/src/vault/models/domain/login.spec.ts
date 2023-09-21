@@ -3,7 +3,7 @@ import { Substitute, Arg } from "@fluffy-spoon/substitute";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchType } from "../../../enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -108,10 +108,10 @@ describe("Login DTO", () => {
 
       const actual = Login.fromJSON({
         uris: ["loginUri1", "loginUri2"] as any,
-        username: "myUsername",
-        password: "myPassword",
+        username: "myUsername" as EncryptedString,
+        password: "myPassword" as EncryptedString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
-        totp: "myTotp",
+        totp: "myTotp" as EncryptedString,
       });
 
       expect(actual).toEqual({

@@ -29,10 +29,10 @@
   </ng-template>
 
   <!-- Show toggle to the left for trees otherwise to the right -->
-  <ng-container slot-start *ngIf="variant === 'tree'">
+  <ng-container slot="start" *ngIf="variant === 'tree'">
     <ng-container *ngTemplateOutlet="button"></ng-container>
   </ng-container>
-  <ng-container slot-end *ngIf="variant !== 'tree'">
+  <ng-container slot="end" *ngIf="variant !== 'tree'">
     <ng-container *ngTemplateOutlet="button"></ng-container>
   </ng-container>
 </bit-nav-item>

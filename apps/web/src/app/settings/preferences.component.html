@@ -27,37 +27,45 @@
       </app-vault-timeout-input>
     </div>
   </div>
-  <div class="form-group">
-    <label>{{ "vaultTimeoutAction" | i18n }}</label>
-    <div class="form-check form-check-block">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="vaultTimeoutAction"
-        id="vaultTimeoutActionLock"
-        value="{{ VaultTimeoutAction.Lock }}"
-        formControlName="vaultTimeoutAction"
-      />
-      <label class="form-check-label" for="vaultTimeoutActionLock">
-        {{ "lock" | i18n }}
-        <small>{{ "vaultTimeoutActionLockDesc" | i18n }}</small>
-      </label>
+  <ng-container *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions">
+    <div *ngIf="availableVaultTimeoutActions.length > 1" class="form-group">
+      <label>{{ "vaultTimeoutAction" | i18n }}</label>
+      <div
+        *ngIf="availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
+        class="form-check form-check-block"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="vaultTimeoutAction"
+          id="vaultTimeoutActionLock"
+          value="{{ VaultTimeoutAction.Lock }}"
+          formControlName="vaultTimeoutAction"
+        />
+        <label class="form-check-label" for="vaultTimeoutActionLock">
+          {{ "lock" | i18n }}
+          <small>{{ "vaultTimeoutActionLockDesc" | i18n }}</small>
+        </label>
+      </div>
+      <div
+        *ngIf="availableVaultTimeoutActions.includes(VaultTimeoutAction.LogOut)"
+        class="form-check mt-2 form-check-block"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="vaultTimeoutAction"
+          id="vaultTimeoutActionLogOut"
+          value="{{ VaultTimeoutAction.LogOut }}"
+          formControlName="vaultTimeoutAction"
+        />
+        <label class="form-check-label" for="vaultTimeoutActionLogOut">
+          {{ "logOut" | i18n }}
+          <small>{{ "vaultTimeoutActionLogOutDesc" | i18n }}</small>
+        </label>
+      </div>
     </div>
-    <div class="form-check mt-2 form-check-block">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="vaultTimeoutAction"
-        id="vaultTimeoutActionLogOut"
-        value="{{ VaultTimeoutAction.LogOut }}"
-        formControlName="vaultTimeoutAction"
-      />
-      <label class="form-check-label" for="vaultTimeoutActionLogOut">
-        {{ "logOut" | i18n }}
-        <small>{{ "vaultTimeoutActionLogOutDesc" | i18n }}</small>
-      </label>
-    </div>
-  </div>
+  </ng-container>
   <div class="row">
     <div class="col-6">
       <div class="form-group">

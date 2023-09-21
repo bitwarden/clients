@@ -75,7 +75,7 @@
       </button>
     </div>
   </div>
-  <div class="box">
+  <div class="box" *ngIf="!comingFromAddEdit">
     <div class="box-content">
       <div class="box-content-row" role="radiogroup" aria-labelledby="typeHeading">
         <label id="typeHeading" class="radio-header">{{
@@ -90,7 +90,6 @@
             [value]="o.value"
             (change)="typeChanged()"
             [checked]="type === o.value"
-            [disabled]="comingFromAddEdit && type !== o.value"
           />
           <label for="type_{{ o.value }}">
             {{ o.name }}

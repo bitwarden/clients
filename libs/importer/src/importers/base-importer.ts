@@ -313,6 +313,9 @@ export abstract class BaseImporter {
     if (cipher.fields != null && cipher.fields.length === 0) {
       cipher.fields = null;
     }
+    if (cipher.passwordHistory != null && cipher.passwordHistory.length === 0) {
+      cipher.passwordHistory = null;
+    }
   }
 
   protected processKvp(

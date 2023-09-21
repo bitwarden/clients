@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 
 @Component({
   selector: "app-security",
@@ -9,9 +9,9 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 export class SecurityComponent {
   showChangePassword = true;
 
-  constructor(private keyConnectorService: KeyConnectorService) {}
+  constructor(private userVerificationService: UserVerificationService) {}
 
   async ngOnInit() {
-    this.showChangePassword = !(await this.keyConnectorService.getUsesKeyConnector());
+    this.showChangePassword = await this.userVerificationService.hasMasterPassword();
   }
 }

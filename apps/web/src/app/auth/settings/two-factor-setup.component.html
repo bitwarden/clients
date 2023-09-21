@@ -1,16 +1,25 @@
 <div [ngClass]="tabbedHeader ? 'tabbed-header' : 'page-header'">
-  <h1 *ngIf="!organizationId">{{ "twoStepLogin" | i18n }}</h1>
-  <h1 *ngIf="organizationId">{{ "twoStepLoginEnforcement" | i18n }}</h1>
+  <h1 *ngIf="!organizationId || !isEnterpriseOrg">{{ "twoStepLogin" | i18n }}</h1>
+  <h1 *ngIf="organizationId && isEnterpriseOrg">{{ "twoStepLoginEnforcement" | i18n }}</h1>
 </div>
 <p *ngIf="!organizationId">{{ "twoStepLoginDesc" | i18n }}</p>
 <ng-container *ngIf="organizationId">
   <p>
-    {{ "twoStepLoginOrganizationDescStart" | i18n }}
-    <a routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
-    <br />
-    {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+    <ng-container *ngIf="isEnterpriseOrg; else teamsDescription">
+      {{ "twoStepLoginEnterpriseDescStart" | i18n }}
+      <a routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
+      <br />
+      {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+      <br />
+      <br />
+      <p>{{ "twoStepLoginOrganizationSsoDesc" | i18n }}</p>
+    </ng-container>
+    <ng-template #teamsDescription>
+      {{ "twoStepLoginTeamsDesc" | i18n }}
+      <br />
+      {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+    </ng-template>
   </p>
-  <p>{{ "twoStepLoginOrganizationSsoDesc" | i18n }}</p>
 </ng-container>
 <bit-callout type="warning" *ngIf="!organizationId">
   <p>{{ "twoStepLoginRecoveryWarning" | i18n }}</p>

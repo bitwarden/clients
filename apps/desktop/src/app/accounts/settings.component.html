@@ -55,43 +55,69 @@
                 [formControl]="form.controls.vaultTimeout"
                 ngDefaultControl
               ></app-vault-timeout-input>
-              <div class="form-group">
-                <label>{{ "vaultTimeoutAction" | i18n }}</label>
-                <div class="radio radio-mt-2">
-                  <label for="vaultTimeoutActionLock">
-                    <input
-                      type="radio"
-                      id="vaultTimeoutActionLock"
-                      value="{{ VaultTimeoutAction.Lock }}"
-                      aria-describedby="vaultTimeoutActionLockHelp"
-                      formControlName="vaultTimeoutAction"
-                    />
-                    {{ "lock" | i18n }}
-                  </label>
+              <ng-container
+                *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions"
+              >
+                <div class="form-group">
+                  <label>{{ "vaultTimeoutAction" | i18n }}</label>
+                  <div class="radio radio-mt-2">
+                    <label for="vaultTimeoutActionLock">
+                      <!--
+                        Using [attr.disabled] because reactive forms don't support disabling individual radio buttons, see:
+                        https://github.com/angular/angular/issues/11763
+                      -->
+                      <input
+                        type="radio"
+                        id="vaultTimeoutActionLock"
+                        value="{{ VaultTimeoutAction.Lock }}"
+                        aria-describedby="vaultTimeoutActionLockHelp"
+                        formControlName="vaultTimeoutAction"
+                        [attr.disabled]="
+                          !availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)
+                            ? true
+                            : null
+                        "
+                      />
+                      {{ "lock" | i18n }}
+                    </label>
+                  </div>
+                  <small id="vaultTimeoutActionLockHelp" class="help-block">{{
+                    "vaultTimeoutActionLockDesc" | i18n
+                  }}</small>
+                  <div class="radio">
+                    <label for="vaultTimeoutActionLogOut">
+                      <input
+                        type="radio"
+                        id="vaultTimeoutActionLogOut"
+                        value="{{ VaultTimeoutAction.LogOut }}"
+                        aria-describedby="vaultTimeoutActionLogOutHelp"
+                        formControlName="vaultTimeoutAction"
+                        [attr.disabled]="
+                          !availableVaultTimeoutActions.includes(VaultTimeoutAction.LogOut)
+                            ? true
+                            : null
+                        "
+                      />
+                      {{ "logOut" | i18n }}
+                    </label>
+                  </div>
+                  <small id="vaultTimeoutActionLogOutHelp" class="help-block">{{
+                    "vaultTimeoutActionLogOutDesc" | i18n
+                  }}</small>
                 </div>
-                <small id="vaultTimeoutActionLockHelp" class="help-block">{{
-                  "vaultTimeoutActionLockDesc" | i18n
-                }}</small>
-                <div class="radio">
-                  <label for="vaultTimeoutActionLogOut">
-                    <input
-                      type="radio"
-                      id="vaultTimeoutActionLogOut"
-                      value="{{ VaultTimeoutAction.LogOut }}"
-                      aria-describedby="vaultTimeoutActionLogOutHelp"
-                      formControlName="vaultTimeoutAction"
-                    />
-                    {{ "logOut" | i18n }}
-                  </label>
+                <div
+                  *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
+                  class="form-group"
+                >
+                  <small id="unlockMethodNeededToChangeTimeoutActionHelp" class="help-block">{{
+                    "unlockMethodNeededToChangeTimeoutActionDesc" | i18n
+                  }}</small>
                 </div>
-                <small id="vaultTimeoutActionLogOutHelp" class="help-block">{{
-                  "vaultTimeoutActionLogOutDesc" | i18n
-                }}</small>
-              </div>
+              </ng-container>
               <div class="form-group">
                 <div class="checkbox">
                   <label for="pin">
-                    <input id="pin" type="checkbox" formControlName="pin" (change)="updatePin()" />
+                    <input id="pin" type="checkbox" formControlName="pin" />
                     {{ "unlockWithPin" | i18n }}
                   </label>
                 </div>
@@ -99,12 +125,7 @@
               <div class="form-group" *ngIf="supportsBiometric">
                 <div class="checkbox">
                   <label for="biometric">
-                    <input
-                      id="biometric"
-                      type="checkbox"
-                      formControlName="biometric"
-                      (change)="updateBiometric()"
-                    />
+                    <input id="biometric" type="checkbox" formControlName="biometric" />
                     {{ biometricText | i18n }}
                   </label>
                 </div>
@@ -125,7 +146,14 @@
                   </label>
                 </div>
               </div>
-              <div class="form-group" *ngIf="supportsBiometric && this.form.value.biometric">
+              <div
+                class="form-group"
+                *ngIf="
+                  supportsBiometric &&
+                  this.form.value.biometric &&
+                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet))
+                "
+              >
                 <div class="checkbox form-group-child">
                   <label for="requirePasswordOnStart">
                     <input

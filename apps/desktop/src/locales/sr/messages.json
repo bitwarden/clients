@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1ГБ шифровано складиште за прилоге."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Додатне опције пријаве у два корака као што су YubiKey, FIDO U2F, и Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
   "premiumSignUpReports": {
     "message": "Извештаји о хигијени лозинки, здравственом стању налога и кршењу података да бисте заштитили сеф."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Одјављени сеф захтева да поново потврдите идентитет да бисте му поново приступили."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења сефа."
+  },
   "lock": {
     "message": "Закључај",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Трајно избрисана ставка"
-  },
-  "restoreItem": {
-    "message": "Врати ставку"
-  },
-  "restoreItemConfirmation": {
-    "message": "Да ли сте сигурни да желите да вратите ову ставку?"
   },
   "restoredItem": {
     "message": "Ставка враћена"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Извоз личног сефа"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Само предмети личног сефа повезани са $EMAIL$ биће извезени. Ставке организационог сефа неће бити укључене.",
+  "exportingIndividualVaultDescription": {
+    "message": "Само појединачне ставке сефа повезане са $EMAIL$ ће бити извењене. Ставке организационог сефа неће бити укључене. Само информације о ставкама из сефа ће бити извезене и неће укључивати повезане прилоге.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Пријавите се са другим уређајем"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Пријава је покренута"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Препоручено ажурирање поставки"
   },
+  "deviceApprovalRequired": {
+    "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
+  },
+  "rememberThisDevice": {
+    "message": "Запамти овај уређај"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Искључите ако се користи јавни уређај"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Одобри са мојим другим уређајем"
+  },
+  "requestAdminApproval": {
+    "message": "Затражити одобрење администратора"
+  },
+  "approveWithMasterPassword": {
+    "message": "Одобрити са главном лозинком"
+  },
   "region": {
     "message": "Регион"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Потребан је SSO идентификатор организације."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Пријављено на"
   },
-  "selfHosted": {
-    "message": "Личан хостинг"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "личан хостинг"
   },
   "accessDenied": {
     "message": "Одбијен приступ. Немате дозволу да видите ову страницу."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Налог је успешно креиран!"
+  },
+  "adminApprovalRequested": {
+    "message": "Захтевано је одобрење администратора"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Ваш захтев је послат вашем администратору."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Бићете обавештени када буде одобрено."
+  },
+  "troubleLoggingIn": {
+    "message": "Имате проблема са пријављивањем?"
+  },
+  "loginApproved": {
+    "message": "Пријава је одобрена"
+  },
+  "userEmailMissing": {
+    "message": "Недостаје имејл корисника"
+  },
+  "deviceTrusted": {
+    "message": "Уређај поуздан"
+  },
+  "inputRequired": {
+    "message": "Унос је потребан."
+  },
+  "required": {
+    "message": "обавезно"
+  },
+  "search": {
+    "message": "Тражи"
+  },
+  "inputMinLength": {
+    "message": "Унос трба имати најмање $COUNT$ слова.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Унос не сме бити већи од $COUNT$ карактера.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Следећи знакови нису дозвољени: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Вредност мора бити најмање $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Вредност не сме бити већа од $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 или више имејлова су неважећи"
+  },
+  "inputTrimValidator": {
+    "message": "Унос не сме да садржи само размак.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Унос није имејл."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ поље(а) изнад захтевај(у) вашу пажњу.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Одабрати --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Тип за филтрирање --"
+  },
+  "multiSelectLoading": {
+    "message": "Преузимање опција..."
+  },
+  "multiSelectNotFound": {
+    "message": "Нема предмета"
+  },
+  "multiSelectClearAll": {
+    "message": "Обриши све"
+  },
+  "plusNMore": {
+    "message": "+ још $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Под-мени"
   }
 }

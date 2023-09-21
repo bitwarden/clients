@@ -33,7 +33,7 @@
     "message": "Kokoelmat"
   },
   "searchVault": {
-    "message": "Hae holvista"
+    "message": "Etsi holvista"
   },
   "addItem": {
     "message": "Lisää kohde"
@@ -442,16 +442,16 @@
     "message": "Vältä epäselviä merkkejä"
   },
   "searchCollection": {
-    "message": "Hae kokoelmasta"
+    "message": "Etsi kokoelmasta"
   },
   "searchFolder": {
-    "message": "Hae kansiosta"
+    "message": "Etsi kansiosta"
   },
   "searchFavorites": {
-    "message": "Hae suosikeista"
+    "message": "Etsi suosikeista"
   },
   "searchType": {
-    "message": "Hae tyypeistä",
+    "message": "Etsi tyypistä",
     "description": "Search item type"
   },
   "newAttachment": {
@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Muita kaksivaiheisen kirjautumisen todennusmenetelmiä kuten YubiKey, FIDO U2F ja Duo Security."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Omisteiset kaksivaiheisen kirjautumisen vaihtoehdot, kuten YubiKey ja Duo."
   },
   "premiumSignUpReports": {
     "message": "Salasanahygienian, tilin terveyden ja tietovuotojen raportointitoiminnot pitävät holvisi turvassa."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Holvisi käyttö edellyttää uutta todennusta."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Muuta holvisi aikakatkaisutoimintoa määrittämällä lukituksen avaustapa."
+  },
   "lock": {
     "message": "Lukitse",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1501,7 +1504,7 @@
     "description": "Noun: a special folder to hold deleted items"
   },
   "searchTrash": {
-    "message": "Hae roskakorista"
+    "message": "Etsi roskakorista"
   },
   "permanentlyDeleteItem": {
     "message": "Poista kohde pysyvästi"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kohde poistettiin pysyvästi"
-  },
-  "restoreItem": {
-    "message": "Palauta kohde"
-  },
-  "restoreItemConfirmation": {
-    "message": "Haluatko varmasti palauttaa kohteen?"
   },
   "restoredItem": {
     "message": "Kohde palautettiin"
@@ -1676,7 +1673,7 @@
     "message": "Teksti"
   },
   "searchSends": {
-    "message": "Hae Sendeistä",
+    "message": "Etsi Sendeistä",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Henkilökohtaisen holvin vienti"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Vain tunnukseen $EMAIL$ liitetyt henkilökohtaisen holvin kohteet viedään. Organisaation kohteet eivät sisälly tähän.",
+  "exportingIndividualVaultDescription": {
+    "message": "Vain tunnukseen $EMAIL$ liitetyt yksityisen holvin kohteet viedään. Organisaation holvin kohteita ei sisällytetä. Vain holvin kohteiden tiedot viedään ilman niiden sisältämiä liitteitä.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2049,10 +2046,10 @@
     "message": "Kaikki holvit"
   },
   "searchOrganization": {
-    "message": "Hae organisaatiosta"
+    "message": "Etsi organisaatiosta"
   },
   "searchMyVault": {
-    "message": "Hae omasta holvista"
+    "message": "Etsi omasta holvista"
   },
   "forwardedEmail": {
     "message": "Sähköpostialias välitykseen"
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Laitteella kirjautuminen"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Kirjautuminen aloitettu"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Suositeltava asetusmuutos"
   },
+  "deviceApprovalRequired": {
+    "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
+  },
+  "rememberThisDevice": {
+    "message": "Muista tämä laite"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Poista valinta julkisilla laitteilla"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Hyväksy muilta laitteiltasi"
+  },
+  "requestAdminApproval": {
+    "message": "Pyydä hyväksyntää ylläpidolta"
+  },
+  "approveWithMasterPassword": {
+    "message": "Hyväksy pääsalasanalla"
+  },
   "region": {
     "message": "Alue"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organisaation kertakirjautumistunniste tarvitaan."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Kirjaudutaan sijaintiin"
   },
-  "selfHosted": {
-    "message": "Itse ylläpidetty"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "itse ylläpidetty"
   },
   "accessDenied": {
     "message": "Pääsy estetty. Sinulla ei ole oikeutta avata sivua."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Tilin luonti onnistui!"
+  },
+  "adminApprovalRequested": {
+    "message": "Hyväksyntää pyydetty ylläpidolta"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Pyyntösi on välitetty ylläpidollesi."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Saat ilmoituksen kun se on hyväksytty."
+  },
+  "troubleLoggingIn": {
+    "message": "Ongelmia kirjautumisessa?"
+  },
+  "loginApproved": {
+    "message": "Kirjautuminen hyväksytty"
+  },
+  "userEmailMissing": {
+    "message": "Käyttäjän sähköpostiosoite puuttuu"
+  },
+  "deviceTrusted": {
+    "message": "Laitteeseen luotettu"
+  },
+  "inputRequired": {
+    "message": "Syöte vaaditaan."
+  },
+  "required": {
+    "message": "pakollinen"
+  },
+  "search": {
+    "message": "Etsi"
+  },
+  "inputMinLength": {
+    "message": "Syötteen tulee sisältää ainakin $COUNT$ merkkiä.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Syötteen enimmäismerkkimäärä on $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Seuraavia merkkejä ei sallita: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Syötteen vähimmäisarvo on $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Syötteen enimmäisarvo on $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Ainakin yksi sähköpostiosoite on virheellinen"
+  },
+  "inputTrimValidator": {
+    "message": "Syöte ei voi sisältää vain tyhjiä merkkejä.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Syöte ei ole sähköpostiosoite."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ yllä oleva(a) kenttä(ä) vaatii huomiotasi.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Valitse --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Suodatettava tyyppi --"
+  },
+  "multiSelectLoading": {
+    "message": "Noudetaan vaihtoehtoja..."
+  },
+  "multiSelectNotFound": {
+    "message": "Kohteita ei löytynyt"
+  },
+  "multiSelectClearAll": {
+    "message": "Tyhjennä kaikki"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ lisää",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Alavalikko"
   }
 }

@@ -44,7 +44,7 @@
     "message": "Η υπόδειξη του κύριου κωδικού μπορεί να σας βοηθήσει να θυμηθείτε τον κωδικό σας, σε περίπτωση που τον ξεχάσετε."
   },
   "reTypeMasterPass": {
-    "message": "Εισάγετε Ξανά τον Κύριο Κωδικό σας"
+    "message": "Εισάγετε ξανά τον Κύριο Κωδικό"
   },
   "masterPassHint": {
     "message": "Υπόδειξη Κύριου Κωδικού (προαιρετικό)"
@@ -338,6 +338,9 @@
   "other": {
     "message": "Άλλες"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Ρυθμίστε μια μέθοδο ξεκλειδώματος για να αλλάξετε την ενέργεια χρονικού ορίου θησαυ/κιου."
+  },
   "rateExtension": {
     "message": "Βαθμολογήστε την επέκταση"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Ναι, Ενημέρωση Τώρα"
   },
+  "notificationUnlockDesc": {
+    "message": "Ξεκλειδώστε το θησαυ/κιο Bitwarden σας για να ολοκληρώσετε το αίτημα αυτόματης πλήρωσης."
+  },
+  "notificationUnlock": {
+    "message": "Ξεκλείδωμα"
+  },
   "enableContextMenuItem": {
     "message": "Εμφάνιση επιλογών μενού περιβάλλοντος"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB κρυπτογραφημένο αποθηκευτικό χώρο για συνημμένα αρχεία."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Πρόσθετες επιλογές σύνδεσης δύο βημάτων, όπως το YubiKey, το FIDO U2F και το Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Πρόσθετες επιλογές σύνδεσης δύο βημάτων, όπως το YubiKey και το Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Ασφάλεια κωδικών, υγεία λογαριασμού και αναφορές παραβίασης δεδομένων για να διατηρήσετε ασφαλές το vault σας."
@@ -988,7 +997,7 @@
     "message": "Μπορείτε να απενεργοποιήσετε την αυτόματη συμπλήρωση φόρτωσης σελίδας για μεμονωμένα στοιχεία σύνδεσης από την προβολή Επεξεργασία στοιχείου."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Αυτόματη συμπλήρωση της Φόρτισης Σελίδας (αν είναι ενεργοποιημένη στις Επιλογές)"
+    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας (αν έχει ενεργοποιηθεί στις Ρυθμίσεις)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Χρήση προεπιλεγμένης ρύθμισης"
@@ -1429,7 +1438,7 @@
     "message": "Αναζήτηση Κάδου"
   },
   "permanentlyDeleteItem": {
-    "message": "Μόνιμη Διαγραφή Αντικειμένου"
+    "message": "Οριστική διαγραφή αντικειμένου"
   },
   "permanentlyDeleteItemConfirmation": {
     "message": "Είστε βέβαιοι ότι θέλετε να διαγράψετε μόνιμα αυτό το στοιχείο;"
@@ -1439,9 +1448,6 @@
   },
   "restoreItem": {
     "message": "Ανάκτηση Στοιχείου"
-  },
-  "restoreItemConfirmation": {
-    "message": "Είστε βέβαιοι ότι θέλετε να ανακτήσετε αυτό το στοιχείο;"
   },
   "restoredItem": {
     "message": "Στοιχείο που έχει Ανακτηθεί"
@@ -1465,13 +1471,13 @@
     "message": "Προειδοποίηση: Αυτή είναι μια μη ασφαλή σελίδα HTTP και οποιαδήποτε πληροφορία υποβάλλετε μπορεί να γίνει ορατή και επεμβάσιμη από άλλους. Αυτή η σύνδεση αποθηκεύτηκε αρχικά σε μια ασφαλή (HTTPS) σελίδα."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Do you still wish to fill this login?"
+    "message": "Θέλετε ακόμα να συμπληρώσετε αυτή τη σύνδεση;"
   },
   "autofillIframeWarning": {
     "message": "Η φόρμα φιλοξενείται από διαφορετικό τομέα (domain) από το λινκ (uri) της αποθηκευμένης σύνδεσης σας (login). Επιλέξτε OK για αυτόματη συμπλήρωση, ή Ακύρωση για να σταματήσετε."
   },
   "autofillIframeWarningTip": {
-    "message": "To prevent this warning in the future, save this URI, $HOSTNAME$, to your Bitwarden login item for this site.",
+    "message": "Για να αποτρέψετε αυτή την προειδοποίηση στο μέλλον, αποθηκεύστε αυτό το URI, $HOSTNAME$, στο στοιχείο σύνδεσης Bitwarden σας για αυτόν τον ιστότοπο.",
     "placeholders": {
       "hostname": {
         "content": "$1",
@@ -1480,13 +1486,13 @@
     }
   },
   "setMasterPassword": {
-    "message": "Ορισμός Κύριου Κωδικού"
+    "message": "Καθορισμός κύριου κωδικού"
   },
   "currentMasterPass": {
     "message": "Τρέχων Κύριος Κωδικός"
   },
   "newMasterPass": {
-    "message": "Νέος Κύριος Κωδικός"
+    "message": "Νέος κύριος κωδικός"
   },
   "confirmNewMasterPass": {
     "message": "Επιβεβαίωση Νέου Κύριου Κωδικού"
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Τα βιομετρικά στοιχεία του προγράμματος περιήγησης δεν υποστηρίζονται σε αυτήν τη συσκευή."
+  },
+  "biometricsFailedTitle": {
+    "message": "Ο βιομετρικός έλεγχος απέτυχε"
+  },
+  "biometricsFailedDesc": {
+    "message": "Τα βιομετρικά δεν μπόρεσαν να ολοκληρωθούν, σκεφτείτε να χρησιμοποιήσετε έναν κύριο κωδικό πρόσβασης ή να αποσυνδεθείτε. Αν αυτό εξακολουθεί να συμβαίνει, παρακαλώ επικοινωνήστε με την υποστήριξη της Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Δεν Έχει Χορηγηθεί Άδεια"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Εξαγωγή Προσωπικού Vault"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Θα εξαχθούν μόνο τα προσωπικά αντικείμενα Vault που σχετίζονται με το $EMAIL$ . Τα αντικείμενα Vault οργανισμού δεν θα συμπεριληφθούν.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Έκδοση διακομιστή"
   },
-  "selfHosted": {
-    "message": "Αυτο-φιλοξενείται"
+  "selfHostedServer": {
+    "message": "αυτο-φιλοξενούμενο"
   },
   "thirdParty": {
     "message": "Τρίτο μέρος"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Μια ειδοποίηση έχει σταλεί στη συσκευή σας."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Η σύνδεση ξεκίνησε"
   },
   "exposedMasterPassword": {
@@ -2221,27 +2233,178 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Σύνδεση ως"
   },
   "opensInANewWindow": {
     "message": "Ανοίγει σε νέο παράθυρο"
   },
+  "deviceApprovalRequired": {
+    "message": "Απαιτείται έγκριση συσκευής. Επιλέξτε μια επιλογή έγκρισης παρακάτω:"
+  },
+  "rememberThisDevice": {
+    "message": "Απομνημόνευση αυτής της συσκευής"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Αποεπιλέξτε αν γίνεται χρήση δημόσιας συσκευής"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Έγκριση από άλλη συσκευή σας"
+  },
+  "requestAdminApproval": {
+    "message": "Αίτηση έγκρισης διαχειριστή"
+  },
+  "approveWithMasterPassword": {
+    "message": "Έγκριση με τον κύριο κωδικό"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Απαιτείται αναγνωριστικό οργανισμού SSO."
+  },
   "eu": {
-    "message": "EU",
+    "message": "ΕΕ",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Δεν επιτρέπεται η πρόσβαση. Δεν έχετε άδεια για να δείτε αυτή τη σελίδα."
   },
   "general": {
-    "message": "General"
+    "message": "Γενικά"
   },
   "display": {
-    "message": "Display"
+    "message": "Εμφάνιση"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Επιτυχής δημιουργία λογαριασμού!"
+  },
+  "adminApprovalRequested": {
+    "message": "Ζητήθηκε έγκριση διαχειριστή"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Θα ειδοποιηθείτε μόλις εγκριθεί."
+  },
+  "troubleLoggingIn": {
+    "message": "Δεν μπορείτε να συνδεθείτε;"
+  },
+  "loginApproved": {
+    "message": "Η σύνδεση εγκρίθηκε"
+  },
+  "userEmailMissing": {
+    "message": "Το email του χρήστη απουσιάζει"
+  },
+  "deviceTrusted": {
+    "message": "Αξιόπιστη συσκευή"
+  },
+  "inputRequired": {
+    "message": "Απαιτείται εισαγωγή."
+  },
+  "required": {
+    "message": "απαιτείται"
+  },
+  "search": {
+    "message": "Αναζήτηση"
+  },
+  "inputMinLength": {
+    "message": "Η καταχώρηση πρέπει να είναι τουλάχιστον $COUNT$ χαρακτήρες.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Η καταχώρηση δεν πρέπει να υπερβαίνει τους $COUNT$ χαρακτήρες σε μήκος.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Οι ακόλουθοι χαρακτήρες δεν επιτρέπονται: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Η τιμή καταχώρησης πρέπει να είναι τουλάχιστον $MIN$",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Η τιμή καταχώρησης δεν πρέπει να υπερβαίνει το $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 ή περισσότερα email δεν είναι έγκυρα"
+  },
+  "inputTrimValidator": {
+    "message": "Η καταχώρηση δεν πρέπει να περιέχει μόνο κενά.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Η καταχώρηση δεν είναι διεύθυνση email."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ Το/α παραπάνω πεδίo/α χρειάζονται την προσοχή σας.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Επιλογή --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Πληκτρολογήστε για φιλτράρισμα --"
+  },
+  "multiSelectLoading": {
+    "message": "Ανάκτηση επιλογών..."
+  },
+  "multiSelectNotFound": {
+    "message": "Δεν βρέθηκαν αντικείμενα"
+  },
+  "multiSelectClearAll": {
+    "message": "Εκκαθάριση όλων"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ περισσότερα",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Υπομενού"
+  },
+  "toggleCollapse": {
+    "message": "Εναλλαγή σύμπτυξης",
+    "description": "Toggling an expand/collapse state."
   }
 }

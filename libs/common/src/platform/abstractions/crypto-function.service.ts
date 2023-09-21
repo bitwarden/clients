@@ -66,5 +66,14 @@ export abstract class CryptoFunctionService {
   ) => Promise<Uint8Array>;
   rsaExtractPublicKey: (privateKey: Uint8Array) => Promise<Uint8Array>;
   rsaGenerateKeyPair: (length: 1024 | 2048 | 4096) => Promise<[Uint8Array, Uint8Array]>;
+  /**
+   * Generates a key of the given length suitable for use in AES encryption
+   */
+  aesGenerateKey: (bitLength: 128 | 192 | 256 | 512) => Promise<CsprngArray>;
+  /**
+   * Generates a random array of bytes of the given length. Uses a cryptographically secure random number generator.
+   *
+   * Do not use this for generating encryption keys. Use aesGenerateKey or rsaGenerateKeyPair instead.
+   */
   randomBytes: (length: number) => Promise<CsprngArray>;
 }

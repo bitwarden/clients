@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards/auth.guard";
+import { AuthGuard } from "@bitwarden/angular/auth/guards";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { buildFlaggedRoute } from "@bitwarden/web-vault/app/oss-routing.module";

@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { first } from "rxjs/operators";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AttachmentsComponent as BaseAttachmentsComponent } from "@bitwarden/angular/vault/components/attachments.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -13,6 +12,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-vault-attachments",
@@ -33,7 +33,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     stateService: StateService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       cipherService,

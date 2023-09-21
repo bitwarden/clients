@@ -1,12 +1,11 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2023.7.1",
+  "version": "2023.9.1",
   "scripts": {
     "build": "webpack",
     "build:mv3": "cross-env MANIFEST_VERSION=3 webpack",
     "build:watch": "webpack --watch",
     "build:watch:mv3": "cross-env MANIFEST_VERSION=3 webpack --watch",
-    "build:watch:autofill": "cross-env AUTOFILL_VERSION=2 webpack --watch",
     "build:prod": "cross-env NODE_ENV=production webpack",
     "build:prod:watch": "cross-env NODE_ENV=production webpack --watch",
     "dist": "npm run build:prod && gulp dist",
@@ -19,6 +18,7 @@
     "dist:safari:masdev": "npm run build:prod && gulp dist:safari:masdev",
     "dist:safari:dmg": "npm run build:prod && gulp dist:safari:dmg",
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageDirectory=coverage",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll"
   }

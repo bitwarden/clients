@@ -251,8 +251,13 @@ export class ApiService implements ApiServiceAbstraction {
     }
   }
 
+  // TODO: PM-3519: Create and move to AuthRequest Api service
   async postAuthRequest(request: PasswordlessCreateAuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/", request, false, true);
+    return new AuthRequestResponse(r);
+  }
+  async postAdminAuthRequest(request: PasswordlessCreateAuthRequest): Promise<AuthRequestResponse> {
+    const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
     return new AuthRequestResponse(r);
   }
 
@@ -1580,7 +1585,9 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Key Connector
 
-  async getUserKeyFromKeyConnector(keyConnectorUrl: string): Promise<KeyConnectorUserKeyResponse> {
+  async getMasterKeyFromKeyConnector(
+    keyConnectorUrl: string
+  ): Promise<KeyConnectorUserKeyResponse> {
     const authHeader = await this.getActiveBearerToken();
 
     const response = await this.fetch(

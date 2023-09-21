@@ -1,30 +1,4 @@
 ﻿html.os_macos {
-  body.layout_frontend {
-    -webkit-app-region: drag;
-
-    button,
-    a,
-    i,
-    b,
-    span,
-    input,
-    p,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    img,
-    select,
-    textarea,
-    label,
-    .box,
-    .modal-backdrop {
-      -webkit-app-region: no-drag;
-    }
-  }
-
   .vault .header-search {
     -webkit-app-region: drag;
 
@@ -44,15 +18,11 @@
   color: $text-muted;
   line-height: 25px;
   font-weight: 400;
-  padding-left: 5px;
+  padding-left: 15px;
 
-  label {
+  span {
     font-weight: 600;
-  }
-
-  a,
-  a label:hover {
-    cursor: pointer;
+    font-size: $font-size-small;
   }
 }
 
@@ -82,19 +52,5 @@
     @include themify($themes) {
       background-color: themed("listItemBackgroundHoverColor") !important;
     }
-  }
-
-  img {
-    margin-bottom: -2px;
-    width: 22px;
-    height: 14px;
-  }
-
-  .img-us {
-    content: url("../images/us-flag.png");
-  }
-
-  .img-eu {
-    content: url("../images/eu-flag.png");
   }
 }

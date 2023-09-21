@@ -131,7 +131,7 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
     this.processKvp(
       cipher,
       "website_password_auto_submit",
-      entry.website_password_auto_submit.toString(),
+      entry.website_password_auto_submit?.toString(),
       FieldType.Boolean
     );
 

@@ -13,7 +13,11 @@ import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import {
+  OrgKey,
+  SymmetricCryptoKey,
+  UserKey,
+} from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { CipherType } from "../enums/cipher-type";
@@ -325,14 +329,9 @@ export class CipherService implements CipherServiceAbstraction {
       return await this.getDecryptedCipherCache();
     }
 
-    const hasKey = await this.cryptoService.hasKey();
-    if (!hasKey) {
-      throw new Error("No key.");
-    }
-
     const ciphers = await this.getAll();
     const orgKeys = await this.cryptoService.getOrgKeys();
-    const userKey = await this.cryptoService.getKeyForUserEncryption();
+    const userKey = await this.cryptoService.getUserKeyWithLegacySupport();
 
     // Group ciphers by orgId or under 'null' for the user's ciphers
     const grouped = ciphers.reduce((agg, c) => {
@@ -399,14 +398,21 @@ export class CipherService implements CipherServiceAbstraction {
     defaultMatch ??= await this.stateService.getDefaultUriMatch();
 
     return ciphers.filter((cipher) => {
-      if (cipher.deletedDate != null) {
+      const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
+
+      if (cipher.deletedDate !== null) {
         return false;
       }
-      if (includeOtherTypes != null && includeOtherTypes.indexOf(cipher.type) > -1) {
+
+      if (
+        Array.isArray(includeOtherTypes) &&
+        includeOtherTypes.includes(cipher.type) &&
+        !cipherIsLogin
+      ) {
         return true;
       }
 
-      if (cipher.type === CipherType.Login && cipher.login !== null) {
+      if (cipherIsLogin) {
         return cipher.login.matchesUri(url, equivalentDomains, defaultMatch);
       }
 
@@ -521,7 +527,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async createWithServer(cipher: Cipher, orgAdmin?: boolean): Promise<any> {
     let response: CipherResponse;
-    if (orgAdmin) {
+    if (orgAdmin && cipher.organizationId != null) {
       const request = new CipherCreateRequest(cipher);
       response = await this.apiService.postCipherAdmin(request);
     } else if (cipher.collectionIds != null) {
@@ -636,14 +642,17 @@ export class CipherService implements CipherServiceAbstraction {
   async saveAttachmentRawWithServer(
     cipher: Cipher,
     filename: string,
-    data: ArrayBuffer,
+    data: Uint8Array,
     admin = false
   ): Promise<Cipher> {
-    const key = await this.cryptoService.getOrgKey(cipher.organizationId);
-    const encFileName = await this.cryptoService.encrypt(filename, key);
+    let encKey: UserKey | OrgKey;
+    encKey = await this.cryptoService.getOrgKey(cipher.organizationId);
+    encKey ||= await this.cryptoService.getUserKeyWithLegacySupport();
 
-    const dataEncKey = await this.cryptoService.makeEncKey(key);
-    const encData = await this.cryptoService.encryptToBytes(new Uint8Array(data), dataEncKey[0]);
+    const dataEncKey = await this.cryptoService.makeDataEncKey(encKey);
+
+    const encFileName = await this.encryptService.encrypt(filename, encKey);
+    const encData = await this.encryptService.encryptToBytes(data, dataEncKey[0]);
 
     const response = await this.cipherFileUploadService.upload(
       cipher,
@@ -970,11 +979,15 @@ export class CipherService implements CipherServiceAbstraction {
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
     const decBuf = await this.cryptoService.decryptFromBytes(encBuf, null);
-    const key = await this.cryptoService.getOrgKey(organizationId);
-    const encFileName = await this.cryptoService.encrypt(attachmentView.fileName, key);
 
-    const dataEncKey = await this.cryptoService.makeEncKey(key);
-    const encData = await this.cryptoService.encryptToBytes(decBuf, dataEncKey[0]);
+    let encKey: UserKey | OrgKey;
+    encKey = await this.cryptoService.getOrgKey(organizationId);
+    encKey ||= (await this.cryptoService.getUserKeyWithLegacySupport()) as UserKey;
+
+    const dataEncKey = await this.cryptoService.makeDataEncKey(encKey);
+
+    const encFileName = await this.encryptService.encrypt(attachmentView.fileName, encKey);
+    const encData = await this.encryptService.encryptToBytes(new Uint8Array(decBuf), dataEncKey[0]);
 
     const fd = new FormData();
     try {

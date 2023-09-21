@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,7 +31,8 @@ export class SsoComponent extends BaseSsoComponent {
     cryptoFunctionService: CryptoFunctionService,
     environmentService: EnvironmentService,
     passwordGenerationService: PasswordGenerationServiceAbstraction,
-    logService: LogService
+    logService: LogService,
+    configService: ConfigServiceAbstraction
   ) {
     super(
       authService,
@@ -43,11 +45,17 @@ export class SsoComponent extends BaseSsoComponent {
       cryptoFunctionService,
       environmentService,
       passwordGenerationService,
-      logService
+      logService,
+      configService
     );
-    super.onSuccessfulLogin = () => {
-      return syncService.fullSync(true);
+    super.onSuccessfulLogin = async () => {
+      syncService.fullSync(true);
     };
+
+    super.onSuccessfulLoginTde = async () => {
+      syncService.fullSync(true);
+    };
+
     this.redirectUri = "bitwarden://sso-callback";
     this.clientId = "desktop";
   }

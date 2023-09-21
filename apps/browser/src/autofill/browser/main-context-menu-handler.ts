@@ -79,9 +79,6 @@ export class MainContextMenuHandler {
         logServiceOptions: {
           isDev: false,
         },
-        stateMigrationServiceOptions: {
-          stateFactory: stateFactory,
-        },
         stateServiceOptions: {
           stateFactory: stateFactory,
         },

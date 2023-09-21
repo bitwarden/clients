@@ -224,10 +224,6 @@ input[type="checkbox"] {
   }
 }
 
-.error-summary {
-  margin-top: 1rem;
-}
-
 .error-inline {
   @include themify($themes) {
     color: themed("danger");

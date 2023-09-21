@@ -58,7 +58,6 @@ const commonStyles = [
   "before:tw-rounded-md",
   "before:tw-transition",
   "focus-visible:before:tw-ring-2",
-  "focus-visible:before:tw-ring-text-contrast",
   "focus-visible:tw-z-10",
 ];
 

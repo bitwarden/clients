@@ -341,6 +341,10 @@
       Log in to "https://vault.passky.org" &rarr; "Import & Export" &rarr; "Export" in the Passky
       section. ("Backup" is unsupported as it is encrypted).
     </ng-container>
+    <ng-container *ngIf="format === 'protonpass'">
+      In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption
+      and save the zip file.
+    </ng-container>
   </bit-callout>
   <bit-form-field>
     <bit-label>{{ "selectImportFile" | i18n }}</bit-label>

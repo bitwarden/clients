@@ -1,10 +1,10 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { InputModule } from "../input/input.module";
+import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SearchComponent } from "./search.component";
@@ -14,7 +14,7 @@ export default {
   component: SearchComponent,
   decorators: [
     moduleMetadata({
-      imports: [InputModule, FormsModule, ReactiveFormsModule, JslibModule],
+      imports: [SharedModule, InputModule, FormsModule, ReactiveFormsModule],
       providers: [
         {
           provide: I18nService,

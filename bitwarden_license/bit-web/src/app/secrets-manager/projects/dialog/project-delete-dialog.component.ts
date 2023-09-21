@@ -8,9 +8,9 @@ import {
   AbstractControl,
 } from "@angular/forms";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
 import {
@@ -38,7 +38,7 @@ export class ProjectDeleteDialogComponent implements OnInit {
     private projectService: ProjectService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {

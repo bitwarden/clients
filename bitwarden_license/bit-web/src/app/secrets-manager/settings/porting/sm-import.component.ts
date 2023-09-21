@@ -3,12 +3,13 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
 
 import {
   SecretsManagerImportErrorDialogComponent,
@@ -37,7 +38,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     protected fileDownloadService: FileDownloadService,
     private logService: LogService,
     private secretsManagerPortingApiService: SecretsManagerPortingApiService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -72,6 +73,13 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
       if (error?.lines?.length > 0) {
         this.openImportErrorDialog(error);
+        return;
+      } else if (!Utils.isNullOrWhitespace(error?.message)) {
+        this.platformUtilsService.showToast(
+          "error",
+          this.i18nService.t("errorOccurred"),
+          error.message
+        );
         return;
       } else if (error != null) {
         this.platformUtilsService.showToast(

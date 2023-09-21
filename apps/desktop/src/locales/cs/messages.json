@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného uložiště pro přílohy."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Další možnosti dvoufázového přihlášení, jako je například YubiKey, FIDO U2F a Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
   },
   "premiumSignUpReports": {
     "message": "Reporty o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Budete odhlášeni. Pro opětovný přístup k trezoru bude vyžadováno ověření."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
+  },
   "lock": {
     "message": "Zamknout",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka byla trvale smazána"
-  },
-  "restoreItem": {
-    "message": "Obnovit položku"
-  },
-  "restoreItemConfirmation": {
-    "message": "Opravdu chcete tuto položku obnovit?"
   },
   "restoredItem": {
     "message": "Položka byla obnovena"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportování osobního trezoru"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Budou exportovány jen osobní položky trezoru spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
+  "exportingIndividualVaultDescription": {
+    "message": "Budou exportovány jen osobní položky trezoru spojené s $EMAIL$. Položky trezoru organizace nebudou zahrnuty. Budou exportovány jen informace o položkách trezoru a nebudou zahrnuty související přílohy.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Přihlásit se pomocí jiného zařízení"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Bylo zahájeno přihlášení"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aktualizace doporučených nastavení"
   },
+  "deviceApprovalRequired": {
+    "message": "Vyžaduje se schválení zařízení. Vyberte možnost schválení níže:"
+  },
+  "rememberThisDevice": {
+    "message": "Zapamatovat toto zařízení"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Odškrtněte, pokud používáte veřejné zařízení"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Schválit s mým dalším zařízením"
+  },
+  "requestAdminApproval": {
+    "message": "Žádost o schválení správcem"
+  },
+  "approveWithMasterPassword": {
+    "message": "Schválit hlavním heslem"
+  },
   "region": {
-    "message": "Region"
+    "message": "Oblast"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Je vyžadován SSO identifikátor organizace."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Přihlašování na"
   },
-  "selfHosted": {
-    "message": "Vlastní hosting"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "vlastní hosting"
   },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Účet byl úspěšně vytvořen!"
+  },
+  "adminApprovalRequested": {
+    "message": "Bylo vyžádáno schválení správcem"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Váš požadavek byl odeslán Vašemu správci."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Po schválení budete upozorněni."
+  },
+  "troubleLoggingIn": {
+    "message": "Potíže s přihlášením?"
+  },
+  "loginApproved": {
+    "message": "Přihlášení bylo schváleno"
+  },
+  "userEmailMissing": {
+    "message": "Chybí e-mail uživatele"
+  },
+  "deviceTrusted": {
+    "message": "Zařízení zařazeno mezi důvěryhodné"
+  },
+  "inputRequired": {
+    "message": "Je vyžadován vstup."
+  },
+  "required": {
+    "message": "vyžadováno"
+  },
+  "search": {
+    "message": "Hledat"
+  },
+  "inputMinLength": {
+    "message": "Vstup musí mít alespoň $COUNT$ znaků.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Vstup nesmí být delší než $COUNT$ znaků.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Následující znaky nejsou povoleny: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Vstupní hodnota musí být alespoň $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Vstupní hodnota nesmí přesáhnout $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 nebo více e-mailů jsou neplatné"
+  },
+  "inputTrimValidator": {
+    "message": "Vstup nesmí obsahovat jen mezery.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Vstup není e-mailová adresa."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ polí výše vyžaduje Vaši pozornost.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Vybrat --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Pište pro filtrování --"
+  },
+  "multiSelectLoading": {
+    "message": "Načítání voleb..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nebyly nalezeny žádné položky"
+  },
+  "multiSelectClearAll": {
+    "message": "Vymazat vše"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ dalších",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Podmenu"
   }
 }

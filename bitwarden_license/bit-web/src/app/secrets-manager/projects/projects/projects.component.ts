@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, lastValueFrom, Observable, startWith, switchMap } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
+import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
@@ -37,7 +37,7 @@ export class ProjectsComponent implements OnInit {
     private route: ActivatedRoute,
     private projectService: ProjectService,
     private accessPolicyService: AccessPolicyService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   ngOnInit() {

@@ -555,7 +555,11 @@
         class="box-content-row"
         appStopClick
         (click)="fillCipher()"
-        *ngIf="cipher.type !== cipherType.SecureNote && !cipher.isDeleted && !inPopout"
+        *ngIf="
+          cipher.type !== cipherType.SecureNote &&
+          !cipher.isDeleted &&
+          (!this.inPopout || this.loadAction)
+        "
       >
         <div class="row-main text-primary">
           <div class="icon text-primary" aria-hidden="true">

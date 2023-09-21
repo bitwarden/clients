@@ -71,7 +71,7 @@ export class Attachment extends Domain {
     const cryptoService = Utils.getContainerService().getCryptoService();
     return orgId != null
       ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getKeyForUserEncryption();
+      : await cryptoService.getUserKeyWithLegacySupport();
   }
 
   toAttachmentData(): AttachmentData {

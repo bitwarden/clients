@@ -1,14 +1,21 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards/auth.guard";
-import { LockGuard } from "@bitwarden/angular/auth/guards/lock.guard";
-import { UnauthGuard } from "@bitwarden/angular/auth/guards/unauth.guard";
+import {
+  redirectGuard,
+  AuthGuard,
+  lockGuard,
+  tdeDecryptionRequiredGuard,
+  UnauthGuard,
+} from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
+import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
 import { LoginWithDeviceComponent } from "../auth/popup/login-with-device.component";
 import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
@@ -49,8 +56,11 @@ import { TabsComponent } from "./tabs.component";
 const routes: Routes = [
   {
     path: "",
-    redirectTo: "home",
     pathMatch: "full",
+    children: [], // Children lets us have an empty component.
+    canActivate: [
+      redirectGuard({ loggedIn: "/tabs/current", loggedOut: "/home", locked: "/lock" }),
+    ],
   },
   {
     path: "vault",
@@ -72,13 +82,19 @@ const routes: Routes = [
   {
     path: "login-with-device",
     component: LoginWithDeviceComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [],
+    data: { state: "login-with-device" },
+  },
+  {
+    path: "admin-approval-requested",
+    component: LoginWithDeviceComponent,
+    canActivate: [],
     data: { state: "login-with-device" },
   },
   {
     path: "lock",
     component: LockComponent,
-    canActivate: [LockGuard],
+    canActivate: [lockGuard()],
     data: { state: "lock" },
   },
   {
@@ -92,6 +108,14 @@ const routes: Routes = [
     component: TwoFactorOptionsComponent,
     canActivate: [UnauthGuard],
     data: { state: "2fa-options" },
+  },
+  {
+    path: "login-initiated",
+    component: LoginDecryptionOptionsComponent,
+    canActivate: [
+      tdeDecryptionRequiredGuard(),
+      canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
+    ],
   },
   {
     path: "sso",

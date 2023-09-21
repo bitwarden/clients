@@ -3,7 +3,6 @@ import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -16,6 +15,7 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { BrowserComponentState } from "../../../models/browserComponentState";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
@@ -51,7 +51,7 @@ export class SendTypeComponent extends BaseSendComponent {
     private router: Router,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       sendService,

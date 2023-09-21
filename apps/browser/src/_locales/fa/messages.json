@@ -338,6 +338,9 @@
   "other": {
     "message": "ساير"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "یک روش بازگشایی برای پایان زمان مجاز تنظیم کنید."
+  },
   "rateExtension": {
     "message": "به این افزونه امتیاز دهید"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "به‌روزرسانی"
   },
+  "notificationUnlockDesc": {
+    "message": "برای پر کردن خودکار گاوصندوق Bitwarden خود را باز کنید."
+  },
+  "notificationUnlock": {
+    "message": "بازگشایی"
+  },
   "enableContextMenuItem": {
     "message": "نمایش گزینه‌های منوی زمینه"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره سازی رمزگذاری شده برای پیوست های پرونده."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "گزینه‌های ورود دو مرحله‌ای اضافی مانند YubiKey, FIDO U2F و Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "گزینه های ورود اضافی دو مرحله ای مانند YubiKey و Duo."
   },
   "ppremiumSignUpReports": {
     "message": "گزارش‌های بهداشت رمز عبور، سلامت حساب و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "بازیابی مورد"
   },
-  "restoreItemConfirmation": {
-    "message": "آیا مطمئن هستید که می‌خواهید این مورد را بازیابی کنید؟"
-  },
   "restoredItem": {
     "message": "مورد بازیابی شد"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "بیومتریک مرورگر در این دستگاه پشتیبانی نمی‌شود."
+  },
+  "biometricsFailedTitle": {
+    "message": "زیست‌سنجی ناتمام ماند"
+  },
+  "biometricsFailedDesc": {
+    "message": "زیست‌سنجی نمی تواند انجام شود، استفاده از کلمه عبور اصلی یا خروج را در نظر بگیرید. اگر این مشکل ادامه یافت لطفا با پشتیبانی Bitwarden تماس بگیرید."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "مجوز ارائه نشده است"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "برون ریزی گاو‌صندوق شخصی"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "فقط موارد گاو‌صندوق شخصی مرتبط با $EMAIL$ برون ریزی خواهد شد. موارد گاو‌صندوق سازمان شامل نخواهد شد.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,7 +2092,7 @@
   "serverVersion": {
     "message": "نسخه سرور"
   },
-  "selfHosted": {
+  "selfHostedServer": {
     "message": "خود میزبان"
   },
   "thirdParty": {
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "یک اعلان به دستگاه شما ارسال شده است."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "ورود به سیستم آغاز شد"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "منطقه"
+  "loggingInOn": {
+    "message": "ورود به عنوان"
   },
   "opensInANewWindow": {
     "message": "در پنجره جدید باز می‌شود"
+  },
+  "deviceApprovalRequired": {
+    "message": "تایید دستگاه لازم است. یک روش تایید برگزینید:"
+  },
+  "rememberThisDevice": {
+    "message": "این دستگاه را به خاطر بسپار"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "بردارید اگر از دستگاه عمومی استفاده میکنید"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "تایید با دستگاه دیگرتان"
+  },
+  "requestAdminApproval": {
+    "message": "درخواست تایید مدیر"
+  },
+  "approveWithMasterPassword": {
+    "message": "تایید با کلمه عبور اصلی"
+  },
+  "ssoIdentifierRequired": {
+    "message": "شناسه سازمان SSO مورد نیاز است."
   },
   "eu": {
     "message": "اروپا",
     "description": "European Union"
   },
-  "us": {
-    "message": "امریکا",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "دسترسی رد شد. شما اجازه مشاهده این صفحه را ندارید."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "نمایش"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "حساب کاربری با موفقیت ایجاد شد!"
+  },
+  "adminApprovalRequested": {
+    "message": "تایید مدیر در خواست شد"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "درخواست شما به مدیرتان فرستاده شد."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "به محض تایید مطلع خواهید شد."
+  },
+  "troubleLoggingIn": {
+    "message": "در ورود مشکلی دارید؟"
+  },
+  "loginApproved": {
+    "message": "ورود تایید شد"
+  },
+  "userEmailMissing": {
+    "message": "رایانامه کاربر کم است"
+  },
+  "deviceTrusted": {
+    "message": "دستگاه مورد اعتماد است"
+  },
+  "inputRequired": {
+    "message": "ورودی مورد نیاز است."
+  },
+  "required": {
+    "message": "الزامی"
+  },
+  "search": {
+    "message": "جستجو"
+  },
+  "inputMinLength": {
+    "message": "ورودی باید حداقل $COUNT$ نشانه داشته باشد.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "اندازه ورودی نباید بیش از $COUNT$ نشانه باشد.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "نشانه های زیر مجاز نیستند: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "مقدار ورودی باید دست کم $MIN$ باشد.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "مقدار ورودی نباید بیش از $MAX$ باشد.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "یک یا چند رایانامه نامعتبر است"
+  },
+  "inputTrimValidator": {
+    "message": "ورودی نباید فقط فاصله باشد.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "ورودی یک نشانی رایانامه نیست."
+  },
+  "fieldsNeedAttention": {
+    "message": "بخش (های) $COUNT$ در بالا نیازمند توجه شما است.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- انتخاب --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- برای گزینش چیزی بنویسید --"
+  },
+  "multiSelectLoading": {
+    "message": "در حال بازیابی گزینه‌ها..."
+  },
+  "multiSelectNotFound": {
+    "message": "موردی پیدا نشد"
+  },
+  "multiSelectClearAll": {
+    "message": "پاک کردن همه"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ بیشتر",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "زیرفهرست"
+  },
+  "toggleCollapse": {
+    "message": "باز و بسته کردن",
+    "description": "Toggling an expand/collapse state."
   }
 }

@@ -338,6 +338,9 @@
   "other": {
     "message": "Kita"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Nustatyk atrakinimo būdą, kad pakeistum saugyklos laiko limito veiksmą."
+  },
   "rateExtension": {
     "message": "Įvertinkite šį plėtinį"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Atnaujinti"
   },
+  "notificationUnlockDesc": {
+    "message": "Atrakink savo Bitwarden saugyklą, kad užpildytum automatinio užpildymo užklausą."
+  },
+  "notificationUnlock": {
+    "message": "Atrakinti"
+  },
   "enableContextMenuItem": {
     "message": "Rodyti kontekstinio meniu pasririnkimus"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB užšifruotos vietos diske bylų prisegimams."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Papildomos dviejų žingsių prisijungimo opcijos, tokios kaip YubiKey, FIDO U2F ir Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Patentuotos dviejų žingsnių prisijungimo parinktys, tokios kaip YubiKey ir Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Slaptažodžio higiena, prieigos sveikata ir duomenų nutekinimo ataskaitos, kad tavo saugyklas būtų saugus."
@@ -1030,7 +1039,7 @@
     "message": "Naujas pasirinktis laukelis"
   },
   "dragToSort": {
-    "message": "Drag to sort"
+    "message": "Rūšiuok, kad surūšiuotum"
   },
   "cfTypeText": {
     "message": "Tekstas"
@@ -1050,10 +1059,10 @@
     "description": "This describes a value that is 'linked' (tied) to another value."
   },
   "popup2faCloseMessage": {
-    "message": "Clicking outside the popup window to check your email for your verification code will cause this popup to close. Do you want to open this popup in a new window so that it does not close?"
+    "message": "Paspaudę už iššokančio lango, kad patikrintum, ar el. paštu gausi patvirtinimo kodą, uždarys šį iššokantį langą. Ar nori atidaryti šį iššokantį langą naujame lange, kad jis neužsidarytų?"
   },
   "popupU2fCloseMessage": {
-    "message": "This browser cannot process U2F requests in this popup window. Do you want to open this popup in a new window so that you can log in using U2F?"
+    "message": "Ši naršyklė negali apdoroti U2F prašymų šiame iššokančiame lange. Ar nori atidaryti šį iššokantį langą naujame lange, kad galėtum prisijungti naudodamas (-a) U2F?"
   },
   "enableFavicon": {
     "message": "Rodyti tinklalapių ikonėles"
@@ -1062,10 +1071,10 @@
     "message": "Show a recognizable image next to each login."
   },
   "enableBadgeCounter": {
-    "message": "Show badge counter"
+    "message": "Rodyti ženkliukų skaitiklį"
   },
   "badgeCounterDesc": {
-    "message": "Indicate how many logins you have for the current web page."
+    "message": "Nurodoma, kiek prisijungimų turi dabartiniame žiniatinklio puslapyje."
   },
   "cardholderName": {
     "message": "Mokėjimo kortelės savininko vardas"
@@ -1143,7 +1152,7 @@
     "message": "Dr"
   },
   "mx": {
-    "message": "Mx"
+    "message": "Neutralinis (-i)"
   },
   "firstName": {
     "message": "Vardas"
@@ -1267,7 +1276,7 @@
     }
   },
   "passwordSafe": {
-    "message": "This password was not found in any known data breaches. It should be safe to use."
+    "message": "Šis slaptažodis nebuvo rastas per jokius žinomus duomenų pažeidimus. Jis turėtų būti saugus naudoti."
   },
   "baseDomain": {
     "message": "Bazinis domenas",
@@ -1288,7 +1297,7 @@
     "message": "Prasideda"
   },
   "regEx": {
-    "message": "Regular expression",
+    "message": "Reguliari išraiška",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -1296,7 +1305,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Default match detection",
+    "message": "Numatytasis atitikties aptikimas",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Atkurti elementą"
   },
-  "restoreItemConfirmation": {
-    "message": "Are you sure you want to restore this item?"
-  },
   "restoredItem": {
     "message": "Elementas atkurtas"
   },
@@ -1462,7 +1468,7 @@
     "message": "Item auto-filled "
   },
   "insecurePageWarning": {
-    "message": "Warning: This is an unsecured HTTP page, and any information you submit can potentially be seen and changed by others. This Login was originally saved on a secure (HTTPS) page."
+    "message": "Įspėjimas: Tai – neapsaugotas HTTP puslapis, todėl bet kokią pateiktą informaciją gali matyti ir keisti kiti asmenys. Šis prisijungimas iš pradžių buvo išsaugotas saugiame (HTTPS) puslapyje."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Do you still wish to fill this login?"
@@ -1483,19 +1489,19 @@
     "message": "Pagrindinio slaptažodžio nustatymas"
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "Dabartinis pagrindinis slaptažodis"
   },
   "newMasterPass": {
-    "message": "New master password"
+    "message": "Naujas pagrindinis slaptažodis"
   },
   "confirmNewMasterPass": {
-    "message": "Confirm new master password"
+    "message": "Patvirtinti naują pagrindinį slaptažodį"
   },
   "masterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require your master password to meet the following requirements:"
+    "message": "Viena ar daugiau organizacijos politikos reikalauja, kad tavo pagrindinis slaptažodis atitiktų šiuos reikalavimus:"
   },
   "policyInEffectMinComplexity": {
-    "message": "Minimum complexity score of $SCORE$",
+    "message": "Minimalus sudėtingumo balas $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -1531,13 +1537,13 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "Your new master password does not meet the policy requirements."
+    "message": "Tavo naujasis pagrindinis slaptažodis neatitinka politikos reikalavimų."
   },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
   "acceptPoliciesRequired": {
-    "message": "Terms of Service and Privacy Policy have not been acknowledged."
+    "message": "Paslaugų teikimo sąlygos ir privatumo politika nebuvo pripažinti."
   },
   "termsOfService": {
     "message": "Paslaugų teikimo paslaugos"
@@ -1552,13 +1558,13 @@
     "message": "Gerai"
   },
   "desktopSyncVerificationTitle": {
-    "message": "Desktop sync verification"
+    "message": "Darbalaukio sinchronizavimo verifikavimas"
   },
   "desktopIntegrationVerificationText": {
-    "message": "Please verify that the desktop application shows this fingerprint: "
+    "message": "Patikrink, ar darbalaukio programoje rodomas šis pirštų atspaudas: "
   },
   "desktopIntegrationDisabledTitle": {
-    "message": "Browser integration is not set up"
+    "message": "Naršyklės integracija nėra nustatyta"
   },
   "desktopIntegrationDisabledDesc": {
     "message": "Browser integration is not set up in the Bitwarden desktop application. Please set it up in the settings within the desktop application."
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Šiame įrenginyje biometrikos negalima naudoti."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrika nepavyko"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometriniai duomenys negali būti užpildyti, apsvarstyk galimybę naudoti pagrindinį slaptažodį arba atsijungti. Jei tai tęsiasi, kreipkitės į Bitwarden pagalbą."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Nesuteiktos teisės"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Server version"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Trečioji šalis"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Pradėtas prisijungimas"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
   "opensInANewWindow": {
     "message": "Opens in a new window"
+  },
+  "deviceApprovalRequired": {
+    "message": "Įrenginio patvirtinimas reikalingas. Pasirink patvirtinimo būdą toliau:"
+  },
+  "rememberThisDevice": {
+    "message": "Prisiminti šį įrenginį"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Panaikink žymėjimą, jei naudojamas viešasis įrenginys"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Patvirtinti iš tavo kito įrenginio"
+  },
+  "requestAdminApproval": {
+    "message": "Prašyti administratoriaus patvirtinimo"
+  },
+  "approveWithMasterPassword": {
+    "message": "Patvirtinti su pagrindiniu slaptažodžiu"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organizacijos SSO identifikatorius yra reikalingas."
   },
   "eu": {
     "message": "ES",
     "description": "European Union"
   },
-  "us": {
-    "message": "JAV",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Prieiga uždrausta. Neturi teisės peržiūrėti šį puslapį."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Rodyti"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Paskyra sėkmingai sukurta!"
+  },
+  "adminApprovalRequested": {
+    "message": "Prašymas administratoriaus patvirtinimas"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Tavo prašymas išsiųstas administratoriui."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Tu būsi praneštas (-a), kai bus patvirtinta."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemos prisijungiant?"
+  },
+  "loginApproved": {
+    "message": "Patvirtintas prisijungimas"
+  },
+  "userEmailMissing": {
+    "message": "Trūksta naudotojo el. pašto"
+  },
+  "deviceTrusted": {
+    "message": "Patikimas įrenginys"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "inputMinLength": {
+    "message": "Input must be at least $COUNT$ characters long.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Select --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "Retrieving options..."
+  },
+  "multiSelectNotFound": {
+    "message": "No items found"
+  },
+  "multiSelectClearAll": {
+    "message": "Clear all"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

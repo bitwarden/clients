@@ -9,7 +9,7 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { OrgKey, SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
@@ -118,11 +118,11 @@ describe("Cipher Service", () => {
   describe("saveAttachmentRawWithServer()", () => {
     it("should upload encrypted file contents with save attachments", async () => {
       const fileName = "filename";
-      const fileData = new Uint8Array(10).buffer;
+      const fileData = new Uint8Array(10);
       cryptoService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)))
+        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey)
       );
-      cryptoService.makeEncKey.mockReturnValue(
+      cryptoService.makeDataEncKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)))
       );
       const spy = jest.spyOn(cipherFileUploadService, "upload");
@@ -134,12 +134,23 @@ describe("Cipher Service", () => {
   });
 
   describe("createWithServer()", () => {
-    it("should call apiService.postCipherAdmin when orgAdmin param is true", async () => {
+    it("should call apiService.postCipherAdmin when orgAdmin param is true and the cipher orgId != null", async () => {
       const spy = jest
         .spyOn(apiService, "postCipherAdmin")
         .mockImplementation(() => Promise.resolve<any>(cipherObj));
       cipherService.createWithServer(cipherObj, true);
       const expectedObj = new CipherCreateRequest(cipherObj);
+
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(expectedObj);
+    });
+    it("should call apiService.postCipher when orgAdmin param is true and the cipher orgId is null", async () => {
+      cipherObj.organizationId = null;
+      const spy = jest
+        .spyOn(apiService, "postCipher")
+        .mockImplementation(() => Promise.resolve<any>(cipherObj));
+      cipherService.createWithServer(cipherObj, true);
+      const expectedObj = new CipherRequest(cipherObj);
 
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith(expectedObj);

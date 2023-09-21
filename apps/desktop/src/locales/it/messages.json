@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB di spazio di archiviazione criptato per gli allegati."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Più opzioni di verifica in due passaggi come YubiKey, FIDO U2F, e Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
   },
   "premiumSignUpReports": {
     "message": "Sicurezza delle password, integrità dell'account e rapporti sulle violazioni dei dati per mantenere la tua cassaforte sicura."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Dovrai autenticarti di nuovo per accedere alla tua cassaforte."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Imposta un metodo di sblocco per modificare l'azione timeout cassaforte."
+  },
   "lock": {
     "message": "Blocca",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elemento eliminato definitivamente"
-  },
-  "restoreItem": {
-    "message": "Ripristina elemento"
-  },
-  "restoreItemConfirmation": {
-    "message": "Sei sicuro di voler ripristinare questo elemento?"
   },
   "restoredItem": {
     "message": "Elemento ripristinato"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Esportando cassaforte individuale"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi.",
+  "exportingIndividualVaultDescription": {
+    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi. Solo le informazioni sugli elementi della cassaforte saranno esportate e non includeranno gli allegati.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,8 +2109,8 @@
   "logInWithAnotherDevice": {
     "message": "Accedi con un altro dispositivo"
   },
-  "logInInitiated": {
-    "message": "Login avviato"
+  "loginInitiated": {
+    "message": "Accesso avviato"
   },
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aggiornamento delle impostazioni consigliato"
   },
+  "deviceApprovalRequired": {
+    "message": "Approvazione del dispositivo obbligatoria. Seleziona un'opzione di approvazione:"
+  },
+  "rememberThisDevice": {
+    "message": "Ricorda questo dispositivo"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Deseleziona se stai usando un dispositivo pubblico"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approva dall'altro tuo dispositivo"
+  },
+  "requestAdminApproval": {
+    "message": "Richiedi approvazione dell'amministratore"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approva con password principale"
+  },
   "region": {
     "message": "Regione"
   },
+  "ssoIdentifierRequired": {
+    "message": "Identificatore SSO dell'organizzazione obbligatorio."
+  },
   "eu": {
-    "message": "UE",
+    "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Accedendo su"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "accessDenied": {
     "message": "Accesso negato. Non hai i permessi necessari per visualizzare questa pagina."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account creato!"
+  },
+  "adminApprovalRequested": {
+    "message": "Approvazione dell'amministratore richiesta"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "La tua richiesta è stata inviata al tuo amministratore."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Riceverai una notifica una volta approvato."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemi ad accedere?"
+  },
+  "loginApproved": {
+    "message": "Accesso approvato"
+  },
+  "userEmailMissing": {
+    "message": "Email utente mancante"
+  },
+  "deviceTrusted": {
+    "message": "Dispositivo fidato"
+  },
+  "inputRequired": {
+    "message": "Input obbligatorio."
+  },
+  "required": {
+    "message": "obbligatorio"
+  },
+  "search": {
+    "message": "Cerca"
+  },
+  "inputMinLength": {
+    "message": "L'input deve essere lungo almeno $COUNT$ caratteri.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "L'input non deve essere più lungo di $COUNT$ caratteri.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Questi caratteri non sono permessi: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Il valore immesso deve essere almeno $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Il valore immesso non deve superare $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Una o più email non sono valide"
+  },
+  "inputTrimValidator": {
+    "message": "L'input non può contenere solo spazi.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "L'input non è un indirizzo email."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ campi qui sopra richiedono la tua attenzione.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Seleziona --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Digita per filtrare --"
+  },
+  "multiSelectLoading": {
+    "message": "Ottenendo opzioni..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nessun elemento trovato"
+  },
+  "multiSelectClearAll": {
+    "message": "Cancella tutto"
+  },
+  "plusNMore": {
+    "message": "+$QUANTITY$ in più",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Sottomenu"
   }
 }

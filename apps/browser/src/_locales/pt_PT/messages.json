@@ -338,6 +338,9 @@
   "other": {
     "message": "Outros"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
+  },
   "rateExtension": {
     "message": "Avaliar a extensão"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Atualizar"
   },
+  "notificationUnlockDesc": {
+    "message": "Desbloqueie o seu cofre Bitwarden para completar o pedido de preenchimento automático."
+  },
+  "notificationUnlock": {
+    "message": "Desbloquear"
+  },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Opções adicionais de verificação de dois passos, como YubiKey, FIDO U2F e Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Restaurar item"
   },
-  "restoreItemConfirmation": {
-    "message": "Tem a certeza de que pretende restaurar este item?"
-  },
   "restoredItem": {
     "message": "Item restaurado"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "A biometria do navegador não é suportada neste dispositivo."
+  },
+  "biometricsFailedTitle": {
+    "message": "Falha na biometria"
+  },
+  "biometricsFailedDesc": {
+    "message": "A biometria não pode ser concluída, considere a possibilidade de utilizar uma palavra-passe mestra ou terminar a sessão. Se o problema persistir, contacte a assistência do Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Autorização não concedida"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "A exportar o cofre pessoal"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Apenas os itens do cofre pessoal associado a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos.",
+  "exportingIndividualVaultDescription": {
+    "message": "Apenas os itens de cofre individuais associados a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos. Apenas serão exportadas as informações do item do cofre e não serão incluídos os anexos associados.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Versão do servidor"
   },
-  "selfHosted": {
-    "message": "Auto-hospedado"
+  "selfHostedServer": {
+    "message": "auto-hospedado"
   },
   "thirdParty": {
     "message": "De terceiros"
@@ -2123,7 +2135,7 @@
     "message": "Iniciar sessão com o dispositivo"
   },
   "loginWithDeviceEnabledInfo": {
-    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Necessita de outra opção?"
+    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de impressão digital"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "A preparar o início de sessão"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Região"
+  "loggingInOn": {
+    "message": "A iniciar sessão em"
   },
   "opensInANewWindow": {
     "message": "Abrir numa nova janela"
+  },
+  "deviceApprovalRequired": {
+    "message": "É necessária a aprovação do dispositivo. Selecione uma opção de aprovação abaixo:"
+  },
+  "rememberThisDevice": {
+    "message": "Lembrar este dispositivo"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Desmarcar se estiver a utilizar um dispositivo público"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Aprovar a partir do seu outro dispositivo"
+  },
+  "requestAdminApproval": {
+    "message": "Pedir aprovação do administrador"
+  },
+  "approveWithMasterPassword": {
+    "message": "Aprovar com a palavra-passe mestra"
+  },
+  "ssoIdentifierRequired": {
+    "message": "É necessário o identificador de SSO da organização."
   },
   "eu": {
     "message": "UE",
     "description": "European Union"
   },
-  "us": {
-    "message": "EUA",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Acesso negado. Não tem permissão para visualizar esta página."
@@ -2242,6 +2277,134 @@
     "message": "Geral"
   },
   "display": {
-    "message": "Display"
+    "message": "Ecrã"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Conta criada com sucesso!"
+  },
+  "adminApprovalRequested": {
+    "message": "Aprovação do administrador pedida"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "O seu pedido foi enviado ao seu administrador."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Será notificado quando for aprovado."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemas a iniciar sessão?"
+  },
+  "loginApproved": {
+    "message": "Início de sessão aprovado"
+  },
+  "userEmailMissing": {
+    "message": "E-mail do utilizador em falta"
+  },
+  "deviceTrusted": {
+    "message": "Dispositivo de confiança"
+  },
+  "inputRequired": {
+    "message": "Campo necessário."
+  },
+  "required": {
+    "message": "necessário"
+  },
+  "search": {
+    "message": "Procurar"
+  },
+  "inputMinLength": {
+    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 ou mais e-mails são inválidos"
+  },
+  "inputTrimValidator": {
+    "message": "O campo não deve conter apenas espaços em branco.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "O campo não é um endereço de e-mail."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ campo(s) acima precisa(m) da sua atenção.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Selecionar --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Escreva para filtrar --"
+  },
+  "multiSelectLoading": {
+    "message": "A recuperar opções..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nenhum item encontrado"
+  },
+  "multiSelectClearAll": {
+    "message": "Limpar tudo"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Alternar colapso",
+    "description": "Toggling an expand/collapse state."
   }
 }

@@ -4,7 +4,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/exporter/vault-export/bitwarden-password-protected-types";
+import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/exporter/vault-export/bitwarden-json-export-types";
 
 import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";

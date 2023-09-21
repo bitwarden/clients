@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -76,12 +76,12 @@ describe("Card", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = Card.fromJSON({
-        cardholderName: "mockCardHolder",
-        brand: "mockBrand",
-        number: "mockNumber",
-        expMonth: "mockExpMonth",
-        expYear: "mockExpYear",
-        code: "mockCode",
+        cardholderName: "mockCardHolder" as EncryptedString,
+        brand: "mockBrand" as EncryptedString,
+        number: "mockNumber" as EncryptedString,
+        expMonth: "mockExpMonth" as EncryptedString,
+        expYear: "mockExpYear" as EncryptedString,
+        code: "mockCode" as EncryptedString,
       });
 
       expect(actual).toEqual({

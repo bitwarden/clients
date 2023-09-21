@@ -11,7 +11,7 @@
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
-    "message": "Du musst dich anmelden oder einen neuen Account erstellen, um auf den Tresor zugreifen zu können."
+    "message": "Melde dich an oder erstelle ein neues Konto, um auf deinen Tresor zuzugreifen."
   },
   "createAccount": {
     "message": "Konto erstellen"
@@ -294,7 +294,7 @@
     "message": "Eintragsinformationen"
   },
   "username": {
-    "message": "Nutzername"
+    "message": "Benutzername"
   },
   "password": {
     "message": "Passwort"
@@ -338,6 +338,9 @@
   "other": {
     "message": "Sonstige"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Timeout-Timeout zu ändern."
+  },
   "rateExtension": {
     "message": "Erweiterung bewerten"
   },
@@ -357,7 +360,7 @@
     "message": "Entsperren"
   },
   "loggedInAsOn": {
-    "message": "Eingeloggt als $EMAIL$ auf $HOSTNAME$.",
+    "message": "Angemeldet als $EMAIL$ auf $HOSTNAME$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -409,7 +412,7 @@
     "message": "1 Stunde"
   },
   "fourHours": {
-    "message": "4 Stunde"
+    "message": "4 Stunden"
   },
   "onLocked": {
     "message": "Wenn System gesperrt"
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Aktualisieren"
   },
+  "notificationUnlockDesc": {
+    "message": "Entsperre deinen Bitwarden Tresor, um die Auto-Ausfüllen-Anfrage abzuschließen."
+  },
+  "notificationUnlock": {
+    "message": "Entsperren"
+  },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Zusätzliche Zweifaktor-Anmeldung über YubiKey, FIDO U2F, und Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Berichte über Kennworthygiene, Kontostatus und Datenschutzverletzungen, um deinen Tresor sicher zu halten."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Eintrag wiederherstellen"
   },
-  "restoreItemConfirmation": {
-    "message": "Soll dieser Eintrag wirklich wiederhergestellt werden?"
-  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -1582,7 +1588,7 @@
     "message": "Desktop-Kommunikation unterbrochen"
   },
   "nativeMessagingWrongUserDesc": {
-    "message": "Die Desktop-Anwendung ist in ein anderes Konto eingeloggt. Bitte stelle sicher, dass beide Anwendungen mit demselben Konto angemeldet sind."
+    "message": "Die Desktop-Anwendung ist in einem anderen Konto angemeldet. Bitte stelle sicher, dass beide Anwendungen mit demselben Konto angemeldet sind."
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Konten stimmen nicht überein"
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Biometrie im Browser wird auf diesem Gerät nicht unterstützt."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrie fehlgeschlagen"
+  },
+  "biometricsFailedDesc": {
+    "message": "Die biometrische Verifizierung kann nicht abgeschlossen werden. Versuch es mit dem Master-Passwort oder melde dich ab. Sollte das Problem weiterhin bestehen, kontaktiere bitte den Bitwarden-Support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Berechtigung nicht erteilt"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Persönlicher Tresor wird exportiert"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Nur die einzelnen Tresor-Einträge, die mit $EMAIL$ verbunden sind, werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt.",
+  "exportingIndividualVaultDescription": {
+    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Server-Version"
   },
-  "selfHosted": {
-    "message": "Selbst gehostet"
+  "selfHostedServer": {
+    "message": "selbst gehostet"
   },
   "thirdParty": {
     "message": "Drittanbieter"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Anmeldung eingeleitet"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Anmelden bei"
   },
   "opensInANewWindow": {
     "message": "Wird in einem neuen Fenster geöffnet"
+  },
+  "deviceApprovalRequired": {
+    "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
+  },
+  "rememberThisDevice": {
+    "message": "Dieses Gerät merken"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Deaktivieren, wenn ein öffentliches Gerät verwendet wird"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Von deinem anderen Gerät genehmigen"
+  },
+  "requestAdminApproval": {
+    "message": "Admin-Genehmigung anfragen"
+  },
+  "approveWithMasterPassword": {
+    "message": "Mit Master-Passwort genehmigen"
+  },
+  "ssoIdentifierRequired": {
+    "message": "SSO-Kennung der Organisation erforderlich."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Zugriff verweigert. Du hast keine Berechtigung, diese Seite anzuzeigen."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Anzeige"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konto erfolgreich erstellt!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin-Genehmigung angefragt"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Deine Anfrage wurde an deinen Administrator gesendet."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Nach einer Genehmigung wirst du benachrichtigt."
+  },
+  "troubleLoggingIn": {
+    "message": "Probleme beim Anmelden?"
+  },
+  "loginApproved": {
+    "message": "Anmeldung genehmigt"
+  },
+  "userEmailMissing": {
+    "message": "E-Mail-Adresse des Benutzers fehlt"
+  },
+  "deviceTrusted": {
+    "message": "Gerät wird vertraut"
+  },
+  "inputRequired": {
+    "message": "Eingabe ist erforderlich."
+  },
+  "required": {
+    "message": "Erforderlich"
+  },
+  "search": {
+    "message": "Suche"
+  },
+  "inputMinLength": {
+    "message": "Die Eingabe muss mindestens $COUNT$ Zeichen lang sein.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Die Eingabe darf $COUNT$ Zeichen nicht überschreiten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Die folgenden Zeichen sind nicht erlaubt: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Der Eingabewert muss mindestens $MIN$ betragen.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Der Eingabewert darf $MAX$ nicht überschreiten.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Mindestens 1 E-Mail-Adresse ist ungültig"
+  },
+  "inputTrimValidator": {
+    "message": "Die Eingabe darf nicht nur Leerzeichen enthalten.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Die Eingabe ist keine E-Mail-Adresse."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ Feld(er) oben benötigen deine Aufmerksamkeit.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Auswählen --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Schreiben zum Filtern --"
+  },
+  "multiSelectLoading": {
+    "message": "Optionen werden abgerufen..."
+  },
+  "multiSelectNotFound": {
+    "message": "Keine Einträge gefunden"
+  },
+  "multiSelectClearAll": {
+    "message": "Alles löschen"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ mehr",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Untermenü"
+  },
+  "toggleCollapse": {
+    "message": "Ein-/ausklappen",
+    "description": "Toggling an expand/collapse state."
   }
 }

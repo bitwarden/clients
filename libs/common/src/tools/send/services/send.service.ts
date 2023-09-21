@@ -70,7 +70,7 @@ export class SendService implements InternalSendServiceAbstraction {
     send.hideEmail = model.hideEmail;
     send.maxAccessCount = model.maxAccessCount;
     if (model.key == null) {
-      model.key = await this.cryptoFunctionService.randomBytes(16);
+      model.key = await this.cryptoFunctionService.aesGenerateKey(128);
       model.cryptoKey = await this.cryptoService.makeSendKey(model.key);
     }
     if (password != null) {
@@ -143,9 +143,9 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     decSends = [];
-    const hasKey = await this.cryptoService.hasKey();
+    const hasKey = await this.cryptoService.hasUserKey();
     if (!hasKey) {
-      throw new Error("No key.");
+      throw new Error("No user key found.");
     }
 
     const promises: Promise<any>[] = [];
@@ -249,7 +249,7 @@ export class SendService implements InternalSendServiceAbstraction {
     const sends = Object.values(sendsMap || {}).map((f) => new Send(f));
     this._sends.next(sends);
 
-    if (await this.cryptoService.hasKey()) {
+    if (await this.cryptoService.hasUserKey()) {
       this._sendViews.next(await this.decryptSends(sends));
     }
   }

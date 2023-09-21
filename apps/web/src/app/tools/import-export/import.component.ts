@@ -4,9 +4,7 @@ import { Router } from "@angular/router";
 import * as JSZip from "jszip";
 import { concat, Observable, Subject, lastValueFrom, combineLatest } from "rxjs";
 import { map, takeUntil } from "rxjs/operators";
-import Swal, { SweetAlertIcon } from "sweetalert2";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   canAccessImportExport,
@@ -24,6 +22,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { DialogService } from "@bitwarden/components";
 import {
   ImportOption,
   ImportResult,
@@ -31,7 +30,11 @@ import {
   ImportType,
 } from "@bitwarden/importer";
 
-import { FilePasswordPromptComponent, ImportSuccessDialogComponent } from "./dialog";
+import {
+  FilePasswordPromptComponent,
+  ImportErrorDialogComponent,
+  ImportSuccessDialogComponent,
+} from "./dialog";
 
 @Component({
   selector: "app-import",
@@ -75,7 +78,7 @@ export class ImportComponent implements OnInit, OnDestroy {
     private logService: LogService,
     protected modalService: ModalService,
     protected syncService: SyncService,
-    protected dialogService: DialogServiceAbstraction,
+    protected dialogService: DialogService,
     protected folderService: FolderService,
     protected collectionService: CollectionService,
     protected organizationService: OrganizationService,
@@ -247,7 +250,9 @@ export class ImportComponent implements OnInit, OnDestroy {
       this.syncService.fullSync(true);
       await this.onSuccessfulImport();
     } catch (e) {
-      this.error(e);
+      this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, {
+        data: e,
+      });
       this.logService.error(e);
     }
   }
@@ -303,30 +308,17 @@ export class ImportComponent implements OnInit, OnDestroy {
     this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
   }
 
-  private async error(error: Error) {
-    await Swal.fire({
-      heightAuto: false,
-      buttonsStyling: false,
-      icon: "error" as SweetAlertIcon,
-      iconHtml: `<i class="swal-custom-icon bwi bwi-error text-danger"></i>`,
-      input: "textarea",
-      inputValue: error.message,
-      inputAttributes: {
-        readonly: "true",
-      },
-      titleText: this.i18nService.t("importError"),
-      text: this.i18nService.t("importErrorDesc"),
-      showConfirmButton: true,
-      confirmButtonText: this.i18nService.t("ok"),
-      onOpen: (popupEl) => {
-        popupEl.querySelector(".swal2-textarea").scrollTo(0, 0);
-      },
-    });
-  }
-
   private getFileContents(file: File): Promise<string> {
-    if (this.format === "1password1pux") {
-      return this.extract1PuxContent(file);
+    if (this.format === "1password1pux" && file.name.endsWith(".1pux")) {
+      return this.extractZipContent(file, "export.data");
+    }
+    if (
+      this.format === "protonpass" &&
+      (file.type === "application/zip" ||
+        file.type == "application/x-zip-compressed" ||
+        file.name.endsWith(".zip"))
+    ) {
+      return this.extractZipContent(file, "Proton Pass/data.json");
     }
 
     return new Promise((resolve, reject) => {
@@ -353,11 +345,11 @@ export class ImportComponent implements OnInit, OnDestroy {
     });
   }
 
-  private extract1PuxContent(file: File): Promise<string> {
+  private extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
     return new JSZip()
-      .loadAsync(file)
+      .loadAsync(zipFile)
       .then((zip) => {
-        return zip.file("export.data").async("string");
+        return zip.file(contentFilePath).async("string");
       })
       .then(
         function success(content) {

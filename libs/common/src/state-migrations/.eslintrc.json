@@ -1,0 +1,24 @@
+{
+  "overrides": [
+    {
+      "files": ["*"],
+      "rules": {
+        "import/no-restricted-paths": [
+          "error",
+          {
+            "basePath": "libs/common/src/state-migrations",
+            "zones": [
+              {
+                "target": "./",
+                "from": "../",
+                // Relative to from, not basePath
+                "except": ["state-migrations"],
+                "message": "State migrations should rarely import from the greater codebase. If you need to import from another location, take into account the likelihood of change in that code and consider copying to the migration instead."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

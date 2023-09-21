@@ -1,6 +1,5 @@
 <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
   <div class="modal-body">
-    <p>{{ "twoStepLoginAuthDesc" | i18n }}</p>
     <app-user-verification [(ngModel)]="secret" ngDefaultControl name="secret">
     </app-user-verification>
   </div>

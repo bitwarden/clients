@@ -6,7 +6,7 @@ import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
 export function canAccessVaultTab(org: Organization): boolean {
-  return org.canViewAssignedCollections || org.canViewAllCollections || org.canManageGroups;
+  return org.canViewAssignedCollections || org.canViewAllCollections;
 }
 
 export function canAccessSettingsTab(org: Organization): boolean {

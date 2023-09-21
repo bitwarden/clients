@@ -22,7 +22,8 @@
       "@bitwarden/exporter/*": ["./libs/exporter/src/*"],
       "@bitwarden/importer": ["./libs/importer/src"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
+      "@bitwarden/vault": ["./libs/vault/src"]
     },
     "plugins": [
       {

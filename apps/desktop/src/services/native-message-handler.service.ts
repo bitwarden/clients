@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { ipcRenderer } from "electron";
-import Swal from "sweetalert2";
+import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -8,10 +8,12 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
+import { DialogService } from "@bitwarden/components";
 
+import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
 import { DecryptedCommandData } from "../models/native-messaging/decrypted-command-data";
 import { EncryptedMessage } from "../models/native-messaging/encrypted-message";
 import { EncryptedMessageResponse } from "../models/native-messaging/encrypted-message-response";
@@ -33,7 +35,8 @@ export class NativeMessageHandlerService {
     private cryptoFunctionService: CryptoFunctionService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
-    private encryptedMessageHandlerService: EncryptedMessageHandlerService
+    private encryptedMessageHandlerService: EncryptedMessageHandlerService,
+    private dialogService: DialogService
   ) {}
 
   async handleMessage(message: Message) {
@@ -87,21 +90,12 @@ export class NativeMessageHandlerService {
 
       // Ask for confirmation from user
       this.messagingService.send("setFocus");
-      const submitted = await Swal.fire({
-        heightAuto: false,
-        titleText: this.i18nService.t("verifyNativeMessagingConnectionTitle", applicationName),
-        html: `${this.i18nService.t("verifyNativeMessagingConnectionDesc")}<br>${this.i18nService.t(
-          "verifyNativeMessagingConnectionWarning"
-        )}`,
-        showCancelButton: true,
-        cancelButtonText: this.i18nService.t("no"),
-        showConfirmButton: true,
-        confirmButtonText: this.i18nService.t("yes"),
-        allowOutsideClick: false,
-        focusCancel: true,
-      });
 
-      if (submitted.value !== true) {
+      const nativeMessagingVerified = await firstValueFrom(
+        VerifyNativeMessagingDialogComponent.open(this.dialogService, { applicationName }).closed
+      );
+
+      if (nativeMessagingVerified !== true) {
         this.sendResponse({
           messageId: messageId,
           version: NativeMessagingVersion.Latest,
@@ -144,7 +138,9 @@ export class NativeMessageHandlerService {
   }
 
   private async handleEncryptedMessage(message: EncryptedMessage) {
-    message.encryptedCommand = EncString.fromJSON(message.encryptedCommand.toString());
+    message.encryptedCommand = EncString.fromJSON(
+      message.encryptedCommand.toString() as EncryptedString
+    );
     const decryptedCommandData = await this.decryptPayload(message);
     const { command } = decryptedCommandData;
 

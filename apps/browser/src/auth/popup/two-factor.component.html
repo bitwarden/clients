@@ -87,7 +87,7 @@
     </ng-container>
     <ng-container *ngIf="selectedProviderType === providerType.WebAuthn && !webAuthnNewTab">
       <div id="web-authn-frame">
-        <iframe id="webauthn_iframe"></iframe>
+        <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
       </div>
       <div class="box">
         <div class="box-content">
@@ -112,7 +112,9 @@
         selectedProviderType === providerType.OrganizationDuo
       "
     >
-      <div id="duo-frame"><iframe id="duo_iframe"></iframe></div>
+      <div id="duo-frame">
+        <iframe id="duo_iframe" sandbox="allow-scripts allow-forms allow-same-origin"></iframe>
+      </div>
       <div class="box">
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
@@ -123,7 +125,7 @@
       </div>
     </ng-container>
     <div class="box-content-row" [hidden]="!showCaptcha()">
-      <iframe id="hcaptcha_iframe" height="80"></iframe>
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
     <div class="content" *ngIf="selectedProviderType == null">
       <p class="text-center">{{ "noTwoStepProviders" | i18n }}</p>

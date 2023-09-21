@@ -23,15 +23,16 @@ import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-conso
 import { BitwardenProductType, PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ProductType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  OrgKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { secretsManagerSubscribeFormFactory } from "../organizations/secrets-manager/sm-subscribe.component";
@@ -91,7 +92,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
   discount = 0;
-  showSecretsManagerSubscribe: boolean;
 
   secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 
@@ -126,8 +126,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigServiceAbstraction
+    private organizationApiService: OrganizationApiServiceAbstraction
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
   }
@@ -165,11 +164,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
-
-    this.showSecretsManagerSubscribe = await this.configService.getFeatureFlagBool(
-      FeatureFlag.SecretsManagerBilling,
-      false
-    );
 
     this.loading = false;
   }
@@ -314,16 +308,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    let subTotal = plan.basePrice;
-    if (plan.hasAdditionalSeatsOption && formValues.userSeats) {
-      subTotal += this.seatTotal(plan, formValues.userSeats);
-    }
-
-    if (plan.hasAdditionalStorageOption && formValues.additionalServiceAccounts) {
-      subTotal += this.additionalServiceAccountTotal(this.selectedPlan);
-    }
-
-    return subTotal;
+    return (
+      plan.basePrice +
+      this.seatTotal(plan, formValues.userSeats) +
+      this.additionalServiceAccountTotal(plan)
+    );
   }
 
   get freeTrial() {
@@ -420,19 +409,19 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       const doSubmit = async (): Promise<string> => {
         let orgId: string = null;
         if (this.createOrganization) {
-          const shareKey = await this.cryptoService.makeShareKey();
-          const key = shareKey[0].encryptedString;
+          const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+          const key = orgKey[0].encryptedString;
           const collection = await this.cryptoService.encrypt(
             this.i18nService.t("defaultCollection"),
-            shareKey[1]
+            orgKey[1]
           );
           const collectionCt = collection.encryptedString;
-          const orgKeys = await this.cryptoService.makeKeyPair(shareKey[1]);
+          const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
 
           if (this.selfHosted) {
             orgId = await this.createSelfHosted(key, collectionCt, orgKeys);
           } else {
-            orgId = await this.createCloudHosted(key, collectionCt, orgKeys, shareKey[1]);
+            orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
           }
 
           this.platformUtilsService.showToast(

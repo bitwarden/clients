@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { UntypedFormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -18,6 +17,7 @@ import { ApiKeyResponse } from "@bitwarden/common/auth/models/response/api-key.r
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-org-manage-scim",
@@ -47,7 +47,7 @@ export class ScimComponent implements OnInit {
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -90,7 +90,7 @@ export class ScimComponent implements OnInit {
       title: { key: "rotateScimKey" },
       content: { key: "rotateScimKeyWarning" },
       acceptButtonText: { key: "rotateKey" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

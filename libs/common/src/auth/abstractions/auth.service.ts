@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 
 import { AuthRequestPushNotification } from "../../models/response/notification.response";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { AuthenticationStatus } from "../enums/authentication-status";
 import { AuthResult } from "../models/domain/auth-result";
 import {
@@ -32,7 +32,7 @@ export abstract class AuthService {
     captchaResponse: string
   ) => Promise<AuthResult>;
   logOut: (callback: () => void) => void;
-  makePreloginKey: (masterPassword: string, email: string) => Promise<SymmetricCryptoKey>;
+  makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
   authingWithUserApiKey: () => boolean;
   authingWithSso: () => boolean;
   authingWithPassword: () => boolean;

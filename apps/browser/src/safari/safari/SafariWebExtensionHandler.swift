@@ -19,11 +19,11 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
 
         let response = NSExtensionItem()
-        
+
         guard let command = message?["command"] as? String else {
             return
         }
-        
+
         switch (command) {
         case "readFromClipboard":
             let pasteboard = NSPasteboard.general
@@ -59,12 +59,12 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             guard let data = blobData else {
                 return
             }
-            
+
             let panel = NSSavePanel()
             panel.canCreateDirectories = true
             panel.nameFieldStringValue = dlMsg.fileName
             let response = panel.runModal();
-           
+
             if response == NSApplication.ModalResponse.OK {
                 if let url = panel.url {
                     do {
@@ -87,12 +87,12 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             return
         case "biometricUnlock":
-            
+
             var error: NSError?
             let laContext = LAContext()
-            
+
             laContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-            
+
             if let e = error, e.code != kLAErrorBiometryLockout {
                 response.userInfo = [
                     SFExtensionMessageKey: [
@@ -123,26 +123,32 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     guard let userId = message?["userId"] as? String else {
                         return
                     }
-                    let passwordName = userId + "_masterkey_biometric"
+                    let passwordName = userId + "_user_biometric"
                     var passwordLength: UInt32 = 0
                     var passwordPtr: UnsafeMutableRawPointer? = nil
-                    
+
                     var status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(passwordName.utf8.count), passwordName, &passwordLength, &passwordPtr, nil)
                     if status != errSecSuccess {
                         let fallbackName = "key"
                         status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(fallbackName.utf8.count), fallbackName, &passwordLength, &passwordPtr, nil)
                     }
-    
+
+                    // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3473)
+                    if status != errSecSuccess {
+                        let secondaryFallbackName = "_masterkey_biometric"
+                        status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(secondaryFallbackName.utf8.count), secondaryFallbackName, &passwordLength, &passwordPtr, nil)
+                    }
+
                     if status == errSecSuccess {
                         let result = NSString(bytes: passwordPtr!, length: Int(passwordLength), encoding: String.Encoding.utf8.rawValue) as String?
                                     SecKeychainItemFreeContent(nil, passwordPtr)
-                        
+
                         response.userInfo = [ SFExtensionMessageKey: [
                             "message": [
                                 "command": "biometricUnlock",
                                 "response": "unlocked",
                                 "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
-                                "keyB64": result!.replacingOccurrences(of: "\"", with: ""),
+                                "userKeyB64": result!.replacingOccurrences(of: "\"", with: ""),
                             ],
                         ]]
                     } else {
@@ -157,10 +163,10 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         ]
                     }
                 }
-                
+
                 context.completeRequest(returningItems: [response], completionHandler: nil)
             }
-            
+
             return
         default:
             return

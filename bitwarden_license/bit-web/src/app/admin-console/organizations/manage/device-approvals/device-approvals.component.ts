@@ -65,16 +65,16 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Creates a copy of the user's symmetric key that has been encrypted with the provided device's public key.
+   * Creates a copy of the user key that has been encrypted with the provided device's public key.
    * @param devicePublicKey
    * @param resetPasswordDetails
    * @private
    */
-  private async getEncryptedUserSymKey(
+  private async getEncryptedUserKey(
     devicePublicKey: string,
     resetPasswordDetails: OrganizationUserResetPasswordDetailsResponse
   ): Promise<EncString> {
-    const encryptedUserSymKey = resetPasswordDetails.resetPasswordKey;
+    const encryptedUserKey = resetPasswordDetails.resetPasswordKey;
     const encryptedOrgPrivateKey = resetPasswordDetails.encryptedPrivateKey;
     const devicePubKey = Utils.fromB64ToArray(devicePublicKey);
 
@@ -85,12 +85,12 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
       orgSymKey
     );
 
-    // Decrypt User's symmetric key with decrypted org private key
-    const decValue = await this.cryptoService.rsaDecrypt(encryptedUserSymKey, decOrgPrivateKey);
-    const userSymKey = new SymmetricCryptoKey(decValue);
+    // Decrypt user key with decrypted org private key
+    const decValue = await this.cryptoService.rsaDecrypt(encryptedUserKey, decOrgPrivateKey);
+    const userKey = new SymmetricCryptoKey(decValue);
 
-    // Re-encrypt User's Symmetric Key with the Device Public Key
-    return await this.cryptoService.rsaEncrypt(userSymKey.key, devicePubKey);
+    // Re-encrypt user Key with the Device Public Key
+    return await this.cryptoService.rsaEncrypt(userKey.key, devicePubKey);
   }
 
   async approveRequest(authRequest: PendingAuthRequestView) {
@@ -110,7 +110,7 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const encryptedKey = await this.getEncryptedUserSymKey(authRequest.publicKey, details);
+      const encryptedKey = await this.getEncryptedUserKey(authRequest.publicKey, details);
 
       await this.organizationAuthRequestService.approvePendingRequest(
         this.organizationId,

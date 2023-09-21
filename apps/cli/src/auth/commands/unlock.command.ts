@@ -44,17 +44,17 @@ export class UnlockCommand {
     const email = await this.stateService.getEmail();
     const kdf = await this.stateService.getKdfType();
     const kdfConfig = await this.stateService.getKdfConfig();
-    const key = await this.cryptoService.makeKey(password, email, kdf, kdfConfig);
-    const storedKeyHash = await this.cryptoService.getKeyHash();
+    const masterKey = await this.cryptoService.makeMasterKey(password, email, kdf, kdfConfig);
+    const storedKeyHash = await this.cryptoService.getMasterKeyHash();
 
     let passwordValid = false;
-    if (key != null) {
+    if (masterKey != null) {
       if (storedKeyHash != null) {
-        passwordValid = await this.cryptoService.compareAndUpdateKeyHash(password, key);
+        passwordValid = await this.cryptoService.compareAndUpdateKeyHash(password, masterKey);
       } else {
-        const serverKeyHash = await this.cryptoService.hashPassword(
+        const serverKeyHash = await this.cryptoService.hashMasterKey(
           password,
-          key,
+          masterKey,
           HashPurpose.ServerAuthorization
         );
         const request = new SecretVerificationRequest();
@@ -62,12 +62,12 @@ export class UnlockCommand {
         try {
           await this.apiService.postAccountVerifyPassword(request);
           passwordValid = true;
-          const localKeyHash = await this.cryptoService.hashPassword(
+          const localKeyHash = await this.cryptoService.hashMasterKey(
             password,
-            key,
+            masterKey,
             HashPurpose.LocalAuthorization
           );
-          await this.cryptoService.setKeyHash(localKeyHash);
+          await this.cryptoService.setMasterKeyHash(localKeyHash);
         } catch {
           // Ignore
         }
@@ -75,7 +75,9 @@ export class UnlockCommand {
     }
 
     if (passwordValid) {
-      await this.cryptoService.setKey(key);
+      await this.cryptoService.setMasterKey(masterKey);
+      const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
+      await this.cryptoService.setUserKey(userKey);
 
       if (await this.keyConnectorService.getConvertAccountRequired()) {
         const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(

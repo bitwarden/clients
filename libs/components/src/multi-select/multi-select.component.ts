@@ -75,12 +75,6 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
       return false;
     }
 
-    if (this.select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
-      this.select.close();
-      event.preventDefault();
-      return false;
-    }
-
     if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
       this.selectedItems = [];
       this.select.close();

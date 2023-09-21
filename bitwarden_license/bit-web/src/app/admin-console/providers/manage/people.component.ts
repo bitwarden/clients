@@ -4,7 +4,6 @@ import { first } from "rxjs/operators";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -21,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DialogService } from "@bitwarden/components";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
 import { BasePeopleComponent } from "@bitwarden/web-vault/app/common/base.people.component";
@@ -50,6 +50,7 @@ export class PeopleComponent
 
   userType = ProviderUserType;
   userStatusType = ProviderUserStatusType;
+  status: ProviderUserStatusType = null;
   providerId: string;
   accessEvents = false;
 
@@ -68,7 +69,7 @@ export class PeopleComponent
     userNamePipe: UserNamePipe,
     stateService: StateService,
     private providerService: ProviderService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       apiService,

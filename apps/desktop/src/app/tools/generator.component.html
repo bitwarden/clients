@@ -70,7 +70,7 @@
             </button>
           </div>
         </div>
-        <div class="box">
+        <div class="box" *ngIf="!comingFromAddEdit">
           <div class="box-content condensed">
             <div
               class="box-content-row box-content-row-radio"
@@ -95,7 +95,6 @@
                   [value]="o.value"
                   (change)="typeChanged()"
                   [checked]="type === o.value"
-                  [disabled]="comingFromAddEdit && type !== o.value"
                 />
                 <label class="unstyled" for="type_{{ o.value }}">
                   {{ o.name }}

@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Opções adicionais de verificação de dois passos, como YubiKey, FIDO U2F e Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
   },
   "premiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "É necessária uma nova autenticação para aceder novamente ao seu cofre."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
+  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item eliminado permanentemente"
-  },
-  "restoreItem": {
-    "message": "Restaurar item"
-  },
-  "restoreItemConfirmation": {
-    "message": "Tem a certeza de que pretende restaurar este item?"
   },
   "restoredItem": {
     "message": "Item restaurado"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "A exportar o cofre pessoal"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Apenas os itens do cofre pessoal associado a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos.",
+  "exportingIndividualVaultDescription": {
+    "message": "Apenas os itens de cofre individuais associados a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos. Apenas serão exportadas as informações do item do cofre e não serão incluídos os anexos associados.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Iniciar sessão com outro dispositivo"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "A preparar o início de sessão"
   },
   "notificationSentDevice": {
@@ -2125,7 +2122,7 @@
     "message": "Frase de impressão digital"
   },
   "needAnotherOption": {
-    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Necessita de outra opção?"
+    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de início de sessão"
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Atualização de definições recomendadas"
   },
+  "deviceApprovalRequired": {
+    "message": "É necessária a aprovação do dispositivo. Selecione uma opção de aprovação abaixo:"
+  },
+  "rememberThisDevice": {
+    "message": "Lembrar este dispositivo"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Desmarcar se estiver a utilizar um dispositivo público"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Aprovar a partir do seu outro dispositivo"
+  },
+  "requestAdminApproval": {
+    "message": "Pedir aprovação do administrador"
+  },
+  "approveWithMasterPassword": {
+    "message": "Aprovar com a palavra-passe mestra"
+  },
   "region": {
     "message": "Região"
+  },
+  "ssoIdentifierRequired": {
+    "message": "É necessário o identificador de SSO da organização."
   },
   "eu": {
     "message": "UE",
     "description": "European Union"
   },
-  "us": {
-    "message": "EUA",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "A iniciar sessão em"
   },
-  "selfHosted": {
-    "message": "Auto-hospedado"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "auto-hospedado"
   },
   "accessDenied": {
     "message": "Acesso negado. Não tem permissão para visualizar esta página."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Conta criada com sucesso!"
+  },
+  "adminApprovalRequested": {
+    "message": "Aprovação do administrador pedida"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "O seu pedido foi enviado ao seu administrador."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Será notificado quando for aprovado."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemas a iniciar sessão?"
+  },
+  "loginApproved": {
+    "message": "Início de sessão aprovado"
+  },
+  "userEmailMissing": {
+    "message": "E-mail do utilizador em falta"
+  },
+  "deviceTrusted": {
+    "message": "Dispositivo de confiança"
+  },
+  "inputRequired": {
+    "message": "Campo necessário."
+  },
+  "required": {
+    "message": "necessário"
+  },
+  "search": {
+    "message": "Procurar"
+  },
+  "inputMinLength": {
+    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 ou mais e-mails são inválidos"
+  },
+  "inputTrimValidator": {
+    "message": "O campo não deve conter apenas espaços em branco.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "O campo não é um endereço de e-mail."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ campo(s) acima precisa(m) da sua atenção.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Selecionar --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Escreva para filtrar --"
+  },
+  "multiSelectLoading": {
+    "message": "A recuperar opções..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nenhum item encontrado"
+  },
+  "multiSelectClearAll": {
+    "message": "Limpar tudo"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
   }
 }

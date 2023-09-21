@@ -20,10 +20,10 @@ $gray-light: #777;
 $text-muted: $gray-light;
 
 $brand-primary: #175ddc;
-$brand-danger: #dd4b39;
-$brand-success: #00a65a;
+$brand-danger: #c83522;
+$brand-success: #017e45;
 $brand-info: #555555;
-$brand-warning: #bf7e16;
+$brand-warning: #8b6609;
 $brand-primary-accent: #1252a3;
 
 $background-color: white;
@@ -41,7 +41,9 @@ $button-color: lighten($text-color, 40%);
 $button-color-primary: darken($brand-primary, 8%);
 $button-color-danger: darken($brand-danger, 10%);
 
-$code-color: #e83e8c;
+$code-color: #c01176;
+$code-color-dark: #f08dc7;
+$code-color-nord: #dbb1d5;
 
 $themes: (
   light: (
@@ -66,7 +68,6 @@ $themes: (
     listItemBackgroundColor: $background-color,
     listItemBackgroundHoverColor: $list-item-hover,
     listItemBorderColor: $border-color,
-    groupingsActiveColor: darken($background-color-alt, 5%),
     disabledIconColor: $list-icon-color,
     headingColor: $gray-light,
     headingButtonColor: lighten($gray-light, 30%),
@@ -96,6 +97,7 @@ $themes: (
     passwordCountText: #212529,
     calloutBorderColor: $border-color-dark,
     calloutBackgroundColor: $background-color,
+    toastTextColor: #ffffff,
     accountSwitcherBackgroundColor: $background-color,
     accountSwitcherTextColor: #ffffff,
     svgSuffix: "-light.svg",
@@ -104,61 +106,61 @@ $themes: (
   ),
   dark: (
     textColor: #ffffff,
-    borderColor: #2f2f2f,
-    backgroundColor: #363636,
+    borderColor: #15181e,
+    backgroundColor: #1f242e,
     borderColorAlt: #6e788a,
-    backgroundColorAlt: #3d3d3d,
+    backgroundColorAlt: #2f343d,
     // Ensure the `window.main.ts` is updated with this value
-    backgroundColorAlt2: #222222,
-    scrollbarColor: #4d4d4d,
-    scrollbarHoverColor: #5f5f5f,
-    boxBackgroundColor: #363636,
-    boxBackgroundHoverColor: #3f3f3f,
-    boxBorderColor: #2f2f2f,
-    headerBackgroundColor: #363636,
-    headerBorderColor: #272727,
-    headerInputBackgroundColor: #222222,
-    headerInputBackgroundFocusColor: #1d1d1d,
+    backgroundColorAlt2: #15181e,
+    scrollbarColor: #6e788a,
+    scrollbarHoverColor: #8d94a5,
+    boxBackgroundColor: #2f343d,
+    boxBackgroundHoverColor: #3c424e,
+    boxBorderColor: #4c525f,
+    headerBackgroundColor: #2f343d,
+    headerBorderColor: #15181e,
+    headerInputBackgroundColor: #3c424e,
+    headerInputBackgroundFocusColor: #4c525f,
     headerInputColor: #ffffff,
-    headerInputPlaceholderColor: #707070,
-    listItemBackgroundColor: #363636,
-    listItemBackgroundHoverColor: #3c3c3c,
-    listItemBorderColor: #2f2f2f,
-    groupingsActiveColor: #292929,
-    disabledIconColor: #c7c7cd,
-    headingColor: #a3a3a3,
-    headingButtonColor: #a3a3a3,
+    headerInputPlaceholderColor: #bac0ce,
+    listItemBackgroundColor: #1f242e,
+    listItemBackgroundHoverColor: #2f343d,
+    listItemBorderColor: #4c525f,
+    disabledIconColor: #6e7689,
+    headingColor: #bac0ce,
+    headingButtonColor: #bac0ce,
     headingButtonHoverColor: #ffffff,
-    labelColor: #a3a3a3,
-    mutedColor: #a3a3a3,
-    totpStrokeColor: #cacaca,
-    boxRowButtonColor: #cacaca,
+    labelColor: #bac0ce,
+    mutedColor: #bac0ce,
+    totpStrokeColor: #4c525f,
+    boxRowButtonColor: #bac0ce,
     boxRowButtonHoverColor: #ffffff,
-    inputBorderColor: #222222,
-    inputBackgroundColor: #363636,
-    inputPlaceholderColor: #707070,
-    buttonBackgroundColor: #363636,
-    buttonBorderColor: #1f1f1f,
-    buttonColor: #e0e0e0,
-    buttonPrimaryColor: #46ace7,
-    buttonDangerColor: #ff3e24,
-    primaryColor: #52bdfb,
-    primaryAccentColor: #3ea1da,
-    dangerColor: #ff3e24,
-    successColor: $brand-success,
-    infoColor: $brand-info,
-    warningColor: $brand-warning,
+    inputBorderColor: #4c525f,
+    inputBackgroundColor: #2f343d,
+    inputPlaceholderColor: #bac0ce,
+    buttonBackgroundColor: #272b32,
+    buttonBorderColor: #4c525f,
+    buttonColor: #bac0ce,
+    buttonPrimaryColor: #6f9df1,
+    buttonDangerColor: #ff8d85,
+    primaryColor: #6f9df1,
+    primaryAccentColor: #6f9df1,
+    dangerColor: #ff8d85,
+    successColor: #52e07c,
+    infoColor: #a4b0c6,
+    warningColor: #ffeb66,
     logoSuffix: "white",
-    passwordNumberColor: #52bdfb,
-    passwordSpecialColor: #ff7c70,
+    passwordNumberColor: #6f9df1,
+    passwordSpecialColor: #ff8d85,
     passwordCountText: #ffffff,
-    calloutBorderColor: #2f2f2f,
-    calloutBackgroundColor: #363636,
-    accountSwitcherBackgroundColor: #2f2f2f,
+    calloutBorderColor: #4c525f,
+    calloutBackgroundColor: #3c424e,
+    toastTextColor: #1f242e,
+    accountSwitcherBackgroundColor: #2f343d,
     accountSwitcherTextColor: #ffffff,
     svgSuffix: "-dark.svg",
-    hrColor: #a3a3a3,
-    codeColor: $code-color,
+    hrColor: #bac0ce,
+    codeColor: $code-color-dark,
   ),
   nord: (
     textColor: $nord5,
@@ -182,7 +184,6 @@ $themes: (
     listItemBackgroundColor: $nord2,
     listItemBackgroundHoverColor: $nord3,
     listItemBorderColor: $nord1,
-    groupingsActiveColor: $nord3,
     disabledIconColor: $nord5,
     headingColor: $nord4,
     headingButtonColor: $nord5,
@@ -212,11 +213,12 @@ $themes: (
     passwordCountText: $nord5,
     calloutBorderColor: $nord1,
     calloutBackgroundColor: $nord2,
+    toastTextColor: #000000,
     accountSwitcherBackgroundColor: $nord0,
     accountSwitcherTextColor: $nord5,
     svgSuffix: "-dark.svg",
     hrColor: $nord4,
-    codeColor: $code-color,
+    codeColor: $code-color-nord,
   ),
 );
 

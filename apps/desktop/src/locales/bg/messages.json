@@ -542,7 +542,7 @@
     "message": "Повторното въвеждане на главната парола е задължително."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Главната парола трябва да е дълга поне $VALUE$ знака.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ пространство за файлове, които се шифроват."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Двустепенно удостоверяване чрез YubiKey, FIDO U2F и Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
   "premiumSignUpReports": {
     "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "При изход от трезора ще ви се наложи отново да се идентифицирате, за да го достъпите."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
   "lock": {
     "message": "Заключване",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Записът е изтрит окончателно"
-  },
-  "restoreItem": {
-    "message": "Възстановяване на запис"
-  },
-  "restoreItemConfirmation": {
-    "message": "Сигурни ли сте, че искате да възстановите записа?"
   },
   "restoredItem": {
     "message": "Записът е възстановен"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Изнасяне на личния трезор"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Ще бъдат изнесени само записите от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
+  "exportingIndividualVaultDescription": {
+    "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Вписване с друго устройство"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Вписването е стартирано"
   },
   "notificationSentDevice": {
@@ -2217,16 +2214,16 @@
     "message": "Направена е заявка за вписване"
   },
   "exposedMasterPassword": {
-    "message": "Exposed Master Password"
+    "message": "Разобличена главна парола"
   },
   "exposedMasterPasswordDesc": {
-    "message": "Password found in a data breach. Use a unique password to protect your account. Are you sure you want to use an exposed password?"
+    "message": "Паролата е намерена в пробив на данни. Използвайте уникална парола, за да защитите вашия акаунт. Наистина ли искате да използвате слаба парола?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Weak and Exposed Master Password"
+    "message": "Слаба и разобличена главна парола"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
+    "message": "Разпозната е слаба парола. Използвайте силна парола, за да защитете данните си. Наистина ли искате да използвате слаба парола?"
   },
   "checkForBreaches": {
     "message": "Проверяване в известните случаи на изтекли данни за тази парола"
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Препоръчителна промяна на настройките"
   },
+  "deviceApprovalRequired": {
+    "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
+  },
+  "rememberThisDevice": {
+    "message": "Запомняне на това устройство"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Махнете отметката, ако използвате публично устройство"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Одобряване с другото Ви устройство"
+  },
+  "requestAdminApproval": {
+    "message": "Подаване на заявка за одобрение от администратор"
+  },
+  "approveWithMasterPassword": {
+    "message": "Одобряване с главната парола"
+  },
   "region": {
     "message": "Регион"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
   },
   "eu": {
     "message": "ЕС",
     "description": "European Union"
   },
-  "us": {
-    "message": "САЩ",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Вписване в"
   },
-  "selfHosted": {
-    "message": "Собствен хостинг"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "собствен хостинг"
   },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Регистрацията е създадена успешно!"
+  },
+  "adminApprovalRequested": {
+    "message": "Заявено е одобрение от администратор"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Вашата заявка беше изпратена до администратора Ви."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Ще получите известие, когато тя бъде одобрена."
+  },
+  "troubleLoggingIn": {
+    "message": "Имате проблем с вписването?"
+  },
+  "loginApproved": {
+    "message": "Вписването е одобрено"
+  },
+  "userEmailMissing": {
+    "message": "Липсва е-поща на потребителя"
+  },
+  "deviceTrusted": {
+    "message": "Устройството е доверено"
+  },
+  "inputRequired": {
+    "message": "Полето е задължтелно да бъде попълнено."
+  },
+  "required": {
+    "message": "задължително"
+  },
+  "search": {
+    "message": "Търсене"
+  },
+  "inputMinLength": {
+    "message": "Въведеният в полето текст трябва да бъде с дължина поне $COUNT$ знака.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Полето не може да съдържа повече от $COUNT$ знака.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Следните знаци не са позволени: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Въведената стойност трябва да бъде поне $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Въведената стойност не трябва да бъде по-голяма от $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 или повече е-пощи са неправилни"
+  },
+  "inputTrimValidator": {
+    "message": "Въведеното не може да съдържа само интервали.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Въведеният в полето текст не е адрес на е-поща."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ поле(та) по-горе се нуждае/ят от вниманието Ви.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Изберете --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Пишете тук за филтриране --"
+  },
+  "multiSelectLoading": {
+    "message": "Зареждане на опциите…"
+  },
+  "multiSelectNotFound": {
+    "message": "Няма намерени елементи"
+  },
+  "multiSelectClearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "plusNMore": {
+    "message": "+ още $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Подменю"
   }
 }

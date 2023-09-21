@@ -44,14 +44,7 @@ export class UserApiLogInStrategy extends LogInStrategy {
     );
   }
 
-  async setUserKey(tokenResponse: IdentityTokenResponse) {
-    if (tokenResponse.apiUseKeyConnector) {
-      const keyConnectorUrl = this.environmentService.getKeyConnectorUrl();
-      await this.keyConnectorService.getAndSetKey(keyConnectorUrl);
-    }
-  }
-
-  async logIn(credentials: UserApiLogInCredentials) {
+  override async logIn(credentials: UserApiLogInCredentials) {
     this.tokenRequest = new UserApiTokenRequest(
       credentials.clientId,
       credentials.clientSecret,
@@ -61,6 +54,31 @@ export class UserApiLogInStrategy extends LogInStrategy {
 
     const [authResult] = await this.startLogIn();
     return authResult;
+  }
+
+  protected override async setMasterKey(response: IdentityTokenResponse) {
+    if (response.apiUseKeyConnector) {
+      const keyConnectorUrl = this.environmentService.getKeyConnectorUrl();
+      await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl);
+    }
+  }
+
+  protected override async setUserKey(response: IdentityTokenResponse): Promise<void> {
+    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
+
+    if (response.apiUseKeyConnector) {
+      const masterKey = await this.cryptoService.getMasterKey();
+      if (masterKey) {
+        const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
+        await this.cryptoService.setUserKey(userKey);
+      }
+    }
+  }
+
+  protected override async setPrivateKey(response: IdentityTokenResponse): Promise<void> {
+    await this.cryptoService.setPrivateKey(
+      response.privateKey ?? (await this.createKeyPairForOldAccount())
+    );
   }
 
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse) {

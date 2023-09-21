@@ -771,7 +771,7 @@
     "message": "Kontaktiraj nas"
   },
   "helpAndFeedback": {
-    "message": "Help and feedback"
+    "message": "Pomoć i podrška"
   },
   "getHelp": {
     "message": "Potraži pomoć"
@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifriranog prostora za pohranu podataka."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Dodatne mogućnosti za prijavu dvostrukom autentifikacijom kao što su YubiKey, FIDO U2F i Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
   },
   "premiumSignUpReports": {
     "message": "Higijenu lozinki, zdravlje računa i izvještaje o krađi podatak radi zaštite svojeg trezora."
@@ -1393,7 +1393,7 @@
     "message": "Otključaj koristeći Windows Hello"
   },
   "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
+    "message": "Dodatne Windows Hello postavke"
   },
   "windowsHelloConsentMessage": {
     "message": "Otključaj trezor."
@@ -1402,7 +1402,7 @@
     "message": "Otključaj koristeći Touch ID"
   },
   "additionalTouchIdSettings": {
-    "message": "Additional Touch ID settings"
+    "message": "Dodatne Touch ID postavke"
   },
   "touchIdConsentMessage": {
     "message": "Otključaj trezor"
@@ -1414,10 +1414,10 @@
     "message": "Zahtijevaj Touch ID pri pokretanju"
   },
   "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
+    "message": "Zahtijevaj lozinku ili PIN pri pokretanju"
   },
   "recommendedForSecurity": {
-    "message": "Recommended for security."
+    "message": "Preporučeno za sigurnost."
   },
   "lockWithMasterPassOnRestart": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
@@ -1487,10 +1487,13 @@
     "message": "Nakon isteka trezora"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "Potrebno je ponovno unijeti glavnu lozinku ili na drugi način otključati za pristup tvom trezoru."
+    "message": "Za pristup tvom trezoru, potrebno je ponovno unijeti glavnu lozinku ili ga na drugi način otključati."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Potrebno je ponovno unijeti korisničko ime i glavnu lozinku za pristup tvom trezoru."
+    "message": "Za pristup tvom trezoru, potrebno je ponovno unijeti korisničko ime i glavnu lozinku."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Za promjenu vremena isteka trezora, odredi način otključavanja."
   },
   "lock": {
     "message": "Zaključaj",
@@ -1512,12 +1515,6 @@
   "permanentlyDeletedItem": {
     "message": "Stavka trajno izbrisana"
   },
-  "restoreItem": {
-    "message": "Vrati stavku"
-  },
-  "restoreItemConfirmation": {
-    "message": "Sigurno želiš vratiti ovu stavku?"
-  },
   "restoredItem": {
     "message": "Stavka vraćena"
   },
@@ -1528,7 +1525,7 @@
     "message": "Odjava će ukloniti pristup tvojem trezoru i zahtijeva mrežnu potvrdu identiteta nakon isteka vremenske neaktivnosti. Sigurno želiš koristiti ovu postavku?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Potvrda akcije vremenske neaktivnosti"
+    "message": "Potvrda radnje nakon vremenske neaktivnosti"
   },
   "enterpriseSingleSignOn": {
     "message": "Jedinstvena prijava na razini tvrtke (SSO)"
@@ -1540,7 +1537,7 @@
     "message": "Za dovršetak jedinstvene prijave na razini tvrtke (SSO), postavi glavnu lozinku za pristup i zaštitu tvog trezora."
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "Trenutna glavna lozinka"
   },
   "newMasterPass": {
     "message": "Nova glavna lozinka"
@@ -1859,7 +1856,7 @@
     "message": "Tvoju glavnu lozinku je nedavno promijenio administrator tvoje organizacije. Za pristup trezoru, potrebno je ažurirati glavnu lozinku, što će te odjaviti iz trenutne sesije, te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne još sat vremena."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+    "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "hours": {
     "message": "sat(i)"
@@ -1881,7 +1878,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "Your organization policies are affecting your vault timeout. Maximum allowed vault timeout is $HOURS$ hour(s) and $MINUTES$ minute(s). Your vault timeout action is set to $ACTION$.",
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h. Tvoja radnja nakon isteka trezora je: $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1898,7 +1895,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "Your organization policies have set your vault timeout action to $ACTION$.",
+    "message": "Pravilo tvoje organizacije podesilo je radnju nakon isteka trezora na: $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Izvoz osobnog trezora u tijeku"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Izvest će se samo stavke osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,8 +2109,8 @@
   "logInWithAnotherDevice": {
     "message": "Prijava drugim uređajem"
   },
-  "logInInitiated": {
-    "message": "Pokrenuta prijava"
+  "loginInitiated": {
+    "message": "Prijava pokrenuta"
   },
   "notificationSentDevice": {
     "message": "Obavijest je poslana na tvoj uređaj."
@@ -2247,26 +2244,176 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "Bitwarden recommends updating your biometric settings to require your master password (or PIN) on the first unlock. Would you like to update your settings now?"
+    "message": "Bitwarden preporučuje ažuriranje tvojih biometrijskih postavki kako bi se pri prvom otključavanju zahtijevala glavna lozinka (ili PIN). Želiš li sada ažurirati svoje postavke?"
   },
   "windowsBiometricUpdateWarningTitle": {
-    "message": "Recommended Settings Update"
+    "message": "Preporučeno ažuriranje postavki"
+  },
+  "deviceApprovalRequired": {
+    "message": "Potrebno je odobriti uređaj. Odaberi metodu odobravanja:"
+  },
+  "rememberThisDevice": {
+    "message": "Zapamti ovaj uređaj"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Odznači ako koristiš javni uređaj"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Odobri drugim uređajem"
+  },
+  "requestAdminApproval": {
+    "message": "Zatraži odobrenje administratora"
+  },
+  "approveWithMasterPassword": {
+    "message": "Odobri glavnom lozinkom"
   },
   "region": {
-    "message": "Region"
+    "message": "Regija"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Potreban je identifikator organizacije."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Prijava na"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "vlastiti poslužitelj"
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "Pristup odbijen. Nemaš prava vidjeti ovu stranicu."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Račun je uspješno stvoren!"
+  },
+  "adminApprovalRequested": {
+    "message": "Zatraženo odobrenje administratora"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Tvoj zahtjev je poslan administratoru."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Dobiti ćeš obavijest kada bude odobreno."
+  },
+  "troubleLoggingIn": {
+    "message": "Problem s prijavom?"
+  },
+  "loginApproved": {
+    "message": "Prijava odobrena"
+  },
+  "userEmailMissing": {
+    "message": "Nedostaje e-pošta korisnika"
+  },
+  "deviceTrusted": {
+    "message": "Uređaj pouzdan"
+  },
+  "inputRequired": {
+    "message": "Potreban je unos."
+  },
+  "required": {
+    "message": "obavezno"
+  },
+  "search": {
+    "message": "Traži"
+  },
+  "inputMinLength": {
+    "message": "Unos mora sadržavati najmanje $COUNT$ znakova.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Unos ne smije imati više od $COUNT$ znakova.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Ovi znakovi nisu dozvoljeni: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Unos mora biti najmanje $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Unos ne smije biti više od $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Jedna ili više adresa e-pošte nije valjana"
+  },
+  "inputTrimValidator": {
+    "message": "Unos ne smije biti prazan.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Nije unesena adresa e-pošte."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ polje/a treba tvoju pažnju.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Odaberi --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Upiši za filtriranje --"
+  },
+  "multiSelectLoading": {
+    "message": "Dohvaćanje opcija..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nije pronađena niti jedna stavka"
+  },
+  "multiSelectClearAll": {
+    "message": "Očisti sve"
+  },
+  "plusNMore": {
+    "message": "+ još $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Podizbornik"
   }
 }

@@ -51,15 +51,11 @@ html.browser_safari {
   color: $text-muted;
   line-height: 25px;
   font-weight: 400;
-  padding-left: 5px;
+  padding-left: 15px;
 
-  label {
+  span {
     font-weight: 600;
-  }
-
-  a,
-  a label:hover {
-    cursor: pointer;
+    font-size: $font-size-small;
   }
 }
 
@@ -90,22 +86,4 @@ html.browser_safari {
       background-color: themed("listItemBackgroundHoverColor") !important;
     }
   }
-
-  img {
-    margin-bottom: -2px;
-    width: 22px;
-    height: 14px;
-  }
-
-  .img-us {
-    content: url("../images/us-flag.png");
-  }
-
-  .img-eu {
-    content: url("../images/eu-flag.png");
-  }
-}
-
-.environment-selector-padding {
-  padding-left: 10px;
 }

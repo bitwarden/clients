@@ -19,7 +19,7 @@
     "**/node_modules/@bitwarden/desktop-native/index.js",
     "**/node_modules/@bitwarden/desktop-native/desktop_native.${platform}-${arch}*.node"
   ],
-  "electronVersion": "24.1.1",
+  "electronVersion": "24.8.3",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -97,6 +97,7 @@
   },
   "dmg": {
     "icon": "dmg.icns",
+    "sign": false,
     "contents": [
       {
         "x": 150,

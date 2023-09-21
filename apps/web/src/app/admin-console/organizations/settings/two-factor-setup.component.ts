@@ -1,8 +1,11 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { concatMap, takeUntil } from "rxjs";
+import { tap } from "rxjs/operators";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -24,17 +27,23 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent {
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
-    stateService: StateService
+    stateService: StateService,
+    private organizationService: OrganizationService
   ) {
     super(apiService, modalService, messagingService, policyService, stateService);
   }
 
   async ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      this.organizationId = params.organizationId;
-      await super.ngOnInit();
-    });
+    this.route.params
+      .pipe(
+        tap((params) => {
+          this.organizationId = params.organizationId;
+          this.organization = this.organizationService.get(this.organizationId);
+        }),
+        concatMap(async () => await super.ngOnInit()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   async manage(type: TwoFactorProviderType) {
@@ -43,8 +52,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent {
         const duoComp = await this.openModal(this.duoModalRef, TwoFactorDuoComponent);
         duoComp.type = TwoFactorProviderType.OrganizationDuo;
         duoComp.organizationId = this.organizationId;
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-        duoComp.onUpdated.subscribe((enabled: boolean) => {
+        duoComp.onUpdated.pipe(takeUntil(this.destroy$)).subscribe((enabled: boolean) => {
           this.updateStatus(enabled, TwoFactorProviderType.OrganizationDuo);
         });
         break;

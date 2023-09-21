@@ -4,10 +4,10 @@ $primary: #175ddc;
 $primary-accent: #1252a3;
 $secondary: #ced4da;
 $secondary-alt: #1a3b66;
-$success: #00a65a;
+$success: #017e45;
 $info: #555555;
-$warning: #bf7e16;
-$danger: #dd4b39;
+$warning: #8b6609;
+$danger: #c83522;
 $white: #ffffff;
 
 // Bootstrap Variable Overrides
@@ -88,6 +88,7 @@ $mfaTypes: 0, 2, 3, 4, 6;
 $lightDangerHover: #c43421;
 $lightInputColor: #465057;
 $lightInputPlaceholderColor: #b6b8b8;
+$lightCodeColor: #c01176;
 
 // Dark
 
@@ -107,6 +108,7 @@ $darkDarkBlue1: #2f343d;
 $darkDarkBlue2: #1f242e;
 $darkInputColor: $white;
 $darkInputPlaceholderColor: $darkGrey1;
+$darkCodeColor: #f08dc7;
 
 $themes: (
   light: (
@@ -167,7 +169,7 @@ $themes: (
     calloutBackground: #fafafa,
     calloutColor: #212529,
     cdkDraggingBackground: $white,
-    codeColor: #e83e8c,
+    codeColor: $lightCodeColor,
     dropdownBackground: $white,
     dropdownHover: rgba(0, 0, 0, 0.06),
     dropdownTextColor: $body-color,
@@ -276,7 +278,7 @@ $themes: (
     calloutBackground: $darkBlue2,
     calloutColor: $white,
     cdkDraggingBackground: $darkDarkBlue1,
-    codeColor: #e83e8c,
+    codeColor: $darkCodeColor,
     dropdownBackground: $darkDarkBlue1,
     dropdownHover: rgba(255, 255, 255, 0.03),
     dropdownTextColor: $white,

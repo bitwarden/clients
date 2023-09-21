@@ -15,10 +15,13 @@ on:
           - Redeploy
           - Dry Run
 
+env:
+  _AZ_REGISTRY: bitwardenprod.azurecr.io
+
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
@@ -38,7 +41,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/release-version-check@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -46,10 +49,9 @@ jobs:
           monorepo: true
           monorepo-project: web
 
-
   self-host:
     name: Release self-host docker
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: setup
     env:
       _BRANCH_NAME: ${{ github.ref_name }}
@@ -67,42 +69,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
-      ########## DockerHub ##########
-      - name: Setup DCT
-        id: setup-dct
-        uses: bitwarden/gh-actions/setup-docker-trust@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
-        with:
-          azure-creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-          azure-keyvault-name: "bitwarden-ci"
-
-      - name: Pull branch image
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker pull bitwarden/web:latest
-          else
-            docker pull bitwarden/web:$_BRANCH_NAME
-          fi
-
-      - name: Docker Tag version
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker tag bitwarden/web:latest bitwarden/web:$_RELEASE_VERSION
-          else
-            docker tag bitwarden/web:$_BRANCH_NAME bitwarden/web:$_RELEASE_VERSION
-          fi
-
-      - name: Docker Push version
-        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        env:
-          DOCKER_CONTENT_TRUST: 1
-          DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: ${{ steps.setup-dct.outputs.dct-delegate-repo-passphrase }}
-        run: docker push bitwarden/web:$_RELEASE_VERSION
-
-      - name: Log out of Docker and disable Docker Notary
-        run: |
-          docker logout
-          echo "DOCKER_CONTENT_TRUST=0" >> $GITHUB_ENV
-
       ########## ACR ##########
       - name: Login to Azure - PROD Subscription
         uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
@@ -112,38 +78,46 @@ jobs:
       - name: Login to Azure ACR
         run: az acr login -n bitwardenprod
 
-      - name: Tag version
-        env:
-          REGISTRY: bitwardenprod.azurecr.io
+      - name: Pull branch image
         run: |
           if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker tag bitwarden/web:latest $REGISTRY/web:$_RELEASE_VERSION
-
-            docker tag bitwarden/web:latest $REGISTRY/web-sh:$_RELEASE_VERSION
+            docker pull $_AZ_REGISTRY/web:latest
           else
-            docker tag bitwarden/web:$_BRANCH_NAME $REGISTRY/web:$_RELEASE_VERSION
+            docker pull $_AZ_REGISTRY/web:$_BRANCH_NAME
+          fi
 
-            docker tag bitwarden/web:$_BRANCH_NAME $REGISTRY/web-sh:$_RELEASE_VERSION
+      - name: Tag version
+        run: |
+          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
+            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web:dryrun
+            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web-sh:dryrun
+          else
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:$_RELEASE_VERSION
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:latest
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:latest
           fi
 
       - name: Push version
-        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        env:
-          REGISTRY: bitwardenprod.azurecr.io
         run: |
-          docker push $REGISTRY/web:$_RELEASE_VERSION
-
-          docker push $REGISTRY/web-sh:$_RELEASE_VERSION
+          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
+            docker push $_AZ_REGISTRY/web:dryrun
+            docker push $_AZ_REGISTRY/web-sh:dryrun
+          else
+            docker push $_AZ_REGISTRY/web:$_RELEASE_VERSION
+            docker push $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
+            docker push $_AZ_REGISTRY/web:latest
+            docker push $_AZ_REGISTRY/web-sh:latest
+          fi
 
       - name: Log out of Docker
         run: docker logout
 
 
   ghpages-deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-20.04
-    needs:
-      - setup
+    name: Create Deploy PR for GitHub Pages
+    runs-on: ubuntu-22.04
+    needs: setup
     env:
       _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
       _TAG_VERSION: ${{ needs.setup.outputs.tag_version }}
@@ -156,7 +130,7 @@ jobs:
 
       - name: Retrieve bot secrets
         id: retrieve-bot-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           keyvault: bitwarden-ci
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
@@ -170,7 +144,7 @@ jobs:
 
       - name: Download latest cloud asset
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-web.yml
           path: assets
@@ -180,7 +154,7 @@ jobs:
 
       - name: Dry Run - Download latest cloud asset
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-web.yml
           path: assets
@@ -191,7 +165,7 @@ jobs:
       - name: Unzip build asset
         working-directory: assets
         run: unzip web-*-cloud-COMMERCIAL.zip
-  
+
       - name: Create new branch
         run: |
           cd ${{ github.workspace }}/ghpages-deployment
@@ -200,12 +174,12 @@ jobs:
           git config --global url."https://github.com/".insteadOf ssh://git@github.com/
           git config --global url."https://".insteadOf ssh://
           git checkout -b ${_BRANCH}
-  
+
       - name: Copy build files
         run: |
           rm -rf ${{ github.workspace }}/ghpages-deployment/*
           cp -Rf ${{ github.workspace }}/assets/build/* ghpages-deployment/
-  
+
       - name: Commit and push changes
         working-directory: ghpages-deployment
         run: |
@@ -233,7 +207,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - setup
       - self-host
@@ -253,7 +227,7 @@ jobs:
 
       - name: Download latest build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-web.yml
           path: apps/web/artifacts
@@ -264,7 +238,7 @@ jobs:
 
       - name: Dry Run - Download latest build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-web.yml
           path: apps/web/artifacts

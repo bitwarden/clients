@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Ďalšie možnosti dvojstupňového prihlásenia ako YubiKey, FIDO U2F a Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
   },
   "premiumSignUpReports": {
     "message": "Správy o sile hesla, zabezpečení účtov a únikoch dát ktoré vám pomôžu udržať vaše kontá v bezpečí."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Odhlásený trezor bude vyžadovať opätovné prihlásenie aby ste k nemu mohli pristupovať."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní času trezoru."
+  },
   "lock": {
     "message": "Uzamknúť",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka natrvalo odstránená"
-  },
-  "restoreItem": {
-    "message": "Obnoviť položku"
-  },
-  "restoreItemConfirmation": {
-    "message": "Naozaj chcete obnoviť túto položku?"
   },
   "restoredItem": {
     "message": "Obnovená položka"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportovanie osobného trezora"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Exportované budú iba položy osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté.",
+  "exportingIndividualVaultDescription": {
+    "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Prihlásenie pomocou iného zariadenia"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Iniciované prihlásenie"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Odporúčaná aktualizácia nastavenia"
   },
+  "deviceApprovalRequired": {
+    "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
+  },
+  "rememberThisDevice": {
+    "message": "Zapamätať si toto zariadenie"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Odčiarknite, ak používate verejné zariadenie"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Schváliť z iného zariadenia"
+  },
+  "requestAdminApproval": {
+    "message": "Žiadosť o schválenie správcom"
+  },
+  "approveWithMasterPassword": {
+    "message": "Schváliť pomocou hlavného hesla"
+  },
   "region": {
     "message": "Región"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Pole identifikátora SSO je povinné."
   },
   "eu": {
     "message": "EÚ",
     "description": "European Union"
   },
-  "us": {
-    "message": "USA",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Prihlásenie na"
   },
-  "selfHosted": {
-    "message": "Vlastný hosting"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "vlastný hosting"
   },
   "accessDenied": {
     "message": "Prístup zamietnutý. Nemáte oprávnenie na zobrazenie tejto stránky."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Účet bol úspešne vytvorený!"
+  },
+  "adminApprovalRequested": {
+    "message": "Vyžaduje sa schválenie správcom"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Vaša žiadosť bola odoslaná správcovi."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Po schválení budete informovaný."
+  },
+  "troubleLoggingIn": {
+    "message": "Máte problémy s prihlásením?"
+  },
+  "loginApproved": {
+    "message": "Schválené prihlásenie"
+  },
+  "userEmailMissing": {
+    "message": "Chýba e-mail používateľa"
+  },
+  "deviceTrusted": {
+    "message": "Dôveryhodné zariadenie"
+  },
+  "inputRequired": {
+    "message": "Vstup je povinný."
+  },
+  "required": {
+    "message": "povinné"
+  },
+  "search": {
+    "message": "Hladať"
+  },
+  "inputMinLength": {
+    "message": "Vstup musí mať aspoň $COUNT$ znakov.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Nemôžete zadať viac než $COUNT$ znakov.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Tieto znaky nie sú povolené: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Hodnota musí byť aspoň $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Zadaná hodnota nesmie prekročiť $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 alebo viac e-mailov je neplatných"
+  },
+  "inputTrimValidator": {
+    "message": "Vstup nesmie obsahovať iba prázdne znaky.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Vstupom nie je e-mailová adresa."
+  },
+  "fieldsNeedAttention": {
+    "message": "Niektoré polia ($COUNT$) vyžadujú vašu pozornosť.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Vyberte --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Začnite písať na filtrovanie --"
+  },
+  "multiSelectLoading": {
+    "message": "Načítavajú sa možnosti..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nenašli sa žiadne položky"
+  },
+  "multiSelectClearAll": {
+    "message": "Vyčistiť všetko"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ ďalších",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Podponuka"
   }
 }

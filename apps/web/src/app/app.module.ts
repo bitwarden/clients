@@ -9,9 +9,14 @@ import { AppComponent } from "./app.component";
 import { CoreModule } from "./core";
 import { OssRoutingModule } from "./oss-routing.module";
 import { OssModule } from "./oss.module";
-import { SendComponent } from "./tools/send/send.component";
 import { WildcardRoutingModule } from "./wildcard-routing.module";
 
+/**
+ * This is the AppModule for the OSS version of Bitwarden.
+ * `bitwarden_license/bit-web/app.module.ts` contains the commercial version.
+ *
+ * You probably do not want to modify this file. Consider editing `oss.module.ts` instead.
+ */
 @NgModule({
   imports: [
     OssModule,
@@ -22,7 +27,6 @@ import { WildcardRoutingModule } from "./wildcard-routing.module";
     DragDropModule,
     LayoutModule,
     OssRoutingModule,
-    SendComponent,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
   ],
   declarations: [AppComponent],

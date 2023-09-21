@@ -44,7 +44,11 @@
           </div>
         </div>
         <div class="box-content-row" [hidden]="!showCaptcha()">
-          <iframe id="hcaptcha_iframe" height="80"></iframe>
+          <iframe
+            id="hcaptcha_iframe"
+            height="80"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
         </div>
       </div>
       <div class="box-footer">

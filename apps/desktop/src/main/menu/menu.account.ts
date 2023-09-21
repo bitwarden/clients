@@ -15,14 +15,15 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   get items(): MenuItemConstructorOptions[] {
-    return [
-      this.premiumMembership,
-      this.changeMasterPassword,
-      this.twoStepLogin,
-      this.fingerprintPhrase,
-      this.separator,
-      this.deleteAccount,
-    ];
+    const items = [this.premiumMembership];
+    if (this._hasMasterPassword) {
+      items.push(this.changeMasterPassword);
+    }
+    items.push(this.twoStepLogin);
+    items.push(this.fingerprintPhrase);
+    items.push(this.separator);
+    items.push(this.deleteAccount);
+    return items;
   }
 
   private readonly _i18nService: I18nService;
@@ -30,19 +31,22 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _webVaultUrl: string;
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
+  private readonly _hasMasterPassword: boolean;
 
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
     webVaultUrl: string,
     window: BrowserWindow,
-    isLocked: boolean
+    isLocked: boolean,
+    hasMasterPassword: boolean
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._webVaultUrl = webVaultUrl;
     this._window = window;
     this._isLocked = isLocked;
+    this._hasMasterPassword = hasMasterPassword;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {

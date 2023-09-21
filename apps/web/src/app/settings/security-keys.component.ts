@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { ApiKeyComponent } from "./api-key.component";
@@ -20,14 +20,14 @@ export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;
 
   constructor(
-    private keyConnectorService: KeyConnectorService,
+    private userVerificationService: UserVerificationService,
     private stateService: StateService,
     private modalService: ModalService,
     private apiService: ApiService
   ) {}
 
   async ngOnInit() {
-    this.showChangeKdf = !(await this.keyConnectorService.getUsesKeyConnector());
+    this.showChangeKdf = await this.userVerificationService.hasMasterPassword();
   }
 
   async viewUserApiKey() {

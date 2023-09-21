@@ -4,6 +4,7 @@ import { AbstractThemingService } from "@bitwarden/angular/services/theming/them
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 
@@ -17,7 +18,8 @@ export class InitService {
     private popupUtilsService: PopupUtilsService,
     private stateService: StateServiceAbstraction,
     private logService: LogServiceAbstraction,
-    private themingService: AbstractThemingService
+    private themingService: AbstractThemingService,
+    private configService: ConfigService
   ) {}
 
   init() {
@@ -50,6 +52,8 @@ export class InitService {
         htmlEl.classList.add("force_redraw");
         this.logService.info("Force redraw is on");
       }
+
+      this.configService.init();
     };
   }
 }

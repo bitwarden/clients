@@ -4,7 +4,6 @@ import { Router } from "@angular/router";
 
 import { RegisterComponent as BaseRegisterComponent } from "@bitwarden/angular/components/register.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -16,6 +15,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { DialogService } from "@bitwarden/components";
 
 const BroadcasterSubscriptionId = "RegisterComponent";
 
@@ -40,7 +40,7 @@ export class RegisterComponent extends BaseRegisterComponent implements OnInit, 
     private ngZone: NgZone,
     logService: LogService,
     auditService: AuditService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       formValidationErrorService,

@@ -8,7 +8,7 @@ import {
 
 export class DisablePersonalVaultExportPolicy extends BasePolicy {
   name = "disablePersonalVaultExport";
-  description = "disablePersonalVaultExportDesc";
+  description = "disablePersonalVaultExportDescription";
   type = PolicyType.DisablePersonalVaultExport;
   component = DisablePersonalVaultExportPolicyComponent;
 }

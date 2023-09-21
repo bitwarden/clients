@@ -2,16 +2,16 @@ import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angu
 import { ControlValueAccessor, FormControl, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Verification } from "@bitwarden/common/types/verification";
 
 /**
  * Used for general-purpose user verification throughout the app.
- * Collects the user's master password, or if they are using Key Connector, prompts for an OTP via email.
+ * Collects the user's master password, or if they are not using a password, prompts for an OTP via email.
  * This is exposed to the parent component via the ControlValueAccessor interface (e.g. bind it to a FormControl).
  * Use UserVerificationService to verify the user's input.
  */
@@ -40,7 +40,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   }
   @Output() invalidSecretChange = new EventEmitter<boolean>();
 
-  usesKeyConnector = true;
+  hasMasterPassword = true;
   disableRequestOTP = false;
   sentCode = false;
 
@@ -50,7 +50,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
       if (this.invalidSecret) {
         return {
           invalidSecret: {
-            message: this.usesKeyConnector
+            message: this.hasMasterPassword
               ? this.i18nService.t("incorrectCode")
               : this.i18nService.t("incorrectPassword"),
           },
@@ -63,13 +63,13 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private keyConnectorService: KeyConnectorService,
+    private cryptoService: CryptoService,
     private userVerificationService: UserVerificationService,
     private i18nService: I18nService
   ) {}
 
   async ngOnInit() {
-    this.usesKeyConnector = await this.keyConnectorService.getUsesKeyConnector();
+    this.hasMasterPassword = await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
     this.processChanges(this.secret.value);
 
     this.secret.valueChanges
@@ -78,7 +78,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   }
 
   requestOTP = async () => {
-    if (this.usesKeyConnector) {
+    if (!this.hasMasterPassword) {
       this.disableRequestOTP = true;
       try {
         await this.userVerificationService.requestOTP();
@@ -123,7 +123,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     }
 
     this.onChange({
-      type: this.usesKeyConnector ? VerificationType.OTP : VerificationType.MasterPassword,
+      type: this.hasMasterPassword ? VerificationType.MasterPassword : VerificationType.OTP,
       secret: Utils.isNullOrWhitespace(secret) ? null : secret,
     });
   }

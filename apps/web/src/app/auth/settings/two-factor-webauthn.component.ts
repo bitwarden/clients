@@ -1,6 +1,5 @@
 import { Component, NgZone } from "@angular/core";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -15,6 +14,7 @@ import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 import { TwoFactorBaseComponent } from "./two-factor-base.component";
 
@@ -51,7 +51,7 @@ export class TwoFactorWebAuthnComponent extends TwoFactorBaseComponent {
     private ngZone: NgZone,
     logService: LogService,
     userVerificationService: UserVerificationService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       apiService,
@@ -98,7 +98,7 @@ export class TwoFactorWebAuthnComponent extends TwoFactorBaseComponent {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: name,
       content: { key: "removeU2fConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {

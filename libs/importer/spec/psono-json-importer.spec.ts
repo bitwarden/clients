@@ -11,6 +11,7 @@ import { EnvVariablesData } from "./test-data/psono-json/environment-variables";
 import { FoldersTestData } from "./test-data/psono-json/folders";
 import { GPGData } from "./test-data/psono-json/gpg";
 import { NotesData } from "./test-data/psono-json/notes";
+import { ReducedWebsiteLoginsData } from "./test-data/psono-json/reduced-website-logins";
 import { TOTPData } from "./test-data/psono-json/totp";
 import { WebsiteLoginsData } from "./test-data/psono-json/website-logins";
 
@@ -23,6 +24,7 @@ function validateCustomField(
   expect(fields).not.toBeUndefined();
   const customField = fields.find((f) => f.name === fieldName);
   expect(customField).not.toBeNull();
+  expect(customField).not.toBeUndefined();
 
   expect(customField.value).toEqual(expectedValue);
   expect(customField.type).toEqual(fieldType);
@@ -38,6 +40,7 @@ describe("PSONO JSON Importer", () => {
   const FoldersTestDataJson = JSON.stringify(FoldersTestData);
   const GPGDataJson = JSON.stringify(GPGData);
   const EnvVariablesDataJson = JSON.stringify(EnvVariablesData);
+  const ReducedWebsiteLoginsDataJson = JSON.stringify(ReducedWebsiteLoginsData);
 
   it("should parse Website/Password data", async () => {
     const importer = new PsonoJsonImporter();
@@ -63,6 +66,23 @@ describe("PSONO JSON Importer", () => {
     validateCustomField(cipher.fields, "callback_url", "callback");
     validateCustomField(cipher.fields, "callback_user", "callbackUser");
     validateCustomField(cipher.fields, "callback_pass", "callbackPassword");
+  });
+  it("should parse Website/Password data with missing fields", async () => {
+    const importer = new PsonoJsonImporter();
+    const result = await importer.parse(ReducedWebsiteLoginsDataJson);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.name).toEqual("export_website_1");
+    expect(cipher.login.username).toEqual("username123");
+    expect(cipher.login.password).toEqual("password123");
+    expect(cipher.login.uris).toEqual(null);
+
+    expect(cipher.fields.length).toBe(2);
+    validateCustomField(cipher.fields, "create_date", "2022-09-10T23:05:02.351417Z");
+    validateCustomField(cipher.fields, "write_date", "2022-09-10T23:05:02.351583Z");
   });
 
   it("should parse Application Password data", async () => {

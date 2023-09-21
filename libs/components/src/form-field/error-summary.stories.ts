@@ -24,7 +24,7 @@ export default {
               required: "required",
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
-              fieldsNeedAttention: "$COUNT$ field(s) above need your attention.",
+              fieldsNeedAttention: "__$1__ field(s) above need your attention.",
             });
           },
         },
@@ -63,12 +63,12 @@ export const Default: StoryObj<BitFormFieldComponent> = {
           <bit-label>Name</bit-label>
           <input bitInput formControlName="name" />
         </bit-form-field>
-  
+
         <bit-form-field>
           <bit-label>Email</bit-label>
           <input bitInput formControlName="email" />
         </bit-form-field>
-  
+
         <button type="submit" bitButton buttonType="primary">Submit</button>
         <bit-error-summary [formGroup]="formObj"></bit-error-summary>
       </form>

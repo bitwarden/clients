@@ -11,7 +11,7 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@napi-rs/cli": "2.16.1"
+    "@napi-rs/cli": "2.16.2"
   },
   "napi": {
     "name": "desktop_native",

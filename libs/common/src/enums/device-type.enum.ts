@@ -23,3 +23,16 @@ export enum DeviceType {
   SDK = 21,
   Server = 22,
 }
+
+export const MobileDeviceTypes: Set<DeviceType> = new Set([
+  DeviceType.Android,
+  DeviceType.iOS,
+  DeviceType.AndroidAmazon,
+]);
+
+export const DesktopDeviceTypes: Set<DeviceType> = new Set([
+  DeviceType.WindowsDesktop,
+  DeviceType.MacOsDesktop,
+  DeviceType.LinuxDesktop,
+  DeviceType.UWP,
+]);

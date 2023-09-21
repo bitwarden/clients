@@ -1,6 +1,5 @@
 import { Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -12,6 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { SearchBarService } from "../../layout/search/search-bar.service";
@@ -48,7 +48,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     private searchBarService: SearchBarService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       sendService,
@@ -91,12 +91,10 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     this.searchBarService.setEnabled(false);
   }
 
-  addSend() {
+  async addSend() {
     this.action = Action.Add;
     if (this.addEditComponent != null) {
-      this.addEditComponent.sendId = null;
-      this.addEditComponent.send = null;
-      this.addEditComponent.load();
+      await this.addEditComponent.resetAndLoad();
     }
   }
 

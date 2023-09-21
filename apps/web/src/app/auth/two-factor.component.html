@@ -80,7 +80,7 @@
           </ng-container>
           <ng-container *ngIf="selectedProviderType === providerType.WebAuthn">
             <div id="web-authn-frame" class="mb-3">
-              <iframe id="webauthn_iframe"></iframe>
+              <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
           </ng-container>
           <ng-container
@@ -90,7 +90,10 @@
             "
           >
             <div id="duo-frame" class="mb-3">
-              <iframe id="duo_iframe"></iframe>
+              <iframe
+                id="duo_iframe"
+                sandbox="allow-scripts allow-forms allow-same-origin"
+              ></iframe>
             </div>
           </ng-container>
           <i
@@ -115,7 +118,11 @@
           </ng-container>
           <hr />
           <div [hidden]="!showCaptcha()">
-            <iframe id="hcaptcha_iframe" height="80"></iframe>
+            <iframe
+              id="hcaptcha_iframe"
+              height="80"
+              sandbox="allow-scripts allow-same-origin"
+            ></iframe>
           </div>
           <div class="d-flex mb-3">
             <button

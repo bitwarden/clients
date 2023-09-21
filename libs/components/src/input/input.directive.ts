@@ -44,6 +44,7 @@ export class BitInputDirective implements BitFormFieldControl {
       "focus:tw-ring-primary-700",
       "focus:tw-z-10",
       "disabled:tw-bg-secondary-100",
+      "[&:is(input,textarea):read-only]:tw-bg-secondary-100",
     ].filter((s) => s != "");
   }
 

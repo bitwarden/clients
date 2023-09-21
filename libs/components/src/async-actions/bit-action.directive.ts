@@ -20,7 +20,7 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
-  @Input("bitAction") protected handler: FunctionReturningAwaitable;
+  @Input("bitAction") handler: FunctionReturningAwaitable;
 
   readonly loading$ = this._loading$.asObservable();
 

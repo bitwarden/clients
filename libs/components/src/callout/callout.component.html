@@ -1,14 +1,16 @@
-<div
+<aside
   class="tw-mb-4 tw-box-border tw-rounded tw-border tw-border-l-8 tw-border-solid tw-border-secondary-300 tw-bg-background-alt tw-px-5 tw-py-3 tw-leading-5 tw-text-main"
   [ngClass]="calloutClass"
+  [attr.aria-labelledby]="titleId"
 >
-  <h3
+  <header
+    id="{{ titleId }}"
     class="tw-mb-2 tw-mt-0 tw-text-base tw-font-bold tw-uppercase"
     [ngClass]="headerClass"
     *ngIf="title"
   >
     <i class="bwi {{ icon }}" *ngIf="icon" aria-hidden="true"></i>
     {{ title }}
-  </h3>
+  </header>
   <ng-content></ng-content>
-</div>
+</aside>

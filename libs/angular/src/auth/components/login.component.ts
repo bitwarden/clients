@@ -3,8 +3,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { take } from "rxjs/operators";
 
-import { DevicesApiServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices-api.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
@@ -42,7 +42,10 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
 
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
-    masterPassword: ["", [Validators.required, Validators.minLength(8)]],
+    masterPassword: [
+      "",
+      [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
+    ],
     rememberEmail: [false],
   });
 
@@ -137,6 +140,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       this.setFormValues();
       await this.loginService.saveEmailSettings();
       if (this.handleCaptchaRequired(response)) {
+        return;
+      } else if (this.handleMigrateEncryptionKey(response)) {
         return;
       } else if (response.requiresTwoFactor) {
         if (this.onSuccessfulLoginTwoFactorNavigate != null) {
@@ -269,6 +274,21 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     await this.loginService.saveEmailSettings();
   }
 
+  // Legacy accounts used the master key to encrypt data. Migration is required
+  // but only performed on web
+  protected handleMigrateEncryptionKey(result: AuthResult): boolean {
+    if (!result.requiresEncryptionKeyMigration) {
+      return false;
+    }
+
+    this.platformUtilsService.showToast(
+      "error",
+      this.i18nService.t("errorOccured"),
+      this.i18nService.t("encryptionKeyMigrationRequired")
+    );
+    return true;
+  }
+
   private getErrorToastMessage() {
     const error: AllValidationErrors = this.formValidationErrorService
       .getFormValidationErrors(this.formGroup.controls)
@@ -278,6 +298,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       switch (error.errorName) {
         case "email":
           return this.i18nService.t("invalidEmail");
+        case "minlength":
+          return this.i18nService.t("masterPasswordMinlength", Utils.originalMinimumPasswordLength);
         default:
           return this.i18nService.t(this.errorTag(error));
       }

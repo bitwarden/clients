@@ -609,7 +609,7 @@
     "message": "Prijava uređajem"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Prijava uređajem mora biti namještena u postavka Bitwarden mobilne aplikacije. Trebaš drugu opciju?"
   },
   "loginWithMasterPassword": {
     "message": "Prijava glavnom lozinkom"
@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "Došlo je do neočekivane pogreške."
   },
+  "expirationDateError": {
+    "message": "Odaberi datum isteka u budućnosti."
+  },
   "emailAddress": {
     "message": "Adresa e-pošte"
   },
   "yourVaultIsLocked": {
     "message": "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Otključaj"
@@ -947,6 +953,9 @@
   },
   "copyVerificationCode": {
     "message": "Kopiraj kôd za provjeru"
+  },
+  "copyUuid": {
+    "message": "Kopiraj UUID"
   },
   "warning": {
     "message": "Upozorenje"
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Greška u dešifriranju izvozne datoteke. Ovaj ključ za šifriranje ne odgovara ključu za šifriranje korištenom pri izvozu datoteke."
   },
+  "importDestination": {
+    "message": "Import destination"
+  },
+  "learnAboutImportOptions": {
+    "message": "Learn about your import options"
+  },
+  "selectImportFolder": {
+    "message": "Odaberi mapu"
+  },
+  "selectImportCollection": {
+    "message": "Odaberi zbirku"
+  },
+  "importTargetHint": {
+    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "File contains unassigned items."
+  },
   "selectFormat": {
     "message": "Odaberi format datoteke za uvoz"
   },
@@ -1391,8 +1425,11 @@
   "twoStepLoginDesc": {
     "message": "Osiguraj svoj račun dodavanjem dodatnog koraka prilikom prijave."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Prisili korištenje prijave dvostrukom autentifikacijom koristeći",
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifriranog prostora za pohranu podataka."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Dodatne mogućnosti za prijavu dvostrukom autentifikacijom kao što su YubiKey, FIDO U2F i Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Pristup u nuždi"
@@ -2006,6 +2043,9 @@
       }
     }
   },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
+  },
   "paymentChargedWithTrial": {
     "message": "Plan dolazi s besplatnom probnom verzijom od 7 dana. Tvoj način plaćanja neće biti terećen dok ne završi probno razdoblje. Možeš otkazati u bilo kojem trenutku."
   },
@@ -2028,7 +2068,7 @@
     "message": "Otkaži pretplatu"
   },
   "subscriptionExpiration": {
-    "message": "Subscription expiration"
+    "message": "Istek pretplate"
   },
   "subscriptionCanceled": {
     "message": "Pretplata otkazana."
@@ -2636,7 +2676,7 @@
     "message": "Web trezor"
   },
   "bitWebVault": {
-    "message": "Bitwarden Web vault"
+    "message": "Bitwarden Web trezor"
   },
   "bitSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -2663,7 +2703,7 @@
     "message": "Prijava neuspješna zbog pogrešne dvostruke autentifikacije."
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Netočna lozinka"
   },
   "incorrectCode": {
     "message": "Incorrect code"
@@ -2762,7 +2802,7 @@
     }
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Prikaži zbirku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2771,7 +2811,7 @@
     }
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Uredi stavku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Choose when your vault will be logged out."
+  },
   "oneMinute": {
     "message": "1 minuta"
   },
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Ova stavka ima stare privitke koje je potrebno popraviti."
   },
-  "attachmentFixDesc": {
-    "message": "Ovo je stari privitak kojeg je potrebno popraviti. Klikni ovdje za više informacija."
+  "attachmentFixDescription": {
+    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
   },
   "fix": {
     "message": "Popravi",
@@ -3750,10 +3793,10 @@
     "message": "Nakon isteka trezora"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "Potrebno je ponovno unijeti glavnu lozinku ili na drugi način otključati za pristup tvom trezoru."
+    "message": "Za pristup tvom trezoru, potrebno je ponovno unijeti glavnu lozinku ili ga na drugi način otključati."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Potrebno je ponovno unijeti korisničko ime i glavnu lozinku za pristup tvom trezoru."
+    "message": "Za pristup tvom trezoru, potrebno je ponovno unijeti korisničko ime i glavnu lozinku."
   },
   "lock": {
     "message": "Zaključaj",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Vrati odabrano"
   },
-  "restoreItem": {
-    "message": "Vrati stavku"
-  },
   "restoredItem": {
     "message": "Stavka vraćena"
   },
   "restoredItems": {
     "message": "Stavke vraćene"
-  },
-  "restoreItemConfirmation": {
-    "message": "Želiš li sigurno vratiti ovu stavku?"
-  },
-  "restoreItems": {
-    "message": "Vrati stavke"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "Odabrano je $COUNT$ stavka/i za vraćanje. Sigurno želiš vratiti sve ove stavke?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Stavka $ID$ vraćena",
@@ -3845,7 +3870,7 @@
     "message": "Odjava će ukloniti pristup tvojem trezoru i zahtijeva mrežnu potvrdu identiteta nakon isteka vremenske neaktivnosti. Sigurno želiš koristiti ovu postavku?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Potvrda akcije vremenske neaktivnosti"
+    "message": "Potvrda radnje nakon vremenske neaktivnosti"
   },
   "hidePasswords": {
     "message": "Sakrij lozinke"
@@ -4876,7 +4901,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "Your organization policies are affecting your vault timeout. Maximum allowed vault timeout is $HOURS$ hour(s) and $MINUTES$ minute(s). Your vault timeout action is set to $ACTION$.",
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h. Tvoja radnja nakon isteka trezora je: $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4893,7 +4918,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "Your organization policies have set your vault timeout action to $ACTION$.",
+    "message": "Pravilo tvoje organizacije podesilo je radnju nakon isteka trezora na: $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Onemogući izvoz osobnog trezora"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Onemogućuje korisnike da izvezu svoj osobni trezor."
+  "disablePersonalVaultExportDescription": {
+    "message": "Do not allow members to export data from their individual vault."
   },
   "vaultExportDisabled": {
     "message": "Izvoz trezora onemogućen"
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "Izvoz organizacijskog trezora"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Izvest će se samo stavke osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene. Izvest će se samo informacija o stavci trezora bez pripadajućih podataka o povijesti lozinki i privitaka.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,8 +5454,8 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
-    "message": "Izvest će se samo organizacijski trezor povezan s $ORGANIZATION$. Pojedinačne stavke iz trezora i stavke iz drugih organizacija neće biti uključene.",
+  "exportingOrganizationVaultDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Require existing members to change their passwords"
   },
-  "region": {
-    "message": "Region"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "You don't have permissions to delete this project",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "Update KDF settings"
   },
+  "loginInitiated": {
+    "message": "Login initiated"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Trusted device encryption"
+  },
   "trustedDevices": {
     "message": "Trusted devices"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
+  "memberDecryptionOptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
     "message": "single organization",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "policy and ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": "policy,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "SSO required",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "policy, and",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
     "message": "account recovery administration",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescriptionPartFour": {
     "message": "policy with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ not found",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "Removing members who do not have master passwords without setting one for them may restrict access to their full account."
   },
+  "approvedAuthRequest": {
+    "message": "Approved device for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Denied device for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "Requested device approval."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Next"
   },
-  "usFlag": {
-    "message": "US flag"
-  },
-  "euFlag": {
-    "message": "EU flag"
-  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
   },
   "sendsNoItemsTitle": {
     "message": "No active Sends",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Additional service accounts"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "Your plan comes with $COUNT$ service accounts. You can add additional service accounts for $COST$ per month.",
+  "includedServiceAccounts": {
+    "message": "Your plan comes with $COUNT$ service accounts.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "You can add additional service accounts for $COST$ per month.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Max potential service account cost"
+  },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
+  "smBetaEndedDesc": {
+    "message": "The Secrets Manager Beta ended $BETA_ENDING_DATE$. You have $DAYS$ days left to add Secrets Manager to your paid subscription and maintain access to Secrets Manager data. Contact Customer Success to add Secrets Manager to your subscription.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta Ending"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Already have an account?"
   }
 }

@@ -2,17 +2,12 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  SimpleDialogType,
-  DialogServiceAbstraction,
-  SimpleDialogCloseType,
-  SimpleDialogOptions,
-} from "@bitwarden/angular/services/dialog";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductType } from "@bitwarden/common/enums";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
 import { CollectionDialogTabType } from "../../components/collection-dialog";
@@ -64,7 +59,7 @@ export class VaultHeaderComponent {
   constructor(
     private organizationService: OrganizationService,
     private i18nService: I18nService,
-    private dialogService: DialogServiceAbstraction,
+    private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
     private router: Router
   ) {}
@@ -114,7 +109,7 @@ export class VaultHeaderComponent {
           : "freeOrgMaxCollectionReachedNoManageBilling",
         this.organization.maxCollections
       ),
-      type: SimpleDialogType.PRIMARY,
+      type: "primary",
     };
 
     if (this.organization.canEditSubscription) {
@@ -126,12 +121,12 @@ export class VaultHeaderComponent {
 
     const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
 
-    firstValueFrom(simpleDialog.closed).then((result: SimpleDialogCloseType | undefined) => {
+    firstValueFrom(simpleDialog.closed).then((result: boolean | undefined) => {
       if (!result) {
         return;
       }
 
-      if (result == SimpleDialogCloseType.ACCEPT && this.organization.canEditSubscription) {
+      if (result && this.organization.canEditSubscription) {
         this.router.navigate(["/organizations", this.organization.id, "billing", "subscription"], {
           queryParams: { upgrade: true },
         });

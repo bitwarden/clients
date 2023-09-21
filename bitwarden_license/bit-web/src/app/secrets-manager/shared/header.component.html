@@ -68,7 +68,7 @@
 
               <bit-menu-divider></bit-menu-divider>
 
-              <button bitMenuItem type="button" (click)="lock()">
+              <button *ngIf="canLock$ | async" bitMenuItem type="button" (click)="lock()">
                 <i class="bwi bwi-fw bwi-lock" aria-hidden="true"></i>
                 {{ "lockNow" | i18n }}
               </button>

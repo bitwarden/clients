@@ -2,7 +2,7 @@ import { Organization } from "../../admin-console/models/domain/organization";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
 export abstract class KeyConnectorService {
-  getAndSetKey: (url?: string) => Promise<void>;
+  setMasterKeyFromUrl: (url?: string) => Promise<void>;
   getManagingOrganization: () => Promise<Organization>;
   getUsesKeyConnector: () => Promise<boolean>;
   migrateUser: () => Promise<void>;

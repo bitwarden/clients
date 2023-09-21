@@ -6,6 +6,12 @@
   margin: 0;
 }
 
+html {
+  &.cdk-global-scrollblock {
+    position: unset;
+  }
+}
+
 html,
 body {
   font-family: $font-family-sans-serif;
@@ -644,5 +650,39 @@ main {
       padding-top: 1rem;
       display: block;
     }
+  }
+}
+
+#login-initiated {
+  .margin-auto {
+    margin: auto;
+  }
+  .mb-20px {
+    margin-bottom: 20px;
+  }
+
+  .mx-5px {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+  }
+
+  .muted-hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .standard-x-margin {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .btn-top-margin {
+    margin-top: 12px;
+  }
+
+  #rememberThisDeviceHintText {
+    font-size: $font-size-small;
+    color: $text-muted;
   }
 }

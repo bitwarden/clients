@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB krypteret lagerplads til filvedhæftninger."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Yderligere totrins-loginmuligheder, såsom YubiKey, FIDO U2F og Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietære totrins-login muligheder, såsom YubiKey og Duo."
   },
   "premiumSignUpReports": {
     "message": "Adgangskodehygiejne, kontosundhed og rapporter om datalæk til at holde din boks sikker."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Gengodkendelse kræves for at få adgang til din boks igen."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Opsæt en oplåsningsmetode til at ændre bokstimeouthandlingen."
+  },
   "lock": {
     "message": "Lås",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Emne slettet permanent"
-  },
-  "restoreItem": {
-    "message": "Gendan emne"
-  },
-  "restoreItemConfirmation": {
-    "message": "Sikker på, at du vil gendanne dette emne?"
   },
   "restoredItem": {
     "message": "Emne gendannet"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Eksporterer individuel boks"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Kun de individuelle boksemner tilknyttet $EMAIL$ eksporteres. Organisationsboksemner medtages ikke.",
+  "exportingIndividualVaultDescription": {
+    "message": "Kun individuelle Boksemner tilknyttet $EMAIL$ eksporteres. Organisationsboksemner medtages ikke. Kun Boksemneinformation uden tilhørende vedhæftninger eksporteres.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Log ind med en anden enhed"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Indlogning påbegyndt"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Anbefalet indstillingsopdatering"
   },
+  "deviceApprovalRequired": {
+    "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
+  },
+  "rememberThisDevice": {
+    "message": "Husk denne enhed"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Slå fra, hvis en offentlig enhed benyttes"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Godkend med min anden enhed"
+  },
+  "requestAdminApproval": {
+    "message": "Anmod om admin-godkendelse"
+  },
+  "approveWithMasterPassword": {
+    "message": "Godkend med hovedadgangskode"
+  },
   "region": {
     "message": "Region"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organisations SSO-identifikator kræves."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "USA",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Logger ind på"
   },
-  "selfHosted": {
-    "message": "Selv-hostet"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "selv-hostet"
   },
   "accessDenied": {
     "message": "Adgang nægtet. Nødvendig tilladelse til at se siden mangler."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konto oprettet!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin-godkendelse udbedt"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Anmodningen er sendt til din admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Du underrettes, når godkendelse foreligger."
+  },
+  "troubleLoggingIn": {
+    "message": "Problemer med at logge ind?"
+  },
+  "loginApproved": {
+    "message": "Indlogning godkendt"
+  },
+  "userEmailMissing": {
+    "message": "Brugers e-mail mangler"
+  },
+  "deviceTrusted": {
+    "message": "Enhed betroet"
+  },
+  "inputRequired": {
+    "message": "Input obligatorisk."
+  },
+  "required": {
+    "message": "obligatorisk"
+  },
+  "search": {
+    "message": "Søg"
+  },
+  "inputMinLength": {
+    "message": "Input skal udgøre minimum $COUNT$ tegn.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input må maksimalt udgøre $COUNT$ tegn.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Flg. tegn er ikke tilladt: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Inputværdi skal være mindst $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Inputværdi må ikke overstige $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 eller flere e-mails er ugyldige"
+  },
+  "inputTrimValidator": {
+    "message": "Input må ikke indeholde kun mellemrum.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input er ikke en e-mailadresse."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ felt(er) ovenfor kræver opmærksomhed.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Vælg --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Skriv for at filtrere --"
+  },
+  "multiSelectLoading": {
+    "message": "Henter indstillinger…"
+  },
+  "multiSelectNotFound": {
+    "message": "Ingen emner fundet"
+  },
+  "multiSelectClearAll": {
+    "message": "Ryd alt"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ flere",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Undermenu"
   }
 }

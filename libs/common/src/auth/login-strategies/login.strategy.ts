@@ -1,4 +1,5 @@
 import { ApiService } from "../../abstractions/api.service";
+import { ClientType } from "../../enums";
 import { KeysRequest } from "../../models/request/keys.request";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
@@ -6,7 +7,13 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { Account, AccountProfile, AccountTokens } from "../../platform/models/domain/account";
+import {
+  Account,
+  AccountDecryptionOptions,
+  AccountKeys,
+  AccountProfile,
+  AccountTokens,
+} from "../../platform/models/domain/account";
 import { TokenService } from "../abstractions/token.service";
 import { TwoFactorService } from "../abstractions/two-factor.service";
 import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
@@ -53,9 +60,6 @@ export abstract class LogInStrategy {
       | PasswordlessLogInCredentials
   ): Promise<AuthResult>;
 
-  // The user key comes from different sources depending on the login strategy
-  protected abstract setUserKey(response: IdentityTokenResponse): Promise<void>;
-
   async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
     captchaResponse: string = null
@@ -101,12 +105,28 @@ export abstract class LogInStrategy {
 
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse) {
     const accountInformation = await this.tokenService.decodeToken(tokenResponse.accessToken);
+
+    // Must persist existing device key if it exists for trusted device decryption to work
+    // However, we must provide a user id so that the device key can be retrieved
+    // as the state service won't have an active account at this point in time
+    // even though the data exists in local storage.
+    const userId = accountInformation.sub;
+
+    const deviceKey = await this.stateService.getDeviceKey({ userId });
+    const accountKeys = new AccountKeys();
+    if (deviceKey) {
+      accountKeys.deviceKey = deviceKey;
+    }
+
+    // If you don't persist existing admin auth requests on login, they will get deleted.
+    const adminAuthRequest = await this.stateService.getAdminAuthRequest({ userId });
+
     await this.stateService.addAccount(
       new Account({
         profile: {
           ...new AccountProfile(),
           ...{
-            userId: accountInformation.sub,
+            userId,
             name: accountInformation.name,
             email: accountInformation.email,
             hasPremiumPersonally: accountInformation.premium,
@@ -123,38 +143,69 @@ export abstract class LogInStrategy {
             refreshToken: tokenResponse.refreshToken,
           },
         },
+        keys: accountKeys,
+        decryptionOptions: AccountDecryptionOptions.fromResponse(tokenResponse),
+        adminAuthRequest: adminAuthRequest?.toJSON(),
       })
     );
   }
 
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
     const result = new AuthResult();
+
+    // Old encryption keys must be migrated, but is currently only available on web.
+    // Other clients shouldn't continue the login process.
+    if (this.encryptionKeyMigrationRequired(response)) {
+      result.requiresEncryptionKeyMigration = true;
+      if (this.platformUtilsService.getClientType() !== ClientType.Web) {
+        return result;
+      }
+    }
+
     result.resetMasterPassword = response.resetMasterPassword;
 
+    // Convert boolean to enum
     if (response.forcePasswordReset) {
       result.forcePasswordReset = ForceResetPasswordReason.AdminForcePasswordReset;
     }
 
+    // Must come before setting keys, user key needs email to update additional keys
     await this.saveAccountInformation(response);
 
     if (response.twoFactorToken != null) {
       await this.tokenService.setTwoFactorToken(response);
     }
 
+    await this.setMasterKey(response);
     await this.setUserKey(response);
-
-    // Must come after the user Key is set, otherwise createKeyPairForOldAccount will fail
-    const newSsoUser = response.key == null;
-    if (!newSsoUser) {
-      await this.cryptoService.setEncKey(response.key);
-      await this.cryptoService.setEncPrivateKey(
-        response.privateKey ?? (await this.createKeyPairForOldAccount())
-      );
-    }
+    await this.setPrivateKey(response);
 
     this.messagingService.send("loggedIn");
 
     return result;
+  }
+
+  // The keys comes from different sources depending on the login strategy
+  protected abstract setMasterKey(response: IdentityTokenResponse): Promise<void>;
+
+  protected abstract setUserKey(response: IdentityTokenResponse): Promise<void>;
+
+  protected abstract setPrivateKey(response: IdentityTokenResponse): Promise<void>;
+
+  // Old accounts used master key for encryption. We are forcing migrations but only need to
+  // check on password logins
+  protected encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
+    return false;
+  }
+
+  protected async createKeyPairForOldAccount() {
+    try {
+      const [publicKey, privateKey] = await this.cryptoService.makeKeyPair();
+      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
+      return privateKey.encryptedString;
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   private async processTwoFactorResponse(response: IdentityTwoFactorResponse): Promise<AuthResult> {
@@ -172,15 +223,5 @@ export abstract class LogInStrategy {
     const result = new AuthResult();
     result.captchaSiteKey = response.siteKey;
     return result;
-  }
-
-  private async createKeyPairForOldAccount() {
-    try {
-      const [publicKey, privateKey] = await this.cryptoService.makeKeyPair();
-      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
-      return privateKey.encryptedString;
-    } catch (e) {
-      this.logService.error(e);
-    }
   }
 }

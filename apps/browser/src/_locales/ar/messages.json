@@ -338,6 +338,9 @@
   "other": {
     "message": "الأخرى"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
   "rateExtension": {
     "message": "قيِّم هذه الإضافة"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "تحديث"
   },
+  "notificationUnlockDesc": {
+    "message": "Unlock your Bitwarden vault to complete the auto-fill request."
+  },
+  "notificationUnlock": {
+    "message": "Unlock"
+  },
   "enableContextMenuItem": {
     "message": "إظهار خيارات قائمة السياق"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 جيغابايت وحدة تخزين مشفرة لمرفقات الملفات."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "خيارات تسجيل الدخول الإضافية من خطوتين مثل YubiKey و FIDO U2F و Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "ppremiumSignUpReports": {
     "message": "نظافة كلمة المرور، صحة الحساب، وتقارير خرق البيانات للحفاظ على سلامة خزنتك."
@@ -1440,38 +1449,35 @@
   "restoreItem": {
     "message": "استعادة العنصر"
   },
-  "restoreItemConfirmation": {
-    "message": "هل أنت متأكد من أنك تريد استعادة هذا العنصر؟"
-  },
   "restoredItem": {
-    "message": "Item restored"
+    "message": "تم استعادة العنصر"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?"
+    "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزنتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Timeout action confirmation"
+    "message": "تأكيد إجراء المهلة"
   },
   "autoFillAndSave": {
-    "message": "Auto-fill and save"
+    "message": "التعبئة التلقائية والحفظ"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "Item auto-filled and URI saved"
+    "message": "تم تعبئة العنصر تلقائياً وحفظ عنوان URI"
   },
   "autoFillSuccess": {
-    "message": "Item auto-filled "
+    "message": "ملء العنصر تلقائياً "
   },
   "insecurePageWarning": {
-    "message": "Warning: This is an unsecured HTTP page, and any information you submit can potentially be seen and changed by others. This Login was originally saved on a secure (HTTPS) page."
+    "message": "تحذير: هذه صفحة HTTP غير آمنة، وأي معلومات تقدمها يمكن رؤيتها وتغييرها من قبل الآخرين. تم حفظ تسجيل الدخول هذا في الأصل على صفحة آمنة (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Do you still wish to fill this login?"
+    "message": "هل مازلت ترغب في ملء هذا الدخول؟"
   },
   "autofillIframeWarning": {
-    "message": "The form is hosted by a different domain than the URI of your saved login. Choose OK to auto-fill anyway, or Cancel to stop."
+    "message": "يتم استضافة النموذج من قبل نطاق مختلف عن عنوان URI الخاص بتسجيل الدخول المحفوظ. اختر موافق للملء التلقائي على أي حال، أو ألغ للتوقف."
   },
   "autofillIframeWarningTip": {
-    "message": "To prevent this warning in the future, save this URI, $HOSTNAME$, to your Bitwarden login item for this site.",
+    "message": "لمنع هذا التحذير في المستقبل، حفظ هذا الرابط، $HOSTNAME$ إلى عنصر تسجيل الدخول الخاص بك Bitwarden لهذا الموقع.",
     "placeholders": {
       "hostname": {
         "content": "$1",
@@ -1480,22 +1486,22 @@
     }
   },
   "setMasterPassword": {
-    "message": "Set master password"
+    "message": "تعيين كلمة مرور رئيسية"
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "كلمة المرور الرئيسية الحالية"
   },
   "newMasterPass": {
-    "message": "New master password"
+    "message": "كلمة مرور رئيسية جديدة"
   },
   "confirmNewMasterPass": {
-    "message": "Confirm new master password"
+    "message": "تأكيد كلمة المرور الرئيسية الجديدة"
   },
   "masterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require your master password to meet the following requirements:"
+    "message": "1 - تتطلب سياسة واحدة أو أكثر من سياسات المؤسسة كلمة مرورك الرئيسية لتلبية المتطلبات التالية:"
   },
   "policyInEffectMinComplexity": {
-    "message": "Minimum complexity score of $SCORE$",
+    "message": "الحد الأدنى لدرجة التعقيد $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -1504,7 +1510,7 @@
     }
   },
   "policyInEffectMinLength": {
-    "message": "Minimum length of $LENGTH$",
+    "message": "الحد الأدنى لطول $LENGTH$",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -1513,16 +1519,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contain one or more uppercase characters"
+    "message": "يحتوي على حرف كبير واحد أو أكثر"
   },
   "policyInEffectLowercase": {
-    "message": "Contain one or more lowercase characters"
+    "message": "يحتوي على واحد أو أكثر من الأحرف الصغيرة"
   },
   "policyInEffectNumbers": {
-    "message": "Contain one or more numbers"
+    "message": "يحتوي على رقم واحد أو أكثر"
   },
   "policyInEffectSpecial": {
-    "message": "Contain one or more of the following special characters $CHARS$",
+    "message": "يحتوي على واحد أو أكثر من الأحرف الخاصة التالية $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -1534,7 +1540,7 @@
     "message": "كلمة المرور الرئيسية الجديدة لا تفي بمتطلبات السياسة العامة."
   },
   "acceptPolicies": {
-    "message": "By checking this box you agree to the following:"
+    "message": "من خلال تحديد هذا المربع فإنك توافق على ما يلي:"
   },
   "acceptPoliciesRequired": {
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
@@ -1599,6 +1605,12 @@
   "biometricsNotSupportedDesc": {
     "message": "Browser biometrics is not supported on this device."
   },
+  "biometricsFailedTitle": {
+    "message": "Biometrics failed"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
+  },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Permission not provided"
   },
@@ -1618,13 +1630,13 @@
     "message": "An organization policy is affecting your ownership options."
   },
   "excludedDomains": {
-    "message": "Excluded domains"
+    "message": "النطاقات المستبعدة"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden will not ask to save login details for these domains. You must refresh the page for changes to take effect."
+    "message": "Bitwarden لن يطلب حفظ تفاصيل تسجيل الدخول لهذه النطاقات. يجب عليك تحديث الصفحة حتى تصبح التغييرات سارية المفعول."
   },
   "excludedDomainsInvalidDomain": {
-    "message": "$DOMAIN$ is not a valid domain",
+    "message": "$DOMAIN$ نطاق غير صالح",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "جاري تصدير الخزنة الشخصية"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "سيتم تصدير فقط عناصر الخزنة الشخصية المرتبطة بـ $EMAIL$. لن يتم إدراج عناصر خزنة المؤسسة.",
+  "exportingIndividualVaultDescription": {
+    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "إصدار الخادم"
   },
-  "selfHosted": {
-    "message": "استضافة ذاتية"
+  "selfHostedServer": {
+    "message": "self-hosted"
   },
   "thirdParty": {
     "message": "Third-party"
@@ -2140,8 +2152,8 @@
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
-  "logInInitiated": {
-    "message": "Log in initiated"
+  "loginInitiated": {
+    "message": "Login initiated"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logging in on"
   },
   "opensInANewWindow": {
     "message": "Opens in a new window"
+  },
+  "deviceApprovalRequired": {
+    "message": "Device approval required. Select an approval option below:"
+  },
+  "rememberThisDevice": {
+    "message": "Remember this device"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Uncheck if using a public device"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Approve from your other device"
+  },
+  "requestAdminApproval": {
+    "message": "Request admin approval"
+  },
+  "approveWithMasterPassword": {
+    "message": "Approve with master password"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organization SSO identifier is required."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Display"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Account successfully created!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin approval requested"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Your request has been sent to your admin."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "You will be notified once approved."
+  },
+  "troubleLoggingIn": {
+    "message": "Trouble logging in?"
+  },
+  "loginApproved": {
+    "message": "Login approved"
+  },
+  "userEmailMissing": {
+    "message": "User email missing"
+  },
+  "deviceTrusted": {
+    "message": "Device trusted"
+  },
+  "inputRequired": {
+    "message": "Input is required."
+  },
+  "required": {
+    "message": "required"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "inputMinLength": {
+    "message": "Input must be at least $COUNT$ characters long.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Input must not exceed $COUNT$ characters in length.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "The following characters are not allowed: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Input value must be at least $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Input value must not exceed $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 or more emails are invalid"
+  },
+  "inputTrimValidator": {
+    "message": "Input must not contain only whitespace.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Input is not an email address."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ field(s) above need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Select --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Type to filter --"
+  },
+  "multiSelectLoading": {
+    "message": "Retrieving options..."
+  },
+  "multiSelectNotFound": {
+    "message": "No items found"
+  },
+  "multiSelectClearAll": {
+    "message": "Clear all"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenu"
+  },
+  "toggleCollapse": {
+    "message": "Toggle collapse",
+    "description": "Toggling an expand/collapse state."
   }
 }

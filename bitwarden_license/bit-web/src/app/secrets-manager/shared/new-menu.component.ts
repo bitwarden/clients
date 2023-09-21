@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
+import { DialogService } from "@bitwarden/components";
 
 import {
   ProjectDialogComponent,
@@ -26,7 +26,7 @@ export class NewMenuComponent implements OnInit, OnDestroy {
   private organizationId: string;
   private destroy$: Subject<void> = new Subject<void>();
 
-  constructor(private route: ActivatedRoute, private dialogService: DialogServiceAbstraction) {}
+  constructor(private route: ActivatedRoute, private dialogService: DialogService) {}
 
   ngOnInit() {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params: any) => {

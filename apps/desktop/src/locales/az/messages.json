@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
-  "premiumSignUpTwoStep": {
-    "message": "YubiKey, FIDO U2F və Duo kimi iki mərhələli giriş seçimləri."
+  "premiumSignUpTwoStepOptions": {
+    "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
   },
   "premiumSignUpReports": {
     "message": "Anbarınızın təhlükəsiyini təmin etmək üçün parol gigiyenası, hesab sağlamlığı və verilənlərin pozulması hesabatları."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Çıxış edilmiş bir anbar, təkrar müraciət etmək üçün yenidən kimlik təsdiqləmə tələb edir."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Anbar vaxt bitməsi əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu quraşdırın."
+  },
   "lock": {
     "message": "Kilidlə",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
-  },
-  "restoreItem": {
-    "message": "Elementi bərpa et"
-  },
-  "restoreItemConfirmation": {
-    "message": "Elementi bərpa etmək istədiyinizə əminsiniz?"
   },
   "restoredItem": {
     "message": "Element bərpa edildi"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Şəxsi anbarın ixracı"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqəli şəxsi anbar elementləri ixrac ediləcək. Təşkilat anbar elementləri daxil edilmir.",
+  "exportingIndividualVaultDescription": {
+    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək. Yalnız anbar element məlumatları xaricə köçürüləcək və əlaqələndirilmiş qoşmalar daxil edilməyəcək.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,8 +2109,8 @@
   "logInWithAnotherDevice": {
     "message": "Başqa cihazla giriş et"
   },
-  "logInInitiated": {
-    "message": "Giriş etmə başladıldı"
+  "loginInitiated": {
+    "message": "Giriş başladıldı"
   },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Tövsiyə edilən Tənzimləmələr Güncəlləməsi"
   },
+  "deviceApprovalRequired": {
+    "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
+  },
+  "rememberThisDevice": {
+    "message": "Bu cihazı xatırla"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Hər kəsə açıq bir cihaz istifadə edirsinizsə işarəni götürün"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Digər cihazınızdan təsdiqləyin"
+  },
+  "requestAdminApproval": {
+    "message": "Admin təsdiqini tələb et"
+  },
+  "approveWithMasterPassword": {
+    "message": "Ana parolla təsdiqlə"
+  },
   "region": {
     "message": "Bölgə"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Təşkilat SSO identifikatoru tələb olunur."
   },
   "eu": {
     "message": "AB",
     "description": "European Union"
   },
-  "us": {
-    "message": "ABŞ",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Giriş edilir"
   },
-  "selfHosted": {
-    "message": "Öz-özünə sahiblik edən"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "öz-özünə sahiblik edən"
   },
   "accessDenied": {
     "message": "Müraciət rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Hesab uğurla yaradıldı!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin təsdiqi tələb olunur"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Tələbiniz admininizə göndərildi."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
+  },
+  "troubleLoggingIn": {
+    "message": "Girişdə problem var?"
+  },
+  "loginApproved": {
+    "message": "Giriş təsdiqləndi"
+  },
+  "userEmailMissing": {
+    "message": "İstifadəçi e-poçtu əskikdir"
+  },
+  "deviceTrusted": {
+    "message": "Cihaz güvənlidir"
+  },
+  "inputRequired": {
+    "message": "Giriş lazımdır."
+  },
+  "required": {
+    "message": "tələb olunur"
+  },
+  "search": {
+    "message": "Axtar"
+  },
+  "inputMinLength": {
+    "message": "Giriş, ən azı $COUNT$ simvol uzunluğunda olmalıdır.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Giriş uzunluğu $COUNT$ simvolu aşmamalıdır.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Aşağıdakı simvollara icazə verilmir: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Giriş dəyəri ən azı $MIN$ olmalıdır.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Giriş dəyəri $MAX$ dəyərini aşmamalıdır.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 və ya daha çox e-poçt yararsızdır"
+  },
+  "inputTrimValidator": {
+    "message": "Giriş, yalnız boşluq ehtiva etməməlidir.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Giriş, bir e-poçt ünvanı deyil."
+  },
+  "fieldsNeedAttention": {
+    "message": "Yuxarıdakı $COUNT$ sahənin diqqətinizə ehtiyacı var.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Seç --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Filtrləmək üçün yazın --"
+  },
+  "multiSelectLoading": {
+    "message": "Seçimlər alınır..."
+  },
+  "multiSelectNotFound": {
+    "message": "Heç bir element tapılmadı"
+  },
+  "multiSelectClearAll": {
+    "message": "Hamısını təmizlə"
+  },
+  "plusNMore": {
+    "message": "daha $QUANTITY$ ədəd",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Alt menyu"
   }
 }

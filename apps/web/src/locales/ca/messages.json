@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "S'ha produït un error inesperat."
   },
+  "expirationDateError": {
+    "message": "Seleccioneu una data de caducitat futura."
+  },
   "emailAddress": {
     "message": "Adreça electrònica"
   },
   "yourVaultIsLocked": {
     "message": "La caixa forta està bloquejada. Verifiqueu la contrasenya mestra per continuar."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Desbloqueja"
@@ -947,6 +953,9 @@
   },
   "copyVerificationCode": {
     "message": "Copia el codi de verificació"
+  },
+  "copyUuid": {
+    "message": "Copia UUID"
   },
   "warning": {
     "message": "Advertiment"
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Error en desxifrar el fitxer exportat. La vostra clau de xifratge no coincideix amb la clau de xifratge utilitzada per exportar les dades."
   },
+  "importDestination": {
+    "message": "Importa destinació"
+  },
+  "learnAboutImportOptions": {
+    "message": "Obteniu informació sobre les opcions d'importació"
+  },
+  "selectImportFolder": {
+    "message": "Selecciona una carpeta"
+  },
+  "selectImportCollection": {
+    "message": "Selecciona una col·lecció"
+  },
+  "importTargetHint": {
+    "message": "Seleccioneu aquesta opció si voleu que el contingut del fitxer importat es desplace a $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "El fitxer conté elements no assignats."
+  },
   "selectFormat": {
     "message": "Seleccioneu el format del fitxer d'importació"
   },
@@ -1391,8 +1425,11 @@
   "twoStepLoginDesc": {
     "message": "Protegiu el vostre compte exigint un pas addicional en iniciar sessió."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Apliqueu les opcions d'inici de sessió en dos passos de Bitwarden per als membres mitjançant la ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Activeu l'inici de sessió de doble factor per a la vostra organització."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Apliqueu les opcions d'inici de sessió de dobble factor de Bitwarden per als membres mitjançant la ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB d'emmagatzematge xifrat per als fitxers adjunts."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Opcions addicionals d'inici de sessió en dues passes com ara YubiKey, FIDO U2F i Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Accés d’emergència"
@@ -2005,6 +2042,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Es cobrarà al vostre mètode de pagament les subscripcions no pagades."
   },
   "paymentChargedWithTrial": {
     "message": "El vostre pla inclou una prova gratuïta de 7 dies. El mètode de pagament no es cobrarà fins que no s'haja acabat la prova. Podeu cancel·lar-ho en qualsevol moment."
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Trieu quan es tancarà la vostra caixa forta i feu l'acció seleccionada."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Trieu quan es tancarà la sessió de la vostra caixa forta."
+  },
   "oneMinute": {
     "message": "1 minut"
   },
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Aquest element té fitxers adjunts antics que s'han de corregir."
   },
-  "attachmentFixDesc": {
-    "message": "Es tracta d'un arxiu adjunt antic que cal corregir. Feu clic per obtenir més informació."
+  "attachmentFixDescription": {
+    "message": "Aquest fitxer adjunt utilitza un xifratge obsolet. Seleccioneu \"Arregla\" per descarregar, tornar a xifrar i tornar a carregar el fitxer adjunt."
   },
   "fix": {
     "message": "Corregeix",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Restaura selecció"
   },
-  "restoreItem": {
-    "message": "Restaura l'element"
-  },
   "restoredItem": {
     "message": "Element restaurat"
   },
   "restoredItems": {
     "message": "Elements restaurats"
-  },
-  "restoreItemConfirmation": {
-    "message": "Esteu segur que voleu restaurar aquest element?"
-  },
-  "restoreItems": {
-    "message": "Restaura elements"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "Heu seleccionat $COUNT$ elements per restaurar. Esteu segur que voleu restaurar tots aquests elements?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Element $ID$ restaurat.",
@@ -4705,7 +4730,7 @@
     "message": "Error"
   },
   "accountRecoveryManageUsers": {
-    "message": "Manage users must also be granted with the manage account recovery permission"
+    "message": "L'administració d'usuaris també ha d'estar habilitada amb el permís de recuperació del compte de gestió"
   },
   "setupProvider": {
     "message": "Configuració del proveïdor"
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Inhabilita l'exportació de la caixa forta personal"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Prohibeix als usuaris exportar les dades de la seua caixa forta privada."
+  "disablePersonalVaultExportDescription": {
+    "message": "No permetes que els membres exporten dades des de la seua caixa forta individual."
   },
   "vaultExportDisabled": {
     "message": "L'exportació de la caixa forta s'ha suprimit"
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "S'està exportant la caixa forta de l’organització"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Només s'exportaran els elements personals de la caixa forta associats a $EMAIL$. Els elements de la caixa forta de l'organització no s'inclouran.",
+  "exportingIndividualVaultDescription": {
+    "message": "Només s'exportaran els elements de la caixa de seguretat individuals associats a $EMAIL$. Els elements de la caixa de l'organització no s'inclouran. Només s'exportarà la informació de l'element de la caixa de seguretat i no inclourà els fitxers adjunts associats.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,8 +5454,8 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
-    "message": "Només s'exportaran els elements personals de la caixa forta associats a $ORGANIZATION$. Els elements de la caixa forta personal no s'inclouran.",
+  "exportingOrganizationVaultDesc": {
+    "message": "Només s'exportarà la caixa forta de l'organització associada a $ORGANIZATION$. No s'inclouran els elements de les caixes fortes individuals ni d'altres organitzacions.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Exigeix que els membres existents canvien les seues contrasenyes"
   },
-  "region": {
-    "message": "Regió"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "UE",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "EUA",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "No teniu permisos per suprimir aquest projecte",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "Actualitza la configuració de KDF"
   },
+  "loginInitiated": {
+    "message": "S'ha iniciat la sessió"
+  },
+  "deviceApprovalRequired": {
+    "message": "Cal l'aprovació del dispositiu. Seleccioneu una opció d'aprovació a continuació:"
+  },
+  "rememberThisDevice": {
+    "message": "Recorda aquest dispositiu"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Desmarqueu si utilitzeu un dispositiu públic"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Aproveu des d'un altre dispositiu vostre"
+  },
+  "requestAdminApproval": {
+    "message": "Sol·liciteu l'aprovació de l'administrador"
+  },
+  "approveWithMasterPassword": {
+    "message": "Aprova amb contrasenya mestra"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Encriptació de dispositius de confiança"
+  },
   "trustedDevices": {
-    "message": "Trusted devices"
+    "message": "Dispositius de confiança"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
+  "memberDecryptionOptionTdeDescriptionPartOne": {
     "message": "Una vegada autenticats, els membres desxifraran les dades de la caixa forta mitjançant una clau emmagatzemada al seu dispositiu. La",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
     "message": "política d'organització",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "única y ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": "única,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "la política d'administració de recuperació de comptes",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "la política de",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
-    "message": "amb inscripció automàtica s'activarà quan s'utilitze aquesta opció.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "requerida y la política",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
+    "message": "d'administració de recuperació del compte",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartFour": {
+    "message": "amb inscripció automàtica s'activaran quan s'utilitze aquesta opció.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "No s'ha trobat $RESOURCE$",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "La supressió de membres que no tenen contrasenyes mestres sense establir-ne una pot restringir l'accés al seu compte complet."
   },
+  "approvedAuthRequest": {
+    "message": "Dispositiu aprovat per $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Dispositiu denegat per $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "S'ha sol·licitat l'aprovació del dispositiu."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Següent"
   },
-  "usFlag": {
-    "message": "Bandera EUA"
-  },
-  "euFlag": {
-    "message": "Bandera UE"
-  },
   "selectedRegionFlag": {
     "message": "Bandera de la regió seleccionada"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Compte creat correctament!"
+  },
+  "adminApprovalRequested": {
+    "message": "S'ha sol·licitat l'aprovació de l'administrador"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "La vostra sol·licitud s'ha enviat a l'administrador."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Se us notificarà una vegada aprovat."
+  },
+  "troubleLoggingIn": {
+    "message": "Teniu problemes per iniciar la sessió?"
+  },
+  "loginApproved": {
+    "message": "S'ha aprovat l'inici de sessió"
+  },
+  "userEmailMissing": {
+    "message": "Falta el correu electrònic de l'usuari"
+  },
+  "deviceTrusted": {
+    "message": "Dispositiu de confiança"
   },
   "sendsNoItemsTitle": {
     "message": "No hi ha Sends actius",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Comptes de serveis addicionals"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "El vostre pla inclou $COUNT$ comptes de servei. Podeu afegir comptes de servei addicionals per $COST$ al mes.",
+  "includedServiceAccounts": {
+    "message": "El vostre pla inclou $COUNT$ comptes de servei.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "Podeu afegir comptes de servei addicionals per $COST$ al mes.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Cost potencial màxim del compte de servei"
+  },
+  "loggedInExclamation": {
+    "message": "Connectat!"
+  },
+  "smBetaEndedDesc": {
+    "message": "La beta de l'administrador de secrets va finalitzar el dia $BETA_ENDING_DATE$. Et queden $DAYS$ dies per afegir l'administrador de secrets a la teua subscripció de pagament i mantindre l'accés a les dades de l'administrador de secrets. Contacteu amb Customer Success per afegir l'administrador de secrets a la vostra subscripció.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta final"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Ja tens un compte?"
   }
 }

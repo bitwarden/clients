@@ -711,11 +711,17 @@
   "unexpectedError": {
     "message": "Ein unerwarteter Fehler ist aufgetreten."
   },
+  "expirationDateError": {
+    "message": "Bitte wähle ein Ablaufdatum aus, das in der Zukunft liegt."
+  },
   "emailAddress": {
     "message": "E-Mail-Adresse"
   },
   "yourVaultIsLocked": {
     "message": "Dein Tresor ist gesperrt. Überprüfe dein Master-Passwort, um fortzufahren."
+  },
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Entsperren"
@@ -948,6 +954,9 @@
   "copyVerificationCode": {
     "message": "Verifizierungscode kopieren"
   },
+  "copyUuid": {
+    "message": "UUID kopieren"
+  },
   "warning": {
     "message": "Warnung"
   },
@@ -1155,7 +1164,7 @@
     }
   },
   "kdfIterationsWarning": {
-    "message": "Wenn du die Anzahl der KDF-Iterationen zu hoch setzt, kann es sein, dass das Einloggen in (und Entsperren von) Bitwarden auf langsameren Geräten länger dauert. Wir empfehlen, dass du den Wert wiederholt um $INCREMENT$ anhebst und auf all deinen Geräten testest.",
+    "message": "Wenn du die Anzahl der KDF-Iterationen zu hoch setzt, kann es sein, dass das Anmelden in (und Entsperren von) Bitwarden auf langsameren Geräten länger dauert. Wir empfehlen, dass du den Wert wiederholt um $INCREMENT$ anhebst und auf all deinen Geräten testest.",
     "placeholders": {
       "increment": {
         "content": "$1",
@@ -1284,6 +1293,31 @@
   "importEncKeyError": {
     "message": "Fehler beim Entschlüsseln der exportierten Datei. Dein Verschlüsselungsschlüssel stimmt nicht mit dem beim Export verwendeten Verschlüsselungsschlüssel überein."
   },
+  "importDestination": {
+    "message": "Import-Ziel"
+  },
+  "learnAboutImportOptions": {
+    "message": "Erfahre mehr über deine Importoptionen"
+  },
+  "selectImportFolder": {
+    "message": "Ordner auswählen"
+  },
+  "selectImportCollection": {
+    "message": "Sammlung auswählen"
+  },
+  "importTargetHint": {
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Die Datei enthält nicht zugewiesene Einträge."
+  },
   "selectFormat": {
     "message": "Wählen Sie das Format Ihrer Import-Datei"
   },
@@ -1391,7 +1425,10 @@
   "twoStepLoginDesc": {
     "message": "Sichern Sie Ihr Konto mit Zwei-Faktor-Authentifizierung."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Zwei-Faktor-Authentifizierung für deine Organisation aktivieren."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Erzwinge eine Zwei-Faktor-Authentifizierung in Bitwarden für Mitglieder durch Verwendung der ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1890,8 +1927,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Zusätzliche Zwei-Faktor-Authentifizierungsmöglichkeiten wie z.B. YubiKey, FIDO U2F und Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Notfallzugriff"
@@ -2005,6 +2042,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Deine Zahlungsmethode wird für alle unbezahlten Abonnements belastet."
   },
   "paymentChargedWithTrial": {
     "message": "Dein Tarif beinhaltet eine kostenlose 7-Tage-Testversion. Deine Zahlungsart wird nicht belastet, bis die Testphase abgelaufen ist. Du erhältst pro $INTERVAL$ eine Rechnung. Eine Kündigung ist zu jeder Zeit möglich."
@@ -3502,6 +3542,9 @@
   "vaultTimeoutDesc": {
     "message": "Lege einen Timeout für den Tresor und die auszuführende Aktion fest."
   },
+  "vaultTimeoutLogoutDesc": {
+    "message": "Wähle aus, wann du von deinem Tresor abgemeldet wirst."
+  },
   "oneMinute": {
     "message": "1 Minute"
   },
@@ -3590,8 +3633,8 @@
   "attachmentsNeedFix": {
     "message": "Dieser Eintrag hat Anhänge, die repariert werden müssen."
   },
-  "attachmentFixDesc": {
-    "message": "Dieser Dateianhang muss aufgrund ihres Alters aktualisiert werden. Klicke hier, um mehr zu erfahren."
+  "attachmentFixDescription": {
+    "message": "Dieser Anhang verwendet eine veraltete Verschlüsselung. Wähle \"Reparieren\", um den Anhang herunterzuladen, erneut zu verschlüsseln und erneut hochzuladen."
   },
   "fix": {
     "message": "Reparieren",
@@ -3808,29 +3851,11 @@
   "restoreSelected": {
     "message": "Auswahl wiederherstellen"
   },
-  "restoreItem": {
-    "message": "Eintrag wiederherstellen"
-  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
   "restoredItems": {
     "message": "Einträge wiederhergestellt"
-  },
-  "restoreItemConfirmation": {
-    "message": "Soll dieser Eintrag wirklich wiederhergestellt werden?"
-  },
-  "restoreItems": {
-    "message": "Einträge wiederherstellen"
-  },
-  "restoreSelectedItemsDesc": {
-    "message": "Du hast $COUNT$ Eintrag/Einträge zum Wiederherstellen ausgewählt. Bist du sicher, dass du diese(n) Eintrag/Einträge dauerhaft löschen möchtest?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
   },
   "restoredItemId": {
     "message": "Eintrag $ID$ wiederhergestellt",
@@ -4157,7 +4182,7 @@
     "message": "Benutzer eingeladen."
   },
   "acceptEmergencyAccess": {
-    "message": "Du wurdest eingeladen, ein Notfallkontakt für den oben genannten Benutzer zu werden. Um die Einladung anzunehmen, musst du dich einloggen oder ein neues Bitwarden-Konto erstellen."
+    "message": "Du wurdest eingeladen, ein Notfallkontakt für den oben genannten Benutzer zu werden. Um die Einladung anzunehmen, musst du dich anmelden oder ein neues Bitwarden-Konto erstellen."
   },
   "emergencyInviteAcceptFailed": {
     "message": "Die Einladung konnte nicht angenommen werden. Bitte den Benutzer, eine neue Einladung zu versenden."
@@ -4570,7 +4595,7 @@
     "message": "Passwort zurücksetzen"
   },
   "resetPasswordLoggedOutWarning": {
-    "message": "Wenn du fortfährst, wird $NAME$ aus seiner aktuellen Sitzung ausgeloggt und muss sich erneut einloggen. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben.",
+    "message": "Wenn du fortfährst, wird $NAME$ aus seiner aktuellen Sitzung abgemeldet und muss sich erneut anmelden. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4916,8 +4941,8 @@
   "disablePersonalVaultExport": {
     "message": "Persönlichen Tresor-Export deaktivieren"
   },
-  "disablePersonalVaultExportDesc": {
-    "message": "Benutzern den Export ihrer privaten Tresor-Daten verbieten."
+  "disablePersonalVaultExportDescription": {
+    "message": "Mitgliedern nicht erlauben, Daten aus ihrem persönlichen Tresor zu exportieren."
   },
   "vaultExportDisabled": {
     "message": "Tresor-Export entfernt"
@@ -5094,7 +5119,7 @@
     "message": "Angebot für eine bestehende Organisation akzeptieren oder eine neue Families-Organisation erstellen."
   },
   "setupSponsoredFamiliesLoginDesc": {
-    "message": "Dir wurde ein kostenloser Bitwarden Families-Organisationstarif angeboten. Um fortzufahren, musst du dich in das Konto einloggen, das das Angebot erhalten hat."
+    "message": "Dir wurde ein kostenloser Bitwarden Families-Organisationstarif angeboten. Um fortzufahren, musst du dich bei dem Konto anmelden, das das Angebot erhalten hat."
   },
   "sponsoredFamiliesAcceptFailed": {
     "message": "Angebot kann nicht angenommen werden. Bitte sende die Angebotsmail von deinem Unternehmenskonto erneut und versuche es noch einmal."
@@ -5420,8 +5445,8 @@
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht den zugehörigen Passwortverlauf oder Anhänge.",
+  "exportingIndividualVaultDescription": {
+    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5429,8 +5454,8 @@
       }
     }
   },
-  "exportingOrganizationVaultDescription": {
-    "message": "Nur der mit $ORGANIZATION$ verbundene Tresor der Organisation wird exportiert. Persönliche Tresoreinträge und Einträge anderer Organisationen werden nicht berücksichtigt.",
+  "exportingOrganizationVaultDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5589,7 +5614,7 @@
     "message": "Geräteverifizierung aktivieren"
   },
   "deviceVerificationDesc": {
-    "message": "Verifizierungscodes werden an deine E-Mail-Adresse gesendet, wenn du dich von einem unbekannten Gerät einloggst"
+    "message": "Verifizierungscodes werden an deine E-Mail-Adresse gesendet, wenn du dich von einem unbekannten Gerät anmeldest"
   },
   "updatedDeviceVerification": {
     "message": "Geräteverifizierung aktualisiert"
@@ -6802,16 +6827,11 @@
   "enforceOnLoginDesc": {
     "message": "Bestehende Mitglieder auffordern, ihre Passwörter zu ändern"
   },
-  "region": {
-    "message": "Region"
+  "usDomain": {
+    "message": "bitwarden.com"
   },
-  "eu": {
-    "message": "EU",
-    "description": "European Union"
-  },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Dir fehlen die Berechtigungen, dieses Projekt zu löschen",
@@ -6824,28 +6844,60 @@
   "updateKdfSettings": {
     "message": "KDF-Einstellungen aktualisieren"
   },
+  "loginInitiated": {
+    "message": "Anmeldung eingeleitet"
+  },
+  "deviceApprovalRequired": {
+    "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
+  },
+  "rememberThisDevice": {
+    "message": "Dieses Gerät merken"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Deaktivieren, wenn ein öffentliches Gerät verwendet wird"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Von deinem anderen Gerät genehmigen"
+  },
+  "requestAdminApproval": {
+    "message": "Admin-Genehmigung anfragen"
+  },
+  "approveWithMasterPassword": {
+    "message": "Mit Master-Passwort genehmigen"
+  },
+  "trustedDeviceEncryption": {
+    "message": "Vertrauenswürdige Geräteverschlüsselung"
+  },
   "trustedDevices": {
     "message": "Vertrauenswürdige Geräte"
   },
-  "memberDecryptionTdeDescriptionPartOne": {
-    "message": "Einmal authentifiziert, entschlüsseln Mitglieder Tresordaten mit einem Schlüssel auf ihrem Gerät. Die",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartOne": {
+    "message": "Einmal authentifiziert, entschlüsseln Mitglieder Tresordaten mit einem Schlüssel auf ihrem Gerät. Die Richtlinie für",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkOne": {
-    "message": "Unternehmensrichtlinie für eine einzelne Organisation",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkOne": {
+    "message": "einzelne Organisationen",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartTwo": {
-    "message": "und die",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartTwo": {
+    "message": ", die Richtlinie zum",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionLinkTwo": {
-    "message": "Richtlinie für die Kontowiederherstellungsverwaltung",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "Verlangen einer SSO-Authentifizierung",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
-  "memberDecryptionTdeDescriptionPartThree": {
-    "message": "mit automatischer Registrierung wird aktiviert, wenn diese Option verwendet wird.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "und die Richtlinie für die",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionLinkThree": {
+    "message": "Kontowiederherstellungsverwaltung",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartFour": {
+    "message": "mit automatischer Registrierung werden aktiviert, wenn diese Option verwendet wird.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "notFound": {
     "message": "$RESOURCE$ nicht gefunden",
@@ -6934,6 +6986,27 @@
   "removeMembersWithoutMasterPasswordWarning": {
     "message": "Mitglieder ohne Master-Passwort zu entfernen, ohne ein solches zu setzen, kann den Zugang zu deren gesamtem Konto einschränken."
   },
+  "approvedAuthRequest": {
+    "message": "Genehmigtes Gerät für $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "rejectedAuthRequest": {
+    "message": "Abgelehntes Gerät für $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "requestedDeviceApproval": {
+    "message": "Geräte-Genehmigung anfragen."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Starte deine 7-tägige kostenlose Testversion von Bitwarden für $ORG$",
     "placeholders": {
@@ -6946,14 +7019,32 @@
   "next": {
     "message": "Weiter"
   },
-  "usFlag": {
-    "message": "US-Flagge"
-  },
-  "euFlag": {
-    "message": "EU-Flagge"
-  },
   "selectedRegionFlag": {
     "message": "Flagge der ausgewählten Region"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konto erfolgreich erstellt!"
+  },
+  "adminApprovalRequested": {
+    "message": "Admin-Genehmigung angefragt"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Deine Anfrage wurde an deinen Administrator gesendet."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Nach einer Genehmigung wirst du benachrichtigt."
+  },
+  "troubleLoggingIn": {
+    "message": "Probleme beim Anmelden?"
+  },
+  "loginApproved": {
+    "message": "Anmeldung genehmigt"
+  },
+  "userEmailMissing": {
+    "message": "E-Mail-Adresse des Benutzers fehlt"
+  },
+  "deviceTrusted": {
+    "message": "Gerät wird vertraut"
   },
   "sendsNoItemsTitle": {
     "message": "Keine aktiven Sends",
@@ -7023,15 +7114,20 @@
   "additionalServiceAccounts": {
     "message": "Zusätzliche Dienstkonten"
   },
-  "additionalServiceAccountsDesc": {
-    "message": "Dein Abonnement enthält $COUNT$ Dienstkonten. Du kannst zusätzliche Dienstkonten für $COST$ pro Monat hinzufügen.",
+  "includedServiceAccounts": {
+    "message": "Dein Tarif enthält $COUNT$ Dienstkonten.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "50"
-      },
+      }
+    }
+  },
+  "addAdditionalServiceAccounts": {
+    "message": "Du kannst zusätzliche Dienstkonten für $COST$ pro Monat hinzufügen.",
+    "placeholders": {
       "cost": {
-        "content": "$2",
+        "content": "$1",
         "example": "$0.50"
       }
     }
@@ -7059,5 +7155,30 @@
   },
   "maxServiceAccountCost": {
     "message": "Maximale potentielle Kosten für Dienstkonten"
+  },
+  "loggedInExclamation": {
+    "message": "Angemeldet!"
+  },
+  "smBetaEndedDesc": {
+    "message": "Die Secrets Manager Beta endete am $BETA_ENDING_DATE$. Du hast $DAYS$ Tage Zeit, um den Secrets Manager zu deinem kostenpflichtigen Abonnement hinzuzufügen und den Zugriff auf die Daten des Secrets Manager zu erhalten. Kontaktiere den Kundensupport, um den Secrets Manager zu deinem Abonnement hinzuzufügen.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta-Ende"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "alreadyHaveAccount": {
+    "message": "Hast du bereits ein Konto?"
   }
 }

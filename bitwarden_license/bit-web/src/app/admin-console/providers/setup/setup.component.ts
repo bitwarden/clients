@@ -8,6 +8,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 @Component({
@@ -78,8 +79,8 @@ export class SetupComponent implements OnInit {
 
   async doSubmit() {
     try {
-      const shareKey = await this.cryptoService.makeShareKey();
-      const key = shareKey[0].encryptedString;
+      const providerKey = await this.cryptoService.makeOrgKey<ProviderKey>();
+      const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();
       request.name = this.name;

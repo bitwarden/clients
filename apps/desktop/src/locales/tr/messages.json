@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
   },
-  "premiumSignUpTwoStep": {
-    "message": "YubiKey, FIDO U2F ve Duo gibi iki aşamalı giriş seçenekleri."
+  "premiumSignUpTwoStepOptions": {
+    "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
   },
   "premiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Çıkış yapılmış bir kasaya tekrardan erişmek için yeniden kimlik doğrulaması gerekir."
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
+  },
   "lock": {
     "message": "Kilitle",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1511,12 +1514,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
-  },
-  "restoreItem": {
-    "message": "Kaydı geri yükle"
-  },
-  "restoreItemConfirmation": {
-    "message": "Bu ögeyi geri yüklemek istediğinizden emin misiniz?"
   },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
@@ -1987,8 +1984,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Kişisel kasa dışa aktarılıyor"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Yalnızca $EMAIL$ ile ilişkili kişisel kasadaki kayıtlar dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir.",
+  "exportingIndividualVaultDescription": {
+    "message": "Yalnızca $EMAIL$ ile ilişkili kasa kayıtları dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir. Yalnızca kasa kayıt bilgileri dışa aktarılacak, kayıtlara eklenen dosyalar aktarılmayacaktır.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2112,7 +2109,7 @@
   "logInWithAnotherDevice": {
     "message": "Başka bir cihazla giriş yap"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Giriş başlatıldı"
   },
   "notificationSentDevice": {
@@ -2252,21 +2249,171 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Önerilen Ayarlar Güncellemesi"
   },
+  "deviceApprovalRequired": {
+    "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
+  },
+  "rememberThisDevice": {
+    "message": "Bu cihazı hatırla"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Paylaşılan bir cihaz kullanıyorsanız işaretlemeyin"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Diğer cihazımdan onayla"
+  },
+  "requestAdminApproval": {
+    "message": "Yönetici onayı iste"
+  },
+  "approveWithMasterPassword": {
+    "message": "Ana parola ile onayla"
+  },
   "region": {
     "message": "Bölge"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Kuruluş SSO tanımlayıcısı gereklidir."
   },
   "eu": {
     "message": "AB",
     "description": "European Union"
   },
-  "us": {
-    "message": "ABD",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "Giriş yapılan konum"
   },
-  "selfHosted": {
-    "message": "Barındırılan"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
+    "message": "şirket içinde barındırılan"
   },
   "accessDenied": {
     "message": "Erişim engellendi. Bu sayfayı görüntüleme iznine sahip değilsiniz."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Hesap başarıyla oluşturuldu!"
+  },
+  "adminApprovalRequested": {
+    "message": "Yönetici onayı istendi"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "İsteğiniz yöneticinize gönderildi."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Onaylandıktan sonra bilgilendirileceksiniz."
+  },
+  "troubleLoggingIn": {
+    "message": "Giriş yaparken sorun mu yaşıyorsunuz?"
+  },
+  "loginApproved": {
+    "message": "Giriş onaylandı"
+  },
+  "userEmailMissing": {
+    "message": "Kullanıcının e-postası eksik"
+  },
+  "deviceTrusted": {
+    "message": "Cihaza güvenildi"
+  },
+  "inputRequired": {
+    "message": "Girdi gerekli."
+  },
+  "required": {
+    "message": "gerekli"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "inputMinLength": {
+    "message": "Girdi en az $COUNT$ karakter uzunluğunda olmalıdır.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Girdi $COUNT$ karakter uzunluğunu geçmemelidir.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Şu karakterlere izin verilmez: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Girdi değeri en az $MIN$ olmalı.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Girdi değeri en fazla $MAX$ olmalı.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Bir veya daha fazla e-posta geçersiz"
+  },
+  "inputTrimValidator": {
+    "message": "Girdi yalnızca boşluktan ibaret olamaz.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Girdi bir e-posta adresi değil."
+  },
+  "fieldsNeedAttention": {
+    "message": "Yukarıdaki $COUNT$ alanla ilgilenmeniz gerekiyor.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Seçin --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Filtrelemek için yazın --"
+  },
+  "multiSelectLoading": {
+    "message": "Seçenekler alınıyor..."
+  },
+  "multiSelectNotFound": {
+    "message": "Hiç kayıt bulunamadı"
+  },
+  "multiSelectClearAll": {
+    "message": "Tümünü temizle"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Alt menü"
   }
 }

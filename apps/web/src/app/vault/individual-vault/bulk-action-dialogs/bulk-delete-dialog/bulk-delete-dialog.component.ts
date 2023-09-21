@@ -1,7 +1,6 @@
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CollectionBulkDeleteRequest } from "@bitwarden/common/models/request/collection-bulk-delete.request";
@@ -9,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
+import { DialogService } from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -28,7 +28,7 @@ export enum BulkDeleteDialogResult {
  * @param config Configuration for the dialog
  */
 export const openBulkDeleteDialog = (
-  dialogService: DialogServiceAbstraction,
+  dialogService: DialogService,
   config: DialogConfig<BulkDeleteDialogParams>
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(

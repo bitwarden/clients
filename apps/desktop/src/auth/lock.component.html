@@ -4,8 +4,12 @@
     <p>{{ "yourVaultIsLocked" | i18n }}</p>
     <div class="box last">
       <div class="box-content">
-        <div class="box-content-row box-content-row-flex" appBoxRow *ngIf="!hideInput">
-          <div class="row-main" *ngIf="pinLock">
+        <div
+          class="box-content-row box-content-row-flex"
+          appBoxRow
+          *ngIf="pinEnabled || masterPasswordEnabled"
+        >
+          <div class="row-main" *ngIf="pinEnabled">
             <label for="pin">{{ "pin" | i18n }}</label>
             <input
               id="pin"
@@ -17,7 +21,7 @@
               appInputVerbatim
             />
           </div>
-          <div class="row-main" *ngIf="!pinLock">
+          <div class="row-main" *ngIf="masterPasswordEnabled && !pinEnabled">
             <label for="masterPassword">{{ "masterPass" | i18n }}</label>
             <input
               id="masterPassword"
@@ -57,14 +61,14 @@
         <button
           type="button"
           class="btn block"
-          [ngClass]="{ 'primary font-weight-bold': hideInput }"
+          [ngClass]="{ 'primary font-weight-bold': !pinEnabled && !masterPasswordEnabled }"
           (click)="unlockBiometric()"
         >
           {{ biometricText | i18n }}
         </button>
       </div>
       <div class="buttons-row">
-        <button type="submit" class="btn primary block" *ngIf="!hideInput">
+        <button type="submit" class="btn primary block" *ngIf="pinEnabled || masterPasswordEnabled">
           <i class="bwi bwi-unlock" aria-hidden="true"></i> <b>{{ "unlock" | i18n }}</b>
         </button>
         <button type="button" class="btn block" (click)="logOut()">

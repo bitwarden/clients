@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards/auth.guard";
+import { AuthGuard } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";

@@ -1,4 +1,4 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise">
+<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" [formGroup]="formGroup">
   <header>
     <div class="left">
       <button type="button" (click)="cancel()">{{ "cancel" | i18n }}</button>
@@ -7,7 +7,7 @@
       <span class="title">{{ title }}</span>
     </h1>
     <div class="right">
-      <button type="submit" [disabled]="form.loading || disableSend">
+      <button type="submit">
         <span [hidden]="form.loading">{{ "save" | i18n }}</span>
         <i class="bwi bwi-spinner bwi-lg bwi-spin" [hidden]="!form.loading" aria-hidden="true"></i>
       </button>
@@ -27,7 +27,7 @@
       icon="bwi-external-link bwi-rotate-270 bwi-fw"
       [clickable]="true"
       title="{{ 'sendFileCalloutHeader' | i18n }}"
-      *ngIf="showFilePopoutMessage && send.type === sendType.File && !disableSend"
+      *ngIf="showFilePopoutMessage && type === sendType.File && !disableSend"
       (click)="popOutWindow()"
     >
       <div *ngIf="showChromiumFileWarning">{{ "sendLinuxChromiumFileWarning" | i18n }}</div>
@@ -42,9 +42,8 @@
           <input
             id="name"
             type="text"
-            name="Name"
+            formControlName="name"
             aria-describedby="nameHelp"
-            [(ngModel)]="send.name"
             [readonly]="disableSend"
           />
         </div>
@@ -66,12 +65,9 @@
           >
             <input
               type="radio"
-              [(ngModel)]="send.type"
-              name="Type_{{ o.value }}"
+              formControlName="type"
               id="type_{{ o.value }}"
               [value]="o.value"
-              (change)="typeChanged()"
-              [checked]="send.type === o.value"
               [readonly]="disableSend"
             />
             <label for="type_{{ o.value }}">
@@ -82,7 +78,7 @@
       </div>
     </div>
     <!-- File -->
-    <div class="box" *ngIf="send.type === sendType.File && (editMode || showFileSelector)">
+    <div class="box" *ngIf="type === sendType.File && (editMode || showFileSelector)">
       <div class="box-content no-hover">
         <div class="box-content-row" *ngIf="editMode">
           <label for="file">{{ "file" | i18n }}</label>
@@ -93,9 +89,8 @@
           <input
             type="file"
             id="file"
-            name="file"
+            formControlName="file"
             aria-describedby="fileHelp"
-            required
             [readonly]="disableSend"
           />
         </div>
@@ -105,17 +100,15 @@
       </div>
     </div>
     <!-- Text -->
-    <div class="box" *ngIf="send.type === sendType.Text">
+    <div class="box" *ngIf="type === sendType.Text">
       <div class="box-content">
         <div class="box-content-row" appBoxRow>
           <label for="text">{{ "sendTypeText" | i18n }}</label>
           <textarea
             id="text"
-            name="Text"
+            formControlName="text"
             aria-describedby="textHelp"
             rows="6"
-            [(ngModel)]="send.text.text"
-            [readonly]="disableSend"
           ></textarea>
         </div>
       </div>
@@ -125,13 +118,7 @@
       <div class="box-content">
         <div class="box-content-row box-content-row-checkbox" appBoxRow>
           <label for="hideText">{{ "sendHideText" | i18n }}</label>
-          <input
-            id="hideText"
-            type="checkbox"
-            name="HideText"
-            [(ngModel)]="send.text.hidden"
-            [disabled]="disableSend"
-          />
+          <input id="hideText" type="checkbox" name="HideText" formControlName="textHidden" />
         </div>
       </div>
     </div>
@@ -144,13 +131,7 @@
         <!-- Copy Link on Save -->
         <div class="box-content-row box-content-row-checkbox" appBoxRow>
           <label for="copyOnSave">{{ "sendShareDesc" | i18n }}</label>
-          <input
-            id="copyOnSave"
-            type="checkbox"
-            name="CopyOnSave"
-            [(ngModel)]="copyLink"
-            [disabled]="disableSend"
-          />
+          <input id="copyOnSave" type="checkbox" name="CopyOnSave" formControlName="copyLink" />
         </div>
       </div>
     </div>
@@ -170,15 +151,140 @@
       </h2>
     </div>
     <div [hidden]="!showOptions">
-      <app-send-efflux-dates
-        [initialDeletionDate]="send.deletionDate"
-        [initialExpirationDate]="send.expirationDate"
-        [editMode]="editMode"
-        [disabled]="disableSend"
-        (datesChanged)="setDates($event)"
-        (popOutWindow)="popOutWindow()"
-      >
-      </app-send-efflux-dates>
+      <!-- Deletion Date -->
+      <div class="box">
+        <div class="box-content">
+          <ng-container *ngIf="!editMode">
+            <div class="box-content-row" appBoxRow>
+              <label for="deletionDate">{{ "deletionDate" | i18n }}</label>
+              <select
+                id="deletionDate"
+                name="DeletionDateSelect"
+                aria-describedby="deletionDateHelp"
+                formControlName="selectedDeletionDatePreset"
+                required
+              >
+                <option *ngFor="let o of deletionDatePresets" [ngValue]="o.value">
+                  {{ o.name }}
+                </option>
+              </select>
+            </div>
+            <div
+              class="box-content-row"
+              appBoxRow
+              *ngIf="formGroup.controls['selectedDeletionDatePreset'].value === 0"
+            >
+              <input
+                id="deletionDateCustom"
+                type="datetime-local"
+                name="DeletionDate"
+                aria-describedby="deletionDateHelp"
+                formControlName="defaultDeletionDateTime"
+                required
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+              />
+            </div>
+          </ng-container>
+          <div class="box-content-row" appBoxRow *ngIf="editMode">
+            <label for="deletionDate">{{ "deletionDate" | i18n }}</label>
+            <input
+              id="deletionDateCustom"
+              type="datetime-local"
+              name="DeletionDate"
+              aria-describedby="deletionDateHelp"
+              formControlName="defaultDeletionDateTime"
+              required
+              placeholder="MM/DD/YYYY HH:MM AM/PM"
+            />
+          </div>
+        </div>
+        <div id="deletionDateHelp" class="box-footer">
+          {{ "deletionDateDesc" | i18n }}
+          <ng-container
+            *ngIf="
+              !inPopout &&
+              isFirefox &&
+              (editMode ||
+                (formGroup.controls['selectedDeletionDatePreset'].value === 0 && !editMode))
+            "
+          >
+            <br />{{ "sendFirefoxCustomDatePopoutMessage1" | i18n }}
+            <a (click)="popOutWindow()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
+            {{ "sendFirefoxCustomDatePopoutMessage3" | i18n }}
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Expiration Date -->
+      <div class="box">
+        <div class="box-content">
+          <ng-container *ngIf="!editMode">
+            <div class="box-content-row" *ngIf="!editMode" appBoxRow>
+              <label for="editExpirationDate">{{ "expirationDate" | i18n }}</label>
+              <select
+                id="expirationDate"
+                name="ExpirationDateSelect"
+                aria-describedby="expirationDateHelp"
+                formControlName="selectedExpirationDatePreset"
+                required
+              >
+                <option *ngFor="let o of expirationDatePresets" [ngValue]="o.value">
+                  {{ o.name }}
+                </option>
+              </select>
+            </div>
+            <div
+              class="box-content-row"
+              *ngIf="formGroup.controls['selectedExpirationDatePreset'].value === 0"
+              appBoxRow
+            >
+              <input
+                id="expirationDateCustom"
+                type="datetime-local"
+                name="ExpirationDate"
+                aria-describedby="expirationDateHelp"
+                formControlName="defaultExpirationDateTime"
+                required
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+                [readOnly]="disableSend"
+              />
+            </div>
+          </ng-container>
+          <div class="box-content-row" *ngIf="editMode" appBoxRow>
+            <div class="flex-label">
+              <label>{{ "expirationDate" | i18n }}</label>
+              <button type="button" *ngIf="!disableSend" appStopClick (click)="clearExpiration()">
+                {{ "clear" | i18n }}
+              </button>
+            </div>
+            <input
+              id="expirationDateCustom"
+              type="datetime-local"
+              name="ExpirationDate"
+              aria-describedby="expirationDateHelp"
+              formControlName="defaultExpirationDateTime"
+              required
+              placeholder="MM/DD/YYYY HH:MM AM/PM"
+              [readOnly]="disableSend"
+            />
+          </div>
+        </div>
+        <div id="expirationDateHelp" class="box-footer">
+          {{ "expirationDateDesc" | i18n }}
+          <ng-container
+            *ngIf="
+              !inPopout &&
+              isFirefox &&
+              (editMode ||
+                (formGroup.controls['selectedExpirationDatePreset'].value === 0 && !editMode))
+            "
+          >
+            <br />{{ "sendFirefoxCustomDatePopoutMessage1" | i18n }}
+            <a (click)="popOutWindow()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
+            {{ "sendFirefoxCustomDatePopoutMessage3" | i18n }}
+          </ng-container>
+        </div>
+      </div>
       <!-- Maximum Access Count -->
       <div class="box">
         <div class="box-content">
@@ -190,8 +296,7 @@
               type="number"
               name="MaximumAccessCount"
               aria-describedby="maximumAccessCountHelp"
-              [(ngModel)]="send.maxAccessCount"
-              [readonly]="disableSend"
+              formControlName="maxAccessCount"
             />
           </div>
         </div>
@@ -206,10 +311,9 @@
             <label for="currentAccessCount">{{ "currentAccessCount" | i18n }}</label>
             <input
               id="currentAccessCount"
-              readonly
               type="text"
               name="CurrentAccessCount"
-              [(ngModel)]="send.accessCount"
+              formControlName="accessCount"
             />
           </div>
         </div>
@@ -227,9 +331,8 @@
                 name="Password"
                 aria-describedby="passwordHelp"
                 class="monospaced"
-                [(ngModel)]="password"
+                formControlName="password"
                 appInputVerbatim
-                [readonly]="disableSend"
               />
             </div>
             <div class="action-buttons" *ngIf="!disableSend">
@@ -264,8 +367,7 @@
               name="Notes"
               aria-describedby="notesHelp"
               rows="6"
-              [(ngModel)]="send.notes"
-              [readonly]="disableSend"
+              formControlName="notes"
             ></textarea>
           </div>
         </div>
@@ -278,13 +380,7 @@
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="hideEmail">{{ "hideEmail" | i18n }}</label>
-            <input
-              id="hideEmail"
-              type="checkbox"
-              name="HideEmail"
-              [(ngModel)]="send.hideEmail"
-              [disabled]="(disableHideEmail && !send.hideEmail) || disableSend"
-            />
+            <input id="hideEmail" type="checkbox" name="HideEmail" formControlName="hideEmail" />
           </div>
         </div>
       </div>
@@ -293,13 +389,7 @@
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="disableSend">{{ "sendDisableDesc" | i18n }}</label>
-            <input
-              id="disableSend"
-              type="checkbox"
-              name="DisableSend"
-              [(ngModel)]="send.disabled"
-              [disabled]="disableSend"
-            />
+            <input id="disableSend" type="checkbox" name="DisableSend" formControlName="disabled" />
           </div>
         </div>
       </div>

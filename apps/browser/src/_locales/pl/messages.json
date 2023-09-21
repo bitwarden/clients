@@ -338,6 +338,9 @@
   "other": {
     "message": "Inne"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Ustaw metodę odblokowania, aby zmienić czas blokowania sejfu."
+  },
   "rateExtension": {
     "message": "Oceń rozszerzenie"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Zaktualizuj"
   },
+  "notificationUnlockDesc": {
+    "message": "Odblokuj swój sejf Bitwarden, aby ukończyć żądanie autouzupełniania."
+  },
+  "notificationUnlock": {
+    "message": "Odblokuj"
+  },
   "enableContextMenuItem": {
     "message": "Pokaż opcje menu kontekstowego"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Dodatkowe opcje logowania dwustopniowego, takie jak klucze YubiKey, FIDO U2F oraz Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Własnościowe opcje logowania dwuetapowego, takie jak YubiKey i Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Raporty bezpieczeństwa haseł, stanu konta i raporty wycieków danych, aby Twoje dane były bezpieczne."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Przywróć element"
   },
-  "restoreItemConfirmation": {
-    "message": "Czy na pewno chcesz przywrócić ten element?"
-  },
   "restoredItem": {
     "message": "Element został przywrócony"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Dane biometryczne przeglądarki nie są obsługiwane na tym urządzeniu."
+  },
+  "biometricsFailedTitle": {
+    "message": "Dane biometryczne są błędne"
+  },
+  "biometricsFailedDesc": {
+    "message": "Dane biometryczne nie mogę być użyte, rozważ użycie hasła głównego lub wylogowanie. Jeśli się to powtarza, skontaktuj się z pomocą techniczną Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Uprawnienie nie zostało przyznane"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Eksportowanie osobistego sejfu"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Tylko osobiste elementy sejfu powiązane z adresem $EMAIL$ zostaną wyeksportowane. Elementy sejfu należące do organizacji nie będą uwzględnione.",
+  "exportingIndividualVaultDescription": {
+    "message": "Z sejfu zostaną wyeksportowane tylko elementy powiązane z $EMAIL$. Elementy z sejfu organizacji nie będą uwzględnione. Tylko informacje o elemencie zostaną wyeksportowane i nie będą zawierać powiązanych załączników.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Wersja serwera"
   },
-  "selfHosted": {
-    "message": "Samodzielnie hostowany"
+  "selfHostedServer": {
+    "message": "samodzielnie hostowany"
   },
   "thirdParty": {
     "message": "Inny dostawca"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Powiadomienie zostało wysłane na urządzenie."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Logowanie rozpoczęte"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Region"
+  "loggingInOn": {
+    "message": "Logowanie do"
   },
   "opensInANewWindow": {
     "message": "Otwiera w nowym oknie"
+  },
+  "deviceApprovalRequired": {
+    "message": "Wymagane zatwierdzenie urządzenia. Wybierz opcję zatwierdzenia poniżej:"
+  },
+  "rememberThisDevice": {
+    "message": "Zapamiętaj to urządzenie"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Odznacz jeśli używasz publicznego urządzenia"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Zatwierdź z innego twojego urządzenia"
+  },
+  "requestAdminApproval": {
+    "message": "Poproś administratora o zatwierdzenie"
+  },
+  "approveWithMasterPassword": {
+    "message": "Zatwierdź przy użyciu hasła głównego"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Identyfikator organizacji jest wymagany."
   },
   "eu": {
     "message": "UE",
     "description": "European Union"
   },
-  "us": {
-    "message": "US",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Odmowa dostępu. Nie masz uprawnień do przeglądania tej strony."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Wyświetl"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konto pomyślnie utworzone!"
+  },
+  "adminApprovalRequested": {
+    "message": "Poproszono administratora o zatwierdzenie"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Twoja prośba została wysłana do Twojego administratora."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Zostaniesz powiadomiony po zatwierdzeniu."
+  },
+  "troubleLoggingIn": {
+    "message": "Problem z zalogowaniem?"
+  },
+  "loginApproved": {
+    "message": "Logowanie zatwierdzone"
+  },
+  "userEmailMissing": {
+    "message": "Brak adresu e-mail użytkownika"
+  },
+  "deviceTrusted": {
+    "message": "Zaufano urządzeniu"
+  },
+  "inputRequired": {
+    "message": "Dane wejściowe są wymagane."
+  },
+  "required": {
+    "message": "wymagane"
+  },
+  "search": {
+    "message": "Szukaj"
+  },
+  "inputMinLength": {
+    "message": "Dane wejściowe muszą zawierać co najmniej $COUNT$ znaki(-ów).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Dane wejściowe nie mogą przekraczać długości $COUNT$ znaków.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Następujące znaki są niedozwolone: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Wartość wejściowa musi wynosić co najmniej $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Wartość wejściowa nie może przekraczać $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Co najmniej 1 e-mail jest nieprawidłowy"
+  },
+  "inputTrimValidator": {
+    "message": "Tekst nie może zawierać tylko spacji.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Dane wejściowe nie są adresem e-mail."
+  },
+  "fieldsNeedAttention": {
+    "message": "Pola powyżej wymagające Twojej uwagi: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Wybierz --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Pisz, aby filtrować --"
+  },
+  "multiSelectLoading": {
+    "message": "Pobieranie opcji..."
+  },
+  "multiSelectNotFound": {
+    "message": "Nie znaleziono żadnych pozycji"
+  },
+  "multiSelectClearAll": {
+    "message": "Wyczyść wszystko"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ więcej",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Podmenu"
+  },
+  "toggleCollapse": {
+    "message": "Zwiń/rozwiń",
+    "description": "Toggling an expand/collapse state."
   }
 }

@@ -173,7 +173,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
 
     this._folders.next(folders);
 
-    if (await this.cryptoService.hasKey()) {
+    if (await this.cryptoService.hasUserKey()) {
       this._folderViews.next(await this.decryptFolders(folders));
     }
   }

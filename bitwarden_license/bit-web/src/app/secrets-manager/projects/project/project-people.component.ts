@@ -2,9 +2,8 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable, share, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { SelectItemView } from "@bitwarden/components";
+import { DialogService, SelectItemView } from "@bitwarden/components";
 
 import {
   GroupProjectAccessPolicyView,
@@ -144,7 +143,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private dialogService: DialogServiceAbstraction,
+    private dialogService: DialogService,
     private validationService: ValidationService,
     private accessPolicyService: AccessPolicyService
   ) {}

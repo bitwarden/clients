@@ -38,7 +38,7 @@ defaults:
 jobs:
   cloc:
     name: CLOC
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
@@ -54,7 +54,7 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
@@ -71,7 +71,7 @@ jobs:
 
   locales-test:
     name: Locales Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - setup
     defaults:
@@ -108,15 +108,12 @@ jobs:
 
   build:
     name: Build
-    runs-on: windows-2019
+    runs-on: ubuntu-22.04
     needs:
       - setup
       - locales-test
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
-    defaults:
-      run:
-        working-directory: apps/browser
     steps:
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
@@ -137,88 +134,98 @@ jobs:
         run: |
           node --version
           npm --version
+          node-gyp --version
+
+      - name: Build sources for reviewers
+        run: |
+          # Include hidden files in glob copy
+          shopt -s dotglob
+
+          # Remove ".git" directory
+          rm -r .git
+
+          # Copy root level files to source directory
+          mkdir browser-source
+          FILES=$(find . -maxdepth 1 -type f)
+          for FILE in $FILES; do cp "$FILE" browser-source/; done
+
+          # Copy patches to the Browser source directory
+          mkdir -p browser-source/patches
+          cp -r patches/* browser-source/patches
+
+          # Copy apps/browser to the Browser source directory
+          mkdir -p browser-source/apps/browser
+          cp -r apps/browser/* browser-source/apps/browser
+
+          # Copy libs to Browser source directory
+          mkdir browser-source/libs
+          cp -r libs/* browser-source/libs
+
+          zip -r browser-source.zip browser-source
 
       - name: NPM setup
         run: npm ci
-        working-directory: ./
+        working-directory: browser-source/
 
       - name: Build
         run: npm run dist
+        working-directory: browser-source/apps/browser
 
       # - name: Build Manifest v3
       #   run: npm run dist:mv3
+      #   working-directory: browser-source/apps/browser
 
       - name: Gulp
         run: gulp ci
-
-      - name: Build sources for reviewers
-        shell: cmd
-        run: |
-          REM Remove ".git" directory
-          rmdir /S /Q ".git"
-
-          REM Copy root level files to source directory
-          mkdir browser-source
-          copy * browser-source
-
-          REM Copy apps\browser to Browser source directory
-          mkdir browser-source\apps\browser
-          xcopy apps\browser\* browser-source\apps\browser /E
-
-          REM Copy libs to Browser source directory
-          mkdir browser-source\libs
-          xcopy libs\* browser-source\libs /E
-
-          call 7z a browser-source.zip "browser-source\*"
-        working-directory: ./
+        working-directory: browser-source/apps/browser
 
       - name: Upload Opera artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: dist-opera-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-opera.zip
+          path: browser-source/apps/browser/dist/dist-opera.zip
           if-no-files-found: error
 
       # - name: Upload Opera MV3 artifact
       #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       #   with:
       #     name: dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
-      #     path: apps/browser/dist/dist-opera-mv3.zip
+      #     path: browser-source/apps/browser/dist/dist-opera-mv3.zip
       #     if-no-files-found: error
 
       - name: Upload Chrome artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: dist-chrome-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-chrome.zip
+          path: browser-source/apps/browser/dist/dist-chrome.zip
           if-no-files-found: error
 
       # - name: Upload Chrome MV3 artifact
       #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       #   with:
       #     name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
-      #     path: apps/browser/dist/dist-chrome-mv3.zip
+      #     path: browser-source/apps/browser/dist/dist-chrome-mv3.zip
       #     if-no-files-found: error
 
       - name: Upload Firefox artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: dist-firefox-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-firefox.zip
+          path: browser-source/apps/browser/dist/dist-firefox.zip
           if-no-files-found: error
 
       - name: Upload Edge artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: dist-edge-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-edge.zip
+          path: browser-source/apps/browser/dist/dist-edge.zip
           if-no-files-found: error
 
       # - name: Upload Edge MV3 artifact
       #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       #   with:
       #     name: dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
-      #     path: apps/browser/dist/dist-edge-mv3.zip
+      #     path: browser-source/apps/browser/dist/dist-edge-mv3.zip
       #     if-no-files-found: error
 
       - name: Upload browser source
@@ -233,7 +240,7 @@ jobs:
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: coverage-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/coverage/coverage-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/coverage/coverage-${{ env._BUILD_NUMBER }}.zip
           if-no-files-found: error
 
   build-safari:
@@ -339,7 +346,7 @@ jobs:
   crowdin-push:
     name: Crowdin Push
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - build
       - build-safari
@@ -354,7 +361,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
@@ -374,7 +381,7 @@ jobs:
   check-failures:
     name: Check for failures
     if: always()
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - cloc
       - setup
@@ -416,7 +423,7 @@ jobs:
       - name: Retrieve secrets
         id: retrieve-secrets
         if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/get-keyvault-secrets@37ffa14164a7308bc273829edfe75c97cd562375
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"

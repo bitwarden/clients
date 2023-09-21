@@ -1,48 +1,37 @@
 <div class="page-header d-flex">
   <h1>{{ "people" | i18n }}</h1>
   <div class="ml-auto d-flex">
-    <div class="btn-group btn-group-sm" role="group">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        [ngClass]="{ active: status == null }"
-        (click)="filter(null)"
-      >
+    <bit-toggle-group
+      [selected]="status"
+      (selectedChange)="filter($event)"
+      [attr.aria-label]="'memberStatusFilter' | i18n"
+    >
+      <bit-toggle [value]="null">
         {{ "all" | i18n }}
         <span bitBadge badgeType="info" *ngIf="allCount">{{ allCount }}</span>
-      </button>
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        [ngClass]="{ active: status == userStatusType.Invited }"
-        (click)="filter(userStatusType.Invited)"
-      >
+      </bit-toggle>
+
+      <bit-toggle [value]="userStatusType.Invited">
         {{ "invited" | i18n }}
         <span bitBadge badgeType="info" *ngIf="invitedCount">{{ invitedCount }}</span>
-      </button>
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        [ngClass]="{ active: status == userStatusType.Accepted }"
-        (click)="filter(userStatusType.Accepted)"
-      >
+      </bit-toggle>
+
+      <bit-toggle [value]="userStatusType.Accepted">
         {{ "accepted" | i18n }}
         <span bitBadge badgeType="warning" *ngIf="acceptedCount">{{ acceptedCount }}</span>
-      </button>
-    </div>
+      </bit-toggle>
+    </bit-toggle-group>
+
     <div class="ml-3">
-      <label class="sr-only" for="search">{{ "search" | i18n }}</label>
-      <input
-        type="search"
-        class="form-control form-control-sm"
-        id="search"
-        placeholder="{{ 'search' | i18n }}"
+      <bit-search
+        class="tw-grow"
         [(ngModel)]="searchText"
-      />
+        [placeholder]="'search' | i18n"
+      ></bit-search>
     </div>
     <div class="dropdown ml-3" appListDropdown>
       <button
-        class="btn btn-sm btn-outline-secondary dropdown-toggle"
+        class="btn btn-outline-secondary dropdown-toggle"
         type="button"
         id="bulkActionsButton"
         data-toggle="dropdown"
@@ -82,7 +71,7 @@
         </button>
       </div>
     </div>
-    <button type="button" class="btn btn-sm btn-outline-primary ml-3" (click)="invite()">
+    <button type="button" class="btn btn-outline-primary ml-3" (click)="invite()">
       <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
       {{ "inviteUser" | i18n }}
     </button>

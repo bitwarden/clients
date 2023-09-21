@@ -53,7 +53,7 @@ export class AccessService {
     serviceAccountId: string,
     accessTokenView: AccessTokenView
   ): Promise<string> {
-    const keyMaterial = await this.cryptoFunctionService.randomBytes(16);
+    const keyMaterial = await this.cryptoFunctionService.aesGenerateKey(128);
     const key = await this.cryptoFunctionService.hkdf(
       keyMaterial,
       "bitwarden-accesstoken",

@@ -42,11 +42,20 @@ export class BrowserApi {
     });
   }
 
-  static async getTab(tabId: number) {
-    if (tabId == null) {
+  static async getTab(tabId: number): Promise<chrome.tabs.Tab> | null {
+    if (!tabId) {
       return null;
     }
-    return await chrome.tabs.get(tabId);
+
+    if (BrowserApi.manifestVersion === 3) {
+      return await chrome.tabs.get(tabId);
+    }
+
+    return new Promise((resolve) =>
+      chrome.tabs.get(tabId, (tab) => {
+        resolve(tab);
+      })
+    );
   }
 
   static async getTabFromCurrentWindow(): Promise<chrome.tabs.Tab> | null {
@@ -190,7 +199,10 @@ export class BrowserApi {
     BrowserApi.removeTab(tabToClose.id);
   }
 
+  // Keep track of all the events registered in a Safari popup so we can remove
+  // them when the popup gets unloaded, otherwise we cause a memory leak
   private static registeredMessageListeners: any[] = [];
+  private static registeredStorageChangeListeners: any[] = [];
 
   static messageListener(
     name: string,
@@ -198,19 +210,36 @@ export class BrowserApi {
   ) {
     chrome.runtime.onMessage.addListener(callback);
 
-    // Keep track of all the events registered in a Safari popup so we can remove
-    // them when the popup gets unloaded, otherwise we cause a memory leak
     if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
       BrowserApi.registeredMessageListeners.push(callback);
-
-      // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
-      // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
-      window.onpagehide = () => {
-        for (const callback of BrowserApi.registeredMessageListeners) {
-          chrome.runtime.onMessage.removeListener(callback);
-        }
-      };
+      BrowserApi.setupUnloadListeners();
     }
+  }
+
+  static storageChangeListener(
+    callback: Parameters<typeof chrome.storage.onChanged.addListener>[0]
+  ) {
+    chrome.storage.onChanged.addListener(callback);
+
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+      BrowserApi.registeredStorageChangeListeners.push(callback);
+      BrowserApi.setupUnloadListeners();
+    }
+  }
+
+  // Setup the event to destroy all the listeners when the popup gets unloaded in Safari, otherwise we get a memory leak
+  private static setupUnloadListeners() {
+    // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
+    // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
+    window.onpagehide = () => {
+      for (const callback of BrowserApi.registeredMessageListeners) {
+        chrome.runtime.onMessage.removeListener(callback);
+      }
+
+      for (const callback of BrowserApi.registeredStorageChangeListeners) {
+        chrome.storage.onChanged.removeListener(callback);
+      }
+    };
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {
@@ -298,5 +327,32 @@ export class BrowserApi {
       return null;
     }
     return win.opr?.sidebarAction || browser.sidebarAction;
+  }
+
+  /**
+   * Extension API helper method used to execute a script in a tab.
+   * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
+   * @param {number} tabId
+   * @param {chrome.tabs.InjectDetails} details
+   * @returns {Promise<unknown>}
+   */
+  static executeScriptInTab(tabId: number, details: chrome.tabs.InjectDetails) {
+    if (BrowserApi.manifestVersion === 3) {
+      return chrome.scripting.executeScript({
+        target: {
+          tabId: tabId,
+          allFrames: details.allFrames,
+          frameIds: details.frameId ? [details.frameId] : null,
+        },
+        files: details.file ? [details.file] : null,
+        injectImmediately: details.runAt === "document_start",
+      });
+    }
+
+    return new Promise((resolve) => {
+      chrome.tabs.executeScript(tabId, details, (result) => {
+        resolve(result);
+      });
+    });
   }
 }

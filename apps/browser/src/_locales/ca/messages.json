@@ -338,6 +338,9 @@
   "other": {
     "message": "Altres"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configura un mètode de desbloqueig per canviar l'acció del temps d'espera de la caixa forta."
+  },
   "rateExtension": {
     "message": "Valora aquesta extensió"
   },
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Actualitza"
   },
+  "notificationUnlockDesc": {
+    "message": "Desbloquegeu la vostra caixa forta de Bitwarden per completar la sol·licitud d'emplenament automàtic."
+  },
+  "notificationUnlock": {
+    "message": "Desbloqueja"
+  },
   "enableContextMenuItem": {
     "message": "Mostra les opcions del menú contextual"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB d'emmagatzematge xifrat per als fitxers adjunts."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Opcions addicionals d'inici de sessió en dues passes com ara YubiKey, FIDO U2F i Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Requisits d'higiene de la contrasenya, salut del compte i informe d'infraccions de dades per mantenir la seguretat de la vostra caixa forta."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Restaura l'element"
   },
-  "restoreItemConfirmation": {
-    "message": "Esteu segur que voleu restaurar aquest element?"
-  },
   "restoredItem": {
     "message": "Element restaurat"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "La biometria del navegador no és compatible amb aquest dispositiu."
+  },
+  "biometricsFailedTitle": {
+    "message": "La biometria ha fallat"
+  },
+  "biometricsFailedDesc": {
+    "message": "La biometria no es pot completar, considereu utilitzar una contrasenya mestra o tancar la sessió. Si això continua, poseu-vos en contacte amb el servei d'assistència de Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "No s'ha proporcionat el permís"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "S'està exportant la caixa forta personal"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Només s'exportaran els elements personals de la caixa forta  associats a $EMAIL$. Els elements de la caixa forta  de l'organització no s'inclouran.",
+  "exportingIndividualVaultDescription": {
+    "message": "Només s'exportaran els elements de la caixa forta individuals associats a $EMAIL$. Els elements de la caixa de l'organització no s'inclouran. Només s'exportarà la informació de l'element de la caixa forta i no inclourà els fitxers adjunts associats.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Versió del servidor"
   },
-  "selfHosted": {
-    "message": "Autoallotjat"
+  "selfHostedServer": {
+    "message": "autoallotjat"
   },
   "thirdParty": {
     "message": "Tercers"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "S'ha iniciat la sessió"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Regió"
+  "loggingInOn": {
+    "message": "Inici de sessió en"
   },
   "opensInANewWindow": {
     "message": "S'obri en una finestra nova"
+  },
+  "deviceApprovalRequired": {
+    "message": "Cal l'aprovació del dispositiu. Seleccioneu una opció d'aprovació a continuació:"
+  },
+  "rememberThisDevice": {
+    "message": "Recorda aquest dispositiu"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Desmarqueu si utilitzeu un dispositiu públic"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Aproveu des d'un altre dispositiu vostre"
+  },
+  "requestAdminApproval": {
+    "message": "Sol·liciteu l'aprovació de l'administrador"
+  },
+  "approveWithMasterPassword": {
+    "message": "Aprova amb contrasenya mestra"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Es requereix un identificador SSO de l'organització."
   },
   "eu": {
     "message": "UE",
     "description": "European Union"
   },
-  "us": {
-    "message": "EUA",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Accés denegat. No teniu permís per veure aquesta pàgina."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Mostra"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Compte creat correctament!"
+  },
+  "adminApprovalRequested": {
+    "message": "S'ha sol·licitat l'aprovació de l'administrador"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "La vostra sol·licitud s'ha enviat a l'administrador."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Se us notificarà una vegada aprovat."
+  },
+  "troubleLoggingIn": {
+    "message": "Teniu problemes per iniciar la sessió?"
+  },
+  "loginApproved": {
+    "message": "S'ha aprovat l'inici de sessió"
+  },
+  "userEmailMissing": {
+    "message": "Falta el correu electrònic de l'usuari"
+  },
+  "deviceTrusted": {
+    "message": "Dispositiu de confiança"
+  },
+  "inputRequired": {
+    "message": "L'entrada és obligatòria."
+  },
+  "required": {
+    "message": "obligatori"
+  },
+  "search": {
+    "message": "Cerca"
+  },
+  "inputMinLength": {
+    "message": "L'entrada ha de tenir com a mínim $COUNT$ caràcters.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "L'entrada no ha de superar $COUNT$ caràcters de longitud.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Els següents caràcters no estan permesos:\n$CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "El valor d'entrada ha de ser com a mínim $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "El valor d'entrada no ha de ser superior a $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 o més correus no són vàlids"
+  },
+  "inputTrimValidator": {
+    "message": "L'entrada no ha de contenir només espais en blanc.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "L'entrada no és una adreça de correu electrònic."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ camp(s) de dalt necessiten la vostra atenció.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Selecciona --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Escriviu per filtrar --"
+  },
+  "multiSelectLoading": {
+    "message": "Obtenint opcions..."
+  },
+  "multiSelectNotFound": {
+    "message": "No s'ha trobat cap element"
+  },
+  "multiSelectClearAll": {
+    "message": "Esborra-ho tot"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ més",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Submenú"
+  },
+  "toggleCollapse": {
+    "message": "Redueix/Amplia",
+    "description": "Toggling an expand/collapse state."
   }
 }

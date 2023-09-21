@@ -4,7 +4,6 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { BiometricMessage, BiometricStorageAction } from "../../types/biometric-message";
 import { isDev, isMacAppStore } from "../../utils";
@@ -12,12 +11,7 @@ import { isDev, isMacAppStore } from "../../utils";
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   private deviceCache: DeviceType = null;
 
-  constructor(
-    protected i18nService: I18nService,
-    private messagingService: MessagingService,
-    private clientType: ClientType.Desktop | ClientType.DirectoryConnector,
-    private stateService: StateService
-  ) {}
+  constructor(protected i18nService: I18nService, private messagingService: MessagingService) {}
 
   getDevice(): DeviceType {
     if (!this.deviceCache) {
@@ -44,7 +38,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   getClientType() {
-    return this.clientType;
+    return ClientType.Desktop;
   }
 
   isFirefox(): boolean {

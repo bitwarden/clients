@@ -314,10 +314,6 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       return false;
     }
 
-    if (this.isFirefox()) {
-      return parseInt((await browser.runtime.getBrowserInfo()).version.split(".")[0], 10) >= 87;
-    }
-
     return true;
   }
 

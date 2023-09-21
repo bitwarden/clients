@@ -5,14 +5,20 @@
       <span class="title">{{ "verifyIdentity" | i18n }}</span>
     </h1>
     <div class="right">
-      <button type="submit" *ngIf="!hideInput">{{ "unlock" | i18n }}</button>
+      <button type="submit" *ngIf="pinEnabled || masterPasswordEnabled">
+        {{ "unlock" | i18n }}
+      </button>
     </div>
   </header>
   <main tabindex="-1">
     <div class="box">
       <div class="box-content">
-        <div class="box-content-row box-content-row-flex" appBoxRow *ngIf="!hideInput">
-          <div class="row-main" *ngIf="pinLock">
+        <div
+          class="box-content-row box-content-row-flex"
+          appBoxRow
+          *ngIf="pinEnabled || masterPasswordEnabled"
+        >
+          <div class="row-main" *ngIf="pinEnabled">
             <label for="pin">{{ "pin" | i18n }}</label>
             <input
               id="pin"
@@ -24,7 +30,7 @@
               appInputVerbatim
             />
           </div>
-          <div class="row-main" *ngIf="!pinLock">
+          <div class="row-main" *ngIf="masterPasswordEnabled && !pinEnabled">
             <label for="masterPassword">{{ "masterPass" | i18n }}</label>
             <input
               id="masterPassword"

@@ -22,7 +22,7 @@ defaults:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       release-version: ${{ steps.version.outputs.version }}
     steps:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/release-version-check@58a2fdfbd3f1fc7e6727bc5dc51d159f4df07072
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -52,7 +52,7 @@ jobs:
 
   locales-test:
     name: Locales Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout repo
@@ -86,7 +86,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - setup
       - locales-test
@@ -103,7 +103,7 @@ jobs:
 
       - name: Download latest Release build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-browser.yml
           workflow_conclusion: success
@@ -116,7 +116,7 @@ jobs:
 
       - name: Dry Run - Download latest master build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        uses: bitwarden/gh-actions/download-artifacts@67ab95d7a466bcefdedf3f93cbc10bcff436edfe
         with:
           workflow: build-browser.yml
           workflow_conclusion: success

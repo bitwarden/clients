@@ -42,8 +42,7 @@ jobs:
     name: Bump version to ${{ needs.setup.outputs.version_number }}
     needs: setup
     uses: ./.github/workflows/version-bump.yml
-    secrets:
-      AZURE_PROD_KV_CREDENTIALS: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
     with:
       version_number: ${{ needs.setup.outputs.version_number }}
-      client: "Desktop"
+      bump_desktop: true
+    secrets: inherit

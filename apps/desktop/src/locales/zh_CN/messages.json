@@ -317,7 +317,7 @@
     "message": "文件夹"
   },
   "newCustomField": {
-    "message": "新建自定义字段"
+    "message": "新增自定义字段"
   },
   "value": {
     "message": "值"
@@ -509,7 +509,7 @@
     "message": "主密码是访问密码库的唯一密码。它非常重要，请您不要忘记。忘记主密码后，我们无法为您恢复或重置它。"
   },
   "masterPassHintDesc": {
-    "message": "主密码提示可以在你忘记密码时帮你回忆。"
+    "message": "主密码提示可以在您忘记密码时帮您回忆起来。"
   },
   "reTypeMasterPass": {
     "message": "再次输入主密码"
@@ -555,7 +555,7 @@
     "message": "两次填写的主密码不一致。"
   },
   "newAccountCreated": {
-    "message": "已经为您建立了账户，您可以登录了。"
+    "message": "您的新账户已创建！您现在可以登录了。"
   },
   "masterPassSent": {
     "message": "我们已经为您发送了包含主密码提示的邮件。"
@@ -597,7 +597,7 @@
     "message": "请输入您的身份验证器应用中的 6 位验证码。"
   },
   "enterVerificationCodeEmail": {
-    "message": "请输入通过电子邮件发送给 $EMAIL$ 的 6 位验证码。",
+    "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -618,7 +618,7 @@
     "message": "记住我"
   },
   "sendVerificationCodeEmailAgain": {
-    "message": "重发验证码电子邮件"
+    "message": "再次发送验证码电子邮件"
   },
   "useAnotherTwoStepMethod": {
     "message": "使用其他两步登录方式"
@@ -663,7 +663,7 @@
     "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的帐户。"
   },
   "emailTitle": {
-    "message": "电子邮件地址"
+    "message": "电子邮件"
   },
   "emailDesc": {
     "message": "验证码将会发送到您的电子邮箱。"
@@ -744,13 +744,13 @@
     "message": "注销"
   },
   "addNewLogin": {
-    "message": "添加新登录"
+    "message": "新增登录"
   },
   "addNewItem": {
     "message": "新增项目"
   },
   "addNewFolder": {
-    "message": "添加文件夹"
+    "message": "新增文件夹"
   },
   "view": {
     "message": "查看"
@@ -1077,8 +1077,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储。"
   },
-  "premiumSignUpTwoStep": {
-    "message": "额外的两步登录选项，如 YubiKey、FIDO U2F 和 Duo。"
+  "premiumSignUpTwoStepOptions": {
+    "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
   },
   "premiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
@@ -1414,7 +1414,7 @@
     "message": "应用程序启动时要求使用触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "应用程序启动时要求输入密码或 PIN"
+    "message": "应用程序启动时要求输入密码或 PIN 码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -1429,7 +1429,7 @@
     "message": "接下来的操作会删除您的账户和所有密码库数据。"
   },
   "deleteAccountWarning": {
-    "message": "删除账户是永久性的。不能被撤消。"
+    "message": "删除账户是永久性操作，无法撤销！"
   },
   "accountDeleted": {
     "message": "账户已删除"
@@ -1492,6 +1492,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新验证才能再次访问您的密码库。"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "设置一个解锁方式以更改您的密码库超时动作。"
+  },
   "lock": {
     "message": "锁定",
     "description": "Verb form: to make secure or inaccesible by"
@@ -1512,12 +1515,6 @@
   "permanentlyDeletedItem": {
     "message": "项目已永久删除"
   },
-  "restoreItem": {
-    "message": "恢复项目"
-  },
-  "restoreItemConfirmation": {
-    "message": "您确定要恢复此项目吗？"
-  },
   "restoredItem": {
     "message": "项目已恢复"
   },
@@ -1537,7 +1534,7 @@
     "message": "设置主密码"
   },
   "ssoCompleteRegistration": {
-    "message": "要完成 SSO 登陆配置，请设置一个主密码以访问和保护您的密码库。"
+    "message": "要完成 SSO 登录配置，请设置一个主密码以访问和保护您的密码库。"
   },
   "currentMasterPass": {
     "message": "当前主密码"
@@ -1657,7 +1654,7 @@
     "message": "需要先在桌面应用程序的设置中设置生物识别，才能使用浏览器中的生物识别。"
   },
   "personalOwnershipSubmitError": {
-    "message": "由于企业策略，您被限制为保存项目到您的个人密码库。将所有权选项更改为组织，然后从可用的集合中选择。"
+    "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
   },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
@@ -1798,7 +1795,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "由于企业策略，您只能删除现有的 Send。",
+    "message": "由于某个企业策略，您只能删除现有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
@@ -1841,7 +1838,7 @@
     "message": "您必须验证您的电子邮件才能使用此功能。"
   },
   "passwordPrompt": {
-    "message": "重新询问主密码"
+    "message": "主密码重新提示"
   },
   "passwordConfirmation": {
     "message": "确认主密码"
@@ -1982,13 +1979,13 @@
     "message": "选项"
   },
   "sessionTimeout": {
-    "message": "您的会话已超时。请返回并尝试重新登录。"
+    "message": "您的会话已超时。请返回然后尝试重新登录。"
   },
   "exportingPersonalVaultTitle": {
     "message": "正在导出个人密码库"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目。组织密码库的项目不会导出。",
+  "exportingIndividualVaultDescription": {
+    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目，不包括组织密码库项目。仅会导出密码库项目信息，不包括关联的附件。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2086,7 +2083,7 @@
     "message": "密码库"
   },
   "loginWithMasterPassword": {
-    "message": "使用主密码登录"
+    "message": "主密码登录"
   },
   "loggingInAs": {
     "message": "正登录为"
@@ -2112,20 +2109,20 @@
   "logInWithAnotherDevice": {
     "message": "使用其他设备登录"
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "登录已发起"
   },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
   "fingerprintMatchInfo": {
-    "message": "请确保您的密码库已解锁，并且指纹短语与其他设备匹配。"
+    "message": "请确保您的密码库已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "fingerprintPhraseHeader": {
     "message": "指纹短语"
   },
   "needAnotherOption": {
-    "message": "设备登录必须在 Bitwarden 应用程序的设置中设启用。需要其他选项吗？"
+    "message": "设备登录必须在 Bitwarden 应用程序的设置中启用。需要其他登录选项吗？"
   },
   "viewAllLoginOptions": {
     "message": "查看所有登录选项"
@@ -2247,26 +2244,176 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN）。现在要更新您的设置吗？"
+    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN 码）。现在要更新您的设置吗？"
   },
   "windowsBiometricUpdateWarningTitle": {
     "message": "推荐的设置更新"
   },
+  "deviceApprovalRequired": {
+    "message": "需要设备批准。请在下面选择一个批准选项："
+  },
+  "rememberThisDevice": {
+    "message": "记住此设备"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "若使用公共设备，请取消勾选"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "从您的其他设备批准"
+  },
+  "requestAdminApproval": {
+    "message": "请求管理员批准"
+  },
+  "approveWithMasterPassword": {
+    "message": "使用主密码批准"
+  },
   "region": {
     "message": "区域"
+  },
+  "ssoIdentifierRequired": {
+    "message": "必须填写组织 SSO 标识符。"
   },
   "eu": {
     "message": "欧盟",
     "description": "European Union"
   },
-  "us": {
-    "message": "美国",
-    "description": "United States"
+  "loggingInOn": {
+    "message": "登录到"
   },
-  "selfHosted": {
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
+  },
+  "selfHostedServer": {
     "message": "自托管"
   },
   "accessDenied": {
     "message": "访问被拒绝。您没有权限查看此页面。"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "账户已成功创建！"
+  },
+  "adminApprovalRequested": {
+    "message": "已请求管理员批准"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "您的请求已发送给您的管理员。"
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "批准后，您将收到通知。"
+  },
+  "troubleLoggingIn": {
+    "message": "登录遇到问题？"
+  },
+  "loginApproved": {
+    "message": "登录已批准"
+  },
+  "userEmailMissing": {
+    "message": "缺少用户电子邮件"
+  },
+  "deviceTrusted": {
+    "message": "设备已信任"
+  },
+  "inputRequired": {
+    "message": "必须输入内容。"
+  },
+  "required": {
+    "message": "必填"
+  },
+  "search": {
+    "message": "搜索"
+  },
+  "inputMinLength": {
+    "message": "至少输入 $COUNT$ 个字符。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "输入长度不能超过 $COUNT$ 个字符。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "以下字符不被允许：$CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "输入的值不能低于 $MIN$。",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "输入的值不能超过 $MAX$。",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "一个或多个电子邮件地址无效"
+  },
+  "inputTrimValidator": {
+    "message": "输入不能只包含空格。",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "输入的不是电子邮件地址。"
+  },
+  "fieldsNeedAttention": {
+    "message": "上面的 $COUNT$ 个字段需要您注意。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- 选择 --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- 输入以筛选 --"
+  },
+  "multiSelectLoading": {
+    "message": "正在获取选项..."
+  },
+  "multiSelectNotFound": {
+    "message": "未找到任何条目"
+  },
+  "multiSelectClearAll": {
+    "message": "清除全部"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ more",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "子菜单"
   }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -19,6 +18,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
 
 import { EmergencyAccessAddEditComponent } from "./emergency-access-add-edit.component";
 import { EmergencyAccessConfirmComponent } from "./emergency-access-confirm.component";
@@ -56,7 +56,7 @@ export class EmergencyAccessComponent implements OnInit {
     private logService: LogService,
     private stateService: StateService,
     private organizationService: OrganizationService,
-    protected dialogService: DialogServiceAbstraction
+    protected dialogService: DialogService
   ) {}
 
   async ngOnInit() {
@@ -174,7 +174,7 @@ export class EmergencyAccessComponent implements OnInit {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: this.userNamePipe.transform(details),
       content: { key: "removeUserConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -207,7 +207,7 @@ export class EmergencyAccessComponent implements OnInit {
         placeholders: [details.waitTimeDays.toString()],
       },
       acceptButtonText: { key: "requestAccess" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -236,7 +236,7 @@ export class EmergencyAccessComponent implements OnInit {
         placeholders: [this.userNamePipe.transform(details), type],
       },
       acceptButtonText: { key: "approve" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -300,9 +300,12 @@ export class EmergencyAccessComponent implements OnInit {
     }
   }
 
-  // Encrypt the master password hash using the grantees public key, and send it to bitwarden for escrow.
+  // Encrypt the user key with the grantees public key, and send it to bitwarden for escrow.
   private async doConfirmation(details: EmergencyAccessGranteeDetailsResponse) {
-    const encKey = await this.cryptoService.getEncKey();
+    const userKey = await this.cryptoService.getUserKey();
+    if (!userKey) {
+      throw new Error("No user key found");
+    }
     const publicKeyResponse = await this.apiService.getUserPublicKey(details.granteeId);
     const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
@@ -315,7 +318,7 @@ export class EmergencyAccessComponent implements OnInit {
       // Ignore errors since it's just a debug message
     }
 
-    const encryptedKey = await this.cryptoService.rsaEncrypt(encKey.key, publicKey);
+    const encryptedKey = await this.cryptoService.rsaEncrypt(userKey.key, publicKey);
     const request = new EmergencyAccessConfirmRequest();
     request.key = encryptedKey.encryptedString;
     await this.apiService.postEmergencyAccessConfirm(details.id, request);

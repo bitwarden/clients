@@ -20,7 +20,8 @@
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
       "@bitwarden/exporter/*": ["./libs/exporter/src/*"],
-      "@bitwarden/node/*": ["./libs/node/src/*"]
+      "@bitwarden/node/*": ["./libs/node/src/*"],
+      "@bitwarden/vault": ["./libs/vault/src"]
     },
     "plugins": [
       {

@@ -285,7 +285,7 @@
     "message": "Змінити"
   },
   "view": {
-    "message": "Перегляд"
+    "message": "Переглянути"
   },
   "noItemsInList": {
     "message": "Немає записів."
@@ -321,7 +321,7 @@
     "message": "Видалити запис"
   },
   "viewItem": {
-    "message": "Перегляд запису"
+    "message": "Переглянути запис"
   },
   "launch": {
     "message": "Перейти"
@@ -337,6 +337,9 @@
   },
   "other": {
     "message": "Інше"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
   },
   "rateExtension": {
     "message": "Оцінити розширення"
@@ -630,6 +633,12 @@
   "notificationChangeSave": {
     "message": "Оновити"
   },
+  "notificationUnlockDesc": {
+    "message": "Розблокуйте своє сховище Bitwarden, щоб завершити запит автозаповнення."
+  },
+  "notificationUnlock": {
+    "message": "Розблокувати"
+  },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
   },
@@ -786,8 +795,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Додаткові можливості двоетапної перевірки, наприклад, YubiKey, FIDO U2F та Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
@@ -1440,9 +1449,6 @@
   "restoreItem": {
     "message": "Відновити запис"
   },
-  "restoreItemConfirmation": {
-    "message": "Ви дійсно хочете відновити цей запис?"
-  },
   "restoredItem": {
     "message": "Запис відновлено"
   },
@@ -1598,6 +1604,12 @@
   },
   "biometricsNotSupportedDesc": {
     "message": "Біометрія в браузері не підтримується на цьому пристрої."
+  },
+  "biometricsFailedTitle": {
+    "message": "Збій біометрії"
+  },
+  "biometricsFailedDesc": {
+    "message": "Неможливо виконати біометрію. Скористайтеся головним паролем або вийдіть із системи. Якщо проблема не зникне, зверніться до служби підтримки Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Дозвіл не надано"
@@ -1979,8 +1991,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Експортування особистого сховища"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено.",
+  "exportingIndividualVaultDescription": {
+    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено. Експортуються лише дані записів сховища без пов'язаних вкладень.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2080,8 +2092,8 @@
   "serverVersion": {
     "message": "Версія сервера"
   },
-  "selfHosted": {
-    "message": "Власне розміщення"
+  "selfHostedServer": {
+    "message": "власне розміщення"
   },
   "thirdParty": {
     "message": "Сторонній"
@@ -2140,7 +2152,7 @@
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Ініційовано вхід"
   },
   "exposedMasterPassword": {
@@ -2221,19 +2233,42 @@
       }
     }
   },
-  "region": {
-    "message": "Регіон"
+  "loggingInOn": {
+    "message": "Увійти на"
   },
   "opensInANewWindow": {
     "message": "Відкривається у новому вікні"
+  },
+  "deviceApprovalRequired": {
+    "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
+  },
+  "rememberThisDevice": {
+    "message": "Запам'ятати цей пристрій"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Зніміть позначку, якщо використовуєте загальнодоступний пристрій"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Затвердіть з іншого пристрою"
+  },
+  "requestAdminApproval": {
+    "message": "Запит підтвердження адміністратора"
+  },
+  "approveWithMasterPassword": {
+    "message": "Затвердити з головним паролем"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Потрібен SSO-ідентифікатор організації."
   },
   "eu": {
     "message": "ЄС",
     "description": "European Union"
   },
-  "us": {
-    "message": "США",
-    "description": "United States"
+  "usDomain": {
+    "message": "bitwarden.com"
+  },
+  "euDomain": {
+    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Доступ заборонено. У вас немає дозволу на перегляд цієї сторінки."
@@ -2243,5 +2278,133 @@
   },
   "display": {
     "message": "Екран"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Обліковий запис успішно створено!"
+  },
+  "adminApprovalRequested": {
+    "message": "Запитано затвердження адміністратором"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Ваш запит відправлено адміністратору."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Ви отримаєте сповіщення після затвердження."
+  },
+  "troubleLoggingIn": {
+    "message": "Проблема під час входу?"
+  },
+  "loginApproved": {
+    "message": "Вхід затверджено"
+  },
+  "userEmailMissing": {
+    "message": "Немає адреси електронної пошти"
+  },
+  "deviceTrusted": {
+    "message": "Довірений пристрій"
+  },
+  "inputRequired": {
+    "message": "Необхідно ввести дані."
+  },
+  "required": {
+    "message": "обов'язково"
+  },
+  "search": {
+    "message": "Пошук"
+  },
+  "inputMinLength": {
+    "message": "Введені дані мають бути довжиною принаймні $COUNT$ символів.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Вхідне значення не повинно перевищувати $COUNT$ символів.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Вказані символи заборонені: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Значення має бути принаймні $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Значення не може перевищувати $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 або більше адрес е-пошти недійсні"
+  },
+  "inputTrimValidator": {
+    "message": "Введене значення не повинно містити лише пробіл.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Введені дані не є адресою е-пошти."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ поле (поля) вище потребують вашої уваги.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Оберіть--"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Введіть для фільтрування --"
+  },
+  "multiSelectLoading": {
+    "message": "Параметри отримання..."
+  },
+  "multiSelectNotFound": {
+    "message": "Нічого не знайдено"
+  },
+  "multiSelectClearAll": {
+    "message": "Очистити все"
+  },
+  "plusNMore": {
+    "message": "+ ще $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Підменю"
+  },
+  "toggleCollapse": {
+    "message": "Згорнути/розгорнути",
+    "description": "Toggling an expand/collapse state."
   }
 }

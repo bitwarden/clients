@@ -271,6 +271,10 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     });
   }
 
+  aesGenerateKey(bitLength: 128 | 192 | 256 | 512): Promise<CsprngArray> {
+    return this.randomBytes(bitLength / 8);
+  }
+
   randomBytes(length: number): Promise<CsprngArray> {
     return new Promise<CsprngArray>((resolve, reject) => {
       crypto.randomBytes(length, (error, bytes) => {

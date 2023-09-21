@@ -5,7 +5,8 @@
 #lock-page,
 #sso-page,
 #set-password-page,
-#remove-password-page {
+#remove-password-page,
+#login-decryption-options-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,7 +54,8 @@
 #hint-page,
 #two-factor-page,
 #lock-page,
-#update-temp-password-page {
+#update-temp-password-page,
+#login-decryption-options-page {
   .content {
     width: 325px;
     transition: width 0.25s linear;
@@ -189,7 +191,8 @@
 }
 
 #login-page,
-#login-with-device-page {
+#login-with-device-page,
+#login-decryption-options-page {
   flex-direction: column;
   justify-content: unset;
   padding-top: 20px;
@@ -271,5 +274,16 @@
         font-weight: bold;
       }
     }
+  }
+}
+
+#login-decryption-options-page {
+  .standard-bottom-margin {
+    margin-bottom: 20px;
+  }
+
+  #rememberThisDeviceHintText {
+    font-size: $font-size-small;
+    color: $text-muted;
   }
 }

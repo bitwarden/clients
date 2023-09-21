@@ -26,6 +26,7 @@ import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component"
 import { RegisterFormModule } from "../auth/register-form/register-form.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
+import { ChangePasswordComponent } from "../auth/settings/change-password.component";
 import { DeauthorizeSessionsComponent } from "../auth/settings/deauthorize-sessions.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessAttachmentsComponent } from "../auth/settings/emergency-access/emergency-access-attachments.component";
@@ -76,25 +77,21 @@ import { ApiKeyComponent } from "../settings/api-key.component";
 import { ChangeAvatarComponent } from "../settings/change-avatar.component";
 import { ChangeEmailComponent } from "../settings/change-email.component";
 import { ChangeKdfModule } from "../settings/change-kdf/change-kdf.module";
-import { ChangePasswordComponent } from "../settings/change-password.component";
 import { DeleteAccountComponent } from "../settings/delete-account.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { LowKdfComponent } from "../settings/low-kdf.component";
 import { PreferencesComponent } from "../settings/preferences.component";
-import { PremiumComponent } from "../settings/premium.component";
 import { ProfileComponent } from "../settings/profile.component";
 import { PurgeVaultComponent } from "../settings/purge-vault.component";
 import { SecurityKeysComponent } from "../settings/security-keys.component";
 import { SecurityComponent } from "../settings/security.component";
 import { SettingsComponent } from "../settings/settings.component";
-import { UpdateKeyComponent } from "../settings/update-key.component";
 import { UpdateLicenseComponent } from "../settings/update-license.component";
 import { VaultTimeoutInputComponent } from "../settings/vault-timeout-input.component";
 import { GeneratorComponent } from "../tools/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/password-generator-history.component";
 import { AccessComponent } from "../tools/send/access.component";
 import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
-import { EffluxDatesComponent as SendEffluxDatesComponent } from "../tools/send/efflux-dates.component";
 import { ToolsComponent } from "../tools/tools.component";
 import { PasswordRepromptComponent } from "../vault/components/password-reprompt.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
@@ -107,6 +104,7 @@ import { ShareComponent } from "../vault/individual-vault/share.component";
 import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-edit.component";
 import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { CollectionsComponent as OrgCollectionsComponent } from "../vault/org-vault/collections.component";
+import { PremiumComponent } from "../vault/settings/premium.component";
 
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
@@ -198,7 +196,6 @@ import { SharedModule } from "./shared.module";
     SecurityKeysComponent,
     SelectableAvatarComponent,
     SendAddEditComponent,
-    SendEffluxDatesComponent,
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
@@ -218,7 +215,6 @@ import { SharedModule } from "./shared.module";
     TwoFactorVerifyComponent,
     TwoFactorWebAuthnComponent,
     TwoFactorYubiKeyComponent,
-    UpdateKeyComponent,
     UpdateLicenseComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
@@ -302,7 +298,6 @@ import { SharedModule } from "./shared.module";
     SecurityKeysComponent,
     SelectableAvatarComponent,
     SendAddEditComponent,
-    SendEffluxDatesComponent,
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
@@ -322,7 +317,6 @@ import { SharedModule } from "./shared.module";
     TwoFactorVerifyComponent,
     TwoFactorWebAuthnComponent,
     TwoFactorYubiKeyComponent,
-    UpdateKeyComponent,
     UpdateLicenseComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,

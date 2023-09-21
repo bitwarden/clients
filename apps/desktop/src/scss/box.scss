@@ -504,3 +504,26 @@
     }
   }
 }
+
+.details {
+  .inner-content {
+    .box-content-row-flex:not([type="button"]) {
+      @media (max-width: 875px) {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .action-buttons {
+        @media (max-width: 875px) {
+          margin-left: 0;
+        }
+      }
+
+      .row-btn:first-of-type {
+        @media (max-width: 875px) {
+          margin-left: -8px;
+        }
+      }
+    }
+  }
+}

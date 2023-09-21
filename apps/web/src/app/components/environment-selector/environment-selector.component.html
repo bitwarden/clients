@@ -2,7 +2,9 @@
   <bit-menu #environmentOptions>
     <a
       bitMenuItem
-      [attr.href]="isUsServer ? 'javascript:void(0)' : 'https://vault.bitwarden.com'"
+      [attr.href]="
+        isUsServer ? 'javascript:void(0)' : 'https://vault.bitwarden.com' + routeAndParams
+      "
       class="pr-4"
     >
       <i
@@ -10,12 +12,13 @@
         aria-hidden="true"
         [style.visibility]="isUsServer ? 'visible' : 'hidden'"
       ></i>
-      <img src="../../images/us_flag.png" alt="{{ 'usFlag' | i18n }}" class="pb-1 mr-1" />
       {{ "usDomain" | i18n }}
     </a>
     <a
       bitMenuItem
-      [attr.href]="isEuServer ? 'javascript:void(0)' : 'https://vault.bitwarden.eu'"
+      [attr.href]="
+        isEuServer ? 'javascript:void(0)' : 'https://vault.bitwarden.eu' + routeAndParams
+      "
       class="pr-4"
       *ngIf="euServerFlagEnabled"
     >
@@ -24,28 +27,10 @@
         aria-hidden="true"
         [style.visibility]="isEuServer ? 'visible' : 'hidden'"
       ></i>
-      <img src="../../images/eu_flag.png" alt="{{ 'euFlag' | i18n }}" class="pb-1 mr-1" />
       {{ "euDomain" | i18n }}
     </a>
   </bit-menu>
-  <span *ngIf="hasFlags" class="!tw-inline-block !tw-min-w-52">
-    <label>{{ "server" | i18n }}:</label>
-    <a
-      [routerLink]="[]"
-      [bitMenuTriggerFor]="environmentOptions"
-      class="tw-rounded-md tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-2"
-    >
-      <img
-        [src]="'../../images/' + selectedRegionImageName + '.png'"
-        alt="{{ 'selectedRegionFlag' | i18n }}"
-        class="pb-1 mr-1 tw-ml-1"
-      /><label class="tw-cursor-pointer !tw-font-normal"
-        >{{ isEuServer ? ("euDomain" | i18n) : ("usDomain" | i18n) }}
-        <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i
-      ></label>
-    </a>
-  </span>
-  <div *ngIf="!hasFlags">
+  <div>
     {{ "server" | i18n }}:
     <a [routerLink]="[]" [bitMenuTriggerFor]="environmentOptions">
       <b>{{ isEuServer ? ("euDomain" | i18n) : ("usDomain" | i18n) }}</b

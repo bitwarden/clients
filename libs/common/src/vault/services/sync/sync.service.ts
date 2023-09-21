@@ -303,8 +303,8 @@ export class SyncService implements SyncServiceAbstraction {
       throw new Error("Stamp has changed");
     }
 
-    await this.cryptoService.setEncKey(response.key);
-    await this.cryptoService.setEncPrivateKey(response.privateKey);
+    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
+    await this.cryptoService.setPrivateKey(response.privateKey);
     await this.cryptoService.setProviderKeys(response.providers);
     await this.cryptoService.setOrgKeys(response.organizations, response.providerOrganizations);
     await this.stateService.setAvatarColor(response.avatarColor);

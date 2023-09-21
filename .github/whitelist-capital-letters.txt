@@ -2,10 +2,7 @@
 ./apps/browser/src/safari/desktop/Assets.xcassets/AccentColor.colorset
 ./apps/browser/src/safari/desktop/Assets.xcassets/AppIcon.appiconset
 ./apps/browser/src/safari/desktop/Base.lproj
-./apps/browser/src/services/vaultTimeout
 ./apps/browser/store/windows/Assets
-./libs/common/src/abstractions/vaultTimeout
-./libs/common/src/services/vaultTimeout
 ./bitwarden_license/README.md
 ./libs/angular/src/directives/cipherListVirtualScroll.directive.ts
 ./libs/angular/src/scss/webfonts/Open_Sans-italic-700.woff
@@ -25,13 +22,10 @@
 ./libs/common/src/misc/linkedFieldOption.decorator.ts
 ./libs/common/src/misc/serviceUtils.ts
 ./libs/common/src/misc/serviceUtils.spec.ts
-./libs/common/src/abstractions/vaultTimeout/vaultTimeoutSettings.service.ts
-./libs/common/src/abstractions/vaultTimeout/vaultTimeout.service.ts
 ./libs/common/src/abstractions/anonymousHub.service.ts
-./libs/common/src/services/vaultTimeout/vaultTimeoutSettings.service.ts
-./libs/common/src/services/vaultTimeout/vaultTimeout.service.ts
 ./libs/common/src/services/anonymousHub.service.ts
 ./libs/auth/README.md
+./libs/vault/README.md
 ./README.md
 ./LICENSE_BITWARDEN.txt
 ./CONTRIBUTING.md
@@ -78,5 +72,4 @@
 ./apps/browser/src/safari/safari/SafariWebExtensionHandler.swift
 ./apps/browser/src/safari/safari/Info.plist
 ./apps/browser/src/safari/desktop.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
-./apps/browser/src/services/vaultTimeout/vaultTimeout.service.ts
 ./SECURITY.md

@@ -16,7 +16,7 @@
       #slotStart
       class="[&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
     >
-      <ng-content select="[slot-start]"></ng-content>
+      <ng-content select="[slot=start]"></ng-content>
     </div>
     <!-- Default content for #slotStart (for consistent sizing) -->
     <div
@@ -47,7 +47,7 @@
       <!-- The `fvw` class passes focus to `this.focusVisibleWithin$` -->
       <!-- The following `class` field should match the `#isButton` class field below -->
       <a
-        class="fvw tw-w-full tw-overflow-hidden tw-text-ellipsis tw-whitespace-nowrap tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
+        class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
         [routerLink]="route"
         [attr.aria-label]="ariaLabel || text"
         routerLinkActive
@@ -65,7 +65,7 @@
       <!-- Class field should match `#isAnchor` class field above -->
       <button
         type="button"
-        class="fvw tw-w-full tw-overflow-hidden tw-text-ellipsis tw-whitespace-nowrap tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
+        class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
         (click)="mainContentClicked.emit()"
       >
         <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
@@ -75,7 +75,7 @@
     <div
       class="tw-flex tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
     >
-      <ng-content select="[slot-end]"></ng-content>
+      <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
 </div>

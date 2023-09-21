@@ -112,6 +112,7 @@
     *ngIf="showAdjustPayment"
   >
   </app-adjust-payment>
+  <p *ngIf="isUnpaid">{{ "paymentChargedWithUnpaidSubscription" | i18n }}</p>
   <ng-container *ngIf="forOrganization">
     <h2 class="spaced-header">{{ "taxInformation" | i18n }}</h2>
     <p>{{ "taxInformationDesc" | i18n }}</p>

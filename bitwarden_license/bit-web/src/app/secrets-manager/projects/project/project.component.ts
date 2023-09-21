@@ -12,9 +12,9 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 import { ProjectView } from "../../models/view/project.view";
 import {
@@ -40,7 +40,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private projectService: ProjectService,
     private router: Router,
-    private dialogService: DialogServiceAbstraction,
+    private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService
   ) {}

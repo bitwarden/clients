@@ -347,6 +347,23 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(buffer);
   }
 
+  async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {
+    if (bitLength === 512) {
+      // 512 bit keys are not supported in WebCrypto, so we concat two 256 bit keys
+      const key1 = await this.aesGenerateKey(256);
+      const key2 = await this.aesGenerateKey(256);
+      return new Uint8Array([...key1, ...key2]) as CsprngArray;
+    }
+    const aesParams = {
+      name: "AES-CBC",
+      length: bitLength,
+    };
+
+    const key = await this.subtle.generateKey(aesParams, true, ["encrypt", "decrypt"]);
+    const rawKey = await this.subtle.exportKey("raw", key);
+    return new Uint8Array(rawKey) as CsprngArray;
+  }
+
   async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]> {
     const rsaParams = {
       name: "RSA-OAEP",
@@ -355,10 +372,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       // Have to specify some algorithm
       hash: { name: this.toWebCryptoAlgorithm("sha1") },
     };
-    const keyPair = (await this.subtle.generateKey(rsaParams, true, [
-      "encrypt",
-      "decrypt",
-    ])) as CryptoKeyPair;
+    const keyPair = await this.subtle.generateKey(rsaParams, true, ["encrypt", "decrypt"]);
     const publicKey = await this.subtle.exportKey("spki", keyPair.publicKey);
     const privateKey = await this.subtle.exportKey("pkcs8", keyPair.privateKey);
     return [new Uint8Array(publicKey), new Uint8Array(privateKey)];
