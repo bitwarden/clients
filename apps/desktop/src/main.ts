@@ -214,10 +214,17 @@ export class Main {
       .filter((s) => s.indexOf("bitwarden://") === 0)
       .forEach((s) => {
         const url = new URL(s);
-        const code = url.searchParams.get("code");
-        const receivedState = url.searchParams.get("state");
-        if (code != null && receivedState != null) {
-          this.messagingService.send("ssoCallback", { code: code, state: receivedState });
+        if (url.hostname === "webauthn-callback") {
+          const data = url.searchParams.get("data");
+          if (data != null) {
+            this.messagingService.send("webauthnCallback", { data: data });
+          }
+        } else {
+          const code = url.searchParams.get("code");
+          const receivedState = url.searchParams.get("state");
+          if (code != null && receivedState != null) {
+            this.messagingService.send("ssoCallback", { code: code, state: receivedState });
+          }
         }
       });
   }
