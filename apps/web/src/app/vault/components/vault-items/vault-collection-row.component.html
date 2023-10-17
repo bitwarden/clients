@@ -1,14 +1,4 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
-  <input
-    type="checkbox"
-    bitCheckbox
-    appStopProp
-    *ngIf="canDeleteCollection"
-    [disabled]="disabled"
-    [checked]="checked"
-    (change)="$event ? this.checkedToggled.next() : null"
-  />
-</td>
+<td *ngIf="canDeleteCollection" bitCell bit-row-selector appStopProp [disabled]="disabled"></td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div class="icon" aria-hidden="true">
     <i class="bwi bwi-fw bwi-lg bwi-collection"></i>

@@ -2708,6 +2708,9 @@
   "all": {
     "message": "All"
   },
+  "toggleRow": {
+    "message": "Toggle row"
+  },
   "refresh": {
     "message": "Refresh"
   },

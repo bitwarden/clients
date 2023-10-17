@@ -2418,5 +2418,11 @@
   },
   "aliasDomain": {
     "message": "Alias domain"
+  },
+  "all": {
+    "message": "All"
+  },
+  "toggleRow": {
+    "message": "Toggle row"
   }
 }

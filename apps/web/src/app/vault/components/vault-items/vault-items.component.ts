@@ -14,7 +14,7 @@ import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 65;
-export const RowHeightClass = `tw-h-[65px]`;
+export const RowHeightClass = `!tw-h-[65px]`;
 
 const MaxSelectionCount = 500;
 
@@ -62,16 +62,14 @@ export class VaultItemsComponent {
 
   protected editableItems: VaultItem[] = [];
   protected dataSource = new TableDataSource<VaultItem>();
-  protected selection = new SelectionModel<VaultItem>(true, [], true);
+  protected selectionModel = new SelectionModel<VaultItem>(true, [], true);
+
+  get selected() {
+    return this.selectionModel.selected.slice(0, MaxSelectionCount);
+  }
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
-  }
-
-  get isAllSelected() {
-    return this.editableItems
-      .slice(0, MaxSelectionCount)
-      .every((item) => this.selection.isSelected(item));
   }
 
   get isEmpty() {
@@ -104,12 +102,6 @@ export class VaultItemsComponent {
     return collection.canDelete(organization);
   }
 
-  protected toggleAll() {
-    this.isAllSelected
-      ? this.selection.clear()
-      : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));
-  }
-
   protected event(event: VaultItemEvent) {
     this.onEvent.emit(event);
   }
@@ -117,34 +109,28 @@ export class VaultItemsComponent {
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selected.filter((item) => item.cipher !== undefined).map((item) => item.cipher),
     });
   }
 
   protected bulkMoveToOrganization() {
     this.event({
       type: "moveToOrganization",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selected.filter((item) => item.cipher !== undefined).map((item) => item.cipher),
     });
   }
 
   protected bulkRestore() {
     this.event({
       type: "restore",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selected.filter((item) => item.cipher !== undefined).map((item) => item.cipher),
     });
   }
 
   protected bulkDelete() {
     this.event({
       type: "delete",
-      items: this.selection.selected,
+      items: this.selected,
     });
   }
 
@@ -153,7 +139,7 @@ export class VaultItemsComponent {
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
 
-    this.selection.clear();
+    this.selectionModel.clear();
     this.editableItems = items.filter(
       (item) =>
         item.cipher !== undefined ||

@@ -2445,5 +2445,11 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "all": {
+    "message": "All"
+  },
+  "toggleRow": {
+    "message": "Toggle row"
   }
 }

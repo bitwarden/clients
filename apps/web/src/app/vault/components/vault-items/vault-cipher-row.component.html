@@ -1,13 +1,4 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
-  <input
-    type="checkbox"
-    bitCheckbox
-    appStopProp
-    [disabled]="disabled"
-    [checked]="checked"
-    (change)="$event ? this.checkedToggled.next() : null"
-  />
-</td>
+<td bitCell [ngClass]="RowHeightClass" bit-row-selector appStopProp [disabled]="disabled"></td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>

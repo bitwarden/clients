@@ -29,9 +29,6 @@ export class VaultCipherRowComponent {
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
-  @Input() checked: boolean;
-  @Output() checkedToggled = new EventEmitter<void>();
-
   protected CipherType = CipherType;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
