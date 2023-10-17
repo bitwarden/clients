@@ -1,0 +1,50 @@
+import { Canvas, Meta, Source } from "@storybook/blocks";
+
+import * as DeferredExecutionStories from "./deferred-execution.stories.ts";
+
+<Meta of={DeferredExecutionStories} />
+
+# Deferred Execution
+
+Deferred execution is a method of moving the execution of an async action to another part of the
+application. This is useful for when you want to define a button that triggers an async action in
+one place, but you want to define the handler in a different place. A common use case for this is CL
+components, where the UI is defined by the library, but the action is defined by the client.
+
+## Basic Example
+
+### Converting async action button to use deferred execution
+
+To convert a button from using the regular async action to using deferred execution, all you need to
+do is change the binding type from an `Input` to an `Output`. This will cause the button to not
+execute the action when it is clicked, but instead emit a tagged event that you can listen to and
+handle just like regular Angular `Output` events. Simply emit this event to any parent component.
+
+<Canvas of={DeferredExecutionStories.Simple} />
+
+### Executing the action
+
+When the event reaches the component in which you want to execute the action, simply use
+`AsyncContextService.execute` to run your action. Make sure to pass in the event's tag so that the
+button is able to react to the action being executed.
+
+**Note:** The `AsyncContextService.execute` can be called in any parent component of the button,
+meaning that the `$event` can be passed up through many layers until it reaches the component that
+will execute the action. This works even if the parent component uses a different
+`AsyncContextService` than the one the button belongs to. This works as long as the
+`AsyncContextService` is a parent of the button's `AsyncContextService`. For more information see
+[Nested Contexts](?path=/docs/component-library-async-actions-contexts--docs#nested-contexts)
+
+```typescript
+deleteCipher(event: BitAsyncTaggedEvent) {
+  this.asyncContextService.execute(event.tag, async () => {
+    await this.cipherService.deleteCipher(this.cipher.id);
+  });
+}
+```
+
+```html
+<button bitButton buttonType="danger" (bitAsyncClick)="deleteCipher($event)">Delete</button>
+```
+
+<Canvas of={DeferredExecutionStories.WithExecution} />

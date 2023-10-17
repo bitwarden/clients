@@ -1,0 +1,82 @@
+{/* Checkbox.mdx */}
+
+import { Canvas, Meta, Source } from "@storybook/blocks";
+
+import * as AsyncContextStories from "./async-context.stories.ts";
+
+<Meta of={AsyncContextStories} />
+
+# Contexts
+
+An async context is a way to group relevant actions together so that execution of one action affects
+the execution of another. For example, if you have a form with a "Save" and "Delete" button, you
+might want to disable the "Delete" button while the "Save" action is running, and vice versa.
+
+<Canvas of={AsyncContextStories.Simple} />
+
+## How to create a context
+
+There are two way of creating a context, which one you use depends on your use case.
+
+### Using `AsyncContextService`
+
+This method is useful when you need to interact with the service directly, for example during
+initialization when you might want to manually set the loading state while fetching data. For more
+information about how to interact with the async context during data fetching, see
+[Data Fetching](?path=/docs/component-library-async-actions-data-fetching--docs)
+
+To create a context, simply add `AsyncContextService` as a provider to your component:
+
+```typescript
+@Component({
+  providers: [AsyncContextService],
+})
+```
+
+### Using `bitAsyncContext` directive
+
+You can also use the `bitAsyncContext` directive to create a context, which is useful when you don't
+want to create a whole new component just for the async context. The simplest example of this would
+be a standalone button:
+
+<Canvas of={AsyncContextStories.StandaloneButton} />
+
+## When to create a context
+
+You should create contexts around natural boundaries in your application. A place where changing one
+thing will require updates to other things within the same boundary, or when actions need to be
+atomic within that boundary.
+
+## Nested contexts
+
+All contexts are hierarchical, meaning that most contexts will be affected by a parent context. When
+an action is run in a parent context, it will also disable actions in all child contexts. This means
+that it is important to give careful consideration to creating sub-contexts for actions that are
+able to run in parallel, so that we avoid blocking the entire application.
+
+<Canvas of={AsyncContextStories.HierarchyUsingDirectives} />
+
+## Standard contexts
+
+There are some standard contexts that are provided by the library:
+
+### Root
+
+The root context which all actions will run in by default. If you do not specify a context, your
+action will run here and effectively disable all other async actions in the client.
+
+### Menu
+
+Dropdown menus are place where many buttons are grouped together, all acting within the same context
+(usually upon the same entity). When a button in a menu triggers a long running task, it is
+important that the other buttons in the menu are disabled to avoid confusion and accidental data
+loss. The menu context is created automatically when a menu is opened and any active actions inside
+of it will prevent the menu from closing.
+
+### Dialog
+
+> **Warning:** Not implemented yet
+
+Dialogs are in a sense a sub-page of the application and provide a natural boundary in which actions
+are usually scoped to. The dialog context is created automatically when a dialog is opened and any
+active actions inside of it will prevent the dialog from closing.
