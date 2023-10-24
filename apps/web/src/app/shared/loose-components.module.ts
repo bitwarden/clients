@@ -19,7 +19,6 @@ import { SponsoringOrgRowComponent } from "../admin-console/settings/sponsoring-
 import { AcceptEmergencyComponent } from "../auth/accept-emergency.component";
 import { AcceptOrganizationComponent } from "../auth/accept-organization.component";
 import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { RegisterFormModule } from "../auth/register-form/register-form.module";
@@ -133,7 +132,6 @@ import { SharedModule } from "./shared.module";
     FooterComponent,
     FrontendLayoutComponent,
     HintComponent,
-    LockComponent,
     NavbarComponent,
     OrganizationSwitcherComponent,
     OrgAddEditComponent,
@@ -218,7 +216,6 @@ import { SharedModule } from "./shared.module";
     FooterComponent,
     FrontendLayoutComponent,
     HintComponent,
-    LockComponent,
     NavbarComponent,
     OrganizationSwitcherComponent,
     OrgAddEditComponent,

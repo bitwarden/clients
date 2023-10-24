@@ -20,10 +20,15 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { DialogService } from "@bitwarden/components";
 
 import { RouterService } from "../core";
+import { SharedModule } from "../shared";
+
+import { CardComponent } from "./card.component";
 
 @Component({
   selector: "app-lock",
   templateUrl: "lock.component.html",
+  standalone: true,
+  imports: [SharedModule, CardComponent],
 })
 export class LockComponent extends BaseLockComponent {
   constructor(
