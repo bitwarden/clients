@@ -67,7 +67,7 @@ export class LoginComponent extends BaseLoginComponent {
       webAuthnLoginService,
     );
     super.onSuccessfulLogin = async () => {
-      await syncService.fullSync(true);
+      await syncService.fullSync(true, "successful-login");
     };
     super.successRoute = "/tabs/vault";
     this.showPasswordless = flagEnabled("showPasswordless");

@@ -193,7 +193,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         this.organization = organization;
 
         if (!organization.canUseAdminCollections) {
-          await this.syncService.fullSync(false);
+          await this.syncService.fullSync(false, "org-vault-first-setup");
         }
 
         return undefined;

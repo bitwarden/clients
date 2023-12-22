@@ -70,7 +70,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   }
 
   async ngOnInit() {
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "update-temp-password");
 
     this.reason = await this.stateService.getForceSetPasswordReason();
 

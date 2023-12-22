@@ -322,7 +322,7 @@ export class LoginCommand {
       }
 
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)
-      await this.syncService.fullSync(true);
+      await this.syncService.fullSync(true, "login");
 
       // Handle updating passwords if NOT using an API Key for authentication
       if (

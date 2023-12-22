@@ -301,7 +301,7 @@ export class AppComponent implements OnInit, OnDestroy {
           }
           case "syncVault":
             try {
-              await this.syncService.fullSync(true, true);
+              await this.syncService.fullSync(true, "sync-vault", true);
               this.platformUtilsService.showToast(
                 "success",
                 null,
@@ -324,7 +324,7 @@ export class AppComponent implements OnInit, OnDestroy {
               }
 
               if (lastSyncAgo >= SyncInterval) {
-                await this.syncService.fullSync(false);
+                await this.syncService.fullSync(false, "check-sync-vault");
               }
             } catch (e) {
               this.logService.error(e);
@@ -380,7 +380,7 @@ export class AppComponent implements OnInit, OnDestroy {
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
-              await this.syncService.fullSync(true);
+              await this.syncService.fullSync(true, "switch-account");
               this.loading = false;
               this.router.navigate(["vault"]);
             }
@@ -447,7 +447,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     childComponent.onSavedFolder.subscribe(async () => {
       this.modal.close();
-      this.syncService.fullSync(false);
+      this.syncService.fullSync(false, "saved-folder");
     });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil

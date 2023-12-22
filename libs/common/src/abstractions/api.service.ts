@@ -166,7 +166,7 @@ export abstract class ApiService {
   setPassword: (request: SetPasswordRequest) => Promise<any>;
   postSetKeyConnectorKey: (request: SetKeyConnectorKeyRequest) => Promise<any>;
   postSecurityStamp: (request: SecretVerificationRequest) => Promise<any>;
-  getAccountRevisionDate: () => Promise<number>;
+  getAccountRevisionDate: (purpose: Lowercase<string>) => Promise<number>;
   postPasswordHint: (request: PasswordHintRequest) => Promise<any>;
   postRegister: (request: RegisterRequest) => Promise<RegisterResponse>;
   postPremium: (data: FormData) => Promise<PaymentResponse>;
@@ -304,7 +304,7 @@ export abstract class ApiService {
   putGroupUsers: (organizationId: string, id: string, request: string[]) => Promise<any>;
   deleteGroupUser: (organizationId: string, id: string, organizationUserId: string) => Promise<any>;
 
-  getSync: () => Promise<SyncResponse>;
+  getSync: (purpose: string) => Promise<SyncResponse>;
   postPublicImportDirectory: (request: OrganizationImportRequest) => Promise<any>;
 
   getSettingsDomains: () => Promise<DomainsResponse>;

@@ -82,7 +82,7 @@ export class MigrateFromLegacyEncryptionService {
     );
 
     // Sync before encrypting to make sure we have latest data
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "update-keys");
 
     request.privateKey = await this.encryptPrivateKey(newUserKey);
     request.folders = await this.encryptFolders(newUserKey);

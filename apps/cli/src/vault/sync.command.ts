@@ -15,7 +15,7 @@ export class SyncCommand {
     }
 
     try {
-      await this.syncService.fullSync(normalizedOptions.force, true);
+      await this.syncService.fullSync(normalizedOptions.force, "sync", true);
       const res = new MessageResponse("Syncing complete.", null);
       return Response.success(res);
     } catch (e) {

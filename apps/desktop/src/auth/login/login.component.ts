@@ -95,7 +95,7 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       webAuthnLoginService,
     );
     super.onSuccessfulLogin = () => {
-      return syncService.fullSync(true);
+      return syncService.fullSync(true, "successful-login");
     };
   }
 

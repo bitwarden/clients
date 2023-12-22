@@ -154,7 +154,7 @@ describe("migrateFromLegacyEncryptionService", () => {
         mockUserKey,
         mockEncUserKey,
       );
-      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(syncService.fullSync).toHaveBeenCalledWith(true, "update-keys");
     });
 
     it("does not post new account data if sync fails", async () => {

@@ -177,7 +177,7 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
     }
 
     if (this.rotateUserKey) {
-      await this.syncService.fullSync(true);
+      await this.syncService.fullSync(true, "rotate-user-key");
     }
 
     return super.setupSubmitActions();

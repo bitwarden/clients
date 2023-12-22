@@ -90,7 +90,7 @@ export class SetupComponent implements OnInit {
 
       const provider = await this.apiService.postProviderSetup(this.providerId, request);
       this.platformUtilsService.showToast("success", null, this.i18nService.t("providerSetup"));
-      await this.syncService.fullSync(true);
+      await this.syncService.fullSync(true, "create-provider");
 
       this.router.navigate(["/providers", provider.id]);
     } catch (e) {

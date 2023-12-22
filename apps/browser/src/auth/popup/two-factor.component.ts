@@ -70,11 +70,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       configService,
     );
     super.onSuccessfulLogin = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "successful-login-post-2fa");
     };
 
     super.onSuccessfulLoginTde = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "successful-tde-login-post-2fa");
     };
 
     super.onSuccessfulLoginTdeNavigate = async () => {
@@ -92,7 +92,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       this.selectedProviderType = TwoFactorProviderType.WebAuthn;
       this.token = this.route.snapshot.paramMap.get("webAuthnResponse");
       super.onSuccessfulLogin = async () => {
-        this.syncService.fullSync(true);
+        this.syncService.fullSync(true, "successful-login-post-2fa");
         this.messagingService.send("reloadPopup");
         window.close();
       };
@@ -133,7 +133,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
           // This is not awaited so we don't pause the application while the sync is happening.
           // This call is executed by the service that lives in the background script so it will continue
           // the sync even if this tab closes.
-          this.syncService.fullSync(true);
+          this.syncService.fullSync(true, "successful-login-post-sso");
 
           // Force sidebars (FF && Opera) to reload while exempting current window
           // because we are just going to close the current window.

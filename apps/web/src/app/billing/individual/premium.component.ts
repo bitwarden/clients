@@ -120,7 +120,7 @@ export class PremiumComponent implements OnInit {
 
   async finalizePremium() {
     await this.apiService.refreshIdentityToken();
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "finalize-premium");
     this.platformUtilsService.showToast("success", null, this.i18nService.t("premiumUpdated"));
     this.messagingService.send("purchasedPremium");
     this.router.navigate(["/settings/subscription/user-subscription"]);

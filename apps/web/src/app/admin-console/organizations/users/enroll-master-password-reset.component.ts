@@ -62,7 +62,7 @@ export class EnrollMasterPasswordReset {
             request,
           );
 
-          await this.syncService.fullSync(true);
+          await this.syncService.fullSync(true, "enroll-master-password-reset");
         });
       this.platformUtilsService.showToast(
         "success",

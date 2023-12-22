@@ -89,7 +89,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   async create(request: OrganizationCreateRequest): Promise<OrganizationResponse> {
     const r = await this.apiService.send("POST", "/organizations", request, true, true);
     // Forcing a sync will notify organization service that they need to repull
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-create");
     return new OrganizationResponse(r);
   }
 
@@ -107,7 +107,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   async save(id: string, request: OrganizationUpdateRequest): Promise<OrganizationResponse> {
     const r = await this.apiService.send("PUT", "/organizations/" + id, request, true, true);
     const data = new OrganizationResponse(r);
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-save");
     return data;
   }
 
@@ -194,12 +194,12 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
 
   async leave(id: string): Promise<void> {
     await this.apiService.send("POST", "/organizations/" + id + "/leave", null, true, false);
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-leave");
   }
 
   async delete(id: string, request: SecretVerificationRequest): Promise<void> {
     await this.apiService.send("DELETE", "/organizations/" + id, request, true, false);
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-delete");
   }
 
   async updateLicense(id: string, data: FormData): Promise<void> {
@@ -339,7 +339,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       true,
     );
     const data = new OrganizationResponse(r);
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-update-collection-management");
     return data;
   }
 }

@@ -80,7 +80,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
   async ngOnInit() {
     super.ngOnInit();
 
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "set-password");
     this.syncLoading = false;
 
     this.forceSetPasswordReason = await this.stateService.getForceSetPasswordReason();

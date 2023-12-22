@@ -83,7 +83,11 @@ export class SyncService implements SyncServiceAbstraction {
   }
 
   @sequentialize(() => "fullSync")
-  async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  async fullSync(
+    forceSync: boolean,
+    purpose: Lowercase<string>,
+    allowThrowOnError = false,
+  ): Promise<boolean> {
     this.syncStarted();
     const isAuthenticated = await this.stateService.getIsAuthenticated();
     if (!isAuthenticated) {
@@ -93,7 +97,7 @@ export class SyncService implements SyncServiceAbstraction {
     const now = new Date();
     let needsSync = false;
     try {
-      needsSync = await this.needsSyncing(forceSync);
+      needsSync = await this.needsSyncing(forceSync, purpose);
     } catch (e) {
       if (allowThrowOnError) {
         throw e;
@@ -107,7 +111,7 @@ export class SyncService implements SyncServiceAbstraction {
 
     try {
       await this.apiService.refreshIdentityToken();
-      const response = await this.apiService.getSync();
+      const response = await this.apiService.getSync(purpose);
 
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders);
@@ -281,7 +285,7 @@ export class SyncService implements SyncServiceAbstraction {
     return successfully;
   }
 
-  private async needsSyncing(forceSync: boolean) {
+  private async needsSyncing(forceSync: boolean, purpose: Lowercase<string>) {
     if (forceSync) {
       return true;
     }
@@ -291,7 +295,7 @@ export class SyncService implements SyncServiceAbstraction {
       return true;
     }
 
-    const response = await this.apiService.getAccountRevisionDate();
+    const response = await this.apiService.getAccountRevisionDate(purpose);
     if (new Date(response) <= lastSync) {
       return false;
     }

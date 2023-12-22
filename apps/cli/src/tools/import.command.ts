@@ -80,7 +80,7 @@ export class ImportCommand {
 
       const response = await this.importService.import(importer, contents, organizationId);
       if (response.success) {
-        this.syncService.fullSync(true);
+        this.syncService.fullSync(true, "import");
         return Response.success(new MessageResponse("Imported " + filepath, null));
       }
     } catch (err) {

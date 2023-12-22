@@ -369,7 +369,7 @@ export class ImportComponent implements OnInit, OnDestroy {
         data: result,
       });
 
-      this.syncService.fullSync(true);
+      this.syncService.fullSync(true, "import");
       this.onSuccessfulImport.emit(this._organizationId);
     } catch (e) {
       this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, {

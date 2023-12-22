@@ -23,7 +23,7 @@ export class SyncComponent implements OnInit {
   }
 
   async sync() {
-    this.syncPromise = this.syncService.fullSync(true);
+    this.syncPromise = this.syncService.fullSync(true, "sync");
     const success = await this.syncPromise;
     if (success) {
       await this.setLastSync();

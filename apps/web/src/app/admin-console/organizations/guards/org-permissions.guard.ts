@@ -25,7 +25,7 @@ export class OrganizationPermissionsGuard implements CanActivate {
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     // TODO: We need to fix this issue once and for all.
     if ((await this.syncService.getLastSync()) == null) {
-      await this.syncService.fullSync(false);
+      await this.syncService.fullSync(false, "organization-permissions-guard");
     }
 
     const org = this.organizationService.get(route.params.organizationId);

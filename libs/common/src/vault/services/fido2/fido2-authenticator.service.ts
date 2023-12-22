@@ -91,7 +91,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       }
 
       await userInterfaceSession.ensureUnlockedVault();
-      await this.syncService.fullSync(false);
+      await this.syncService.fullSync(false, "fido2-authenticator-make-credential");
 
       const existingCipherIds = await this.findExcludedCredentials(
         params.excludeCredentialDescriptorList,
@@ -209,7 +209,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       let cipherOptions: CipherView[];
 
       await userInterfaceSession.ensureUnlockedVault();
-      await this.syncService.fullSync(false);
+      await this.syncService.fullSync(false, "fido2-authenticator-get-assertion");
 
       if (params.allowCredentialDescriptorList?.length > 0) {
         cipherOptions = await this.findCredentialsById(

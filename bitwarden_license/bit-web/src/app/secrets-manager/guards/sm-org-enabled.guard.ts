@@ -13,7 +13,7 @@ export const organizationEnabledGuard: CanActivateFn = async (route: ActivatedRo
 
   /** Workaround to avoid service initialization race condition. */
   if ((await syncService.getLastSync()) == null) {
-    await syncService.fullSync(false);
+    await syncService.fullSync(false, "secrets-manager-org-enabled");
   }
 
   const org = orgService.get(route.params.organizationId);

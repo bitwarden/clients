@@ -107,7 +107,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
   async forceReload() {
     this.loading = true;
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "sponsored-families-reload");
     this.loading = false;
   }
 

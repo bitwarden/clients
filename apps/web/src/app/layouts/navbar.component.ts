@@ -53,7 +53,7 @@ export class NavbarComponent implements OnInit {
 
     // Ensure providers and organizations are loaded
     if ((await this.syncService.getLastSync()) == null) {
-      await this.syncService.fullSync(false);
+      await this.syncService.fullSync(false, "navbar-init");
     }
     this.providers = await this.providerService.getAll();
 

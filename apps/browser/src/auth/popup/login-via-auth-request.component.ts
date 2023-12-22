@@ -70,7 +70,7 @@ export class LoginViaAuthRequestComponent
       authReqCryptoService,
     );
     super.onSuccessfulLogin = async () => {
-      await syncService.fullSync(true);
+      await syncService.fullSync(true, "successful-login-via-auth-request");
     };
   }
 

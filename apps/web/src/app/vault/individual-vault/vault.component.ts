@@ -201,7 +201,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         this.showLowKdf = (await this.userVerificationService.hasMasterPassword())
           ? await this.isLowKdfIteration()
           : false;
-        await this.syncService.fullSync(false);
+        await this.syncService.fullSync(false, "vault-first-setup");
 
         const canAccessPremium = await this.stateService.getCanAccessPremium();
         this.showPremiumCallout =

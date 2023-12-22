@@ -34,7 +34,7 @@ export class RemovePasswordComponent implements OnInit {
   async ngOnInit() {
     this.organization = await this.keyConnectorService.getManagingOrganization();
     this.email = await this.stateService.getEmail();
-    await this.syncService.fullSync(false);
+    await this.syncService.fullSync(false, "remove-password");
     this.loading = false;
   }
 

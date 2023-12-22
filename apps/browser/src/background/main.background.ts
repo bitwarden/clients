@@ -909,7 +909,7 @@ export default class MainBackground {
         await this.refreshBadge();
         await this.refreshMenu();
         await this.overlayBackground.updateOverlayCiphers();
-        await this.syncService.fullSync(false);
+        await this.syncService.fullSync(false, "switch-account");
       }
     } finally {
       this.messagingService.send("switchAccountFinish", { userId: userId });
@@ -1042,7 +1042,7 @@ export default class MainBackground {
     }
 
     if (override || lastSyncAgo >= syncInternal) {
-      await this.syncService.fullSync(override);
+      await this.syncService.fullSync(override, "full-sync");
       this.scheduleNextSync();
     } else {
       this.scheduleNextSync();

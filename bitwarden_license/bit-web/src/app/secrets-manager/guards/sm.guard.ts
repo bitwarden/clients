@@ -26,7 +26,7 @@ export const canActivateSM: CanActivateFn = async (
 
   /** Workaround to avoid service initialization race condition. */
   if ((await syncService.getLastSync()) == null) {
-    await syncService.fullSync(false);
+    await syncService.fullSync(false, "secrets-manager-guard");
   }
 
   if ((await authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {

@@ -48,7 +48,7 @@ export class InitService {
       // Workaround to ignore stateService.activeAccount until URLs are set
       // TODO: Remove this when implementing ticket PM-2637
       this.environmentService.initialized = true;
-      this.syncService.fullSync(true);
+      this.syncService.fullSync(true, "init");
       await this.vaultTimeoutService.init(true);
       const locale = await this.stateService.getLocale();
       await (this.i18nService as I18nRendererService).init(locale);

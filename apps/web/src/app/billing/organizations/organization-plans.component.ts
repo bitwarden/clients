@@ -505,7 +505,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         }
 
         await this.apiService.refreshIdentityToken();
-        await this.syncService.fullSync(true);
+        await this.syncService.fullSync(true, "create-organization");
 
         if (!this.acceptingSponsorship && !this.isInTrialFlow) {
           this.router.navigate(["/organizations/" + orgId]);

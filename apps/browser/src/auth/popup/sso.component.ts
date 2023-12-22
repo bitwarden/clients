@@ -60,7 +60,7 @@ export class SsoComponent extends BaseSsoComponent {
     this.clientId = "browser";
 
     super.onSuccessfulLogin = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "successful-login-post-sso");
 
       // If the vault is unlocked then this will clear keys from memory, which we don't want to do
       if ((await this.authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
@@ -71,7 +71,7 @@ export class SsoComponent extends BaseSsoComponent {
     };
 
     super.onSuccessfulLoginTde = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "successful-tde-login-post-sso");
     };
 
     super.onSuccessfulLoginTdeNavigate = async () => {

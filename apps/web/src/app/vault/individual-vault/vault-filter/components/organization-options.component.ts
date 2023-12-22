@@ -113,7 +113,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
 
     try {
       this.actionPromise = this.apiService.deleteSsoUser(org.id).then(() => {
-        return this.syncService.fullSync(true);
+        return this.syncService.fullSync(true, "unlink-sso");
       });
       await this.actionPromise;
       this.platformUtilsService.showToast("success", null, "Unlinked SSO");
@@ -162,7 +162,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
           null,
           this.i18nService.t("withdrawPasswordResetSuccess"),
         );
-        await this.syncService.fullSync(true);
+        await this.syncService.fullSync(true, "toggle-password-enrollment");
       } catch (e) {
         this.logService.error(e);
       }
