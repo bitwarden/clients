@@ -164,7 +164,7 @@
     "@microsoft/signalr": "6.0.25",
     "@microsoft/signalr-protocol-msgpack": "6.0.25",
     "@ng-select/ng-select": "10.0.4",
-    "argon2": "0.31.0",
+    "argon2": "0.31.2",
     "argon2-browser": "1.18.0",
     "big-integer": "1.6.51",
     "bootstrap": "4.6.0",
@@ -222,6 +222,6 @@
   },
   "engines": {
     "node": "~18",
-    "npm": "~9"
+    "npm": "~10"
   }
 }

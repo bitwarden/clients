@@ -147,6 +147,81 @@ jobs:
           path: apps/cli/dist/bw-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
+  cli-arm64:
+    name: Build CLI Linux arm64
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      # The only known way to get arm64 argon2 is to build it from sources
+      npm_config_arch: arm64
+      npm_config_build_from_source: true
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+
+      - name: Setup Unix Vars
+        run: |
+          echo "LOWER_RUNNER_OS=$(echo $RUNNER_OS | awk '{print tolower($0)}')" >> $GITHUB_ENV
+          echo "SHORT_RUNNER_OS=$(echo $RUNNER_OS | awk '{print substr($0, 1, 3)}' | \
+            awk '{print tolower($0)}')" >> $GITHUB_ENV
+
+      - name: Configure binfmt with QEMU User Emulation
+        run: |
+          sudo apt install binfmt-support qemu-user-static
+
+      - name: Set up Node
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Install
+        run: npm ci
+        working-directory: ./
+
+      # argon2-node comes with an ELF binary for host arch, not target arch.
+      - name: Download argon2-node binary for arm64
+        working-directory: ./
+        run: |
+          ARGON2_VERSION=$(grep '"argon2":' apps/cli/package.json | sed -e 's/.*"argon2": "\(.*\)",/\1/g')
+          echo "ARGON2_VERSION: ${ARGON2_VERSION}"
+          curl -L -o argon2.tar.gz "https://github.com/ranisalt/node-argon2/releases/download/v${ARGON2_VERSION}/argon2-v${ARGON2_VERSION}-napi-v3-linux-arm64-glibc.tar.gz"
+          tar xvzf argon2.tar.gz
+          mv napi-v3/argon2.node node_modules/argon2/lib/binding/napi-v3/argon2.node
+          rm -rf argon2.tar.gz napi-v3
+
+      - name: Build & Package Unix
+        run: npm run dist:${{ env.SHORT_RUNNER_OS }}:arm64 --quiet
+
+      - name: Zip Unix
+        run: |
+          cd ./dist/${{ env.LOWER_RUNNER_OS }}-arm64
+          zip ../bw-${{ env.LOWER_RUNNER_OS }}-arm64-${{ env._PACKAGE_VERSION }}.zip ./bw
+
+      - name: Create checksums Unix
+        run: |
+          cd ./dist
+          shasum -a 256 bw-${{ env.LOWER_RUNNER_OS }}-arm64-${{ env._PACKAGE_VERSION }}.zip \
+            | awk '{split($0, a); print a[1]}' > bw-${{ env.LOWER_RUNNER_OS }}-arm64-sha256-${{ env._PACKAGE_VERSION }}.txt
+
+      - name: Upload unix zip asset
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: bw-${{ env.LOWER_RUNNER_OS }}-arm64-${{ env._PACKAGE_VERSION }}.zip
+          path: apps/cli/dist/bw-${{ env.LOWER_RUNNER_OS }}-arm64-${{ env._PACKAGE_VERSION }}.zip
+          if-no-files-found: error
+
+      - name: Upload unix checksum asset
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: bw-${{ env.LOWER_RUNNER_OS }}-arm64-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: apps/cli/dist/bw-${{ env.LOWER_RUNNER_OS }}-arm64-sha256-${{ env._PACKAGE_VERSION }}.txt
+          if-no-files-found: error
+
   cli-windows:
     name: Build CLI Windows
     runs-on: windows-2019
@@ -374,6 +449,7 @@ jobs:
       - cloc
       - setup
       - cli
+      - cli-arm64
       - cli-windows
       - snap
     steps:
