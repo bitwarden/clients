@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, NgZone } from "@angular/core";
+import { Directive, ElementRef, Input, NgZone, OnInit } from "@angular/core";
 import { take } from "rxjs/operators";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -6,7 +6,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Directive({
   selector: "[appAutofocus]",
 })
-export class AutofocusDirective {
+export class AutofocusDirective implements OnInit {
   @Input() set appAutofocus(condition: boolean | string) {
     this.autofocus = condition === "" || condition === true;
   }

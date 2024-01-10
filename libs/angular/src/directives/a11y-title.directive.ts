@@ -1,9 +1,9 @@
-import { Directive, ElementRef, Input, Renderer2 } from "@angular/core";
+import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
 })
-export class A11yTitleDirective {
+export class A11yTitleDirective implements OnInit {
   @Input() set appA11yTitle(title: string) {
     this.title = title;
   }

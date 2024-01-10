@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 
 import { ExportComponent as BaseExportComponent } from "@bitwarden/angular/tools/export/components/export.component";
@@ -17,7 +17,7 @@ import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export"
   selector: "app-export",
   templateUrl: "export.component.html",
 })
-export class ExportComponent extends BaseExportComponent implements OnInit {
+export class ExportComponent extends BaseExportComponent implements OnInit, OnDestroy {
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,

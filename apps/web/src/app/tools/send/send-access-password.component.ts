@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
@@ -10,7 +10,7 @@ import { SharedModule } from "../../shared";
   imports: [SharedModule],
   standalone: true,
 })
-export class SendAccessPasswordComponent {
+export class SendAccessPasswordComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected formGroup = this.formBuilder.group({
     password: ["", [Validators.required]],

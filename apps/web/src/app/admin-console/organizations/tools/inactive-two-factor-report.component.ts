@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -16,7 +16,10 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
   templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class InactiveTwoFactorReportComponent extends BaseInactiveTwoFactorReportComponent {
+export class InactiveTwoFactorReportComponent
+  extends BaseInactiveTwoFactorReportComponent
+  implements OnInit
+{
   constructor(
     cipherService: CipherService,
     modalService: ModalService,

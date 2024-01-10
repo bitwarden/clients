@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
@@ -23,7 +24,7 @@ import { BasePolicy, BasePolicyComponent } from "../policies";
   selector: "app-policy-edit",
   templateUrl: "policy-edit.component.html",
 })
-export class PolicyEditComponent {
+export class PolicyEditComponent implements AfterViewInit {
   @Input() policy: BasePolicy;
   @Input() organizationId: string;
   @Input() policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();

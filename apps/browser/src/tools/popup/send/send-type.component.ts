@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -27,7 +27,7 @@ const ComponentId = "SendTypeComponent";
   selector: "app-send-type",
   templateUrl: "send-type.component.html",
 })
-export class SendTypeComponent extends BaseSendComponent {
+export class SendTypeComponent extends BaseSendComponent implements OnInit, OnDestroy {
   groupingTitle: string;
   // State Handling
   state: BrowserComponentState;

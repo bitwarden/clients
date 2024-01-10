@@ -1,5 +1,5 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { lastValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -35,7 +35,7 @@ export interface SecretOperation {
 @Component({
   templateUrl: "./secret-dialog.component.html",
 })
-export class SecretDialogComponent implements OnInit {
+export class SecretDialogComponent implements OnInit, OnDestroy {
   protected formGroup = new FormGroup({
     name: new FormControl("", {
       validators: [Validators.required, Validators.maxLength(500), BitValidators.trimValidator],

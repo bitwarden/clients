@@ -1,4 +1,4 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -14,7 +14,7 @@ const BroadcasterSubscriptionId = "AccessibilityCookieComponent";
   selector: "app-accessibility-cookie",
   templateUrl: "accessibility-cookie.component.html",
 })
-export class AccessibilityCookieComponent {
+export class AccessibilityCookieComponent implements OnInit, OnDestroy {
   listenForCookie = false;
   hCaptchaWindow: Window;
 

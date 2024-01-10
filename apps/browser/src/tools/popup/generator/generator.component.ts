@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { GeneratorComponent as BaseGeneratorComponent } from "@bitwarden/angular/tools/generator/components/generator.component";
@@ -16,7 +16,7 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
   selector: "app-generator",
   templateUrl: "generator.component.html",
 })
-export class GeneratorComponent extends BaseGeneratorComponent {
+export class GeneratorComponent extends BaseGeneratorComponent implements OnInit {
   private addEditCipherInfo: AddEditCipherInfo;
   private cipherState: CipherView;
 

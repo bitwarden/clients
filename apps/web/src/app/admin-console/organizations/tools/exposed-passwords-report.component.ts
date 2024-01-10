@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -17,7 +17,10 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
   templateUrl: "../../../tools/reports/pages/exposed-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ExposedPasswordsReportComponent extends BaseExposedPasswordsReportComponent {
+export class ExposedPasswordsReportComponent
+  extends BaseExposedPasswordsReportComponent
+  implements OnInit
+{
   manageableCiphers: Cipher[];
 
   constructor(

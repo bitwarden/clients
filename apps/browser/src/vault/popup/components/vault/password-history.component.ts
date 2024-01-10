@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -13,7 +13,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
   templateUrl: "password-history.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class PasswordHistoryComponent extends BasePasswordHistoryComponent {
+export class PasswordHistoryComponent extends BasePasswordHistoryComponent implements OnInit {
   constructor(
     cipherService: CipherService,
     platformUtilsService: PlatformUtilsService,

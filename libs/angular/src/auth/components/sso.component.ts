@@ -1,4 +1,4 @@
-import { Directive } from "@angular/core";
+import { Directive, OnInit } from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -22,7 +22,7 @@ import { AccountDecryptionOptions } from "@bitwarden/common/platform/models/doma
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 @Directive()
-export class SsoComponent {
+export class SsoComponent implements OnInit {
   identifier: string;
   loggingIn = false;
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-subscription-update.request";
@@ -10,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
   selector: "app-adjust-subscription",
   templateUrl: "adjust-subscription.component.html",
 })
-export class AdjustSubscription {
+export class AdjustSubscription implements OnInit {
   @Input() organizationId: string;
   @Input() maxAutoscaleSeats: number;
   @Input() currentSeatCount: number;

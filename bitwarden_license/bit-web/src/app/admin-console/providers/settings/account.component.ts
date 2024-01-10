@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -14,7 +14,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
   templateUrl: "account.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class AccountComponent {
+export class AccountComponent implements OnInit {
   selfHosted = false;
   loading = true;
   provider: ProviderResponse;

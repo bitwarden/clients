@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -32,7 +32,7 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
-export class TwoFactorComponent extends BaseTwoFactorComponent {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   constructor(
     authService: AuthService,
     router: Router,

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -22,7 +22,7 @@ export class ResetPasswordPolicy extends BasePolicy {
   selector: "policy-reset-password",
   templateUrl: "reset-password.component.html",
 })
-export class ResetPasswordPolicyComponent extends BasePolicyComponent {
+export class ResetPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   data = this.formBuilder.group({
     autoEnrollEnabled: false,
   });

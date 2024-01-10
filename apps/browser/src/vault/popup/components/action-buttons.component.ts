@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -15,7 +15,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
   selector: "app-action-buttons",
   templateUrl: "action-buttons.component.html",
 })
-export class ActionButtonsComponent {
+export class ActionButtonsComponent implements OnInit {
   @Output() onView = new EventEmitter<CipherView>();
   @Output() launchEvent = new EventEmitter<CipherView>();
   @Input() cipher: CipherView;

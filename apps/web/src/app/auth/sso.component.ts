@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -24,7 +24,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
   templateUrl: "sso.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class SsoComponent extends BaseSsoComponent {
+export class SsoComponent extends BaseSsoComponent implements OnInit {
   constructor(
     authService: AuthService,
     router: Router,

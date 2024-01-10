@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -9,7 +9,7 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
   templateUrl: "providers-layout.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ProvidersLayoutComponent {
+export class ProvidersLayoutComponent implements OnInit {
   provider: Provider;
   private providerId: string;
 

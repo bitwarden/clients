@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
@@ -21,7 +21,7 @@ export class MasterPasswordPolicy extends BasePolicy {
   selector: "policy-master-password",
   templateUrl: "master-password.component.html",
 })
-export class MasterPasswordPolicyComponent extends BasePolicyComponent {
+export class MasterPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
 
   data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({

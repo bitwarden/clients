@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -15,7 +15,10 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
   templateUrl: "../../../tools/reports/pages/unsecured-websites-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class UnsecuredWebsitesReportComponent extends BaseUnsecuredWebsitesReportComponent {
+export class UnsecuredWebsitesReportComponent
+  extends BaseUnsecuredWebsitesReportComponent
+  implements OnInit
+{
   constructor(
     cipherService: CipherService,
     modalService: ModalService,

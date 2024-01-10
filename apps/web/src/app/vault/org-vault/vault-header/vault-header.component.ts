@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -24,7 +24,7 @@ import {
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
 })
-export class VaultHeaderComponent {
+export class VaultHeaderComponent implements OnInit {
   protected All = All;
   protected Unassigned = Unassigned;
 

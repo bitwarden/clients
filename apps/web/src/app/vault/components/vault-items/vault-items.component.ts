@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -26,7 +26,7 @@ const MaxSelectionCount = 500;
   // TODO: Improve change detection, see: https://bitwarden.atlassian.net/browse/TDL-220
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultItemsComponent {
+export class VaultItemsComponent implements OnInit {
   protected RowHeight = RowHeight;
 
   protected flexibleCollectionsEnabled: boolean;

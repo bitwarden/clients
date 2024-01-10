@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 
 import { PlanType } from "@bitwarden/common/billing/enums";
@@ -10,7 +10,7 @@ import { OrganizationPlansComponent } from "../../organizations";
   selector: "app-billing",
   templateUrl: "./billing.component.html",
 })
-export class BillingComponent extends OrganizationPlansComponent {
+export class BillingComponent extends OrganizationPlansComponent implements OnInit {
   @Input() orgInfoForm: FormGroup;
   @Output() previousStep = new EventEmitter();
 

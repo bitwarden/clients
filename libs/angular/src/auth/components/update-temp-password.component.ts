@@ -1,4 +1,4 @@
-import { Directive } from "@angular/core";
+import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -25,7 +25,7 @@ import { DialogService } from "@bitwarden/components";
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
 
 @Directive()
-export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
+export class UpdateTempPasswordComponent extends BaseChangePasswordComponent implements OnInit {
   hint: string;
   key: string;
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
