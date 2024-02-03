@@ -1,3 +1,5 @@
+import { BehaviorSubject, distinctUntilChanged, skip } from "rxjs";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
 import { InternalOrganizationServiceAbstraction } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -38,8 +40,14 @@ import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
+import { SyncEventArgs } from "../../types/sync-event-args";
 
 export class SyncService implements SyncServiceAbstraction {
+  private lastSyncEventSubject = new BehaviorSubject<SyncEventArgs | null>(null);
+
+  syncEvent$ = this.lastSyncEventSubject.pipe(skip(1), distinctUntilChanged());
+  lastSyncEvent$ = this.lastSyncEventSubject.asObservable();
+
   syncInProgress = false;
 
   constructor(
@@ -66,12 +74,10 @@ export class SyncService implements SyncServiceAbstraction {
     if ((await this.stateService.getUserId()) == null) {
       return null;
     }
-
     const lastSync = await this.stateService.getLastSync();
     if (lastSync) {
       return new Date(lastSync);
     }
-
     return null;
   }
 
@@ -82,8 +88,14 @@ export class SyncService implements SyncServiceAbstraction {
   @sequentialize(() => "fullSync")
   async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
     this.syncStarted();
+    this.lastSyncEventSubject.next({ status: "Started" });
     const isAuthenticated = await this.stateService.getIsAuthenticated();
     if (!isAuthenticated) {
+      this.lastSyncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        reason: "not-authenticated",
+      });
       return this.syncCompleted(false);
     }
 
@@ -92,13 +104,26 @@ export class SyncService implements SyncServiceAbstraction {
     try {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
+      this.lastSyncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        reason: "error",
+        error: e,
+      });
       if (allowThrowOnError) {
         throw e;
       }
+      // Don't set last sync date if we failed to get the account revision date
+      return this.syncCompleted(false);
     }
 
     if (!needsSync) {
       await this.setLastSync(now);
+      this.lastSyncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        reason: "unneeded",
+      });
       return this.syncCompleted(false);
     }
 
@@ -115,8 +140,21 @@ export class SyncService implements SyncServiceAbstraction {
       await this.syncPolicies(response.policies);
 
       await this.setLastSync(now);
+
+      this.lastSyncEventSubject.next({
+        status: "Completed",
+        successfully: true,
+        data: response,
+      });
+
       return this.syncCompleted(true);
     } catch (e) {
+      this.lastSyncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        reason: "error",
+        error: e,
+      });
       if (allowThrowOnError) {
         throw e;
       } else {

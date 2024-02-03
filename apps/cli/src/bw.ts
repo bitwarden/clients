@@ -85,7 +85,6 @@ import { CollectionService } from "@bitwarden/common/vault/services/collection.s
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
-import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
@@ -178,7 +177,6 @@ export class Main {
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
-  syncNotifierService: SyncNotifierService;
   sendApiService: SendApiService;
   devicesApiService: DevicesApiServiceAbstraction;
   deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction;
@@ -305,8 +303,6 @@ export class Main {
       async (expired: boolean) => await this.logout(),
       customUserAgent,
     );
-
-    this.syncNotifierService = new SyncNotifierService();
 
     this.organizationApiService = new OrganizationApiService(this.apiService, this.syncService);
 

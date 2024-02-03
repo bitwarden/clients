@@ -160,7 +160,6 @@ import {
   FolderService as FolderServiceAbstraction,
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { SyncNotifierService as SyncNotifierServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync-notifier.service.abstraction";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
@@ -168,7 +167,6 @@ import { CollectionService } from "@bitwarden/common/vault/services/collection.s
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
-import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
@@ -715,10 +713,6 @@ import { ModalService } from "./modal.service";
       // rather than updating the OrganizationService directly. Instead OrganizationService
       // subscribes to sync notifications and will update itself based on that.
       deps: [ApiServiceAbstraction, SyncServiceAbstraction],
-    },
-    {
-      provide: SyncNotifierServiceAbstraction,
-      useClass: SyncNotifierService,
     },
     {
       provide: ConfigService,

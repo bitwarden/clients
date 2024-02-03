@@ -1,11 +1,26 @@
+import { Observable } from "rxjs";
+
 import {
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../../models/response/notification.response";
+import { SyncEventArgs } from "../../types/sync-event-args";
 
 export abstract class SyncService {
   syncInProgress: boolean;
+
+  /**
+   * Observable that emits when a full sync event occurs. This includes when a sync starts, completes, or fails.
+   * @see SyncEventArgs
+   */
+  syncEvent$: Observable<SyncEventArgs>;
+
+  /**
+   * The last full sync event that occurred, will be null if no full sync event has occurred
+   * @see SyncEventArgs
+   */
+  lastSyncEvent$: Observable<SyncEventArgs | null>;
 
   getLastSync: () => Promise<Date>;
   setLastSync: (date: Date, userId?: string) => Promise<any>;

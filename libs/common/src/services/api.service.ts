@@ -238,12 +238,8 @@ export class ApiService implements ApiServiceAbstraction {
     return Promise.reject(new ErrorResponse(responseJson, response.status, true));
   }
 
-  async refreshIdentityToken(): Promise<any> {
-    try {
-      await this.doAuthRefresh();
-    } catch (e) {
-      return Promise.reject(null);
-    }
+  async refreshIdentityToken(): Promise<void> {
+    await this.doAuthRefresh();
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
