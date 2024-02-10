@@ -32,6 +32,8 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
       return [];
     }
 
+    this.clearTimeout();
+
     let numberOfWorkers = Math.min(navigator.hardwareConcurrency, maxWorkers);
     if (items.length < minNumberOfItemsForMultithreading) {
       numberOfWorkers = 1;
@@ -51,11 +53,9 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
               import.meta.url,
             ),
           ),
-	      );
+        );
       }
     }
-
-    this.restartTimeout();
 
     const itemsPerWorker = Math.floor(items.length / this.workers.length);
     const results = [];
@@ -91,11 +91,14 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
             takeUntil(this.clear$),
             defaultIfEmpty([]),
           ),
-	),
+        ),
       );
     }
 
     const decryptedItems = (await Promise.all(results)).flat();
+
+    this.restartTimeout();
+
     return decryptedItems;
   }
 
