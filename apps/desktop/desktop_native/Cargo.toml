@@ -30,6 +30,7 @@ typenum = "=1.17.0"
 
 [build-dependencies]
 napi-build = "=2.0.1"
+swift-rs = { version = "1.0.6", features = ["build"] }
 
 [target.'cfg(windows)'.dependencies]
 widestring = "=1.0.2"
@@ -50,6 +51,7 @@ keytar = "=0.1.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "=0.9.4"
+swift-rs = "=1.0.6"
 security-framework = "=2.9.2"
 security-framework-sys = "=2.9.1"
 

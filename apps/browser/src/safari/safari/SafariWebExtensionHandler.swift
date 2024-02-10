@@ -106,7 +106,14 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 break
             }
 
-            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [.privateKeyUsage, .userPresence], nil) else {
+            var flags: SecAccessControlCreateFlags = [.privateKeyUsage];
+            if #available(macOS 10.13.4, *) {
+                flags.insert(.biometryAny)
+            } else {
+                flags.insert(.touchIDAny)
+            }
+
+            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, flags, nil) else {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [

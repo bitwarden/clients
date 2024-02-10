@@ -1,14 +1,15 @@
-import { systemPreferences } from "electron";
-
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { passwords } from "@bitwarden/desktop-native";
+import { biometrics, passwords } from "@bitwarden/desktop-native";
+
+import { WindowMain } from "../../../main/window.main";
 
 import { OsBiometricService } from "./biometrics.service.abstraction";
 
 export default class BiometricDarwinMain implements OsBiometricService {
   constructor(
-    private i18nservice: I18nService,
+    private i18nService: I18nService,
+    private windowMain: WindowMain,
     private stateService: StateService,
   ) {}
 
@@ -18,16 +19,12 @@ export default class BiometricDarwinMain implements OsBiometricService {
   }
 
   async osSupportsBiometric(): Promise<boolean> {
-    return systemPreferences.canPromptTouchID();
+    return await biometrics.available();
   }
 
   async authenticateBiometric(): Promise<boolean> {
-    try {
-      await systemPreferences.promptTouchID(this.i18nservice.t("touchIdConsentMessage"));
-      return true;
-    } catch {
-      return false;
-    }
+    const hwnd = this.windowMain.win.getNativeWindowHandle();
+    return await biometrics.prompt(hwnd, this.i18nService.t("touchIdConsentMessage"));
   }
 
   async getBiometricKey(service: string, key: string): Promise<string | null> {

@@ -49,7 +49,11 @@ export class BiometricsService implements BiometricsServiceAbstraction {
   private loadMacOSService() {
     // eslint-disable-next-line
     const BiometricDarwinMain = require("./biometric.darwin.main").default;
-    this.platformSpecificService = new BiometricDarwinMain(this.i18nService, this.stateService);
+    this.platformSpecificService = new BiometricDarwinMain(
+      this.i18nService,
+      this.windowMain,
+      this.stateService,
+    );
   }
 
   private loadNoopBiometricsService() {
