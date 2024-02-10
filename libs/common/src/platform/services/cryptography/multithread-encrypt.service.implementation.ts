@@ -10,10 +10,12 @@ import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 import { getClassInitializer } from "./get-class-initializer";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
-const workerTTL = 3 * 60000; // 3 minutes
+const workerTTL = 60000; // 1 minute
+const maxWorkers = 16;
+const minNumberOfItemsForMultithreading = 500;
 
 export class MultithreadEncryptServiceImplementation extends EncryptServiceImplementation {
-  private worker: Worker;
+  private workers: Worker[] = [];
   private timeout: any;
 
   private clear$ = new Subject<void>();
@@ -30,46 +32,79 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
       return [];
     }
 
-    this.logService.info("Starting decryption using multithreading");
+    let numberOfWorkers = Math.min(navigator.hardwareConcurrency, maxWorkers);
+    if (items.length < minNumberOfItemsForMultithreading) {
+      numberOfWorkers = 1;
+    }
 
-    this.worker ??= new Worker(
-      new URL(
-        /* webpackChunkName: 'encrypt-worker' */
-        "@bitwarden/common/platform/services/cryptography/encrypt.worker.ts",
-        import.meta.url,
-      ),
+    this.logService.info(
+      "Starting decryption using multithreading with " + numberOfWorkers + " workers",
     );
+
+    if (this.workers.length == 0) {
+      for (let i = 0; i < numberOfWorkers; i++) {
+        this.workers.push(
+          new Worker(
+            new URL(
+              /* webpackChunkName: 'encrypt-worker' */
+              "@bitwarden/common/platform/services/cryptography/encrypt.worker.ts",
+              import.meta.url,
+            ),
+          ),
+	);
+      }
+    }
 
     this.restartTimeout();
 
-    const request = {
-      id: Utils.newGuid(),
-      items: items,
-      key: key,
-    };
+    const itemsPerWorker = Math.floor(items.length / this.workers.length);
+    const results = [];
 
-    this.worker.postMessage(JSON.stringify(request));
+    for (const [i, worker] of this.workers.entries()) {
+      const start = i * itemsPerWorker;
+      const end = start + itemsPerWorker;
+      const itemsForWorker = items.slice(start, end);
 
-    return await firstValueFrom(
-      fromEvent(this.worker, "message").pipe(
-        filter((response: MessageEvent) => response.data?.id === request.id),
-        map((response) => JSON.parse(response.data.items)),
-        map((items) =>
-          items.map((jsonItem: Jsonify<T>) => {
-            const initializer = getClassInitializer<T>(jsonItem.initializerKey);
-            return initializer(jsonItem);
-          }),
-        ),
-        takeUntil(this.clear$),
-        defaultIfEmpty([]),
-      ),
-    );
+      // push the remaining items to the last worker
+      if (i == this.workers.length - 1) {
+        itemsForWorker.push(...items.slice(end));
+      }
+
+      const request = {
+        id: Utils.newGuid(),
+        items: itemsForWorker,
+        key: key,
+      };
+
+      worker.postMessage(JSON.stringify(request));
+      results.push(
+        firstValueFrom(
+          fromEvent(worker, "message").pipe(
+            filter((response: MessageEvent) => response.data?.id === request.id),
+            map((response) => JSON.parse(response.data.items)),
+            map((items) =>
+              items.map((jsonItem: Jsonify<T>) => {
+                const initializer = getClassInitializer<T>(jsonItem.initializerKey);
+                return initializer(jsonItem);
+              }),
+            ),
+            takeUntil(this.clear$),
+            defaultIfEmpty([]),
+          ),
+	),
+      );
+    }
+
+    const decryptedItems = (await Promise.all(results)).flat();
+    return decryptedItems;
   }
 
   private clear() {
     this.clear$.next();
-    this.worker?.terminate();
-    this.worker = null;
+    for (const worker of this.workers) {
+      worker.terminate();
+    }
+    this.workers = [];
     this.clearTimeout();
   }
 
