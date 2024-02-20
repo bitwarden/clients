@@ -58,7 +58,9 @@ describe("VaultTimeoutService", () => {
 
     vaultTimeoutActionSubject = new BehaviorSubject(VaultTimeoutAction.Lock);
 
-    vaultTimeoutSettingsService.vaultTimeoutAction$.mockReturnValue(vaultTimeoutActionSubject);
+    vaultTimeoutSettingsService.determineVaultTimeoutAction$.mockReturnValue(
+      vaultTimeoutActionSubject,
+    );
 
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
@@ -106,7 +108,7 @@ describe("VaultTimeoutService", () => {
       return Promise.resolve(accounts[options.userId]?.isAuthenticated);
     });
 
-    vaultTimeoutSettingsService.getVaultTimeout.mockImplementation((userId) => {
+    vaultTimeoutSettingsService.determineVaultTimeout.mockImplementation((userId) => {
       return Promise.resolve(accounts[userId]?.vaultTimeout);
     });
 
@@ -120,7 +122,7 @@ describe("VaultTimeoutService", () => {
 
     platformUtilsService.isViewOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
 
-    vaultTimeoutSettingsService.vaultTimeoutAction$.mockImplementation((userId) => {
+    vaultTimeoutSettingsService.determineVaultTimeoutAction$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeoutAction>(accounts[userId]?.timeoutAction);
     });
 

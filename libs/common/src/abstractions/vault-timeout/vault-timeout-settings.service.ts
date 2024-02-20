@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { PinLockType } from "../../services/vault-timeout/vault-timeout-settings.service";
+import { UserId } from "../../types/guid";
 
 export abstract class VaultTimeoutSettingsService {
   /**
@@ -24,19 +25,25 @@ export abstract class VaultTimeoutSettingsService {
   availableVaultTimeoutActions$: (userId?: string) => Observable<VaultTimeoutAction[]>;
 
   /**
-   * Get the current vault timeout action for the user. This is not the same as the current state, it is
-   * calculated based on the current state, the user's policy, and the user's available unlock methods.
+   * Returns the currently configured vault timeout, a policy compliant vault timeout if applicable, or null for the active user.
    */
-  getVaultTimeout: (userId?: string) => Promise<number>;
+  vaultTimeout$: Observable<number | null>;
 
   /**
-   * Observe the vault timeout action for the user. This is calculated based on users preferred lock action saved in the state,
-   * the user's policy, and the user's available unlock methods.
-   *
-   * **NOTE:** This observable is not yet connected to the state service, so it will not update when the state changes
-   * @param userId The user id to check. If not provided, the current user is used
+   * Returns the currently configured vault timeout, a policy compliant vault timeout if applicable, or null for the given user id.
    */
-  vaultTimeoutAction$: (userId?: string) => Observable<VaultTimeoutAction>;
+  getVaultTimeoutByUserId$: (userId: string) => Observable<number | null>;
+
+  /**
+   * Returns the currently configured vault timeout action, a policy compliant vault timeout action if applicable, or null for the active user.
+   */
+  vaultTimeoutAction$: Observable<VaultTimeoutAction>;
+
+  /**
+   * Returns the currently configured vault timeout action, a policy compliant vault timeout action if applicable, or null for the given user id.
+   */
+
+  getVaultTimeoutActionByUserId$: (userId: string) => Observable<VaultTimeoutAction>;
 
   /**
    * Has the user enabled unlock with Pin.
@@ -52,5 +59,5 @@ export abstract class VaultTimeoutSettingsService {
    */
   isBiometricLockSet: (userId?: string) => Promise<boolean>;
 
-  clear: (userId?: string) => Promise<void>;
+  clear: (userId?: UserId) => Promise<void>;
 }

@@ -50,6 +50,11 @@ export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", 
   web: "disk-local",
 });
 
+export const VAULT_TIMEOUT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
+  web: "disk-local",
+});
+export const VAULT_TIMEOUT_SETTINGS_MEMORY = new StateDefinition("vaultSettings", "memory");
+
 export const COLLECTION_DATA = new StateDefinition("collection", "disk", {
   web: "memory",
 });

@@ -480,6 +480,7 @@ export class Main {
       this.tokenService,
       this.policyService,
       this.stateService,
+      this.stateProvider,
     );
 
     this.pinCryptoService = new PinCryptoService(

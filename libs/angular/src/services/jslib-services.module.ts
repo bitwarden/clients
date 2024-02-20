@@ -523,6 +523,7 @@ import { ModalService } from "./modal.service";
         TokenServiceAbstraction,
         PolicyServiceAbstraction,
         StateServiceAbstraction,
+        StateProvider,
       ],
     },
     {

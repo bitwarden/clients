@@ -586,6 +586,7 @@ export default class MainBackground {
       this.tokenService,
       this.policyService,
       this.stateService,
+      this.stateProvider,
     );
 
     this.pinCryptoService = new PinCryptoService(
@@ -1049,7 +1050,7 @@ export default class MainBackground {
       this.collectionService.clear(userId),
       this.policyService.clear(userId),
       this.passwordGenerationService.clear(userId),
-      this.vaultTimeoutSettingsService.clear(userId),
+      this.vaultTimeoutSettingsService.clear(userId as UserId),
       this.keyConnectorService.clear(),
       this.vaultFilterService.clear(),
       // We intentionally do not clear the autofillSettingsService

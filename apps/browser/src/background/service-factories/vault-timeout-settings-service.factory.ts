@@ -19,6 +19,10 @@ import {
   FactoryOptions,
 } from "../../platform/background/service-factories/factory-options";
 import {
+  StateProviderInitOptions,
+  stateProviderFactory,
+} from "../../platform/background/service-factories/state-provider.factory";
+import {
   StateServiceInitOptions,
   stateServiceFactory,
 } from "../../platform/background/service-factories/state-service.factory";
@@ -29,7 +33,8 @@ export type VaultTimeoutSettingsServiceInitOptions = VaultTimeoutSettingsService
   CryptoServiceInitOptions &
   TokenServiceInitOptions &
   PolicyServiceInitOptions &
-  StateServiceInitOptions;
+  StateServiceInitOptions &
+  StateProviderInitOptions;
 
 export function vaultTimeoutSettingsServiceFactory(
   cache: { vaultTimeoutSettingsService?: AbstractVaultTimeoutSettingsService } & CachedServices,
@@ -45,6 +50,7 @@ export function vaultTimeoutSettingsServiceFactory(
         await tokenServiceFactory(cache, opts),
         await policyServiceFactory(cache, opts),
         await stateServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
       ),
   );
 }
