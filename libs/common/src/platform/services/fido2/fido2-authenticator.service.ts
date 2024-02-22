@@ -1,6 +1,4 @@
-import { LogService } from "../../../platform/abstractions/log.service";
-import { Utils } from "../../../platform/misc/utils";
-import { CipherService } from "../../abstractions/cipher.service";
+import { CipherService } from "../../../vault/abstractions/cipher.service";
 import {
   Fido2AlgorithmIdentifier,
   Fido2AuthenticatorError,
@@ -11,13 +9,15 @@ import {
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
   PublicKeyCredentialDescriptor,
-} from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
-import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
-import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
-import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
-import { CipherType } from "../../enums/cipher-type";
-import { CipherView } from "../../models/view/cipher.view";
-import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
+} from "../../../vault/abstractions/fido2/fido2-authenticator.service.abstraction";
+import { Fido2UserInterfaceService } from "../../../vault/abstractions/fido2/fido2-user-interface.service.abstraction";
+import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
+import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
+import { CipherType } from "../../../vault/enums/cipher-type";
+import { CipherView } from "../../../vault/models/view/cipher.view";
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
+import { LogService } from "../../abstractions/log.service";
+import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
 import { p1363ToDer } from "./ecdsa-utils";

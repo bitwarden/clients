@@ -3,10 +3,6 @@ import { parse } from "tldts";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
-import { LogService } from "../../../platform/abstractions/log.service";
-import { StateService } from "../../../platform/abstractions/state.service";
-import { Utils } from "../../../platform/misc/utils";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -14,7 +10,7 @@ import {
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService,
   PublicKeyCredentialDescriptor,
-} from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
+} from "../../../vault/abstractions/fido2/fido2-authenticator.service.abstraction";
 import {
   AssertCredentialParams,
   AssertCredentialResult,
@@ -25,8 +21,12 @@ import {
   PublicKeyCredentialParam,
   UserRequestedFallbackAbortReason,
   UserVerification,
-} from "../../abstractions/fido2/fido2-client.service.abstraction";
-import { VaultSettingsService } from "../../abstractions/vault-settings/vault-settings.service";
+} from "../../../vault/abstractions/fido2/fido2-client.service.abstraction";
+import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
+import { ConfigServiceAbstraction } from "../../abstractions/config/config.service.abstraction";
+import { LogService } from "../../abstractions/log.service";
+import { StateService } from "../../abstractions/state.service";
+import { Utils } from "../../misc/utils";
 
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";

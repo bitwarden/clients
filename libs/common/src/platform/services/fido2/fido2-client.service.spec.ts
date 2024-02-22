@@ -3,21 +3,21 @@ import { of } from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
-import { StateService } from "../../../platform/abstractions/state.service";
-import { Utils } from "../../../platform/misc/utils";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
   Fido2AuthenticatorGetAssertionResult,
   Fido2AuthenticatorMakeCredentialResult,
-} from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
+} from "../../../vault/abstractions/fido2/fido2-authenticator.service.abstraction";
 import {
   AssertCredentialParams,
   CreateCredentialParams,
   FallbackRequestedError,
-} from "../../abstractions/fido2/fido2-client.service.abstraction";
-import { VaultSettingsService } from "../../abstractions/vault-settings/vault-settings.service";
+} from "../../../vault/abstractions/fido2/fido2-client.service.abstraction";
+import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
+import { ConfigServiceAbstraction } from "../../abstractions/config/config.service.abstraction";
+import { StateService } from "../../abstractions/state.service";
+import { Utils } from "../../misc/utils";
 
 import { Fido2AuthenticatorService } from "./fido2-authenticator.service";
 import { Fido2ClientService } from "./fido2-client.service";
