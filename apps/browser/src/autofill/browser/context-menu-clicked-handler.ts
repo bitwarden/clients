@@ -18,11 +18,11 @@ import {
 } from "../../auth/background/service-factories/auth-service.factory";
 import { userVerificationServiceFactory } from "../../auth/background/service-factories/user-verification-service.factory";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
-import { eventCollectionServiceFactory } from "../../background/service-factories/event-collection-service.factory";
 import { Account } from "../../models/account";
 import { CachedServices } from "../../platform/background/service-factories/factory-options";
 import { stateServiceFactory } from "../../platform/background/service-factories/state-service.factory";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { eventCollectionServiceFactory } from "../../tools/background/service_factories/event-collection-service.factory";
 import { passwordGenerationServiceFactory } from "../../tools/background/service_factories/password-generation-service.factory";
 import {
   cipherServiceFactory,

@@ -4,20 +4,20 @@ import { EventCollectionService } from "@bitwarden/common/services/event/event-c
 import {
   organizationServiceFactory,
   OrganizationServiceInitOptions,
-} from "../../admin-console/background/service-factories/organization-service.factory";
+} from "../../../admin-console/background/service-factories/organization-service.factory";
 import {
   FactoryOptions,
   CachedServices,
   factory,
-} from "../../platform/background/service-factories/factory-options";
+} from "../../../platform/background/service-factories/factory-options";
 import {
   stateServiceFactory,
   StateServiceInitOptions,
-} from "../../platform/background/service-factories/state-service.factory";
+} from "../../../platform/background/service-factories/state-service.factory";
 import {
   cipherServiceFactory,
   CipherServiceInitOptions,
-} from "../../vault/background/service_factories/cipher-service.factory";
+} from "../../../vault/background/service_factories/cipher-service.factory";
 
 import {
   eventUploadServiceFactory,

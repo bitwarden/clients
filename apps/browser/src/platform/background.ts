@@ -1,4 +1,5 @@
 import MainBackground from "../background/main.background";
+import { registerTasks } from "../tasks/task-scheduler";
 
 import { onAlarmListener } from "./alarms/on-alarm-listener";
 import { registerAlarms } from "./alarms/register-alarms";
@@ -32,6 +33,7 @@ if (BrowserApi.manifestVersion === 3) {
       runtimeMessageListener(message, sender);
     },
   );
+  registerTasks();
 } else {
   const bitwardenMain = ((window as any).bitwardenMain = new MainBackground());
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

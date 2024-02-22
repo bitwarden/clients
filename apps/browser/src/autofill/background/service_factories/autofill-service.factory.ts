@@ -3,10 +3,6 @@ import {
   userVerificationServiceFactory,
 } from "../../../auth/background/service-factories/user-verification-service.factory";
 import {
-  EventCollectionServiceInitOptions,
-  eventCollectionServiceFactory,
-} from "../../../background/service-factories/event-collection-service.factory";
-import {
   settingsServiceFactory,
   SettingsServiceInitOptions,
 } from "../../../background/service-factories/settings-service.factory";
@@ -23,6 +19,10 @@ import {
   stateServiceFactory,
   StateServiceInitOptions,
 } from "../../../platform/background/service-factories/state-service.factory";
+import {
+  EventCollectionServiceInitOptions,
+  eventCollectionServiceFactory,
+} from "../../../tools/background/service_factories/event-collection-service.factory";
 import {
   cipherServiceFactory,
   CipherServiceInitOptions,

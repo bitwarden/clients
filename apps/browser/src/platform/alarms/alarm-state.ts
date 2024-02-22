@@ -1,13 +1,15 @@
 import { clearClipboardAlarmName } from "../../autofill/clipboard";
+import { uploadEventAlarmName } from "../../tasks/upload-events-tasks";
 import { BrowserApi } from "../browser/browser-api";
 
-export const alarmKeys = [clearClipboardAlarmName] as const;
+export const alarmKeys = [clearClipboardAlarmName, uploadEventAlarmName] as const;
 export type AlarmKeys = (typeof alarmKeys)[number];
 
 type AlarmState = { [T in AlarmKeys]: number | undefined };
 
 const alarmState: AlarmState = {
   clearClipboard: null,
+  uploadEvents: null,
   //TODO once implemented vaultTimeout: null;
   //TODO once implemented checkNotifications: null;
   //TODO once implemented (if necessary) processReload: null;
