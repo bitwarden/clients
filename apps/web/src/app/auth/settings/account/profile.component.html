@@ -13,7 +13,52 @@
   [appApiAction]="formPromise"
   ngNativeValidate
 >
-  <div class="row">
+  <bit-stack direction="row">
+    <div>
+      <div class="form-group">
+        <label for="name">{{ "name" | i18n }}</label>
+        <input id="name" class="form-control" type="text" name="Name" [(ngModel)]="profile.name" />
+      </div>
+      <div class="form-group">
+        <label for="email">{{ "email" | i18n }}</label>
+        <input
+          id="email"
+          class="form-control"
+          type="text"
+          name="Email"
+          [(ngModel)]="profile.email"
+          readonly
+        />
+      </div>
+      <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
+        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+        <span>{{ "save" | i18n }}</span>
+      </button>
+    </div>
+
+    <div>
+      <div class="mb-3">
+        <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" [size]="'large'">
+        </dynamic-avatar>
+        <button
+          type="button"
+          class="btn btn-outline-secondary tw-ml-3.5"
+          appStopClick
+          appStopProp
+          (click)="openChangeAvatar()"
+        >
+          <i class="bwi bwi-lg bwi-pencil-square" aria-hidden="true"></i>
+          Customize
+        </button>
+      </div>
+      <app-account-fingerprint
+        [fingerprintMaterial]="fingerprintMaterial"
+        fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
+      >
+      </app-account-fingerprint>
+    </div>
+  </bit-stack>
+  <!-- <div class="row">
     <div class="col-6">
       <div class="form-group">
         <label for="name">{{ "name" | i18n }}</label>
@@ -56,6 +101,6 @@
   <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
     <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
     <span>{{ "save" | i18n }}</span>
-  </button>
+  </button> -->
 </form>
 <ng-template #avatarModalTemplate></ng-template>

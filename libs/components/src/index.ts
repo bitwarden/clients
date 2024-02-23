@@ -26,6 +26,7 @@ export * from "./radio-button";
 export * from "./search";
 export * from "./section";
 export * from "./select";
+export * from "./stack";
 export * from "./table";
 export * from "./tabs";
 export * from "./toggle-group";
