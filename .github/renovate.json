@@ -69,7 +69,7 @@
       "reviewers": ["team:team-admin-console-dev"]
     },
     {
-      "matchPackageNames": ["@types/node-ipc", "node-ipc", "qrious", "regedit"],
+      "matchPackageNames": ["@types/node-ipc", "node-ipc", "qrious"],
       "description": "Auth owned dependencies",
       "commitMessagePrefix": "[deps] Auth:",
       "reviewers": ["team:team-auth-dev"]
@@ -255,5 +255,5 @@
       "reviewers": ["team:team-vault-dev"]
     }
   ],
-  "ignoreDeps": ["@types/koa-bodyparser", "bootstrap", "node-ipc", "node", "npm", "regedit"]
+  "ignoreDeps": ["@types/koa-bodyparser", "bootstrap", "node-ipc", "node", "npm"]
 }

@@ -86,13 +86,6 @@
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
     "sign": "./sign.js",
-    "extraResources": [
-      {
-        "from": "../../node_modules/regedit/vbs",
-        "to": "regedit/vbs",
-        "filter": ["**/*"]
-      }
-    ],
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",

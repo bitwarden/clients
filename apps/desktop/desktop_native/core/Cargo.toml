@@ -56,6 +56,7 @@ windows = { version = "=0.57.0", features = [
   "Win32_UI_Input_KeyboardAndMouse",
   "Win32_UI_WindowsAndMessaging",
 ], optional = true }
+windows-registry = "=0.3.0"
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = "=0.1.6"
