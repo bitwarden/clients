@@ -164,7 +164,23 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
     newMasterKey: MasterKey,
     newUserKey: [UserKey, EncString],
   ) {
-    const masterKey = await this.cryptoService.getOrDeriveMasterKey(this.currentMasterPassword);
+    const masterKey = await this.cryptoService.makeMasterKey(
+      this.currentMasterPassword,
+      await this.stateService.getEmail(),
+      await this.stateService.getKdfType(),
+      await this.stateService.getKdfConfig(),
+    );
+
+    const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
+    if (userKey == null) {
+      this.platformUtilsService.showToast(
+        "error",
+        null,
+        this.i18nService.t("invalidMasterPassword"),
+      );
+      return;
+    }
+
     const request = new PasswordRequest();
     request.masterPasswordHash = await this.cryptoService.hashMasterKey(
       this.currentMasterPassword,
