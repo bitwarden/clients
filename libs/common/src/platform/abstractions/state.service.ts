@@ -387,18 +387,5 @@ export abstract class StateService<T extends Account = Account> {
 
   getAvatarColor: (options?: StorageOptions) => Promise<string | null | undefined>;
   setAvatarColor: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
-   * fetches string value of URL user tried to navigate to while unauthenticated.
-   * @param options Defines the storage options for the URL; Defaults to session Storage.
-   * @returns route called prior to successful login.
-   */
-  getDeepLinkRedirectUrl: (options?: StorageOptions) => Promise<string>;
-  /**
-   * Store URL in session storage by default, but can be configured. Developed to handle
-   * unauthN interrupted navigation.
-   * @param url URL of route
-   * @param options Defines the storage options for the URL; Defaults to session Storage.
-   */
-  setDeepLinkRedirectUrl: (url: string, options?: StorageOptions) => Promise<void>;
   nextUpActiveUser: () => Promise<UserId>;
 }
