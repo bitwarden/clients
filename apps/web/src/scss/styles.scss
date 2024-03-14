@@ -43,8 +43,6 @@
 @import "~bootstrap/scss/_utilities";
 @import "~bootstrap/scss/_print";
 
-@import "~ngx-toastr/toastr";
-
 @import "./base";
 @import "./buttons";
 @import "./callouts";
@@ -54,5 +52,4 @@
 @import "./pages";
 @import "./plugins";
 @import "./tables";
-@import "./toasts";
 @import "./vault-filters";

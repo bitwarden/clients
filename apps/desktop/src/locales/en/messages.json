@@ -2687,5 +2687,8 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Success"
   }
 }

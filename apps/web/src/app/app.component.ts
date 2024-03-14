@@ -1,9 +1,7 @@
 import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit, SecurityContext } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
 import { Subject, switchMap, takeUntil, timer } from "rxjs";
 
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -30,7 +28,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { PolicyListService } from "./admin-console/core/policy-list.service";
 import {
@@ -71,14 +69,13 @@ export class AppComponent implements OnDestroy, OnInit {
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
-    private toastrService: ToastrService,
+    private toastService: ToastService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
     private vaultTimeoutService: VaultTimeoutService,
     private cryptoService: CryptoService,
     private collectionService: CollectionService,
-    private sanitizer: DomSanitizer,
     private searchService: SearchService,
     private notificationsService: NotificationsService,
     private routerService: RouterService,
@@ -213,7 +210,7 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           }
           case "showToast":
-            this.showToast(message);
+            this.toastService._showToast(message);
             break;
           case "convertAccountToKeyConnector":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -331,34 +328,6 @@ export class AppComponent implements OnDestroy, OnInit {
         this.idleStateChanged();
       }
     }, IdleTimeout);
-  }
-
-  private showToast(msg: any) {
-    let message = "";
-
-    const options: Partial<IndividualConfig> = {};
-
-    if (typeof msg.text === "string") {
-      message = msg.text;
-    } else if (msg.text.length === 1) {
-      message = msg.text[0];
-    } else {
-      msg.text.forEach(
-        (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
-      );
-      options.enableHtml = true;
-    }
-    if (msg.options != null) {
-      if (msg.options.trustedHtml === true) {
-        options.enableHtml = true;
-      }
-      if (msg.options.timeout != null && msg.options.timeout > 0) {
-        options.timeOut = msg.options.timeout;
-      }
-    }
-
-    this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
   }
 
   private idleStateChanged() {

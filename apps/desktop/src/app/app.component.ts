@@ -3,14 +3,11 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  SecurityContext,
   Type,
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -48,7 +45,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginApprovalComponent } from "../auth/login/login-approval.component";
@@ -128,9 +125,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
-    private toastrService: ToastrService,
+    private toastService: ToastService,
     private i18nService: I18nService,
-    private sanitizer: DomSanitizer,
     private ngZone: NgZone,
     private vaultTimeoutService: VaultTimeoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
@@ -292,7 +288,7 @@ export class AppComponent implements OnInit, OnDestroy {
             );
             break;
           case "showToast":
-            this.showToast(message);
+            this.toastService._showToast(message);
             break;
           case "copiedToClipboard":
             if (!message.clearing) {
@@ -672,34 +668,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.modal.onClosed.subscribe(() => {
       this.modal = null;
     });
-  }
-
-  private showToast(msg: any) {
-    let message = "";
-
-    const options: Partial<IndividualConfig> = {};
-
-    if (typeof msg.text === "string") {
-      message = msg.text;
-    } else if (msg.text.length === 1) {
-      message = msg.text[0];
-    } else {
-      msg.text.forEach(
-        (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
-      );
-      options.enableHtml = true;
-    }
-    if (msg.options != null) {
-      if (msg.options.trustedHtml === true) {
-        options.enableHtml = true;
-      }
-      if (msg.options.timeout != null && msg.options.timeout > 0) {
-        options.timeOut = msg.options.timeout;
-      }
-    }
-
-    this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
   }
 
   private routeToVault(action: string, cipherType: CipherType) {

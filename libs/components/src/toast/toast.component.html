@@ -1,0 +1,22 @@
+<div
+  class="tw-mb-1 tw-min-w-[--bit-toast-width] tw-text-contrast tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default {{
+    bgColor
+  }}"
+>
+  <div class="tw-flex tw-items-center tw-gap-4 tw-px-2 tw-pb-1 tw-pt-2">
+    <i aria-hidden="true" class="bwi tw-text-xl tw-py-1.5 tw-px-2.5 {{ iconClass }}"></i>
+    <div>
+      <span class="tw-sr-only">{{ variant | i18n }}</span>
+      <p *ngIf="title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
+      <p *ngFor="let m of messageArray" class="tw-mb-2 last:tw-mb-0">{{ m }}</p>
+    </div>
+    <button
+      class="tw-ml-auto"
+      bitIconButton="bwi-close"
+      buttonType="contrast"
+      type="button"
+      (click)="this.onClose.emit()"
+    ></button>
+  </div>
+  <div class="tw-h-1 tw-w-full tw-bg-text-contrast/70" [style.width]="progressWidth + '%'"></div>
+</div>

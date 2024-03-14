@@ -4,7 +4,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { InfiniteScrollModule } from "ngx-infinite-scroll";
-import { ToastrModule } from "ngx-toastr";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -52,7 +51,6 @@ import "./locales";
     ReactiveFormsModule,
     InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
     // Component library modules
@@ -90,7 +88,6 @@ import "./locales";
     ReactiveFormsModule,
     InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
     // Component library

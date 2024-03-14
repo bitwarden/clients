@@ -1,0 +1,20 @@
+@import "~ngx-toastr/toastr";
+@import "./toast.tokens.css";
+
+/* Override all default styles from `ngx-toaster` */
+.toast-container .ngx-toastr {
+  all: unset;
+  display: block;
+  width: var(--bit-toast-width);
+}
+
+/* Disable hover styles */
+.toast-container .ngx-toastr:hover {
+  box-shadow: none;
+}
+
+.toast-container.toast-bottom-full-width .ngx-toastr {
+  width: var(--bit-toast-width-full);
+  margin-left: auto;
+  margin-right: auto;
+}

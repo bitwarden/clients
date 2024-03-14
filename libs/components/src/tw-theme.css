@@ -163,6 +163,9 @@
 @import "./popover/popover.component.css";
 @import "./search/search.component.css";
 
+@import "./toast/toast.tokens.css";
+@import "./toast/toastr.css";
+
 /** 
  * tw-break-words does not work with table cells:
  * https://github.com/tailwindlabs/tailwindcss/issues/835

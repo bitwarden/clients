@@ -1,12 +1,11 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { ToastrService } from "ngx-toastr";
 import { filter, concatMap, Subject, takeUntil, firstValueFrom } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 import { ZonedMessageListenerService } from "../platform/browser/zoned-message-listener.service";
@@ -31,7 +30,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private toastrService: ToastrService,
     private broadcasterService: BroadcasterService,
     private authService: AuthService,
     private i18nService: I18nService,
@@ -42,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private platformUtilsService: ForegroundPlatformUtilsService,
     private dialogService: DialogService,
     private browserMessagingApi: ZonedMessageListenerService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -75,10 +74,10 @@ export class AppComponent implements OnInit, OnDestroy {
       if (msg.command === "doneLoggingOut") {
         this.authService.logOut(async () => {
           if (msg.expired) {
-            this.showToast({
-              type: "warning",
+            this.toastService.showToast({
+              variant: "warning",
               title: this.i18nService.t("loggedOut"),
-              text: this.i18nService.t("loginExpired"),
+              message: this.i18nService.t("loginExpired"),
             });
           }
 
@@ -108,7 +107,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.showNativeMessagingFingerprintDialog(msg);
       } else if (msg.command === "showToast") {
-        this.showToast(msg);
+        this.toastService._showToast(msg);
       } else if (msg.command === "reloadProcess") {
         const forceWindowReload =
           this.platformUtilsService.isSafari() ||

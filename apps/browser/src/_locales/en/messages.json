@@ -3005,5 +3005,8 @@
   "saveCipherAttemptFailed": {
     "message": "Error saving credentials. Check console for details.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
   }
 }

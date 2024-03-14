@@ -28,6 +28,11 @@ export abstract class PlatformUtilsService {
   getApplicationVersionNumber: () => Promise<string>;
   supportsWebAuthn: (win: Window) => boolean;
   supportsDuo: () => boolean;
+  /**
+   * @deprecated use `@bitwarden/components/ToastService.showToast` instead
+   *
+   * Jira: [CL-213](https://bitwarden.atlassian.net/browse/CL-213)
+   */
   showToast: (
     type: "error" | "success" | "warning" | "info",
     title: string,
