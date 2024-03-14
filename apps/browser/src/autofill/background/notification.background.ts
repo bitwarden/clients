@@ -588,14 +588,14 @@ export default class NotificationBackground {
   }
 
   /**
-   * Sets the add/edit cipher info in the state service
+   * Sets the add/edit cipher info in the cipher service
    * and opens the add/edit vault item popout.
    *
    * @param cipherView - The cipher to edit
    * @param senderTab - The tab that the message was sent from
    */
   private async editItem(cipherView: CipherView, senderTab: chrome.tabs.Tab) {
-    await this.stateService.setAddEditCipherInfo({
+    await this.cipherService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
     });

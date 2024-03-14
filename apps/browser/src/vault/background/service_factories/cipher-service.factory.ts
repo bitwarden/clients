@@ -42,6 +42,7 @@ import {
   i18nServiceFactory,
   I18nServiceInitOptions,
 } from "../../../platform/background/service-factories/i18n-service.factory";
+import { stateProviderFactory } from "../../../platform/background/service-factories/state-provider.factory";
 import {
   stateServiceFactory,
   StateServiceInitOptions,
@@ -81,6 +82,7 @@ export function cipherServiceFactory(
         await encryptServiceFactory(cache, opts),
         await cipherFileUploadServiceFactory(cache, opts),
         await configServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
       ),
   );
 }

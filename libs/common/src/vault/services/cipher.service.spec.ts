@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
+import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { makeStaticByteArray } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
@@ -12,10 +14,12 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
+import { UserId } from "../../types/guid";
 import { CipherKey, OrgKey } from "../../types/key";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
@@ -97,6 +101,8 @@ const cipherData: CipherData = {
     },
   ],
 };
+const mockUserId = Utils.newGuid() as UserId;
+let accountService: FakeAccountService;
 
 describe("Cipher Service", () => {
   const cryptoService = mock<CryptoService>();
@@ -109,6 +115,8 @@ describe("Cipher Service", () => {
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigServiceAbstraction>();
+  accountService = mockAccountServiceWith(mockUserId);
+  const stateProvider = new FakeStateProvider(accountService);
 
   let cipherService: CipherService;
   let cipherObj: Cipher;
@@ -130,6 +138,7 @@ describe("Cipher Service", () => {
       encryptService,
       cipherFileUploadService,
       configService,
+      stateProvider,
     );
 
     cipherObj = new Cipher(cipherData);

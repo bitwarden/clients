@@ -716,7 +716,7 @@ describe("NotificationBackground", () => {
           );
           tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
-          setAddEditCipherInfoSpy = jest.spyOn(stateService, "setAddEditCipherInfo");
+          setAddEditCipherInfoSpy = jest.spyOn(cipherService, "setAddEditCipherInfo");
           openAddEditVaultItemPopoutSpy = jest.spyOn(
             notificationBackground as any,
             "openAddEditVaultItemPopout",

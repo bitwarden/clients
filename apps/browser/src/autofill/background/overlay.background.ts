@@ -628,7 +628,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
 
-    await this.stateService.setAddEditCipherInfo({
+    await this.cipherService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
     });

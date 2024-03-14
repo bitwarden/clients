@@ -8,7 +8,6 @@ import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -27,7 +26,6 @@ describe("Folder Service", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
-  let stateService: MockProxy<StateService>;
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -39,7 +37,6 @@ describe("Folder Service", () => {
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
-    stateService = mock<StateService>();
 
     accountService = mockAccountServiceWith(mockUserId);
     stateProvider = new FakeStateProvider(accountService);
@@ -52,13 +49,7 @@ describe("Folder Service", () => {
     );
     encryptService.decryptToUtf8.mockResolvedValue("DEC");
 
-    folderService = new FolderService(
-      cryptoService,
-      i18nService,
-      cipherService,
-      stateService,
-      stateProvider,
-    );
+    folderService = new FolderService(cryptoService, i18nService, cipherService, stateProvider);
 
     folderState = stateProvider.activeUser.getFake(FOLDER_ENCRYPTED_FOLDERS);
 

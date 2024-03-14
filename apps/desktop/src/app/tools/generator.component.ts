@@ -8,6 +8,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 @Component({
   selector: "app-generator",
@@ -18,6 +19,7 @@ export class GeneratorComponent extends BaseGeneratorComponent {
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     usernameGenerationService: UsernameGenerationServiceAbstraction,
     stateService: StateService,
+    cipherService: CipherService,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     route: ActivatedRoute,
@@ -28,6 +30,7 @@ export class GeneratorComponent extends BaseGeneratorComponent {
       usernameGenerationService,
       platformUtilsService,
       stateService,
+      cipherService,
       i18nService,
       logService,
       route,

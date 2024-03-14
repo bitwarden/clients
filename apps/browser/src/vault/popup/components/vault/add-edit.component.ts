@@ -304,7 +304,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   private saveCipherState() {
-    return this.stateService.setAddEditCipherInfo({
+    return this.cipherService.setAddEditCipherInfo({
       cipher: this.cipher,
       collectionIds:
         this.collections == null

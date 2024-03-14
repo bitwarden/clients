@@ -386,6 +386,7 @@ const typesafeProviders: Array<SafeProvider> = [
       encryptService: EncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
       configService: ConfigServiceAbstraction,
+      stateProvider: StateProvider,
     ) =>
       new CipherService(
         cryptoService,
@@ -398,6 +399,7 @@ const typesafeProviders: Array<SafeProvider> = [
         encryptService,
         fileUploadService,
         configService,
+        stateProvider,
       ),
     deps: [
       CryptoServiceAbstraction,
@@ -410,6 +412,7 @@ const typesafeProviders: Array<SafeProvider> = [
       EncryptService,
       CipherFileUploadServiceAbstraction,
       ConfigServiceAbstraction,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -419,7 +422,6 @@ const typesafeProviders: Array<SafeProvider> = [
       CryptoServiceAbstraction,
       I18nServiceAbstraction,
       CipherServiceAbstraction,
-      StateServiceAbstraction,
       StateProvider,
     ],
   }),

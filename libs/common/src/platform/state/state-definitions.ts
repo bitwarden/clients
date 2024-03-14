@@ -92,3 +92,5 @@ export const VAULT_ONBOARDING = new StateDefinition("vaultOnboarding", "disk", {
 export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
   web: "disk-local",
 });
+
+export const CIPHERS_DISK = new StateDefinition("localData", "disk", { web: "disk-local" });
