@@ -5,7 +5,6 @@ import { BiometricStateService } from "@bitwarden/common/platform/biometrics/bio
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
-import { ElectronStateService } from "../../services/electron-state.service.abstraction";
 
 import { BiometricsServiceAbstraction, OsBiometricService } from "./biometrics.service.abstraction";
 
@@ -16,7 +15,6 @@ export class BiometricsService implements BiometricsServiceAbstraction {
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
-    private stateService: ElectronStateService,
     private logService: LogService,
     private messagingService: MessagingService,
     private platform: NodeJS.Platform,
@@ -41,7 +39,6 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     this.platformSpecificService = new BiometricWindowsMain(
       this.i18nService,
       this.windowMain,
-      this.stateService,
       this.logService,
     );
   }
@@ -49,17 +46,13 @@ export class BiometricsService implements BiometricsServiceAbstraction {
   private loadMacOSService() {
     // eslint-disable-next-line
     const BiometricDarwinMain = require("./biometric.darwin.main").default;
-    this.platformSpecificService = new BiometricDarwinMain(this.i18nService, this.stateService);
+    this.platformSpecificService = new BiometricDarwinMain(this.i18nService);
   }
 
   private loadNoopBiometricsService() {
     // eslint-disable-next-line
     const NoopBiometricsService = require("./biometric.noop.main").default;
     this.platformSpecificService = new NoopBiometricsService();
-  }
-
-  async init() {
-    return await this.platformSpecificService.init();
   }
 
   async osSupportsBiometric() {

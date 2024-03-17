@@ -5,6 +5,7 @@ import { FormBuilder } from "@angular/forms";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -36,6 +37,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     sendApiService: SendApiService,
     dialogService: DialogService,
     formBuilder: FormBuilder,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: { sendId: string },
   ) {
@@ -52,6 +54,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       sendApiService,
       dialogService,
       formBuilder,
+      billingAccountProfileStateService,
     );
 
     this.sendId = params.sendId;

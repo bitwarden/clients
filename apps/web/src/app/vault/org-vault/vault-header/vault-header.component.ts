@@ -80,6 +80,10 @@ export class VaultHeaderComponent {
     return `${this.organization?.name} ${headerType}`;
   }
 
+  get icon() {
+    return this.filter.collectionId !== undefined ? "bwi-collection" : "";
+  }
+
   protected get showBreadcrumbs() {
     return this.filter.collectionId !== undefined && this.filter.collectionId !== All;
   }

@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { View } from "../../../models/view/view";
 import { Collection } from "../domain/collection";
@@ -55,5 +57,9 @@ export class CollectionView implements View, ITreeNodeObject {
     return org?.flexibleCollections
       ? org?.canDeleteAnyCollection || (!org?.limitCollectionCreationDeletion && this.manage)
       : org?.canDeleteAnyCollection || org?.canDeleteAssignedCollections;
+  }
+
+  static fromJSON(obj: Jsonify<CollectionView>) {
+    return Object.assign(new CollectionView(new Collection()), obj);
   }
 }

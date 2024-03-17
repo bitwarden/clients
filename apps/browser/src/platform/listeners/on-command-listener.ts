@@ -4,10 +4,10 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 
 import { authServiceFactory } from "../../auth/background/service-factories/auth-service.factory";
 import { autofillServiceFactory } from "../../autofill/background/service_factories/autofill-service.factory";
+import { autofillSettingsServiceFactory } from "../../autofill/background/service_factories/autofill-settings-service.factory";
 import { GeneratePasswordToClipboardCommand } from "../../autofill/clipboard";
 import { AutofillTabCommand } from "../../autofill/commands/autofill-tab-command";
 import { Account } from "../../models/account";
-import { stateServiceFactory } from "../../platform/background/service-factories/state-service.factory";
 import {
   passwordGenerationServiceFactory,
   PasswordGenerationServiceInitOptions,
@@ -94,11 +94,14 @@ const doGeneratePasswordToClipboard = async (tab: chrome.tabs.Tab): Promise<void
     stateServiceOptions: {
       stateFactory: stateFactory,
     },
+    autofillSettingsServiceOptions: {
+      stateFactory: autofillSettingsServiceFactory,
+    },
   };
 
   const command = new GeneratePasswordToClipboardCommand(
     await passwordGenerationServiceFactory(cache, options),
-    await stateServiceFactory(cache, options),
+    await autofillSettingsServiceFactory(cache, options),
   );
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

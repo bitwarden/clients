@@ -1,5 +1,4 @@
-import { Component, HostListener, Input, Optional } from "@angular/core";
-import { IsActiveMatchOptions } from "@angular/router";
+import { Component, HostListener, Optional } from "@angular/core";
 import { BehaviorSubject, map } from "rxjs";
 
 import { NavBaseComponent } from "./nav-base.component";
@@ -23,19 +22,6 @@ export class NavItemComponent extends NavBaseComponent {
   }
   protected get showActiveStyles() {
     return this._isActive && !this.hideActiveStyles;
-  }
-  protected rlaOptions: IsActiveMatchOptions = {
-    paths: "subset",
-    queryParams: "exact",
-    fragment: "ignored",
-    matrixParams: "ignored",
-  };
-
-  /**
-   * if `true`, use `exact` match for path instead of `subset`.
-   */
-  @Input() set exactMatch(val: boolean) {
-    this.rlaOptions.paths = val ? "exact" : "subset";
   }
 
   /**

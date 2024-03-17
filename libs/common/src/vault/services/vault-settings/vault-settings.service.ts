@@ -1,8 +1,12 @@
 import { Observable, map } from "rxjs";
 
-import { GlobalState, StateProvider } from "../../../platform/state";
+import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/state";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
-import { USER_ENABLE_PASSKEYS } from "../key-state/enable-passkey.state";
+import {
+  SHOW_CARDS_CURRENT_TAB,
+  SHOW_IDENTITIES_CURRENT_TAB,
+  USER_ENABLE_PASSKEYS,
+} from "../key-state/vault-settings.state";
 
 /**
  * {@link VaultSettingsServiceAbstraction}
@@ -10,7 +14,6 @@ import { USER_ENABLE_PASSKEYS } from "../key-state/enable-passkey.state";
 export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   private enablePasskeysState: GlobalState<boolean> =
     this.stateProvider.getGlobal(USER_ENABLE_PASSKEYS);
-
   /**
    * {@link VaultSettingsServiceAbstraction.enablePasskeys$}
    */
@@ -18,7 +21,39 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
     map((x) => x ?? true),
   );
 
+  private showCardsCurrentTabState: ActiveUserState<boolean> =
+    this.stateProvider.getActive(SHOW_CARDS_CURRENT_TAB);
+  /**
+   * {@link VaultSettingsServiceAbstraction.showCardsCurrentTab$}
+   */
+  readonly showCardsCurrentTab$: Observable<boolean> = this.showCardsCurrentTabState.state$.pipe(
+    map((x) => x ?? true),
+  );
+
+  private showIdentitiesCurrentTabState: ActiveUserState<boolean> = this.stateProvider.getActive(
+    SHOW_IDENTITIES_CURRENT_TAB,
+  );
+  /**
+   * {@link VaultSettingsServiceAbstraction.showIdentitiesCurrentTab$}
+   */
+  readonly showIdentitiesCurrentTab$: Observable<boolean> =
+    this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
+
   constructor(private stateProvider: StateProvider) {}
+
+  /**
+   * {@link VaultSettingsServiceAbstraction.setShowCardsCurrentTab}
+   */
+  async setShowCardsCurrentTab(value: boolean): Promise<void> {
+    await this.showCardsCurrentTabState.update(() => value);
+  }
+
+  /**
+   * {@link VaultSettingsServiceAbstraction.setDontShowIdentitiesCurrentTab}
+   */
+  async setShowIdentitiesCurrentTab(value: boolean): Promise<void> {
+    await this.showIdentitiesCurrentTabState.update(() => value);
+  }
 
   /**
    * {@link VaultSettingsServiceAbstraction.setEnablePasskeys}

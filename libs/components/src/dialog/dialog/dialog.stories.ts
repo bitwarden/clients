@@ -1,3 +1,4 @@
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,8 +8,7 @@ import { IconButtonModule } from "../../icon-button";
 import { SharedModule } from "../../shared";
 import { TabsModule } from "../../tabs";
 import { I18nMockService } from "../../utils/i18n-mock.service";
-import { DialogCloseDirective } from "../directives/dialog-close.directive";
-import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+import { DialogModule } from "../dialog.module";
 
 import { DialogComponent } from "./dialog.component";
 
@@ -17,8 +17,14 @@ export default {
   component: DialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, SharedModule, IconButtonModule, TabsModule],
-      declarations: [DialogTitleContainerDirective, DialogCloseDirective],
+      imports: [
+        DialogModule,
+        ButtonModule,
+        SharedModule,
+        IconButtonModule,
+        TabsModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -56,8 +62,7 @@ export const Default: Story = {
   render: (args: DialogComponent) => ({
     props: args,
     template: `
-      <bit-dialog [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
-        <span bitDialogTitle>{{title}}</span>
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
           <button bitButton buttonType="primary" [disabled]="loading">Save</button>
@@ -77,6 +82,7 @@ export const Default: Story = {
   args: {
     dialogSize: "default",
     title: "Default",
+    subtitle: "Subtitle",
   },
 };
 
@@ -117,8 +123,7 @@ export const ScrollingContent: Story = {
   render: (args: DialogComponent) => ({
     props: args,
     template: `
-      <bit-dialog [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
-        <span bitDialogTitle>Scrolling Example</span>
+      <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
         <span bitDialogContent>
           Dialog body text goes here.<br>
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -142,8 +147,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-dialog [dialogSize]="dialogSize" [disablePadding]="disablePadding">
-        <span bitDialogTitle>Tab Content Example</span>
+      <bit-dialog title="Tab Content Example" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>

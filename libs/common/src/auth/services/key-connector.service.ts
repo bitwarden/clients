@@ -2,8 +2,8 @@ import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { KeysRequest } from "../../models/request/keys.request";
-import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
@@ -24,7 +24,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private tokenService: TokenService,
     private logService: LogService,
     private organizationService: OrganizationService,
-    private cryptoFunctionService: CryptoFunctionService,
+    private keyGenerationService: KeyGenerationService,
     private logoutCallback: (expired: boolean, userId?: string) => Promise<void>,
   ) {}
 
@@ -94,11 +94,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       keyConnectorUrl: legacyKeyConnectorUrl,
       userDecryptionOptions,
     } = tokenResponse;
-    const password = await this.cryptoFunctionService.aesGenerateKey(512);
+    const password = await this.keyGenerationService.createKey(512);
     const kdfConfig = new KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
 
     const masterKey = await this.cryptoService.makeMasterKey(
-      Utils.fromBufferToB64(password),
+      password.keyB64,
       await this.tokenService.getEmail(),
       kdf,
       kdfConfig,

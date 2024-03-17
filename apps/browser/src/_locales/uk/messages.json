@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Ваш обліковий запис створений! Тепер ви можете увійти."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Ви успішно увійшли в систему"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Можете закрити це вікно"
+  },
   "masterPassSent": {
     "message": "Ми надіслали вам лист з підказкою для головного пароля."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Обрати теку..."
   },
+  "noFoldersFound": {
+    "message": "Тек не знайдено",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2129,7 +2139,7 @@
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Використовуйте розширені можливості адрес вашого постачальника електронної пошти."
+    "message": "Використовуйте розширені можливості адрес вашого провайдера електронної пошти."
   },
   "catchallEmail": {
     "message": "Адреса е-пошти Catch-all"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустіть DUO і виконайте дії для завершення входу."
+    "message": "Запустіть Duo і виконайте дії для завершення входу."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Для вашого облікового запису необхідна двоетапна перевірка з DUO."
+  "duoRequiredForAccount": {
+    "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Відкрийте розширення у новому вікні, щоб завершити вхід"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Відкріпіть розширення для завершення входу."
   },
   "popoutExtension": {
     "message": "Відкріпити вікно розширення"
   },
   "launchDuo": {
-    "message": "Запустити DUO"
+    "message": "Запустити Duo"
   },
   "importFormatError": {
     "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
@@ -2968,10 +2978,6 @@
     "message": "Якщо ігнорувати цей параметр, можуть виникнути конфлікти автозаповнення між Bitwarden і браузером.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Ця дія призведе до перезапуску розширення Bitwarden. Якщо ігнорувати цей параметр, можуть виникнути конфлікти автозаповнення між Bitwarden і браузером.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Зробити Bitwarden типовим менеджером паролів",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Зробити типовим",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Облікові дані успішно збережено!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Облікові дані успішно оновлено!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Помилка збереження облікових даних. Перегляньте подробиці в консолі.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

@@ -42,12 +42,10 @@ import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { GeneratorComponent } from "./tools/generator.component";
 import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
 import { SendComponent } from "./tools/send/send.component";
-import { ToolsComponent } from "./tools/tools.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -199,7 +197,7 @@ const routes: Routes = [
         path: "vault",
         loadChildren: () => VaultModule,
       },
-      { path: "sends", component: SendComponent, data: { title: "Send" } },
+      { path: "sends", component: SendComponent, data: { titleId: "send" } },
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
@@ -207,7 +205,6 @@ const routes: Routes = [
       },
       {
         path: "settings",
-        component: SettingsComponent,
         children: [
           { path: "", pathMatch: "full", redirectTo: "account" },
           { path: "account", component: AccountComponent, data: { titleId: "myAccount" } },
@@ -256,7 +253,6 @@ const routes: Routes = [
       },
       {
         path: "tools",
-        component: ToolsComponent,
         canActivate: [AuthGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },

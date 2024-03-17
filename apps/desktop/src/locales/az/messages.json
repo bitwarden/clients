@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bu pəncərəni bağlaya bilərsiniz"
+  },
   "masterPassSent": {
     "message": "Ana parol məsləhətini ehtiva edən bir e-poçt göndərdik."
   },
@@ -1548,7 +1554,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Doğrulama tələb olunur",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
@@ -1877,40 +1883,40 @@
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Anbara müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Yenidən sına"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Bu əməliyyat üçün doğrulama tələb olunur. Davam etmək üçün bir PIN təyin edin."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "PIN təyin et"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Biometriklə doğrula"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Təsdiq gözlənilir"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Biometrik tamamlana bilmədi."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Fərqli bir üsul lazımdır?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Ana parolu istifadə et"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "PIN-i istifadə et"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Biometrik istifadə et"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "E-poçtunuza göndərilmiş doğrulama kodunu daxil edin."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Kodu təkrar göndər"
   },
   "hours": {
     "message": "Saat"
@@ -2525,6 +2531,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
+  },
+  "launchDuo": {
+    "message": "Duo-nu brauzerdə başlat"
+  },
   "importFormatError": {
     "message": "Data doğru format edilməyib. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
@@ -2606,13 +2621,13 @@
     "message": "Yanlış istifadəçi adı və ya parol"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Yanlış parol"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Yanlış kod"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Yanlış PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"

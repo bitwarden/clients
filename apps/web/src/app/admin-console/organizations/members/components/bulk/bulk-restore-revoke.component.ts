@@ -2,6 +2,7 @@ import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -37,7 +38,9 @@ export class BulkRestoreRevokeComponent {
     this.isRevoking = data.isRevoking;
     this.organizationId = data.organizationId;
     this.users = data.users;
-    this.showNoMasterPasswordWarning = this.users.some((u) => u.hasMasterPassword === false);
+    this.showNoMasterPasswordWarning = this.users.some(
+      (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+    );
   }
 
   get bulkTitle() {

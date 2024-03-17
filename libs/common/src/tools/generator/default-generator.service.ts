@@ -3,7 +3,7 @@ import { firstValueFrom, map, share, timer, ReplaySubject, Observable } from "rx
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { ActiveUserStateProvider } from "../../platform/state";
+import { UserId } from "../../types/guid";
 
 import { GeneratorStrategy, GeneratorService, PolicyEvaluator } from "./abstractions";
 
@@ -13,45 +13,57 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
    * @param strategy tailors the service to a specific generator type
    *            (e.g. password, passphrase)
    * @param policy provides the policy to enforce
-   * @param state saves and loads password generation options to the location
-   *             specified by the strategy
    */
   constructor(
     private strategy: GeneratorStrategy<Options, Policy>,
     private policy: PolicyService,
-    private state: ActiveUserStateProvider,
-  ) {
-    this._policy$ = this.policy.get$(this.strategy.policy).pipe(
+  ) {}
+
+  private _evaluators$ = new Map<UserId, Observable<PolicyEvaluator<Policy, Options>>>();
+
+  /** {@link GeneratorService.options$()} */
+  options$(userId: UserId) {
+    return this.strategy.durableState(userId).state$;
+  }
+
+  /** {@link GeneratorService.saveOptions} */
+  async saveOptions(userId: UserId, options: Options): Promise<void> {
+    await this.strategy.durableState(userId).update(() => options);
+  }
+
+  /** {@link GeneratorService.evaluator$()} */
+  evaluator$(userId: UserId) {
+    let evaluator$ = this._evaluators$.get(userId);
+
+    if (!evaluator$) {
+      evaluator$ = this.createEvaluator(userId);
+      this._evaluators$.set(userId, evaluator$);
+    }
+
+    return evaluator$;
+  }
+
+  private createEvaluator(userId: UserId) {
+    // FIXME: when it becomes possible to get a user-specific policy observable
+    // (`getAll$`) update this code to call it instead of `get$`.
+    const policies$ = this.policy.get$(this.strategy.policy);
+
+    // cache evaluator in a replay subject to amortize creation cost
+    // and reduce GC pressure.
+    const evaluator$ = policies$.pipe(
       map((policy) => this.strategy.evaluator(policy)),
       share({
-        // cache evaluator in a replay subject to amortize creation cost
-        // and reduce GC pressure.
         connector: () => new ReplaySubject(1),
         resetOnRefCountZero: () => timer(this.strategy.cache_ms),
       }),
     );
+
+    return evaluator$;
   }
 
-  private _policy$: Observable<PolicyEvaluator<Policy, Options>>;
-
-  /** {@link GeneratorService.options$} */
-  get options$() {
-    return this.state.get(this.strategy.disk).state$;
-  }
-
-  /** {@link GeneratorService.saveOptions} */
-  async saveOptions(options: Options): Promise<void> {
-    await this.state.get(this.strategy.disk).update(() => options);
-  }
-
-  /** {@link GeneratorService.policy$} */
-  get policy$() {
-    return this._policy$;
-  }
-
-  /** {@link GeneratorService.enforcePolicy} */
-  async enforcePolicy(options: Options): Promise<Options> {
-    const policy = await firstValueFrom(this._policy$);
+  /** {@link GeneratorService.enforcePolicy()} */
+  async enforcePolicy(userId: UserId, options: Options): Promise<Options> {
+    const policy = await firstValueFrom(this.evaluator$(userId));
     const evaluated = policy.applyPolicy(options);
     const sanitized = policy.sanitize(evaluated);
     return sanitized;

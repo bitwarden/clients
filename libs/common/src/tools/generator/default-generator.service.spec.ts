@@ -6,42 +6,45 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { FakeActiveUserStateProvider, mockAccountServiceWith } from "../../../spec";
+import { FakeSingleUserState, awaitAsync } from "../../../spec";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "../../admin-console/models/domain/policy";
-import { Utils } from "../../platform/misc/utils";
-import { ActiveUserState, ActiveUserStateProvider, KeyDefinition } from "../../platform/state";
+import { SingleUserState } from "../../platform/state";
 import { UserId } from "../../types/guid";
 
 import { GeneratorStrategy, PolicyEvaluator } from "./abstractions";
-import { PASSPHRASE_SETTINGS, PASSWORD_SETTINGS } from "./key-definitions";
 import { PasswordGenerationOptions } from "./password";
 
 import { DefaultGeneratorService } from ".";
 
-function mockPolicyService(config?: { data?: any; policy?: BehaviorSubject<Policy> }) {
-  const state = mock<Policy>({ data: config?.data ?? {} });
-  const subject = config?.policy ?? new BehaviorSubject<Policy>(state);
-
+function mockPolicyService(config?: { state?: BehaviorSubject<Policy> }) {
   const service = mock<PolicyService>();
-  service.get$.mockReturnValue(subject.asObservable());
+
+  // FIXME: swap out the mock return value when `getAll$` becomes available
+  const stateValue = config?.state ?? new BehaviorSubject<Policy>(null);
+  service.get$.mockReturnValue(stateValue);
+
+  // const stateValue = config?.state ?? new BehaviorSubject<Policy[]>(null);
+  // service.getAll$.mockReturnValue(stateValue);
 
   return service;
 }
 
 function mockGeneratorStrategy(config?: {
-  disk?: KeyDefinition<any>;
+  userState?: SingleUserState<any>;
   policy?: PolicyType;
   evaluator?: any;
 }) {
+  const durableState =
+    config?.userState ?? new FakeSingleUserState<PasswordGenerationOptions>(SomeUser);
   const strategy = mock<GeneratorStrategy<any, any>>({
     // intentionally arbitrary so that tests that need to check
     // whether they're used properly are guaranteed to test
     // the value from `config`.
-    disk: config?.disk ?? {},
+    durableState: jest.fn(() => durableState),
     policy: config?.policy ?? PolicyType.DisableSend,
     evaluator: jest.fn(() => config?.evaluator ?? mock<PolicyEvaluator<any, any>>()),
   });
@@ -49,129 +52,123 @@ function mockGeneratorStrategy(config?: {
   return strategy;
 }
 
-// FIXME: Use the fake instead, once it's updated to monitor its method calls.
-function mockStateProvider(): [
-  ActiveUserStateProvider,
-  ActiveUserState<PasswordGenerationOptions>,
-] {
-  const state = mock<ActiveUserState<PasswordGenerationOptions>>();
-  const provider = mock<ActiveUserStateProvider>();
-  provider.get.mockReturnValue(state);
-
-  return [provider, state];
-}
-
-function fakeStateProvider(key: KeyDefinition<any>, initalValue: any): FakeActiveUserStateProvider {
-  const userId = Utils.newGuid() as UserId;
-  const acctService = mockAccountServiceWith(userId);
-  const provider = new FakeActiveUserStateProvider(acctService);
-  provider.mockFor(key.key, initalValue);
-  return provider;
-}
+const SomeUser = "some user" as UserId;
+const AnotherUser = "another user" as UserId;
 
 describe("Password generator service", () => {
-  describe("constructor()", () => {
-    it("should initialize the password generator policy", () => {
-      const policy = mockPolicyService();
-      const strategy = mockGeneratorStrategy({ policy: PolicyType.PasswordGenerator });
-
-      new DefaultGeneratorService(strategy, policy, null);
-
-      expect(policy.get$).toHaveBeenCalledWith(PolicyType.PasswordGenerator);
-    });
-  });
-
   describe("options$", () => {
-    it("should return the state from strategy.key", () => {
+    it("should retrieve durable state from the service", () => {
       const policy = mockPolicyService();
-      const strategy = mockGeneratorStrategy({ disk: PASSPHRASE_SETTINGS });
-      const [state] = mockStateProvider();
-      const service = new DefaultGeneratorService(strategy, policy, state);
+      const userState = new FakeSingleUserState<PasswordGenerationOptions>(SomeUser);
+      const strategy = mockGeneratorStrategy({ userState });
+      const service = new DefaultGeneratorService(strategy, policy);
 
-      // invoke the getter. It returns the state but that's not important.
-      service.options$;
+      const result = service.options$(SomeUser);
 
-      expect(state.get).toHaveBeenCalledWith(PASSPHRASE_SETTINGS);
+      expect(strategy.durableState).toHaveBeenCalledWith(SomeUser);
+      expect(result).toBe(userState.state$);
     });
   });
 
   describe("saveOptions()", () => {
-    it("should update the state at strategy.key", async () => {
-      const policy = mockPolicyService();
-      const [provider, state] = mockStateProvider();
-      const strategy = mockGeneratorStrategy({ disk: PASSWORD_SETTINGS });
-      const service = new DefaultGeneratorService(strategy, policy, provider);
-
-      await service.saveOptions({});
-
-      expect(provider.get).toHaveBeenCalledWith(PASSWORD_SETTINGS);
-      expect(state.update).toHaveBeenCalled();
-    });
-
     it("should trigger an options$ update", async () => {
       const policy = mockPolicyService();
-      const strategy = mockGeneratorStrategy();
-      // using the fake here because we're testing that the update and the
-      // property are wired together. If we were to mock that, we'd be testing
-      // the mock configuration instead of the wiring.
-      const provider = fakeStateProvider(strategy.disk, { length: 9 });
-      const service = new DefaultGeneratorService(strategy, policy, provider);
+      const userState = new FakeSingleUserState<PasswordGenerationOptions>(SomeUser, { length: 9 });
+      const strategy = mockGeneratorStrategy({ userState });
+      const service = new DefaultGeneratorService(strategy, policy);
 
-      await service.saveOptions({ length: 10 });
+      await service.saveOptions(SomeUser, { length: 10 });
+      await awaitAsync();
+      const options = await firstValueFrom(service.options$(SomeUser));
 
-      const options = await firstValueFrom(service.options$);
+      expect(strategy.durableState).toHaveBeenCalledWith(SomeUser);
       expect(options).toEqual({ length: 10 });
     });
   });
 
-  describe("policy$", () => {
+  describe("evaluator$", () => {
+    it("should initialize the password generator policy", async () => {
+      const policy = mockPolicyService();
+      const strategy = mockGeneratorStrategy({ policy: PolicyType.PasswordGenerator });
+      const service = new DefaultGeneratorService(strategy, policy);
+
+      await firstValueFrom(service.evaluator$(SomeUser));
+
+      // FIXME: swap out the expect when `getAll$` becomes available
+      expect(policy.get$).toHaveBeenCalledWith(PolicyType.PasswordGenerator);
+      //expect(policy.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
+    });
+
     it("should map the policy using the generation strategy", async () => {
       const policyService = mockPolicyService();
       const evaluator = mock<PolicyEvaluator<any, any>>();
       const strategy = mockGeneratorStrategy({ evaluator });
+      const service = new DefaultGeneratorService(strategy, policyService);
 
-      const service = new DefaultGeneratorService(strategy, policyService, null);
-
-      const policy = await firstValueFrom(service.policy$);
+      const policy = await firstValueFrom(service.evaluator$(SomeUser));
 
       expect(policy).toBe(evaluator);
+    });
+
+    it("should update the evaluator when the password generator policy changes", async () => {
+      // set up dependencies
+      const state = new BehaviorSubject<Policy>(null);
+      const policy = mockPolicyService({ state });
+      const strategy = mockGeneratorStrategy();
+      const service = new DefaultGeneratorService(strategy, policy);
+
+      // model responses for the observable update
+      const firstEvaluator = mock<PolicyEvaluator<any, any>>();
+      strategy.evaluator.mockReturnValueOnce(firstEvaluator);
+      const secondEvaluator = mock<PolicyEvaluator<any, any>>();
+      strategy.evaluator.mockReturnValueOnce(secondEvaluator);
+
+      // act
+      const evaluator$ = service.evaluator$(SomeUser);
+      const firstResult = await firstValueFrom(evaluator$);
+      state.next(null);
+      const secondResult = await firstValueFrom(evaluator$);
+
+      // assert
+      expect(firstResult).toBe(firstEvaluator);
+      expect(secondResult).toBe(secondEvaluator);
+    });
+
+    it("should cache the password generator policy", async () => {
+      const policy = mockPolicyService();
+      const strategy = mockGeneratorStrategy({ policy: PolicyType.PasswordGenerator });
+      const service = new DefaultGeneratorService(strategy, policy);
+
+      await firstValueFrom(service.evaluator$(SomeUser));
+      await firstValueFrom(service.evaluator$(SomeUser));
+
+      // FIXME: swap out the expect when `getAll$` becomes available
+      expect(policy.get$).toHaveBeenCalledTimes(1);
+      //expect(policy.getAll$).toHaveBeenCalledTimes(1);
+    });
+
+    it("should cache the password generator policy for each user", async () => {
+      const policy = mockPolicyService();
+      const strategy = mockGeneratorStrategy({ policy: PolicyType.PasswordGenerator });
+      const service = new DefaultGeneratorService(strategy, policy);
+
+      await firstValueFrom(service.evaluator$(SomeUser));
+      await firstValueFrom(service.evaluator$(AnotherUser));
+
+      // FIXME: enable this test when `getAll$` becomes available
+      // expect(policy.getAll$).toHaveBeenNthCalledWith(1, PolicyType.PasswordGenerator, SomeUser);
+      // expect(policy.getAll$).toHaveBeenNthCalledWith(2, PolicyType.PasswordGenerator, AnotherUser);
     });
   });
 
   describe("enforcePolicy()", () => {
-    describe("should load the policy", () => {
-      it("from the cache by default", async () => {
-        const policy = mockPolicyService();
-        const strategy = mockGeneratorStrategy();
-        const service = new DefaultGeneratorService(strategy, policy, null);
-
-        await service.enforcePolicy({});
-        await service.enforcePolicy({});
-
-        expect(strategy.evaluator).toHaveBeenCalledTimes(1);
-      });
-
-      it("from the policy service when the policy changes", async () => {
-        const policy = new BehaviorSubject<Policy>(mock<Policy>({ data: {} }));
-        const policyService = mockPolicyService({ policy });
-        const strategy = mockGeneratorStrategy();
-        const service = new DefaultGeneratorService(strategy, policyService, null);
-
-        await service.enforcePolicy({});
-        policy.next(mock<Policy>({ data: { some: "change" } }));
-        await service.enforcePolicy({});
-
-        expect(strategy.evaluator).toHaveBeenCalledTimes(2);
-      });
-    });
-
     it("should evaluate the policy using the generation strategy", async () => {
       const policy = mockPolicyService();
       const evaluator = mock<PolicyEvaluator<any, any>>();
       const strategy = mockGeneratorStrategy({ evaluator });
-      const service = new DefaultGeneratorService(strategy, policy, null);
+      const service = new DefaultGeneratorService(strategy, policy);
 
-      await service.enforcePolicy({});
+      await service.enforcePolicy(SomeUser, {});
 
       expect(evaluator.applyPolicy).toHaveBeenCalled();
       expect(evaluator.sanitize).toHaveBeenCalled();
@@ -182,7 +179,7 @@ describe("Password generator service", () => {
     it("should invoke the generation strategy", async () => {
       const strategy = mockGeneratorStrategy();
       const policy = mockPolicyService();
-      const service = new DefaultGeneratorService(strategy, policy, null);
+      const service = new DefaultGeneratorService(strategy, policy);
 
       await service.generate({});
 

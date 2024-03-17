@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { Component, OnDestroy, OnInit, Inject, Input } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { takeUntil } from "rxjs";
 
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
@@ -15,6 +17,17 @@ import { DialogService } from "@bitwarden/components";
 
 import { EmergencyAccessService } from "../../../emergency-access";
 
+export enum EmergencyAccessTakeoverResultType {
+  Done = "done",
+}
+type EmergencyAccessTakeoverDialogData = {
+  /** display name of the account requesting emergency access takeover */
+  name: string;
+  /** email of the account requesting emergency access takeover */
+  email: string;
+  /** traces a unique emergency request  */
+  emergencyAccessId: string;
+};
 @Component({
   selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
@@ -24,16 +37,16 @@ export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent
   implements OnInit, OnDestroy
 {
-  @Output() onDone = new EventEmitter();
-  @Input() emergencyAccessId: string;
-  @Input() name: string;
-  @Input() email: string;
   @Input() kdf: KdfType;
   @Input() kdfIterations: number;
-
-  formPromise: Promise<any>;
+  takeoverForm = this.formBuilder.group({
+    masterPassword: ["", [Validators.required]],
+    masterPasswordRetype: ["", [Validators.required]],
+  });
 
   constructor(
+    @Inject(DIALOG_DATA) protected params: EmergencyAccessTakeoverDialogData,
+    private formBuilder: FormBuilder,
     i18nService: I18nService,
     cryptoService: CryptoService,
     messagingService: MessagingService,
@@ -44,6 +57,7 @@ export class EmergencyAccessTakeoverComponent
     private emergencyAccessService: EmergencyAccessService,
     private logService: LogService,
     dialogService: DialogService,
+    private dialogRef: DialogRef<EmergencyAccessTakeoverResultType>,
   ) {
     super(
       i18nService,
@@ -58,7 +72,9 @@ export class EmergencyAccessTakeoverComponent
   }
 
   async ngOnInit() {
-    const policies = await this.emergencyAccessService.getGrantorPolicies(this.emergencyAccessId);
+    const policies = await this.emergencyAccessService.getGrantorPolicies(
+      this.params.emergencyAccessId,
+    );
     this.policyService
       .masterPasswordPolicyOptions$(policies)
       .pipe(takeUntil(this.destroy$))
@@ -70,18 +86,23 @@ export class EmergencyAccessTakeoverComponent
     super.ngOnDestroy();
   }
 
-  async submit() {
+  submit = async () => {
+    if (this.takeoverForm.invalid) {
+      this.takeoverForm.markAllAsTouched();
+      return;
+    }
+    this.masterPassword = this.takeoverForm.get("masterPassword").value;
+    this.masterPasswordRetype = this.takeoverForm.get("masterPasswordRetype").value;
     if (!(await this.strongPassword())) {
       return;
     }
 
     try {
       await this.emergencyAccessService.takeover(
-        this.emergencyAccessId,
+        this.params.emergencyAccessId,
         this.masterPassword,
-        this.email,
+        this.params.email,
       );
-      this.onDone.emit();
     } catch (e) {
       this.logService.error(e);
       this.platformUtilsService.showToast(
@@ -90,5 +111,20 @@ export class EmergencyAccessTakeoverComponent
         this.i18nService.t("unexpectedError"),
       );
     }
-  }
+    this.dialogRef.close(EmergencyAccessTakeoverResultType.Done);
+  };
+  /**
+   * Strongly typed helper to open a EmergencyAccessTakeoverComponent
+   * @param dialogService Instance of the dialog service that will be used to open the dialog
+   * @param config Configuration for the dialog
+   */
+  static open = (
+    dialogService: DialogService,
+    config: DialogConfig<EmergencyAccessTakeoverDialogData>,
+  ) => {
+    return dialogService.open<EmergencyAccessTakeoverResultType>(
+      EmergencyAccessTakeoverComponent,
+      config,
+    );
+  };
 }

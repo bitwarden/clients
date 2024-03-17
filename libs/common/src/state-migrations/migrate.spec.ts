@@ -5,34 +5,7 @@ import { LogService } from "../platform/abstractions/log.service";
 // eslint-disable-next-line import/no-restricted-paths -- Needed to interface with storage locations
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
-import { CURRENT_VERSION, currentVersion, migrate } from "./migrate";
-import { MigrationBuilder } from "./migration-builder";
-
-jest.mock("./migration-builder", () => {
-  return {
-    MigrationBuilder: {
-      create: jest.fn().mockReturnThis(),
-    },
-  };
-});
-
-describe("migrate", () => {
-  it("should not run migrations if state is empty", async () => {
-    const storage = mock<AbstractStorageService>();
-    const logService = mock<LogService>();
-    storage.get.mockReturnValueOnce(null);
-    await migrate(storage, logService);
-    expect(MigrationBuilder.create).not.toHaveBeenCalled();
-  });
-
-  it("should set to current version if state is empty", async () => {
-    const storage = mock<AbstractStorageService>();
-    const logService = mock<LogService>();
-    storage.get.mockReturnValueOnce(null);
-    await migrate(storage, logService);
-    expect(storage.save).toHaveBeenCalledWith("stateVersion", CURRENT_VERSION);
-  });
-});
+import { currentVersion } from "./migrate";
 
 describe("currentVersion", () => {
   let storage: MockProxy<AbstractStorageService>;

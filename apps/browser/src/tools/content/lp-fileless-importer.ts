@@ -36,7 +36,6 @@ class LpFilelessImporter implements LpFilelessImporterInterface {
       return;
     }
 
-    this.suppressDownload();
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", this.loadImporter);
       return;
@@ -50,46 +49,6 @@ class LpFilelessImporter implements LpFilelessImporterInterface {
    */
   triggerCsvDownload() {
     this.postWindowMessage({ command: "triggerCsvDownload" });
-  }
-
-  /**
-   * Suppresses the download of the CSV file by overriding the `download` attribute of the
-   * anchor element that is created by the LP importer. This is done by injecting a script
-   * into the page that overrides the `appendChild` method of the `Element` prototype.
-   */
-  private suppressDownload() {
-    const script = document.createElement("script");
-    script.textContent = `
-    let csvDownload = '';
-    let csvHref = '';
-    const defaultAppendChild = Element.prototype.appendChild;
-    Element.prototype.appendChild = function (newChild) {
-      if (newChild.nodeName.toLowerCase() === 'a' && newChild.download) {
-        csvDownload = newChild.download;
-        csvHref = newChild.href;
-        newChild.setAttribute('href', 'javascript:void(0)');
-        newChild.setAttribute('download', '');
-        Element.prototype.appendChild = defaultAppendChild;
-      }
-
-      return defaultAppendChild.call(this, newChild);
-    };
-
-    window.addEventListener('message', (event) => {
-      const command = event.data?.command;
-      if (event.source !== window || command !== 'triggerCsvDownload') {
-        return;
-      }
-
-      const anchor = document.createElement('a');
-      anchor.setAttribute('href', csvHref);
-      anchor.setAttribute('download', csvDownload);
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    });
-  `;
-    document.documentElement.appendChild(script);
   }
 
   /**

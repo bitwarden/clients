@@ -4,6 +4,10 @@ import { I18nService as BaseI18nService } from "@bitwarden/common/platform/servi
 import I18nService from "../../services/i18n.service";
 
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
+import {
+  GlobalStateProviderInitOptions,
+  globalStateProviderFactory,
+} from "./global-state-provider.factory";
 
 type I18nServiceFactoryOptions = FactoryOptions & {
   i18nServiceOptions: {
@@ -11,7 +15,7 @@ type I18nServiceFactoryOptions = FactoryOptions & {
   };
 };
 
-export type I18nServiceInitOptions = I18nServiceFactoryOptions;
+export type I18nServiceInitOptions = I18nServiceFactoryOptions & GlobalStateProviderInitOptions;
 
 export async function i18nServiceFactory(
   cache: { i18nService?: AbstractI18nService } & CachedServices,
@@ -21,7 +25,11 @@ export async function i18nServiceFactory(
     cache,
     "i18nService",
     opts,
-    () => new I18nService(opts.i18nServiceOptions.systemLanguage),
+    async () =>
+      new I18nService(
+        opts.i18nServiceOptions.systemLanguage,
+        await globalStateProviderFactory(cache, opts),
+      ),
   );
   if (!(service as BaseI18nService as any).inited) {
     await (service as BaseI18nService).init();

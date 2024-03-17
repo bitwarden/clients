@@ -6,9 +6,9 @@
   </head>
 
   <body>
-    <div class="outer-wrapper">
+    <div id="notification-bar-outer-wrapper" class="outer-wrapper">
       <div class="logo">
-        <a href="https://vault.bitwarden.com" target="_blank" id="logo-link">
+        <a href="https://vault.bitwarden.com" target="_blank" id="logo-link" rel="noreferrer">
           <img id="logo" alt="Bitwarden" />
         </a>
       </div>
@@ -33,7 +33,7 @@
   <template id="template-add">
     <div class="inner-wrapper">
       <div id="add-text"></div>
-      <div>
+      <div class="add-change-cipher-buttons">
         <button type="button" id="never-save" class="link"></button>
         <select id="select-folder"></select>
         <button type="button" id="add-edit" class="secondary"></button>
@@ -45,7 +45,7 @@
   <template id="template-change">
     <div class="inner-wrapper">
       <div id="change-text"></div>
-      <div>
+      <div class="add-change-cipher-buttons">
         <button type="button" id="change-edit" class="secondary"></button>
         <button type="button" id="change-save" class="primary"></button>
       </div>

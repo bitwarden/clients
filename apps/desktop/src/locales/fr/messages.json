@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "Votre nouveau compte a été créé ! Vous pouvez maintenant vous authentifier."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Vous vous êtes connecté avec succès"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Vous pouvez fermer cette fenêtre"
+  },
   "masterPassSent": {
     "message": "Nous vous avons envoyé un courriel avec votre indice de mot de passe principal."
   },
@@ -789,7 +795,7 @@
     "message": "Suivez-nous"
   },
   "syncVault": {
-    "message": "Synchroniser le coffre maintenant"
+    "message": "Synchroniser le coffre"
   },
   "changeMasterPass": {
     "message": "Changer le mot de passe principal"
@@ -2524,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Lancez Duo et suivez les étapes pour terminer la connexion."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "L'authentification à double facteur Duo est requise pour votre compte."
+  },
+  "launchDuo": {
+    "message": "Lancer Duo dans le navigateur"
   },
   "importFormatError": {
     "message": "Les données ne sont pas correctement mises en forme. Veuillez vérifier le fichier importé et réessayer."

@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayListMessageMock } from "../../../jest/autofill-mocks";
-import { postWindowMessage } from "../../../jest/testing-utils";
+import { createInitAutofillOverlayListMessageMock } from "../../../spec/autofill-mocks";
+import { postWindowMessage } from "../../../spec/testing-utils";
 
 import AutofillOverlayList from "./autofill-overlay-list";
 

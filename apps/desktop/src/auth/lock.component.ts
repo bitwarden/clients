@@ -1,6 +1,6 @@
 import { Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { switchMap } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
@@ -19,11 +19,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
-
-import { ElectronStateService } from "../platform/services/electron-state.service.abstraction";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -46,7 +45,7 @@ export class LockComponent extends BaseLockComponent {
     vaultTimeoutService: VaultTimeoutService,
     vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     environmentService: EnvironmentService,
-    protected override stateService: ElectronStateService,
+    protected override stateService: StateService,
     apiService: ApiService,
     private route: ActivatedRoute,
     private broadcasterService: BroadcasterService,
@@ -59,7 +58,7 @@ export class LockComponent extends BaseLockComponent {
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     userVerificationService: UserVerificationService,
     pinCryptoService: PinCryptoServiceAbstraction,
-    private biometricStateService: BiometricStateService,
+    biometricStateService: BiometricStateService,
   ) {
     super(
       router,
@@ -81,12 +80,15 @@ export class LockComponent extends BaseLockComponent {
       deviceTrustCryptoService,
       userVerificationService,
       pinCryptoService,
+      biometricStateService,
     );
   }
 
   async ngOnInit() {
     await super.ngOnInit();
-    this.autoPromptBiometric = !(await this.stateService.getDisableAutoBiometricsPrompt());
+    this.autoPromptBiometric = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
     this.biometricReady = await this.canUseBiometric();
 
     await this.displayBiometricUpdateWarning();
@@ -140,7 +142,7 @@ export class LockComponent extends BaseLockComponent {
       return;
     }
 
-    if (await this.stateService.getBiometricPromptCancelled()) {
+    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
       return;
     }
 
@@ -162,7 +164,7 @@ export class LockComponent extends BaseLockComponent {
   }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
-    if (await this.stateService.getDismissedBiometricRequirePasswordOnStart()) {
+    if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
       return;
     }
 
@@ -170,7 +172,7 @@ export class LockComponent extends BaseLockComponent {
       return;
     }
 
-    if (await this.stateService.getBiometricUnlock()) {
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)) {
       const response = await this.dialogService.openSimpleDialog({
         title: { key: "windowsBiometricUpdateWarningTitle" },
         content: { key: "windowsBiometricUpdateWarning" },
@@ -179,10 +181,21 @@ export class LockComponent extends BaseLockComponent {
 
       await this.biometricStateService.setRequirePasswordOnStart(response);
       if (response) {
-        await this.stateService.setDisableAutoBiometricsPrompt(true);
+        await this.biometricStateService.setPromptAutomatically(false);
       }
       this.supportsBiometric = await this.canUseBiometric();
-      await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+    }
+  }
+
+  get biometricText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "unlockWithTouchId";
+      case DeviceType.WindowsDesktop:
+        return "unlockWithWindowsHello";
+      default:
+        throw new Error("Unsupported platform");
     }
   }
 }

@@ -4,6 +4,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
 import { CollectionRequest } from "@bitwarden/common/vault/models/request/collection.request";
 import {
   CollectionAccessDetailsResponse,
@@ -21,6 +23,7 @@ export class CollectionAdminService {
   constructor(
     private apiService: ApiService,
     private cryptoService: CryptoService,
+    private collectionService: CollectionService,
   ) {}
 
   async getAll(organizationId: string): Promise<CollectionAdminView[]> {
@@ -65,6 +68,12 @@ export class CollectionAdminService {
         collection.id,
         request,
       );
+    }
+
+    if (response.assigned) {
+      await this.collectionService.upsert(new CollectionData(response));
+    } else {
+      await this.collectionService.delete(collection.id);
     }
 
     return response;

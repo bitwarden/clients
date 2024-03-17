@@ -14,12 +14,17 @@ import {
 } from "../../background/service-factories/log-service.factory";
 import { BrowserCryptoService } from "../../services/browser-crypto.service";
 
+import { biometricStateServiceFactory } from "./biometric-state-service.factory";
 import {
   cryptoFunctionServiceFactory,
   CryptoFunctionServiceInitOptions,
 } from "./crypto-function-service.factory";
 import { encryptServiceFactory, EncryptServiceInitOptions } from "./encrypt-service.factory";
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
+import {
+  KeyGenerationServiceInitOptions,
+  keyGenerationServiceFactory,
+} from "./key-generation-service.factory";
 import {
   PlatformUtilsServiceInitOptions,
   platformUtilsServiceFactory,
@@ -29,6 +34,7 @@ import { StateProviderInitOptions, stateProviderFactory } from "./state-provider
 type CryptoServiceFactoryOptions = FactoryOptions;
 
 export type CryptoServiceInitOptions = CryptoServiceFactoryOptions &
+  KeyGenerationServiceInitOptions &
   CryptoFunctionServiceInitOptions &
   EncryptServiceInitOptions &
   PlatformUtilsServiceInitOptions &
@@ -47,6 +53,7 @@ export function cryptoServiceFactory(
     opts,
     async () =>
       new BrowserCryptoService(
+        await keyGenerationServiceFactory(cache, opts),
         await cryptoFunctionServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
         await platformUtilsServiceFactory(cache, opts),
@@ -54,6 +61,7 @@ export function cryptoServiceFactory(
         await stateServiceFactory(cache, opts),
         await accountServiceFactory(cache, opts),
         await stateProviderFactory(cache, opts),
+        await biometricStateServiceFactory(cache, opts),
       ),
   );
 }

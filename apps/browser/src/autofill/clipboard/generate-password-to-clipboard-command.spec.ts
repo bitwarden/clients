@@ -1,10 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 import { setAlarmTime } from "../../platform/alarms/alarm-state";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 
 import { clearClipboardAlarmName } from "./clear-clipboard";
 import { GeneratePasswordToClipboardCommand } from "./generate-password-to-clipboard-command";
@@ -19,13 +19,12 @@ const setAlarmTimeMock = setAlarmTime as jest.Mock;
 
 describe("GeneratePasswordToClipboardCommand", () => {
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
-  let stateService: MockProxy<BrowserStateService>;
+  let autofillSettingsService: MockProxy<AutofillSettingsService>;
 
   let sut: GeneratePasswordToClipboardCommand;
 
   beforeEach(() => {
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
-    stateService = mock<BrowserStateService>();
 
     passwordGenerationService.getOptions.mockResolvedValue([{ length: 8 }, {} as any]);
 
@@ -33,7 +32,10 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
     jest.spyOn(BrowserApi, "sendTabsMessage").mockReturnValue();
 
-    sut = new GeneratePasswordToClipboardCommand(passwordGenerationService, stateService);
+    sut = new GeneratePasswordToClipboardCommand(
+      passwordGenerationService,
+      autofillSettingsService,
+    );
   });
 
   afterEach(() => {
@@ -42,7 +44,7 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
   describe("generatePasswordToClipboard", () => {
     it("has clear clipboard value", async () => {
-      stateService.getClearClipboard.mockResolvedValue(5 * 60); // 5 minutes
+      jest.spyOn(sut as any, "getClearClipboard").mockImplementation(() => 5 * 60); // 5 minutes
 
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 
@@ -59,7 +61,7 @@ describe("GeneratePasswordToClipboardCommand", () => {
     });
 
     it("does not have clear clipboard value", async () => {
-      stateService.getClearClipboard.mockResolvedValue(null);
+      jest.spyOn(sut as any, "getClearClipboard").mockImplementation(() => null);
 
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 

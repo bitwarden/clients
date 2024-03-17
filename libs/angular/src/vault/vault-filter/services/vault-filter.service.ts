@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, from, mergeMap, Observable } from "rxjs";
+import { firstValueFrom, from, map, mergeMap, Observable } from "rxjs";
 
 import {
   isMember,
@@ -8,7 +8,7 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -20,25 +20,32 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DeprecatedVaultFilterService as DeprecatedVaultFilterServiceAbstraction } from "../../abstractions/deprecated-vault-filter.service";
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
 
+import { COLLAPSED_GROUPINGS } from "./../../../../../common/src/vault/services/key-state/collapsed-groupings.state";
+
 const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements DeprecatedVaultFilterServiceAbstraction {
+  private collapsedGroupingsState: ActiveUserState<string[]> =
+    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
+  private readonly collapsedGroupings$: Observable<Set<string>> =
+    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+
   constructor(
-    protected stateService: StateService,
     protected organizationService: OrganizationService,
     protected folderService: FolderService,
     protected cipherService: CipherService,
     protected collectionService: CollectionService,
     protected policyService: PolicyService,
+    protected stateProvider: StateProvider,
   ) {}
 
   async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.stateService.setCollapsedGroupings(Array.from(collapsedFilterNodes));
+    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
   }
 
   async buildCollapsedFilterNodes(): Promise<Set<string>> {
-    return new Set(await this.stateService.getCollapsedGroupings());
+    return await firstValueFrom(this.collapsedGroupings$);
   }
 
   async buildOrganizations(): Promise<Organization[]> {

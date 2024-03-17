@@ -8,13 +8,13 @@
         <a
           href="{{ i.pdfUrl }}"
           target="_blank"
-          rel="noopener"
+          rel="noreferrer"
           class="mr-2"
           appA11yTitle="{{ 'downloadInvoice' | i18n }}"
         >
           <i class="bwi bwi-file-pdf" aria-hidden="true"></i
         ></a>
-        <a href="{{ i.url }}" target="_blank" rel="noopener" title="{{ 'viewInvoice' | i18n }}">
+        <a href="{{ i.url }}" target="_blank" rel="noreferrer" title="{{ 'viewInvoice' | i18n }}">
           {{ "invoiceNumber" | i18n: i.number }}</a
         >
       </td>

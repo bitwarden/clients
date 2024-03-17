@@ -4,6 +4,7 @@ html {
 
 body {
   min-width: 1010px;
+  position: relative;
 
   &.layout_frontend {
     @media (prefers-color-scheme: dark) {
@@ -88,14 +89,6 @@ img.logo-themed {
 
 .page-content {
   margin-top: 20px;
-}
-
-.footer {
-  margin-top: 40px;
-  padding: 40px 0 40px 0;
-  @include themify($themes) {
-    border-top: 1px solid themed("separator");
-  }
 }
 
 hr,

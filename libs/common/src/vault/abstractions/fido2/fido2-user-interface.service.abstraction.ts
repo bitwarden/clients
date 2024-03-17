@@ -16,6 +16,10 @@ export interface NewCredentialParams {
    * Whether or not the user must be verified before completing the operation.
    */
   userVerification: boolean;
+  /**
+   * The relying party ID is usually the URL
+   */
+  rpId: string;
 }
 
 /**

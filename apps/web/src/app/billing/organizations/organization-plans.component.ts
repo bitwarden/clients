@@ -288,12 +288,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   get selectablePlans() {
     const selectedProductType = this.formGroup.controls.product.value;
-    const result = this.passwordManagerPlans?.filter(
-      (plan) =>
-        plan.product === selectedProductType &&
-        ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-          (this.isProviderQualifiedFor2020Plan() && Allowed2020PlanTypes.includes(plan.type))),
-    );
+    const result =
+      this.passwordManagerPlans?.filter(
+        (plan) =>
+          plan.product === selectedProductType &&
+          ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
+            (this.isProviderQualifiedFor2020Plan() && Allowed2020PlanTypes.includes(plan.type))),
+      ) || [];
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
@@ -641,6 +642,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     request.collectionName = collectionCt;
     request.name = this.formGroup.controls.name.value;
     request.billingEmail = this.formGroup.controls.billingEmail.value;
+    request.initiationPath = "New organization creation in-product";
     request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
 
     if (this.selectedPlan.type === PlanType.Free) {

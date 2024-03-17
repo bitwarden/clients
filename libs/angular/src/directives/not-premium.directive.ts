@@ -1,6 +1,7 @@
 import { Directive, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 /**
  * Hides the element if the user has premium.
@@ -12,11 +13,13 @@ export class NotPremiumDirective implements OnInit {
   constructor(
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
-    private stateService: StateService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const premium = await this.stateService.getCanAccessPremium();
+    const premium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    );
 
     if (premium) {
       this.viewContainer.clear();

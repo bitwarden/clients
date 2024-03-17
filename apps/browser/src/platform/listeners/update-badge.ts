@@ -1,5 +1,8 @@
+import { firstValueFrom } from "rxjs";
+
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { BadgeSettingsService } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -9,13 +12,12 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { authServiceFactory } from "../../auth/background/service-factories/auth-service.factory";
+import { badgeSettingsServiceFactory } from "../../autofill/background/service_factories/badge-settings-service.factory";
 import { Account } from "../../models/account";
-import { stateServiceFactory } from "../../platform/background/service-factories/state-service.factory";
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import IconDetails from "../../vault/background/models/icon-details";
 import { cipherServiceFactory } from "../../vault/background/service_factories/cipher-service.factory";
 import { BrowserApi } from "../browser/browser-api";
-import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 export type BadgeOptions = {
   tab?: chrome.tabs.Tab;
@@ -24,7 +26,7 @@ export type BadgeOptions = {
 
 export class UpdateBadge {
   private authService: AuthService;
-  private stateService: BrowserStateService;
+  private badgeSettingsService: BadgeSettingsService;
   private cipherService: CipherService;
   private badgeAction: typeof chrome.action | typeof chrome.browserAction;
   private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
@@ -152,8 +154,8 @@ export class UpdateBadge {
 
     await this.setBadgeIcon("");
 
-    const disableBadgeCounter = await this.stateService.getDisableBadgeCounter();
-    if (disableBadgeCounter) {
+    const enableBadgeCounter = await firstValueFrom(this.badgeSettingsService.enableBadgeCounter$);
+    if (!enableBadgeCounter) {
       return;
     }
 
@@ -290,7 +292,7 @@ export class UpdateBadge {
         systemLanguage: BrowserApi.getUILanguage(),
       },
     };
-    this.stateService = await stateServiceFactory(serviceCache, opts);
+    this.badgeSettingsService = await badgeSettingsServiceFactory(serviceCache, opts);
     this.authService = await authServiceFactory(serviceCache, opts);
     this.cipherService = await cipherServiceFactory(serviceCache, opts);
 

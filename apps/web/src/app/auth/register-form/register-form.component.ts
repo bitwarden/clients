@@ -70,7 +70,6 @@ export class RegisterFormComponent extends BaseRegisterComponent {
   async ngOnInit() {
     await super.ngOnInit();
     this.referenceData = this.referenceDataValue;
-
     if (this.queryParamEmail) {
       this.formGroup.get("email")?.setValue(this.queryParamEmail);
     }

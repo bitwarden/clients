@@ -1,13 +1,14 @@
-<h1>
-  {{ "deviceApprovals" | i18n }}
-  <i
-    class="bwi bwi-spinner bwi-spin text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-    *ngIf="actionInProgress || loading"
-  ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
-</h1>
+<app-header>
+  <ng-container slot="title-suffix" *ngIf="loading || actionInProgress">
+    <i
+      class="bwi bwi-spinner bwi-spin text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+</app-header>
+
 <p>
   {{ "deviceApprovalsDesc" | i18n }}
 </p>

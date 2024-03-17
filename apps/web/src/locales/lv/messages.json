@@ -578,6 +578,9 @@
   "access": {
     "message": "Piekļuve"
   },
+  "accessLevel": {
+    "message": "Piekļuves līmenis"
+  },
   "loggedOut": {
     "message": "Atteicies"
   },
@@ -796,7 +799,7 @@
     "message": "Mēs nosūtījām galvenās paroles norādi e-pastā."
   },
   "unexpectedError": {
-    "message": "Ir radusies neparedzēta kļūda."
+    "message": "Atgadījās neparedzēta kļūda."
   },
   "expirationDateError": {
     "message": "Lūgums atlasīt beigu datumu, kas ir nākotnē."
@@ -1309,7 +1312,7 @@
     "message": "Apvienības glabātava iztīrīta."
   },
   "vaultAccessedByProvider": {
-    "message": "Glabātavai piekļuva sniedzējs."
+    "message": "Glabātavai piekļuva nodrošinātājs."
   },
   "purgeVaultDesc": {
     "message": "Turpnāt zemāk, lai izdzēstu visus glabātavas vienumus un mapes. Vienumi, kas pieder apvienībai un kas tiek koplietoti, netiks izdzēsti."
@@ -1346,6 +1349,22 @@
   },
   "importData": {
     "message": "Ievietot datus"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ja nav nekādu ievietojamu datu, var izveidot ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "jaunu vienumu",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": ". Var būt nepieciešams gaidīt, līdz pārvaldnieks apstiprina dalību apvienībā.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Ievietošanas kļūda"
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
-  },
-  "enableFullWidth": {
-    "message": "Iespējot pilna platuma izkārtojumu",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Ļauj tīmekļa glabātavai aizņemt visu pārlūka loga platumu."
   },
   "default": {
     "message": "Noklusējums"
@@ -2733,7 +2745,7 @@
     "message": "Lietotājs ar augstākajām piekļuves tiesībām, kurš var pārvaldīt visu apvienībā."
   },
   "clientOwnerDesc": {
-    "message": "Šim lietotājam būtu jābūt neatkarīgam no sniedzēja. Ja sniedzējs tiek atdalīts no apvienības, šis lietotājs saglabās tās īpašumtiesības."
+    "message": "Šim lietotājam būtu jābūt neatkarīgam no nodrošinātāja. Ja nodrošinātājs tiek atdalīts no apvienības, šis lietotājs saglabās tās īpašumtiesības."
   },
   "admin": {
     "message": "Pārvaldnieks"
@@ -3210,7 +3222,7 @@
     "message": "Nederīgs datumu apgabals."
   },
   "errorOccurred": {
-    "message": "Radusies kļūda."
+    "message": "Atgadījās kļūda."
   },
   "userAccess": {
     "message": "Lietotāja piekļuve"
@@ -4030,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Šo cilni tagad var aizvērt un turpināt paplašinājumā."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Pieteikšanās bija veiksmīga"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Šis logs tiks automātiski aizvērts 5 sekunžu laikā"
   },
   "includeAllTeamsFeatures": {
     "message": "Visas vienību iespējas, kā arī:"
@@ -4872,19 +4890,19 @@
     "message": "Lietotāju pārvaldīšanai ir jābūt iespējotai arī ar konta atkopšanas pārvaldīšanas atļauju"
   },
   "setupProvider": {
-    "message": "Sniedzēja iestatīšana"
+    "message": "Nodrošinātāja iestatīšana"
   },
   "setupProviderLoginDesc": {
-    "message": "Ir saņemts uzaicinājums iestatīt jaunu sniedzēju. Lai turpinātu, ir nepieciešams pieteikties vai izveidot jaunu Bitwarden kontu."
+    "message": "Ir saņemts uzaicinājums iestatīt jaunu nodrošinātāju. Lai turpinātu, ir nepieciešams pieteikties vai izveidot jaunu Bitwarden kontu."
   },
   "setupProviderDesc": {
-    "message": "Lūgums zemāk norādīt nepieciešamo, lai pabeigtu sniedzēja iestatīšanu. Jautājumu gadījumā jāsazinās ar klientu atbalstu."
+    "message": "Lūgums zemāk norādīt nepieciešamo, lai pabeigtu nodrošinātāja iestatīšanu. Jautājumu gadījumā jāsazinās ar klientu atbalstu."
   },
   "providerName": {
-    "message": "Sniedzēja nosaukums"
+    "message": "Nodrošinātāja nosaukums"
   },
   "providerSetup": {
-    "message": "Sniedzējs ir iestatīts."
+    "message": "Nodrošinātājs ir iestatīts"
   },
   "clients": {
     "message": "Pasūtītāji"
@@ -4894,10 +4912,10 @@
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
-    "message": "Sniedzēja pārvaldnieks"
+    "message": "Nodrošinātāja pārvaldnieks"
   },
   "providerAdminDesc": {
-    "message": "Augstākās piekļuves lietotājs, kurš var pilnībā pārvaldīt sniedzēju, kā arī piekļūt pasūtītāju apvienībām un tās pārvaldīt."
+    "message": "Augstākās piekļuves lietotājs, kurš var pilnībā pārvaldīt nodrošinātāju, kā arī piekļūt pasūtītāju apvienībām un tās pārvaldīt."
   },
   "serviceUser": {
     "message": "Pakalpojuma lietotājs"
@@ -4906,37 +4924,40 @@
     "message": "Apkalpes lietotāji var piekļūt visām pasūtītāju apvienībām un tās pārvaldīt."
   },
   "providerInviteUserDesc": {
-    "message": "Uziacināt jaunu sniedzēja lietotāju, zemāk esošajā laukā ievadot viņa Bitwarden konta e-pasta adresi. Ja viņam vēl nav Bitwarden konta, tiks vaicāts izveidot jaunu."
+    "message": "Uziacināt jaunu nodrošinātāja lietotāju, zemāk esošajā laukā ievadot tā Bitwarden konta e-pasta adresi. Ja tam vēl nav Bitwarden konta, tiks vaicāts izveidot jaunu."
   },
   "joinProvider": {
-    "message": "Pievienoties sniedzējam"
+    "message": "Pievienot nodrošinātāju"
   },
   "joinProviderDesc": {
-    "message": "Tu esi uzaicināts pievienoties augstāk norādītajam sniedzējam. Lai to pieņemtu, jāpiesakās vai jāizveido jauns Bitwarden konts."
+    "message": "Tu esi uzaicināts pievienoties augstāk norādītajam nodrošinātājam. Lai to pieņemtu, jāpiesakās vai jāizveido jauns Bitwarden konts."
   },
   "providerInviteAcceptFailed": {
-    "message": "Nav iespējams pieņemt uzaicinājumu. Jālūdz sniedzēja pārvaldniekam nosūtīt jaunu."
+    "message": "Nav iespējams pieņemt uzaicinājumu. Jālūdz nodrošinātāja pārvaldniekam nosūtīt jaunu."
   },
   "providerInviteAcceptedDesc": {
-    "message": "Piekļūt sniedzējam būs iespējams, kad tās pārvaldnieks apstiprinās dalību. Tiks nosūtīts e-pasta ziņojums, kad tas notiks."
+    "message": "Nodrošinātājam būs iespējams piekļūt, kad tā pārvaldnieks apstiprinās dalību. Tiks nosūtīts e-pasta ziņojums, kad tas notiks."
   },
   "providerUsersNeedConfirmed": {
-    "message": "Ir lietotāji, kas nav pieņēmuši uzaicinājumu, bet joprojām ir jāapstiprina. Lietotājiem nebūs piekļuves sniedzējam, līdz tie nebūs apstiprināti."
+    "message": "Ir lietotāji, kas nav pieņēmuši uzaicinājumu, bet joprojām ir jāapstiprina. Lietotājiem nebūs piekļuves nodrošinātājam, līdz viņi nebūs apstiprināti."
   },
   "provider": {
-    "message": "Sniedzējs"
+    "message": "Nodrošinātājs"
   },
   "newClientOrganization": {
     "message": "Jauna sniedzēja apvienība"
   },
   "newClientOrganizationDesc": {
-    "message": "Izveidot jaunu pasūtītāja apvienību, kas būs piesaistīta šim kontam kā sniedzējam. Tas nodrošinās iespēju piekļūt šai apvienībai un to pārvaldīt."
+    "message": "Izveidot jaunu pasūtītāja apvienību, kas būs piesaistīta šim kontam kā nodrošinātājam. Tas sniegs iespēju piekļūt šai apvienībai un to pārvaldīt."
+  },
+  "newClient": {
+    "message": "Jauns klients"
   },
   "addExistingOrganization": {
     "message": "Pievienot esošo apvienību"
   },
   "myProvider": {
-    "message": "Mans sniedzējs"
+    "message": "Mans nodrošinātājs"
   },
   "addOrganizationConfirmation": {
     "message": "Vai tiešām pievienot $ORGANIZATION$ kā pasūtītāju $PROVIDER$?",
@@ -4952,7 +4973,7 @@
     }
   },
   "organizationJoinedProvider": {
-    "message": "Apvienība tika veiksmīgi pievienota sniedzējam"
+    "message": "Apvienība tika veiksmīgi pievienota nodrošinātājam"
   },
   "accessingUsingProvider": {
     "message": "Piekļūst apvienībai ar nodrošinātāju $PROVIDER$",
@@ -4964,10 +4985,10 @@
     }
   },
   "providerIsDisabled": {
-    "message": "Sniedzējs ir atspējots"
+    "message": "Nodrošinātājs ir atspējots"
   },
   "providerUpdated": {
-    "message": "Sniedzējs atjaunināts"
+    "message": "Nodrošinātājs saglabāts"
   },
   "yourProviderIs": {
     "message": "Tavs nodrošinātājs ir $PROVIDER$. Tam apvienībā ir pārvaldīšanas un norēķinu tiesības.",
@@ -4979,7 +5000,7 @@
     }
   },
   "detachedOrganization": {
-    "message": "Apvienība $ORGANIZATION$ tika atdalīta no sniedzēja.",
+    "message": "Apvienība $ORGANIZATION$ tika atdalīta no nodrošinātāja.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4988,7 +5009,7 @@
     }
   },
   "detachOrganizationConfirmation": {
-    "message": "Vai tiešām atdalīt šo apvienību? Tā turpinās pastāvēt, bet to vairs nepārvaldīs sniedzējs."
+    "message": "Vai tiešām atdalīt šo apvienību? Tā turpinās pastāvēt, bet to vairs nepārvaldīs nodrošinātājs."
   },
   "add": {
     "message": "Pievienot"
@@ -5384,7 +5405,7 @@
     "message": "Atļauto vienoto pieteikšanos"
   },
   "allowSsoDesc": {
-    "message": "Pēc pabeigšanas uzstādījumi tiks saglabāti un dalībnieki varēs pieslēgties izmantojot savus identitātes nodrošinātāja akreditācijas datus."
+    "message": "Pēc pabeigšanas uzstādījumi tiks saglabāti un dalībnieki varēs pieslēgties izmantojot savus identitātes nodrošinātāja piekļuves datus."
   },
   "ssoPolicyHelpStart": {
     "message": "Izmantot",
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Atkārtoti nosūtīt kodu"
   },
-  "membersColumnHeader": {
-    "message": "Dalībnieks/Grupa"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Dalībnieks"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Kopa/dalībnieks"
   },
   "selectGroupsAndMembers": {
     "message": "Atlasīt grupas un dalībniekus"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "Izstrādātāja rīkkopa",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Izveidot kontu"
   },
   "createSecret": {
     "message": "Izveidot noslēpumu"
@@ -7456,6 +7480,12 @@
     "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Uzstādīt pārlūka paplašinājumu"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Paplašinājums ir izmantojams, lai veikli saglabātu pieteikšanās vienumus un automātiski aizpildītu veidlapas bez tīmekļa lietotnes atvēršanas."
+  },
   "projectAccessUpdated": {
     "message": "Projekta piekļuve ir atjaunināta"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Piešķirt kopām vai dalībniekiem piekļuvi šim krājumam."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Piešķirt dalībniekiem piekļuvi šim krājumam."
   },
   "adminCollectionAccess": {
     "message": "Pārvaldnieki var piekļūt krājumiem un pārvaldīt tos."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Mēs esam nosūtījuši apstiprinājuma e-pasta ziņojumu uz "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Šī darbība ir neatgriezeniska"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Šīs iespējas ieslēgšana padarīs pārvaldnieka lomu par nevēlamu un aizstās to ar atļauju \"Var pārvaldīt\". Tas aizņems dažus mirkļus. Neveikt nekādas apvienību izmaiņas, līdz tas ir pabeigts. Vai tiešām turpināt?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Žēl redzēt Tevi aizejam. Palīdzi uzlabot Bitwarden, daloties ar atcelšanas iemeslu!",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Jāatlasa atcelšanas iemesls",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Vai ir kāda atgriezeniskā saite, ar ko vēlētos padalīties?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Trūkstošas iespējas",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Cita rīka izmantošana",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Pārāk sarežģīti izmantot",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Netiek pietiekami izmantots",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Pārāk dārgi",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 gadu bez maksas"
+  },
+  "newWebApp": {
+    "message": "Laipni lūdzam jaunajā un uzlabotajā tīmekļa lietotnē! Var uzzināt vairāk par to, kas ir mainījies."
+  },
+  "releaseBlog": {
+    "message": "Lasīt laidiena emuāru"
+  },
+  "adminConsole": {
+    "message": "Pārvaldības konsole"
+  },
+  "providerPortal": {
+    "message": "Nodrošinātāju portāls"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "@bitwarden/common": "file:../common",
-    "@bitwarden/exporter": "file:../exporter"
+    "@bitwarden/vault-export-core": "file:../tools/export/vault-export/vault-export-core"
   }
 }

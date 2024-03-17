@@ -51,9 +51,10 @@
       <a
         class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
         [routerLink]="route"
+        [relativeTo]="relativeTo"
         [attr.aria-label]="ariaLabel || text"
         routerLinkActive
-        [routerLinkActiveOptions]="rlaOptions"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
         [ariaCurrentWhenActive]="'page'"
         (isActiveChange)="setIsActive($event)"
         (click)="mainContentClicked.emit()"

@@ -34,4 +34,13 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
   alterIdentityTokenHeaders(headers: Headers) {
     headers.set("Auth-Email", Utils.fromUtf8ToUrlB64(this.email));
   }
+
+  static fromJSON(json: any) {
+    return Object.assign(Object.create(PasswordTokenRequest.prototype), json, {
+      device: json.device ? DeviceRequest.fromJSON(json.device) : undefined,
+      twoFactor: json.twoFactor
+        ? Object.assign(new TokenTwoFactorRequest(), json.twoFactor)
+        : undefined,
+    });
+  }
 }

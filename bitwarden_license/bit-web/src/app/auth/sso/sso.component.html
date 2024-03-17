@@ -1,6 +1,4 @@
-<div class="page-header d-flex">
-  <h1>{{ "singleSignOn" | i18n }}</h1>
-</div>
+<app-header></app-header>
 
 <ng-container *ngIf="loading">
   <i
@@ -60,7 +58,7 @@
           {{ "keyConnector" | i18n }}
           <a
             target="_blank"
-            rel="noopener"
+            rel="noreferrer"
             appA11yTitle="{{ 'learnMore' | i18n }}"
             href="https://bitwarden.com/help/about-key-connector/"
           >

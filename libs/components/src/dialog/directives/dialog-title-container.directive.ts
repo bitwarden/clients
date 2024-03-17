@@ -23,8 +23,8 @@ export class DialogTitleContainerDirective implements OnInit {
       Promise.resolve().then(() => {
         const container = this.dialogRef.containerInstance as CdkDialogContainer;
 
-        if (container && !container._ariaLabelledBy) {
-          container._ariaLabelledBy = this.id;
+        if (container && container._ariaLabelledByQueue.length === 0) {
+          container._ariaLabelledByQueue.push(this.id);
         }
       });
     }

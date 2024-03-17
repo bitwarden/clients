@@ -404,7 +404,7 @@
     "message": "طول"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "حداقل طول رمز عبور"
   },
   "uppercase": {
     "message": "حروف بزرگ (A-Z)"
@@ -559,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "حساب کاربری جدید شما ساخته شد! حالا می‌توانید وارد شوید."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "masterPassSent": {
     "message": "ما یک ایمیل همراه با یادآور کلمه عبور اصلی برایتان ارسال کردیم."
@@ -1548,7 +1554,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "تایید مورد نیاز است",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
@@ -1877,40 +1883,40 @@
     "message": "کلمه عبور اصلی شما با یک یا چند سیاست سازمان‌تان مطابقت ندارد. برای دسترسی به گاوصندوق، باید همین حالا کلمه عبور اصلی خود را به‌روز کنید. در صورت ادامه، شما از نشست فعلی خود خارج می‌شوید و باید دوباره وارد سیستم شوید. نشست فعال در دستگاه های دیگر ممکن است تا یک ساعت همچنان فعال باقی بمانند."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "دوباره سعی کنید"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "تنظیم PIN"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "تایید با استفاده از بیومتریک"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "در انتظار تایید"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "تکمیل بیومتریک ممکن نشد."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "نیازمند روش دیگری هستید؟"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "استفاده از رمز عبور اصلی"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "استفاده از پین"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "استفاده از بیومتریک"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "کد تأییدی را که به ایمیل شما ارسال شده است وارد کنید."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "ارسال دوباره کد"
   },
   "hours": {
     "message": "ساعت"
@@ -2471,7 +2477,7 @@
     "message": "زیرمنو"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "پرش به محتوا"
   },
   "typePasskey": {
     "message": "کلید عبور"
@@ -2486,26 +2492,26 @@
     "message": "دامنه مستعار"
   },
   "importData": {
-    "message": "Import data",
+    "message": "وارد کردن اطلاعات",
     "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
-    "message": "Import error"
+    "message": "خطای وارد کردن"
   },
   "importErrorDesc": {
-    "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
+    "message": "مشکلی با داده‌هایی که سعی کردید وارد کنید وجود داشت. لطفاً خطاهای فهرست شده در زیر را در فایل منبع خود برطرف کرده و دوباره امتحان کنید."
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "Resolve the errors below and try again."
+    "message": "خطاهای زیر را برطرف کرده و دوباره امتحان کنید."
   },
   "description": {
-    "message": "Description"
+    "message": "توضیحات"
   },
   "importSuccess": {
-    "message": "Data successfully imported"
+    "message": "داده‌ها با موفقیت وارد شد"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "$AMOUNT$ مورد وارد شده است.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2514,7 +2520,7 @@
     }
   },
   "total": {
-    "message": "Total"
+    "message": "مجموع"
   },
   "importWarning": {
     "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
@@ -2525,11 +2531,20 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
+  },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
   "importNothingError": {
-    "message": "Nothing was imported."
+    "message": "چیزی وارد نشد."
   },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
@@ -2538,16 +2553,16 @@
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
   "importDestination": {
-    "message": "Import destination"
+    "message": "مقصد برون ریزی"
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "یک پوشه انتخاب کنید"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "انتخاب یک مجموعه"
   },
   "importTargetHint": {
     "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
@@ -2560,22 +2575,22 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "فایل حاوی موارد اختصاص نیافته است."
   },
   "selectFormat": {
     "message": "Select the format of the import file"
   },
   "selectImportFile": {
-    "message": "Select the import file"
+    "message": "انتخاب فایل وارد شده"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "انتخاب فایل"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "هیچ فایلی انتخاب نشد"
   },
   "orCopyPasteFileContents": {
-    "message": "or copy/paste the import file contents"
+    "message": "یا محتویات فایل وارد شده را کپی/پیست کنید"
   },
   "instructionsFor": {
     "message": "$NAME$ Instructions",
@@ -2597,13 +2612,13 @@
     "message": "Confirm file password"
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "تایید هویت چندمرحله‌ای کنسل شد"
   },
   "noLastPassDataFound": {
     "message": "No LastPass data found"
   },
   "incorrectUsernameOrPassword": {
-    "message": "Incorrect username or password"
+    "message": "نام کاربری یا گذرواژه نادرست است"
   },
   "incorrectPassword": {
     "message": "Incorrect password"
@@ -2658,19 +2673,19 @@
     "message": "Import directly from LastPass"
   },
   "importFromCSV": {
-    "message": "Import from CSV"
+    "message": "وارد کردن از CSV"
   },
   "lastPassTryAgainCheckEmail": {
     "message": "Try again or look for an email from LastPass to verify it's you."
   },
   "collection": {
-    "message": "Collection"
+    "message": "مجموعه"
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
   "commonImportFormats": {
-    "message": "Common formats",
+    "message": "فرمت‌های رایج",
     "description": "Label indicating the most common import formats"
   }
 }

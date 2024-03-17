@@ -1,3 +1,4 @@
+import { mock } from "jest-mock-extended";
 import { firstValueFrom, timeout } from "rxjs";
 
 import { awaitAsync } from "../../../spec";
@@ -14,9 +15,11 @@ import { DefaultDerivedStateProvider } from "../state/implementations/default-de
 import { DefaultGlobalStateProvider } from "../state/implementations/default-global-state.provider";
 import { DefaultSingleUserStateProvider } from "../state/implementations/default-single-user-state.provider";
 import { DefaultStateProvider } from "../state/implementations/default-state.provider";
-/* eslint-disable import/no-restricted-paths */
+import { StateEventRegistrarService } from "../state/state-event-registrar.service";
+/* eslint-enable import/no-restricted-paths */
 
 import { EnvironmentService } from "./environment.service";
+import { StorageServiceProvider } from "./storage-service.provider";
 
 // There are a few main states EnvironmentService could be in when first used
 // 1. Not initialized, no active user. Hopefully not to likely but possible
@@ -26,6 +29,8 @@ import { EnvironmentService } from "./environment.service";
 describe("EnvironmentService", () => {
   let diskStorageService: FakeStorageService;
   let memoryStorageService: FakeStorageService;
+  let storageServiceProvider: StorageServiceProvider;
+  const stateEventRegistrarService = mock<StateEventRegistrarService>();
   let accountService: FakeAccountService;
   let stateProvider: StateProvider;
 
@@ -37,16 +42,17 @@ describe("EnvironmentService", () => {
   beforeEach(async () => {
     diskStorageService = new FakeStorageService();
     memoryStorageService = new FakeStorageService();
+    storageServiceProvider = new StorageServiceProvider(diskStorageService, memoryStorageService);
 
     accountService = mockAccountServiceWith(undefined);
+    const singleUserStateProvider = new DefaultSingleUserStateProvider(
+      storageServiceProvider,
+      stateEventRegistrarService,
+    );
     stateProvider = new DefaultStateProvider(
-      new DefaultActiveUserStateProvider(
-        accountService,
-        memoryStorageService as any,
-        diskStorageService,
-      ),
-      new DefaultSingleUserStateProvider(memoryStorageService as any, diskStorageService),
-      new DefaultGlobalStateProvider(memoryStorageService as any, diskStorageService),
+      new DefaultActiveUserStateProvider(accountService, singleUserStateProvider),
+      singleUserStateProvider,
+      new DefaultGlobalStateProvider(storageServiceProvider),
       new DefaultDerivedStateProvider(memoryStorageService),
     );
 

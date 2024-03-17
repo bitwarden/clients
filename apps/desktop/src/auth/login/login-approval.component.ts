@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -46,11 +46,11 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(DIALOG_DATA) private params: LoginApprovalDialogParams,
+    protected authRequestService: AuthRequestServiceAbstraction,
     protected stateService: StateService,
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected apiService: ApiService,
-    protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected appIdService: AppIdService,
     protected cryptoService: CryptoService,
     private dialogRef: DialogRef,
@@ -121,10 +121,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.i18nService.t("thisRequestIsNoLongerValid"),
       );
     } else {
-      const loginResponse = await this.loginStrategyService.passwordlessLogin(
-        this.authRequestResponse.id,
-        this.authRequestResponse.publicKey,
+      const loginResponse = await this.authRequestService.approveOrDenyAuthRequest(
         approve,
+        this.authRequestResponse,
       );
       this.showResultToast(loginResponse);
     }

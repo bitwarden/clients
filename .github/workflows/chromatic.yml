@@ -33,7 +33,7 @@ jobs:
 
       - name: Cache npm
         id: npm-cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
@@ -46,7 +46,7 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
-        uses: chromaui/action@76bda3648003815314bd50adaa553ee612a7f36c # v10.9.2
+        uses: chromaui/action@c9067691aca4a28d6fbb40d9eea6e144369fbcae # v10.9.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

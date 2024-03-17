@@ -203,6 +203,7 @@ export class LoginCommand {
             ssoCodeVerifier,
             this.ssoRedirectUri,
             orgIdentifier,
+            undefined, // email to look up 2FA token not required as CLI can't remember 2FA token
             twoFactor,
           ),
         );
@@ -273,8 +274,8 @@ export class LoginCommand {
           selectedProvider.type === TwoFactorProviderType.Email
         ) {
           const emailReq = new TwoFactorEmailRequest();
-          emailReq.email = this.loginStrategyService.email;
-          emailReq.masterPasswordHash = this.loginStrategyService.masterPasswordHash;
+          emailReq.email = await this.loginStrategyService.getEmail();
+          emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
           await this.apiService.postTwoFactorEmail(emailReq);
         }
 

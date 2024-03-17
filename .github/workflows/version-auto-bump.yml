@@ -6,37 +6,11 @@ on:
     tags:
       - desktop-v**
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   bump-version:
     name: Bump Desktop Version
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout Branch
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Calculate bumped version
-        id: version
-        env:
-          RELEASE_TAG: ${{ github.ref }}
-        run: |
-          CURR_MAJOR=$(echo $RELEASE_TAG | sed -r 's/refs\/tags\/[a-z]*-v([0-9]{4}\.[0-9]{1,2})\.([0-9]{1,2})/\1/')
-          CURR_PATCH=$(echo $RELEASE_TAG | sed -r 's/refs\/tags\/[a-z]*-v([0-9]{4}\.[0-9]{1,2})\.([0-9]{1,2})/\2/')
-          echo "Current Major: $CURR_MAJOR"
-          echo "Current Patch: $CURR_PATCH"
-
-          NEW_PATCH=$((CURR_PATCH+1))
-
-          echo "New patch: $NEW_PATCH"
-
-          NEW_VER=$CURR_MAJOR.$NEW_PATCH
-          echo "New Version: $NEW_VER"
-          echo "New Version: $NEW_VER" >> $GITHUB_STEP_SUMMARY
-          echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
-
       - name: Login to Azure - CI Subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
@@ -49,10 +23,13 @@ jobs:
           keyvault: bitwarden-ci
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
-      - name: "Bump version to ${{ steps.version.outputs.new_version }}"
+      - name: Trigger Version Bump workflow
         env:
           GH_TOKEN: ${{ steps.retrieve-bot-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
         run: |
-          echo '{"cut_rc_branch": "false", "version_number": "${{ steps.version.outputs.new_version }}",
-                 "bump_browser": "false", "bump_cli": "false", "bump_desktop": "true", "bump_web": "false"}' | \
+          echo '{"cut_rc_branch": "false", \
+                 "bump_browser": "false", \
+                 "bump_cli": "false", \
+                 "bump_desktop": "true", \
+                 "bump_web": "false"}' | \
           gh workflow run version-bump.yml --json --repo bitwarden/clients

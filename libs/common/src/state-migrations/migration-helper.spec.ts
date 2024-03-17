@@ -286,7 +286,11 @@ function expectInjectedData(
 export async function runMigrator<
   TMigrator extends Migrator<number, number>,
   TUsers extends readonly string[] = string[],
->(migrator: TMigrator, initalData?: InitialDataHint<TUsers>): Promise<Record<string, unknown>> {
+>(
+  migrator: TMigrator,
+  initalData?: InitialDataHint<TUsers>,
+  direction: "migrate" | "rollback" = "migrate",
+): Promise<Record<string, unknown>> {
   // Inject fake data at every level of the object
   const allInjectedData = injectData(initalData, []);
 
@@ -294,7 +298,11 @@ export async function runMigrator<
   const helper = new MigrationHelper(migrator.fromVersion, fakeStorageService, mock());
 
   // Run their migrations
-  await migrator.migrate(helper);
+  if (direction === "rollback") {
+    await migrator.rollback(helper);
+  } else {
+    await migrator.migrate(helper);
+  }
   const [data, leftoverInjectedData] = expectInjectedData(
     fakeStorageService.internalStore,
     allInjectedData,

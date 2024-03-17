@@ -578,6 +578,9 @@
   "access": {
     "message": "Приступ"
   },
+  "accessLevel": {
+    "message": "Access level"
+  },
   "loggedOut": {
     "message": "Одјављено"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Увези податке"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ако немате податке за увоз, можете креирати ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "нову ставку",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " уместо.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " уместо. Можда ћете морати да сачекате док администратор не потврди чланство.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Грешка при увозу"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Прикажи препознатљиву иконицу поред сваке ставке за пријаву."
-  },
-  "enableFullWidth": {
-    "message": "Упали пуни ширину распореда",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Дозволите веб сефу да користи пуну ширину прозора прегледача."
   },
   "default": {
     "message": "Подразумевано"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Можете да затворите овај језичак и да наставите са додатком."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Успешно сте се пријавили"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Овај прозор ће се аутоматски затворити за 5 секунди"
+  },
   "includeAllTeamsFeatures": {
     "message": "Све функције тима, плус:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Креирајте нову организацију клијента која ће бити повезана са вама као провајдера. Бићете у могућности да приступите и управљате овој организацијом."
+  },
+  "newClient": {
+    "message": "Нови клијент"
   },
   "addExistingOrganization": {
     "message": "Додај постојећу организацију"
@@ -5916,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "Покренути DUO и пратите кораке да бисте завршили пријављивање."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+    "message": "DUO пријава у два корака је потребна за ваш налог."
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "Покренути DUO"
   },
   "turnOn": {
     "message": "Укључи"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Поново послати кôд"
   },
-  "membersColumnHeader": {
-    "message": "Члан/Група"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Члан"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Група/Члан"
   },
   "selectGroupsAndMembers": {
     "message": "Изаберите групе и чланове"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Креирај налог"
   },
   "createSecret": {
     "message": "Креирати тајну"
@@ -7456,6 +7480,12 @@
     "message": "Погледајте детаљна упутства на нашој веб локацији за помоћ на",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Инсталирајте додатак претраживача"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Користите додатак за брзо чување пријава и аутоматско попуњавање образаца без отварања веб апликације."
+  },
   "projectAccessUpdated": {
     "message": "Приступ пројекту је ажуриран"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Одобрите групама или члановима приступ овој колекцији."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Одобрите члановима приступ овој колекцији."
   },
   "adminCollectionAccess": {
     "message": "Администратори могу да приступе и управљају колекцијама."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Послали смо е-поруку са потврдом на ваш имејл на "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Ова радња је неповратна"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Жао нам је што идете Помозите да се побољша Bitwarden тако што ћете поделити зашто отказујете.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Изаберите разлог за отказивање",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Да ли бисте желели да поделите још неке информације?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Недостају способности",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Прелазак на други алат",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Тешко је за коришћење",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Не користим га довољно",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Превише скупо",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Бесплатно 1 годину"
+  },
+  "newWebApp": {
+    "message": "Добродошли у нову и побољшану веб апликацију. Сазнајте више о томе шта се променило."
+  },
+  "releaseBlog": {
+    "message": "Прочитајте блог о издању"
+  },
+  "adminConsole": {
+    "message": "Администраторска конзола"
+  },
+  "providerPortal": {
+    "message": "Портал провајдера"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

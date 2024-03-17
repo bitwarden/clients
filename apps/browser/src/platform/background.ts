@@ -14,7 +14,7 @@ import {
   tabsOnUpdatedListener,
 } from "./listeners";
 
-if (BrowserApi.manifestVersion === 3) {
+if (BrowserApi.isManifestVersion(3)) {
   chrome.commands.onCommand.addListener(onCommandListener);
   chrome.runtime.onInstalled.addListener(onInstallListener);
   chrome.alarms.onAlarm.addListener(onAlarmListener);

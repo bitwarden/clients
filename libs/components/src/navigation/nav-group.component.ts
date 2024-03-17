@@ -39,11 +39,6 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   @Input()
   open = false;
 
-  /**
-   * if `true`, use `exact` match for path instead of `subset`.
-   */
-  @Input() exactMatch: boolean;
-
   @Output()
   openChange = new EventEmitter<boolean>();
 

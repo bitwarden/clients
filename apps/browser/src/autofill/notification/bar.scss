@@ -26,6 +26,18 @@ body {
   @include themify($themes) {
     border-bottom-color: themed("primaryColor");
   }
+
+  &.success-event {
+    @include themify($themes) {
+      border-bottom-color: themed("successColor");
+    }
+  }
+
+  &.error-event {
+    @include themify($themes) {
+      border-bottom-color: themed("errorColor");
+    }
+  }
 }
 
 .inner-wrapper {

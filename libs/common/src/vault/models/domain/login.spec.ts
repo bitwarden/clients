@@ -1,8 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { UriMatchType } from "../../enums";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -30,7 +30,7 @@ describe("Login DTO", () => {
   it("Convert from full LoginData", () => {
     const fido2CredentialData = initializeFido2Credential(new Fido2CredentialData());
     const data: LoginData = {
-      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -82,7 +82,7 @@ describe("Login DTO", () => {
       totp: "encrypted totp",
       uris: [
         {
-          match: null as UriMatchType,
+          match: null as UriMatchStrategySetting,
           _uri: "decrypted uri",
           _domain: null as string,
           _hostname: null as string,
@@ -123,7 +123,7 @@ describe("Login DTO", () => {
 
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
-      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",

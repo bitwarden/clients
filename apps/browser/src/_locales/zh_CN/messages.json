@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "您的新账户已创建！您现在可以登录了。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "youMayCloseThisWindow": {
+    "message": "您可以关闭此窗口"
+  },
   "masterPassSent": {
     "message": "我们已经为您发送了包含主密码提示的邮件。"
   },
@@ -1494,7 +1500,7 @@
     "message": "无效 PIN 码。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "无效的 PIN 输入尝试次数过多，正在注销。"
+    "message": "无效的 PIN 输入尝试次数过多，正在退出登录。"
   },
   "unlockWithBiometrics": {
     "message": "使用生物识别解锁"
@@ -1997,6 +2003,10 @@
   },
   "selectFolder": {
     "message": "选择文件夹..."
+  },
+  "noFoldersFound": {
+    "message": "找不到文件夹",
+    "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "您的组织权限已更新，要求您设置主密码。",
@@ -2698,17 +2708,17 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 DUO 并按照步骤完成登录。"
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "您的账户需要 DUO 两步登录。"
+  "duoRequiredForAccount": {
+    "message": "您的账户要求使用 Duo 两步登录。"
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "在新窗口中打开扩展以完成登录"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "弹出扩展以完成登录。"
   },
   "popoutExtension": {
     "message": "弹出扩展"
   },
   "launchDuo": {
-    "message": "启动 DUO"
+    "message": "启动 Duo"
   },
   "importFormatError": {
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
@@ -2961,19 +2971,15 @@
     "description": "Label indicating the most common import formats"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器？",
+    "message": "将 Bitwarden 设置为您的默认密码管理器吗？",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
     "message": "忽略此设置可能会导致 Bitwarden 自动填充菜单与浏览器自带功能产生冲突。",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "此操作将重启 Bitwarden 扩展。忽略此选项可能会在 Bitwarden 自动填充菜单和您的浏览器自带功能之间产生冲突。",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器？",
+    "message": "将 Bitwarden 设置为您的默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "privacyPermissionAdditionNotGrantedTitle": {
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "设为默认",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "凭据保存成功！",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "凭据更新成功！",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "保存凭据时出错。检查控制台以获取详细信息。",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

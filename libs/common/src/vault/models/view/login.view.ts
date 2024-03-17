@@ -1,6 +1,7 @@
+import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import { DeepJsonify } from "../../../types/deep-jsonify";
-import { LoginLinkedId as LinkedId, UriMatchType } from "../../enums";
+import { LoginLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
 import { Login } from "../domain/login";
 
@@ -71,7 +72,7 @@ export class LoginView extends ItemView {
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
-    defaultUriMatch: UriMatchType = null,
+    defaultUriMatch: UriMatchStrategySetting = null,
   ): boolean {
     if (this.uris == null) {
       return false;

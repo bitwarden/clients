@@ -2,22 +2,30 @@
  * include Request in test environment.
  * @jest-environment ../../../../shared/test.environment.ts
  */
+import { DUCK_DUCK_GO_FORWARDER } from "../../key-definitions";
 import { Forwarders } from "../options/constants";
 
 import { DuckDuckGoForwarder } from "./duck-duck-go";
 import { mockApiService, mockI18nService } from "./mocks.jest";
 
 describe("DuckDuckGo Forwarder", () => {
+  it("key returns the Duck Duck Go forwarder key", () => {
+    const forwarder = new DuckDuckGoForwarder(null, null, null, null, null);
+
+    expect(forwarder.key).toBe(DUCK_DUCK_GO_FORWARDER);
+  });
+
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
+      const forwarder = new DuckDuckGoForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token,
           }),
       ).rejects.toEqual("forwaderInvalidToken");
@@ -40,9 +48,10 @@ describe("DuckDuckGo Forwarder", () => {
         const apiService = mockApiService(status, { address });
         const i18nService = mockI18nService();
 
-        const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
+        const forwarder = new DuckDuckGoForwarder(apiService, i18nService, null, null, null);
 
-        const result = await forwarder.generate(null, {
+        const result = await forwarder.generate({
+          website: null,
           token: "token",
         });
 
@@ -55,11 +64,12 @@ describe("DuckDuckGo Forwarder", () => {
       const apiService = mockApiService(401, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
+      const forwarder = new DuckDuckGoForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token: "token",
           }),
       ).rejects.toEqual("forwaderInvalidToken");
@@ -76,11 +86,12 @@ describe("DuckDuckGo Forwarder", () => {
       const apiService = mockApiService(200, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
+      const forwarder = new DuckDuckGoForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token: "token",
           }),
       ).rejects.toEqual("forwarderUnknownError");
@@ -99,11 +110,12 @@ describe("DuckDuckGo Forwarder", () => {
         const apiService = mockApiService(statusCode, {});
         const i18nService = mockI18nService();
 
-        const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
+        const forwarder = new DuckDuckGoForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
             }),
         ).rejects.toEqual("forwarderUnknownError");

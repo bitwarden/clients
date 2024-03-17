@@ -85,27 +85,33 @@ export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
   forwarders: Object.freeze({
     service: Forwarders.Fastmail.id,
     fastMail: Object.freeze({
+      website: null,
       domain: "",
       prefix: "",
       token: "",
     }),
     addyIo: Object.freeze({
+      website: null,
       baseUrl: "https://app.addy.io",
       domain: "",
       token: "",
     }),
     forwardEmail: Object.freeze({
+      website: null,
       token: "",
       domain: "",
     }),
     simpleLogin: Object.freeze({
+      website: null,
       baseUrl: "https://app.simplelogin.io",
       token: "",
     }),
     duckDuckGo: Object.freeze({
+      website: null,
       token: "",
     }),
     firefoxRelay: Object.freeze({
+      website: null,
       token: "",
     }),
   }),

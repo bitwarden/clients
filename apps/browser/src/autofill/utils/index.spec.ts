@@ -1,5 +1,5 @@
 import { AutofillPort } from "../enums/autofill-port.enums";
-import { triggerPortOnDisconnectEvent } from "../jest/testing-utils";
+import { triggerPortOnDisconnectEvent } from "../spec/testing-utils";
 
 import { logoIcon, logoLockedIcon } from "./svg-icons";
 

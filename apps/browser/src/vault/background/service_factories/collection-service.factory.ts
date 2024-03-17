@@ -14,10 +14,8 @@ import {
   i18nServiceFactory,
   I18nServiceInitOptions,
 } from "../../../platform/background/service-factories/i18n-service.factory";
-import {
-  stateServiceFactory as stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../../platform/background/service-factories/state-service.factory";
+import { stateProviderFactory } from "../../../platform/background/service-factories/state-provider.factory";
+import { StateServiceInitOptions } from "../../../platform/background/service-factories/state-service.factory";
 
 type CollectionServiceFactoryOptions = FactoryOptions;
 
@@ -38,7 +36,7 @@ export function collectionServiceFactory(
       new CollectionService(
         await cryptoServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
       ),
   );
 }

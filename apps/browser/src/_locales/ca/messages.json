@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Heu iniciat sessió correctament"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Podeu tancar aquesta finestra"
+  },
   "masterPassSent": {
     "message": "Hem enviat un correu electrònic amb la vostra contrasenya mestra."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Seleccioneu la carpeta..."
   },
+  "noFoldersFound": {
+    "message": "No s'ha trobat cap carpeta",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Els permisos de la vostra organització s'han actualitzat, cal que establiu una contrasenya mestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2698,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
   },
-  "duoRequiredByOrgForAccount": {
+  "duoRequiredForAccount": {
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Obriu l'extensió en una finestra nova per completar l'inici de sessió"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Desplega l'extensió per completar l'inici de sessió."
   },
   "popoutExtension": {
     "message": "Extensió emergent"
@@ -2968,10 +2978,6 @@
     "message": "Si ignoreu aquesta opció pot provocar conflictes entre el menú d'emplenament automàtic de Bitwarden i el del navegador.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Aquesta acció reiniciarà l'extensió Bitwarden. Si ignoreu aquesta opció pot provocar conflictes entre el menú d'emplenament automàtic de Bitwarden i el del vostre navegador.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Feu que Bitwarden siga el vostre gestor de contrasenyes predeterminat",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Estableix per defecte",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Les credencials s'han guardat correctament!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Les credencials s'han actualitzat correctament!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "S'ha produït un error en guardar les credencials. Consulteu la consola per obtenir més informació.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

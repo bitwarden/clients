@@ -2,9 +2,9 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
+import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { UriMatchType } from "../../enums";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";
@@ -16,7 +16,7 @@ describe("LoginUri", () => {
     data = {
       uri: "encUri",
       uriChecksum: "encUriChecksum",
-      match: UriMatchType.Domain,
+      match: UriMatchStrategy.Domain,
     };
   });
 
@@ -48,7 +48,7 @@ describe("LoginUri", () => {
 
   it("Decrypt", async () => {
     const loginUri = new LoginUri();
-    loginUri.match = UriMatchType.Exact;
+    loginUri.match = UriMatchStrategy.Exact;
     loginUri.uri = mockEnc("uri");
 
     const view = await loginUri.decrypt(null);
@@ -103,13 +103,13 @@ describe("LoginUri", () => {
       const actual = LoginUri.fromJSON({
         uri: "myUri",
         uriChecksum: "myUriChecksum",
-        match: UriMatchType.Domain,
+        match: UriMatchStrategy.Domain,
       } as Jsonify<LoginUri>);
 
       expect(actual).toEqual({
         uri: "myUri_fromJSON",
         uriChecksum: "myUriChecksum_fromJSON",
-        match: UriMatchType.Domain,
+        match: UriMatchStrategy.Domain,
       });
       expect(actual).toBeInstanceOf(LoginUri);
     });

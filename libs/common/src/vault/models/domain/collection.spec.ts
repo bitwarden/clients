@@ -1,4 +1,5 @@
 import { mockEnc } from "../../../../spec";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 import { CollectionData } from "../data/collection.data";
 
 import { Collection } from "./collection";
@@ -8,8 +9,8 @@ describe("Collection", () => {
 
   beforeEach(() => {
     data = {
-      id: "id",
-      organizationId: "orgId",
+      id: "id" as CollectionId,
+      organizationId: "orgId" as OrganizationId,
       name: "encName",
       externalId: "extId",
       readOnly: true,

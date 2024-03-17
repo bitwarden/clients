@@ -117,6 +117,12 @@ interface Window {
   opera: unknown;
 }
 
+interface ServiceWorkerGlobalScope {
+  chrome?: typeof chrome;
+  opr?: Opera | undefined;
+  opera?: unknown;
+}
+
 declare let opr: Opera | undefined;
 declare let opera: unknown | undefined;
 declare let safari: any;

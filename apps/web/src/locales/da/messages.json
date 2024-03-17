@@ -578,6 +578,9 @@
   "access": {
     "message": "Adgang"
   },
+  "accessLevel": {
+    "message": "Adgangsniveau"
+  },
   "loggedOut": {
     "message": "Logget ud"
   },
@@ -669,7 +672,7 @@
     "message": "Kryptering ikke understøttet"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Opsæt kryptering"
   },
   "usedForEncryption": {
     "message": "Bruges til kryptering"
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Importér data"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Har man igen data at importere, kan man oprette et ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "nyt emne",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " i stedet.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " i stedet. Man skal muligvis afvente, at administratoren bekræfter organisationsmedlemskabet.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Importfejl"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Vis et genkendeligt billede ud for hvert login."
-  },
-  "enableFullWidth": {
-    "message": "Vis layout i fuld bredde",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Lad web-boksen udnytte browservinduets fulde bredde."
   },
   "default": {
     "message": "Standard"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Du kan nu lukke denne fane og fortsætte i udvidelsen."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Du er nu logget ind"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Dette vindue lukkes automatisk om 5 sekunder"
+  },
   "includeAllTeamsFeatures": {
     "message": "Alle teamfunktioner, plus:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Opret en ny klientorganisation, der tilknyttes dig som udbyderen. Du vil kunne tilgå og håndtere denne organisation."
+  },
+  "newClient": {
+    "message": "Ny klient"
   },
   "addExistingOrganization": {
     "message": "Tilføj eksisterende organisation"
@@ -5919,10 +5940,10 @@
     "message": "Start DUO og følg trinene for at fuldføre indlogningen."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "DUO totrins indlogning kræves for kontoen."
+    "message": "Duo totrinsindlogning kræves for kontoen."
   },
   "launchDuo": {
-    "message": "Start DUO"
+    "message": "Start Duo"
   },
   "turnOn": {
     "message": "Slå til"
@@ -5991,7 +6012,7 @@
     "message": "-- Vælg --"
   },
   "multiSelectPlaceholder": {
-    "message": "-- Skriv for at filtrere --"
+    "message": "-- Filtreringstype --"
   },
   "multiSelectLoading": {
     "message": "Henter indstillinger..."
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Send kode igen"
   },
-  "membersColumnHeader": {
-    "message": "Medlem/Gruppe"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Medlem"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Gruppe/Medlem"
   },
   "selectGroupsAndMembers": {
     "message": "Vælg grupper og medlemmer"
@@ -6713,7 +6734,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "message": "Teams Starter kan have op til $SEATCOUNT$ medlemmer. Opgradér til en betalt abonnementstype for at invitere flere deltagerer.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Opret en konto"
   },
   "createSecret": {
     "message": "Opret en hemmelighed"
@@ -7453,8 +7477,14 @@
     }
   },
   "seeDetailedInstructions": {
-    "message": "See detailed instructions on our help site at",
+    "message": "Se detaljeret vejledning på vores hjælpewebsted på",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Installér webbrowserudvidelser"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Brug udvidelsen til hurtigt at gemme logins og auto-udfylde formularer uden at åbne web-appen."
   },
   "projectAccessUpdated": {
     "message": "Projektadgang opdateret"
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Tildel grupper eller medlemmer adgang til denne samling."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Tildel medlemmer adgang til denne samling."
   },
   "adminCollectionAccess": {
     "message": "Administratorer kan tilgå og håndtere samlinger."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Vi har sendt bekræftelsesmail til dig via "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Denne handling er irreversibel"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Aktivering af denne funktion vil udfase manager-rollen og erstatte den med tilladelsen Kan administrere. Dette vil tage et øjeblik. Foretag ingen organisationsændringer før processen er færdig. Sikker på, at du vil fortsætte?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Vi er kede af, at du stopper! Hjælp os med at forbedre Bitwarden ved at dele årsagen til din opsigelse.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Vælg en opsigelsesårsag",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Er der anden feedback, du ønsker at dele?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Manglende funktioner",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Flytter til andet værktøj",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "For svært at bruge",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Bruger ikke nok",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "For dyrt",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratis i 1 år"
+  },
+  "newWebApp": {
+    "message": "Velkommen til den nye og forbedrede web-app. Læs mere om, hvad der er ændret."
+  },
+  "releaseBlog": {
+    "message": "Læs udgivelsesblog"
+  },
+  "adminConsole": {
+    "message": "Admin-konsol"
+  },
+  "providerPortal": {
+    "message": "Udbyderportal"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

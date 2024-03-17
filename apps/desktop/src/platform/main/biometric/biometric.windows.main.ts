@@ -5,7 +5,6 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { biometrics, passwords } from "@bitwarden/desktop-native";
 
 import { WindowMain } from "../../../main/window.main";
-import { ElectronStateService } from "../../services/electron-state.service.abstraction";
 
 import { OsBiometricService } from "./biometrics.service.abstraction";
 
@@ -21,14 +20,8 @@ export default class BiometricWindowsMain implements OsBiometricService {
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
-    private stateService: ElectronStateService,
     private logService: LogService,
   ) {}
-
-  async init() {
-    await this.stateService.setBiometricText("unlockWithWindowsHello");
-    await this.stateService.setNoAutoPromptBiometricsText("autoPromptWindowsHello");
-  }
 
   async osSupportsBiometric(): Promise<boolean> {
     return await biometrics.available();

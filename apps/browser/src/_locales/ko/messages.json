@@ -92,13 +92,13 @@
     "message": "자동 완성"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "로그인 자동 완성"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "카드 자동 완성"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "신원 자동 완성"
   },
   "generatePasswordCopied": {
     "message": "비밀번호 생성 및 클립보드에 복사"
@@ -110,19 +110,19 @@
     "message": "사용할 수 있는 로그인이 없습니다."
   },
   "noCards": {
-    "message": "No cards"
+    "message": "카드 없음"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "신원 없음"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "로그인 추가"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "카드 추가"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "신원 추가"
   },
   "unlockVaultMenu": {
     "message": "보관함 잠금 해제"
@@ -220,7 +220,7 @@
     "message": "도움말 및 의견"
   },
   "helpCenter": {
-    "message": "Bitwarden Help center"
+    "message": "Bitwarden 도움말 센터"
   },
   "communityForums": {
     "message": "Explore Bitwarden community forums"
@@ -492,6 +492,12 @@
   },
   "newAccountCreated": {
     "message": "계정 생성이 완료되었습니다! 이제 로그인하실 수 있습니다."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "masterPassSent": {
     "message": "마스터 비밀번호 힌트가 담긴 이메일을 보냈습니다."
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "폴더 선택..."
   },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "Launch Duo and follow the steps to finish logging in."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Open the extension in a new window to complete login"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "Launch Duo"
   },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2968,10 +2978,6 @@
     "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "This action will restart the Bitwarden extension. Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Make Bitwarden your default password manager",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Make default",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

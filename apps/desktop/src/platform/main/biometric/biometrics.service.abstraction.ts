@@ -1,5 +1,4 @@
 export abstract class BiometricsServiceAbstraction {
-  init: () => Promise<void>;
   osSupportsBiometric: () => Promise<boolean>;
   canAuthBiometric: ({
     service,
@@ -26,7 +25,6 @@ export abstract class BiometricsServiceAbstraction {
 }
 
 export interface OsBiometricService {
-  init: () => Promise<void>;
   osSupportsBiometric: () => Promise<boolean>;
   authenticateBiometric: () => Promise<boolean>;
   getBiometricKey: (

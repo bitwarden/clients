@@ -1,9 +1,12 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
@@ -57,6 +60,7 @@ export class GetCommand extends DownloadCommand {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private eventCollectionService: EventCollectionService,
+    private accountProfileService: BillingAccountProfileStateService,
   ) {
     super(cryptoService);
   }
@@ -251,7 +255,9 @@ export class GetCommand extends DownloadCommand {
       return Response.error("Couldn't generate TOTP code.");
     }
 
-    const canAccessPremium = await this.stateService.getCanAccessPremium();
+    const canAccessPremium = await firstValueFrom(
+      this.accountProfileService.hasPremiumFromAnySource$,
+    );
     if (!canAccessPremium) {
       const originalCipher = await this.cipherService.get(cipher.id);
       if (
@@ -334,7 +340,10 @@ export class GetCommand extends DownloadCommand {
       return Response.multipleResults(attachments.map((a) => a.id));
     }
 
-    if (!(await this.stateService.getCanAccessPremium())) {
+    const canAccessPremium = await firstValueFrom(
+      this.accountProfileService.hasPremiumFromAnySource$,
+    );
+    if (!canAccessPremium) {
       const originalCipher = await this.cipherService.get(cipher.id);
       if (originalCipher == null || originalCipher.organizationId == null) {
         return Response.error("Premium status is required to use this feature.");

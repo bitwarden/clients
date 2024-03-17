@@ -207,4 +207,26 @@ describe("accountService", () => {
       expect(sut.switchAccount("unknown" as UserId)).rejects.toThrowError("Account does not exist");
     });
   });
+
+  describe("setMaxAccountStatus", () => {
+    it("should update the account", async () => {
+      accountsState.stateSubject.next({ [userId]: userInfo(AuthenticationStatus.Unlocked) });
+      await sut.setMaxAccountStatus(userId, AuthenticationStatus.Locked);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: userInfo(AuthenticationStatus.Locked),
+      });
+    });
+
+    it("should not update if the new max status is higher than the current", async () => {
+      accountsState.stateSubject.next({ [userId]: userInfo(AuthenticationStatus.LoggedOut) });
+      await sut.setMaxAccountStatus(userId, AuthenticationStatus.Locked);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: userInfo(AuthenticationStatus.LoggedOut),
+      });
+    });
+  });
 });

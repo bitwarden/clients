@@ -1,6 +1,6 @@
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import BrowserPlatformUtilsService from "../../services/browser-platform-utils.service";
+import { BackgroundPlatformUtilsService } from "../../services/platform-utils/background-platform-utils.service";
 
 import { CachedServices, factory, FactoryOptions } from "./factory-options";
 import { MessagingServiceInitOptions, messagingServiceFactory } from "./messaging-service.factory";
@@ -25,7 +25,7 @@ export function platformUtilsServiceFactory(
     "platformUtilsService",
     opts,
     async () =>
-      new BrowserPlatformUtilsService(
+      new BackgroundPlatformUtilsService(
         await messagingServiceFactory(cache, opts),
         opts.platformUtilsServiceOptions.clipboardWriteCallback,
         opts.platformUtilsServiceOptions.biometricCallback,

@@ -1,5 +1,7 @@
+import { Observable, map, BehaviorSubject } from "rxjs";
+import { Jsonify } from "type-fest";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -8,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -18,21 +21,60 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
+import { AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
+import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy } from "./login.strategy";
+import { LoginStrategyData, LoginStrategy } from "./login.strategy";
+
+export class SsoLoginStrategyData implements LoginStrategyData {
+  captchaBypassToken: string;
+  tokenRequest: SsoTokenRequest;
+  /**
+   * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
+   */
+  userEnteredEmail?: string;
+  /**
+   * User email address. Only available after authentication.
+   */
+  email?: string;
+  /**
+   * The organization ID that the user is logging into. Used for Key Connector
+   * purposes after authentication.
+   */
+  orgId: string;
+  /**
+   * A token provided by the server as an authentication factor for sending
+   * email OTPs to the user's configured 2FA email address. This is required
+   * as we don't have a master password hash or other verifiable secret when using SSO.
+   */
+  ssoEmail2FaSessionToken?: string;
+
+  static fromJSON(obj: Jsonify<SsoLoginStrategyData>): SsoLoginStrategyData {
+    return Object.assign(new SsoLoginStrategyData(), obj, {
+      tokenRequest: SsoTokenRequest.fromJSON(obj.tokenRequest),
+    });
+  }
+}
 
 export class SsoLoginStrategy extends LoginStrategy {
-  tokenRequest: SsoTokenRequest;
-  orgId: string;
+  /**
+   * @see {@link SsoLoginStrategyData.email}
+   */
+  email$: Observable<string | null>;
+  /**
+   * @see {@link SsoLoginStrategyData.orgId}
+   */
+  orgId$: Observable<string>;
+  /**
+   * @see {@link SsoLoginStrategyData.ssoEmail2FaSessionToken}
+   */
+  ssoEmail2FaSessionToken$: Observable<string | null>;
 
-  // A session token server side to serve as an authentication factor for the user
-  // in order to send email OTPs to the user's configured 2FA email address
-  // as we don't have a master password hash or other verifiable secret when using SSO.
-  ssoEmail2FaSessionToken?: string;
-  email?: string; // email not preserved through SSO process so get from server
+  protected cache: BehaviorSubject<SsoLoginStrategyData>;
 
   constructor(
+    data: SsoLoginStrategyData,
     cryptoService: CryptoService,
     apiService: ApiService,
     tokenService: TokenService,
@@ -44,8 +86,9 @@ export class SsoLoginStrategy extends LoginStrategy {
     twoFactorService: TwoFactorService,
     private keyConnectorService: KeyConnectorService,
     private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
-    private authReqCryptoService: AuthRequestCryptoServiceAbstraction,
+    private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       cryptoService,
@@ -57,28 +100,46 @@ export class SsoLoginStrategy extends LoginStrategy {
       logService,
       stateService,
       twoFactorService,
+      billingAccountProfileStateService,
     );
+
+    this.cache = new BehaviorSubject(data);
+    this.email$ = this.cache.pipe(map((state) => state.email));
+    this.orgId$ = this.cache.pipe(map((state) => state.orgId));
+    this.ssoEmail2FaSessionToken$ = this.cache.pipe(map((state) => state.ssoEmail2FaSessionToken));
   }
 
   async logIn(credentials: SsoLoginCredentials) {
-    this.orgId = credentials.orgId;
-    this.tokenRequest = new SsoTokenRequest(
+    const data = new SsoLoginStrategyData();
+    data.orgId = credentials.orgId;
+
+    data.userEnteredEmail = credentials.email;
+
+    data.tokenRequest = new SsoTokenRequest(
       credentials.code,
       credentials.codeVerifier,
       credentials.redirectUrl,
-      await this.buildTwoFactor(credentials.twoFactor),
+      await this.buildTwoFactor(credentials.twoFactor, credentials.email),
       await this.buildDeviceRequest(),
     );
 
+    this.cache.next(data);
+
     const [ssoAuthResult] = await this.startLogIn();
 
-    this.email = ssoAuthResult.email;
-    this.ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
+    const email = ssoAuthResult.email;
+    const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
 
     // Auth guard currently handles redirects for this.
     if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
       await this.stateService.setForceSetPasswordReason(ssoAuthResult.forcePasswordReset);
     }
+
+    this.cache.next({
+      ...this.cache.value,
+      email,
+      ssoEmail2FaSessionToken,
+    });
 
     return ssoAuthResult;
   }
@@ -92,7 +153,10 @@ export class SsoLoginStrategy extends LoginStrategy {
       // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
       const newSsoUser = tokenResponse.key == null;
       if (newSsoUser) {
-        await this.keyConnectorService.convertNewSsoUserToKeyConnector(tokenResponse, this.orgId);
+        await this.keyConnectorService.convertNewSsoUserToKeyConnector(
+          tokenResponse,
+          this.cache.value.orgId,
+        );
       } else {
         const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
         await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl);
@@ -199,14 +263,14 @@ export class SsoLoginStrategy extends LoginStrategy {
       // if masterPasswordHash has a value, we will always receive authReqResponse.key
       // as authRequestPublicKey(masterKey) + authRequestPublicKey(masterPasswordHash)
       if (adminAuthReqResponse.masterPasswordHash) {
-        await this.authReqCryptoService.setKeysAfterDecryptingSharedMasterKeyAndHash(
+        await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
           adminAuthReqResponse,
           adminAuthReqStorable.privateKey,
         );
       } else {
         // if masterPasswordHash is null, we will always receive authReqResponse.key
         // as authRequestPublicKey(userKey)
-        await this.authReqCryptoService.setUserKeyAfterDecryptingSharedUserKey(
+        await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
           adminAuthReqResponse,
           adminAuthReqStorable.privateKey,
         );
@@ -271,5 +335,11 @@ export class SsoLoginStrategy extends LoginStrategy {
         tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount()),
       );
     }
+  }
+
+  exportCache(): CacheData {
+    return {
+      sso: this.cache.value,
+    };
   }
 }

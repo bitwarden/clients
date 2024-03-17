@@ -20,4 +20,6 @@ export enum NotificationType {
 
   AuthRequest = 15,
   AuthRequestResponse = 16,
+
+  SyncOrganizations = 17,
 }

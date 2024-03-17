@@ -6,6 +6,7 @@ import { AsyncActionsModule } from "../async-actions";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
+import { TypographyModule } from "../typography";
 
 import { DialogComponent } from "./dialog/dialog.component";
 import { DialogService } from "./dialog.service";
@@ -22,6 +23,7 @@ import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dia
     CdkDialogModule,
     IconButtonModule,
     ReactiveFormsModule,
+    TypographyModule,
   ],
   declarations: [
     DialogCloseDirective,

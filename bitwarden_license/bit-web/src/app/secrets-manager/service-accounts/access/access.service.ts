@@ -3,9 +3,9 @@ import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -28,7 +28,7 @@ export class AccessService {
   constructor(
     private cryptoService: CryptoService,
     private apiService: ApiService,
-    private cryptoFunctionService: CryptoFunctionService,
+    private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
   ) {}
 
@@ -53,19 +53,15 @@ export class AccessService {
     serviceAccountId: string,
     accessTokenView: AccessTokenView,
   ): Promise<string> {
-    const keyMaterial = await this.cryptoFunctionService.aesGenerateKey(128);
-    const key = await this.cryptoFunctionService.hkdf(
-      keyMaterial,
-      "bitwarden-accesstoken",
+    const key = await this.keyGenerationService.createKeyWithPurpose(
+      128,
       "sm-access-token",
-      64,
-      "sha256",
+      "bitwarden-accesstoken",
     );
-    const encryptionKey = new SymmetricCryptoKey(key);
 
     const request = await this.createAccessTokenRequest(
       organizationId,
-      encryptionKey,
+      key.derivedKey,
       accessTokenView,
     );
     const r = await this.apiService.send(
@@ -77,8 +73,8 @@ export class AccessService {
     );
     const result = new AccessTokenCreationResponse(r);
     this._accessToken.next(null);
-    const b64Key = Utils.fromBufferToB64(keyMaterial);
-    return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${b64Key}`;
+    const keyB64 = Utils.fromBufferToB64(key.material);
+    return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${keyB64}`;
   }
 
   async revokeAccessTokens(serviceAccountId: string, accessTokenIds: string[]): Promise<void> {

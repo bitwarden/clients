@@ -153,6 +153,7 @@ export class SendProgram extends Program {
           this.main.apiService,
           this.main.organizationService,
           this.main.eventCollectionService,
+          this.main.billingAccountProfileStateService,
         );
         const response = await cmd.run("template", object, null);
         this.processResponse(response);
@@ -253,9 +254,9 @@ export class SendProgram extends Program {
         );
         const cmd = new SendEditCommand(
           this.main.sendService,
-          this.main.stateService,
           getCmd,
           this.main.sendApiService,
+          this.main.billingAccountProfileStateService,
         );
         const response = await cmd.run(encodedJson, options);
         this.processResponse(response);
@@ -323,9 +324,9 @@ export class SendProgram extends Program {
     await this.exitIfLocked();
     const cmd = new SendCreateCommand(
       this.main.sendService,
-      this.main.stateService,
       this.main.environmentService,
       this.main.sendApiService,
+      this.main.billingAccountProfileStateService,
     );
     return await cmd.run(encodedJson, options);
   }

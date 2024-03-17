@@ -80,13 +80,12 @@ export interface CreateCredentialParams {
   }[];
   /**
    * This member contains additional parameters requesting additional processing by the client and authenticator.
-   * Not currently supported.
    **/
   extensions?: {
-    appid?: string;
-    appidExclude?: string;
+    appid?: string; // Not supported
+    appidExclude?: string; // Not supported
+    uvm?: boolean; // Not supported
     credProps?: boolean;
-    uvm?: boolean;
   };
   /**
    * This member contains information about the desired properties of the credential to be created.
@@ -125,6 +124,11 @@ export interface CreateCredentialResult {
   publicKey: string;
   publicKeyAlgorithm: number;
   transports: string[];
+  extensions: {
+    credProps?: {
+      rk: boolean;
+    };
+  };
 }
 
 /**

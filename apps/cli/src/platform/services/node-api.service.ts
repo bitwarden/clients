@@ -6,6 +6,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 
 (global as any).fetch = fe.default;
@@ -20,6 +21,7 @@ export class NodeApiService extends ApiService {
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
     appIdService: AppIdService,
+    stateService: StateService,
     logoutCallback: (expired: boolean) => Promise<void>,
     customUserAgent: string = null,
   ) {
@@ -28,6 +30,7 @@ export class NodeApiService extends ApiService {
       platformUtilsService,
       environmentService,
       appIdService,
+      stateService,
       logoutCallback,
       customUserAgent,
     );

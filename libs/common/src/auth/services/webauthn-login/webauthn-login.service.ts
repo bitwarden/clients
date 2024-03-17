@@ -1,9 +1,5 @@
-import { Observable } from "rxjs";
-
 import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitwarden/auth/common";
 
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PrfKey } from "../../../types/key";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
@@ -16,19 +12,15 @@ import { WebAuthnLoginCredentialAssertionView } from "../../models/view/webauthn
 import { WebAuthnLoginAssertionResponseRequest } from "./request/webauthn-login-assertion-response.request";
 
 export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
-  readonly enabled$: Observable<boolean>;
-
   private navigatorCredentials: CredentialsContainer;
 
   constructor(
     private webAuthnLoginApiService: WebAuthnLoginApiServiceAbstraction,
     private loginStrategyService: LoginStrategyServiceAbstraction,
-    private configService: ConfigServiceAbstraction,
     private webAuthnLoginPrfCryptoService: WebAuthnLoginPrfCryptoServiceAbstraction,
     private window: Window,
     private logService?: LogService,
   ) {
-    this.enabled$ = this.configService.getFeatureFlag$(FeatureFlag.PasswordlessLogin, false);
     this.navigatorCredentials = this.window.navigator.credentials;
   }
 

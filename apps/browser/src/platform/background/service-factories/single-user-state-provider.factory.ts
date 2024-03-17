@@ -4,17 +4,19 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 
 import { CachedServices, FactoryOptions, factory } from "./factory-options";
 import {
-  DiskStorageServiceInitOptions,
-  MemoryStorageServiceInitOptions,
-  observableDiskStorageServiceFactory,
-  observableMemoryStorageServiceFactory,
-} from "./storage-service.factory";
+  StateEventRegistrarServiceInitOptions,
+  stateEventRegistrarServiceFactory,
+} from "./state-event-registrar-service.factory";
+import {
+  StorageServiceProviderInitOptions,
+  storageServiceProviderFactory,
+} from "./storage-service-provider.factory";
 
 type SingleUserStateProviderFactoryOptions = FactoryOptions;
 
 export type SingleUserStateProviderInitOptions = SingleUserStateProviderFactoryOptions &
-  MemoryStorageServiceInitOptions &
-  DiskStorageServiceInitOptions;
+  StorageServiceProviderInitOptions &
+  StateEventRegistrarServiceInitOptions;
 
 export async function singleUserStateProviderFactory(
   cache: { singleUserStateProvider?: SingleUserStateProvider } & CachedServices,
@@ -26,8 +28,8 @@ export async function singleUserStateProviderFactory(
     opts,
     async () =>
       new DefaultSingleUserStateProvider(
-        await observableMemoryStorageServiceFactory(cache, opts),
-        await observableDiskStorageServiceFactory(cache, opts),
+        await storageServiceProviderFactory(cache, opts),
+        await stateEventRegistrarServiceFactory(cache, opts),
       ),
   );
 }

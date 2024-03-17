@@ -1,4 +1,5 @@
 import { PaymentMethodType, PlanType } from "../../../billing/enums";
+import { InitiationPath } from "../../../models/request/reference-event.request";
 
 import { OrganizationKeysRequest } from "./organization-keys.request";
 
@@ -23,9 +24,9 @@ export class OrganizationCreateRequest {
   billingAddressState: string;
   billingAddressPostalCode: string;
   billingAddressCountry: string;
-
   useSecretsManager: boolean;
   additionalSmSeats: number;
   additionalServiceAccounts: number;
   isFromSecretsManagerTrial: boolean;
+  initiationPath: InitiationPath;
 }

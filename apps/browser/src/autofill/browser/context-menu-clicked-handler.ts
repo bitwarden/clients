@@ -2,6 +2,20 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AUTOFILL_CARD_ID,
+  AUTOFILL_ID,
+  AUTOFILL_IDENTITY_ID,
+  COPY_IDENTIFIER_ID,
+  COPY_PASSWORD_ID,
+  COPY_USERNAME_ID,
+  COPY_VERIFICATION_CODE_ID,
+  CREATE_CARD_ID,
+  CREATE_IDENTITY_ID,
+  CREATE_LOGIN_ID,
+  GENERATE_PASSWORD_ID,
+  NOOP_COMMAND_SUFFIX,
+} from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -18,6 +32,7 @@ import {
 } from "../../auth/background/service-factories/auth-service.factory";
 import { userVerificationServiceFactory } from "../../auth/background/service-factories/user-verification-service.factory";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
+import { autofillSettingsServiceFactory } from "../../autofill/background/service_factories/autofill-settings-service.factory";
 import { eventCollectionServiceFactory } from "../../background/service-factories/event-collection-service.factory";
 import { Account } from "../../models/account";
 import { CachedServices } from "../../platform/background/service-factories/factory-options";
@@ -37,20 +52,6 @@ import { LockedVaultPendingNotificationsData } from "../background/abstractions/
 import { autofillServiceFactory } from "../background/service_factories/autofill-service.factory";
 import { copyToClipboard, GeneratePasswordToClipboardCommand } from "../clipboard";
 import { AutofillTabCommand } from "../commands/autofill-tab-command";
-import {
-  AUTOFILL_CARD_ID,
-  AUTOFILL_ID,
-  AUTOFILL_IDENTITY_ID,
-  COPY_IDENTIFIER_ID,
-  COPY_PASSWORD_ID,
-  COPY_USERNAME_ID,
-  COPY_VERIFICATION_CODE_ID,
-  CREATE_CARD_ID,
-  CREATE_IDENTITY_ID,
-  CREATE_LOGIN_ID,
-  GENERATE_PASSWORD_ID,
-  NOOP_COMMAND_SUFFIX,
-} from "../constants";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -104,11 +105,14 @@ export class ContextMenuClickedHandler {
       stateServiceOptions: {
         stateFactory: stateFactory,
       },
+      autofillSettingsServiceOptions: {
+        stateFactory: autofillSettingsServiceFactory,
+      },
     };
 
     const generatePasswordToClipboardCommand = new GeneratePasswordToClipboardCommand(
       await passwordGenerationServiceFactory(cachedServices, serviceOptions),
-      await stateServiceFactory(cachedServices, serviceOptions),
+      await autofillSettingsServiceFactory(cachedServices, serviceOptions),
     );
 
     const autofillCommand = new AutofillTabCommand(

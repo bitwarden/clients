@@ -9,9 +9,9 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
-import { BehaviorSubject, debounceTime, Subject, takeUntil } from "rxjs";
+import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from "rxjs";
 
-import { AvatarUpdateService } from "@bitwarden/common/abstractions/account/avatar-update.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,7 +55,7 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
-    private accountUpdateService: AvatarUpdateService,
+    private avatarService: AvatarService,
   ) {}
 
   async ngOnInit() {
@@ -73,9 +73,7 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
         this.currentSelection = color;
       });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.setSelection(await this.accountUpdateService.loadColorFromState());
+    await this.setSelection(await firstValueFrom(this.avatarService.avatarColor$));
   }
 
   async showCustomPicker() {
@@ -93,7 +91,7 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
   async submit() {
     try {
       if (Utils.validateHexColor(this.currentSelection) || this.currentSelection == null) {
-        await this.accountUpdateService.pushUpdate(this.currentSelection);
+        await this.avatarService.setAvatarColor(this.currentSelection);
         this.changeColor.emit(this.currentSelection);
         this.platformUtilsService.showToast("success", null, this.i18nService.t("avatarUpdated"));
       } else {

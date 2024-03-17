@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { Utils } from "../../../../platform/misc/utils";
 
 import { WebAuthnLoginResponseRequest } from "./webauthn-login-response.request";
@@ -26,5 +28,9 @@ export class WebAuthnLoginAssertionResponseRequest extends WebAuthnLoginResponse
       clientDataJSON: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
       userHandle: Utils.fromBufferToUrlB64(credential.response.userHandle),
     };
+  }
+
+  static fromJSON(json: Jsonify<WebAuthnLoginAssertionResponseRequest>) {
+    return Object.assign(Object.create(WebAuthnLoginAssertionResponseRequest.prototype), json);
   }
 }

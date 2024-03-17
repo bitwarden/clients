@@ -1,21 +1,12 @@
 import { systemPreferences } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { passwords } from "@bitwarden/desktop-native";
 
 import { OsBiometricService } from "./biometrics.service.abstraction";
 
 export default class BiometricDarwinMain implements OsBiometricService {
-  constructor(
-    private i18nservice: I18nService,
-    private stateService: StateService,
-  ) {}
-
-  async init() {
-    await this.stateService.setBiometricText("unlockWithTouchId");
-    await this.stateService.setNoAutoPromptBiometricsText("autoPromptTouchId");
-  }
+  constructor(private i18nservice: I18nService) {}
 
   async osSupportsBiometric(): Promise<boolean> {
     return systemPreferences.canPromptTouchID();

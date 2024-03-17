@@ -1,9 +1,10 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { VerticalStepperComponent } from "../../trial-initiation/vertical-stepper/vertical-stepper.component";
@@ -12,7 +13,7 @@ import { VerticalStepperComponent } from "../../trial-initiation/vertical-steppe
   selector: "app-secrets-manager-trial-free-stepper",
   templateUrl: "secrets-manager-trial-free-stepper.component.html",
 })
-export class SecretsManagerTrialFreeStepperComponent {
+export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
   formGroup = this.formBuilder.group({
@@ -39,12 +40,19 @@ export class SecretsManagerTrialFreeStepperComponent {
 
   organizationId: string;
 
+  referenceEventRequest: ReferenceEventRequest;
+
   constructor(
     protected formBuilder: UntypedFormBuilder,
     protected i18nService: I18nService,
     protected organizationBillingService: OrganizationBillingService,
     private router: Router,
   ) {}
+
+  ngOnInit(): void {
+    this.referenceEventRequest = new ReferenceEventRequest();
+    this.referenceEventRequest.initiationPath = "Secrets Manager trial from marketing website";
+  }
 
   accountCreated(email: string): void {
     this.formGroup.get("email")?.setValue(email);
@@ -70,7 +78,11 @@ export class SecretsManagerTrialFreeStepperComponent {
     this.verticalStepper.next();
   }
 
-  async navigateTo(organizationRoute: string): Promise<void> {
-    await this.router.navigate(["organizations", this.organizationId, organizationRoute]);
+  async navigateToMembers(): Promise<void> {
+    await this.router.navigate(["organizations", this.organizationId, "members"]);
+  }
+
+  async navigateToSecretsManager(): Promise<void> {
+    await this.router.navigate(["sm", this.organizationId]);
   }
 }

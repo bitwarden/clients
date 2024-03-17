@@ -1,4 +1,5 @@
-import { EVENTS } from "../constants";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
 import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 

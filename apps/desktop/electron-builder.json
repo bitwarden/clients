@@ -17,9 +17,14 @@
     "**/*",
     "!**/node_modules/@bitwarden/desktop-native/**/*",
     "**/node_modules/@bitwarden/desktop-native/index.js",
-    "**/node_modules/@bitwarden/desktop-native/desktop_native.${platform}-${arch}*.node"
+    "**/node_modules/@bitwarden/desktop-native/desktop_native.${platform}-${arch}*.node",
+
+    "!**/node_modules/argon2/**/*",
+    "**/node_modules/argon2/argon2.js",
+    "**/node_modules/argon2/package.json",
+    "**/node_modules/argon2/lib/binding/napi-v3/argon2.node"
   ],
-  "electronVersion": "28.2.1",
+  "electronVersion": "28.2.7",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -122,7 +127,8 @@
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
     "hardenedRuntime": false,
     "extendInfo": {
-      "LSMinimumSystemVersion": "10.15.0"
+      "LSMinimumSystemVersion": "10.15.0",
+      "ElectronTeamID": "LTZ2PFU5D6"
     }
   },
   "nsisWeb": {
@@ -161,6 +167,7 @@
   },
   "snap": {
     "autoStart": true,
+    "base": "core22",
     "confinement": "strict",
     "plugs": ["default", "password-manager-service"],
     "stagePackages": ["default"]

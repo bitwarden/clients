@@ -4,17 +4,14 @@ import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/imp
 
 import { CachedServices, FactoryOptions, factory } from "./factory-options";
 import {
-  DiskStorageServiceInitOptions,
-  MemoryStorageServiceInitOptions,
-  observableDiskStorageServiceFactory,
-  observableMemoryStorageServiceFactory,
-} from "./storage-service.factory";
+  StorageServiceProviderInitOptions,
+  storageServiceProviderFactory,
+} from "./storage-service-provider.factory";
 
 type GlobalStateProviderFactoryOptions = FactoryOptions;
 
 export type GlobalStateProviderInitOptions = GlobalStateProviderFactoryOptions &
-  MemoryStorageServiceInitOptions &
-  DiskStorageServiceInitOptions;
+  StorageServiceProviderInitOptions;
 
 export async function globalStateProviderFactory(
   cache: { globalStateProvider?: GlobalStateProvider } & CachedServices,
@@ -24,10 +21,6 @@ export async function globalStateProviderFactory(
     cache,
     "globalStateProvider",
     opts,
-    async () =>
-      new DefaultGlobalStateProvider(
-        await observableMemoryStorageServiceFactory(cache, opts),
-        await observableDiskStorageServiceFactory(cache, opts),
-      ),
+    async () => new DefaultGlobalStateProvider(await storageServiceProviderFactory(cache, opts)),
   );
 }

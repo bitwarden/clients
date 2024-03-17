@@ -24,7 +24,6 @@ import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/c
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -60,7 +59,6 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     logService: LogService,
     ngZone: NgZone,
     protected stateService: StateService,
-    private messagingService: MessagingService,
     private routerService: RouterService,
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
@@ -88,9 +86,6 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
       ssoLoginService,
       webAuthnLoginService,
     );
-    this.onSuccessfulLogin = async () => {
-      this.messagingService.send("setFullWidth");
-    };
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
     this.showPasswordless = flagEnabled("showPasswordless");
   }

@@ -1,4 +1,4 @@
-import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
+import { setupExtensionDisconnectAction } from "../utils";
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", loadAutofiller);
@@ -22,19 +22,11 @@ function loadAutofiller() {
   };
 
   setupExtensionEventListeners();
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   triggerUserFillOnLoad();
 
-  async function triggerUserFillOnLoad() {
-    const activeUserIdKey = "activeUserId";
-    const userKeyStorage = await getFromLocalStorage(activeUserIdKey);
-    const activeUserId = userKeyStorage[activeUserIdKey];
-    const activeUserStorage = await getFromLocalStorage(activeUserId);
-    if (activeUserStorage?.[activeUserId]?.settings?.enableAutoFillOnPageLoad === true) {
-      clearDoFillInterval();
-      doFillInterval = setInterval(() => doFillIfNeeded(), 500);
-    }
+  function triggerUserFillOnLoad() {
+    clearDoFillInterval();
+    doFillInterval = setInterval(() => doFillIfNeeded(), 500);
   }
 
   function doFillIfNeeded(force = false) {

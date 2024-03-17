@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Váš nový účet bol vytvorený! Teraz sa môžete prihlásiť."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Úspešne ste sa prihlásili"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Toto okno môžete zavrieť"
+  },
   "masterPassSent": {
     "message": "Poslali sme vám email s nápovedou k hlavnému heslu."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Vybrať priečinok..."
   },
+  "noFoldersFound": {
+    "message": "Nenašli sa žiadne priečinky",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Povolenia vašej organizácie boli aktualizované, čo si vyžaduje nastavenie hlavného hesla.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2698,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Spustite DUO a postupujte podľa pokynov na dokončenie prihlásenia."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Pre váš účet je potrebné dvojstupňové prihlásenie DUO."
+  "duoRequiredForAccount": {
+    "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Na dokončenie prihlásenia otvorte rozšírenie v novom okne"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Ak chcete dokončiť prihlásenie, otvorte rozšírenie."
   },
   "popoutExtension": {
     "message": "Zobraziť rozšírenie v novom okne"
@@ -2968,10 +2978,6 @@
     "message": "Ak nenastavíte túto možnosť, môže to spôsobiť konflikty medzi ponukou automatického vypĺňania Bitwardenu a ponukou vášho prehliadača.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Táto akcia reštartuje rozšírenie Bitwarden. Ignorovanie tejto možnosti môže spôsobiť konflikty medzi ponukou automatického vypĺňania Bitwarden a ponukou prehliadača.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Nastaviť Bitwarden ako predvolený správca hesiel",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Nastaviť ako predvolený",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Prihlasovacie údaje boli úspešne uložené!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Prihlasovacie údaje boli úspešne aktualizované!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Chyba pri ukladaní prihlasovacích údajov. Viac informácii nájdete v konzole.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

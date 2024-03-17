@@ -84,6 +84,24 @@ export class AccountServiceImplementation implements InternalAccountService {
     }
   }
 
+  async setMaxAccountStatus(userId: UserId, maxStatus: AuthenticationStatus): Promise<void> {
+    await this.accountsState.update(
+      (accounts) => {
+        accounts[userId].status = maxStatus;
+        return accounts;
+      },
+      {
+        shouldUpdate: (accounts) => {
+          if (accounts?.[userId] == null) {
+            throw new Error("Account does not exist");
+          }
+
+          return accounts[userId].status > maxStatus;
+        },
+      },
+    );
+  }
+
   async switchAccount(userId: UserId): Promise<void> {
     await this.activeAccountIdState.update(
       (_, accounts) => {

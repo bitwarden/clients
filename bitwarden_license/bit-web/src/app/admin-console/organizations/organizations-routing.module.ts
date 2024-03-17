@@ -6,7 +6,6 @@ import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
-import { SettingsComponent } from "@bitwarden/web-vault/app/admin-console/organizations/settings/settings.component";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
 
@@ -22,7 +21,6 @@ const routes: Routes = [
     children: [
       {
         path: "settings",
-        component: SettingsComponent,
         canActivate: [OrganizationPermissionsGuard],
         data: {
           organizationPermissions: canAccessSettingsTab,
@@ -33,6 +31,7 @@ const routes: Routes = [
             component: DomainVerificationComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "domainVerification",
               organizationPermissions: (org: Organization) => org.canManageDomainVerification,
             },
           },
@@ -41,6 +40,7 @@ const routes: Routes = [
             component: SsoComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "singleSignOn",
               organizationPermissions: (org: Organization) => org.canManageSso,
             },
           },
@@ -49,6 +49,7 @@ const routes: Routes = [
             component: ScimComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "scim",
               organizationPermissions: (org: Organization) => org.canManageScim,
             },
           },

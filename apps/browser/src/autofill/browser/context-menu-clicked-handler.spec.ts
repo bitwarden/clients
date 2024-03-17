@@ -3,14 +3,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AUTOFILL_ID,
   COPY_PASSWORD_ID,
@@ -18,7 +10,14 @@ import {
   COPY_VERIFICATION_CODE_ID,
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
-} from "../constants";
+} from "@bitwarden/common/autofill/constants";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   CopyToClipboardAction,

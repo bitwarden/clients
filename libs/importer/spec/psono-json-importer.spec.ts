@@ -230,10 +230,8 @@ describe("PSONO JSON Importer", () => {
     const result = await importer.parse(FoldersTestDataJson);
     expect(result != null).toBe(true);
 
-    const folders = result.folders;
     // // Check that ciphers have a folder assigned to them
-    expect(result.ciphers.filter((c) => c.folderId === folders[0].id).length).toBeGreaterThan(0);
-    expect(result.ciphers.filter((c) => c.folderId === folders[1].id).length).toBeGreaterThan(0);
+    expect(result.ciphers.length).toEqual(result.folderRelationships.length);
   });
 
   it("should create collections if part of an organization", async () => {

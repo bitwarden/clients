@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { lastValueFrom, Observable } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction as ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
@@ -11,7 +12,6 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService } from "@bitwarden/components";
 
 import {
@@ -37,7 +37,6 @@ export class UserSubscriptionComponent implements OnInit {
   presentUserWithOffboardingSurvey$: Observable<boolean>;
 
   constructor(
-    private stateService: StateService,
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
@@ -47,6 +46,7 @@ export class UserSubscriptionComponent implements OnInit {
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private configService: ConfigService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
     this.cloudWebVaultUrl = this.environmentService.getCloudWebVaultUrl();
@@ -65,8 +65,7 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    if (this.stateService.getHasPremiumPersonally()) {
+    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {

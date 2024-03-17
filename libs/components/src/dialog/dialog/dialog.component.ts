@@ -14,6 +14,16 @@ export class DialogComponent {
    */
   @Input() dialogSize: "small" | "default" | "large" = "default";
 
+  /**
+   * Title to show in the dialog's header
+   */
+  @Input() title: string;
+
+  /**
+   * Subtitle to show in the dialog's header
+   */
+  @Input() subtitle: string;
+
   private _disablePadding = false;
   /**
    * Disable the built-in padding on the dialog, for use with tabbed dialogs.

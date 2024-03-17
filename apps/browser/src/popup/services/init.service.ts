@@ -1,4 +1,5 @@
-import { Injectable } from "@angular/core";
+import { DOCUMENT } from "@angular/common";
+import { Inject, Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -6,6 +7,7 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 
@@ -18,11 +20,13 @@ export class InitService {
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
     private configService: ConfigService,
+    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.stateService.init();
+      await this.i18nService.init();
 
       if (!BrowserPopupUtils.inPopup(window)) {
         window.document.body.classList.add("body-full");
@@ -33,7 +37,7 @@ export class InitService {
       }
 
       const htmlEl = window.document.documentElement;
-      await this.themingService.monitorThemeChanges();
+      this.themingService.applyThemeChangesTo(this.document);
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
       // Workaround for slow performance on external monitors on Chrome + MacOS
@@ -52,6 +56,25 @@ export class InitService {
       }
 
       this.configService.init();
+      this.setupVaultPopupHeartbeat();
     };
+  }
+
+  /**
+   * Sets up a runtime message listener to indicate to the background
+   * script that the extension popup is open in some manner.
+   */
+  private setupVaultPopupHeartbeat() {
+    const respondToHeartbeat = (
+      message: { command: string },
+      _sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void,
+    ) => {
+      if (message?.command === "checkVaultPopupHeartbeat") {
+        sendResponse(true);
+      }
+    };
+
+    BrowserApi.messageListener("vaultPopupHeartbeat", respondToHeartbeat);
   }
 }

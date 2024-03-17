@@ -1,13 +1,15 @@
+import { firstValueFrom } from "rxjs";
+
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
 import { UserKey, DeviceKey } from "../../types/key";
 import { DeviceTrustCryptoServiceAbstraction } from "../abstractions/device-trust-crypto.service.abstraction";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
@@ -20,6 +22,7 @@ import {
 
 export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstraction {
   constructor(
+    private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
@@ -108,7 +111,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     }
 
     // At this point of rotating their keys, they should still have their old user key in state
-    const oldUserKey = await this.stateService.getUserKey();
+    const oldUserKey = await firstValueFrom(this.cryptoService.activeUserKey$);
 
     const deviceIdentifier = await this.appIdService.getAppId();
     const secretVerificationRequest = new SecretVerificationRequest();
@@ -163,10 +166,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
 
   private async makeDeviceKey(): Promise<DeviceKey> {
     // Create 512-bit device key
-    const randomBytes: CsprngArray = await this.cryptoFunctionService.aesGenerateKey(512);
-    const deviceKey = new SymmetricCryptoKey(randomBytes) as DeviceKey;
-
-    return deviceKey;
+    return (await this.keyGenerationService.createKey(512)) as DeviceKey;
   }
 
   async decryptUserKeyWithDeviceKey(

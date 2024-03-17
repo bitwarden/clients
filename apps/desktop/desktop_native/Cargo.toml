@@ -13,9 +13,9 @@ default = []
 manual_test = []
 
 [dependencies]
-aes = "=0.8.3"
-anyhow = "=1.0.75"
-arboard = { version = "=3.3.0", default-features = false }
+aes = "=0.8.4"
+anyhow = "=1.0.80"
+arboard = { version = "=3.3.0", default-features = false, features = ["wayland-data-control"] }
 base64 = "=0.21.5"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 napi = { version = "=2.13.3", features = ["async"] }
@@ -33,7 +33,7 @@ napi-build = "=2.0.1"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "=1.0.2"
-windows = { version = "=0.52.0", features = [
+windows = { version = "=0.54.0", features = [
   "Foundation",
   "Security_Credentials_UI",
   "Security_Cryptography",
@@ -54,5 +54,5 @@ security-framework = "=2.9.2"
 security-framework-sys = "=2.9.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-gio = "=0.18.4"
-libsecret = "=0.4.0"
+gio = "=0.19.2"
+libsecret = "=0.5.0"

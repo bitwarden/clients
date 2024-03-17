@@ -1,3 +1,18 @@
+<bit-banner
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  (onClose)="webLayoutMigrationBannerService.hideBanner()"
+  *ngIf="webLayoutMigrationBannerService.showBanner$ | async"
+>
+  {{ "newWebApp" | i18n }}
+  <a
+    href="https://bitwarden.com/blog/bitwarden-design-updating-the-navigation-in-the-web-app"
+    bitLink
+    linkType="contrast"
+    target="_blank"
+    rel="noreferrer"
+    >{{ "releaseBlog" | i18n }}</a
+  >
+</bit-banner>
 <header
   *ngIf="routeData$ | async as routeData"
   class="-tw-m-6 tw-mb-3 tw-flex tw-flex-col tw-p-6"
@@ -61,11 +76,16 @@
                 <i class="bwi bwi-fw bwi-user" aria-hidden="true"></i>
                 {{ "accountSettings" | i18n }}
               </a>
-              <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noopener">
+              <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noreferrer">
                 <i class="bwi bwi-fw bwi-question-circle" aria-hidden="true"></i>
                 {{ "getHelp" | i18n }}
               </a>
-              <a bitMenuItem href="https://bitwarden.com/download/" target="_blank" rel="noopener">
+              <a
+                bitMenuItem
+                href="https://bitwarden.com/download/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <i class="bwi bwi-fw bwi-download" aria-hidden="true"></i>
                 {{ "getApps" | i18n }}
               </a>

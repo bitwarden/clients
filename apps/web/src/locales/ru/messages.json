@@ -578,6 +578,9 @@
   "access": {
     "message": "Доступ"
   },
+  "accessLevel": {
+    "message": "Уровень доступа"
+  },
   "loggedOut": {
     "message": "Вы вышли из хранилища"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Импорт данных"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Если у вас нет данных для импорта, вы можете создать ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "новый элемент.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " вместо этого.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " вместо этого. Возможно, вам придется подождать, пока администратор подтвердит ваше членство в организации.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Ошибка импорта"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Отображать узнаваемое изображение рядом с каждым логином."
-  },
-  "enableFullWidth": {
-    "message": "Активировать отображение на всю ширину",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Разрешить веб-хранилищу использовать всю ширину окна браузера."
   },
   "default": {
     "message": "По умолчанию"
@@ -3516,7 +3528,7 @@
     "message": "Подписка обновлена"
   },
   "subscribedToSecretsManager": {
-    "message": "Подписка обновлена. Теперь у вас есть доступ к Менеджеру секретов."
+    "message": "Подписка обновлена. Теперь у вас есть доступ к менеджеру секретов."
   },
   "additionalOptions": {
     "message": "Дополнительные настройки"
@@ -4030,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Теперь вы можете закрыть эту вкладку и продолжить в расширении."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Вы успешно авторизовались"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Это окно автоматически закроется через 5 секунд"
   },
   "includeAllTeamsFeatures": {
     "message": "Все возможности Teams, плюс:"
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Создайте новую организацию клиента, которая будет связана с вами как с поставщиком. Вы сможете получить доступ к этой организации и управлять ею."
+  },
+  "newClient": {
+    "message": "Новый клиент"
   },
   "addExistingOrganization": {
     "message": "Добавить существующую организацию"
@@ -5916,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите DUO и следуйте шагам для завершения авторизации."
+    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Для вашего аккаунта требуется двухэтапная аутентификация DUO."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
   "launchDuo": {
-    "message": "Запустить DUO"
+    "message": "Запустить Duo"
   },
   "turnOn": {
     "message": "Включить"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Отправить код повторно"
   },
-  "membersColumnHeader": {
-    "message": "Участник/Группа"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Участник"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Группа/участник"
   },
   "selectGroupsAndMembers": {
     "message": "Выбор групп и участников"
@@ -6912,6 +6933,9 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
+  "createAnAccount": {
+    "message": "Создать аккаунт"
+  },
   "createSecret": {
     "message": "Создать секрет"
   },
@@ -7150,7 +7174,7 @@
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Активировать Менеджер секретов"
+    "message": "Активировать менеджеру секретов"
   },
   "yourOrganizationsFingerprint": {
     "message": "Фраза отпечатка вашей организации",
@@ -7456,6 +7480,12 @@
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Установить расширение для браузера"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Используйте расширение для быстрого сохранения логинов и автозаполнения форм, не открывая веб-приложение."
+  },
   "projectAccessUpdated": {
     "message": "Доступ к проекту обновлен"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Предоставить группам или участникам доступ к этой коллекции."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Предоставить участникам доступ к этой коллекции."
   },
   "adminCollectionAccess": {
     "message": "Администраторы могут получать доступ к коллекциям и управлять ими."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Мы отправили письмо с подтверждением на "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Это действие необратимо"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "При включении этой опции роль менеджера будет аннулирована и заменена разрешением 'Может управлять'. Это займет несколько минут. Не вносите никаких изменений в организацию, пока операция не будет завершена. Готовы ли вы продолжить?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Жаль, что вы уходите! Помогите нам улучшить Bitwarden, поделившись информацией о причинах отмены.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Выберите причину отмены",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Есть ли еще какие-нибудь замечания, которыми вы хотели бы поделиться?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Отсутствие нужной возможности",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Переход на другой инструмент",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Слишком сложно использовать",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Используется слишком мало",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Слишком дорого",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Бесплатно на 1 год"
+  },
+  "newWebApp": {
+    "message": "Добро пожаловать в новое и улучшенное веб-приложение. Узнайте больше о том, что изменилось."
+  },
+  "releaseBlog": {
+    "message": "Прочитать блог о релизе"
+  },
+  "adminConsole": {
+    "message": "Консоль администратора"
+  },
+  "providerPortal": {
+    "message": "Портал провайдера"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

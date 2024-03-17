@@ -257,7 +257,7 @@
     "message": "Välj"
   },
   "generatePassword": {
-    "message": "Skapa lösenord"
+    "message": "Generera lösenord"
   },
   "regeneratePassword": {
     "message": "Återskapa lösenord"
@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Ditt nya konto har skapats! Du kan logga in nu."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Du kan stänga detta fönster"
+  },
   "masterPassSent": {
     "message": "Vi har skickat ett e-postmeddelande till dig med din huvudlösenordsledtråd."
   },
@@ -682,10 +688,10 @@
     "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
   },
   "enableUsePasskeys": {
-    "message": "Be om att spara och använda nycklar"
+    "message": "Be om att spara och använda lösennycklar"
   },
   "usePasskeysDesc": {
-    "message": "Be om att spara nya nycklar eller logga in med nycklar som lagras i ditt valv. Gäller för alla inloggade konton."
+    "message": "Be om att spara nya lösennycklar eller logga in med nycklar som lagras i ditt valv. Gäller för alla inloggade konton."
   },
   "notificationChangeDesc": {
     "message": "Vill du uppdatera det här lösenordet i Bitwarden?"
@@ -765,7 +771,7 @@
     "message": "Delad"
   },
   "learnOrg": {
-    "message": "Lär dig om organisationer"
+    "message": "Läs mer om organisationer"
   },
   "learnOrgConfirmation": {
     "message": "Bitwarden gör det möjligt för dig att dela objekt i valvet med andra genom att använda en organisation. Vill du besöka bitwarden.com för att lära dig mer?"
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Välj mapp…"
   },
+  "noFoldersFound": {
+    "message": "Inga mappar hittades",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2119,7 +2129,7 @@
     "message": "Återskapa användarnamn"
   },
   "generateUsername": {
-    "message": "Skapa användarnamn"
+    "message": "Generera användarnamn"
   },
   "usernameType": {
     "message": "Typ av användarnamn"
@@ -2147,7 +2157,7 @@
     "message": "Webbplatsnamn"
   },
   "whatWouldYouLikeToGenerate": {
-    "message": "Vad vill du skapa?"
+    "message": "Vad skulle du vilja generera?"
   },
   "passwordType": {
     "message": "Typ av lösenord"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "Launch Duo and follow the steps to finish logging in."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Open the extension in a new window to complete login"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "Launch Duo"
   },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2782,25 +2792,25 @@
     "message": "Confirm file password"
   },
   "typePasskey": {
-    "message": "Nyckel"
+    "message": "Lösennyckel"
   },
   "passkeyNotCopied": {
-    "message": "Nyckeln kommer inte kopieras"
+    "message": "Lösennyckeln kommer inte kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Nyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
+    "message": "Lösennyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Verifiering krävs av den initierande webbplatsen. Denna funktion är ännu inte implementerad för konton utan huvudlösenord."
   },
   "logInWithPasskey": {
-    "message": "Logga in med nyckel?"
+    "message": "Logga in med lösennyckel?"
   },
   "passkeyAlreadyExists": {
-    "message": "En nyckel finns redan för detta program."
+    "message": "En lösennyckel finns redan för detta program."
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "Inga nycklar hittades för detta program."
+    "message": "Inga lösennycklar hittades för detta program."
   },
   "noMatchingPasskeyLogin": {
     "message": "Det finns ingen matchande inloggning för denna webbplats."
@@ -2809,28 +2819,28 @@
     "message": "Bekräfta"
   },
   "savePasskey": {
-    "message": "Spara nyckel"
+    "message": "Spara lösennyckel"
   },
   "savePasskeyNewLogin": {
-    "message": "Spara nyckel som ny inloggning"
+    "message": "Spara lösennyckel som ny inloggning"
   },
   "choosePasskey": {
-    "message": "Välj en inloggning för att spara denna nyckel till"
+    "message": "Välj en inloggning för att spara denna lösennyckel till"
   },
   "passkeyItem": {
-    "message": "Nyckelobjekt"
+    "message": "Lösennyckelobjekt"
   },
   "overwritePasskey": {
-    "message": "Skriv över nyckel?"
+    "message": "Skriv över lösennyckel?"
   },
   "overwritePasskeyAlert": {
-    "message": "Detta objekt innehåller redan en nyckel. Är du säker på att du vill skriva över nuvarande nyckeln?"
+    "message": "Detta objekt innehåller redan en lösennyckel. Är du säker på att du vill skriva över nuvarande lösennyckeln?"
   },
   "featureNotSupported": {
     "message": "Feature not yet supported"
   },
   "yourPasskeyIsLocked": {
-    "message": "Autentisering krävs för att använda nyckel. Verifiera din identitet för att fortsätta."
+    "message": "Autentisering krävs för att använda lösennyckel. Verifiera din identitet för att fortsätta."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
@@ -2968,10 +2978,6 @@
     "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "This action will restart the Bitwarden extension. Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Låt Bitwarden hantera lösenord som standard",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Make default",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

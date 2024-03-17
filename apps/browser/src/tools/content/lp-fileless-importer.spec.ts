@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { createPortSpyMock } from "../../autofill/jest/autofill-mocks";
-import { sendPortMessage } from "../../autofill/jest/testing-utils";
+import { createPortSpyMock } from "../../autofill/spec/autofill-mocks";
+import { sendPortMessage } from "../../autofill/spec/testing-utils";
 import { FilelessImportPort } from "../enums/fileless-import.enums";
 
 import { LpFilelessImporter } from "./abstractions/lp-fileless-importer";
@@ -41,20 +41,6 @@ describe("LpFilelessImporter", () => {
       lpFilelessImporter.handleFeatureFlagVerification({ filelessImportEnabled: false });
 
       expect(portSpy.disconnect).toHaveBeenCalled();
-    });
-
-    it("injects a script element that suppresses the download of the LastPass export", () => {
-      const script = document.createElement("script");
-      jest.spyOn(document, "createElement").mockReturnValue(script);
-      jest.spyOn(document.documentElement, "appendChild");
-
-      lpFilelessImporter.handleFeatureFlagVerification({ filelessImportEnabled: true });
-
-      expect(document.createElement).toHaveBeenCalledWith("script");
-      expect(document.documentElement.appendChild).toHaveBeenCalled();
-      expect(script.textContent).toContain(
-        "const defaultAppendChild = Element.prototype.appendChild;",
-      );
     });
 
     it("sets up an event listener for DOMContentLoaded that triggers the importer when the document ready state is `loading`", () => {

@@ -67,6 +67,7 @@ export type BrowserFido2Message = { sessionId: string } & (
       userName: string;
       userVerification: boolean;
       fallbackSupported: boolean;
+      rpId: string;
     }
   | {
       type: "ConfirmNewCredentialResponse";
@@ -242,6 +243,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     credentialName,
     userName,
     userVerification,
+    rpId,
   }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
     const data: BrowserFido2Message = {
       type: "ConfirmNewCredentialRequest",
@@ -250,6 +252,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       userName,
       userVerification,
       fallbackSupported: this.fallbackSupported,
+      rpId,
     };
 
     await this.send(data);

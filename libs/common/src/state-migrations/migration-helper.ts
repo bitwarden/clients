@@ -41,6 +41,18 @@ export class MigrationHelper {
   }
 
   /**
+   * Remove a value in the storage service at the given key.
+   *
+   * This is a brute force method to just remove a value in the storage service. If you can use {@link removeFromGlobal} or {@link removeFromUser}, you should.
+   * @param key location
+   * @returns void
+   */
+  remove(key: string): Promise<void> {
+    this.logService.info(`Removing ${key}`);
+    return this.storageService.remove(key);
+  }
+
+  /**
    * Gets a globally scoped value from a location derived through the key definition
    *
    * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
@@ -63,6 +75,18 @@ export class MigrationHelper {
    */
   setToGlobal<T>(keyDefinition: KeyDefinitionLike, value: T): Promise<void> {
     return this.set(this.getGlobalKey(keyDefinition), value);
+  }
+
+  /**
+   * Remove a globally scoped location derived through the key definition
+   *
+   * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
+   * use {@link remove} for those.
+   * @param keyDefinition unique key definition
+   * @returns void
+   */
+  removeFromGlobal(keyDefinition: KeyDefinitionLike): Promise<void> {
+    return this.remove(this.getGlobalKey(keyDefinition));
   }
 
   /**
@@ -90,6 +114,18 @@ export class MigrationHelper {
    */
   setToUser<T>(userId: string, keyDefinition: KeyDefinitionLike, value: T): Promise<void> {
     return this.set(this.getUserKey(userId, keyDefinition), value);
+  }
+
+  /**
+   * Remove a user scoped location derived through the key definition
+   *
+   * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
+   * use {@link remove} for those.
+   * @param keyDefinition unique key definition
+   * @returns void
+   */
+  removeFromUser(userId: string, keyDefinition: KeyDefinitionLike): Promise<void> {
+    return this.remove(this.getUserKey(userId, keyDefinition));
   }
 
   info(message: string): void {

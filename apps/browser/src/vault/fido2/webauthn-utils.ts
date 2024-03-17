@@ -33,7 +33,9 @@ export class WebauthnUtils {
         transports: credential.transports,
         type: credential.type,
       })),
-      extensions: undefined, // extensions not currently supported
+      extensions: {
+        credProps: keyOptions.extensions?.credProps,
+      },
       pubKeyCredParams: keyOptions.pubKeyCredParams.map((params) => ({
         alg: params.alg,
         type: params.type,
@@ -57,7 +59,7 @@ export class WebauthnUtils {
       id: result.credentialId,
       rawId: Fido2Utils.stringToBuffer(result.credentialId),
       type: "public-key",
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
       response: {
         clientDataJSON: Fido2Utils.stringToBuffer(result.clientDataJSON),
         attestationObject: Fido2Utils.stringToBuffer(result.attestationObject),
@@ -78,7 +80,9 @@ export class WebauthnUtils {
           return result.transports;
         },
       } as AuthenticatorAttestationResponse,
-      getClientExtensionResults: () => ({}),
+      getClientExtensionResults: () => ({
+        credProps: result.extensions.credProps,
+      }),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.
@@ -123,7 +127,7 @@ export class WebauthnUtils {
         userHandle: Fido2Utils.stringToBuffer(result.userHandle),
       } as AuthenticatorAssertionResponse,
       getClientExtensionResults: () => ({}),
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.

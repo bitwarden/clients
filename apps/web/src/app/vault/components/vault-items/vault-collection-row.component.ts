@@ -1,5 +1,4 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,15 +37,7 @@ export class VaultCollectionRowComponent {
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
-  constructor(
-    private router: Router,
-    private i18nService: I18nService,
-  ) {}
-
-  @HostBinding("class")
-  get classes() {
-    return [].concat(this.disabled ? [] : ["tw-cursor-pointer"]);
-  }
+  constructor(private i18nService: I18nService) {}
 
   get collectionGroups() {
     if (!(this.collection instanceof CollectionAdminView)) {
@@ -69,16 +60,6 @@ export class VaultCollectionRowComponent {
         permissionList.find((p) => p.perm === convertToPermission(this.collection))?.labelId,
       );
     }
-  }
-
-  @HostListener("click")
-  protected click() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([], {
-      queryParams: { collectionId: this.collection.id },
-      queryParamsHandling: "merge",
-    });
   }
 
   protected edit() {

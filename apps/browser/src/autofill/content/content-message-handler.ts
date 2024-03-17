@@ -1,3 +1,5 @@
+import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
@@ -24,9 +26,17 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
     handleAuthResultMessage(data, referrer),
   webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleWebAuthnResultMessage(data, referrer),
+  checkIfBWExtensionInstalled: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
 };
+
+/**
+ * Handles the post to the web vault showing the extension has been installed
+ */
+function handleExtensionInstallCheck() {
+  window.postMessage({ command: VaultOnboardingMessages.HasBwInstalled });
+}
 
 /**
  * Handles the auth result message from the window.
@@ -34,9 +44,9 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
  * @param data - Data from the window message
  * @param referrer - The referrer of the window
  */
-async function handleAuthResultMessage(data: ContentMessageWindowData, referrer: string) {
+function handleAuthResultMessage(data: ContentMessageWindowData, referrer: string) {
   const { command, lastpass, code, state } = data;
-  await chrome.runtime.sendMessage({ command, code, state, lastpass, referrer });
+  sendExtensionRuntimeMessage({ command, code, state, lastpass, referrer });
 }
 
 /**
@@ -46,8 +56,8 @@ async function handleAuthResultMessage(data: ContentMessageWindowData, referrer:
  * @param referrer - The referrer of the window
  */
 async function handleDuoResultMessage(data: ContentMessageWindowData, referrer: string) {
-  const { command, code } = data;
-  await chrome.runtime.sendMessage({ command, code: code, referrer });
+  const { command, code, state } = data;
+  sendExtensionRuntimeMessage({ command, code, state, referrer });
 }
 
 /**
@@ -56,9 +66,9 @@ async function handleDuoResultMessage(data: ContentMessageWindowData, referrer: 
  * @param data - Data from the window message
  * @param referrer - The referrer of the window
  */
-async function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: string) {
+function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: string) {
   const { command, remember } = data;
-  await chrome.runtime.sendMessage({ command, data: data.data, remember, referrer });
+  sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
 /**
@@ -96,10 +106,21 @@ const forwardCommands = new Set([
  *
  * @param message - The message from the extension
  */
-async function handleExtensionMessage(message: any) {
+function handleExtensionMessage(message: any) {
   if (forwardCommands.has(message.command)) {
-    await chrome.runtime.sendMessage(message);
+    sendExtensionRuntimeMessage(message);
   }
+}
+
+/**
+ * Sends a message to the extension runtime, and ignores
+ * any potential promises that should be handled using
+ * the `void` operator.
+ *
+ * @param message - The message to send to the extension runtime
+ */
+function sendExtensionRuntimeMessage(message: any) {
+  void chrome.runtime.sendMessage(message);
 }
 
 /**

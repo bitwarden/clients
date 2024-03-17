@@ -1,10 +1,8 @@
-<div class="tw-flex tw-flex-row tw-justify-between">
-  <h1>{{ "domainVerification" | i18n }}</h1>
-
+<app-header>
   <button *ngIf="!loading" type="button" buttonType="primary" bitButton (click)="addDomain()">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
   </button>
-</div>
+</app-header>
 
 <ng-container *ngIf="loading">
   <i

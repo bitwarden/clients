@@ -6,7 +6,6 @@ import { PoliciesModule } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { OrganizationSettingsRoutingModule } from "./organization-settings-routing.module";
-import { SettingsComponent } from "./settings.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
 
 @NgModule({
@@ -17,6 +16,6 @@ import { TwoFactorSetupComponent } from "./two-factor-setup.component";
     OrganizationSettingsRoutingModule,
     AccountFingerprintComponent,
   ],
-  declarations: [SettingsComponent, AccountComponent, TwoFactorSetupComponent],
+  declarations: [AccountComponent, TwoFactorSetupComponent],
 })
 export class OrganizationSettingsModule {}

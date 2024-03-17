@@ -1,11 +1,13 @@
-import { Component, Directive, Input, importProvidersFrom } from "@angular/core";
+import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Meta, Story, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
+import { applicationConfig, Meta, moduleMetadata, Story } from "@storybook/angular";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, LinkModule, MenuModule } from "@bitwarden/components";
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
@@ -23,6 +25,22 @@ class MockOrganizationService implements Partial<OrganizationService> {
   @Input()
   set mockOrgs(orgs: Organization[]) {
     this.organizations$.next(orgs);
+  }
+}
+
+@Directive({
+  selector: "[mockProviders]",
+})
+class MockProviderService implements Partial<ProviderService> {
+  private static _providers = new BehaviorSubject<Provider[]>([]);
+
+  async getAll() {
+    return await firstValueFrom(MockProviderService._providers);
+  }
+
+  @Input()
+  set mockProviders(providers: Provider[]) {
+    MockProviderService._providers.next(providers);
   }
 }
 
@@ -46,6 +64,7 @@ export default {
         ProductSwitcherContentComponent,
         ProductSwitcherComponent,
         MockOrganizationService,
+        MockProviderService,
         StoryLayoutComponent,
         StoryContentComponent,
       ],
@@ -53,6 +72,8 @@ export default {
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
         MockOrganizationService,
+        { provide: ProviderService, useClass: MockProviderService },
+        MockProviderService,
         {
           provide: I18nService,
           useFactory: () => {
@@ -83,6 +104,10 @@ export default {
                     component: StoryContentComponent,
                   },
                   {
+                    path: "providers/:providerId",
+                    component: StoryContentComponent,
+                  },
+                  {
                     path: "vault",
                     component: StoryContentComponent,
                   },
@@ -100,7 +125,7 @@ export default {
 const Template: Story = (args) => ({
   props: args,
   template: `
-    <router-outlet [mockOrgs]="mockOrgs"></router-outlet>
+    <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
     <div class="tw-flex tw-gap-[200px]">
       <div>
         <h1 class="tw-text-main tw-text-base tw-underline">Closed</h1>
@@ -119,17 +144,26 @@ const Template: Story = (args) => ({
   `,
 });
 
-export const NoOrgs = Template.bind({});
-NoOrgs.args = {
+export const OnlyPM = Template.bind({});
+OnlyPM.args = {
   mockOrgs: [],
+  mockProviders: [],
 };
 
-export const OrgWithoutSecretsManager = Template.bind({});
-OrgWithoutSecretsManager.args = {
-  mockOrgs: [{ id: "a" }],
+export const WithSM = Template.bind({});
+WithSM.args = {
+  mockOrgs: [{ id: "org-a", canManageUsers: false, canAccessSecretsManager: true, enabled: true }],
+  mockProviders: [],
 };
 
-export const OrgWithSecretsManager = Template.bind({});
-OrgWithSecretsManager.args = {
-  mockOrgs: [{ id: "b", canAccessSecretsManager: true, enabled: true }],
+export const WithSMAndAC = Template.bind({});
+WithSMAndAC.args = {
+  mockOrgs: [{ id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true }],
+  mockProviders: [],
+};
+
+export const WithAllOptions = Template.bind({});
+WithAllOptions.args = {
+  mockOrgs: [{ id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true }],
+  mockProviders: [{ id: "provider-a" }],
 };

@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { postWindowMessage, sendExtensionRuntimeMessage } from "../jest/testing-utils";
+import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+
+import { postWindowMessage, sendExtensionRuntimeMessage } from "../spec/testing-utils";
 
 describe("ContentMessageHandler", () => {
   const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
@@ -23,6 +25,19 @@ describe("ContentMessageHandler", () => {
   afterEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
+  });
+
+  describe("handled web vault extension response", () => {
+    it("sends a message 'hasBWInstalled'", () => {
+      const mockPostMessage = jest.fn();
+      window.postMessage = mockPostMessage;
+
+      postWindowMessage({ command: VaultOnboardingMessages.checkBwInstalled });
+
+      expect(mockPostMessage).toHaveBeenCalledWith({
+        command: VaultOnboardingMessages.HasBwInstalled,
+      });
+    });
   });
 
   describe("handled window messages", () => {

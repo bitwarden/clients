@@ -20,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { RouterService } from "../../core";
+import { SharedModule } from "../../shared";
 
 import { TrialInitiationComponent } from "./trial-initiation.component";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
@@ -46,6 +47,7 @@ describe("TrialInitiationComponent", () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       imports: [
+        SharedModule,
         RouterTestingModule.withRoutes([
           { path: "trial", component: TrialInitiationComponent },
           {

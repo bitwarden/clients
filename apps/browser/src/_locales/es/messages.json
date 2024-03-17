@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "¡Tu nueva cuenta ha sido creada! Ahora puedes acceder."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Accedió correctamente a su cuenta"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Puede cerrar esta ventana"
+  },
   "masterPassSent": {
     "message": "Te hemos enviado un correo electrónico con la pista de tu contraseña maestra."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Seleccione carpeta..."
   },
+  "noFoldersFound": {
+    "message": "Ninguna carpeta encontrada",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Los permisos de la organización se han actualizado y se requiere el establecimiento de una contraseña maestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2007,7 +2017,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Se requiere verificación",
     "description": "Default title for the user verification dialog."
   },
   "hours": {
@@ -2648,40 +2658,40 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Intentar de nuevo"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Se requiere verificación para efectuar esta acción. Establezca un NIP para continuar."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "Establecer NIP"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Verificar biométricamente"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Esperando confirmación"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "No se pudo completar la biométrica."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "¿Necesita un método distinto?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Usar contraseña maestra"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "Usar NIP"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Usar biométrica"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "Introduzca el código de verificación que se ha enviado a su correo electrónico."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Volver a enviar código"
   },
   "total": {
     "message": "Total"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "Abra Duo y siga los pasos para terminar de iniciar sesión."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+  "duoRequiredForAccount": {
+    "message": "Se requiere el inicio de sesión en dos pasos Duo para su cuenta."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Open the extension in a new window to complete login"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Abra la extensión para completar el inicio de sesión."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Abrir extensión"
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "Iniciar Duo"
   },
   "importFormatError": {
     "message": "Los datos no están formateados correctamente. Por favor, comprueba tu archivo de importación e inténtalo de nuevo."
@@ -2842,13 +2852,13 @@
     "message": "El nombre de usuario o la contraseña no son correctos"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Contraseña incorrecta"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Código incorrecto"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "NIP incorrecto"
   },
   "multifactorAuthenticationFailed": {
     "message": "Falló la autenticación multifactor"
@@ -2968,10 +2978,6 @@
     "message": "Pasar por alto esta opción puede causar conflictos entre el menú de relleno automático de Bitwarden y el del navegador.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Esta acción reiniciará la extensión Bitwarden. Pasar por alto esta opción puede causar conflictos entre el menú de relleno automático de Bitwarden y el del navegador.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Hacer de Bitwarden su gestor de contraseñas predeterminado",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Predeterminar",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "¡Credenciales guardadas con éxito!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "¡Credenciales actualizadas con éxito!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Se produjo un error al guardar las credenciales. Revise la consola para obtener detalles.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

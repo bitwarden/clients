@@ -1,25 +1,42 @@
 import { ApiService } from "../../../../abstractions/api.service";
+import { CryptoService } from "../../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../../platform/misc/utils";
+import { StateProvider } from "../../../../platform/state";
+import { FORWARD_EMAIL_FORWARDER } from "../../key-definitions";
+import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
-import { EmailDomainOptions, Forwarder, ApiOptions } from "../options/forwarder-options";
+import { EmailDomainOptions, ApiOptions } from "../options/forwarder-options";
 
 /** Generates a forwarding address for Forward Email */
-export class ForwardEmailForwarder implements Forwarder {
+export class ForwardEmailForwarder extends ForwarderGeneratorStrategy<
+  ApiOptions & EmailDomainOptions
+> {
   /** Instantiates the forwarder
    *  @param apiService used for ajax requests to the forwarding service
    *  @param i18nService used to look up error strings
+   *  @param encryptService protects sensitive forwarder options
+   *  @param keyService looks up the user key when protecting data.
+   *  @param stateProvider creates the durable state for options storage
    */
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {}
+    encryptService: EncryptService,
+    keyService: CryptoService,
+    stateProvider: StateProvider,
+  ) {
+    super(encryptService, keyService, stateProvider);
+  }
 
-  /** {@link Forwarder.generate} */
-  async generate(
-    website: string | null,
-    options: ApiOptions & EmailDomainOptions,
-  ): Promise<string> {
+  /** {@link ForwarderGeneratorStrategy.key} */
+  get key() {
+    return FORWARD_EMAIL_FORWARDER;
+  }
+
+  /** {@link ForwarderGeneratorStrategy.generate} */
+  generate = async (options: ApiOptions & EmailDomainOptions) => {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", Forwarders.ForwardEmail.name);
       throw error;
@@ -31,9 +48,11 @@ export class ForwardEmailForwarder implements Forwarder {
 
     const url = `https://api.forwardemail.net/v1/domains/${options.domain}/aliases`;
 
-    const descriptionId =
-      website && website !== "" ? "forwarderGeneratedByWithWebsite" : "forwarderGeneratedBy";
-    const description = this.i18nService.t(descriptionId, website ?? "");
+    let descriptionId = "forwarderGeneratedByWithWebsite";
+    if (!options.website || options.website === "") {
+      descriptionId = "forwarderGeneratedBy";
+    }
+    const description = this.i18nService.t(descriptionId, options.website ?? "");
 
     const request = new Request(url, {
       redirect: "manual",
@@ -44,7 +63,7 @@ export class ForwardEmailForwarder implements Forwarder {
         "Content-Type": "application/json",
       }),
       body: JSON.stringify({
-        labels: website,
+        labels: options.website,
         description,
       }),
     });
@@ -75,5 +94,5 @@ export class ForwardEmailForwarder implements Forwarder {
       const error = this.i18nService.t("forwarderUnknownError", Forwarders.ForwardEmail.name);
       throw error;
     }
-  }
+  };
 }

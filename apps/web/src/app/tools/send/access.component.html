@@ -11,12 +11,9 @@
     </div>
     <bit-callout *ngIf="hideEmail" type="warning" title="{{ 'warning' | i18n }}">
       {{ "viewSendHiddenEmailWarning" | i18n }}
-      <a
-        bitLink
-        href="https://bitwarden.com/help/receive-send/"
-        target="_blank"
-        rel="noopener noreferrer"
-        >{{ "learnMore" | i18n }}</a
+      <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
+        "learnMore" | i18n
+      }}</a
       >.
     </bit-callout>
     <div
@@ -74,11 +71,13 @@
           bitLink
           href="https://www.bitwarden.com/products/send?source=web-vault"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noreferrer"
           >Bitwarden Send</a
         >
         {{ "sendAccessTaglineOr" | i18n }}
-        <a bitLink routerLink="/register" target="_blank">{{ "sendAccessTaglineSignUp" | i18n }}</a>
+        <a bitLink routerLink="/register" target="_blank" rel="noreferrer">{{
+          "sendAccessTaglineSignUp" | i18n
+        }}</a>
         {{ "sendAccessTaglineTryToday" | i18n }}
       </p>
     </div>

@@ -9,6 +9,7 @@ import {
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
 import { appIdServiceFactory } from "../../../platform/background/service-factories/app-id-service.factory";
+import { billingAccountProfileStateServiceFactory } from "../../../platform/background/service-factories/billing-account-profile-state-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
@@ -26,6 +27,10 @@ import {
   factory,
   FactoryOptions,
 } from "../../../platform/background/service-factories/factory-options";
+import {
+  globalStateProviderFactory,
+  GlobalStateProviderInitOptions,
+} from "../../../platform/background/service-factories/global-state-provider.factory";
 import {
   i18nServiceFactory,
   I18nServiceInitOptions,
@@ -52,9 +57,9 @@ import {
 } from "../../../tools/background/service_factories/password-strength-service.factory";
 
 import {
-  authRequestCryptoServiceFactory,
-  AuthRequestCryptoServiceInitOptions,
-} from "./auth-request-crypto-service.factory";
+  authRequestServiceFactory,
+  AuthRequestServiceInitOptions,
+} from "./auth-request-service.factory";
 import {
   deviceTrustCryptoServiceFactory,
   DeviceTrustCryptoServiceInitOptions,
@@ -84,7 +89,8 @@ export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions
   PolicyServiceInitOptions &
   PasswordStrengthServiceInitOptions &
   DeviceTrustCryptoServiceInitOptions &
-  AuthRequestCryptoServiceInitOptions;
+  AuthRequestServiceInitOptions &
+  GlobalStateProviderInitOptions;
 
 export function loginStrategyServiceFactory(
   cache: { loginStrategyService?: LoginStrategyServiceAbstraction } & CachedServices,
@@ -112,7 +118,9 @@ export function loginStrategyServiceFactory(
         await passwordStrengthServiceFactory(cache, opts),
         await policyServiceFactory(cache, opts),
         await deviceTrustCryptoServiceFactory(cache, opts),
-        await authRequestCryptoServiceFactory(cache, opts),
+        await authRequestServiceFactory(cache, opts),
+        await globalStateProviderFactory(cache, opts),
+        await billingAccountProfileStateServiceFactory(cache, opts),
       ),
   );
 }

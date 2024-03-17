@@ -52,7 +52,7 @@ export function memoryStorageServiceFactory(
   opts: MemoryStorageServiceInitOptions,
 ): Promise<AbstractMemoryStorageService> {
   return factory(cache, "memoryStorageService", opts, async () => {
-    if (BrowserApi.manifestVersion === 3) {
+    if (BrowserApi.isManifestVersion(3)) {
       return new LocalBackedSessionStorageService(
         await encryptServiceFactory(cache, opts),
         await keyGenerationServiceFactory(cache, opts),

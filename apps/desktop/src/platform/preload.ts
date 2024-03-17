@@ -76,6 +76,17 @@ const nativeMessaging = {
   },
 };
 
+const crypto = {
+  argon2: (
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
+    iterations: number,
+    memory: number,
+    parallelism: number,
+  ): Promise<Uint8Array> =>
+    ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -121,6 +132,7 @@ export default {
   biometric,
   clipboard,
   nativeMessaging,
+  crypto,
 };
 
 function deviceType(): DeviceType {

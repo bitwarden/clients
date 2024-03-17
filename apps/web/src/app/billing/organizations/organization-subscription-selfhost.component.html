@@ -1,137 +1,131 @@
-<div class="page-header">
-  <h1>
-    {{ "subscription" | i18n }}
-    <small *ngIf="firstLoaded && loading">
-      <i
-        class="bwi bwi-spinner bwi-spin text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="sr-only">{{ "loading" | i18n }}</span>
-    </small>
-  </h1>
-</div>
+<app-header></app-header>
 
-<ng-container *ngIf="!firstLoaded && loading">
-  <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
-</ng-container>
+<bit-container>
+  <ng-container *ngIf="!firstLoaded && loading">
+    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+    <span class="sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
 
-<app-org-subscription-hidden
-  *ngIf="firstLoaded && !userOrg.canViewSubscription"
-  [providerName]="userOrg.providerName"
-></app-org-subscription-hidden>
+  <app-org-subscription-hidden
+    *ngIf="firstLoaded && !userOrg.canViewSubscription"
+    [providerName]="userOrg.providerName"
+  ></app-org-subscription-hidden>
 
-<ng-container *ngIf="subscription && firstLoaded">
-  <dl>
-    <dt>{{ "billingPlan" | i18n }}</dt>
-    <dd>{{ subscription.planName }}</dd>
-    <ng-container *ngIf="billingSyncSetUp">
-      <dt>{{ "lastLicenseSync" | i18n }}</dt>
-      <dd>
-        {{ lastLicenseSync != null ? (lastLicenseSync | date: "medium") : ("never" | i18n) }}
-      </dd>
-    </ng-container>
-    <dt>
-      <span [ngClass]="{ 'tw-text-danger': showAsExpired }">{{
-        "subscriptionExpiration" | i18n
-      }}</span>
-      <a
-        href="https://bitwarden.com/help/licensing-on-premise/#update-organization-license"
-        target="_blank"
-        [appA11yTitle]="'licensePaidFeaturesHelp' | i18n"
-        rel="noopener"
-      >
-        <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-        <span class="sr-only">{{ "licensePaidFeaturesHelp" | i18n }}</span>
-      </a>
-    </dt>
-    <dd *ngIf="subscription.hasExpiration" [ngClass]="{ 'tw-text-danger': showAsExpired }">
-      {{
-        (subscription.hasSeparateGracePeriod
-          ? subscription.expirationWithoutGracePeriod
-          : subscription.expirationWithGracePeriod
-        ) | date: "mediumDate"
-      }}
-      <div *ngIf="subscription.hasSeparateGracePeriod" class="tw-text-muted">
+  <ng-container *ngIf="subscription && firstLoaded">
+    <dl>
+      <dt>{{ "billingPlan" | i18n }}</dt>
+      <dd>{{ subscription.planName }}</dd>
+      <ng-container *ngIf="billingSyncSetUp">
+        <dt>{{ "lastLicenseSync" | i18n }}</dt>
+        <dd>
+          {{ lastLicenseSync != null ? (lastLicenseSync | date: "medium") : ("never" | i18n) }}
+        </dd>
+      </ng-container>
+      <dt>
+        <span [ngClass]="{ 'tw-text-danger': showAsExpired }">{{
+          "subscriptionExpiration" | i18n
+        }}</span>
+        <a
+          href="https://bitwarden.com/help/licensing-on-premise/#update-organization-license"
+          target="_blank"
+          [appA11yTitle]="'licensePaidFeaturesHelp' | i18n"
+          rel="noreferrer"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          <span class="sr-only">{{ "licensePaidFeaturesHelp" | i18n }}</span>
+        </a>
+      </dt>
+      <dd *ngIf="subscription.hasExpiration" [ngClass]="{ 'tw-text-danger': showAsExpired }">
         {{
-          "selfHostGracePeriodHelp"
-            | i18n: (subscription.expirationWithGracePeriod | date: "mediumDate")
+          (subscription.hasSeparateGracePeriod
+            ? subscription.expirationWithoutGracePeriod
+            : subscription.expirationWithGracePeriod
+          ) | date: "mediumDate"
         }}
-      </div>
-    </dd>
-    <dd *ngIf="!subscription.hasExpiration">{{ "neverExpires" | i18n }}</dd>
-  </dl>
+        <div *ngIf="subscription.hasSeparateGracePeriod" class="tw-text-muted">
+          {{
+            "selfHostGracePeriodHelp"
+              | i18n: (subscription.expirationWithGracePeriod | date: "mediumDate")
+          }}
+        </div>
+      </dd>
+      <dd *ngIf="!subscription.hasExpiration">{{ "neverExpires" | i18n }}</dd>
+    </dl>
 
-  <a
-    bitButton
-    buttonType="secondary"
-    href="{{ this.cloudWebVaultUrl }}"
-    target="_blank"
-    rel="noopener"
-  >
-    {{ "launchCloudSubscription" | i18n }}
-  </a>
-  <form [formGroup]="form">
-    <bit-radio-group formControlName="updateMethod">
-      <h2 class="mt-5">
-        {{ "licenseAndBillingManagement" | i18n }}
-      </h2>
-      <bit-radio-button
-        id="automatic-sync"
-        [value]="licenseOptions.SYNC"
-        [disabled]="disableLicenseSyncControl"
-        class="tw-block"
-      >
-        <bit-label
-          >{{ "automaticSync" | i18n }}
-          <a
-            href="https://bitwarden.com/help/families-for-enterprise-self-hosted/"
-            target="_blank"
-            rel="noopener"
+    <a
+      bitButton
+      buttonType="secondary"
+      href="{{ this.cloudWebVaultUrl }}"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "launchCloudSubscription" | i18n }}
+    </a>
+    <form [formGroup]="form">
+      <bit-radio-group formControlName="updateMethod">
+        <h2 class="mt-5">
+          {{ "licenseAndBillingManagement" | i18n }}
+        </h2>
+        <bit-radio-button
+          id="automatic-sync"
+          [value]="licenseOptions.SYNC"
+          [disabled]="disableLicenseSyncControl"
+          class="tw-block"
+        >
+          <bit-label
+            >{{ "automaticSync" | i18n }}
+            <a
+              href="https://bitwarden.com/help/families-for-enterprise-self-hosted/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+              <span class="sr-only">{{ "billingSyncHelp" | i18n }}</span>
+            </a>
+          </bit-label>
+          <bit-hint>
+            {{ "billingSyncDesc" | i18n }}
+          </bit-hint>
+        </bit-radio-button>
+        <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            (click)="manageBillingSyncSelfHosted()"
           >
-            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-            <span class="sr-only">{{ "billingSyncHelp" | i18n }}</span>
-          </a>
-        </bit-label>
-        <bit-hint>
-          {{ "billingSyncDesc" | i18n }}
-        </bit-hint>
-      </bit-radio-button>
-      <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
-        <button
-          bitButton
-          buttonType="secondary"
-          type="button"
-          (click)="manageBillingSyncSelfHosted()"
-        >
-          {{ "manageBillingSync" | i18n }}
-        </button>
-        <button
-          bitButton
-          buttonType="primary"
-          type="button"
-          [bitAction]="syncLicense"
-          [disabled]="!billingSyncEnabled"
-        >
-          {{ "syncLicense" | i18n }}
-        </button>
-      </ng-container>
+            {{ "manageBillingSync" | i18n }}
+          </button>
+          <button
+            bitButton
+            buttonType="primary"
+            type="button"
+            [bitAction]="syncLicense"
+            [disabled]="!billingSyncEnabled"
+          >
+            {{ "syncLicense" | i18n }}
+          </button>
+        </ng-container>
 
-      <bit-radio-button id="manual-upload" [value]="licenseOptions.UPLOAD" class="tw-mt-6 tw-block">
-        <bit-label>{{ "manualUpload" | i18n }}</bit-label>
-        <bit-hint>
-          {{ "manualUploadDesc" | i18n }}
-        </bit-hint>
-      </bit-radio-button>
-      <ng-container *ngIf="updateMethod === licenseOptions.UPLOAD">
-        <h3 class="tw-font-semibold">{{ "uploadLicense" | i18n }}</h3>
-        <app-update-license
-          [organizationId]="organizationId"
-          [showCancel]="false"
-          (onUpdated)="licenseUploaded()"
-        ></app-update-license>
-      </ng-container>
-    </bit-radio-group>
-  </form>
-</ng-container>
+        <bit-radio-button
+          id="manual-upload"
+          [value]="licenseOptions.UPLOAD"
+          class="tw-mt-6 tw-block"
+        >
+          <bit-label>{{ "manualUpload" | i18n }}</bit-label>
+          <bit-hint>
+            {{ "manualUploadDesc" | i18n }}
+          </bit-hint>
+        </bit-radio-button>
+        <ng-container *ngIf="updateMethod === licenseOptions.UPLOAD">
+          <h3 class="tw-font-semibold">{{ "uploadLicense" | i18n }}</h3>
+          <app-update-license
+            [organizationId]="organizationId"
+            [showCancel]="false"
+            (onUpdated)="licenseUploaded()"
+          ></app-update-license>
+        </ng-container>
+      </bit-radio-group>
+    </form>
+  </ng-container>
+</bit-container>

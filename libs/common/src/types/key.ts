@@ -14,3 +14,4 @@ export type CipherKey = Opaque<SymmetricCryptoKey, "CipherKey">;
 
 // asymmetric keys
 export type UserPrivateKey = Opaque<Uint8Array, "UserPrivateKey">;
+export type UserPublicKey = Opaque<Uint8Array, "UserPublicKey">;

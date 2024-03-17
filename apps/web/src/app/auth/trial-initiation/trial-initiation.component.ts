@@ -17,8 +17,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
+import {
+  OrganizationCreatedEvent,
+  SubscriptionProduct,
+  TrialOrganizationType,
+} from "../../billing/accounts/trial-initiation/trial-billing-step.component";
+
 import { RouterService } from "./../../core/router.service";
-import { SubscriptionType } from "./secrets-manager/secrets-manager-trial-billing-step.component";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
 
 enum ValidOrgParams {
@@ -79,7 +84,6 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     ValidOrgParams.individual,
   ];
   layouts = ValidLayoutParams;
-  orgTypes = ValidOrgParams;
   referenceData: ReferenceEventRequest;
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
@@ -171,6 +175,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
+
+      this.referenceData.initiationPath = this.accountCreateOnly
+        ? "Registration form"
+        : "Password Manager trial from marketing website";
     });
 
     const invite = await this.stateService.getOrganizationInvitation();
@@ -241,6 +249,12 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.next();
   }
 
+  createdOrganization(event: OrganizationCreatedEvent) {
+    this.orgId = event.organizationId;
+    this.billingSubLabel = event.planDescription;
+    this.verticalStepper.next();
+  }
+
   navigateToOrgVault() {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -274,6 +288,15 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     return this.i18nService.t(translationKey, this.org);
   }
 
+  get trialOrganizationType(): TrialOrganizationType {
+    switch (this.product) {
+      case ProductType.Free:
+        return null;
+      default:
+        return this.product;
+    }
+  }
+
   private setupFamilySponsorship(sponsorshipToken: string) {
     if (sponsorshipToken != null) {
       const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
@@ -283,5 +306,5 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected readonly SubscriptionType = SubscriptionType;
+  protected readonly SubscriptionProduct = SubscriptionProduct;
 }

@@ -103,6 +103,10 @@ export class VaultHeaderComponent {
     return this.i18nService.t("allVaults");
   }
 
+  protected get icon() {
+    return this.filter.collectionId && this.filter.collectionId !== All ? "bwi-collection" : "";
+  }
+
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
    * Begins from the organization root and excludes the currently selected collection.
@@ -125,7 +129,7 @@ export class VaultHeaderComponent {
 
   get canEditCollection(): boolean {
     // Only edit collections if not editing "Unassigned"
-    if (this.collection === undefined) {
+    if (this.collection == null) {
       return false;
     }
 

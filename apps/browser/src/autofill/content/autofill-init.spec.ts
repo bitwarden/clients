@@ -1,12 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
-import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
-import { AutofillOverlayVisibility, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
+import { flushPromises, sendExtensionRuntimeMessage } from "../spec/testing-utils";
+import { RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -14,6 +15,7 @@ import AutofillInit from "./autofill-init";
 describe("AutofillInit", () => {
   let autofillInit: AutofillInit;
   const autofillOverlayContentService = mock<AutofillOverlayContentService>();
+  const originalDocumentReadyState = document.readyState;
 
   beforeEach(() => {
     chrome.runtime.connect = jest.fn().mockReturnValue({
@@ -27,6 +29,10 @@ describe("AutofillInit", () => {
   afterEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
+    Object.defineProperty(document, "readyState", {
+      value: originalDocumentReadyState,
+      writable: true,
+    });
   });
 
   describe("init", () => {
@@ -36,6 +42,31 @@ describe("AutofillInit", () => {
       autofillInit.init();
 
       expect(autofillInit["setupExtensionMessageListeners"]).toHaveBeenCalled();
+    });
+
+    it("triggers a collection of page details if the document is in a `complete` ready state", () => {
+      jest.useFakeTimers();
+      Object.defineProperty(document, "readyState", { value: "complete", writable: true });
+
+      autofillInit.init();
+      jest.advanceTimersByTime(250);
+
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+        {
+          command: "bgCollectPageDetails",
+          sender: "autofillInit",
+        },
+        expect.any(Function),
+      );
+    });
+
+    it("registers a window load listener to collect the page details if the document is not in a `complete` ready state", () => {
+      jest.spyOn(window, "addEventListener");
+      Object.defineProperty(document, "readyState", { value: "loading", writable: true });
+
+      autofillInit.init();
+
+      expect(window.addEventListener).toHaveBeenCalledWith("load", expect.any(Function));
     });
   });
 
@@ -208,7 +239,19 @@ describe("AutofillInit", () => {
           );
         });
 
-        it("updates the isCurrentlyFilling properties of the overlay and focus the recent field after filling", async () => {
+        it("removes the overlay when filling the form", async () => {
+          const blurAndRemoveOverlaySpy = jest.spyOn(autofillInit as any, "blurAndRemoveOverlay");
+          sendExtensionRuntimeMessage({
+            command: "fillForm",
+            fillScript,
+            pageDetailsUrl: window.location.href,
+          });
+          await flushPromises();
+
+          expect(blurAndRemoveOverlaySpy).toHaveBeenCalled();
+        });
+
+        it("updates the isCurrentlyFilling property of the overlay to true after filling", async () => {
           jest.useFakeTimers();
           jest.spyOn(autofillInit as any, "updateOverlayIsCurrentlyFilling");
           jest
@@ -228,9 +271,6 @@ describe("AutofillInit", () => {
             fillScript,
           );
           expect(autofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(2, false);
-          expect(
-            autofillInit["autofillOverlayContentService"].focusMostRecentOverlayField,
-          ).toHaveBeenCalled();
         });
 
         it("skips attempting to focus the most recent field if the autofillOverlayContentService is not present", async () => {

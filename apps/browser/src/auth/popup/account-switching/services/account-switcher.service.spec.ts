@@ -1,12 +1,12 @@
 import { matches, mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, timeout } from "rxjs";
 
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "./account-switcher.service";
@@ -16,7 +16,7 @@ describe("AccountSwitcherService", () => {
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
 
   const accountService = mock<AccountService>();
-  const stateService = mock<StateService>();
+  const avatarService = mock<AvatarService>();
   const messagingService = mock<MessagingService>();
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
@@ -25,11 +25,13 @@ describe("AccountSwitcherService", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
     accountService.accounts$ = accountsSubject;
     accountService.activeAccount$ = activeAccountSubject;
+
     accountSwitcherService = new AccountSwitcherService(
       accountService,
-      stateService,
+      avatarService,
       messagingService,
       environmentService,
       logService,
@@ -44,6 +46,7 @@ describe("AccountSwitcherService", () => {
         status: AuthenticationStatus.Unlocked,
       };
 
+      avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
       accountsSubject.next({
         "1": user1AccountInfo,
       } as Record<UserId, AccountInfo>);
@@ -72,6 +75,7 @@ describe("AccountSwitcherService", () => {
             status: AuthenticationStatus.Unlocked,
           };
         }
+        avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
         accountsSubject.next(seedAccounts);
         activeAccountSubject.next(
           Object.assign(seedAccounts["1" as UserId], { id: "1" as UserId }),

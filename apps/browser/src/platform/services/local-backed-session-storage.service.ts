@@ -2,6 +2,7 @@ import { Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
   AbstractMemoryStorageService,
   StorageUpdate,
@@ -13,7 +14,6 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { devFlag } from "../decorators/dev-flag.decorator";
 import { devFlagEnabled } from "../flags";
 
-import { AbstractKeyGenerationService } from "./abstractions/abstract-key-generation.service";
 import BrowserLocalStorageService from "./browser-local-storage.service";
 import BrowserMemoryStorageService from "./browser-memory-storage.service";
 
@@ -31,7 +31,7 @@ export class LocalBackedSessionStorageService extends AbstractMemoryStorageServi
 
   constructor(
     private encryptService: EncryptService,
-    private keyGenerationService: AbstractKeyGenerationService,
+    private keyGenerationService: KeyGenerationService,
   ) {
     super();
     this.updates$ = this.updatesSubject.asObservable();
@@ -138,10 +138,17 @@ export class LocalBackedSessionStorageService extends AbstractMemoryStorageServi
   async getSessionEncKey(): Promise<SymmetricCryptoKey> {
     let storedKey = await this.sessionStorage.get<SymmetricCryptoKey>(keys.encKey);
     if (storedKey == null || Object.keys(storedKey).length == 0) {
-      storedKey = await this.keyGenerationService.makeEphemeralKey();
+      const generatedKey = await this.keyGenerationService.createKeyWithPurpose(
+        128,
+        "ephemeral",
+        "bitwarden-ephemeral",
+      );
+      storedKey = generatedKey.derivedKey;
       await this.setSessionEncKey(storedKey);
+      return storedKey;
+    } else {
+      return SymmetricCryptoKey.fromJSON(storedKey);
     }
-    return SymmetricCryptoKey.fromJSON(storedKey);
   }
 
   async setSessionEncKey(input: SymmetricCryptoKey): Promise<void> {

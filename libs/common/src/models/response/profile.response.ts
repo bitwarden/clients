@@ -16,6 +16,7 @@ export class ProfileResponse extends BaseResponse {
   twoFactorEnabled: boolean;
   key: string;
   avatarColor: string;
+  creationDate: string;
   privateKey: string;
   securityStamp: string;
   forcePasswordReset: boolean;
@@ -37,6 +38,7 @@ export class ProfileResponse extends BaseResponse {
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
     this.key = this.getResponseProperty("Key");
     this.avatarColor = this.getResponseProperty("AvatarColor");
+    this.creationDate = this.getResponseProperty("CreationDate");
     this.privateKey = this.getResponseProperty("PrivateKey");
     this.securityStamp = this.getResponseProperty("SecurityStamp");
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset") ?? false;

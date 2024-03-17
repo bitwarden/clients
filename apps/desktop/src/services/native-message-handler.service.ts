@@ -4,7 +4,6 @@ import { firstValueFrom } from "rxjs";
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -33,7 +32,6 @@ export class NativeMessageHandlerService {
     private cryptoService: CryptoService,
     private cryptoFunctionService: CryptoFunctionService,
     private messagingService: MessagingService,
-    private i18nService: I18nService,
     private encryptedMessageHandlerService: EncryptedMessageHandlerService,
     private dialogService: DialogService,
   ) {}

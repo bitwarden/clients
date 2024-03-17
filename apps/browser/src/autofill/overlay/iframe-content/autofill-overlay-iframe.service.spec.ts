@@ -1,14 +1,14 @@
 import { mock } from "jest-mock-extended";
 
+import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { EVENTS } from "../../constants";
-import { createPortSpyMock } from "../../jest/autofill-mocks";
+import { createPortSpyMock } from "../../spec/autofill-mocks";
 import {
   flushPromises,
   sendPortMessage,
   triggerPortOnDisconnectEvent,
-} from "../../jest/testing-utils";
+} from "../../spec/testing-utils";
 import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";

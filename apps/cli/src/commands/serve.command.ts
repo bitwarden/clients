@@ -68,6 +68,7 @@ export class ServeCommand {
       this.main.apiService,
       this.main.organizationService,
       this.main.eventCollectionService,
+      this.main.billingAccountProfileStateService,
     );
     this.listCommand = new ListCommand(
       this.main.cipherService,
@@ -82,10 +83,10 @@ export class ServeCommand {
     this.createCommand = new CreateCommand(
       this.main.cipherService,
       this.main.folderService,
-      this.main.stateService,
       this.main.cryptoService,
       this.main.apiService,
       this.main.folderApiService,
+      this.main.billingAccountProfileStateService,
     );
     this.editCommand = new EditCommand(
       this.main.cipherService,
@@ -108,9 +109,9 @@ export class ServeCommand {
     this.deleteCommand = new DeleteCommand(
       this.main.cipherService,
       this.main.folderService,
-      this.main.stateService,
       this.main.apiService,
       this.main.folderApiService,
+      this.main.billingAccountProfileStateService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.main.apiService,
@@ -135,9 +136,9 @@ export class ServeCommand {
 
     this.sendCreateCommand = new SendCreateCommand(
       this.main.sendService,
-      this.main.stateService,
       this.main.environmentService,
       this.main.sendApiService,
+      this.main.billingAccountProfileStateService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(this.main.sendService, this.main.sendApiService);
     this.sendGetCommand = new SendGetCommand(
@@ -148,9 +149,9 @@ export class ServeCommand {
     );
     this.sendEditCommand = new SendEditCommand(
       this.main.sendService,
-      this.main.stateService,
       this.sendGetCommand,
       this.main.sendApiService,
+      this.main.billingAccountProfileStateService,
     );
     this.sendListCommand = new SendListCommand(
       this.main.sendService,

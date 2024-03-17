@@ -37,23 +37,6 @@ env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        working-directory: apps/web
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
     runs-on: ubuntu-22.04
@@ -93,14 +76,18 @@ jobs:
             npm_command: "dist:bit:selfhost"
           - name: "cloud-QA"
             npm_command: "build:bit:qa"
+            git_metadata: true
           - name: "ee"
             npm_command: "build:bit:ee"
+            git_metadata: true
           - name: "cloud-euprd"
             npm_command: "build:bit:euprd"
           - name: "cloud-euqa"
             npm_command: "build:bit:euqa"
+            git_metadata: true
           - name: "cloud-usdev"
             npm_command: "build:bit:usdev"
+            git_metadata: true
 
     steps:
       - name: Checkout repo
@@ -126,9 +113,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup QA metadata
+      - name: Add Git metadata to build version
         working-directory: apps/web
-        if: matrix.name == 'cloud-QA'
+        if: matrix.git_metadata
         run: |
           VERSION=$( jq -r ".version" package.json)
           jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
@@ -207,7 +194,7 @@ jobs:
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
       - name: Download ${{ matrix.artifact_name }} artifact
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
           path: apps/web
@@ -283,7 +270,7 @@ jobs:
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@198daeb2d30636c4608d6a6bb96c009dbefc02a2 # v1.18.0
+        uses: crowdin/github-action@c953b17499daa6be3e5afbf7a63616fb02d8b18d # v1.19.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -333,7 +320,6 @@ jobs:
     if: always()
     runs-on: ubuntu-22.04
     needs:
-      - cloc
       - setup
       - build-artifacts
       - build-containers
@@ -341,30 +327,8 @@ jobs:
       - trigger-web-vault-deploy
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
-        env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
-          SETUP_STATUS: ${{ needs.setup.result }}
-          ARTIFACT_STATUS: ${{ needs.build-artifacts.result }}
-          BUILD_CONTAINERS_STATUS: ${{ needs.build-containers.result }}
-          CROWDIN_PUSH_STATUS: ${{ needs.crowdin-push.result }}
-          TRIGGER_WEB_VAULT_DEPLOY_STATUS: ${{ needs.trigger-web-vault-deploy.result }}
-        run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$ARTIFACT_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_SELFHOST_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_CONTAINERS_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$CROWDIN_PUSH_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$TRIGGER_WEB_VAULT_DEPLOY_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc') && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - Prod Subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0

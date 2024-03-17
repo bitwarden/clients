@@ -1,4 +1,5 @@
 import { matches, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { DeviceType } from "../../enums";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
@@ -6,6 +7,7 @@ import { CryptoFunctionService } from "../../platform/abstractions/crypto-functi
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { EncryptionType } from "../../platform/enums/encryption-type.enum";
@@ -19,9 +21,11 @@ import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trus
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
 import { DeviceTrustCryptoService } from "./device-trust-crypto.service.implementation";
+
 describe("deviceTrustCryptoService", () => {
   let deviceTrustCryptoService: DeviceTrustCryptoService;
 
+  const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const cryptoService = mock<CryptoService>();
   const encryptService = mock<EncryptService>();
@@ -35,6 +39,7 @@ describe("deviceTrustCryptoService", () => {
     jest.clearAllMocks();
 
     deviceTrustCryptoService = new DeviceTrustCryptoService(
+      keyGenerationService,
       cryptoFunctionService,
       cryptoService,
       encryptService,
@@ -164,17 +169,18 @@ describe("deviceTrustCryptoService", () => {
     describe("makeDeviceKey", () => {
       it("creates a new non-null 64 byte device key, securely stores it, and returns it", async () => {
         const mockRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
+        const mockDeviceKey = new SymmetricCryptoKey(mockRandomBytes) as DeviceKey;
 
-        const cryptoFuncSvcGenerateKeySpy = jest
-          .spyOn(cryptoFunctionService, "aesGenerateKey")
-          .mockResolvedValue(mockRandomBytes);
+        const keyGenSvcGenerateKeySpy = jest
+          .spyOn(keyGenerationService, "createKey")
+          .mockResolvedValue(mockDeviceKey);
 
         // TypeScript will allow calling private methods if the object is of type 'any'
         // This is a hacky workaround, but it allows for cleaner tests
         const deviceKey = await (deviceTrustCryptoService as any).makeDeviceKey();
 
-        expect(cryptoFuncSvcGenerateKeySpy).toHaveBeenCalledTimes(1);
-        expect(cryptoFuncSvcGenerateKeySpy).toHaveBeenCalledWith(deviceKeyBytesLength * 8);
+        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledTimes(1);
+        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledWith(deviceKeyBytesLength * 8);
 
         expect(deviceKey).not.toBeNull();
         expect(deviceKey).toBeInstanceOf(SymmetricCryptoKey);
@@ -495,6 +501,7 @@ describe("deviceTrustCryptoService", () => {
         const fakeNewUserKeyData = new Uint8Array(64);
         fakeNewUserKeyData.fill(FakeNewUserKeyMarker, 0, 1);
         fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
+        cryptoService.activeUserKey$ = of(fakeNewUserKey);
       });
 
       it("does an early exit when the current device is not a trusted device", async () => {
@@ -521,9 +528,7 @@ describe("deviceTrustCryptoService", () => {
           fakeOldUserKeyData.fill(FakeOldUserKeyMarker, 0, 1);
 
           // Mock the retrieval of a user key that differs from the new one passed into the method
-          stateService.getUserKey.mockResolvedValue(
-            new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey,
-          );
+          cryptoService.activeUserKey$ = of(new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey);
 
           appIdService.getAppId.mockResolvedValue("test_device_identifier");
 

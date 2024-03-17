@@ -34,7 +34,6 @@ $small-font-size: 90%;
 $font-size-lg: 1.15rem;
 $code-font-size: 100%;
 
-$navbar-padding-y: 0.75rem;
 $grid-gutter-width: 20px;
 $card-spacer-y: 0.6rem;
 
@@ -48,13 +47,6 @@ $dropdown-link-hover-bg: rgba(#000000, 0.06);
 $dropdown-link-active-color: $dropdown-link-color;
 $dropdown-link-active-bg: rgba(#000000, 0.1);
 $dropdown-item-padding-x: 1rem;
-
-$navbar-brand-font-size: 35px;
-$navbar-brand-height: 35px;
-$navbar-brand-padding-y: 0;
-$navbar-dark-color: rgba($white, 0.7);
-$navbar-dark-hover-color: rgba($white, 0.9);
-$navbar-nav-link-padding-x: 0.8rem;
 
 $input-bg: #fbfbfb;
 $input-focus-bg: $white;
@@ -197,12 +189,6 @@ $themes: (
     loadingSvg: url("../images/loading.svg"),
     logoSuffix: "dark",
     mfaLogoSuffix: ".png",
-    navActiveBackground: $white,
-    navActiveWeight: 600,
-    navBackground: $primary,
-    navBackgroundAlt: $secondary-alt,
-    navOrgBackgroundColor: #fbfbfb,
-    navWeight: 600,
     pwStrengthBackground: #e9ecef,
     separator: $secondary,
     separatorHr: rgb(0, 0, 0, 0.1),
@@ -306,12 +292,6 @@ $themes: (
     loadingSvg: url("../images/loading-white.svg"),
     logoSuffix: "white",
     mfaLogoSuffix: "-w.png",
-    navActiveBackground: $darkDarkBlue2,
-    navActiveWeight: 600,
-    navBackground: $darkDarkBlue1,
-    navBackgroundAlt: $darkDarkBlue1,
-    navOrgBackgroundColor: #161c26,
-    navWeight: 400,
     pwStrengthBackground: $darkBlue2,
     separator: $darkBlue1,
     separatorHr: $darkBlue1,

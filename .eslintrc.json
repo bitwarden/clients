@@ -99,7 +99,7 @@
 
                   // Import/export
                   "./libs/importer/**/*",
-                  "./libs/exporter/**/*"
+                  "./libs/tools/export/vault-export/vault-export-core/**/*"
                 ]
               },
               {
@@ -183,9 +183,12 @@
       }
     },
     {
-      "files": ["libs/exporter/src/**/*.ts"],
+      "files": ["libs/tools/export/vault-export/vault-export-core/src/**/*.ts"],
       "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/exporter/*", "src/**/*"] }]
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-core/*", "src/**/*"] }
+        ]
       }
     },
     {

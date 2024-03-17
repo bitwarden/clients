@@ -1,6 +1,6 @@
 ---
 name: Deploy Web Vault
-run-name: Deploy Web Vault to ${{ inputs.environment }}
+run-name: Deploy Web Vault to ${{ inputs.environment }} from ${{ inputs.branch-or-tag }}
 
 on:
   workflow_dispatch:
@@ -19,6 +19,14 @@ on:
         description: "Branch or Tag name to deploy (examples: 'main', 'feature/sm', 'web-v2023.12.0')"
         type: string
         default: main
+      force-delete-destination:
+        description: "Delete remote files that are not found locally"
+        type: boolean
+        default: false
+      debug:
+        description: "Debug mode"
+        type: boolean
+        default: true
 
   workflow_call:
     inputs:
@@ -30,6 +38,14 @@ on:
         description: "Branch or Tag name to deploy (examples: 'main', 'feature/sm', 'web-v2023.12.0')"
         type: string
         default: main
+      force-delete-destination:
+        description: "Delete remote files that are not found locally"
+        type: boolean
+        default: false
+      debug:
+        description: "Debug mode"
+        type: boolean
+        default: true
 
 permissions:
   deployments: write
@@ -45,6 +61,8 @@ jobs:
       environment-artifact: ${{ steps.config.outputs.environment-artifact }}
       azure-login-creds: ${{ steps.config.outputs.azure-login-creds }}
       retrieve-secrets-keyvault: ${{ steps.config.outputs.retrieve-secrets-keyvault }}
+      sync-utility: ${{ steps.config.outputs.sync-utility }}
+      sync-delete-destination-files: ${{ steps.config.outputs.sync-delete-destination-files }}
     steps:
       - name: Configure
         id: config
@@ -52,6 +70,7 @@ jobs:
           ENV_NAME_LOWER=$(echo "${{ inputs.environment }}" | awk '{print tolower($0)}')
           echo "configuring the Web deploy for ${{ inputs.environment }}"
           echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+
           case ${{ inputs.environment }} in
             "USQA")
               echo "azure-login-creds=AZURE_KV_US_QA_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
@@ -89,6 +108,8 @@ jobs:
               echo "environment-url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
               ;;
           esac
+          # Set the sync utility to use for deployment to the environment (az-sync or azcopy)
+          echo "sync-utility=azcopy" >> $GITHUB_OUTPUT
 
   approval:
     name: Approval for Deployment to ${{ needs.setup.outputs.environment-name }}
@@ -212,12 +233,21 @@ jobs:
         with:
           creds: ${{ secrets[needs.setup.outputs.azure-login-creds] }}
 
-      - name: Retrieve Storage Account connection string
-        id: retrieve-secrets
+      - name: Retrieve Storage Account connection string for az sync
+        if: ${{ needs.setup.outputs.sync-utility == 'az-sync' }}
+        id: retrieve-secrets-az-sync
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: ${{ needs.setup.outputs.retrieve-secrets-keyvault }}
           secrets: "sa-bitwarden-web-vault-dev-key-temp"
+
+      - name: Retrieve Storage Account name and SPN credentials for azcopy
+        if: ${{ needs.setup.outputs.sync-utility == 'azcopy' }}
+        id: retrieve-secrets-azcopy
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: ${{ needs.setup.outputs.retrieve-secrets-keyvault }}
+          secrets: "sa-bitwarden-web-vault-name,sp-bitwarden-web-vault-password,sp-bitwarden-web-vault-appid,sp-bitwarden-web-vault-tenant"
 
       - name: 'Download cloud asset from branch/tag: ${{ inputs.branch-or-tag }}'
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -232,26 +262,39 @@ jobs:
         working-directory: apps/web
         run: unzip ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Empty container in Storage Account
-        run: |
-          az storage blob delete-batch \
-            --source '$web' \
-            --pattern '*' \
-            --connection-string "${{ steps.retrieve-secrets.outputs.sa-bitwarden-web-vault-dev-key-temp }}"
-
-      - name: Deploy to Azure Storage Account
+      - name: Sync to Azure Storage Account using az storage blob sync
+        if: ${{ needs.setup.outputs.sync-utility == 'az-sync' }}
         working-directory: apps/web
         run: |
-          az storage blob upload-batch \
+          az storage blob sync \
             --source "./build" \
-            --destination '$web' \
-            --connection-string "${{ steps.retrieve-secrets.outputs.sa-bitwarden-web-vault-dev-key-temp }}" \
-            --overwrite \
-            --no-progress
+            --container '$web' \
+            --connection-string "${{ steps.retrieve-secrets-az-sync.outputs.sa-bitwarden-web-vault-dev-key-temp }}" \
+            --delete-destination=${{ inputs.force-delete-destination }}
+
+      - name: Sync to Azure Storage Account using azcopy
+        if: ${{ needs.setup.outputs.sync-utility == 'azcopy' }}
+        working-directory: apps/web
+        env:
+          AZCOPY_AUTO_LOGIN_TYPE: SPN
+          AZCOPY_SPA_APPLICATION_ID: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-appid }}
+          AZCOPY_SPA_CLIENT_SECRET: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-password }}
+          AZCOPY_TENANT_ID: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-tenant }}
+        run: |
+          azcopy sync ./build 'https://${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}.blob.core.windows.net/$web/' \
+            --delete-destination=${{ inputs.force-delete-destination }} --compare-hash="MD5"
+
+      - name: Debug sync logs
+        if: ${{ inputs.debug }}
+        run: cat /home/runner/.azcopy/*.log
+
+      - name: Debug index.html
+        if: ${{ inputs.debug }}
+        run: cat apps/web/build/index.html
 
       - name: Update deployment status to Success
         if: success()
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           environment-url: ${{ env._ENVIRONMENT_URL }}
@@ -260,7 +303,7 @@ jobs:
 
       - name: Update deployment status to Failure
         if: failure()
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           environment-url: ${{ env._ENVIRONMENT_URL }}

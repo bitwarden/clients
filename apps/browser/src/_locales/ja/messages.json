@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "新しいアカウントを作成しました！今すぐログインできます。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "ログインに成功しました"
+  },
+  "youMayCloseThisWindow": {
+    "message": "ウィンドウを閉じて大丈夫です"
+  },
   "masterPassSent": {
     "message": "あなたのマスターパスワードのヒントを記載したメールを送信しました。"
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "フォルダーを選択..."
   },
+  "noFoldersFound": {
+    "message": "フォルダーが見つかりません",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "組織の権限が更新され、マスターパスワードの設定が必要になりました。",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2698,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "ログインを完了するには DUO を起動し手順に従ってください。"
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "アカウントには DUO 二段階認証が必要です。"
+  "duoRequiredForAccount": {
+    "message": "アカウントには Duo 二段階認証が必要です。"
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "新しいウィンドウで拡張機能を開いてログインを完了してください"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "ログインを完了するために拡張機能を開きます。"
   },
   "popoutExtension": {
     "message": "拡張機能のポップアップ"
@@ -2968,10 +2978,6 @@
     "message": "このオプションを無視すると、Bitwarden の自動入力メニューとブラウザの自動入力メニューが競合する可能性があります。",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "この操作は Bitwarden 拡張機能を再起動します。このオプションを無視すると、Bitwarden の自動入力メニューとブラウザの自動入力メニューが競合する可能性があります。",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Bitwarden をデフォルトのパスワードマネージャーにする",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "デフォルトにする",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "認証情報を保存しました！",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "認証情報を更新しました！",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "資格情報の保存中にエラーが発生しました。詳細はコンソールを確認してください。",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

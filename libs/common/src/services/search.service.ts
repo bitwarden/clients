@@ -1,10 +1,11 @@
 import * as lunr from "lunr";
 
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
+import { UriMatchStrategy } from "../models/domain/domain-service";
 import { I18nService } from "../platform/abstractions/i18n.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { SendView } from "../tools/send/models/view/send.view";
-import { FieldType, UriMatchType } from "../vault/enums";
+import { FieldType } from "../vault/enums";
 import { CipherType } from "../vault/enums/cipher-type";
 import { CipherView } from "../vault/models/view/cipher.view";
 
@@ -288,7 +289,7 @@ export class SearchService implements SearchServiceAbstraction {
         return;
       }
       let uri = u.uri;
-      if (u.match !== UriMatchType.RegularExpression) {
+      if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {
           uri = uri.substr(protocolIndex + 3);

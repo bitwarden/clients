@@ -7,7 +7,6 @@ import { BiometricStateService } from "@bitwarden/common/platform/biometrics/bio
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
-import { ElectronStateService } from "../../services/electron-state.service.abstraction";
 
 import BiometricDarwinMain from "./biometric.darwin.main";
 import BiometricWindowsMain from "./biometric.windows.main";
@@ -24,7 +23,6 @@ jest.mock("@bitwarden/desktop-native", () => {
 describe("biometrics tests", function () {
   const i18nService = mock<I18nService>();
   const windowMain = mock<WindowMain>();
-  const stateService = mock<ElectronStateService>();
   const logService = mock<LogService>();
   const messagingService = mock<MessagingService>();
   const biometricStateService = mock<BiometricStateService>();
@@ -34,7 +32,6 @@ describe("biometrics tests", function () {
     const sut = new BiometricsService(
       i18nService,
       windowMain,
-      stateService,
       logService,
       messagingService,
       process.platform,
@@ -43,13 +40,7 @@ describe("biometrics tests", function () {
 
     const mockService = mock<OsBiometricService>();
     (sut as any).platformSpecificService = mockService;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    sut.init();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
-    expect(mockService.init).toBeCalled();
+    await sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
 
     await sut.canAuthBiometric({ service: "test", key: "test", userId });
     expect(mockService.osSupportsBiometric).toBeCalled();
@@ -65,7 +56,6 @@ describe("biometrics tests", function () {
       const sut = new BiometricsService(
         i18nService,
         windowMain,
-        stateService,
         logService,
         messagingService,
         "win32",
@@ -81,7 +71,6 @@ describe("biometrics tests", function () {
       const sut = new BiometricsService(
         i18nService,
         windowMain,
-        stateService,
         logService,
         messagingService,
         "darwin",
@@ -102,7 +91,6 @@ describe("biometrics tests", function () {
       sut = new BiometricsService(
         i18nService,
         windowMain,
-        stateService,
         logService,
         messagingService,
         process.platform,
@@ -111,9 +99,6 @@ describe("biometrics tests", function () {
 
       innerService = mock();
       (sut as any).platformSpecificService = innerService;
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sut.init();
     });
 
     it("should return false if client key half is required and not provided", async () => {
@@ -128,7 +113,6 @@ describe("biometrics tests", function () {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
-      expect(innerService.init).toBeCalled();
 
       await sut.canAuthBiometric({ service: "test", key: "test", userId });
       expect(innerService.osSupportsBiometric).toBeCalled();

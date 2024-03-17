@@ -1,14 +1,50 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
+import { USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 export class BrowserCryptoService extends CryptoService {
+  constructor(
+    keyGenerationService: KeyGenerationService,
+    cryptoFunctionService: CryptoFunctionService,
+    encryptService: EncryptService,
+    platformUtilService: PlatformUtilsService,
+    logService: LogService,
+    stateService: StateService,
+    accountService: AccountService,
+    stateProvider: StateProvider,
+    private biometricStateService: BiometricStateService,
+  ) {
+    super(
+      keyGenerationService,
+      cryptoFunctionService,
+      encryptService,
+      platformUtilService,
+      logService,
+      stateService,
+      accountService,
+      stateProvider,
+    );
+  }
   override async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
     if (keySuffix === KeySuffixOptions.Biometric) {
-      return await this.stateService.getBiometricUnlock({ userId: userId });
+      const biometricUnlockPromise =
+        userId == null
+          ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
+          : this.biometricStateService.getBiometricUnlockEnabled(userId);
+      return await biometricUnlockPromise;
     }
     return super.hasUserKeyStored(keySuffix, userId);
   }
@@ -29,9 +65,9 @@ export class BrowserCryptoService extends CryptoService {
         return null;
       }
 
-      const userKey = await this.stateService.getUserKey({ userId: userId });
+      const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
       if (userKey) {
-        return new SymmetricCryptoKey(Utils.fromB64ToArray(userKey.keyB64)) as UserKey;
+        return userKey;
       }
     }
 

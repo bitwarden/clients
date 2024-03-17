@@ -1,9 +1,10 @@
 import Domain from "../../../platform/models/domain/domain-base";
+import { PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../data/policy.data";
 
 export class Policy extends Domain {
-  id: string;
+  id: PolicyId;
   organizationId: string;
   type: PolicyType;
   data: any;

@@ -14,13 +14,11 @@ import { OrganizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { OrganizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
-import { ReportingComponent } from "./reporting.component";
 import { ReportsHomeComponent } from "./reports-home.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: ReportingComponent,
     canActivate: [OrganizationPermissionsGuard],
     data: { organizationPermissions: canAccessReportingTab },
     children: [

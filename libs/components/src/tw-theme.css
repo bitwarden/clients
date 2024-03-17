@@ -200,3 +200,9 @@ summary.tw-list-none::-webkit-details-marker {
 .cdk-overlay-pane {
   z-index: 2000 !important;
 }
+
+.cdk-global-scrollblock {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}

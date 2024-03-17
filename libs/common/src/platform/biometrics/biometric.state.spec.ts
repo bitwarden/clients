@@ -1,25 +1,37 @@
-import { ENCRYPTED_CLIENT_KEY_HALF, REQUIRE_PASSWORD_ON_START } from "./biometric.state";
+import { EncryptedString } from "../models/domain/enc-string";
+import { KeyDefinition } from "../state";
 
-describe("require password on start", () => {
-  const sut = REQUIRE_PASSWORD_ON_START;
+import {
+  BIOMETRIC_UNLOCK_ENABLED,
+  DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
+  ENCRYPTED_CLIENT_KEY_HALF,
+  FINGERPRINT_VALIDATED,
+  PROMPT_AUTOMATICALLY,
+  PROMPT_CANCELLED,
+  REQUIRE_PASSWORD_ON_START,
+} from "./biometric.state";
 
-  it("should deserialize require password on start state", () => {
-    const requirePasswordOnStart = "requirePasswordOnStart";
+describe.each([
+  [ENCRYPTED_CLIENT_KEY_HALF, "encryptedClientKeyHalf"],
+  [DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT, true],
+  [PROMPT_CANCELLED, true],
+  [PROMPT_AUTOMATICALLY, true],
+  [REQUIRE_PASSWORD_ON_START, true],
+  [BIOMETRIC_UNLOCK_ENABLED, true],
+  [FINGERPRINT_VALIDATED, true],
+])(
+  "deserializes state %s",
+  (
+    ...args: [KeyDefinition<EncryptedString>, EncryptedString] | [KeyDefinition<boolean>, boolean]
+  ) => {
+    function testDeserialization<T>(keyDefinition: KeyDefinition<T>, state: T) {
+      const deserialized = keyDefinition.deserializer(JSON.parse(JSON.stringify(state)));
+      expect(deserialized).toEqual(state);
+    }
 
-    const result = sut.deserializer(JSON.parse(JSON.stringify(requirePasswordOnStart)));
-
-    expect(result).toEqual(requirePasswordOnStart);
-  });
-});
-
-describe("encrypted client key half", () => {
-  const sut = ENCRYPTED_CLIENT_KEY_HALF;
-
-  it("should deserialize encrypted client key half state", () => {
-    const encryptedClientKeyHalf = "encryptedClientKeyHalf";
-
-    const result = sut.deserializer(JSON.parse(JSON.stringify(encryptedClientKeyHalf)));
-
-    expect(result).toEqual(encryptedClientKeyHalf);
-  });
-});
+    it("should deserialize state", () => {
+      const [keyDefinition, state] = args;
+      testDeserialization(keyDefinition, state);
+    });
+  },
+);

@@ -404,7 +404,7 @@
     "message": "길이"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "최소 비밀번호 길이"
   },
   "uppercase": {
     "message": "대문자 (A-Z)"
@@ -559,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "계정 생성이 완료되었습니다! 이제 로그인하실 수 있습니다."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "로그인에 성공했습니다."
+  },
+  "youMayCloseThisWindow": {
+    "message": "이제 창을 닫으실 수 있습니다."
   },
   "masterPassSent": {
     "message": "마스터 비밀번호 힌트가 담긴 이메일을 보냈습니다."
@@ -774,7 +780,7 @@
     "message": "문의하기"
   },
   "helpAndFeedback": {
-    "message": "Help and feedback"
+    "message": "도움말 및 피드백"
   },
   "getHelp": {
     "message": "도움말"
@@ -1393,7 +1399,7 @@
     "message": "잘못된 PIN 코드입니다."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Too many invalid PIN entry attempts. Logging out."
+    "message": "잘못된 PIN 입력 시도가 너무 많습니다. 로그아웃 합니다."
   },
   "unlockWithWindowsHello": {
     "message": "Windows Hello를 사용하여 잠금 해제"
@@ -1883,7 +1889,7 @@
     "message": "Verification required for this action. Set a PIN to continue."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "PIN 설정"
   },
   "verifyWithBiometrics": {
     "message": "Verify with biometrics"
@@ -2524,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
   },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."

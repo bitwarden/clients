@@ -1,4 +1,5 @@
-import { EVENTS } from "../../../constants";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
 import { RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
 import {
   AutofillOverlayPageElementWindowMessage,
@@ -91,6 +92,10 @@ class AutofillOverlayPageElement extends HTMLElement {
 
     if (!this.messageOrigin) {
       this.messageOrigin = event.origin;
+    }
+
+    if (event.origin !== this.messageOrigin) {
+      return;
     }
 
     const message = event?.data;

@@ -20,6 +20,7 @@
 ./libs/billing/README.md
 ./libs/platform/README.md
 ./libs/tools/README.md
+./libs/tools/export/vault-export/README.md
 ./libs/vault/README.md
 ./README.md
 ./LICENSE_BITWARDEN.txt

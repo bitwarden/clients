@@ -1,22 +1,11 @@
-<div class="tabbed-nav d-flex flex-column">
-  <ul class="nav nav-tabs">
-    <ng-container *ngIf="showChangePassword">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="change-password" routerLinkActive="active">
-          {{ "masterPassword" | i18n }}
-        </a>
-      </li>
-    </ng-container>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="two-factor" routerLinkActive="active">
-        {{ "twoStepLogin" | i18n }}
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="security-keys" routerLinkActive="active">
-        {{ "keys" | i18n }}
-      </a>
-    </li>
-  </ul>
-</div>
-<router-outlet></router-outlet>
+<app-header>
+  <bit-tab-nav-bar slot="tabs">
+    <bit-tab-link route="change-password">{{ "masterPassword" | i18n }}</bit-tab-link>
+    <bit-tab-link route="two-factor">{{ "twoStepLogin" | i18n }}</bit-tab-link>
+    <bit-tab-link route="security-keys">{{ "keys" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<bit-container>
+  <router-outlet></router-outlet>
+</bit-container>

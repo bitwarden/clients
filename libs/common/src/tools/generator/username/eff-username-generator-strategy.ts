@@ -1,5 +1,7 @@
 import { PolicyType } from "../../../admin-console/enums";
 import { Policy } from "../../../admin-console/models/domain/policy";
+import { StateProvider } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
 import { GeneratorStrategy } from "../abstractions";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { EFF_USERNAME_SETTINGS } from "../key-definitions";
@@ -17,11 +19,14 @@ export class EffUsernameGeneratorStrategy
   /** Instantiates the generation strategy
    *  @param usernameService generates a username from EFF word list
    */
-  constructor(private usernameService: UsernameGenerationServiceAbstraction) {}
+  constructor(
+    private usernameService: UsernameGenerationServiceAbstraction,
+    private stateProvider: StateProvider,
+  ) {}
 
-  /** {@link GeneratorStrategy.disk} */
-  get disk() {
-    return EFF_USERNAME_SETTINGS;
+  /** {@link GeneratorStrategy.durableState} */
+  durableState(id: UserId) {
+    return this.stateProvider.getUser(id, EFF_USERNAME_SETTINGS);
   }
 
   /** {@link GeneratorStrategy.policy} */
@@ -38,6 +43,10 @@ export class EffUsernameGeneratorStrategy
 
   /** {@link GeneratorStrategy.evaluator} */
   evaluator(policy: Policy) {
+    if (!policy) {
+      return new DefaultPolicyEvaluator<EffUsernameGenerationOptions>();
+    }
+
     if (policy.type !== this.policy) {
       const details = `Expected: ${this.policy}. Received: ${policy.type}`;
       throw Error("Mismatched policy type. " + details);

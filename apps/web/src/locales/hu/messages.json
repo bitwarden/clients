@@ -578,6 +578,9 @@
   "access": {
     "message": "Hozzáférés"
   },
+  "accessLevel": {
+    "message": "Hozzáférési szint"
+  },
   "loggedOut": {
     "message": "Megtörtént a kijelentkezés."
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Adatok importálása"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ha nincsenek importálandó adatok, létrehozhatunk egy",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "új elemet",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " helyett.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " helyett. Előfordulhat, hogy meg kell várni, amíg az adminisztrátor megerősíti szervezeti tagságot.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Importálási hiba"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
-  },
-  "enableFullWidth": {
-    "message": "Teljes szélességű elrendezés engedélyezése",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "A webes széf teljes szélességűre tágításának engedélyezése a böngészőablakban."
   },
   "default": {
     "message": "Alapértelmezett"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Bezárható ez a fül és folytatás a bővítményben."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "A bejelentkezés sikeres volt."
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Ez az ablak 5 másodpercen belül automatikusan bezárul."
+  },
   "includeAllTeamsFeatures": {
     "message": "Összes Csapat funkció, továbbá:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Egy új ügyfélszervezet létrehozása társított szolgáltatásként. Lehetőség lesz a szervezet elérésére és kezelésére."
+  },
+  "newClient": {
+    "message": "Új ügyfél"
   },
   "addExistingOrganization": {
     "message": "Létező fordítások hozzáadása"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Kód újraküldése"
   },
-  "membersColumnHeader": {
-    "message": "Tag/Csoport"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Tag"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Csoport/Tag"
   },
   "selectGroupsAndMembers": {
     "message": "Csoportok és tagok kiválasztása"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Fiók létrehozása"
   },
   "createSecret": {
     "message": "Titkos kód létrehozása"
@@ -7456,6 +7480,12 @@
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Böngésző bővítmény telepítése"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "A bővítmény segítségével gyorsan elmenthetők a bejelentkezések és automatikusan kitölthetők az űrlapok a webalkalmazás megnyitása nélkül."
+  },
   "projectAccessUpdated": {
     "message": "A projekt elérés frissítésre került."
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "A tagok hozzáférésének megadása ehhez a gyűjteményhez."
   },
   "adminCollectionAccess": {
     "message": "Az adminisztrátorok elérhetik és kezelhetik a gyűjteményeket."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "A megerősítő email elküldésre került az email címre:"
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Ez a művelet visszavonhatatlan."
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Ezt a funkciót bekapcsolva a kezelői szerepkör elavul és az egy Kezelheti jogosultsággal kerül felváltásra. Ez eltart néhány pillanatig. Ne hajtsunk végre semmilyen szervezeti változtatást, amíg az be nem fejeződött. Biztosan folytatjuk?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Díjmentes 1 évre"
+  },
+  "newWebApp": {
+    "message": "Üdvözlet az új és továbbfejlesztett webalkalmazásban. További információ a megváltozott dolgokról."
+  },
+  "releaseBlog": {
+    "message": "Kiadási blog elolvasása"
+  },
+  "adminConsole": {
+    "message": "Admin konzol"
+  },
+  "providerPortal": {
+    "message": "Szolgáltató portál"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

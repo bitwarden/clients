@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Din nye konto er oprettet! Du kan nu logge ind."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Du er nu logget ind"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Dette vindue kan nu lukkes"
+  },
   "masterPassSent": {
     "message": "Vi har sendt dig en e-mail med dit hovedadgangskodetip."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Vælg mappe..."
   },
+  "noFoldersFound": {
+    "message": "Ingen mapper fundet",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Organisationstilladelserne er blevet opdateret, og der kræves nu oprettelse af en hovedadgangskode.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2698,14 +2708,14 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Start DUO og følg trinene for at fuldføre indlogningen."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "DUO totrins indlogning kræves for kontoen."
+  "duoRequiredForAccount": {
+    "message": "Duo-totrinsindlogning kræves for kontoen."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Åbn udvidelsen i et nyt vindue for at fuldføre indlogning"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Pop udvidelsen ud for at fuldføre indlogning."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Pop ud-udvidelse"
   },
   "launchDuo": {
     "message": "Start DUO"
@@ -2968,10 +2978,6 @@
     "message": "Ignoreres denne indstilling, kan det forårsage konflikter mellem Bitwardens autoudfyld-menu og webbrowsere.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Denne handling vil genstarte Bitwarden-udvidelsen. Ignoreres denne indstilling, kan det forårsage konflikter mellem Bitwardens autoudfyld-menu og webbrowsere.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Lad Bitwarden håndtere adgangskoder som standard",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Gør til standard",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Legitimationsoplysninger er gemt!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Legitimationsoplysninger er opdateret!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Fejl under import. Tjek konsollen for detaljer.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

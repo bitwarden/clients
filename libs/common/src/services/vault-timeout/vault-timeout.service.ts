@@ -11,6 +11,8 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { StateEventRunnerService } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -29,6 +31,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private stateService: StateService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private stateEventRunnerService: StateEventRunnerService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (expired: boolean, userId?: string) => Promise<void> = null,
   ) {}
@@ -81,9 +84,12 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       await this.logOut(userId);
     }
 
-    if (userId == null || userId === (await this.stateService.getUserId())) {
+    const currentUserId = await this.stateService.getUserId();
+
+    if (userId == null || userId === currentUserId) {
       this.searchService.clearIndex();
       await this.folderService.clearCache();
+      await this.collectionService.clearActiveUserCache();
     }
 
     await this.stateService.setEverBeenUnlocked(true, { userId: userId });
@@ -96,8 +102,12 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     await this.cryptoService.clearKeyPair(true, userId);
 
     await this.cipherService.clearCache(userId);
-    await this.collectionService.clearCache(userId);
 
+    await this.stateEventRunnerService.handleEvent("lock", (userId ?? currentUserId) as UserId);
+
+    // FIXME: We should send the userId of the user that was locked, in the case of this method being passed
+    // undefined then it should give back the currentUserId. Better yet, this method shouldn't take
+    // an undefined userId at all. All receivers need to be checked for how they handle getting undefined.
     this.messagingService.send("locked", { userId: userId });
 
     if (this.lockedCallback != null) {

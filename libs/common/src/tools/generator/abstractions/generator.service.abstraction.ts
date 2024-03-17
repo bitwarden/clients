@@ -1,5 +1,7 @@
 import { Observable } from "rxjs";
 
+import { UserId } from "../../../types/guid";
+
 import { PolicyEvaluator } from "./policy-evaluator.abstraction";
 
 /** Generates credentials used for user authentication
@@ -9,19 +11,22 @@ import { PolicyEvaluator } from "./policy-evaluator.abstraction";
 export abstract class GeneratorService<Options, Policy> {
   /** An observable monitoring the options saved to disk.
    *  The observable updates when the options are saved.
+   *   @param userId: Identifies the user making the request
    */
-  options$: Observable<Options>;
+  options$: (userId: UserId) => Observable<Options>;
 
   /** An observable monitoring the options used to enforce policy.
    *  The observable updates when the policy changes.
+   *  @param userId: Identifies the user making the request
    */
-  policy$: Observable<PolicyEvaluator<Policy, Options>>;
+  evaluator$: (userId: UserId) => Observable<PolicyEvaluator<Policy, Options>>;
 
   /** Enforces the policy on the given options
+   * @param userId: Identifies the user making the request
    * @param options the options to enforce the policy on
    * @returns a new instance of the options with the policy enforced
    */
-  enforcePolicy: (options: Options) => Promise<Options>;
+  enforcePolicy: (userId: UserId, options: Options) => Promise<Options>;
 
   /** Generates credentials
    * @param options the options to generate credentials with
@@ -30,8 +35,9 @@ export abstract class GeneratorService<Options, Policy> {
   generate: (options: Options) => Promise<string>;
 
   /** Saves the given options to disk.
+   * @param userId: Identifies the user making the request
    * @param options the options to save
    * @returns a promise that resolves when the options are saved
    */
-  saveOptions: (options: Options) => Promise<void>;
+  saveOptions: (userId: UserId, options: Options) => Promise<void>;
 }

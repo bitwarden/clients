@@ -11,6 +11,7 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Account } from "../../platform/models/domain/account";
+import { StateEventRunnerService } from "../../platform/state";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -28,6 +29,7 @@ describe("VaultTimeoutService", () => {
   let stateService: MockProxy<StateService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
+  let stateEventRunnerService: MockProxy<StateEventRunnerService>;
   let lockedCallback: jest.Mock<Promise<void>, [userId: string]>;
   let loggedOutCallback: jest.Mock<Promise<void>, [expired: boolean, userId?: string]>;
 
@@ -48,6 +50,7 @@ describe("VaultTimeoutService", () => {
     stateService = mock();
     authService = mock();
     vaultTimeoutSettingsService = mock();
+    stateEventRunnerService = mock();
 
     lockedCallback = jest.fn();
     loggedOutCallback = jest.fn();
@@ -73,6 +76,7 @@ describe("VaultTimeoutService", () => {
       stateService,
       authService,
       vaultTimeoutSettingsService,
+      stateEventRunnerService,
       lockedCallback,
       loggedOutCallback,
     );
@@ -103,7 +107,8 @@ describe("VaultTimeoutService", () => {
       return Promise.resolve(accounts[userId]?.authStatus);
     });
     stateService.getIsAuthenticated.mockImplementation((options) => {
-      return Promise.resolve(accounts[options.userId]?.isAuthenticated);
+      // Just like actual state service, if no userId is given fallback to active userId
+      return Promise.resolve(accounts[options.userId ?? globalSetups?.userId]?.isAuthenticated);
     });
 
     vaultTimeoutSettingsService.getVaultTimeout.mockImplementation((userId) => {
@@ -335,6 +340,82 @@ describe("VaultTimeoutService", () => {
       await vaultTimeoutService.checkVaultTimeout();
 
       expectNoAction("1");
+    });
+  });
+
+  describe("lock", () => {
+    const setupLock = () => {
+      setupAccounts(
+        {
+          user1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+          },
+          user2: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+          },
+        },
+        {
+          userId: "user1",
+        },
+      );
+    };
+
+    it("should call state event runner with currently active user if no user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock();
+
+      expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user1");
+    });
+
+    it("should call messaging service locked message if no user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock();
+
+      // Currently these pass `undefined` (or what they were given) as the userId back
+      // but we could change this to give the user that was locked (active) to these methods
+      // so they don't have to get it their own way, but that is a behavioral change that needs
+      // to be tested.
+      expect(messagingService.send).toHaveBeenCalledWith("locked", { userId: undefined });
+    });
+
+    it("should call locked callback if no user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock();
+
+      // Currently these pass `undefined` (or what they were given) as the userId back
+      // but we could change this to give the user that was locked (active) to these methods
+      // so they don't have to get it their own way, but that is a behavioral change that needs
+      // to be tested.
+      expect(lockedCallback).toHaveBeenCalledWith(undefined);
+    });
+
+    it("should call state event runner with user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock("user2");
+
+      expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user2");
+    });
+
+    it("should call messaging service locked message with user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock("user2");
+
+      expect(messagingService.send).toHaveBeenCalledWith("locked", { userId: "user2" });
+    });
+
+    it("should call locked callback with user passed into lock", async () => {
+      setupLock();
+
+      await vaultTimeoutService.lock("user2");
+
+      expect(lockedCallback).toHaveBeenCalledWith("user2");
     });
   });
 });

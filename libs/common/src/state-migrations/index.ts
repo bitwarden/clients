@@ -1,1 +1,1 @@
-export { migrate, CURRENT_VERSION } from "./migrate";
+export { createMigrationBuilder, waitForMigrations, CURRENT_VERSION } from "./migrate";

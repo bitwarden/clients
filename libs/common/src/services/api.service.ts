@@ -93,6 +93,7 @@ import { SubscriptionResponse } from "../billing/models/response/subscription.re
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeviceType } from "../enums";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
@@ -116,6 +117,7 @@ import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { EnvironmentService } from "../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { StateService } from "../platform/abstractions/state.service";
 import { Utils } from "../platform/misc/utils";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
@@ -154,6 +156,7 @@ export class ApiService implements ApiServiceAbstraction {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private appIdService: AppIdService,
+    private stateService: StateService,
     private logoutCallback: (expired: boolean) => Promise<void>,
     private customUserAgent: string = null,
   ) {
@@ -224,7 +227,6 @@ export class ApiService implements ApiServiceAbstraction {
         responseJson.TwoFactorProviders2 &&
         Object.keys(responseJson.TwoFactorProviders2).length
       ) {
-        await this.tokenService.clearTwoFactorToken();
         return new IdentityTwoFactorResponse(responseJson);
       } else if (
         response.status === 400 &&
@@ -1578,10 +1580,10 @@ export class ApiService implements ApiServiceAbstraction {
   // Helpers
 
   async getActiveBearerToken(): Promise<string> {
-    let accessToken = await this.tokenService.getToken();
+    let accessToken = await this.tokenService.getAccessToken();
     if (await this.tokenService.tokenNeedsRefresh()) {
       await this.doAuthRefresh();
-      accessToken = await this.tokenService.getToken();
+      accessToken = await this.tokenService.getAccessToken();
     }
     return accessToken;
   }
@@ -1749,7 +1751,7 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const decodedToken = await this.tokenService.decodeToken();
+    const decodedToken = await this.tokenService.decodeAccessToken();
     const response = await this.fetch(
       new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
@@ -1767,10 +1769,15 @@ export class ApiService implements ApiServiceAbstraction {
     if (response.status === 200) {
       const responseJson = await response.json();
       const tokenResponse = new IdentityTokenResponse(responseJson);
+
+      const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
+      const vaultTimeout = await this.stateService.getVaultTimeout();
+
       await this.tokenService.setTokens(
         tokenResponse.accessToken,
         tokenResponse.refreshToken,
-        null,
+        vaultTimeoutAction as VaultTimeoutAction,
+        vaultTimeout,
       );
     } else {
       const error = await this.handleError(response, true, true);
@@ -1796,7 +1803,14 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("Invalid response received when refreshing api token");
     }
 
-    await this.tokenService.setToken(response.accessToken);
+    const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
+    const vaultTimeout = await this.stateService.getVaultTimeout();
+
+    await this.tokenService.setAccessToken(
+      response.accessToken,
+      vaultTimeoutAction as VaultTimeoutAction,
+      vaultTimeout,
+    );
   }
 
   async send(

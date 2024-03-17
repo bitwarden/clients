@@ -2,22 +2,30 @@
  * include Request in test environment.
  * @jest-environment ../../../../shared/test.environment.ts
  */
+import { SIMPLE_LOGIN_FORWARDER } from "../../key-definitions";
 import { Forwarders } from "../options/constants";
 
 import { mockApiService, mockI18nService } from "./mocks.jest";
 import { SimpleLoginForwarder } from "./simple-login";
 
 describe("SimpleLogin Forwarder", () => {
+  it("key returns the Simple Login forwarder key", () => {
+    const forwarder = new SimpleLoginForwarder(null, null, null, null, null);
+
+    expect(forwarder.key).toBe(SIMPLE_LOGIN_FORWARDER);
+  });
+
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+      const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token,
             baseUrl: "https://api.example.com",
           }),
@@ -36,11 +44,12 @@ describe("SimpleLogin Forwarder", () => {
         const apiService = mockApiService(200, {});
         const i18nService = mockI18nService();
 
-        const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+        const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               baseUrl,
             }),
@@ -62,9 +71,10 @@ describe("SimpleLogin Forwarder", () => {
         const apiService = mockApiService(200, {});
         const i18nService = mockI18nService();
 
-        const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+        const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
-        await forwarder.generate(website, {
+        await forwarder.generate({
+          website,
           token: "token",
           baseUrl: "https://api.example.com",
         });
@@ -85,9 +95,10 @@ describe("SimpleLogin Forwarder", () => {
         const apiService = mockApiService(status, { alias });
         const i18nService = mockI18nService();
 
-        const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+        const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
-        const result = await forwarder.generate(null, {
+        const result = await forwarder.generate({
+          website: null,
           token: "token",
           baseUrl: "https://api.example.com",
         });
@@ -101,11 +112,12 @@ describe("SimpleLogin Forwarder", () => {
       const apiService = mockApiService(401, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+      const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token: "token",
             baseUrl: "https://api.example.com",
           }),
@@ -126,11 +138,12 @@ describe("SimpleLogin Forwarder", () => {
         const apiService = mockApiService(500, body);
         const i18nService = mockI18nService();
 
-        const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+        const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               baseUrl: "https://api.example.com",
             }),
@@ -159,11 +172,12 @@ describe("SimpleLogin Forwarder", () => {
         const apiService = mockApiService(statusCode, { error });
         const i18nService = mockI18nService();
 
-        const forwarder = new SimpleLoginForwarder(apiService, i18nService);
+        const forwarder = new SimpleLoginForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               baseUrl: "https://api.example.com",
             }),

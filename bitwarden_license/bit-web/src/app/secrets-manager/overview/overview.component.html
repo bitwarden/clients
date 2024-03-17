@@ -3,8 +3,8 @@
 </app-header>
 
 <div *ngIf="!loading && view$ | async as view; else spinner">
-  <sm-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
-    <sm-onboarding-task
+  <app-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
+    <app-onboarding-task
       [title]="'createServiceAccount' | i18n"
       (click)="openServiceAccountDialog()"
       icon="bwi-cli"
@@ -12,33 +12,37 @@
     >
       <span class="tw-pl-1">
         {{ "downloadThe" | i18n }}
-        <a bitLink href="https://bitwarden.com/help/secrets-manager-cli/" target="_blank">{{
-          "smCLI" | i18n
-        }}</a>
+        <a
+          bitLink
+          href="https://bitwarden.com/help/secrets-manager-cli/"
+          target="_blank"
+          rel="noreferrer"
+          >{{ "smCLI" | i18n }}</a
+        >
       </span>
-    </sm-onboarding-task>
-    <sm-onboarding-task
+    </app-onboarding-task>
+    <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'createProject' | i18n"
       (click)="openNewProjectDialog()"
       icon="bwi-collection"
       [completed]="view.tasks.createProject"
-    ></sm-onboarding-task>
-    <sm-onboarding-task
+    ></app-onboarding-task>
+    <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'importSecrets' | i18n"
       [route]="['settings', 'import']"
       icon="bwi-download"
       [completed]="view.tasks.importSecrets"
-    ></sm-onboarding-task>
-    <sm-onboarding-task
+    ></app-onboarding-task>
+    <app-onboarding-task
       *ngIf="view.tasks.createProject"
       [title]="'createSecret' | i18n"
       (click)="openSecretDialog()"
       icon="bwi-key"
       [completed]="view.tasks.createSecret"
-    ></sm-onboarding-task>
-  </sm-onboarding>
+    ></app-onboarding-task>
+  </app-onboarding>
 
   <div class="tw-mt-6 tw-flex tw-flex-col tw-gap-6">
     <sm-section>

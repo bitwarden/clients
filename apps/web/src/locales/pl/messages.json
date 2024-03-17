@@ -578,6 +578,9 @@
   "access": {
     "message": "Dostęp"
   },
+  "accessLevel": {
+    "message": "Poziom dostępu"
+  },
   "loggedOut": {
     "message": "Wylogowano"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Importuj dane"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "If you don't have any data to import, you can create a ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "new item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Wystąpił błąd podczas importowania"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Pokaż rozpoznawalny obraz obok każdych danych logowania."
-  },
-  "enableFullWidth": {
-    "message": "Włącz układ na całą szerokość",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Rozszerz układ sejfu internetowego na całą szerokość okna przeglądarki."
   },
   "default": {
     "message": "Domyślny"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Możesz teraz zamknąć tę kartę i kontynuować w rozszerzeniu."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Zalogowałeś się pomyślnie"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "To okno zostanie automatycznie zamknięte za 5 sekund"
+  },
   "includeAllTeamsFeatures": {
     "message": "Wszystkie funkcje zespołów oraz:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Utwórz nową organizację klienta, która będzie powiązana z Tobą jako dostawcą. Będziesz miał dostęp do tej organizacji i będziesz mógł nią zarządzać."
+  },
+  "newClient": {
+    "message": "Nowy klient"
   },
   "addExistingOrganization": {
     "message": "Dodaj obecną organizację"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Wysłać kod ponownie"
   },
-  "membersColumnHeader": {
-    "message": "Użytkownik/Grupa"
+  "memberColumnHeader": {
+    "message": "Member"
   },
-  "groupAndMemberColumnHeader": {
-    "message": "Użytkownik"
+  "groupSlashMemberColumnHeader": {
+    "message": "Group/Member"
   },
   "selectGroupsAndMembers": {
     "message": "Wybierz grupy i użytkowników"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Utwórz konto"
   },
   "createSecret": {
     "message": "Utwórz sekret"
@@ -7456,6 +7480,12 @@
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Zainstaluj rozszerzenie przeglądarki"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Użyj rozszerzenia, aby szybko zapisywać dane logowania i autouzupełniać formularze bez otwierania aplikacji internetowej."
+  },
   "projectAccessUpdated": {
     "message": "Dostęp do projektu zaktualizowany"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Przyznaj grupom lub członkom dostęp do tej kolekcji."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Grant members access to this collection."
   },
   "adminCollectionAccess": {
     "message": "Administratorzy mogą mieć dostęp do kolekcji i zarządzać nimi."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Wysłaliśmy e-mail weryfikacyjny na adres "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Ta akcja jest nieodwracalna"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Przykro nam, że nas opuszczasz! Pomóż ulepszyć Bitwarden udostępniając informacje dlaczego anulujesz.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Wybierz powód anulowania",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Czy jest jakaś inna opinia, którą chcesz podzielić?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Brakujące funkcje",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Przeniesienie do innego narzędzia",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Zbyt trudne w użyciu",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Za mało używam",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Zbyt drogo",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Za darmo na 1 rok"
+  },
+  "newWebApp": {
+    "message": "Witaj w nowej i ulepszonej aplikacji internetowej. Dowiedz się więcej o tym, co się zmieniło."
+  },
+  "releaseBlog": {
+    "message": "Read release blog"
+  },
+  "adminConsole": {
+    "message": "Konsola administratora"
+  },
+  "providerPortal": {
+    "message": "Portal dostawcy"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

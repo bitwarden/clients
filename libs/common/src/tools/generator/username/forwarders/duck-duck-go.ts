@@ -1,21 +1,39 @@
 import { ApiService } from "../../../../abstractions/api.service";
+import { CryptoService } from "../../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { StateProvider } from "../../../../platform/state";
+import { DUCK_DUCK_GO_FORWARDER } from "../../key-definitions";
+import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
-import { ApiOptions, Forwarder } from "../options/forwarder-options";
+import { ApiOptions } from "../options/forwarder-options";
 
 /** Generates a forwarding address for DuckDuckGo */
-export class DuckDuckGoForwarder implements Forwarder {
+export class DuckDuckGoForwarder extends ForwarderGeneratorStrategy<ApiOptions> {
   /** Instantiates the forwarder
    *  @param apiService used for ajax requests to the forwarding service
    *  @param i18nService used to look up error strings
+   *  @param encryptService protects sensitive forwarder options
+   *  @param keyService looks up the user key when protecting data.
+   *  @param stateProvider creates the durable state for options storage
    */
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {}
+    encryptService: EncryptService,
+    keyService: CryptoService,
+    stateProvider: StateProvider,
+  ) {
+    super(encryptService, keyService, stateProvider);
+  }
 
-  /** {@link Forwarder.generate} */
-  async generate(_website: string | null, options: ApiOptions): Promise<string> {
+  /** {@link ForwarderGeneratorStrategy.key} */
+  get key() {
+    return DUCK_DUCK_GO_FORWARDER;
+  }
+
+  /** {@link ForwarderGeneratorStrategy.generate} */
+  generate = async (options: ApiOptions): Promise<string> => {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", Forwarders.DuckDuckGo.name);
       throw error;
@@ -48,5 +66,5 @@ export class DuckDuckGoForwarder implements Forwarder {
       const error = this.i18nService.t("forwarderUnknownError", Forwarders.DuckDuckGo.name);
       throw error;
     }
-  }
+  };
 }

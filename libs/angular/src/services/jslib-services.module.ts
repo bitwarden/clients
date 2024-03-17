@@ -1,12 +1,14 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
+import { UnwrapOpaque } from "type-fest";
 
 import {
+  AuthRequestServiceAbstraction,
+  AuthRequestService,
   PinCryptoServiceAbstraction,
   PinCryptoService,
   LoginStrategyServiceAbstraction,
   LoginStrategyService,
 } from "@bitwarden/auth/common";
-import { AvatarUpdateService as AccountUpdateServiceAbstraction } from "@bitwarden/common/abstractions/account/avatar-update.service";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -47,8 +49,8 @@ import {
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
-import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
@@ -66,8 +68,8 @@ import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstract
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
-import { AuthRequestCryptoServiceImplementation } from "@bitwarden/common/auth/services/auth-request-crypto.service.implementation";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device-trust-crypto.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
@@ -82,12 +84,26 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfCryptoService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-crypto.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import {
+  AutofillSettingsServiceAbstraction,
+  AutofillSettingsService,
+} from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  BadgeSettingsServiceAbstraction,
+  BadgeSettingsService,
+} from "@bitwarden/common/autofill/services/badge-settings.service";
+import {
+  DomainSettingsService,
+  DefaultDomainSettingsService,
+} from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
-import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
+import { PaymentMethodWarningsServiceAbstraction } from "@bitwarden/common/billing/abstractions/payment-method-warnings-service.abstraction";
+import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
-import { BillingBannerService } from "@bitwarden/common/billing/services/billing-banner.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
+import { PaymentMethodWarningsService } from "@bitwarden/common/billing/services/payment-method-warnings.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -98,6 +114,7 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -121,16 +138,20 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
+import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
+import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   ActiveUserStateProvider,
-  DerivedStateProvider,
   GlobalStateProvider,
   SingleUserStateProvider,
   StateProvider,
+  DerivedStateProvider,
 } from "@bitwarden/common/platform/state";
 /* eslint-disable import/no-restricted-paths -- We need the implementations to inject, but generally these should not be accessed */
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
@@ -138,8 +159,13 @@ import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/im
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
 import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
+import { StateEventRunnerService } from "@bitwarden/common/platform/state/state-event-runner.service";
 /* eslint-enable import/no-restricted-paths */
-import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
+import {
+  DefaultThemeStateService,
+  ThemeStateService,
+} from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
@@ -164,7 +190,10 @@ import {
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
-import { SendService as SendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import {
+  InternalSendService,
+  SendService as SendServiceAbstraction,
+} from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService as CollectionServiceAbstraction } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -187,28 +216,29 @@ import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service"
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
-  VaultExportService,
-  VaultExportServiceAbstraction,
-  OrganizationVaultExportService,
-  OrganizationVaultExportServiceAbstraction,
-  IndividualVaultExportService,
-  IndividualVaultExportServiceAbstraction,
-} from "@bitwarden/exporter/vault-export";
-import {
   ImportApiService,
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
 import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  VaultExportService,
+  VaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+} from "@bitwarden/vault-export-core";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { UnauthGuard } from "../auth/guards/unauth.guard";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { BroadcasterService } from "../platform/services/broadcaster.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
-import { ThemingService } from "../platform/services/theming/theming.service";
+import { AngularThemingService } from "../platform/services/theming/angular-theming.service";
 import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
+import { safeProvider, SafeProvider } from "../platform/utils/safe-provider";
 
 import {
   LOCALES_DIRECTORY,
@@ -218,714 +248,808 @@ import {
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   STATE_FACTORY,
   STATE_SERVICE_USE_CACHE,
+  SUPPORTS_SECURE_STORAGE,
   SYSTEM_LANGUAGE,
+  SYSTEM_THEME_OBSERVABLE,
   WINDOW,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 
-@NgModule({
-  declarations: [],
-  providers: [
-    AuthGuard,
-    UnauthGuard,
-    ModalService,
-    PasswordRepromptService,
-
-    { provide: WINDOW, useValue: window },
-    {
-      provide: LOCALE_ID,
-      useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
-      deps: [I18nServiceAbstraction],
-    },
-    {
-      provide: LOCALES_DIRECTORY,
-      useValue: "./locales",
-    },
-    {
-      provide: SYSTEM_LANGUAGE,
-      useFactory: (window: Window) => window.navigator.language,
-      deps: [WINDOW],
-    },
-    {
-      provide: STATE_FACTORY,
-      useValue: new StateFactory(GlobalState, Account),
-    },
-    {
-      provide: STATE_SERVICE_USE_CACHE,
-      useValue: true,
-    },
-    {
-      provide: LOGOUT_CALLBACK,
-      useFactory:
-        (messagingService: MessagingServiceAbstraction) => (expired: boolean, userId?: string) =>
-          messagingService.send("logout", { expired: expired, userId: userId }),
-      deps: [MessagingServiceAbstraction],
-    },
-    {
-      provide: LOCKED_CALLBACK,
-      useValue: null,
-    },
-    {
-      provide: LOG_MAC_FAILURES,
-      useValue: true,
-    },
-    {
-      provide: AppIdServiceAbstraction,
-      useClass: AppIdService,
-      deps: [AbstractStorageService],
-    },
-    {
-      provide: AuditServiceAbstraction,
-      useClass: AuditService,
-      deps: [CryptoFunctionServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: AuthServiceAbstraction,
-      useClass: AuthService,
-      deps: [
-        MessagingServiceAbstraction,
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        StateServiceAbstraction,
-      ],
-    },
-    {
-      provide: LoginStrategyServiceAbstraction,
-      useClass: LoginStrategyService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        TokenServiceAbstraction,
-        AppIdServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        LogService,
-        KeyConnectorServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
-        I18nServiceAbstraction,
-        EncryptService,
-        PasswordStrengthServiceAbstraction,
-        PolicyServiceAbstraction,
-        DeviceTrustCryptoServiceAbstraction,
-        AuthRequestCryptoServiceAbstraction,
-      ],
-    },
-    {
-      provide: FileUploadServiceAbstraction,
-      useClass: FileUploadService,
-      deps: [LoginServiceAbstraction],
-    },
-    {
-      provide: CipherFileUploadServiceAbstraction,
-      useClass: CipherFileUploadService,
-      deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
-    },
-    {
-      provide: CipherServiceAbstraction,
-      useFactory: (
-        cryptoService: CryptoServiceAbstraction,
-        settingsService: SettingsServiceAbstraction,
-        apiService: ApiServiceAbstraction,
-        i18nService: I18nServiceAbstraction,
-        searchService: SearchServiceAbstraction,
-        stateService: StateServiceAbstraction,
-        encryptService: EncryptService,
-        fileUploadService: CipherFileUploadServiceAbstraction,
-        configService: ConfigServiceAbstraction,
-      ) =>
-        new CipherService(
-          cryptoService,
-          settingsService,
-          apiService,
-          i18nService,
-          searchService,
-          stateService,
-          encryptService,
-          fileUploadService,
-          configService,
-        ),
-      deps: [
-        CryptoServiceAbstraction,
-        SettingsServiceAbstraction,
-        ApiServiceAbstraction,
-        I18nServiceAbstraction,
-        SearchServiceAbstraction,
-        StateServiceAbstraction,
-        EncryptService,
-        CipherFileUploadServiceAbstraction,
-        ConfigServiceAbstraction,
-      ],
-    },
-    {
-      provide: FolderServiceAbstraction,
-      useClass: FolderService,
-      deps: [
-        CryptoServiceAbstraction,
-        I18nServiceAbstraction,
-        CipherServiceAbstraction,
-        StateServiceAbstraction,
-        StateProvider,
-      ],
-    },
-    {
-      provide: InternalFolderService,
-      useExisting: FolderServiceAbstraction,
-    },
-    {
-      provide: FolderApiServiceAbstraction,
-      useClass: FolderApiService,
-      deps: [FolderServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: AccountApiServiceAbstraction,
-      useClass: AccountApiServiceImplementation,
-      deps: [
-        ApiServiceAbstraction,
-        UserVerificationServiceAbstraction,
-        LogService,
-        InternalAccountService,
-      ],
-    },
-    {
-      provide: AccountServiceAbstraction,
-      useClass: AccountServiceImplementation,
-      deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider],
-    },
-    {
-      provide: InternalAccountService,
-      useExisting: AccountServiceAbstraction,
-    },
-    {
-      provide: AccountUpdateServiceAbstraction,
-      useClass: AvatarUpdateService,
-      deps: [ApiServiceAbstraction, StateServiceAbstraction],
-    },
-    { provide: LogService, useFactory: () => new ConsoleLogService(false) },
-    {
-      provide: CollectionServiceAbstraction,
-      useClass: CollectionService,
-      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
-    },
-    {
-      provide: EnvironmentServiceAbstraction,
-      useClass: EnvironmentService,
-      deps: [StateProvider, AccountServiceAbstraction],
-    },
-    {
-      provide: TotpServiceAbstraction,
-      useClass: TotpService,
-      deps: [CryptoFunctionServiceAbstraction, LogService, StateServiceAbstraction],
-    },
-    { provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] },
-    {
-      provide: CryptoServiceAbstraction,
-      useClass: CryptoService,
-      deps: [
-        CryptoFunctionServiceAbstraction,
-        EncryptService,
-        PlatformUtilsServiceAbstraction,
-        LogService,
-        StateServiceAbstraction,
-        AccountServiceAbstraction,
-        StateProvider,
-      ],
-    },
-    {
-      provide: PasswordStrengthServiceAbstraction,
-      useClass: PasswordStrengthService,
-      deps: [],
-    },
-    {
-      provide: PasswordGenerationServiceAbstraction,
-      useClass: PasswordGenerationService,
-      deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
-    },
-    {
-      provide: UsernameGenerationServiceAbstraction,
-      useClass: UsernameGenerationService,
-      deps: [CryptoServiceAbstraction, StateServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: ApiServiceAbstraction,
-      useClass: ApiService,
-      deps: [
-        TokenServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        AppIdServiceAbstraction,
-        LOGOUT_CALLBACK,
-      ],
-    },
-    {
-      provide: SendServiceAbstraction,
-      useClass: SendService,
-      deps: [
-        CryptoServiceAbstraction,
-        I18nServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        StateServiceAbstraction,
-      ],
-    },
-    {
-      provide: SendApiServiceAbstraction,
-      useClass: SendApiService,
-      deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, SendServiceAbstraction],
-    },
-    {
-      provide: SyncServiceAbstraction,
-      useClass: SyncService,
-      deps: [
-        ApiServiceAbstraction,
-        SettingsServiceAbstraction,
-        FolderServiceAbstraction,
-        CipherServiceAbstraction,
-        CryptoServiceAbstraction,
-        CollectionServiceAbstraction,
-        MessagingServiceAbstraction,
-        PolicyServiceAbstraction,
-        SendServiceAbstraction,
-        LogService,
-        KeyConnectorServiceAbstraction,
-        StateServiceAbstraction,
-        ProviderServiceAbstraction,
-        FolderApiServiceAbstraction,
-        OrganizationServiceAbstraction,
-        SendApiServiceAbstraction,
-        StateProvider,
-        LOGOUT_CALLBACK,
-      ],
-    },
-    { provide: BroadcasterServiceAbstraction, useClass: BroadcasterService },
-    {
-      provide: SettingsServiceAbstraction,
-      useClass: SettingsService,
-      deps: [StateServiceAbstraction],
-    },
-    {
-      provide: VaultTimeoutSettingsServiceAbstraction,
-      useClass: VaultTimeoutSettingsService,
-      deps: [
-        CryptoServiceAbstraction,
-        TokenServiceAbstraction,
-        PolicyServiceAbstraction,
-        StateServiceAbstraction,
-      ],
-    },
-    {
-      provide: VaultTimeoutService,
-      useClass: VaultTimeoutService,
-      deps: [
-        CipherServiceAbstraction,
-        FolderServiceAbstraction,
-        CollectionServiceAbstraction,
-        CryptoServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        SearchServiceAbstraction,
-        StateServiceAbstraction,
-        AuthServiceAbstraction,
-        VaultTimeoutSettingsServiceAbstraction,
-        LOCKED_CALLBACK,
-        LOGOUT_CALLBACK,
-      ],
-    },
-    {
-      provide: VaultTimeoutServiceAbstraction,
-      useExisting: VaultTimeoutService,
-    },
-    {
-      provide: SsoLoginServiceAbstraction,
-      useClass: SsoLoginService,
-      deps: [StateProvider],
-    },
-    {
-      provide: StateServiceAbstraction,
-      useClass: StateService,
-      deps: [
-        AbstractStorageService,
-        SECURE_STORAGE,
-        MEMORY_STORAGE,
-        LogService,
-        STATE_FACTORY,
-        AccountServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        STATE_SERVICE_USE_CACHE,
-      ],
-    },
-    {
-      provide: ImportApiServiceAbstraction,
-      useClass: ImportApiService,
-      deps: [ApiServiceAbstraction],
-    },
-    {
-      provide: ImportServiceAbstraction,
-      useClass: ImportService,
-      deps: [
-        CipherServiceAbstraction,
-        FolderServiceAbstraction,
-        ImportApiServiceAbstraction,
-        I18nServiceAbstraction,
-        CollectionServiceAbstraction,
-        CryptoServiceAbstraction,
-      ],
-    },
-    {
-      provide: IndividualVaultExportServiceAbstraction,
-      useClass: IndividualVaultExportService,
-      deps: [
-        FolderServiceAbstraction,
-        CipherServiceAbstraction,
-        CryptoServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        StateServiceAbstraction,
-      ],
-    },
-    {
-      provide: OrganizationVaultExportServiceAbstraction,
-      useClass: OrganizationVaultExportService,
-      deps: [
-        CipherServiceAbstraction,
-        ApiServiceAbstraction,
-        CryptoServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        StateServiceAbstraction,
-        CollectionServiceAbstraction,
-      ],
-    },
-    {
-      provide: VaultExportServiceAbstraction,
-      useClass: VaultExportService,
-      deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
-    },
-    {
-      provide: SearchServiceAbstraction,
-      useClass: SearchService,
-      deps: [LogService, I18nServiceAbstraction],
-    },
-    {
-      provide: NotificationsServiceAbstraction,
-      useClass: devFlagEnabled("noopNotifications")
-        ? NoopNotificationsService
-        : NotificationsService,
-      deps: [
-        LogService,
-        SyncServiceAbstraction,
-        AppIdServiceAbstraction,
-        ApiServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        LOGOUT_CALLBACK,
-        StateServiceAbstraction,
-        AuthServiceAbstraction,
-        MessagingServiceAbstraction,
-      ],
-    },
-    {
-      provide: CryptoFunctionServiceAbstraction,
-      useClass: WebCryptoFunctionService,
-      deps: [WINDOW],
-    },
-    {
-      provide: EncryptService,
-      useFactory: encryptServiceFactory,
-      deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
-    },
-    {
-      provide: EventUploadServiceAbstraction,
-      useClass: EventUploadService,
-      deps: [ApiServiceAbstraction, StateServiceAbstraction, LogService],
-    },
-    {
-      provide: EventCollectionServiceAbstraction,
-      useClass: EventCollectionService,
-      deps: [
-        CipherServiceAbstraction,
-        StateServiceAbstraction,
-        OrganizationServiceAbstraction,
-        EventUploadServiceAbstraction,
-      ],
-    },
-    {
-      provide: PolicyServiceAbstraction,
-      useClass: PolicyService,
-      deps: [StateServiceAbstraction, OrganizationServiceAbstraction],
-    },
-    {
-      provide: InternalPolicyService,
-      useExisting: PolicyServiceAbstraction,
-    },
-    {
-      provide: PolicyApiServiceAbstraction,
-      useClass: PolicyApiService,
-      deps: [PolicyServiceAbstraction, ApiServiceAbstraction, StateServiceAbstraction],
-    },
-    {
-      provide: KeyConnectorServiceAbstraction,
-      useClass: KeyConnectorService,
-      deps: [
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        TokenServiceAbstraction,
-        LogService,
-        OrganizationServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        LOGOUT_CALLBACK,
-      ],
-    },
-    {
-      provide: UserVerificationServiceAbstraction,
-      useClass: UserVerificationService,
-      deps: [
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-        I18nServiceAbstraction,
-        UserVerificationApiServiceAbstraction,
-        PinCryptoServiceAbstraction,
-        LogService,
-        VaultTimeoutSettingsServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-      ],
-    },
-    {
-      provide: OrganizationServiceAbstraction,
-      useClass: OrganizationService,
-      deps: [StateServiceAbstraction, StateProvider],
-    },
-    {
-      provide: InternalOrganizationServiceAbstraction,
-      useExisting: OrganizationServiceAbstraction,
-    },
-    {
-      provide: OrganizationUserService,
-      useClass: OrganizationUserServiceImplementation,
-      deps: [ApiServiceAbstraction],
-    },
-    {
-      provide: PasswordResetEnrollmentServiceAbstraction,
-      useClass: PasswordResetEnrollmentServiceImplementation,
-      deps: [
-        OrganizationApiServiceAbstraction,
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-        OrganizationUserService,
-        I18nServiceAbstraction,
-      ],
-    },
-    {
-      provide: ProviderServiceAbstraction,
-      useClass: ProviderService,
-      deps: [StateServiceAbstraction],
-    },
-    {
-      provide: TwoFactorServiceAbstraction,
-      useClass: TwoFactorService,
-      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
-    },
-    {
-      provide: AbstractThemingService,
-      useClass: ThemingService,
-    },
-    {
-      provide: FormValidationErrorsServiceAbstraction,
-      useClass: FormValidationErrorsService,
-    },
-    {
-      provide: UserVerificationApiServiceAbstraction,
-      useClass: UserVerificationApiService,
-      deps: [ApiServiceAbstraction],
-    },
-    {
-      provide: OrganizationApiServiceAbstraction,
-      useClass: OrganizationApiService,
-      // This is a slightly odd dependency tree for a specialized api service
-      // it depends on SyncService so that new data can be retrieved through the sync
-      // rather than updating the OrganizationService directly. Instead OrganizationService
-      // subscribes to sync notifications and will update itself based on that.
-      deps: [ApiServiceAbstraction, SyncServiceAbstraction],
-    },
-    {
-      provide: SyncNotifierServiceAbstraction,
-      useClass: SyncNotifierService,
-    },
-    {
-      provide: ConfigService,
-      useClass: ConfigService,
-      deps: [
-        StateServiceAbstraction,
-        ConfigApiServiceAbstraction,
-        AuthServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        LogService,
-      ],
-    },
-    {
-      provide: ConfigServiceAbstraction,
-      useExisting: ConfigService,
-    },
-    {
-      provide: ConfigApiServiceAbstraction,
-      useClass: ConfigApiService,
-      deps: [ApiServiceAbstraction, AuthServiceAbstraction],
-    },
-    {
-      provide: AnonymousHubServiceAbstraction,
-      useClass: AnonymousHubService,
-      deps: [EnvironmentServiceAbstraction, LoginStrategyServiceAbstraction, LogService],
-    },
-    {
-      provide: ValidationServiceAbstraction,
-      useClass: ValidationService,
-      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
-    },
-    {
-      provide: LoginServiceAbstraction,
-      useClass: LoginService,
-      deps: [StateServiceAbstraction],
-    },
-    {
-      provide: OrgDomainServiceAbstraction,
-      useClass: OrgDomainService,
-      deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
-    },
-    {
-      provide: OrgDomainInternalServiceAbstraction,
-      useExisting: OrgDomainServiceAbstraction,
-    },
-    {
-      provide: OrgDomainApiServiceAbstraction,
-      useClass: OrgDomainApiService,
-      deps: [OrgDomainServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: DevicesApiServiceAbstraction,
-      useClass: DevicesApiServiceImplementation,
-      deps: [ApiServiceAbstraction],
-    },
-    {
-      provide: DevicesServiceAbstraction,
-      useClass: DevicesServiceImplementation,
-      deps: [DevicesApiServiceAbstraction],
-    },
-    {
-      provide: DeviceTrustCryptoServiceAbstraction,
-      useClass: DeviceTrustCryptoService,
-      deps: [
-        CryptoFunctionServiceAbstraction,
-        CryptoServiceAbstraction,
-        EncryptService,
-        StateServiceAbstraction,
-        AppIdServiceAbstraction,
-        DevicesApiServiceAbstraction,
-        I18nServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-      ],
-    },
-    {
-      provide: AuthRequestCryptoServiceAbstraction,
-      useClass: AuthRequestCryptoServiceImplementation,
-      deps: [CryptoServiceAbstraction],
-    },
-    {
-      provide: PinCryptoServiceAbstraction,
-      useClass: PinCryptoService,
-      deps: [
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-        VaultTimeoutSettingsServiceAbstraction,
-        LogService,
-      ],
-    },
-
-    {
-      provide: WebAuthnLoginPrfCryptoServiceAbstraction,
-      useClass: WebAuthnLoginPrfCryptoService,
-      deps: [CryptoFunctionServiceAbstraction],
-    },
-    {
-      provide: WebAuthnLoginApiServiceAbstraction,
-      useClass: WebAuthnLoginApiService,
-      deps: [ApiServiceAbstraction, EnvironmentServiceAbstraction],
-    },
-    {
-      provide: WebAuthnLoginServiceAbstraction,
-      useClass: WebAuthnLoginService,
-      deps: [
-        WebAuthnLoginApiServiceAbstraction,
-        LoginStrategyServiceAbstraction,
-        ConfigServiceAbstraction,
-        WebAuthnLoginPrfCryptoServiceAbstraction,
-        WINDOW,
-        LogService,
-      ],
-    },
-    {
-      provide: GlobalStateProvider,
-      useClass: DefaultGlobalStateProvider,
-      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
-    },
-    {
-      provide: ActiveUserStateProvider,
-      useClass: DefaultActiveUserStateProvider,
-      deps: [AccountServiceAbstraction, OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
-    },
-    {
-      provide: SingleUserStateProvider,
-      useClass: DefaultSingleUserStateProvider,
-      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
-    },
-    {
-      provide: DerivedStateProvider,
-      useClass: DefaultDerivedStateProvider,
-      deps: [OBSERVABLE_MEMORY_STORAGE],
-    },
-    {
-      provide: StateProvider,
-      useClass: DefaultStateProvider,
-      deps: [
-        ActiveUserStateProvider,
-        SingleUserStateProvider,
-        GlobalStateProvider,
-        DerivedStateProvider,
-      ],
-    },
-    {
-      provide: BillingBannerServiceAbstraction,
-      useClass: BillingBannerService,
-      deps: [StateProvider],
-    },
-    {
-      provide: OrganizationBillingServiceAbstraction,
-      useClass: OrganizationBillingService,
-      deps: [
-        CryptoServiceAbstraction,
-        EncryptService,
-        I18nServiceAbstraction,
-        OrganizationApiServiceAbstraction,
-      ],
-    },
-    {
-      provide: BiometricStateService,
-      useClass: DefaultBiometricStateService,
-      deps: [StateProvider],
-    },
-    {
-      provide: VaultSettingsServiceAbstraction,
-      useClass: VaultSettingsService,
-      deps: [StateProvider],
-    },
-    {
-      provide: BillingApiServiceAbstraction,
-      useClass: BillingApiService,
-      deps: [ApiServiceAbstraction],
-    },
-  ],
-})
-export class JslibServicesModule {}
+/**
+ * Provider definitions used in the ngModule.
+ * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
+ * If you need help please ask for it, do NOT change the type of this array.
+ */
+const typesafeProviders: Array<SafeProvider> = [
+  safeProvider(AuthGuard),
+  safeProvider(UnauthGuard),
+  safeProvider(ModalService),
+  safeProvider(PasswordRepromptService),
+  safeProvider({ provide: WINDOW, useValue: window }),
+  safeProvider({
+    provide: LOCALE_ID as SafeInjectionToken<string>,
+    useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
+    deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SUPPORTS_SECURE_STORAGE,
+    useFactory: (platformUtilsService: PlatformUtilsServiceAbstraction) =>
+      platformUtilsService.supportsSecureStorage(),
+    deps: [PlatformUtilsServiceAbstraction],
+  }),
+  safeProvider({
+    provide: LOCALES_DIRECTORY,
+    useValue: "./locales",
+  }),
+  safeProvider({
+    provide: SYSTEM_LANGUAGE,
+    useFactory: (window: Window) => window.navigator.language,
+    deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: STATE_FACTORY,
+    useValue: new StateFactory(GlobalState, Account),
+  }),
+  safeProvider({
+    provide: STATE_SERVICE_USE_CACHE,
+    useValue: true,
+  }),
+  safeProvider({
+    provide: LOGOUT_CALLBACK,
+    useFactory:
+      (messagingService: MessagingServiceAbstraction) => (expired: boolean, userId?: string) =>
+        Promise.resolve(messagingService.send("logout", { expired: expired, userId: userId })),
+    deps: [MessagingServiceAbstraction],
+  }),
+  safeProvider({
+    provide: LOCKED_CALLBACK,
+    useValue: null,
+  }),
+  safeProvider({
+    provide: LOG_MAC_FAILURES,
+    useValue: true,
+  }),
+  safeProvider({
+    provide: SYSTEM_THEME_OBSERVABLE,
+    useFactory: (window: Window) => AngularThemingService.createSystemThemeFromWindow(window),
+    deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: ThemeStateService,
+    useClass: DefaultThemeStateService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: AbstractThemingService,
+    useClass: AngularThemingService,
+    deps: [ThemeStateService, SYSTEM_THEME_OBSERVABLE],
+  }),
+  safeProvider({
+    provide: AppIdServiceAbstraction,
+    useClass: AppIdService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: AuditServiceAbstraction,
+    useClass: AuditService,
+    deps: [CryptoFunctionServiceAbstraction, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AuthServiceAbstraction,
+    useClass: AuthService,
+    deps: [
+      MessagingServiceAbstraction,
+      CryptoServiceAbstraction,
+      ApiServiceAbstraction,
+      StateServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: LoginStrategyServiceAbstraction,
+    useClass: LoginStrategyService,
+    deps: [
+      CryptoServiceAbstraction,
+      ApiServiceAbstraction,
+      TokenServiceAbstraction,
+      AppIdServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      MessagingServiceAbstraction,
+      LogService,
+      KeyConnectorServiceAbstraction,
+      EnvironmentServiceAbstraction,
+      StateServiceAbstraction,
+      TwoFactorServiceAbstraction,
+      I18nServiceAbstraction,
+      EncryptService,
+      PasswordStrengthServiceAbstraction,
+      PolicyServiceAbstraction,
+      DeviceTrustCryptoServiceAbstraction,
+      AuthRequestServiceAbstraction,
+      GlobalStateProvider,
+      BillingAccountProfileStateService,
+    ],
+  }),
+  safeProvider({
+    provide: FileUploadServiceAbstraction,
+    useClass: FileUploadService,
+    deps: [LogService],
+  }),
+  safeProvider({
+    provide: CipherFileUploadServiceAbstraction,
+    useClass: CipherFileUploadService,
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
+  }),
+  safeProvider({
+    provide: CipherServiceAbstraction,
+    useFactory: (
+      cryptoService: CryptoServiceAbstraction,
+      domainSettingsService: DomainSettingsService,
+      apiService: ApiServiceAbstraction,
+      i18nService: I18nServiceAbstraction,
+      searchService: SearchServiceAbstraction,
+      stateService: StateServiceAbstraction,
+      autofillSettingsService: AutofillSettingsServiceAbstraction,
+      encryptService: EncryptService,
+      fileUploadService: CipherFileUploadServiceAbstraction,
+      configService: ConfigServiceAbstraction,
+    ) =>
+      new CipherService(
+        cryptoService,
+        domainSettingsService,
+        apiService,
+        i18nService,
+        searchService,
+        stateService,
+        autofillSettingsService,
+        encryptService,
+        fileUploadService,
+        configService,
+      ),
+    deps: [
+      CryptoServiceAbstraction,
+      DomainSettingsService,
+      ApiServiceAbstraction,
+      I18nServiceAbstraction,
+      SearchServiceAbstraction,
+      StateServiceAbstraction,
+      AutofillSettingsServiceAbstraction,
+      EncryptService,
+      CipherFileUploadServiceAbstraction,
+      ConfigServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: InternalFolderService,
+    useClass: FolderService,
+    deps: [
+      CryptoServiceAbstraction,
+      I18nServiceAbstraction,
+      CipherServiceAbstraction,
+      StateServiceAbstraction,
+      StateProvider,
+    ],
+  }),
+  safeProvider({
+    provide: FolderServiceAbstraction,
+    useExisting: InternalFolderService,
+  }),
+  safeProvider({
+    provide: FolderApiServiceAbstraction,
+    useClass: FolderApiService,
+    deps: [InternalFolderService, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AccountApiServiceAbstraction,
+    useClass: AccountApiServiceImplementation,
+    deps: [
+      ApiServiceAbstraction,
+      UserVerificationServiceAbstraction,
+      LogService,
+      InternalAccountService,
+    ],
+  }),
+  safeProvider({
+    provide: InternalAccountService,
+    useClass: AccountServiceImplementation,
+    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: AccountServiceAbstraction,
+    useExisting: InternalAccountService,
+  }),
+  safeProvider({
+    provide: AvatarServiceAbstraction,
+    useClass: AvatarService,
+    deps: [ApiServiceAbstraction, StateProvider],
+  }),
+  safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
+  safeProvider({
+    provide: CollectionServiceAbstraction,
+    useClass: CollectionService,
+    deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateProvider],
+  }),
+  safeProvider({
+    provide: EnvironmentServiceAbstraction,
+    useClass: EnvironmentService,
+    deps: [StateProvider, AccountServiceAbstraction],
+  }),
+  safeProvider({
+    provide: TotpServiceAbstraction,
+    useClass: TotpService,
+    deps: [CryptoFunctionServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: TokenServiceAbstraction,
+    useClass: TokenService,
+    deps: [SingleUserStateProvider, GlobalStateProvider, SUPPORTS_SECURE_STORAGE, SECURE_STORAGE],
+  }),
+  safeProvider({
+    provide: KeyGenerationServiceAbstraction,
+    useClass: KeyGenerationService,
+    deps: [CryptoFunctionServiceAbstraction],
+  }),
+  safeProvider({
+    provide: CryptoServiceAbstraction,
+    useClass: CryptoService,
+    deps: [
+      KeyGenerationServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      EncryptService,
+      PlatformUtilsServiceAbstraction,
+      LogService,
+      StateServiceAbstraction,
+      AccountServiceAbstraction,
+      StateProvider,
+    ],
+  }),
+  safeProvider({
+    provide: PasswordStrengthServiceAbstraction,
+    useClass: PasswordStrengthService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: PasswordGenerationServiceAbstraction,
+    useClass: PasswordGenerationService,
+    deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
+  }),
+  safeProvider({
+    provide: UsernameGenerationServiceAbstraction,
+    useClass: UsernameGenerationService,
+    deps: [CryptoServiceAbstraction, StateServiceAbstraction, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ApiServiceAbstraction,
+    useClass: ApiService,
+    deps: [
+      TokenServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      EnvironmentServiceAbstraction,
+      AppIdServiceAbstraction,
+      StateServiceAbstraction,
+      LOGOUT_CALLBACK,
+    ],
+  }),
+  safeProvider({
+    provide: SendServiceAbstraction,
+    useExisting: InternalSendService,
+  }),
+  safeProvider({
+    provide: InternalSendService,
+    useClass: SendService,
+    deps: [
+      CryptoServiceAbstraction,
+      I18nServiceAbstraction,
+      KeyGenerationServiceAbstraction,
+      StateServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SendApiServiceAbstraction,
+    useClass: SendApiService,
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: SyncServiceAbstraction,
+    useClass: SyncService,
+    deps: [
+      ApiServiceAbstraction,
+      DomainSettingsService,
+      InternalFolderService,
+      CipherServiceAbstraction,
+      CryptoServiceAbstraction,
+      CollectionServiceAbstraction,
+      MessagingServiceAbstraction,
+      InternalPolicyService,
+      InternalSendService,
+      LogService,
+      KeyConnectorServiceAbstraction,
+      StateServiceAbstraction,
+      ProviderServiceAbstraction,
+      FolderApiServiceAbstraction,
+      InternalOrganizationServiceAbstraction,
+      SendApiServiceAbstraction,
+      AvatarServiceAbstraction,
+      LOGOUT_CALLBACK,
+      BillingAccountProfileStateService,
+    ],
+  }),
+  safeProvider({ provide: BroadcasterServiceAbstraction, useClass: BroadcasterService, deps: [] }),
+  safeProvider({
+    provide: SettingsServiceAbstraction,
+    useClass: SettingsService,
+    deps: [StateServiceAbstraction],
+  }),
+  safeProvider({
+    provide: VaultTimeoutSettingsServiceAbstraction,
+    useClass: VaultTimeoutSettingsService,
+    deps: [
+      CryptoServiceAbstraction,
+      TokenServiceAbstraction,
+      PolicyServiceAbstraction,
+      StateServiceAbstraction,
+      BiometricStateService,
+    ],
+  }),
+  safeProvider({
+    provide: VaultTimeoutService,
+    useClass: VaultTimeoutService,
+    deps: [
+      CipherServiceAbstraction,
+      FolderServiceAbstraction,
+      CollectionServiceAbstraction,
+      CryptoServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      MessagingServiceAbstraction,
+      SearchServiceAbstraction,
+      StateServiceAbstraction,
+      AuthServiceAbstraction,
+      VaultTimeoutSettingsServiceAbstraction,
+      StateEventRunnerService,
+      LOCKED_CALLBACK,
+      LOGOUT_CALLBACK,
+    ],
+  }),
+  safeProvider({
+    provide: VaultTimeoutServiceAbstraction,
+    useExisting: VaultTimeoutService,
+  }),
+  safeProvider({
+    provide: SsoLoginServiceAbstraction,
+    useClass: SsoLoginService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: StateServiceAbstraction,
+    useClass: StateService,
+    deps: [
+      AbstractStorageService,
+      SECURE_STORAGE,
+      MEMORY_STORAGE,
+      LogService,
+      STATE_FACTORY,
+      AccountServiceAbstraction,
+      EnvironmentServiceAbstraction,
+      TokenServiceAbstraction,
+      MigrationRunner,
+      STATE_SERVICE_USE_CACHE,
+    ],
+  }),
+  safeProvider({
+    provide: ImportApiServiceAbstraction,
+    useClass: ImportApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ImportServiceAbstraction,
+    useClass: ImportService,
+    deps: [
+      CipherServiceAbstraction,
+      FolderServiceAbstraction,
+      ImportApiServiceAbstraction,
+      I18nServiceAbstraction,
+      CollectionServiceAbstraction,
+      CryptoServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: IndividualVaultExportServiceAbstraction,
+    useClass: IndividualVaultExportService,
+    deps: [
+      FolderServiceAbstraction,
+      CipherServiceAbstraction,
+      CryptoServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      StateServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: OrganizationVaultExportServiceAbstraction,
+    useClass: OrganizationVaultExportService,
+    deps: [
+      CipherServiceAbstraction,
+      ApiServiceAbstraction,
+      CryptoServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      StateServiceAbstraction,
+      CollectionServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: VaultExportServiceAbstraction,
+    useClass: VaultExportService,
+    deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SearchServiceAbstraction,
+    useClass: SearchService,
+    deps: [LogService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: NotificationsServiceAbstraction,
+    useClass: devFlagEnabled("noopNotifications") ? NoopNotificationsService : NotificationsService,
+    deps: [
+      LogService,
+      SyncServiceAbstraction,
+      AppIdServiceAbstraction,
+      ApiServiceAbstraction,
+      EnvironmentServiceAbstraction,
+      LOGOUT_CALLBACK,
+      StateServiceAbstraction,
+      AuthServiceAbstraction,
+      MessagingServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: CryptoFunctionServiceAbstraction,
+    useClass: WebCryptoFunctionService,
+    deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: EncryptService,
+    useFactory: encryptServiceFactory,
+    deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
+  }),
+  safeProvider({
+    provide: EventUploadServiceAbstraction,
+    useClass: EventUploadService,
+    deps: [ApiServiceAbstraction, StateServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: EventCollectionServiceAbstraction,
+    useClass: EventCollectionService,
+    deps: [
+      CipherServiceAbstraction,
+      StateServiceAbstraction,
+      OrganizationServiceAbstraction,
+      EventUploadServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: InternalPolicyService,
+    useClass: PolicyService,
+    deps: [StateProvider, OrganizationServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PolicyServiceAbstraction,
+    useExisting: InternalPolicyService,
+  }),
+  safeProvider({
+    provide: PolicyApiServiceAbstraction,
+    useClass: PolicyApiService,
+    deps: [InternalPolicyService, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: KeyConnectorServiceAbstraction,
+    useClass: KeyConnectorService,
+    deps: [
+      StateServiceAbstraction,
+      CryptoServiceAbstraction,
+      ApiServiceAbstraction,
+      TokenServiceAbstraction,
+      LogService,
+      OrganizationServiceAbstraction,
+      KeyGenerationServiceAbstraction,
+      LOGOUT_CALLBACK,
+    ],
+  }),
+  safeProvider({
+    provide: UserVerificationServiceAbstraction,
+    useClass: UserVerificationService,
+    deps: [
+      StateServiceAbstraction,
+      CryptoServiceAbstraction,
+      I18nServiceAbstraction,
+      UserVerificationApiServiceAbstraction,
+      PinCryptoServiceAbstraction,
+      LogService,
+      VaultTimeoutSettingsServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: InternalOrganizationServiceAbstraction,
+    useClass: OrganizationService,
+    deps: [StateServiceAbstraction, StateProvider],
+  }),
+  safeProvider({
+    provide: OrganizationServiceAbstraction,
+    useExisting: InternalOrganizationServiceAbstraction,
+  }),
+  safeProvider({
+    provide: OrganizationUserService,
+    useClass: OrganizationUserServiceImplementation,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PasswordResetEnrollmentServiceAbstraction,
+    useClass: PasswordResetEnrollmentServiceImplementation,
+    deps: [
+      OrganizationApiServiceAbstraction,
+      AccountServiceAbstraction,
+      CryptoServiceAbstraction,
+      OrganizationUserService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: ProviderServiceAbstraction,
+    useClass: ProviderService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: TwoFactorServiceAbstraction,
+    useClass: TwoFactorService,
+    deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
+  }),
+  safeProvider({
+    provide: FormValidationErrorsServiceAbstraction,
+    useClass: FormValidationErrorsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: UserVerificationApiServiceAbstraction,
+    useClass: UserVerificationApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrganizationApiServiceAbstraction,
+    useClass: OrganizationApiService,
+    // This is a slightly odd dependency tree for a specialized api service
+    // it depends on SyncService so that new data can be retrieved through the sync
+    // rather than updating the OrganizationService directly. Instead OrganizationService
+    // subscribes to sync notifications and will update itself based on that.
+    deps: [ApiServiceAbstraction, SyncServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SyncNotifierServiceAbstraction,
+    useClass: SyncNotifierService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: ConfigService,
+    useClass: ConfigService,
+    deps: [
+      StateServiceAbstraction,
+      ConfigApiServiceAbstraction,
+      AuthServiceAbstraction,
+      EnvironmentServiceAbstraction,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: ConfigServiceAbstraction,
+    useExisting: ConfigService,
+  }),
+  safeProvider({
+    provide: ConfigApiServiceAbstraction,
+    useClass: ConfigApiService,
+    deps: [ApiServiceAbstraction, AuthServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AnonymousHubServiceAbstraction,
+    useClass: AnonymousHubService,
+    deps: [EnvironmentServiceAbstraction, LoginStrategyServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: ValidationServiceAbstraction,
+    useClass: ValidationService,
+    deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
+  }),
+  safeProvider({
+    provide: LoginServiceAbstraction,
+    useClass: LoginService,
+    deps: [StateServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrgDomainInternalServiceAbstraction,
+    useClass: OrgDomainService,
+    deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrgDomainServiceAbstraction,
+    useExisting: OrgDomainInternalServiceAbstraction,
+  }),
+  safeProvider({
+    provide: OrgDomainApiServiceAbstraction,
+    useClass: OrgDomainApiService,
+    deps: [OrgDomainInternalServiceAbstraction, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DevicesApiServiceAbstraction,
+    useClass: DevicesApiServiceImplementation,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DevicesServiceAbstraction,
+    useClass: DevicesServiceImplementation,
+    deps: [DevicesApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DeviceTrustCryptoServiceAbstraction,
+    useClass: DeviceTrustCryptoService,
+    deps: [
+      KeyGenerationServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      CryptoServiceAbstraction,
+      EncryptService,
+      StateServiceAbstraction,
+      AppIdServiceAbstraction,
+      DevicesApiServiceAbstraction,
+      I18nServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AuthRequestServiceAbstraction,
+    useClass: AuthRequestService,
+    deps: [
+      AppIdServiceAbstraction,
+      CryptoServiceAbstraction,
+      ApiServiceAbstraction,
+      StateServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: PinCryptoServiceAbstraction,
+    useClass: PinCryptoService,
+    deps: [
+      StateServiceAbstraction,
+      CryptoServiceAbstraction,
+      VaultTimeoutSettingsServiceAbstraction,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: WebAuthnLoginPrfCryptoServiceAbstraction,
+    useClass: WebAuthnLoginPrfCryptoService,
+    deps: [CryptoFunctionServiceAbstraction],
+  }),
+  safeProvider({
+    provide: WebAuthnLoginApiServiceAbstraction,
+    useClass: WebAuthnLoginApiService,
+    deps: [ApiServiceAbstraction, EnvironmentServiceAbstraction],
+  }),
+  safeProvider({
+    provide: WebAuthnLoginServiceAbstraction,
+    useClass: WebAuthnLoginService,
+    deps: [
+      WebAuthnLoginApiServiceAbstraction,
+      LoginStrategyServiceAbstraction,
+      WebAuthnLoginPrfCryptoServiceAbstraction,
+      WINDOW,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: StorageServiceProvider,
+    useClass: StorageServiceProvider,
+    deps: [OBSERVABLE_DISK_STORAGE, OBSERVABLE_MEMORY_STORAGE],
+  }),
+  safeProvider({
+    provide: StateEventRegistrarService,
+    useClass: StateEventRegistrarService,
+    deps: [GlobalStateProvider, StorageServiceProvider],
+  }),
+  safeProvider({
+    provide: StateEventRunnerService,
+    useClass: StateEventRunnerService,
+    deps: [GlobalStateProvider, StorageServiceProvider],
+  }),
+  safeProvider({
+    provide: GlobalStateProvider,
+    useClass: DefaultGlobalStateProvider,
+    deps: [StorageServiceProvider],
+  }),
+  safeProvider({
+    provide: ActiveUserStateProvider,
+    useClass: DefaultActiveUserStateProvider,
+    deps: [AccountServiceAbstraction, SingleUserStateProvider],
+  }),
+  safeProvider({
+    provide: SingleUserStateProvider,
+    useClass: DefaultSingleUserStateProvider,
+    deps: [StorageServiceProvider, StateEventRegistrarService],
+  }),
+  safeProvider({
+    provide: DerivedStateProvider,
+    useClass: DefaultDerivedStateProvider,
+    deps: [OBSERVABLE_MEMORY_STORAGE],
+  }),
+  safeProvider({
+    provide: StateProvider,
+    useClass: DefaultStateProvider,
+    deps: [
+      ActiveUserStateProvider,
+      SingleUserStateProvider,
+      GlobalStateProvider,
+      DerivedStateProvider,
+    ],
+  }),
+  safeProvider({
+    provide: OrganizationBillingServiceAbstraction,
+    useClass: OrganizationBillingService,
+    deps: [
+      CryptoServiceAbstraction,
+      EncryptService,
+      I18nServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AutofillSettingsServiceAbstraction,
+    useClass: AutofillSettingsService,
+    deps: [StateProvider, PolicyServiceAbstraction],
+  }),
+  safeProvider({
+    provide: BadgeSettingsServiceAbstraction,
+    useClass: BadgeSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: DomainSettingsService,
+    useClass: DefaultDomainSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: BiometricStateService,
+    useClass: DefaultBiometricStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: VaultSettingsServiceAbstraction,
+    useClass: VaultSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: MigrationRunner,
+    useClass: MigrationRunner,
+    deps: [AbstractStorageService, LogService, MigrationBuilderService],
+  }),
+  safeProvider({
+    provide: MigrationBuilderService,
+    useClass: MigrationBuilderService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: BillingApiServiceAbstraction,
+    useClass: BillingApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PaymentMethodWarningsServiceAbstraction,
+    useClass: PaymentMethodWarningsService,
+    deps: [BillingApiServiceAbstraction, StateProvider],
+  }),
+  safeProvider({
+    provide: BillingAccountProfileStateService,
+    useClass: DefaultBillingAccountProfileStateService,
+    deps: [ActiveUserStateProvider],
+  }),
+];
 
 function encryptServiceFactory(
   cryptoFunctionservice: CryptoFunctionServiceAbstraction,
@@ -936,3 +1060,10 @@ function encryptServiceFactory(
     ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)
     : new EncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures);
 }
+
+@NgModule({
+  declarations: [],
+  // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
+  providers: typesafeProviders as UnwrapOpaque<SafeProvider>[],
+})
+export class JslibServicesModule {}

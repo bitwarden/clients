@@ -1,5 +1,6 @@
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
+import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -15,11 +16,10 @@ import {
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
-import { AutofillOverlayVisibility } from "../autofill/utils/autofill-overlay.enum";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
-import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
 import { Fido2Service } from "../vault/services/abstractions/fido2.service";
 
@@ -39,13 +39,13 @@ export default class RuntimeBackground {
     private i18nService: I18nService,
     private notificationsService: NotificationsService,
     private stateService: BrowserStateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private systemService: SystemService,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
     private fido2Service: Fido2Service,
-    private settingsService: SettingsService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -68,6 +68,7 @@ export default class RuntimeBackground {
         "checkFido2FeatureEnabled",
         "fido2RegisterCredentialRequest",
         "fido2GetCredentialRequest",
+        "biometricUnlock",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -95,6 +96,10 @@ export default class RuntimeBackground {
       case "loggedIn":
       case "unlocked": {
         let item: LockedVaultPendingNotificationsData;
+
+        if (msg.command === "loggedIn") {
+          await this.sendBwInstalledMessageToVault();
+        }
 
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
@@ -129,9 +134,6 @@ export default class RuntimeBackground {
             await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.main.avatarUpdateService.loadColorFromState();
           this.configService.triggerServerConfigFetch();
         }
         break;
@@ -172,7 +174,7 @@ export default class RuntimeBackground {
               msg.sender === "autofill_cmd",
             );
             if (totpCode != null) {
-              this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+              this.platformUtilsService.copyToClipboard(totpCode);
             }
             break;
           }
@@ -261,7 +263,7 @@ export default class RuntimeBackground {
         });
         break;
       case "getClickedElementResponse":
-        this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
+        this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
       case "triggerFido2ContentScriptInjection":
         await this.fido2Service.injectFido2ContentScripts(sender);
@@ -305,6 +307,14 @@ export default class RuntimeBackground {
         );
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
+        break;
+      }
+      case "clearClipboard": {
+        await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
+        break;
+      }
+      case "biometricUnlock": {
+        return await this.main.biometricUnlock();
       }
     }
   }
@@ -319,7 +329,7 @@ export default class RuntimeBackground {
     });
 
     if (totpCode != null) {
-      this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
     // reset
@@ -338,7 +348,7 @@ export default class RuntimeBackground {
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-          await this.settingsService.setAutoFillOverlayVisibility(
+          await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,
           );
 
@@ -350,5 +360,27 @@ export default class RuntimeBackground {
         this.onInstalledReason = null;
       }
     }, 100);
+  }
+
+  async sendBwInstalledMessageToVault() {
+    try {
+      const vaultUrl = this.environmentService.getWebVaultUrl();
+      const urlObj = new URL(vaultUrl);
+
+      const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+
+      if (!tabs?.length) {
+        return;
+      }
+
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-on-installed-message.js",
+          runAt: "document_end",
+        });
+      }
+    } catch (e) {
+      this.logService.error(`Error sending on installed message to vault: ${e}`);
+    }
   }
 }

@@ -197,6 +197,11 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
     this.permissionList = getPermissionList(value);
   }
 
+  /**
+   * Hide the multi-select so that new items cannot be added
+   */
+  @Input() hideMultiSelect = false;
+
   private _flexibleCollectionsEnabled: boolean;
 
   constructor(

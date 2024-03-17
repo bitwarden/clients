@@ -13,6 +13,7 @@ import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,7 +25,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType, SecureNoteType, UriMatchType } from "@bitwarden/common/vault/enums";
+import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -111,7 +112,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected messagingService: MessagingService,
     protected eventCollectionService: EventCollectionService,
     protected policyService: PolicyService,
-    private logService: LogService,
+    protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
     private organizationService: OrganizationService,
     protected sendApiService: SendApiService,
@@ -164,12 +165,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
     ];
     this.uriMatchOptions = [
       { name: i18nService.t("defaultMatchDetection"), value: null },
-      { name: i18nService.t("baseDomain"), value: UriMatchType.Domain },
-      { name: i18nService.t("host"), value: UriMatchType.Host },
-      { name: i18nService.t("startsWith"), value: UriMatchType.StartsWith },
-      { name: i18nService.t("regEx"), value: UriMatchType.RegularExpression },
-      { name: i18nService.t("exact"), value: UriMatchType.Exact },
-      { name: i18nService.t("never"), value: UriMatchType.Never },
+      { name: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
+      { name: i18nService.t("host"), value: UriMatchStrategy.Host },
+      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
+      { name: i18nService.t("exact"), value: UriMatchStrategy.Exact },
+      { name: i18nService.t("never"), value: UriMatchStrategy.Never },
     ];
     this.autofillOnPageLoadOptions = [
       { name: i18nService.t("autoFillOnPageLoadUseDefault"), value: null },
@@ -226,8 +227,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (!this.allowPersonal && this.organizationId == undefined) {
       this.organizationId = this.defaultOwnerId;
     }
-
-    this.resetMaskState();
   }
 
   async load() {
@@ -274,8 +273,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.secureNote.type = SecureNoteType.Generic;
         this.cipher.reprompt = CipherRepromptType.None;
       }
-
-      this.resetMaskState();
     }
 
     if (this.cipher != null && (!this.editMode || loadedAddEditCipherInfo || this.cloneMode)) {
@@ -515,12 +512,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.onGeneratePassword.emit();
     return true;
-  }
-
-  resetMaskState() {
-    // toggle masks off for maskable login properties with no value on init/load
-    this.showTotpSeed = !this.cipher?.login?.totp;
-    this.showPassword = !this.cipher?.login?.password;
   }
 
   togglePassword() {

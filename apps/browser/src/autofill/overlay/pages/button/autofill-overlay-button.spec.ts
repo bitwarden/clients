@@ -1,7 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayButtonMessageMock } from "../../../jest/autofill-mocks";
-import { postWindowMessage } from "../../../jest/testing-utils";
+import { createInitAutofillOverlayButtonMessageMock } from "../../../spec/autofill-mocks";
+import { postWindowMessage } from "../../../spec/testing-utils";
 
 import AutofillOverlayButton from "./autofill-overlay-button";
 

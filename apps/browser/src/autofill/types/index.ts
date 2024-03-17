@@ -1,5 +1,4 @@
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { VaultTimeoutAction } from "@bitwarden/common/src/enums/vault-timeout-action.enum";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
@@ -32,17 +31,9 @@ export type UserSettings = {
     utcDate: string;
     version: string;
   };
-  settings: {
-    equivalentDomains: string[][];
-  };
   vaultTimeout: number;
   vaultTimeoutAction: VaultTimeoutAction;
 };
-
-export type GlobalSettings = Pick<
-  GlobalState,
-  "disableAddLoginNotification" | "disableChangedPasswordNotification" | "neverDomains"
->;
 
 /**
  * A HTMLElement (usually a form element) with additional custom properties added by this script

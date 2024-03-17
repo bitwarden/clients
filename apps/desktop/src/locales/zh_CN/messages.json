@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "您的新账户已创建！您现在可以登录了。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "youMayCloseThisWindow": {
+    "message": "您可以关闭此窗口"
+  },
   "masterPassSent": {
     "message": "我们已经为您发送了包含主密码提示的邮件。"
   },
@@ -2525,6 +2531,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "启动 Duo 然后按照步骤完成登录。"
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "您的账户要求使用 Duo 两步登录。"
+  },
+  "launchDuo": {
+    "message": "在浏览器中启动 Duo"
+  },
   "importFormatError": {
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
   },
@@ -2670,7 +2685,7 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "commonImportFormats": {
-    "message": "Common formats",
+    "message": "通用格式",
     "description": "Label indicating the most common import formats"
   }
 }

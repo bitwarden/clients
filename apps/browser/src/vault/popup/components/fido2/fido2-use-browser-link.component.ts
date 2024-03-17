@@ -3,9 +3,9 @@ import { ConnectedPosition } from "@angular/cdk/overlay";
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
@@ -51,7 +51,7 @@ export class Fido2UseBrowserLinkComponent {
   protected fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
-    private stateService: StateService,
+    private domainSettingsService: DomainSettingsService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
   ) {}
@@ -89,7 +89,7 @@ export class Fido2UseBrowserLinkComponent {
    * @param uri - The domain uri to exclude from future FIDO2 prompts.
    */
   private async handleDomainExclusion(uri: string) {
-    const exisitingDomains = await this.stateService.getNeverDomains();
+    const exisitingDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
     const validDomain = Utils.getHostname(uri);
     const savedDomains: { [name: string]: unknown } = {
@@ -97,9 +97,7 @@ export class Fido2UseBrowserLinkComponent {
     };
     savedDomains[validDomain] = null;
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.stateService.setNeverDomains(savedDomains);
+    await this.domainSettingsService.setNeverDomains(savedDomains);
 
     this.platformUtilsService.showToast(
       "success",

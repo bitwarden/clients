@@ -28,7 +28,7 @@
       <button type="submit" class="btn primary block" [disabled]="!accessibilityForm.valid">
         {{ "submit" | i18n }}
       </button>
-      <button type="button" routerLink="/login" class="btn block">{{ "done" | i18n }}</button>
+      <button type="button" (click)="close()" class="btn block">{{ "done" | i18n }}</button>
     </div>
   </div>
 </form>

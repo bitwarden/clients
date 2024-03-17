@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Dein neues Konto wurde erstellt! Du kannst dich jetzt anmelden."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Du hast dich erfolgreich angemeldet."
+  },
+  "youMayCloseThisWindow": {
+    "message": "Du kannst dieses Fenster schließen."
+  },
   "masterPassSent": {
     "message": "Wir haben dir eine E-Mail mit dem Master-Passwort-Hinweis geschickt."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Ordner auswählen..."
   },
+  "noFoldersFound": {
+    "message": "Keine Ordner gefunden",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Deine Organisationsberechtigungen wurden aktualisiert und verlangen, dass du ein Master-Passwort festlegen musst.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2698,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Starte DUO und folge den Schritten, um die Anmeldung zu abzuschließen."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
+  "duoRequiredForAccount": {
+    "message": "Für dein Konto ist die Duo Zwei-Faktor-Authentifizierung erforderlich."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Öffne die Erweiterung in einem neuen Fenster, um die Anmeldung abzuschließen"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout-Erweiterung"
@@ -2968,10 +2978,6 @@
     "message": "Das Ignorieren dieser Option kann zu Konflikten zwischen dem Bitwarden Auto-Ausfüllen Menü und dem Browser führen.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Diese Aktion wird die Bitwarden-Erweiterung neu starten. Wenn diese Option ignoriert wird, kann dies zu Konflikten zwischen dem Bitwarden Auto-Ausfüllen Menü und dem Browser führen.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Bitwarden zum Standard-Passwort-Manager machen",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Als Standard festlegen",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Zugangsdaten erfolgreich gespeichert!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Zugangsdaten erfolgreich aktualisiert!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Fehler beim Speichern der Zugangsdaten. Details in der Konsole.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

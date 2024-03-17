@@ -1,4 +1,5 @@
-import { KeyGenerationService } from "../../services/key-generation.service";
+import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 
 import {
   cryptoFunctionServiceFactory,
@@ -12,9 +13,9 @@ export type KeyGenerationServiceInitOptions = KeyGenerationServiceFactoryOptions
   CryptoFunctionServiceInitOptions;
 
 export function keyGenerationServiceFactory(
-  cache: { keyGenerationService?: KeyGenerationService } & CachedServices,
+  cache: { keyGenerationService?: KeyGenerationServiceAbstraction } & CachedServices,
   opts: KeyGenerationServiceInitOptions,
-): Promise<KeyGenerationService> {
+): Promise<KeyGenerationServiceAbstraction> {
   return factory(
     cache,
     "keyGenerationService",

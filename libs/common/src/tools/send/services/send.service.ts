@@ -1,9 +1,10 @@
 import { BehaviorSubject, Observable, concatMap, distinctUntilChanged, map } from "rxjs";
 
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { StateService } from "../../../platform/abstractions/state.service";
+import { KdfType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../../platform/models/domain/enc-string";
@@ -21,6 +22,9 @@ import { SEND_KDF_ITERATIONS } from "../send-kdf";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
 export class SendService implements InternalSendServiceAbstraction {
+  readonly sendKeySalt = "bitwarden-send";
+  readonly sendKeyPurpose = "send";
+
   protected _sends: BehaviorSubject<Send[]> = new BehaviorSubject([]);
   protected _sendViews: BehaviorSubject<SendView[]> = new BehaviorSubject([]);
 
@@ -30,7 +34,7 @@ export class SendService implements InternalSendServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
-    private cryptoFunctionService: CryptoFunctionService,
+    private keyGenerationService: KeyGenerationService,
     private stateService: StateService,
   ) {
     this.stateService.activeAccountUnlocked$
@@ -72,17 +76,22 @@ export class SendService implements InternalSendServiceAbstraction {
     send.hideEmail = model.hideEmail;
     send.maxAccessCount = model.maxAccessCount;
     if (model.key == null) {
-      model.key = await this.cryptoFunctionService.aesGenerateKey(128);
-      model.cryptoKey = await this.cryptoService.makeSendKey(model.key);
+      const key = await this.keyGenerationService.createKeyWithPurpose(
+        128,
+        this.sendKeyPurpose,
+        this.sendKeySalt,
+      );
+      model.key = key.material;
+      model.cryptoKey = key.derivedKey;
     }
     if (password != null) {
-      const passwordHash = await this.cryptoFunctionService.pbkdf2(
+      const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
         password,
         model.key,
-        "sha256",
-        SEND_KDF_ITERATIONS,
+        KdfType.PBKDF2_SHA256,
+        { iterations: SEND_KDF_ITERATIONS },
       );
-      send.password = Utils.fromBufferToB64(passwordHash);
+      send.password = passwordKey.keyB64;
     }
     send.key = await this.cryptoService.encrypt(model.key, key);
     send.name = await this.cryptoService.encrypt(model.name, model.cryptoKey);

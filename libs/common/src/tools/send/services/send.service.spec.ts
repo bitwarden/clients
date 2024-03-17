@@ -1,10 +1,10 @@
 import { any, mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -24,7 +24,7 @@ import { SendService } from "./send.service";
 describe("SendService", () => {
   const cryptoService = mock<CryptoService>();
   const i18nService = mock<I18nService>();
-  const cryptoFunctionService = mock<CryptoFunctionService>();
+  const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
 
   let sendService: SendService;
@@ -50,7 +50,7 @@ describe("SendService", () => {
       .calledWith(any())
       .mockResolvedValue([sendView("1", "Test Send")]);
 
-    sendService = new SendService(cryptoService, i18nService, cryptoFunctionService, stateService);
+    sendService = new SendService(cryptoService, i18nService, keyGenerationService, stateService);
   });
 
   afterEach(() => {

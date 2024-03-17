@@ -1,32 +1,19 @@
-<div class="page-header d-flex">
-  <h1>{{ "clients" | i18n }}</h1>
-
-  <div class="ml-auto d-flex">
-    <div>
-      <label class="sr-only" for="search">{{ "search" | i18n }}</label>
-      <input
-        type="search"
-        class="form-control form-control-sm"
-        id="search"
-        placeholder="{{ 'search' | i18n }}"
-        [(ngModel)]="searchText"
-      />
-    </div>
-    <a class="btn btn-sm btn-outline-primary ml-3" routerLink="create" *ngIf="manageOrganizations">
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "newClientOrganization" | i18n }}
-    </a>
-    <button
-      type="button"
-      class="btn btn-sm btn-outline-primary ml-3"
-      (click)="addExistingOrganization()"
-      *ngIf="manageOrganizations && showAddExisting"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "addExistingOrganization" | i18n }}
-    </button>
-  </div>
-</div>
+<app-header>
+  <bit-search [placeholder]="'search' | i18n" [(ngModel)]="searchText"></bit-search>
+  <a bitButton routerLink="create" *ngIf="manageOrganizations" buttonType="primary">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "newClient" | i18n }}
+  </a>
+  <button
+    type="button"
+    bitButton
+    (click)="addExistingOrganization()"
+    *ngIf="manageOrganizations && showAddExisting"
+  >
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "addExistingOrganization" | i18n }}
+  </button>
+</app-header>
 
 <ng-container *ngIf="loading">
   <i

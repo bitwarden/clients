@@ -98,7 +98,7 @@ describe("ProviderKeysMigrator", () => {
 
   describe("rollback", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(rollbackJSON(), 11);
+      helper = mockMigrationHelper(rollbackJSON(), 13);
       sut = new ProviderKeyMigrator(12, 13);
     });
 

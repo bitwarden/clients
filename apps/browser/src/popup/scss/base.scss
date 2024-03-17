@@ -6,12 +6,6 @@
   margin: 0;
 }
 
-html {
-  &.cdk-global-scrollblock {
-    position: unset;
-  }
-}
-
 html,
 body {
   font-family: $font-family-sans-serif;

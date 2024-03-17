@@ -1,11 +1,11 @@
-import { BehaviorSubject, concatMap, map, Observable, of } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { ListResponse } from "../../../models/response/list.response";
-import { StateService } from "../../../platform/abstractions/state.service";
-import { Utils } from "../../../platform/misc/utils";
+import { KeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
+import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "../../abstractions/policy/policy.service.abstraction";
-import { OrganizationUserStatusType, OrganizationUserType, PolicyType } from "../../enums";
+import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Organization } from "../../models/domain/organization";
@@ -13,71 +13,82 @@ import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 import { PolicyResponse } from "../../models/response/policy.response";
 
-export class PolicyService implements InternalPolicyServiceAbstraction {
-  protected _policies: BehaviorSubject<Policy[]> = new BehaviorSubject([]);
+const policyRecordToArray = (policiesMap: { [id: string]: PolicyData }) =>
+  Object.values(policiesMap || {}).map((f) => new Policy(f));
 
-  policies$ = this._policies.asObservable();
+export const POLICIES = KeyDefinition.record<PolicyData, PolicyId>(POLICIES_DISK, "policies", {
+  deserializer: (policyData) => policyData,
+});
+
+export class PolicyService implements InternalPolicyServiceAbstraction {
+  private activeUserPolicyState = this.stateProvider.getActive(POLICIES);
+  private activeUserPolicies$ = this.activeUserPolicyState.state$.pipe(
+    map((policyData) => policyRecordToArray(policyData)),
+  );
+
+  policies$ = this.activeUserPolicies$;
 
   constructor(
-    protected stateService: StateService,
+    private stateProvider: StateProvider,
     private organizationService: OrganizationService,
-  ) {
-    this.stateService.activeAccountUnlocked$
-      .pipe(
-        concatMap(async (unlocked) => {
-          if (Utils.global.bitwardenContainerService == null) {
-            return;
-          }
+  ) {}
 
-          if (!unlocked) {
-            this._policies.next([]);
-            return;
-          }
+  get$(policyType: PolicyType) {
+    const filteredPolicies$ = this.activeUserPolicies$.pipe(
+      map((policies) => policies.filter((p) => p.type === policyType)),
+    );
 
-          const data = await this.stateService.getEncryptedPolicies();
-
-          await this.updateObservables(data);
-        }),
-      )
-      .subscribe();
-  }
-
-  get$(policyType: PolicyType, policyFilter?: (policy: Policy) => boolean): Observable<Policy> {
-    return this.policies$.pipe(
-      concatMap(async (policies) => {
-        const userId = await this.stateService.getUserId();
-        const appliesToCurrentUser = await this.checkPoliciesThatApplyToUser(
-          policies,
-          policyType,
-          policyFilter,
-          userId,
-        );
-        if (appliesToCurrentUser) {
-          return policies.find((policy) => policy.type === policyType && policy.enabled);
-        }
-      }),
+    return combineLatest([filteredPolicies$, this.organizationService.organizations$]).pipe(
+      map(
+        ([policies, organizations]) =>
+          this.enforcedPolicyFilter(policies, organizations)?.at(0) ?? null,
+      ),
     );
   }
 
-  async getAll(type?: PolicyType, userId?: string): Promise<Policy[]> {
-    let response: Policy[] = [];
-    const decryptedPolicies = await this.stateService.getDecryptedPolicies({ userId: userId });
-    if (decryptedPolicies != null) {
-      response = decryptedPolicies;
-    } else {
-      const diskPolicies = await this.stateService.getEncryptedPolicies({ userId: userId });
-      for (const id in diskPolicies) {
-        if (Object.prototype.hasOwnProperty.call(diskPolicies, id)) {
-          response.push(new Policy(diskPolicies[id]));
-        }
+  getAll$(policyType: PolicyType, userId?: UserId) {
+    const filteredPolicies$ = this.stateProvider.getUserState$(POLICIES, userId).pipe(
+      map((policyData) => policyRecordToArray(policyData)),
+      map((policies) => policies.filter((p) => p.type === policyType)),
+    );
+
+    return combineLatest([filteredPolicies$, this.organizationService.organizations$]).pipe(
+      map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
+    );
+  }
+
+  async getAll(policyType: PolicyType) {
+    return await firstValueFrom(
+      this.policies$.pipe(map((policies) => policies.filter((p) => p.type === policyType))),
+    );
+  }
+
+  policyAppliesToActiveUser$(policyType: PolicyType) {
+    return this.get$(policyType).pipe(map((policy) => policy != null));
+  }
+
+  async policyAppliesToUser(policyType: PolicyType) {
+    return await firstValueFrom(this.policyAppliesToActiveUser$(policyType));
+  }
+
+  private enforcedPolicyFilter(policies: Policy[], organizations: Organization[]) {
+    const orgDict = Object.fromEntries(organizations.map((o) => [o.id, o]));
+    return policies.filter((policy) => {
+      const organization = orgDict[policy.organizationId];
+
+      // This shouldn't happen, i.e. the user should only have policies for orgs they are a member of
+      // But if it does, err on the side of enforcing the policy
+      if (organization == null) {
+        return true;
       }
-      await this.stateService.setDecryptedPolicies(response, { userId: userId });
-    }
-    if (type != null) {
-      return response.filter((policy) => policy.type === type);
-    } else {
-      return response;
-    }
+
+      return (
+        policy.enabled &&
+        organization.status >= OrganizationUserStatusType.Accepted &&
+        organization.usePolicies &&
+        !this.isExemptFromPolicy(policy.type, organization)
+      );
+    });
   }
 
   masterPasswordPolicyOptions$(policies?: Policy[]): Observable<MasterPasswordPolicyOptions> {
@@ -136,15 +147,6 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
         });
 
         return enforcedOptions;
-      }),
-    );
-  }
-
-  policyAppliesToActiveUser$(policyType: PolicyType, policyFilter?: (policy: Policy) => boolean) {
-    return this.policies$.pipe(
-      concatMap(async (policies) => {
-        const userId = await this.stateService.getUserId();
-        return await this.checkPoliciesThatApplyToUser(policies, policyType, policyFilter, userId);
       }),
     );
   }
@@ -223,75 +225,33 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     return policiesResponse.data.map((response) => this.mapPolicyFromResponse(response));
   }
 
-  async policyAppliesToUser(
-    policyType: PolicyType,
-    policyFilter?: (policy: Policy) => boolean,
-    userId?: string,
-  ) {
-    const policies = await this.getAll(policyType, userId);
-
-    return this.checkPoliciesThatApplyToUser(policies, policyType, policyFilter, userId);
-  }
-
-  async upsert(policy: PolicyData): Promise<any> {
-    let policies = await this.stateService.getEncryptedPolicies();
-    if (policies == null) {
-      policies = {};
-    }
-
-    policies[policy.id] = policy;
-
-    await this.updateObservables(policies);
-    await this.stateService.setDecryptedPolicies(null);
-    await this.stateService.setEncryptedPolicies(policies);
+  async upsert(policy: PolicyData): Promise<void> {
+    await this.activeUserPolicyState.update((policies) => {
+      policies ??= {};
+      policies[policy.id] = policy;
+      return policies;
+    });
   }
 
   async replace(policies: { [id: string]: PolicyData }): Promise<void> {
-    await this.updateObservables(policies);
-    await this.stateService.setDecryptedPolicies(null);
-    await this.stateService.setEncryptedPolicies(policies);
+    await this.activeUserPolicyState.update(() => policies);
   }
 
-  async clear(userId?: string): Promise<void> {
-    if (userId == null || userId == (await this.stateService.getUserId())) {
-      this._policies.next([]);
+  async clear(userId?: UserId): Promise<void> {
+    await this.stateProvider.setUserState(POLICIES, null, userId);
+  }
+
+  /**
+   * Determines whether an orgUser is exempt from a specific policy because of their role
+   * Generally orgUsers who can manage policies are exempt from them, but some policies are stricter
+   */
+  private isExemptFromPolicy(policyType: PolicyType, organization: Organization) {
+    switch (policyType) {
+      case PolicyType.MaximumVaultTimeout:
+        // Max Vault Timeout applies to everyone except owners
+        return organization.isOwner;
+      default:
+        return organization.canManagePolicies;
     }
-    await this.stateService.setDecryptedPolicies(null, { userId: userId });
-    await this.stateService.setEncryptedPolicies(null, { userId: userId });
-  }
-
-  private isExemptFromPolicies(organization: Organization, policyType: PolicyType) {
-    if (policyType === PolicyType.MaximumVaultTimeout) {
-      return organization.type === OrganizationUserType.Owner;
-    }
-
-    return organization.isExemptFromPolicies;
-  }
-
-  private async updateObservables(policiesMap: { [id: string]: PolicyData }) {
-    const policies = Object.values(policiesMap || {}).map((f) => new Policy(f));
-
-    this._policies.next(policies);
-  }
-
-  private async checkPoliciesThatApplyToUser(
-    policies: Policy[],
-    policyType: PolicyType,
-    policyFilter?: (policy: Policy) => boolean,
-    userId?: string,
-  ) {
-    const organizations = await this.organizationService.getAll(userId);
-    const filteredPolicies = policies.filter(
-      (p) => p.type === policyType && p.enabled && (policyFilter == null || policyFilter(p)),
-    );
-    const policySet = new Set(filteredPolicies.map((p) => p.organizationId));
-
-    return organizations.some(
-      (o) =>
-        o.status >= OrganizationUserStatusType.Accepted &&
-        o.usePolicies &&
-        policySet.has(o.id) &&
-        !this.isExemptFromPolicies(o, policyType),
-    );
   }
 }

@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Uusi käyttäjätilisi on luotu! Voit nyt kirjautua sisään."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Kirjautuminen onnistui"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Voit sulkea tämän ikkunan"
+  },
   "masterPassSent": {
     "message": "Lähetimme pääsalasanasi vihjeen sähköpostitse."
   },
@@ -1082,7 +1088,7 @@
     "message": "Lisätietoja automaattitäytöstä"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Automaattitäytön oletusasetus kirjautumistiedoille"
+    "message": "Kirjautumistietojen automaattitäytön oletusasetus"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Automaattinen täyttö on mahdollista ottaa käyttöön tai poistaa käytöstä kirjautumistietokohtaisesti kirjautumistetoa muokkaamalla."
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Valitse kansio..."
   },
+  "noFoldersFound": {
+    "message": "Ongelmia ei löytynyt",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2520,7 +2530,7 @@
     "description": "Toggling an expand/collapse state."
   },
   "filelessImport": {
-    "message": "Tuodaanko tiedot Bitwardeniin?",
+    "message": "Haluatko tuoda tietosi Bitwardeniin?",
     "description": "Default notification title for triggering a fileless import."
   },
   "lpFilelessImport": {
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avaa DUO ja viimeistele kirjautuminen seuraamalla ohjeita."
+    "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Tilisi vaatii kaksivaiheisen DUO-kirjautumisen."
+  "duoRequiredForAccount": {
+    "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
+  "popoutTheExtensionToCompleteLogin": {
     "message": "Viimeistele kirjautuminen avaamalla laajennus erilliseen ikkunaan."
   },
   "popoutExtension": {
     "message": "Irrota laajennus"
   },
   "launchDuo": {
-    "message": "Avaa DUO"
+    "message": "Avaa Duo"
   },
   "importFormatError": {
     "message": "Tietoja ei ole muotoiltu oikein. Tarkista tuotava tiedosto ja yritä uudelleen."
@@ -2968,10 +2978,6 @@
     "message": "Tämän huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Tämä toiminto käynnistää Bitwarden-laajennuksen uudelleen ja sen huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Määritä Bitwarden oletusarvoiseksi salasanahallinnaksi",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Määritä oletukseksi",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Käyttäjätiedot on tallennettu!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Käyttäjätiedot on päivitetty!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Virhe tallennettaessa käyttäjätietoja. Näet isätietoja hallinnasta.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

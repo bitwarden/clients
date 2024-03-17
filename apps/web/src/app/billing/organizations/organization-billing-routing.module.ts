@@ -9,14 +9,12 @@ import { WebPlatformUtilsService } from "../../core/web-platform-utils.service";
 import { PaymentMethodComponent } from "../shared";
 
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
-import { OrganizationBillingTabComponent } from "./organization-billing-tab.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionSelfhostComponent } from "./organization-subscription-selfhost.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: OrganizationBillingTabComponent,
     canActivate: [OrganizationPermissionsGuard],
     data: { organizationPermissions: canAccessBillingTab },
     children: [

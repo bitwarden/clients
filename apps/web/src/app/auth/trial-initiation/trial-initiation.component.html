@@ -97,14 +97,18 @@
                 </button>
               </app-vertical-step>
               <app-vertical-step label="Billing" [subLabel]="billingSubLabel">
-                <app-billing
+                <app-trial-billing-step
                   *ngIf="stepper.selectedIndex === 2"
-                  [plan]="plan"
-                  [product]="product"
-                  [orgInfoForm]="orgInfoFormGroup"
-                  (previousStep)="previousStep()"
-                  (onTrialBillingSuccess)="billingSuccess($event)"
-                ></app-billing>
+                  [organizationInfo]="{
+                    name: orgInfoFormGroup.get('name').value,
+                    email: orgInfoFormGroup.get('email').value,
+                    type: trialOrganizationType
+                  }"
+                  [subscriptionProduct]="SubscriptionProduct.PasswordManager"
+                  (steppedBack)="previousStep()"
+                  (organizationCreated)="createdOrganization($event)"
+                >
+                </app-trial-billing-step>
               </app-vertical-step>
               <app-vertical-step label="Confirmation Details" [applyBorder]="false">
                 <app-trial-confirmation-details

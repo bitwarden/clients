@@ -1,14 +1,15 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { PaymentComponent, TaxInfoComponent } from "../shared";
@@ -20,7 +21,7 @@ export class PremiumComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
 
-  canAccessPremium = false;
+  canAccessPremium$: Observable<boolean>;
   selfHosted = false;
   premiumPrice = 10;
   familyPlanMaxUserCount = 6;
@@ -39,17 +40,16 @@ export class PremiumComponent implements OnInit {
     private messagingService: MessagingService,
     private syncService: SyncService,
     private logService: LogService,
-    private stateService: StateService,
     private environmentService: EnvironmentService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
     this.cloudWebVaultUrl = this.environmentService.getCloudWebVaultUrl();
+    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
   }
 
   async ngOnInit() {
-    this.canAccessPremium = await this.stateService.getCanAccessPremium();
-    const premiumPersonally = await this.stateService.getHasPremiumPersonally();
-    if (premiumPersonally) {
+    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/user-subscription"]);

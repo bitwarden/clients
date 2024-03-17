@@ -8,6 +8,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -15,6 +16,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -84,6 +86,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   private modal: ModalRef = null;
+  private componentIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     private route: ActivatedRoute,
@@ -103,10 +106,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     private searchBarService: SearchBarService,
     private apiService: ApiService,
     private dialogService: DialogService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async ngOnInit() {
-    this.userHasPremiumAccess = await this.stateService.getCanAccessPremium();
+    this.billingAccountProfileStateService.hasPremiumFromAnySource$
+      .pipe(takeUntil(this.componentIsDestroyed$))
+      .subscribe((canAccessPremium: boolean) => {
+        this.userHasPremiumAccess = canAccessPremium;
+      });
+
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -229,6 +238,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.searchBarService.setEnabled(false);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    this.componentIsDestroyed$.next(true);
+    this.componentIsDestroyed$.complete();
   }
 
   async load() {

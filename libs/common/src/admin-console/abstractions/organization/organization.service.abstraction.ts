@@ -37,6 +37,10 @@ export function canAccessBillingTab(org: Organization): boolean {
 }
 
 export function canAccessOrgAdmin(org: Organization): boolean {
+  // Admin console can only be accessed by Owners for disabled organizations
+  if (!org.enabled && !org.isOwner) {
+    return false;
+  }
   return (
     canAccessMembersTab(org) ||
     canAccessGroupsTab(org) ||

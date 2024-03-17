@@ -1,24 +1,39 @@
 import { ApiService } from "../../../../abstractions/api.service";
+import { CryptoService } from "../../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { StateProvider } from "../../../../platform/state";
+import { FASTMAIL_FORWARDER } from "../../key-definitions";
+import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
-import { EmailPrefixOptions, Forwarder, ApiOptions } from "../options/forwarder-options";
+import { EmailPrefixOptions, ApiOptions } from "../options/forwarder-options";
 
 /** Generates a forwarding address for Fastmail */
-export class FastmailForwarder implements Forwarder {
+export class FastmailForwarder extends ForwarderGeneratorStrategy<ApiOptions & EmailPrefixOptions> {
   /** Instantiates the forwarder
    *  @param apiService used for ajax requests to the forwarding service
    *  @param i18nService used to look up error strings
+   *  @param encryptService protects sensitive forwarder options
+   *  @param keyService looks up the user key when protecting data.
+   *  @param stateProvider creates the durable state for options storage
    */
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {}
+    encryptService: EncryptService,
+    keyService: CryptoService,
+    stateProvider: StateProvider,
+  ) {
+    super(encryptService, keyService, stateProvider);
+  }
 
-  /** {@link Forwarder.generate} */
-  async generate(
-    website: string | null,
-    options: ApiOptions & EmailPrefixOptions,
-  ): Promise<string> {
+  /** {@link ForwarderGeneratorStrategy.key} */
+  get key() {
+    return FASTMAIL_FORWARDER;
+  }
+
+  /** {@link ForwarderGeneratorStrategy.generate} */
+  generate = async (options: ApiOptions & EmailPrefixOptions) => {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", Forwarders.Fastmail.name);
       throw error;
@@ -41,7 +56,7 @@ export class FastmailForwarder implements Forwarder {
               "new-masked-email": {
                 state: "enabled",
                 description: "",
-                forDomain: website,
+                forDomain: options.website,
                 emailPrefix: options.prefix,
               },
             },
@@ -104,7 +119,7 @@ export class FastmailForwarder implements Forwarder {
 
     const error = this.i18nService.t("forwarderUnknownError", Forwarders.Fastmail.name);
     throw error;
-  }
+  };
 
   private async getAccountId(options: ApiOptions): Promise<string> {
     const requestInit: RequestInit = {

@@ -11,6 +11,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
+  defer,
   firstValueFrom,
   lastValueFrom,
   Observable,
@@ -140,7 +141,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     FeatureFlag.BulkCollectionAccess,
     false,
   );
-  protected flexibleCollectionsV1Enabled: boolean;
+  private _flexibleCollectionsV1FlagEnabled: boolean;
+
+  protected get flexibleCollectionsV1Enabled(): boolean {
+    return this._flexibleCollectionsV1FlagEnabled && this.organization?.flexibleCollections;
+  }
 
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
@@ -183,7 +188,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         : "trashCleanupWarning",
     );
 
-    this.flexibleCollectionsV1Enabled = await this.configService.getFeatureFlag(
+    this._flexibleCollectionsV1FlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.FlexibleCollectionsV1,
       false,
     );
@@ -250,7 +255,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const allCollectionsWithoutUnassigned$ = combineLatest([
       organizationId$.pipe(switchMap((orgId) => this.collectionAdminService.getAll(orgId))),
-      this.collectionService.getAllDecrypted(),
+      defer(() => this.collectionService.getAllDecrypted()),
     ]).pipe(
       map(([adminCollections, syncCollections]) => {
         const syncCollectionDict = Object.fromEntries(syncCollections.map((c) => [c.id, c]));
@@ -273,13 +278,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.editableCollections$ = allCollectionsWithoutUnassigned$.pipe(
       map((collections) => {
-        if (
-          this.organization.canEditAnyCollection &&
-          this.organization.allowAdminAccessToAllCollectionItems
-        ) {
-          return collections;
-        }
-        if (this.organization.isProviderUser) {
+        // Users that can edit all ciphers can implicitly edit all collections
+        if (this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
           return collections;
         }
         return collections.filter((c) => c.assigned && !c.readOnly);
@@ -403,8 +403,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       map(([filter, collection, organization]) => {
         return (
           (filter.collectionId === Unassigned && !organization.canUseAdminCollections) ||
-          (!organization.allowAdminAccessToAllCollectionItems &&
-            !organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled) &&
+          (!organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled) &&
             collection != undefined &&
             !collection.node.assigned)
         );

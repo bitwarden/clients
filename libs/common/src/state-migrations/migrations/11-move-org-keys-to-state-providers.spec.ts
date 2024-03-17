@@ -119,7 +119,7 @@ describe("OrganizationKeysMigrator", () => {
 
   describe("rollback", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(rollbackJSON(), 10);
+      helper = mockMigrationHelper(rollbackJSON(), 11);
       sut = new OrganizationKeyMigrator(10, 11);
     });
 

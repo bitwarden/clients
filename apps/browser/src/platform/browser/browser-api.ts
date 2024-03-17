@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { DeviceType } from "@bitwarden/common/enums";
 
 import { TabMessage } from "../../types/tab-messages";
-import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
@@ -17,6 +17,15 @@ export class BrowserApi {
 
   static get manifestVersion() {
     return chrome.runtime.getManifest().manifest_version;
+  }
+
+  /**
+   * Determines if the extension manifest version is the given version.
+   *
+   * @param expectedVersion - The expected manifest version to check against.
+   */
+  static isManifestVersion(expectedVersion: 2 | 3) {
+    return BrowserApi.manifestVersion === expectedVersion;
   }
 
   /**
@@ -98,12 +107,17 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Gets the tab with the given id.
+   *
+   * @param tabId - The id of the tab to get.
+   */
   static async getTab(tabId: number): Promise<chrome.tabs.Tab> | null {
     if (!tabId) {
       return null;
     }
 
-    if (BrowserApi.manifestVersion === 3) {
+    if (BrowserApi.isManifestVersion(3)) {
       return await chrome.tabs.get(tabId);
     }
 
@@ -306,7 +320,7 @@ export class BrowserApi {
   ) {
     event.addListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       BrowserApi.trackedChromeEventListeners.push([event, callback]);
       BrowserApi.setupUnloadListeners();
     }
@@ -323,7 +337,7 @@ export class BrowserApi {
   ) {
     event.removeListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       const index = BrowserApi.trackedChromeEventListeners.findIndex(([_event, eventListener]) => {
         return eventListener == callback;
       });
@@ -381,12 +395,20 @@ export class BrowserApi {
     return chrome.i18n.getUILanguage();
   }
 
-  static reloadExtension(win: Window) {
-    if (win != null) {
-      return (win.location as any).reload(true);
-    } else {
-      return chrome.runtime.reload();
+  /**
+   * Handles reloading the extension, either by calling the window location
+   * to reload or by calling the extension's runtime to reload.
+   *
+   * @param globalContext - The global context to use for the reload.
+   */
+  static reloadExtension(globalContext: (Window & typeof globalThis) | null) {
+    // The passed globalContext might be a ServiceWorkerGlobalScope, as a result
+    // we need to check if the location object exists before calling reload on it.
+    if (typeof globalContext?.location?.reload === "function") {
+      return (globalContext as any).location.reload(true);
     }
+
+    return chrome.runtime.reload();
   }
 
   /**
@@ -396,8 +418,12 @@ export class BrowserApi {
    * @param exemptCurrentHref - Whether to exempt the current window location from the reload.
    */
   static reloadOpenWindows(exemptCurrentHref = false) {
-    const currentHref = window?.location.href;
     const views = BrowserApi.getExtensionViews();
+    if (!views.length) {
+      return;
+    }
+
+    const currentHref = window.location.href;
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
@@ -441,8 +467,11 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Returns the supported BrowserAction API based on the manifest version.
+   */
   static getBrowserAction() {
-    return BrowserApi.manifestVersion === 3 ? chrome.action : chrome.browserAction;
+    return BrowserApi.isManifestVersion(3) ? chrome.action : chrome.browserAction;
   }
 
   static getSidebarAction(
@@ -463,13 +492,20 @@ export class BrowserApi {
 
   /**
    * Extension API helper method used to execute a script in a tab.
+   *
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
-   * @param {number} tabId
-   * @param {chrome.tabs.InjectDetails} details
-   * @returns {Promise<unknown>}
+   * @param tabId - The id of the tab to execute the script in.
+   * @param details {@link "InjectDetails" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/extensionTypes/InjectDetails}
+   * @param scriptingApiDetails {@link "ExecutionWorld" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/ExecutionWorld}
    */
-  static executeScriptInTab(tabId: number, details: chrome.tabs.InjectDetails) {
-    if (BrowserApi.manifestVersion === 3) {
+  static executeScriptInTab(
+    tabId: number,
+    details: chrome.tabs.InjectDetails,
+    scriptingApiDetails?: {
+      world: chrome.scripting.ExecutionWorld;
+    },
+  ): Promise<unknown> {
+    if (BrowserApi.isManifestVersion(3)) {
       return chrome.scripting.executeScript({
         target: {
           tabId: tabId,
@@ -478,6 +514,7 @@ export class BrowserApi {
         },
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
+        world: scriptingApiDetails?.world || "ISOLATED",
       });
     }
 
@@ -525,5 +562,33 @@ export class BrowserApi {
     chrome.privacy.services.autofillAddressEnabled.set({ value });
     chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     chrome.privacy.services.passwordSavingEnabled.set({ value });
+  }
+
+  /**
+   * Opens the offscreen document with the given reasons and justification.
+   *
+   * @param reasons - List of reasons for opening the offscreen document.
+   * @see https://developer.chrome.com/docs/extensions/reference/api/offscreen#type-Reason
+   * @param justification - Custom written justification for opening the offscreen document.
+   */
+  static async createOffscreenDocument(reasons: chrome.offscreen.Reason[], justification: string) {
+    await chrome.offscreen.createDocument({
+      url: "offscreen-document/index.html",
+      reasons,
+      justification,
+    });
+  }
+
+  /**
+   * Closes the offscreen document.
+   *
+   * @param callback - Optional callback to execute after the offscreen document is closed.
+   */
+  static closeOffscreenDocument(callback?: () => void) {
+    chrome.offscreen.closeDocument(() => {
+      if (callback) {
+        callback();
+      }
+    });
   }
 }

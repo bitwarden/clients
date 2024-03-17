@@ -32,7 +32,8 @@ export interface ActiveUserState<T> extends UserState<T> {
    * @param options.combineLatestWith An observable that you want to combine with the current state for callbacks. Defaults to null
    * @param options.msTimeout A timeout for how long you are willing to wait for a `combineLatestWith` option to complete. Defaults to 1000ms. Only applies if `combineLatestWith` is set.
 
-   * @returns The new state
+   * @returns A promise that must be awaited before your next action to ensure the update has been written to state.
+   * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   readonly update: <TCombine>(
     configureState: (state: T, dependencies: TCombine) => T,
@@ -50,7 +51,8 @@ export interface SingleUserState<T> extends UserState<T> {
    * @param options.combineLatestWith An observable that you want to combine with the current state for callbacks. Defaults to null
    * @param options.msTimeout A timeout for how long you are willing to wait for a `combineLatestWith` option to complete. Defaults to 1000ms. Only applies if `combineLatestWith` is set.
 
-   * @returns The new state
+   * @returns A promise that must be awaited before your next action to ensure the update has been written to state.
+   * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   readonly update: <TCombine>(
     configureState: (state: T, dependencies: TCombine) => T,

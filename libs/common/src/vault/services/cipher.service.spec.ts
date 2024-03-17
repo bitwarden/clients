@@ -4,7 +4,9 @@ import { of } from "rxjs";
 import { makeStaticByteArray } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
-import { SettingsService } from "../../abstractions/settings.service";
+import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigServiceAbstraction } from "../../platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
@@ -16,7 +18,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherKey, OrgKey } from "../../types/key";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
-import { UriMatchType, FieldType } from "../enums";
+import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
@@ -52,7 +54,9 @@ const cipherData: CipherData = {
   key: "EncKey",
   reprompt: CipherRepromptType.None,
   login: {
-    uris: [{ uri: "EncryptedString", uriChecksum: "EncryptedString", match: UriMatchType.Domain }],
+    uris: [
+      { uri: "EncryptedString", uriChecksum: "EncryptedString", match: UriMatchStrategy.Domain },
+    ],
     username: "EncryptedString",
     password: "EncryptedString",
     passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -97,7 +101,8 @@ const cipherData: CipherData = {
 describe("Cipher Service", () => {
   const cryptoService = mock<CryptoService>();
   const stateService = mock<StateService>();
-  const settingsService = mock<SettingsService>();
+  const autofillSettingsService = mock<AutofillSettingsService>();
+  const domainSettingsService = mock<DomainSettingsService>();
   const apiService = mock<ApiService>();
   const cipherFileUploadService = mock<CipherFileUploadService>();
   const i18nService = mock<I18nService>();
@@ -116,11 +121,12 @@ describe("Cipher Service", () => {
 
     cipherService = new CipherService(
       cryptoService,
-      settingsService,
+      domainSettingsService,
       apiService,
       i18nService,
       searchService,
       stateService,
+      autofillSettingsService,
       encryptService,
       cipherFileUploadService,
       configService,
@@ -266,13 +272,15 @@ describe("Cipher Service", () => {
         Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
       );
       cryptoService.encrypt.mockImplementation(encryptText);
+
+      jest.spyOn(cipherService as any, "getAutofillOnPageLoadDefault").mockResolvedValue(true);
     });
 
     describe("login encryption", () => {
       it("should add a uri hash to login uris", async () => {
         encryptService.hash.mockImplementation((value) => Promise.resolve(`${value} hash`));
         cipherView.login.uris = [
-          { uri: "uri", match: UriMatchType.RegularExpression } as LoginUriView,
+          { uri: "uri", match: UriMatchStrategy.RegularExpression } as LoginUriView,
         ];
 
         const domain = await cipherService.encrypt(cipherView);
@@ -281,7 +289,7 @@ describe("Cipher Service", () => {
           {
             uri: new EncString("uri has been encrypted"),
             uriChecksum: new EncString("uri hash has been encrypted"),
-            match: UriMatchType.RegularExpression,
+            match: UriMatchStrategy.RegularExpression,
           },
         ]);
       });

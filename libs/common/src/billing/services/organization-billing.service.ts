@@ -76,6 +76,18 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     };
   }
 
+  private prohibitsAdditionalSeats(planType: PlanType) {
+    switch (planType) {
+      case PlanType.Free:
+      case PlanType.FamiliesAnnually:
+      case PlanType.FamiliesAnnually2019:
+      case PlanType.TeamsStarter:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   private setOrganizationInformation(
     request: OrganizationCreateRequest,
     information: OrganizationInformation,
@@ -83,6 +95,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.name = information.name;
     request.businessName = information.businessName;
     request.billingEmail = information.billingEmail;
+    request.initiationPath = information.initiationPath;
   }
 
   private setOrganizationKeys(request: OrganizationCreateRequest, keys: OrganizationKeys): void {
@@ -121,7 +134,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   ): void {
     request.planType = information.type;
 
-    if (request.planType === PlanType.Free) {
+    if (this.prohibitsAdditionalSeats(request.planType)) {
       request.useSecretsManager = information.subscribeToSecretsManager;
       request.isFromSecretsManagerTrial = information.isFromSecretsManagerTrial;
       return;

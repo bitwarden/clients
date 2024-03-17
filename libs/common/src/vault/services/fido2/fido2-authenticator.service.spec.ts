@@ -216,6 +216,7 @@ describe("FidoAuthenticatorService", () => {
             credentialName: params.rpEntity.name,
             userName: params.userEntity.displayName,
             userVerification,
+            rpId: params.rpEntity.id,
           } as NewCredentialParams);
         });
       }
@@ -362,7 +363,7 @@ describe("FidoAuthenticatorService", () => {
             0xd0, 0x5c, 0x3d, 0xc3,
           ]),
         );
-        expect(flags).toEqual(new Uint8Array([0b01000001])); // UP = true, AD = true
+        expect(flags).toEqual(new Uint8Array([0b01011001])); // UP = true, AT = true, BE = true, BS = true
         expect(counter).toEqual(new Uint8Array([0, 0, 0, 0])); // 0 because of new counter
         expect(aaguid).toEqual(AAGUID);
         expect(credentialIdLength).toEqual(new Uint8Array([0, 16])); // 16 bytes because we're using GUIDs
@@ -656,14 +657,14 @@ describe("FidoAuthenticatorService", () => {
       beforeEach(init);
 
       /** Spec: Increment the credential associated signature counter */
-      it("should increment counter", async () => {
+      it("should increment counter and save to server when stored counter is larger than zero", async () => {
         const encrypted = Symbol();
         cipherService.encrypt.mockResolvedValue(encrypted as any);
+        ciphers[0].login.fido2Credentials[0].counter = 9000;
 
         await authenticator.getAssertion(params, tab);
 
         expect(cipherService.updateWithServer).toHaveBeenCalledWith(encrypted);
-
         expect(cipherService.encrypt).toHaveBeenCalledWith(
           expect.objectContaining({
             id: ciphers[0].id,
@@ -676,6 +677,17 @@ describe("FidoAuthenticatorService", () => {
             }),
           }),
         );
+      });
+
+      /** Spec: Authenticators that do not implement a signature counter leave the signCount in the authenticator data constant at zero. */
+      it("should not save to server when stored counter is zero", async () => {
+        const encrypted = Symbol();
+        cipherService.encrypt.mockResolvedValue(encrypted as any);
+        ciphers[0].login.fido2Credentials[0].counter = 0;
+
+        await authenticator.getAssertion(params, tab);
+
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
       });
 
       it("should return an assertion result", async () => {
@@ -697,7 +709,7 @@ describe("FidoAuthenticatorService", () => {
             0xd0, 0x5c, 0x3d, 0xc3,
           ]),
         );
-        expect(flags).toEqual(new Uint8Array([0b00000001])); // UP = true
+        expect(flags).toEqual(new Uint8Array([0b00011001])); // UP = true, BE = true, BS = true
         expect(counter).toEqual(new Uint8Array([0, 0, 0x23, 0x29])); // 9001 in hex
 
         // Verify signature

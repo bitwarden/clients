@@ -578,6 +578,9 @@
   "access": {
     "message": "Müraciət"
   },
+  "accessLevel": {
+    "message": "Müraciət səviyyəsi"
+  },
   "loggedOut": {
     "message": "Çıxış edildi"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "Verilənləri idxal et"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Daxilə köçürüləcək datanız yoxdursa, əvəzində yeni element yarada bilərsiniz.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": " ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": "Administratorunuz təşkilat üzvlüyünüzü təsdiqləyənə qədər gözləməli ola bilərsiniz.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "İdxal xətası"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Hər girişin yanında tanına bilən təsvir göstər."
-  },
-  "enableFullWidth": {
-    "message": "Tam en görünüşünü fəallaşdır",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Veb anbara, brauzer pəncərəsinin eninin tamamını istifadə etməsinə icazə ver."
   },
   "default": {
     "message": "İlkin"
@@ -2529,7 +2541,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "message": "$PLAN$ qarşılığında Bitwarden Sirr Menecerində qeydiyyatdan keçdiyiniz üçün təşəkkürlər!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Bu vərəqi indi bağlayıb uzantıda davam edə bilərsiniz."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Bu pəncərə 5 saniyəyə avtomatik bağlanacaq"
+  },
   "includeAllTeamsFeatures": {
     "message": "Bütün komanda özəllikləri, əlavə olaraq:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Provayder kimi sizinlə əlaqə yaradılacaq yeni bir müştəri təşkilatı yaradın. Bu təşkilata müraciət edə və onu idarə edə biləcəksiniz."
+  },
+  "newClient": {
+    "message": "Yeni müştəri"
   },
   "addExistingOrganization": {
     "message": "Mövcud təşkilatı əlavə et"
@@ -5916,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "DUO-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+    "message": "Hesabınız üçün DUO iki addımlı giriş tələb olunur."
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "DUO-nu başlat"
   },
   "turnOn": {
     "message": "İşə sal"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Kodu təkrar göndər"
   },
-  "membersColumnHeader": {
-    "message": "Üzv/Qrup"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Üzv"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Qrup/Üzv"
   },
   "selectGroupsAndMembers": {
     "message": "Qrup və üzv seç"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Bir hesab yarat"
   },
   "createSecret": {
     "message": "Bir sirr yarat"
@@ -7241,7 +7265,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
+    "message": "$ORG$ üçün Bitwarden Sirr Meneceri üzrə 7 günlük ödənişsiz sınağı başladın",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7456,6 +7480,12 @@
     "message": "Kömək saytımızda detallı təlimatlara baxın",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Brauzer uzantısını quraşdır"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Veb tətbiqi açmadan giriş məlumatlarını cəld saxlamaq və formları avto-doldurmaq üçün uzantını istifadə edin."
+  },
   "projectAccessUpdated": {
     "message": "Layihə müraciəti güncəlləndi"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Qrup və ya üzvlərin bu kolleksiyaya müraciətinə icazə verin."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Üzvlərin bu kolleksiyaya müraciətinə icazə verin."
   },
   "adminCollectionAccess": {
     "message": "Administratorlar kolleksiyalara müraciət edə və onları idarə edə bilər."
@@ -7509,15 +7542,74 @@
     "message": "Kolleksiya idarəsi haqqında daha ətraflı"
   },
   "organizationInformation": {
-    "message": "Organization information"
+    "message": "Təşkilat məlumatları"
   },
   "confirmationDetails": {
-    "message": "Confirmation details"
+    "message": "Təsdiq detalları"
   },
   "smFreeTrialThankYou": {
-    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+    "message": "Bitwarden Sirr Menecerində qeydiyyatdan keçdiyiniz üçün təşəkkürlər!"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "We've sent a confirmation email to your email at "
+    "message": "E-poçtunuza bir təsdiq məktubu göndərdik "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Bu əməliyyatın geri dönüşü yoxdur"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Bu özəlliyin işə salınması, menecer rolunu ləğv edəcək və onu \"İdarə edə bilər\" icazəsi ilə əvəz edəcək. Bu bir neçə dəqiqə çəkəcək. Tamamlanana qədər heç bir təşkilat dəyişikliyi etməyin. Davam etmək istədiyinizə əminsiniz?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Getməyinizə məyus olduq! Nə üçün ləğv etdiyinizi paylaşmaqla Bitwarden-i təkmilləşdirməyə kömək edin.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Ləğv etmək üçün bir səbəb seçin",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Paylaşmaq istədiyiniz başqa nəsə var?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Əskik özəlliklər",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Başqa bir alətə keçirəm",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "İstifadəsi çətindir",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Yetərincə istifadə etmədim",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Çox bahadır",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 illik ödənişsiz"
+  },
+  "newWebApp": {
+    "message": "Yeni və təkmilləşdirilmiş veb tətbiqinə xoş gəlmisiniz. Nələr dəyişdiyi haqqqında daha ətraflı öyrənin."
+  },
+  "releaseBlog": {
+    "message": "Buraxılış bloqunu oxuyun"
+  },
+  "adminConsole": {
+    "message": "Admin Konsolu"
+  },
+  "providerPortal": {
+    "message": "Provayder Portal"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

@@ -11,15 +11,11 @@ export class GlobalState {
   window?: WindowState = new WindowState();
   twoFactorToken?: string;
   disableFavicon?: boolean;
-  biometricAwaitingAcceptance?: boolean;
   biometricFingerprintValidated?: boolean;
   vaultTimeout?: number;
   vaultTimeoutAction?: string;
   loginRedirect?: any;
   mainWindowSize?: number;
-  enableBiometrics?: boolean;
-  biometricText?: string;
-  noAutoPromptBiometricsText?: string;
   enableTray?: boolean;
   enableMinimizeToTray?: boolean;
   enableCloseToTray?: boolean;
@@ -29,11 +25,5 @@ export class GlobalState {
   enableBrowserIntegration?: boolean;
   enableBrowserIntegrationFingerprint?: boolean;
   enableDuckDuckGoBrowserIntegration?: boolean;
-  neverDomains?: { [id: string]: unknown };
-  enablePasskeys?: boolean;
-  disableAddLoginNotification?: boolean;
-  disableChangedPasswordNotification?: boolean;
-  disableContextMenuItem?: boolean;
-  autoFillOverlayVisibility?: number;
   deepLinkRedirectUrl?: string;
 }

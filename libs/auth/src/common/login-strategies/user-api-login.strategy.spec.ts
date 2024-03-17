@@ -4,6 +4,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -19,9 +21,11 @@ import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { UserApiLoginStrategy } from "./user-api-login.strategy";
+import { UserApiLoginStrategy, UserApiLoginStrategyData } from "./user-api-login.strategy";
 
 describe("UserApiLoginStrategy", () => {
+  let cache: UserApiLoginStrategyData;
+
   let cryptoService: MockProxy<CryptoService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -33,6 +37,7 @@ describe("UserApiLoginStrategy", () => {
   let twoFactorService: MockProxy<TwoFactorService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let apiLogInStrategy: UserApiLoginStrategy;
   let credentials: UserApiLoginCredentials;
@@ -54,12 +59,14 @@ describe("UserApiLoginStrategy", () => {
     twoFactorService = mock<TwoFactorService>();
     keyConnectorService = mock<KeyConnectorService>();
     environmentService = mock<EnvironmentService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.getTwoFactorToken.mockResolvedValue(null);
-    tokenService.decodeToken.mockResolvedValue({});
+    tokenService.decodeAccessToken.mockResolvedValue({});
 
     apiLogInStrategy = new UserApiLoginStrategy(
+      cache,
       cryptoService,
       apiService,
       tokenService,
@@ -71,6 +78,7 @@ describe("UserApiLoginStrategy", () => {
       twoFactorService,
       environmentService,
       keyConnectorService,
+      billingAccountProfileStateService,
     );
 
     credentials = new UserApiLoginCredentials(apiClientId, apiClientSecret);
@@ -98,10 +106,23 @@ describe("UserApiLoginStrategy", () => {
   it("sets the local environment after a successful login", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
+    const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
+    const mockVaultTimeout = 60;
+    stateService.getVaultTimeoutAction.mockResolvedValue(mockVaultTimeoutAction);
+    stateService.getVaultTimeout.mockResolvedValue(mockVaultTimeout);
+
     await apiLogInStrategy.logIn(credentials);
 
-    expect(stateService.setApiKeyClientId).toHaveBeenCalledWith(apiClientId);
-    expect(stateService.setApiKeyClientSecret).toHaveBeenCalledWith(apiClientSecret);
+    expect(tokenService.setClientId).toHaveBeenCalledWith(
+      apiClientId,
+      mockVaultTimeoutAction,
+      mockVaultTimeout,
+    );
+    expect(tokenService.setClientSecret).toHaveBeenCalledWith(
+      apiClientSecret,
+      mockVaultTimeoutAction,
+      mockVaultTimeout,
+    );
     expect(stateService.addAccount).toHaveBeenCalled();
   });
 

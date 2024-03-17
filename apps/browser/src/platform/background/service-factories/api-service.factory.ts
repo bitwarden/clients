@@ -20,6 +20,7 @@ import {
   PlatformUtilsServiceInitOptions,
   platformUtilsServiceFactory,
 } from "./platform-utils-service.factory";
+import { stateServiceFactory, StateServiceInitOptions } from "./state-service.factory";
 
 type ApiServiceFactoryOptions = FactoryOptions & {
   apiServiceOptions: {
@@ -32,7 +33,8 @@ export type ApiServiceInitOptions = ApiServiceFactoryOptions &
   TokenServiceInitOptions &
   PlatformUtilsServiceInitOptions &
   EnvironmentServiceInitOptions &
-  AppIdServiceInitOptions;
+  AppIdServiceInitOptions &
+  StateServiceInitOptions;
 
 export function apiServiceFactory(
   cache: { apiService?: AbstractApiService } & CachedServices,
@@ -48,6 +50,7 @@ export function apiServiceFactory(
         await platformUtilsServiceFactory(cache, opts),
         await environmentServiceFactory(cache, opts),
         await appIdServiceFactory(cache, opts),
+        await stateServiceFactory(cache, opts),
         opts.apiServiceOptions.logoutCallback,
         opts.apiServiceOptions.customUserAgent,
       ),

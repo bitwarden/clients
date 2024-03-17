@@ -578,6 +578,9 @@
   "access": {
     "message": "Доступ"
   },
+  "accessLevel": {
+    "message": "Рівень доступу"
+  },
   "loggedOut": {
     "message": "Ви вийшли"
   },
@@ -1309,7 +1312,7 @@
     "message": "Сховище організації очищено."
   },
   "vaultAccessedByProvider": {
-    "message": "Постачальник отримав доступ до сховища."
+    "message": "Провайдер отримав доступ до сховища."
   },
   "purgeVaultDesc": {
     "message": "Продовжуйте внизу для видалення всіх записів і тек у вашому сховищі. Записи, що належать до спільної організації не будуть видалені."
@@ -1346,6 +1349,22 @@
   },
   "importData": {
     "message": "Імпортувати дані"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Якщо у вас немає даних для імпорту, можете створити ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "новий елемент",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " натомість.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " натомість. Можливо, доведеться зачекати доки адміністратор підтвердить вашу участь в організації.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Помилка імпорту"
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Показувати впізнаване зображення біля кожного запису."
-  },
-  "enableFullWidth": {
-    "message": "Показувати на всю ширину сторінки",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Дозволити веб сховищу розгортатися на повну ширину вікна браузера."
   },
   "default": {
     "message": "Типово"
@@ -2733,7 +2745,7 @@
     "message": "Керування всіма налаштуваннями організації, як-от платежі й передплати"
   },
   "clientOwnerDesc": {
-    "message": "Цей користувач має бути незалежним від постачальника. Якщо постачальник не пов'язаний з організацією, цей користувач підтримуватиме право власності організації."
+    "message": "Цей користувач має бути незалежним від провайдера. Якщо провайдер не пов'язаний з організацією, цей користувач підтримуватиме право власності організації."
   },
   "admin": {
     "message": "Адміністратор"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Тепер ви можете закрити цю вкладку і продовжити в розширенні."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Ви успішно увійшли в систему"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Це вікно автоматично закриється через 5 секунд"
+  },
   "includeAllTeamsFeatures": {
     "message": "Усі функції команд, плюс:"
   },
@@ -4872,19 +4890,19 @@
     "message": "Разом із дозволом на керування відновленням облікового запису також необхідно надати дозвіл на керування користувачами"
   },
   "setupProvider": {
-    "message": "Налаштування постачальника"
+    "message": "Налаштування провайдера"
   },
   "setupProviderLoginDesc": {
-    "message": "Вас запрошено налаштувати нового постачальника. Для продовження вам необхідно увійти чи створити новий обліковий запис Bitwarden."
+    "message": "Вас запрошено налаштувати нового провайдера. Для продовження вам необхідно увійти чи створити новий обліковий запис Bitwarden."
   },
   "setupProviderDesc": {
-    "message": "Будь ласка, введіть зазначену нижче інформацію, щоб завершити налаштування постачальника. Зверніться до служби підтримки, якщо у вас виникли будь-які запитання."
+    "message": "Будь ласка, введіть зазначену нижче інформацію, щоб завершити налаштування провайдера. Зверніться до служби підтримки, якщо у вас виникли будь-які запитання."
   },
   "providerName": {
-    "message": "Назва постачальника"
+    "message": "Назва провайдера"
   },
   "providerSetup": {
-    "message": "Постачальника успішно налаштовано"
+    "message": "Провайдера успішно налаштовано"
   },
   "clients": {
     "message": "Клієнти"
@@ -4894,10 +4912,10 @@
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
-    "message": "Адміністратор постачальника"
+    "message": "Адміністратор провайдера"
   },
   "providerAdminDesc": {
-    "message": "Користувач із найвищими привілеями, який може керувати усіма аспектами вашого постачальника, а також отримувати доступ і керувати організаціями клієнтів."
+    "message": "Користувач із найвищими привілеями, який може керувати усіма аспектами вашого провайдера, а також отримувати доступ і керувати організаціями клієнтів."
   },
   "serviceUser": {
     "message": "Сервісний користувач"
@@ -4906,37 +4924,40 @@
     "message": "Сервісні користувачі можуть отримувати доступ та керувати всіма організаціями клієнтів."
   },
   "providerInviteUserDesc": {
-    "message": "Запросіть нового користувача до вашого постачальника, ввівши адресу е-пошти його облікового запису Bitwarden. Якщо він ще не має облікового запису, він отримає запит на його створення."
+    "message": "Запросіть нового користувача до вашого провайдера, ввівши адресу е-пошти його облікового запису Bitwarden. Якщо він ще не має облікового запису, він отримає запит на його створення."
   },
   "joinProvider": {
-    "message": "Приєднатися до постачальника"
+    "message": "Приєднатися до провайдера"
   },
   "joinProviderDesc": {
-    "message": "Вас було запрошено приєднатися до зазначеного вгорі постачальника. Щоб підтвердити запрошення, вам необхідно увійти в обліковий запис Bitwarden, або створити його."
+    "message": "Вас було запрошено приєднатися до зазначеного вгорі провайдера. Щоб підтвердити запрошення, вам необхідно увійти в обліковий запис Bitwarden, або створити його."
   },
   "providerInviteAcceptFailed": {
-    "message": "Не вдалося прийняти запрошення. Попросіть адміністратора постачальника надіслати вам нове."
+    "message": "Не вдалося прийняти запрошення. Попросіть адміністратора провайдера надіслати вам нове."
   },
   "providerInviteAcceptedDesc": {
-    "message": "Ви можете отримати доступ до цього постачальника одразу після підтвердження адміністратором. Ми надішлемо вам електронне повідомлення, коли це станеться."
+    "message": "Ви можете отримати доступ до цього провайдера одразу після підтвердження адміністратором. Ми надішлемо вам електронне повідомлення, коли це станеться."
   },
   "providerUsersNeedConfirmed": {
-    "message": "У вас є користувачі, які прийняли запрошення, але все ще мають бути підтверджені. Користувачі не матимуть доступу до постачальника доки ви їх не затвердите."
+    "message": "У вас є користувачі, які прийняли запрошення, але все ще мають бути підтверджені. Користувачі не матимуть доступу до провайдера доки ви їх не затвердите."
   },
   "provider": {
-    "message": "Постачальник"
+    "message": "Провайдер"
   },
   "newClientOrganization": {
     "message": "Нова організація клієнта"
   },
   "newClientOrganizationDesc": {
-    "message": "Створіть нову організацію клієнта, яка буде пов'язана з вами, як постачальником. Ви зможете отримати доступ та керувати цією організацією."
+    "message": "Створіть нову організацію клієнта, яка буде пов'язана з вами, як провайдером. Ви зможете отримати доступ та керувати цією організацією."
+  },
+  "newClient": {
+    "message": "Новий клієнт"
   },
   "addExistingOrganization": {
     "message": "Додати наявну організацію"
   },
   "myProvider": {
-    "message": "Мій постачальник"
+    "message": "Мій провайдер"
   },
   "addOrganizationConfirmation": {
     "message": "Ви дійсно хочете додати $ORGANIZATION$ як клієнт для $PROVIDER$?",
@@ -4952,10 +4973,10 @@
     }
   },
   "organizationJoinedProvider": {
-    "message": "Організацію було успішно додано до постачальника"
+    "message": "Організацію було успішно додано до провайдера"
   },
   "accessingUsingProvider": {
-    "message": "Доступ до організації з використанням постачальника $PROVIDER$",
+    "message": "Доступ до організації з використанням провайдера $PROVIDER$",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -4964,13 +4985,13 @@
     }
   },
   "providerIsDisabled": {
-    "message": "Постачальника призупинено"
+    "message": "Провайдера призупинено"
   },
   "providerUpdated": {
-    "message": "Постачальника збережено"
+    "message": "Провайдера збережено"
   },
   "yourProviderIs": {
-    "message": "Ваш постачальник $PROVIDER$. Він має адміністраторські та платіжні повноваження для вашої організації.",
+    "message": "Ваш провайдер – $PROVIDER$. Він має адміністраторські та платіжні повноваження для вашої організації.",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -4979,7 +5000,7 @@
     }
   },
   "detachedOrganization": {
-    "message": "Організацію $ORGANIZATION$ було від'єднано від вашого постачальника.",
+    "message": "Організацію $ORGANIZATION$ було від'єднано від вашого провайдера.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4988,7 +5009,7 @@
     }
   },
   "detachOrganizationConfirmation": {
-    "message": "Ви дійсно хочете від'єднати цю організацію? Організація продовжить існувати, але більше не керуватиметься постачальником."
+    "message": "Ви дійсно хочете від'єднати цю організацію? Організація продовжить існувати, але більше не керуватиметься провайдером."
   },
   "add": {
     "message": "Додати"
@@ -5111,10 +5132,10 @@
     "message": "Конфігурація з'єднання OpenID"
   },
   "samlSpConfig": {
-    "message": "Конфігурація постачальника послуг SAML"
+    "message": "Конфігурація провайдера послуг SAML"
   },
   "samlIdpConfig": {
-    "message": "Конфігурація постачальника ідентифікації SAML"
+    "message": "Конфігурація провайдера облікових даних SAML"
   },
   "callbackPath": {
     "message": "Шлях до зворотного виклику"
@@ -5681,7 +5702,7 @@
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Використовуйте розширені можливості адрес вашого постачальника електронної пошти."
+    "message": "Використовуйте розширені можливості адрес вашого провайдера електронної пошти."
   },
   "catchallEmail": {
     "message": "Адреса е-пошти Catch-all"
@@ -5794,7 +5815,7 @@
     "description": "The text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimDescription": {
-    "message": "Автоматично забезпечувати користувачів та групи бажаним постачальником облікових даних через SCIM",
+    "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером облікових даних через SCIM",
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -5802,7 +5823,7 @@
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
-    "message": "Встановіть бажаного постачальника облікових даних, налаштувавши URL-адресу та ключ API для SCIM",
+    "message": "Налаштуйте бажаного провайдера облікових даних, вказавши URL-адресу та ключ API для SCIM",
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimApiKeyHelperText": {
@@ -5916,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустіть DUO і виконайте дії для завершення входу."
+    "message": "Запустіть Duo і виконайте дії для завершення входу."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Для вашого облікового запису необхідна двоетапна перевірка з DUO."
+    "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
   },
   "launchDuo": {
-    "message": "Запустити DUO"
+    "message": "Запустити Duo"
   },
   "turnOn": {
     "message": "Увімкнути"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "Надіслати новий код"
   },
-  "membersColumnHeader": {
-    "message": "Учасник/Група"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Учасник"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Група/учасник"
   },
   "selectGroupsAndMembers": {
     "message": "Виберіть групи та учасників"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Створити обліковий запис"
   },
   "createSecret": {
     "message": "Створити секрет"
@@ -7456,6 +7480,12 @@
     "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Встановити розширення браузера"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Використовуйте розширення, щоб швидко зберігати паролі й автоматично заповнювати форми без відкриття вебверсії."
+  },
   "projectAccessUpdated": {
     "message": "Доступ до проєкту оновлено"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "Надайте групам або учасникам доступ до цієї збірки."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Надайте учасникам доступ до цієї збірки."
   },
   "adminCollectionAccess": {
     "message": "Адміністратори мають доступ і можливість керування збірками."
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Ми надіслали лист з підтвердженням на вашу електронну пошту "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Це незворотна дія"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Увімкнення цієї функції замінить роль менеджера на можливість керування дозволами. Цей процес триватиме кілька секунд. Не робіть жодних змін в організації доки процес не завершиться. Ви дійсно хочете продовжити?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Нам шкода, що ви нас покидаєте! Допоможіть вдосконалити Bitwarden, повідомивши причину.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Виберіть причину скасування",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Чи бажаєте поділитися своїм відгуком?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Відсутні функції",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Переходжу на інший інструмент",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Складний у користуванні",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Майже не користуюся",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Висока ціна",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Безплатно на 1 рік"
+  },
+  "newWebApp": {
+    "message": "Ласкаво просимо до нової, вдосконаленої вебпрограми. Ознайомтеся докладніше зі змінами."
+  },
+  "releaseBlog": {
+    "message": "Читати блог випусків"
+  },
+  "adminConsole": {
+    "message": "Консоль адміністратора"
+  },
+  "providerPortal": {
+    "message": "Портал провайдера"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

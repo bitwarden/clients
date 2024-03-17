@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Ваш аккаунт создан! Теперь вы можете войти в систему."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Вы успешно авторизовались"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Можете закрыть это окно"
+  },
   "masterPassSent": {
     "message": "Мы отправили вам письмо с подсказкой к мастер-паролю."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Выберите папку..."
   },
+  "noFoldersFound": {
+    "message": "Папки не найдены",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Права доступа организации были обновлены, требуется установить мастер-пароль.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите DUO и следуйте шагам для завершения авторизации."
+    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Для вашего аккаунта требуется двухэтапная аутентификация DUO."
+  "duoRequiredForAccount": {
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Откройте расширение в новом окне, чтобы завершить авторизацию"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Запустите расширение для завершения авторизации."
   },
   "popoutExtension": {
     "message": "Открепить расширение"
   },
   "launchDuo": {
-    "message": "Запустить DUO"
+    "message": "Запустить Duo"
   },
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
@@ -2968,10 +2978,6 @@
     "message": "Отключение этого параметра может привести к конфликту между меню автозаполнения Bitwarden и вашим браузером.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Это действие перезапустит расширение Bitwarden. Игнорирование этой опции может привести к конфликту между меню автозаполнения Bitwarden и вашим браузером.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Сделать Bitwarden менеджером паролей по умолчанию",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "Установить по умолчанию",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Учетные данные успешно сохранены!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Учетные данные успешно обновлены!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Ошибка сохранения учетных данных. Проверьте консоль для получения подробной информации.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

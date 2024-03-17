@@ -2,6 +2,7 @@ import { Component, Input } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BulkUserDetails } from "./bulk-status.component";
@@ -14,7 +15,9 @@ export class BulkRemoveComponent {
   @Input() organizationId: string;
   @Input() set users(value: BulkUserDetails[]) {
     this._users = value;
-    this.showNoMasterPasswordWarning = this._users.some((u) => u.hasMasterPassword === false);
+    this.showNoMasterPasswordWarning = this._users.some(
+      (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+    );
   }
 
   get users(): BulkUserDetails[] {

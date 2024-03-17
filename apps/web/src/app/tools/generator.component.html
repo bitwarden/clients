@@ -1,476 +1,479 @@
-<div class="page-header">
-  <h1>{{ "generator" | i18n }}</h1>
-</div>
-<app-callout type="info" *ngIf="enforcedPasswordPolicyOptions?.inEffect() && type === 'password'">
-  {{ "passwordGeneratorPolicyInEffect" | i18n }}
-</app-callout>
-<div class="card card-generated bg-light my-4">
-  <div class="card-body">
-    <bit-color-password
-      [password]="type === 'password' ? password : username"
-      [appCopyText]="type === 'password' ? password : username"
-    ></bit-color-password>
+<app-header></app-header>
+
+<bit-container>
+  <app-callout type="info" *ngIf="enforcedPasswordPolicyOptions?.inEffect() && type === 'password'">
+    {{ "passwordGeneratorPolicyInEffect" | i18n }}
+  </app-callout>
+  <div class="card card-generated bg-light my-4">
+    <div class="card-body">
+      <bit-color-password
+        [password]="type === 'password' ? password : username"
+        [appCopyText]="type === 'password' ? password : username"
+      ></bit-color-password>
+    </div>
   </div>
-</div>
-<div class="form-group" role="radiogroup" aria-labelledby="typeHeading">
-  <label id="typeHeading" class="d-block">{{ "whatWouldYouLikeToGenerate" | i18n }}</label>
-  <div class="form-check form-check-inline" *ngFor="let o of typeOptions">
-    <input
-      class="form-check-input"
-      type="radio"
-      [(ngModel)]="type"
-      name="Type"
-      id="type_{{ o.value }}"
-      [value]="o.value"
-      (change)="typeChanged()"
-      [checked]="type === o.value"
-    />
-    <label class="form-check-label" for="type_{{ o.value }}">
-      {{ o.name }}
-    </label>
-  </div>
-</div>
-<ng-container *ngIf="type === 'password'">
-  <div aria-labelledby="passwordTypeHeading" class="form-group" role="radiogroup">
-    <label id="passwordTypeHeading" class="d-block">{{ "passwordType" | i18n }}</label>
-    <div class="form-check form-check-inline" *ngFor="let o of passTypeOptions">
+  <div class="form-group" role="radiogroup" aria-labelledby="typeHeading">
+    <label id="typeHeading" class="d-block">{{ "whatWouldYouLikeToGenerate" | i18n }}</label>
+    <div class="form-check form-check-inline" *ngFor="let o of typeOptions">
       <input
         class="form-check-input"
         type="radio"
-        [(ngModel)]="passwordOptions.type"
-        name="PasswordType"
-        id="passwordType_{{ o.value }}"
+        [(ngModel)]="type"
+        name="Type"
+        id="type_{{ o.value }}"
         [value]="o.value"
-        (change)="savePasswordOptions()"
-        [checked]="passwordOptions.type === o.value"
+        (change)="typeChanged()"
+        [checked]="type === o.value"
       />
-      <label class="form-check-label" for="passwordType_{{ o.value }}">
+      <label class="form-check-label" for="type_{{ o.value }}">
         {{ o.name }}
       </label>
     </div>
   </div>
-  <ng-container *ngIf="passwordOptions.type === 'passphrase'">
-    <div class="row">
-      <div class="form-group col-4">
-        <label for="num-words">{{ "numWords" | i18n }}</label>
+  <ng-container *ngIf="type === 'password'">
+    <div aria-labelledby="passwordTypeHeading" class="form-group" role="radiogroup">
+      <label id="passwordTypeHeading" class="d-block">{{ "passwordType" | i18n }}</label>
+      <div class="form-check form-check-inline" *ngFor="let o of passTypeOptions">
         <input
-          id="num-words"
-          class="form-control"
-          type="number"
-          min="3"
-          max="20"
-          [(ngModel)]="passwordOptions.numWords"
-          (blur)="savePasswordOptions()"
-        />
-      </div>
-      <div class="form-group col-4">
-        <label for="word-separator">{{ "wordSeparator" | i18n }}</label>
-        <input
-          id="word-separator"
-          class="form-control"
-          type="text"
-          maxlength="1"
-          [(ngModel)]="passwordOptions.wordSeparator"
-          (blur)="savePasswordOptions()"
-        />
-      </div>
-    </div>
-    <label class="d-block">{{ "options" | i18n }}</label>
-    <div class="form-group">
-      <div class="form-check">
-        <input
-          id="capitalize"
           class="form-check-input"
-          type="checkbox"
+          type="radio"
+          [(ngModel)]="passwordOptions.type"
+          name="PasswordType"
+          id="passwordType_{{ o.value }}"
+          [value]="o.value"
           (change)="savePasswordOptions()"
-          [(ngModel)]="passwordOptions.capitalize"
-          [disabled]="enforcedPasswordPolicyOptions?.capitalize"
+          [checked]="passwordOptions.type === o.value"
         />
-        <label for="capitalize" class="form-check-label">{{ "capitalize" | i18n }}</label>
-      </div>
-      <div class="form-check">
-        <input
-          id="include-number"
-          class="form-check-input"
-          type="checkbox"
-          (change)="savePasswordOptions()"
-          [(ngModel)]="passwordOptions.includeNumber"
-          [disabled]="enforcedPasswordPolicyOptions?.includeNumber"
-        />
-        <label for="include-number" class="form-check-label">{{ "includeNumber" | i18n }}</label>
-      </div>
-    </div>
-  </ng-container>
-  <ng-container *ngIf="passwordOptions.type === 'password'">
-    <div class="row">
-      <div class="form-group col-4">
-        <label for="length">{{ "length" | i18n }}</label>
-        <input
-          id="length"
-          class="form-control"
-          type="number"
-          [min]="passwordOptions.minLength"
-          max="128"
-          [(ngModel)]="passwordOptions.length"
-          (blur)="savePasswordOptions()"
-          (change)="lengthChanged()"
-        />
-      </div>
-      <div class="form-group col-4">
-        <label for="min-length">{{ "passwordMinLength" | i18n }}</label>
-        <input
-          id="min-length"
-          class="form-control"
-          type="text"
-          readonly="true"
-          [value]="passwordOptions.length"
-        />
-        <span
-          class="sr-only"
-          attr.aria-label="{{ 'passwordMinLength' | i18n }}"
-          role="status"
-          aria-live="polite"
-        >
-          {{ passwordOptionsMinLengthForReader$ | async }}
-        </span>
-      </div>
-      <div class="form-group col-4">
-        <label for="min-number">{{ "minNumbers" | i18n }}</label>
-        <input
-          id="min-number"
-          class="form-control"
-          type="number"
-          min="0"
-          max="9"
-          [(ngModel)]="passwordOptions.minNumber"
-          (input)="onPasswordOptionsMinNumberInput($event)"
-          (change)="minNumberChanged()"
-        />
-      </div>
-      <div class="form-group col-4">
-        <label for="min-special">{{ "minSpecial" | i18n }}</label>
-        <input
-          id="min-special"
-          class="form-control"
-          type="number"
-          min="0"
-          max="9"
-          [(ngModel)]="passwordOptions.minSpecial"
-          (input)="onPasswordOptionsMinSpecialInput($event)"
-          (change)="minSpecialChanged()"
-        />
-      </div>
-    </div>
-    <label class="d-block">{{ "options" | i18n }}</label>
-    <div class="form-group">
-      <div class="form-check">
-        <input
-          id="uppercase"
-          class="form-check-input"
-          type="checkbox"
-          (change)="savePasswordOptions()"
-          [(ngModel)]="passwordOptions.uppercase"
-          [disabled]="enforcedPasswordPolicyOptions?.useUppercase"
-          attr.aria-label="{{ 'uppercase' | i18n }}"
-        />
-        <label for="uppercase" class="form-check-label">A-Z</label>
-      </div>
-      <div class="form-check">
-        <input
-          id="lowercase"
-          class="form-check-input"
-          type="checkbox"
-          (change)="savePasswordOptions()"
-          [(ngModel)]="passwordOptions.lowercase"
-          [disabled]="enforcedPasswordPolicyOptions?.useLowercase"
-          attr.aria-label="{{ 'lowercase' | i18n }}"
-        />
-        <label for="lowercase" class="form-check-label">a-z</label>
-      </div>
-      <div class="form-check">
-        <input
-          id="numbers"
-          class="form-check-input"
-          type="checkbox"
-          (change)="savePasswordOptions()"
-          [ngModel]="passwordOptions.number"
-          (ngModelChange)="setPasswordOptionsNumber($event)"
-          [disabled]="enforcedPasswordPolicyOptions?.useNumbers"
-          attr.aria-label="{{ 'numbers' | i18n }}"
-        />
-        <label for="numbers" class="form-check-label">0-9</label>
-      </div>
-      <div class="form-check">
-        <input
-          id="special"
-          class="form-check-input"
-          type="checkbox"
-          [ngModel]="passwordOptions.special"
-          (ngModelChange)="setPasswordOptionsSpecial($event)"
-          [disabled]="enforcedPasswordPolicyOptions?.useSpecial"
-          attr.aria-label="{{ 'specialCharacters' | i18n }}"
-        />
-        <label for="special" class="form-check-label">!@#$%^&amp;*</label>
-      </div>
-      <div class="form-check">
-        <input
-          id="ambiguous"
-          class="form-check-input"
-          type="checkbox"
-          (change)="savePasswordOptions()"
-          [(ngModel)]="avoidAmbiguous"
-        />
-        <label for="ambiguous" class="form-check-label">{{ "ambiguous" | i18n }}</label>
-      </div>
-    </div>
-  </ng-container>
-  <div class="d-flex">
-    <div>
-      <button type="button" class="btn btn-primary" (click)="regenerate()">
-        {{ "regeneratePassword" | i18n }}
-      </button>
-      <button type="button" class="btn btn-outline-secondary" (click)="copy()">
-        {{ "copyPassword" | i18n }}
-      </button>
-    </div>
-    <div class="ml-auto">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="history()"
-        appA11yTitle="{{ 'passwordHistory' | i18n }}"
-      >
-        <i class="bwi bwi-clock bwi-lg" aria-hidden="true"></i>
-      </button>
-    </div>
-  </div>
-</ng-container>
-<ng-container *ngIf="type === 'username'">
-  <div aria-labelledby="usernameTypeHeading" class="form-group" role="radiogroup">
-    <div class="d-block">
-      <label id="usernameTypeHeading">{{ "usernameType" | i18n }}</label>
-      <a
-        class="ml-auto"
-        href="https://bitwarden.com/help/generator/#username-types"
-        target="_blank"
-        rel="noopener"
-        appA11yTitle="{{ 'learnMore' | i18n }}"
-      >
-        <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-      </a>
-    </div>
-    <div class="form-check" *ngFor="let o of usernameTypeOptions">
-      <input
-        class="form-check-input"
-        type="radio"
-        [(ngModel)]="usernameOptions.type"
-        name="UsernameType"
-        id="usernameType_{{ o.value }}"
-        [value]="o.value"
-        (change)="saveUsernameOptions()"
-        [checked]="usernameOptions.type === o.value"
-      />
-      <label class="form-check-label" for="usernameType_{{ o.value }}">
-        {{ o.name }}
-        <div class="small text-muted">{{ o.desc }}</div>
-      </label>
-    </div>
-  </div>
-  <ng-container *ngIf="usernameOptions.type === 'forwarded'">
-    <div class="form-group" role="listbox">
-      <label class="d-block">{{ "service" | i18n }}</label>
-      <select
-        id="ForwardTypeDropdown"
-        name="ForwardType"
-        [(ngModel)]="usernameOptions.forwardedService"
-        (change)="saveUsernameOptions()"
-        class="form-control w-auto"
-      >
-        <option *ngFor="let o of forwardOptions" [ngValue]="o.value" role="option">
+        <label class="form-check-label" for="passwordType_{{ o.value }}">
           {{ o.name }}
-        </option>
-      </select>
-    </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'simplelogin'">
-      <div class="form-group col-4">
-        <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
-        <input
-          id="simplelogin-apikey"
-          class="form-control"
-          type="password"
-          [(ngModel)]="usernameOptions.forwardedSimpleLoginApiKey"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-      <div class="form-group col-4" *ngIf="isSelfHosted">
-        <label for="simplelogin-baseUrl">{{ "baseUrl" | i18n }}</label>
-        <input
-          id="simplelogin-baseUrl"
-          class="form-control"
-          type="text"
-          name="SimpleLoginDomain"
-          [(ngModel)]="usernameOptions.forwardedSimpleLoginBaseUrl"
-          (blur)="saveUsernameOptions()"
-        />
+        </label>
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'duckduckgo'">
-      <div class="form-group col-4">
-        <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
-        <input
-          id="duckduckgo-apikey"
-          class="form-control"
-          type="password"
-          name="DuckDuckGoApiKey"
-          [(ngModel)]="usernameOptions.forwardedDuckDuckGoToken"
-          (blur)="saveUsernameOptions()"
-        />
+    <ng-container *ngIf="passwordOptions.type === 'passphrase'">
+      <div class="row">
+        <div class="form-group col-4">
+          <label for="num-words">{{ "numWords" | i18n }}</label>
+          <input
+            id="num-words"
+            class="form-control"
+            type="number"
+            min="3"
+            max="20"
+            [(ngModel)]="passwordOptions.numWords"
+            (blur)="savePasswordOptions()"
+          />
+        </div>
+        <div class="form-group col-4">
+          <label for="word-separator">{{ "wordSeparator" | i18n }}</label>
+          <input
+            id="word-separator"
+            class="form-control"
+            type="text"
+            maxlength="1"
+            [(ngModel)]="passwordOptions.wordSeparator"
+            (blur)="savePasswordOptions()"
+          />
+        </div>
       </div>
-    </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'anonaddy'">
-      <div class="form-group col-4">
-        <label for="anonaddy-apikey">{{ "apiAccessToken" | i18n }}</label>
-        <input
-          id="anonaddy-apikey"
-          class="form-control"
-          type="password"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyApiToken"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-      <div class="form-group col-4">
-        <label for="anonaddy-domain">{{ "aliasDomain" | i18n }}</label>
-        <input
-          id="anonaddy-domain"
-          class="form-control"
-          type="text"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyDomain"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-      <div class="form-group col-4" *ngIf="isSelfHosted">
-        <label for="anonaddy-baseUrl">{{ "baseUrl" | i18n }}</label>
-        <input
-          id="anonaddy-baseUrl"
-          class="form-control"
-          type="text"
-          name="AnonAddyDomain"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyBaseUrl"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-    </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'firefoxrelay'">
-      <div class="form-group col-4">
-        <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
-        <input
-          id="firefox-apikey"
-          class="form-control"
-          type="password"
-          [(ngModel)]="usernameOptions.forwardedFirefoxApiToken"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-    </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'fastmail'">
-      <div class="form-group col-4">
-        <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
-        <input
-          id="fastmail-apiToken"
-          class="form-control"
-          type="password"
-          [(ngModel)]="usernameOptions.forwardedFastmailApiToken"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-    </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'forwardemail'">
-      <div class="form-group col-4">
-        <label for="forwardemail-apikey">{{ "apiAccessToken" | i18n }}</label>
-        <input
-          id="forwardemail-apikey"
-          class="form-control"
-          type="password"
-          [(ngModel)]="usernameOptions.forwardedForwardEmailApiToken"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-      <div class="form-group col-4">
-        <label for="forwardemail-domain">{{ "aliasDomain" | i18n }}</label>
-        <input
-          id="forwardemail-domain"
-          class="form-control"
-          type="text"
-          [(ngModel)]="usernameOptions.forwardedForwardEmailDomain"
-          (blur)="saveUsernameOptions()"
-        />
-      </div>
-    </div>
-  </ng-container>
-  <div class="row" *ngIf="usernameOptions.type === 'subaddress'">
-    <div class="form-group col-4">
-      <label for="subaddress-email">{{ "emailAddress" | i18n }}</label>
-      <input
-        id="subaddress-email"
-        class="form-control"
-        type="text"
-        [(ngModel)]="usernameOptions.subaddressEmail"
-        (blur)="saveUsernameOptions()"
-      />
-    </div>
-  </div>
-  <div class="row" *ngIf="usernameOptions.type === 'catchall'">
-    <div class="form-group col-4">
-      <label for="catchall-domain">{{ "domainName" | i18n }}</label>
-      <input
-        id="catchall-domain"
-        class="form-control"
-        type="text"
-        [(ngModel)]="usernameOptions.catchallDomain"
-        (blur)="saveUsernameOptions()"
-      />
-    </div>
-  </div>
-  <ng-container *ngIf="usernameOptions.type === 'word'">
-    <label class="d-block">{{ "options" | i18n }}</label>
-    <div class="row">
+      <label class="d-block">{{ "options" | i18n }}</label>
       <div class="form-group">
         <div class="form-check">
           <input
-            id="capitalizeUsername"
+            id="capitalize"
+            class="form-check-input"
             type="checkbox"
-            (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordCapitalize"
+            (change)="savePasswordOptions()"
+            [(ngModel)]="passwordOptions.capitalize"
+            [disabled]="enforcedPasswordPolicyOptions?.capitalize"
           />
-          <label for="capitalizeUsername" class="form-check-label">{{ "capitalize" | i18n }}</label>
+          <label for="capitalize" class="form-check-label">{{ "capitalize" | i18n }}</label>
         </div>
         <div class="form-check">
           <input
-            id="includeNumberUsername"
+            id="include-number"
+            class="form-check-input"
             type="checkbox"
-            (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordIncludeNumber"
+            (change)="savePasswordOptions()"
+            [(ngModel)]="passwordOptions.includeNumber"
+            [disabled]="enforcedPasswordPolicyOptions?.includeNumber"
           />
-          <label for="includeNumberUsername" class="form-check-label">{{
-            "includeNumber" | i18n
-          }}</label>
+          <label for="include-number" class="form-check-label">{{ "includeNumber" | i18n }}</label>
         </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="passwordOptions.type === 'password'">
+      <div class="row">
+        <div class="form-group col-4">
+          <label for="length">{{ "length" | i18n }}</label>
+          <input
+            id="length"
+            class="form-control"
+            type="number"
+            [min]="passwordOptions.minLength"
+            max="128"
+            [(ngModel)]="passwordOptions.length"
+            (blur)="savePasswordOptions()"
+            (change)="lengthChanged()"
+          />
+        </div>
+        <div class="form-group col-4">
+          <label for="min-length">{{ "passwordMinLength" | i18n }}</label>
+          <input
+            id="min-length"
+            class="form-control"
+            type="text"
+            readonly="true"
+            [value]="passwordOptions.length"
+          />
+          <span
+            class="sr-only"
+            attr.aria-label="{{ 'passwordMinLength' | i18n }}"
+            role="status"
+            aria-live="polite"
+          >
+            {{ passwordOptionsMinLengthForReader$ | async }}
+          </span>
+        </div>
+        <div class="form-group col-4">
+          <label for="min-number">{{ "minNumbers" | i18n }}</label>
+          <input
+            id="min-number"
+            class="form-control"
+            type="number"
+            min="0"
+            max="9"
+            [(ngModel)]="passwordOptions.minNumber"
+            (input)="onPasswordOptionsMinNumberInput($event)"
+            (change)="minNumberChanged()"
+          />
+        </div>
+        <div class="form-group col-4">
+          <label for="min-special">{{ "minSpecial" | i18n }}</label>
+          <input
+            id="min-special"
+            class="form-control"
+            type="number"
+            min="0"
+            max="9"
+            [(ngModel)]="passwordOptions.minSpecial"
+            (input)="onPasswordOptionsMinSpecialInput($event)"
+            (change)="minSpecialChanged()"
+          />
+        </div>
+      </div>
+      <label class="d-block">{{ "options" | i18n }}</label>
+      <div class="form-group">
+        <div class="form-check">
+          <input
+            id="uppercase"
+            class="form-check-input"
+            type="checkbox"
+            (change)="savePasswordOptions()"
+            [(ngModel)]="passwordOptions.uppercase"
+            [disabled]="enforcedPasswordPolicyOptions?.useUppercase"
+            attr.aria-label="{{ 'uppercase' | i18n }}"
+          />
+          <label for="uppercase" class="form-check-label">A-Z</label>
+        </div>
+        <div class="form-check">
+          <input
+            id="lowercase"
+            class="form-check-input"
+            type="checkbox"
+            (change)="savePasswordOptions()"
+            [(ngModel)]="passwordOptions.lowercase"
+            [disabled]="enforcedPasswordPolicyOptions?.useLowercase"
+            attr.aria-label="{{ 'lowercase' | i18n }}"
+          />
+          <label for="lowercase" class="form-check-label">a-z</label>
+        </div>
+        <div class="form-check">
+          <input
+            id="numbers"
+            class="form-check-input"
+            type="checkbox"
+            (change)="savePasswordOptions()"
+            [ngModel]="passwordOptions.number"
+            (ngModelChange)="setPasswordOptionsNumber($event)"
+            [disabled]="enforcedPasswordPolicyOptions?.useNumbers"
+            attr.aria-label="{{ 'numbers' | i18n }}"
+          />
+          <label for="numbers" class="form-check-label">0-9</label>
+        </div>
+        <div class="form-check">
+          <input
+            id="special"
+            class="form-check-input"
+            type="checkbox"
+            [ngModel]="passwordOptions.special"
+            (ngModelChange)="setPasswordOptionsSpecial($event)"
+            [disabled]="enforcedPasswordPolicyOptions?.useSpecial"
+            attr.aria-label="{{ 'specialCharacters' | i18n }}"
+          />
+          <label for="special" class="form-check-label">!@#$%^&amp;*</label>
+        </div>
+        <div class="form-check">
+          <input
+            id="ambiguous"
+            class="form-check-input"
+            type="checkbox"
+            (change)="savePasswordOptions()"
+            [(ngModel)]="avoidAmbiguous"
+          />
+          <label for="ambiguous" class="form-check-label">{{ "ambiguous" | i18n }}</label>
+        </div>
+      </div>
+    </ng-container>
+    <div class="d-flex">
+      <div>
+        <button type="button" class="btn btn-primary" (click)="regenerate()">
+          {{ "regeneratePassword" | i18n }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="copy()">
+          {{ "copyPassword" | i18n }}
+        </button>
+      </div>
+      <div class="ml-auto">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="history()"
+          appA11yTitle="{{ 'passwordHistory' | i18n }}"
+        >
+          <i class="bwi bwi-clock bwi-lg" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
   </ng-container>
-  <div #form [appApiAction]="usernameGeneratingPromise">
-    <button
-      type="button"
-      class="btn btn-submit btn-primary"
-      (click)="$any(form).loading ? false : regenerate()"
-      [attr.aria-disabled]="$any(form).loading ? 'true' : null"
-    >
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span>{{ "regenerateUsername" | i18n }}</span>
-    </button>
-    <button type="button" class="btn btn-outline-secondary" (click)="copy()">
-      {{ "copyUsername" | i18n }}
-    </button>
-  </div>
-</ng-container>
-<ng-template #historyTemplate></ng-template>
+  <ng-container *ngIf="type === 'username'">
+    <div aria-labelledby="usernameTypeHeading" class="form-group" role="radiogroup">
+      <div class="d-block">
+        <label id="usernameTypeHeading">{{ "usernameType" | i18n }}</label>
+        <a
+          class="ml-auto"
+          href="https://bitwarden.com/help/generator/#username-types"
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMore' | i18n }}"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="form-check" *ngFor="let o of usernameTypeOptions">
+        <input
+          class="form-check-input"
+          type="radio"
+          [(ngModel)]="usernameOptions.type"
+          name="UsernameType"
+          id="usernameType_{{ o.value }}"
+          [value]="o.value"
+          (change)="saveUsernameOptions()"
+          [checked]="usernameOptions.type === o.value"
+        />
+        <label class="form-check-label" for="usernameType_{{ o.value }}">
+          {{ o.name }}
+          <div class="small text-muted">{{ o.desc }}</div>
+        </label>
+      </div>
+    </div>
+    <ng-container *ngIf="usernameOptions.type === 'forwarded'">
+      <div class="form-group" role="listbox">
+        <label class="d-block">{{ "service" | i18n }}</label>
+        <select
+          id="ForwardTypeDropdown"
+          name="ForwardType"
+          [(ngModel)]="usernameOptions.forwardedService"
+          (change)="saveUsernameOptions()"
+          class="form-control w-auto"
+        >
+          <option *ngFor="let o of forwardOptions" [ngValue]="o.value" role="option">
+            {{ o.name }}
+          </option>
+        </select>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'simplelogin'">
+        <div class="form-group col-4">
+          <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
+          <input
+            id="simplelogin-apikey"
+            class="form-control"
+            type="password"
+            [(ngModel)]="usernameOptions.forwardedSimpleLoginApiKey"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+        <div class="form-group col-4" *ngIf="isSelfHosted">
+          <label for="simplelogin-baseUrl">{{ "baseUrl" | i18n }}</label>
+          <input
+            id="simplelogin-baseUrl"
+            class="form-control"
+            type="text"
+            name="SimpleLoginDomain"
+            [(ngModel)]="usernameOptions.forwardedSimpleLoginBaseUrl"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'duckduckgo'">
+        <div class="form-group col-4">
+          <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
+          <input
+            id="duckduckgo-apikey"
+            class="form-control"
+            type="password"
+            name="DuckDuckGoApiKey"
+            [(ngModel)]="usernameOptions.forwardedDuckDuckGoToken"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'anonaddy'">
+        <div class="form-group col-4">
+          <label for="anonaddy-apikey">{{ "apiAccessToken" | i18n }}</label>
+          <input
+            id="anonaddy-apikey"
+            class="form-control"
+            type="password"
+            [(ngModel)]="usernameOptions.forwardedAnonAddyApiToken"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+        <div class="form-group col-4">
+          <label for="anonaddy-domain">{{ "aliasDomain" | i18n }}</label>
+          <input
+            id="anonaddy-domain"
+            class="form-control"
+            type="text"
+            [(ngModel)]="usernameOptions.forwardedAnonAddyDomain"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+        <div class="form-group col-4" *ngIf="isSelfHosted">
+          <label for="anonaddy-baseUrl">{{ "baseUrl" | i18n }}</label>
+          <input
+            id="anonaddy-baseUrl"
+            class="form-control"
+            type="text"
+            name="AnonAddyDomain"
+            [(ngModel)]="usernameOptions.forwardedAnonAddyBaseUrl"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'firefoxrelay'">
+        <div class="form-group col-4">
+          <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
+          <input
+            id="firefox-apikey"
+            class="form-control"
+            type="password"
+            [(ngModel)]="usernameOptions.forwardedFirefoxApiToken"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'fastmail'">
+        <div class="form-group col-4">
+          <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
+          <input
+            id="fastmail-apiToken"
+            class="form-control"
+            type="password"
+            [(ngModel)]="usernameOptions.forwardedFastmailApiToken"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+      <div class="row" *ngIf="usernameOptions.forwardedService === 'forwardemail'">
+        <div class="form-group col-4">
+          <label for="forwardemail-apikey">{{ "apiAccessToken" | i18n }}</label>
+          <input
+            id="forwardemail-apikey"
+            class="form-control"
+            type="password"
+            [(ngModel)]="usernameOptions.forwardedForwardEmailApiToken"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+        <div class="form-group col-4">
+          <label for="forwardemail-domain">{{ "aliasDomain" | i18n }}</label>
+          <input
+            id="forwardemail-domain"
+            class="form-control"
+            type="text"
+            [(ngModel)]="usernameOptions.forwardedForwardEmailDomain"
+            (blur)="saveUsernameOptions()"
+          />
+        </div>
+      </div>
+    </ng-container>
+    <div class="row" *ngIf="usernameOptions.type === 'subaddress'">
+      <div class="form-group col-4">
+        <label for="subaddress-email">{{ "emailAddress" | i18n }}</label>
+        <input
+          id="subaddress-email"
+          class="form-control"
+          type="text"
+          [(ngModel)]="usernameOptions.subaddressEmail"
+          (blur)="saveUsernameOptions()"
+        />
+      </div>
+    </div>
+    <div class="row" *ngIf="usernameOptions.type === 'catchall'">
+      <div class="form-group col-4">
+        <label for="catchall-domain">{{ "domainName" | i18n }}</label>
+        <input
+          id="catchall-domain"
+          class="form-control"
+          type="text"
+          [(ngModel)]="usernameOptions.catchallDomain"
+          (blur)="saveUsernameOptions()"
+        />
+      </div>
+    </div>
+    <ng-container *ngIf="usernameOptions.type === 'word'">
+      <label class="d-block">{{ "options" | i18n }}</label>
+      <div class="row">
+        <div class="form-group">
+          <div class="form-check">
+            <input
+              id="capitalizeUsername"
+              type="checkbox"
+              (change)="saveUsernameOptions()"
+              [(ngModel)]="usernameOptions.wordCapitalize"
+            />
+            <label for="capitalizeUsername" class="form-check-label">{{
+              "capitalize" | i18n
+            }}</label>
+          </div>
+          <div class="form-check">
+            <input
+              id="includeNumberUsername"
+              type="checkbox"
+              (change)="saveUsernameOptions()"
+              [(ngModel)]="usernameOptions.wordIncludeNumber"
+            />
+            <label for="includeNumberUsername" class="form-check-label">{{
+              "includeNumber" | i18n
+            }}</label>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <div #form [appApiAction]="usernameGeneratingPromise">
+      <button
+        type="button"
+        class="btn btn-submit btn-primary"
+        (click)="$any(form).loading ? false : regenerate()"
+        [attr.aria-disabled]="$any(form).loading ? 'true' : null"
+      >
+        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+        <span>{{ "regenerateUsername" | i18n }}</span>
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="copy()">
+        {{ "copyUsername" | i18n }}
+      </button>
+    </div>
+  </ng-container>
+  <ng-template #historyTemplate></ng-template>
+</bit-container>

@@ -8,7 +8,7 @@ import {
   triggerTabOnReplacedEvent,
   triggerTabOnUpdatedEvent,
   triggerWindowOnFocusedChangedEvent,
-} from "../jest/testing-utils";
+} from "../spec/testing-utils";
 
 import NotificationBackground from "./notification.background";
 import OverlayBackground from "./overlay.background";

@@ -1,4 +1,4 @@
-import { defer } from "rxjs";
+import { defer, firstValueFrom } from "rxjs";
 
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -7,6 +7,8 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { BiometricStateService } from "../../platform/biometrics/biometric-state.service";
+import { UserId } from "../../types/guid";
 
 /**
  * - DISABLED: No Pin set
@@ -21,12 +23,13 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private tokenService: TokenService,
     private policyService: PolicyService,
     private stateService: StateService,
+    private biometricStateService: BiometricStateService,
   ) {}
 
   async setVaultTimeoutOptions(timeout: number, action: VaultTimeoutAction): Promise<void> {
     // We swap these tokens from being on disk for lock actions, and in memory for logout actions
     // Get them here to set them to their new location after changing the timeout action and clearing if needed
-    const token = await this.tokenService.getToken();
+    const accessToken = await this.tokenService.getAccessToken();
     const refreshToken = await this.tokenService.getRefreshToken();
     const clientId = await this.tokenService.getClientId();
     const clientSecret = await this.tokenService.getClientSecret();
@@ -34,21 +37,22 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     await this.stateService.setVaultTimeout(timeout);
 
     const currentAction = await this.stateService.getVaultTimeoutAction();
+
     if (
       (timeout != null || timeout === 0) &&
       action === VaultTimeoutAction.LogOut &&
       action !== currentAction
     ) {
       // if we have a vault timeout and the action is log out, reset tokens
-      await this.tokenService.clearToken();
+      await this.tokenService.clearTokens();
     }
 
     await this.stateService.setVaultTimeoutAction(action);
 
-    await this.tokenService.setToken(token);
-    await this.tokenService.setRefreshToken(refreshToken);
-    await this.tokenService.setClientId(clientId);
-    await this.tokenService.setClientSecret(clientSecret);
+    await this.tokenService.setTokens(accessToken, refreshToken, action, timeout, [
+      clientId,
+      clientSecret,
+    ]);
 
     await this.cryptoService.refreshAdditionalKeys();
   }
@@ -74,21 +78,25 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   }
 
   async isBiometricLockSet(userId?: string): Promise<boolean> {
-    return await this.stateService.getBiometricUnlock({ userId });
+    const biometricUnlockPromise =
+      userId == null
+        ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
+        : this.biometricStateService.getBiometricUnlockEnabled(userId as UserId);
+    return await biometricUnlockPromise;
   }
 
-  async getVaultTimeout(userId?: string): Promise<number> {
+  async getVaultTimeout(userId?: UserId): Promise<number> {
     const vaultTimeout = await this.stateService.getVaultTimeout({ userId });
+    const policies = await firstValueFrom(
+      this.policyService.getAll$(PolicyType.MaximumVaultTimeout, userId),
+    );
 
-    if (
-      await this.policyService.policyAppliesToUser(PolicyType.MaximumVaultTimeout, null, userId)
-    ) {
-      const policy = await this.policyService.getAll(PolicyType.MaximumVaultTimeout, userId);
+    if (policies?.length) {
       // Remove negative values, and ensure it's smaller than maximum allowed value according to policy
-      let timeout = Math.min(vaultTimeout, policy[0].data.minutes);
+      let timeout = Math.min(vaultTimeout, policies[0].data.minutes);
 
       if (vaultTimeout == null || timeout < 0) {
-        timeout = policy[0].data.minutes;
+        timeout = policies[0].data.minutes;
       }
 
       // TODO @jlf0dev: Can we move this somwhere else? Maybe add it to the initialization process?
@@ -104,23 +112,23 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return vaultTimeout;
   }
 
-  vaultTimeoutAction$(userId?: string) {
+  vaultTimeoutAction$(userId?: UserId) {
     return defer(() => this.getVaultTimeoutAction(userId));
   }
 
-  async getVaultTimeoutAction(userId?: string): Promise<VaultTimeoutAction> {
+  async getVaultTimeoutAction(userId?: UserId): Promise<VaultTimeoutAction> {
     const availableActions = await this.getAvailableVaultTimeoutActions();
     if (availableActions.length === 1) {
       return availableActions[0];
     }
 
     const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction({ userId: userId });
+    const policies = await firstValueFrom(
+      this.policyService.getAll$(PolicyType.MaximumVaultTimeout, userId),
+    );
 
-    if (
-      await this.policyService.policyAppliesToUser(PolicyType.MaximumVaultTimeout, null, userId)
-    ) {
-      const policy = await this.policyService.getAll(PolicyType.MaximumVaultTimeout, userId);
-      const action = policy[0].data.action;
+    if (policies?.length) {
+      const action = policies[0].data.action;
       // We really shouldn't need to set the value here, but multiple services relies on this value being correct.
       if (action && vaultTimeoutAction !== action) {
         await this.stateService.setVaultTimeoutAction(action, { userId: userId });

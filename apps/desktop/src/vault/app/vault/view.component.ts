@@ -13,6 +13,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -58,6 +59,7 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
     datePipe: DatePipe,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       cipherService,
@@ -80,6 +82,7 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
       fileDownloadService,
       dialogService,
       datePipe,
+      billingAccountProfileStateService,
     );
   }
   ngOnInit() {

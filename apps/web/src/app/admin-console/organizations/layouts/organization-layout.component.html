@@ -1,41 +1,124 @@
-<app-navbar></app-navbar>
-<app-payment-method-banners></app-payment-method-banners>
-<div class="org-nav !tw-h-32" *ngIf="organization$ | async as organization">
-  <div class="container d-flex">
-    <div class="d-flex flex-column">
-      <app-organization-switcher
-        class="my-auto pl-1"
-        [activeOrganization]="organization"
-      ></app-organization-switcher>
-      <bit-tab-nav-bar class="-tw-mb-px">
-        <bit-tab-link
-          *ngIf="canShowVaultTab(organization) && organization.flexibleCollections; else vaultTab"
-          route="vault"
-          >{{ "collections" | i18n }}</bit-tab-link
-        >
-        <ng-template #vaultTab>
-          <bit-tab-link *ngIf="canShowVaultTab(organization)" route="vault">{{
-            "vault" | i18n
-          }}</bit-tab-link>
-        </ng-template>
-        <bit-tab-link *ngIf="canShowMembersTab(organization)" route="members">{{
-          "members" | i18n
-        }}</bit-tab-link>
-        <bit-tab-link *ngIf="canShowGroupsTab(organization)" route="groups">{{
-          "groups" | i18n
-        }}</bit-tab-link>
-        <bit-tab-link *ngIf="canShowReportsTab(organization)" route="reporting">
-          {{ getReportTabLabel(organization) | i18n }}
-        </bit-tab-link>
-        <bit-tab-link *ngIf="canShowBillingTab(organization)" route="billing">{{
-          "billing" | i18n
-        }}</bit-tab-link>
-        <bit-tab-link *ngIf="canShowSettingsTab(organization)" route="settings">{{
-          "settings" | i18n
-        }}</bit-tab-link>
-      </bit-tab-nav-bar>
-    </div>
-  </div>
-</div>
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<bit-layout variant="secondary">
+  <nav slot="sidebar" *ngIf="organization$ | async as organization">
+    <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'adminConsole' | i18n">
+      <bit-icon [icon]="logo"></bit-icon>
+    </a>
+    <org-switcher [filter]="orgFilter"></org-switcher>
+
+    <bit-nav-item
+      icon="bwi-collection"
+      [text]="(organization.flexibleCollections ? 'collections' : 'vault') | i18n"
+      route="vault"
+      *ngIf="canShowVaultTab(organization)"
+    >
+    </bit-nav-item>
+    <bit-nav-item
+      icon="bwi-user"
+      [text]="'members' | i18n"
+      route="members"
+      *ngIf="canShowMembersTab(organization)"
+    ></bit-nav-item>
+    <bit-nav-item
+      icon="bwi-users"
+      [text]="'groups' | i18n"
+      route="groups"
+      *ngIf="canShowGroupsTab(organization)"
+    ></bit-nav-item>
+    <bit-nav-group
+      icon="bwi-sliders"
+      [text]="getReportTabLabel(organization) | i18n"
+      route="reporting"
+      *ngIf="canShowReportsTab(organization)"
+    >
+      <bit-nav-item
+        [text]="'eventLogs' | i18n"
+        route="reporting/events"
+        *ngIf="organization.canAccessEventLogs"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'reports' | i18n"
+        route="reporting/reports"
+        *ngIf="organization.canAccessReports"
+      ></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-group
+      icon="bwi-billing"
+      [text]="'billing' | i18n"
+      route="billing"
+      *ngIf="canShowBillingTab(organization)"
+    >
+      <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
+      <ng-container *ngIf="showPaymentAndHistory$ | async">
+        <bit-nav-item [text]="'paymentMethod' | i18n" route="billing/payment-method"></bit-nav-item>
+        <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
+      </ng-container>
+    </bit-nav-group>
+    <bit-nav-group
+      icon="bwi-cog"
+      [text]="'settings' | i18n"
+      route="settings"
+      *ngIf="canShowSettingsTab(organization)"
+    >
+      <bit-nav-item
+        [text]="'organizationInfo' | i18n"
+        route="settings/account"
+        *ngIf="organization.isOwner"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'policies' | i18n"
+        route="settings/policies"
+        *ngIf="organization.canManagePolicies"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'twoStepLogin' | i18n"
+        route="settings/two-factor"
+        *ngIf="organization.use2fa && organization.isOwner"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'importData' | i18n"
+        route="settings/tools/import"
+        *ngIf="organization.canAccessImportExport"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'exportVault' | i18n"
+        route="settings/tools/export"
+        *ngIf="organization.canAccessImportExport"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'domainVerification' | i18n"
+        route="settings/domain-verification"
+        *ngIf="organization?.canManageDomainVerification"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'singleSignOn' | i18n"
+        route="settings/sso"
+        *ngIf="organization.canManageSso"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'deviceApprovals' | i18n"
+        route="settings/device-approvals"
+        *ngIf="organization.canManageDeviceApprovals"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'scim' | i18n"
+        route="settings/scim"
+        *ngIf="organization.canManageScim"
+      ></bit-nav-item>
+    </bit-nav-group>
+  </nav>
+
+  <ng-container *ngIf="organization$ | async as organization">
+    <bit-banner
+      *ngIf="organization.isProviderUser"
+      [showClose]="false"
+      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    >
+      {{ "accessingUsingProvider" | i18n: organization.providerName }}
+    </bit-banner>
+    <app-payment-method-warnings
+      *ngIf="showPaymentMethodWarningBanners$ | async"
+    ></app-payment-method-warnings>
+  </ng-container>
+
+  <router-outlet></router-outlet>
+</bit-layout>

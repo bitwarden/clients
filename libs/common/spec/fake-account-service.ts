@@ -65,6 +65,10 @@ export class FakeAccountService implements AccountService {
     await this.mock.setAccountStatus(userId, status);
   }
 
+  async setMaxAccountStatus(userId: UserId, maxStatus: AuthenticationStatus): Promise<void> {
+    await this.mock.setMaxAccountStatus(userId, maxStatus);
+  }
+
   async switchAccount(userId: UserId): Promise<void> {
     await this.mock.switchAccount(userId);
   }

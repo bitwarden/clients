@@ -1,0 +1,26 @@
+<main
+  class="tw-flex tw-min-h-screen tw-max-w-xl tw-w-full tw-mx-auto tw-flex-col tw-gap-9 tw-px-4 tw-pb-4 tw-pt-14 tw-text-main"
+>
+  <div class="tw-text-center">
+    <div class="tw-px-8">
+      <div *ngIf="icon" class="tw-mb-8">
+        <bit-icon [icon]="icon"></bit-icon>
+      </div>
+      <bit-icon [icon]="logo" class="tw-mx-auto tw-block tw-max-w-72 sm:tw-max-w-xs"></bit-icon>
+    </div>
+    <h1 *ngIf="title" bitTypography="h3" class="tw-mt-8 sm:tw-text-2xl">
+      {{ title }}
+    </h1>
+    <p *ngIf="subtitle" bitTypography="body1">{{ subtitle }}</p>
+  </div>
+  <div class="tw-mb-auto tw-mx-auto tw-max-w-md tw-grid tw-gap-9">
+    <div class="tw-rounded-xl sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8">
+      <ng-content></ng-content>
+    </div>
+    <ng-content select="[slot=secondary]"></ng-content>
+  </div>
+  <footer class="tw-text-center">
+    <div>&copy; {{ year }} Bitwarden Inc.</div>
+    <div>{{ version }}</div>
+  </footer>
+</main>

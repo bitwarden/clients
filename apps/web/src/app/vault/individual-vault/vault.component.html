@@ -1,127 +1,127 @@
-<div class="container page-content">
-  <div class="row">
-    <div class="col-3">
-      <div class="groupings">
-        <div class="content">
-          <div class="inner-content">
-            <app-vault-filter
-              #vaultFilter
-              [activeFilter]="activeFilter"
-              [searchText]="currentSearchText$ | async"
-              (searchTextChanged)="filterSearchText($event)"
-              (onEditFolder)="editFolder($event)"
-            ></app-vault-filter>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div [ngClass]="{ 'col-6': isShowingCards, 'col-9': !isShowingCards }">
-      <app-vault-header
-        [filter]="filter"
-        [loading]="refreshing && !performingInitialLoad"
-        [organizations]="allOrganizations"
-        [canCreateCollections]="canCreateCollections"
-        [collection]="selectedCollection"
-        (onAddCipher)="addCipher()"
-        (onAddCollection)="addCollection()"
-        (onAddFolder)="addFolder()"
-        (onEditCollection)="editCollection(selectedCollection.node, $event.tab)"
-        (onDeleteCollection)="deleteCollection(selectedCollection.node)"
-      ></app-vault-header>
-      <app-callout type="warning" *ngIf="activeFilter.isDeleted" icon="bwi-exclamation-triangle">
-        {{ trashCleanupWarning }}
-      </app-callout>
-      <app-vault-items
-        [ciphers]="ciphers"
-        [collections]="collections"
-        [allCollections]="allCollections"
-        [allOrganizations]="allOrganizations"
-        [disabled]="refreshing"
-        [showOwner]="true"
-        [showCollections]="false"
-        [showGroups]="false"
-        [showPremiumFeatures]="canAccessPremium"
-        [showBulkMove]="showBulkMove"
-        [showBulkTrashOptions]="filter.type === 'trash'"
-        [useEvents]="false"
-        [cloneableOrganizationCiphers]="false"
-        [showAdminActions]="false"
-        (onEvent)="onVaultItemsEvent($event)"
-        [showBulkEditCollectionAccess]="showBulkCollectionAccess$ | async"
-      >
-      </app-vault-items>
-      <div
-        *ngIf="performingInitialLoad"
-        class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-      >
-        <i
-          class="bwi bwi-spinner bwi-spin text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="sr-only">{{ "loading" | i18n }}</span>
-      </div>
-      <div
-        *ngIf="isEmpty && !performingInitialLoad"
-        class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-      >
-        <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-        <p>{{ "noItemsInList" | i18n }}</p>
-        <button
-          type="button"
-          buttonType="primary"
-          bitButton
-          (click)="addCipher()"
-          *ngIf="filter.type !== 'trash'"
-        >
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-          {{ "newItem" | i18n }}
-        </button>
-      </div>
-    </div>
-    <div class="col-3">
-      <app-low-kdf class="d-block mb-4" *ngIf="showLowKdf"> </app-low-kdf>
+<app-vault-header
+  [filter]="filter"
+  [loading]="refreshing && !performingInitialLoad"
+  [organizations]="allOrganizations"
+  [canCreateCollections]="canCreateCollections"
+  [collection]="selectedCollection"
+  (onAddCipher)="addCipher()"
+  (onAddCollection)="addCollection()"
+  (onAddFolder)="addFolder()"
+  (onEditCollection)="editCollection(selectedCollection.node, $event.tab)"
+  (onDeleteCollection)="deleteCollection(selectedCollection.node)"
+></app-vault-header>
 
-      <app-verify-email
-        *ngIf="showVerifyEmail"
-        class="d-block mb-4"
-        (onVerified)="emailVerified($event)"
-      ></app-verify-email>
+<app-vault-onboarding [ciphers]="ciphers" [orgs]="allOrganizations" (onAddCipher)="addCipher()">
+</app-vault-onboarding>
 
-      <div class="card border-warning mb-4" *ngIf="showBrowserOutdated">
-        <div class="card-header bg-warning text-white">
-          <i class="bwi bwi-exclamation-triangle bwi-fw" aria-hidden="true"></i>
-          {{ "updateBrowser" | i18n }}
-        </div>
-        <div class="card-body">
-          <p>{{ "updateBrowserDesc" | i18n }}</p>
-          <a
-            class="btn btn-block btn-outline-secondary"
-            target="_blank"
-            href="https://browser-update.org/update-browser.html"
-            rel="noopener"
-          >
-            {{ "updateBrowser" | i18n }}
-          </a>
-        </div>
-      </div>
-      <div class="card border-success mb-4" *ngIf="showPremiumCallout">
-        <div class="card-header bg-success text-white">
-          <i class="bwi bwi-star-f bwi-fw" aria-hidden="true"></i> {{ "goPremium" | i18n }}
-        </div>
-        <div class="card-body">
-          <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
-          <a
-            class="btn btn-block btn-outline-secondary"
-            routerLink="/settings/subscription/premium"
-          >
-            {{ "goPremium" | i18n }}
-          </a>
+<div class="row">
+  <div class="col-3">
+    <div class="groupings">
+      <div class="content">
+        <div class="inner-content">
+          <app-vault-filter
+            #vaultFilter
+            [activeFilter]="activeFilter"
+            [searchText]="currentSearchText$ | async"
+            (searchTextChanged)="filterSearchText($event)"
+            (onEditFolder)="editFolder($event)"
+          ></app-vault-filter>
         </div>
       </div>
     </div>
   </div>
+  <div [ngClass]="{ 'col-6': isShowingCards, 'col-9': !isShowingCards }">
+    <app-callout type="warning" *ngIf="activeFilter.isDeleted" icon="bwi-exclamation-triangle">
+      {{ trashCleanupWarning }}
+    </app-callout>
+    <app-vault-items
+      [ciphers]="ciphers"
+      [collections]="collections"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [showCollections]="false"
+      [showGroups]="false"
+      [showPremiumFeatures]="canAccessPremium"
+      [showBulkMove]="showBulkMove"
+      [showBulkTrashOptions]="filter.type === 'trash'"
+      [useEvents]="false"
+      [cloneableOrganizationCiphers]="false"
+      [showAdminActions]="false"
+      (onEvent)="onVaultItemsEvent($event)"
+      [showBulkEditCollectionAccess]="showBulkCollectionAccess$ | async"
+    >
+    </app-vault-items>
+    <div
+      *ngIf="performingInitialLoad"
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+    >
+      <i
+        class="bwi bwi-spinner bwi-spin text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="sr-only">{{ "loading" | i18n }}</span>
+    </div>
+    <div
+      *ngIf="isEmpty && !performingInitialLoad"
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+    >
+      <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
+      <p>{{ "noItemsInList" | i18n }}</p>
+      <button
+        type="button"
+        buttonType="primary"
+        bitButton
+        (click)="addCipher()"
+        *ngIf="filter.type !== 'trash'"
+      >
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+        {{ "newItem" | i18n }}
+      </button>
+    </div>
+  </div>
+  <div class="col-3">
+    <app-low-kdf class="d-block mb-4" *ngIf="showLowKdf"> </app-low-kdf>
+
+    <app-verify-email
+      *ngIf="showVerifyEmail"
+      class="d-block mb-4"
+      (onVerified)="emailVerified($event)"
+    ></app-verify-email>
+
+    <div class="card border-warning mb-4" *ngIf="showBrowserOutdated">
+      <div class="card-header bg-warning text-white">
+        <i class="bwi bwi-exclamation-triangle bwi-fw" aria-hidden="true"></i>
+        {{ "updateBrowser" | i18n }}
+      </div>
+      <div class="card-body">
+        <p>{{ "updateBrowserDesc" | i18n }}</p>
+        <a
+          class="btn btn-block btn-outline-secondary"
+          target="_blank"
+          href="https://browser-update.org/update-browser.html"
+          rel="noreferrer"
+        >
+          {{ "updateBrowser" | i18n }}
+        </a>
+      </div>
+    </div>
+    <div class="card border-success mb-4" *ngIf="showPremiumCallout">
+      <div class="card-header bg-success text-white">
+        <i class="bwi bwi-star-f bwi-fw" aria-hidden="true"></i> {{ "goPremium" | i18n }}
+      </div>
+      <div class="card-body">
+        <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
+        <a class="btn btn-block btn-outline-secondary" routerLink="/settings/subscription/premium">
+          {{ "goPremium" | i18n }}
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
+
 <ng-template #attachments></ng-template>
 <ng-template #folderAddEdit></ng-template>
 <ng-template #cipherAddEdit></ng-template>

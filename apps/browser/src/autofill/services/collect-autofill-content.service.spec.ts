@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { createAutofillFieldMock, createAutofillFormMock } from "../jest/autofill-mocks";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
+import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
 import {
   ElementWithOpId,
   FillableFormFieldElement,

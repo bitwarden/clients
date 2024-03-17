@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 
 import { AttachmentsComponent as BaseAttachmentsComponent } from "@bitwarden/angular/vault/components/attachments.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,6 +27,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     stateService: StateService,
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       cipherService,
@@ -38,6 +40,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
       stateService,
       fileDownloadService,
       dialogService,
+      billingAccountProfileStateService,
     );
   }
 }

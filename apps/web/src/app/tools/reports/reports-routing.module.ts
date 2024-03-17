@@ -20,7 +20,12 @@ const routes: Routes = [
     component: ReportsLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: "", pathMatch: "full", component: ReportsHomeComponent, data: { homepage: true } },
+      {
+        path: "",
+        pathMatch: "full",
+        component: ReportsHomeComponent,
+        data: { titleId: "reports", homepage: true },
+      },
       {
         path: "breach-report",
         component: BreachReportComponent,

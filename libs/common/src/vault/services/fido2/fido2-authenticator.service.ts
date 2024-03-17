@@ -113,6 +113,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         credentialName: params.rpEntity.name,
         userName: params.userEntity.displayName,
         userVerification: params.requireUserVerification,
+        rpId: params.rpEntity.id,
       });
       const cipherId = response.cipherId;
       userVerified = response.userVerified;
@@ -257,14 +258,19 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         const selectedFido2Credential = selectedCipher.login.fido2Credentials[0];
         const selectedCredentialId = selectedFido2Credential.credentialId;
 
-        ++selectedFido2Credential.counter;
+        if (selectedFido2Credential.counter > 0) {
+          ++selectedFido2Credential.counter;
+        }
 
         selectedCipher.localData = {
           ...selectedCipher.localData,
           lastUsedDate: new Date().getTime(),
         };
-        const encrypted = await this.cipherService.encrypt(selectedCipher);
-        await this.cipherService.updateWithServer(encrypted);
+
+        if (selectedFido2Credential.counter > 0) {
+          const encrypted = await this.cipherService.encrypt(selectedCipher);
+          await this.cipherService.updateWithServer(encrypted);
+        }
 
         const authenticatorData = await generateAuthData({
           rpId: selectedFido2Credential.rpId,
@@ -444,6 +450,8 @@ async function generateAuthData(params: AuthDataParams) {
   const flags = authDataFlags({
     extensionData: false,
     attestationData: params.keyPair != undefined,
+    backupEligibility: true,
+    backupState: true, // Credentials are always synced
     userVerification: params.userVerification,
     userPresence: params.userPresence,
   });
@@ -522,6 +530,8 @@ async function generateSignature(params: SignatureParams) {
 interface Flags {
   extensionData: boolean;
   attestationData: boolean;
+  backupEligibility: boolean;
+  backupState: boolean;
   userVerification: boolean;
   userPresence: boolean;
 }
@@ -535,6 +545,14 @@ function authDataFlags(options: Flags): number {
 
   if (options.attestationData) {
     flags |= 0b01000000;
+  }
+
+  if (options.backupEligibility) {
+    flags |= 0b00001000;
+  }
+
+  if (options.backupState) {
+    flags |= 0b00010000;
   }
 
   if (options.userVerification) {

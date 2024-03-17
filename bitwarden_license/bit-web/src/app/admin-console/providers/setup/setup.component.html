@@ -1,5 +1,6 @@
-<app-navbar></app-navbar>
-<app-payment-method-banners></app-payment-method-banners>
+<app-payment-method-warnings
+  *ngIf="showPaymentMethodWarningBanners$ | async"
+></app-payment-method-warnings>
 <div class="container page-content">
   <div class="page-header">
     <h1>{{ "setupProvider" | i18n }}</h1>
@@ -34,4 +35,3 @@
     </div>
   </form>
 </div>
-<app-footer></app-footer>

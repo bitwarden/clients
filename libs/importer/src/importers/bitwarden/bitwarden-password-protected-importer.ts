@@ -5,7 +5,7 @@ import { KdfType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/exporter/vault-export/bitwarden-json-export-types";
+import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-core";
 
 import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";

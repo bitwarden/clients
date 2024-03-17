@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Subject, takeUntil } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -15,7 +16,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
   selector: "app-action-buttons",
   templateUrl: "action-buttons.component.html",
 })
-export class ActionButtonsComponent {
+export class ActionButtonsComponent implements OnInit, OnDestroy {
   @Output() onView = new EventEmitter<CipherView>();
   @Output() launchEvent = new EventEmitter<CipherView>();
   @Input() cipher: CipherView;
@@ -24,17 +25,28 @@ export class ActionButtonsComponent {
   cipherType = CipherType;
   userHasPremiumAccess = false;
 
+  private componentIsDestroyed$ = new Subject<boolean>();
+
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private eventCollectionService: EventCollectionService,
     private totpService: TotpService,
-    private stateService: StateService,
     private passwordRepromptService: PasswordRepromptService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
-  async ngOnInit() {
-    this.userHasPremiumAccess = await this.stateService.getCanAccessPremium();
+  ngOnInit() {
+    this.billingAccountProfileStateService.hasPremiumFromAnySource$
+      .pipe(takeUntil(this.componentIsDestroyed$))
+      .subscribe((canAccessPremium: boolean) => {
+        this.userHasPremiumAccess = canAccessPremium;
+      });
+  }
+
+  ngOnDestroy() {
+    this.componentIsDestroyed$.next(true);
+    this.componentIsDestroyed$.complete();
   }
 
   launchCipher() {

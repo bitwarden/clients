@@ -1,14 +1,15 @@
-import { DiskStorageOptions } from "@koa/multer";
-
 import { AppIdService as AbstractAppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
-import { diskStorageServiceFactory } from "./storage-service.factory";
+import {
+  GlobalStateProviderInitOptions,
+  globalStateProviderFactory,
+} from "./global-state-provider.factory";
 
 type AppIdServiceFactoryOptions = FactoryOptions;
 
-export type AppIdServiceInitOptions = AppIdServiceFactoryOptions & DiskStorageOptions;
+export type AppIdServiceInitOptions = AppIdServiceFactoryOptions & GlobalStateProviderInitOptions;
 
 export function appIdServiceFactory(
   cache: { appIdService?: AbstractAppIdService } & CachedServices,
@@ -18,6 +19,6 @@ export function appIdServiceFactory(
     cache,
     "appIdService",
     opts,
-    async () => new AppIdService(await diskStorageServiceFactory(cache, opts)),
+    async () => new AppIdService(await globalStateProviderFactory(cache, opts)),
   );
 }

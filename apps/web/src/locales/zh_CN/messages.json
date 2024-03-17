@@ -578,6 +578,9 @@
   "access": {
     "message": "访问权限"
   },
+  "accessLevel": {
+    "message": "访问级别"
+  },
   "loggedOut": {
     "message": "已注销"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "导入数据"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "如果您没有任何数据要导入，您可以创建一个 ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "新项目",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " 。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " 。您可能需要等待您的管理员确认您的组织成员资格。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "导入出错"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "在每个登录项目旁边显示一个可识别的图像。"
-  },
-  "enableFullWidth": {
-    "message": "显示全宽布局",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "允许网页密码库拓展到整个浏览器窗口宽度。"
   },
   "default": {
     "message": "默认"
@@ -2529,7 +2541,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "message": "感谢您注册适用于 $PLAN$ 的 Bitwarden 机密管理器！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "您现在可以在扩展中关闭此标签页并继续。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "此窗口将在 5 秒后自动关闭"
+  },
   "includeAllTeamsFeatures": {
     "message": "所有团队版功能，以及："
   },
@@ -4932,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "创建一个新的客户组织，该组织将作为提供商与你关联。您将可以访问和管理这个组织。"
   },
+  "newClient": {
+    "message": "新客户端"
+  },
   "addExistingOrganization": {
     "message": "添加现有组织"
   },
@@ -5189,7 +5210,7 @@
     "message": "设置一个唯一的 SP 实体 ID"
   },
   "spUniqueEntityIdDesc": {
-    "message": "Generate an identifier that is unique to your organization"
+    "message": "生成您的组织独有的标识符"
   },
   "idpEntityId": {
     "message": "实体 ID"
@@ -5916,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "启动 Duo 然后按照步骤完成登录。"
   },
   "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+    "message": "您的账户要求使用 Duo 两步登录。"
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "启动 Duo"
   },
   "turnOn": {
     "message": "开启"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "重新发送代码"
   },
-  "membersColumnHeader": {
-    "message": "成员/群组"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "成员"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "群组/成员"
   },
   "selectGroupsAndMembers": {
     "message": "选择群组和成员"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "创建账户"
   },
   "createSecret": {
     "message": "创建一个机密"
@@ -7232,7 +7256,7 @@
     "message": "请求了设备批准。"
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "为 $ORG$ 开始您的 Bitwarden 7 天免费试用",
+    "message": "开始 $ORG$ 的 Bitwarden 7 天免费试用",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7241,7 +7265,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
+    "message": "开始 $ORG$ 的 Bitwarden 机密管理器 7 天免费试用",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7456,6 +7480,12 @@
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "安装浏览器扩展"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "使用扩展快速保存登录信息和自动填充表单，而无需打开网页应用程序。"
+  },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "授予群组或成员对此集合的访问权限。"
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "授予成员对此集合的访问权限。"
   },
   "adminCollectionAccess": {
     "message": "管理员可以访问和管理集合。"
@@ -7502,22 +7535,81 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
   },
   "collectionEnhancementsDesc": {
-    "message": "为额外的灵活性添加新的设置和权限。 将管理员角色替换为“可以管理”权限。 并引入选项以允许用户创建集合，并限制对集合的管理访问。",
+    "message": "添加新的设置和权限以获得额外的灵活性。将经理角色替换为「可以管理」权限，并引入允许用户创建集合以及限制对集合的管理访问权限的选项。",
     "description": "This describes new features and improvements for user roles and collections"
   },
   "collectionEnhancementsLearnMore": {
-    "message": "了解集合管理"
+    "message": "了解更多关于集合管理"
   },
   "organizationInformation": {
-    "message": "Organization information"
+    "message": "组织信息"
   },
   "confirmationDetails": {
-    "message": "Confirmation details"
+    "message": "确认详细信息"
   },
   "smFreeTrialThankYou": {
-    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+    "message": "感谢您注册 Bitwarden 机密管理器！"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "We've sent a confirmation email to your email at "
+    "message": "我们已经发送了一封确认邮件到 "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "此操作不可逆"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "开启此功能将弃用经理角色，并将其替换为「可以管理」权限。这需要一些时间。在完成之前，请勿对组织进行任何更改。您确定要继续吗？"
+  },
+  "sorryToSeeYouGo": {
+    "message": "很遗憾看到您离开！请分享您取消的原因，以帮助改进 Bitwarden。",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "选择取消的原因",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "您还有其他反馈要分享吗？",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "功能缺失",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "迁移到其他工具",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "太难使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "未充分使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "太贵了",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "免费 1 年"
+  },
+  "newWebApp": {
+    "message": "欢迎来到全新改进的网页应用。了解更多更新信息。"
+  },
+  "releaseBlog": {
+    "message": "阅读发布博客"
+  },
+  "adminConsole": {
+    "message": "管理控制台"
+  },
+  "providerPortal": {
+    "message": "提供商门户"
+  },
+  "restrictedGroupAccess": {
+    "message": "You cannot add yourself to groups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "You cannot add yourself to collections."
   }
 }

@@ -75,6 +75,8 @@ export class AvatarComponent implements OnChanges {
     svg.appendChild(charObj);
     const html = window.document.createElement("div").appendChild(svg).outerHTML;
     const svgHtml = window.btoa(unescape(encodeURIComponent(html)));
+
+    // This is safe because the only user provided value, chars is set using `textContent`
     this.src = this.sanitizer.bypassSecurityTrustResourceUrl(
       "data:image/svg+xml;base64," + svgHtml,
     );
@@ -117,6 +119,7 @@ export class AvatarComponent implements OnChanges {
       '"Open Sans","Helvetica Neue",Helvetica,Arial,' +
         'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
+    // Warning do not use innerHTML here, characters are user provided
     textTag.textContent = character;
     textTag.style.fontWeight = this.svgFontWeight.toString();
     textTag.style.fontSize = this.svgFontSize + "px";

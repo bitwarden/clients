@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Yeni hesabınız oluşturuldu! Şimdi giriş yapabilirsiniz."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Başarıyla giriş yaptınız"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bu pencereyi kapatabilirsiniz"
+  },
   "masterPassSent": {
     "message": "Size ana parolanızın ipucunu içeren bir e-posta gönderdik."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Klasör seç..."
   },
+  "noFoldersFound": {
+    "message": "Herhangi bir klasör bulunamadı",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Kuruluş izinleriniz güncellendi ve bir ana parola belirlemeniz gerekiyor.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2007,7 +2017,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Doğrulama gerekli",
     "description": "Default title for the user verification dialog."
   },
   "hours": {
@@ -2304,7 +2314,7 @@
     "message": "Otomatik doldurma nasıl yapılır?"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Bu ekrandan bir öğe seçin, $COMMAND$ kısayolunu kullanın veya ayarlardaki diğer seçenekleri keşfedin.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2313,7 +2323,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Bu ekrandan bir öğe seçin veya ayarlardaki diğer seçenekleri keşfedin."
   },
   "gotIt": {
     "message": "Anladım"
@@ -2610,7 +2620,7 @@
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
+    "message": "Bitwarden otomatik doldurma menüsü mevcut. Seçmek için aşağı ok tuşuna basın.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -2648,40 +2658,40 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Tekrar deneyin"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Bu işlem için doğrulama gerekiyor. Devam etmek için bir PIN ayarlayın."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "PIN Belirle"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Biyometri ile doğrula"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Onay bekleniyor"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Biyometri işlemi tamamlanamadı."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Farklı bir yönteme mi ihtiyacınız var?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Ana parolayı kullanın"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "PIN kullan"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Biyometri kullan"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "E-posta adresinize gönderilen doğrulama kodunu girin."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Kodu tekrar gönder"
   },
   "total": {
     "message": "Toplam"
@@ -2698,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "DUO'yu başlatın ve oturum açmayı tamamlamak için adımları izleyin."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "Hesabınız için DUO iki adımlı giriş gereklidir."
+  "duoRequiredForAccount": {
+    "message": "Hesabınız için Duo'ya iki adımlı giriş yapmanız gerekiyor."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Oturum açma işlemini tamamlamak için uzantıyı yeni bir pencerede açın"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Oturum açma işlemini tamamlamak için uzantıyı açın."
   },
   "popoutExtension": {
     "message": "Popout uzantısı"
@@ -2735,7 +2745,7 @@
     "message": "Bir koleksiyon seçin"
   },
   "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "message": "İçe aktarılan dosya içeriklerinin $DESTINATION$ konumuna taşınmasını istiyorsanız bu seçeneği seçin",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -2791,7 +2801,7 @@
     "message": "Geçiş anahtarı klonlanan öğeye kopyalanmayacaktır. Bu öğeyi klonlamaya devam etmek istiyor musunuz?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
+    "message": "Açılan sitenin gerektirdiği doğrulama. Bu özellik henüz ana şifresi olmayan hesaplara uygulanmamaktadır."
   },
   "logInWithPasskey": {
     "message": "Geçiş anahtarı ile giriş yapılsın mı?"
@@ -2824,13 +2834,13 @@
     "message": "Geçiş anahtarının üzerine yazılsın mı?"
   },
   "overwritePasskeyAlert": {
-    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+    "message": "Bu öğe zaten bir şifre anahtarı içeriyor. Geçerli şifrenin üzerine yazmak istediğinizden emin misiniz?"
   },
   "featureNotSupported": {
     "message": "Bu özellik henüz desteklenmiyor"
   },
   "yourPasskeyIsLocked": {
-    "message": "Authentication required to use passkey. Verify your identity to continue."
+    "message": "Şifreyi kullanmak için kimlik doğrulama gerekiyor. Devam etmek için kimliğinizi doğrulayın."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Çok faktörlü kimlik doğrulama iptal edildi"
@@ -2842,13 +2852,13 @@
     "message": "Kullanıcı adı veya parola yanlış"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Yanlış parola"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Yanlış kod"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Yanlış PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Çok faktörlü kimlik doğrulama başarısız oldu"
@@ -2957,7 +2967,7 @@
     }
   },
   "commonImportFormats": {
-    "message": "Common formats",
+    "message": "Ortak formatlar",
     "description": "Label indicating the most common import formats"
   },
   "overrideDefaultBrowserAutofillTitle": {
@@ -2968,24 +2978,32 @@
     "message": "Bu seçeneğin göz ardı edilmesi, Bitwarden otomatik doldurma menüsü ile tarayıcınızınki arasında çakışmalara neden olabilir.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Bu eylem Bitwarden uzantısını yeniden başlatacaktır. Bu seçeneğin göz ardı edilmesi, Bitwarden otomatik doldurma menüsü ile tarayıcınızın arasında çakışmalara neden olabilir.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Bitwarden'ı varsayılan şifre yöneticiniz yapın",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "privacyPermissionAdditionNotGrantedTitle": {
-    "message": "Unable to set Bitwarden as the default password manager",
+    "message": "Bitwarden varsayılan parola yöneticisi olarak ayarlanamıyor",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "You must grant browser privacy permissions to Bitwarden to set it as the default password manager.",
+    "message": "Bitwarden'ı varsayılan parola yöneticisi olarak ayarlamak için tarayıcı gizlilik izinlerini vermeniz gerekir.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
     "message": "Varsayılan yap",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Kimlik bilgileri başarıyla kaydedildi!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Kimlik bilgileri başarıyla güncellendi!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Kimlik bilgileri kaydedilirken hata oluştu. Ayrıntılar için konsolu kontrol edin.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

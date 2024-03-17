@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from "@angular/core
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
+import { PaymentMethodWarningsServiceAbstraction as PaymentMethodWarningService } from "@bitwarden/common/billing/abstractions/payment-method-warnings-service.abstraction";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,7 +34,7 @@ export class AdjustPaymentComponent {
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private billingBannerService: BillingBannerServiceAbstraction,
+    private paymentMethodWarningService: PaymentMethodWarningService,
   ) {}
 
   async submit() {
@@ -59,7 +59,7 @@ export class AdjustPaymentComponent {
       });
       await this.formPromise;
       if (this.organizationId) {
-        await this.billingBannerService.setPaymentMethodBannerState(this.organizationId, false);
+        await this.paymentMethodWarningService.removeSubscriptionRisk(this.organizationId);
       }
       this.platformUtilsService.showToast(
         "success",

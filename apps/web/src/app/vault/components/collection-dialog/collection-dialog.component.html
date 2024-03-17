@@ -65,7 +65,10 @@
         </bit-tab>
         <bit-tab label="{{ 'access' | i18n }}">
           <div class="tw-mb-3" *ngIf="organization.flexibleCollections">
-            {{ "grantCollectionAccess" | i18n }}
+            <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
+            <span *ngIf="!organization.useGroups">{{
+              "grantCollectionAccessMembersOnly" | i18n
+            }}</span>
             <span
               *ngIf="
                 (flexibleCollectionsV1Enabled$ | async) &&
@@ -85,7 +88,7 @@
             [permissionMode]="PermissionMode.Edit"
             formControlName="access"
             [items]="accessItems"
-            [columnHeader]="'groupAndMemberColumnHeader' | i18n"
+            [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
             [selectorLabelText]="'selectGroupsAndMembers' | i18n"
             [selectorHelpText]="'userPermissionOverrideHelper' | i18n"
             [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"

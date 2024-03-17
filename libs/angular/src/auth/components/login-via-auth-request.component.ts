@@ -4,11 +4,11 @@ import { Subject, takeUntil } from "rxjs";
 
 import {
   AuthRequestLoginCredentials,
+  AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
-import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
@@ -86,7 +86,7 @@ export class LoginViaAuthRequestComponent
     private stateService: StateService,
     private loginService: LoginService,
     private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
-    private authReqCryptoService: AuthRequestCryptoServiceAbstraction,
+    private authRequestService: AuthRequestServiceAbstraction,
     private loginStrategyService: LoginStrategyServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
@@ -99,8 +99,7 @@ export class LoginViaAuthRequestComponent
     }
 
     //gets signalR push notification
-    this.loginStrategyService
-      .getPushNotificationObs$()
+    this.loginStrategyService.authRequestPushNotification$
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
         // Only fires on approval currently
@@ -367,14 +366,14 @@ export class LoginViaAuthRequestComponent
     if (adminAuthReqResponse.masterPasswordHash) {
       // Flow 2: masterPasswordHash is not null
       // key is authRequestPublicKey(masterKey) + we have authRequestPublicKey(masterPasswordHash)
-      await this.authReqCryptoService.setKeysAfterDecryptingSharedMasterKeyAndHash(
+      await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
         adminAuthReqResponse,
         privateKey,
       );
     } else {
       // Flow 3: masterPasswordHash is null
       // we can assume key is authRequestPublicKey(userKey) and we can just decrypt with userKey and proceed to vault
-      await this.authReqCryptoService.setUserKeyAfterDecryptingSharedUserKey(
+      await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
         adminAuthReqResponse,
         privateKey,
       );
@@ -404,7 +403,7 @@ export class LoginViaAuthRequestComponent
     // if masterPasswordHash is null, we will always receive key as authRequestPublicKey(userKey)
     if (response.masterPasswordHash) {
       const { masterKey, masterKeyHash } =
-        await this.authReqCryptoService.decryptPubKeyEncryptedMasterKeyAndHash(
+        await this.authRequestService.decryptPubKeyEncryptedMasterKeyAndHash(
           response.key,
           response.masterPasswordHash,
           this.authRequestKeyPair.privateKey,
@@ -419,7 +418,7 @@ export class LoginViaAuthRequestComponent
         masterKeyHash,
       );
     } else {
-      const userKey = await this.authReqCryptoService.decryptPubKeyEncryptedUserKey(
+      const userKey = await this.authRequestService.decryptPubKeyEncryptedUserKey(
         response.key,
         this.authRequestKeyPair.privateKey,
       );

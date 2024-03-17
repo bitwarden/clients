@@ -578,6 +578,9 @@
   "access": {
     "message": "アクセス"
   },
+  "accessLevel": {
+    "message": "アクセスレベル"
+  },
   "loggedOut": {
     "message": "ログアウトしました"
   },
@@ -1347,6 +1350,22 @@
   "importData": {
     "message": "データをインポート"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "インポートするデータがない場合は、 ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "新しいアイテム",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": "を作成してください。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": "を作成してください。管理者が組織のメンバーシップを確認するまで待つ必要があります。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "インポートエラー"
   },
@@ -1459,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "ログイン情報の隣にアイコン画像を表示します"
-  },
-  "enableFullWidth": {
-    "message": "全幅レイアウトを有効化",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "ウェブ保管庫の幅をブラウザウインドウ一杯に広げます。"
   },
   "default": {
     "message": "デフォルト"
@@ -4031,6 +4043,12 @@
   "ssoHandOff": {
     "message": "このタブを閉じて拡張機能で続けられます。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "ログインに成功しました"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "このウィンドウは5秒後に自動的に閉じます"
+  },
   "includeAllTeamsFeatures": {
     "message": "すべてのチームの機能に加えて:"
   },
@@ -4931,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "あなたをプロバイダーとして関連付けられる、新しいクライアント組織を作成します。この組織にアクセスして管理することができます。"
+  },
+  "newClient": {
+    "message": "新規クライアント"
   },
   "addExistingOrganization": {
     "message": "既存の組織を追加する"
@@ -6655,11 +6676,11 @@
   "resendCode": {
     "message": "コードを再送信する"
   },
-  "membersColumnHeader": {
-    "message": "メンバー/グループ"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "メンバー"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "グループ/メンバー"
   },
   "selectGroupsAndMembers": {
     "message": "グループとメンバーを選択"
@@ -6911,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "アカウントを作成"
   },
   "createSecret": {
     "message": "シークレットを作成"
@@ -7456,6 +7480,12 @@
     "message": "詳細な手順はこちらをご覧ください：",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "ブラウザ拡張機能をインストール"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "拡張機能を使用すると、ウェブアプリを開かずにログインや自動入力フォームをすばやく保存できます。"
+  },
   "projectAccessUpdated": {
     "message": "プロジェクトへのアクセスを更新しました"
   },
@@ -7476,6 +7506,9 @@
   },
   "grantCollectionAccess": {
     "message": "グループまたはメンバーにこのコレクションへのアクセスを許可します。"
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "メンバーにこのコレクションへのアクセスを許可します。"
   },
   "adminCollectionAccess": {
     "message": "管理者はコレクションにアクセスし、管理することができます。"
@@ -7519,5 +7552,64 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "あなたのメールアドレスに確認メールを送信しました："
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "この操作は元に戻せません"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "この機能を有効にすると、管理者ロールを非推奨にし、管理可能権限に置き換えます。 しばらく時間がかかります。完了するまで組織設定を変更しないでください。続行してもよろしいですか？"
+  },
+  "sorryToSeeYouGo": {
+    "message": "お別れするのは残念です！キャンセルする理由を共有して、Bitwarden の改善にご協力ください。",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "キャンセルする理由を選択",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "他のフィードバックはありますか?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "機能が不足している",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "別のツールに移行する",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "使用方法が難しすぎる",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "あまり使っていない",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "料金が高すぎる",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1年間無料"
+  },
+  "newWebApp": {
+    "message": "新しく改良されたウェブアプリへようこそ。何が変更されたかについての詳細はこちらをご覧ください。"
+  },
+  "releaseBlog": {
+    "message": "リリースブログを読む"
+  },
+  "adminConsole": {
+    "message": "管理者コンソール"
+  },
+  "providerPortal": {
+    "message": "プロバイダーポータル"
+  },
+  "restrictedGroupAccess": {
+    "message": "あなた自身をグループに追加することはできません。"
+  },
+  "restrictedCollectionAccess": {
+    "message": "コレクションに自分自身を追加することはできません。"
   }
 }

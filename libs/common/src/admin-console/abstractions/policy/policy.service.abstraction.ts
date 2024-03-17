@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { ListResponse } from "../../../models/response/list.response";
+import { UserId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
@@ -10,9 +11,9 @@ import { PolicyResponse } from "../../models/response/policy.response";
 
 export abstract class PolicyService {
   /**
-   * All {@link Policy} objects for the active user (from sync data).
-   * May include policies that are disabled or otherwise do not apply to the user.
-   * @see {@link get$} or {@link policyAppliesToActiveUser$} if you want to know when a policy applies to a user.
+   * All policies for the active user from sync data.
+   * May include policies that are disabled or otherwise do not apply to the user. Be careful using this!
+   * Consider using {@link get$} or {@link getAll$} instead, which will only return policies that should be enforced against the user.
    */
   policies$: Observable<Policy[]>;
 
@@ -20,37 +21,33 @@ export abstract class PolicyService {
    * @returns the first {@link Policy} found that applies to the active user.
    * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
    * @param policyType the {@link PolicyType} to search for
-   * @param policyFilter Optional predicate to apply when filtering policies
+   * @see {@link getAll$} if you need all policies of a given type
    */
-  get$: (policyType: PolicyType, policyFilter?: (policy: Policy) => boolean) => Observable<Policy>;
+  get$: (policyType: PolicyType) => Observable<Policy>;
+
+  /**
+   * @returns all {@link Policy} objects of a given type that apply to the specified user (or the active user if not specified).
+   * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
+   * @param policyType the {@link PolicyType} to search for
+   */
+  getAll$: (policyType: PolicyType, userId?: UserId) => Observable<Policy[]>;
 
   /**
    * All {@link Policy} objects for the specified user (from sync data).
    * May include policies that are disabled or otherwise do not apply to the user.
-   * @see {@link policyAppliesToUser} if you want to know when a policy applies to the user.
-   * @deprecated Use {@link policies$} instead
+   * Consider using {@link getAll$} instead, which will only return policies that should be enforced against the user.
    */
-  getAll: (type?: PolicyType, userId?: string) => Promise<Policy[]>;
+  getAll: (policyType: PolicyType) => Promise<Policy[]>;
 
   /**
-   * @returns true if the {@link PolicyType} applies to the current user, otherwise false.
-   * @remarks A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
+   * @returns true if a policy of the specified type applies to the active user, otherwise false.
+   * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
+   * This does not take into account the policy's configuration - if that is important, use {@link getAll$} to get the
+   * {@link Policy} objects and then filter by Policy.data.
    */
-  policyAppliesToActiveUser$: (
-    policyType: PolicyType,
-    policyFilter?: (policy: Policy) => boolean,
-  ) => Observable<boolean>;
+  policyAppliesToActiveUser$: (policyType: PolicyType) => Observable<boolean>;
 
-  /**
-   * @returns true if the {@link PolicyType} applies to the specified user, otherwise false.
-   * @remarks A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
-   * @see {@link policyAppliesToActiveUser$} if you only want to know about the current user.
-   */
-  policyAppliesToUser: (
-    policyType: PolicyType,
-    policyFilter?: (policy: Policy) => boolean,
-    userId?: string,
-  ) => Promise<boolean>;
+  policyAppliesToUser: (policyType: PolicyType) => Promise<boolean>;
 
   // Policy specific interfaces
 
@@ -93,7 +90,7 @@ export abstract class PolicyService {
 }
 
 export abstract class InternalPolicyService extends PolicyService {
-  upsert: (policy: PolicyData) => Promise<any>;
+  upsert: (policy: PolicyData) => Promise<void>;
   replace: (policies: { [id: string]: PolicyData }) => Promise<void>;
-  clear: (userId?: string) => Promise<any>;
+  clear: (userId?: string) => Promise<void>;
 }

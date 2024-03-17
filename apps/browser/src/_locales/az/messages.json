@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bu pəncərəni bağlaya bilərsiniz"
+  },
   "masterPassSent": {
     "message": "Sizə ana parol ipucunuz olan bir e-poçt göndərdik."
   },
@@ -1998,6 +2004,10 @@
   "selectFolder": {
     "message": "Qovluq seçin..."
   },
+  "noFoldersFound": {
+    "message": "Heç bir qovluq tapılmadı",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2007,7 +2017,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Doğrulama tələb olunur",
     "description": "Default title for the user verification dialog."
   },
   "hours": {
@@ -2648,40 +2658,40 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Yenidən sına"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Bu əməliyyat üçün doğrulama tələb olunur. Davam etmək üçün bir PIN təyin edin."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "PIN təyin et"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Biometriklə doğrula"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Təsdiq gözlənilir"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Biometrik tamamlana bilmədi."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Fərqli bir üsul lazımdır?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Ana parolu istifadə et"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "PIN-i istifadə et"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Biometrik istifadə et"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "E-poçtunuza göndərilmiş doğrulama kodunu daxil edin."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Kodu təkrar göndər"
   },
   "total": {
     "message": "Cəmi"
@@ -2696,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch DUO and follow the steps to finish logging in."
+    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
   },
-  "duoRequiredByOrgForAccount": {
-    "message": "DUO two-step login is required for your account."
+  "duoRequiredForAccount": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Open the extension in a new window to complete login"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Popout uzantısı"
   },
   "launchDuo": {
-    "message": "Launch DUO"
+    "message": "Duo-nu başlat"
   },
   "importFormatError": {
     "message": "Data doğru format edilməyib. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
@@ -2842,13 +2852,13 @@
     "message": "Yanlış istifadəçi adı və ya parol"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Yanlış parol"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Yanlış kod"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Yanlış PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"
@@ -2968,10 +2978,6 @@
     "message": "Bu seçimin yox sayılması, \"Bitwarden\"in və brauzerinizin avto-doldurma menyuları arasında ziddiyyətlərə səbəb ola bilər.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "Bu əməliyyat, Bitwarden uzantısını yenidən başladacaq. Bu seçimin yox sayılması, \"Bitwarden\"in və brauzerinizin avto-doldurma menyuları arasında ziddiyyətlərə səbəb ola bilər.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edin",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2987,5 +2993,17 @@
   "makeDefault": {
     "message": "İlkin olaraq təyin et",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Kimlik məlumatları uğurla saxlanıldı!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Kimlik məlumatları uğurla güncəlləndi!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Kimlik məlumatlarını saxlama xətası. Detallar üçün konsolu yoxlayın.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

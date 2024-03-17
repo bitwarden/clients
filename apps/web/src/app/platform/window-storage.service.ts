@@ -50,4 +50,8 @@ export class WindowStorageService implements AbstractStorageService, ObservableS
     this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
   }
+
+  getKeys(): string[] {
+    return Object.keys(this.storage);
+  }
 }

@@ -4,7 +4,6 @@ import { LogService } from "../platform/abstractions/log.service";
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
 import { MigrationBuilder } from "./migration-builder";
-import { MigrationHelper } from "./migration-helper";
 import { EverHadUserKeyMigrator } from "./migrations/10-move-ever-had-user-key-to-state-providers";
 import { OrganizationKeyMigrator } from "./migrations/11-move-org-keys-to-state-providers";
 import { MoveEnvironmentStateToProviders } from "./migrations/12-move-environment-state-to-providers";
@@ -13,7 +12,28 @@ import { MoveBiometricClientKeyHalfToStateProviders } from "./migrations/14-move
 import { FolderMigrator } from "./migrations/15-move-folder-state-to-state-provider";
 import { LastSyncMigrator } from "./migrations/16-move-last-sync-to-state-provider";
 import { EnablePasskeysMigrator } from "./migrations/17-move-enable-passkeys-to-state-providers";
-import { FixPremiumMigrator } from "./migrations/3-fix-premium";
+import { AutofillSettingsKeyMigrator } from "./migrations/18-move-autofill-settings-to-state-providers";
+import { RequirePasswordOnStartMigrator } from "./migrations/19-migrate-require-password-on-start";
+import { PrivateKeyMigrator } from "./migrations/20-move-private-key-to-state-providers";
+import { CollectionMigrator } from "./migrations/21-move-collections-state-to-state-provider";
+import { CollapsedGroupingsMigrator } from "./migrations/22-move-collapsed-groupings-to-state-provider";
+import { MoveBiometricPromptsToStateProviders } from "./migrations/23-move-biometric-prompts-to-state-providers";
+import { SmOnboardingTasksMigrator } from "./migrations/24-move-sm-onboarding-key-to-state-providers";
+import { ClearClipboardDelayMigrator } from "./migrations/25-move-clear-clipboard-to-autofill-settings-state-provider";
+import { RevertLastSyncMigrator } from "./migrations/26-revert-move-last-sync-to-state-provider";
+import { BadgeSettingsMigrator } from "./migrations/27-move-badge-settings-to-state-providers";
+import { MoveBiometricUnlockToStateProviders } from "./migrations/28-move-biometric-unlock-to-state-providers";
+import { UserNotificationSettingsKeyMigrator } from "./migrations/29-move-user-notification-settings-to-state-provider";
+import { PolicyMigrator } from "./migrations/30-move-policy-state-to-state-provider";
+import { EnableContextMenuMigrator } from "./migrations/31-move-enable-context-menu-to-autofill-settings-state-provider";
+import { PreferredLanguageMigrator } from "./migrations/32-move-preferred-language";
+import { AppIdMigrator } from "./migrations/33-move-app-id-to-state-providers";
+import { DomainSettingsMigrator } from "./migrations/34-move-domain-settings-to-state-providers";
+import { MoveThemeToStateProviderMigrator } from "./migrations/35-move-theme-to-state-providers";
+import { VaultSettingsKeyMigrator } from "./migrations/36-move-show-card-and-identity-to-state-provider";
+import { AvatarColorMigrator } from "./migrations/37-move-avatar-color-to-state-providers";
+import { TokenServiceStateProviderMigrator } from "./migrations/38-migrate-token-svc-to-state-provider";
+import { MoveBillingAccountProfileMigrator } from "./migrations/39-move-billing-account-profile-to-state-providers";
 import { RemoveEverBeenUnlockedMigrator } from "./migrations/4-remove-ever-been-unlocked";
 import { AddKeyTypeToOrgKeysMigrator } from "./migrations/5-add-key-type-to-org-keys";
 import { RemoveLegacyEtmKeyMigrator } from "./migrations/6-remove-legacy-etm-key";
@@ -22,27 +42,13 @@ import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
-export const MIN_VERSION = 2;
-export const CURRENT_VERSION = 17;
+export const MIN_VERSION = 3;
+export const CURRENT_VERSION = 39;
 export type MinVersion = typeof MIN_VERSION;
 
-export async function migrate(
-  storageService: AbstractStorageService,
-  logService: LogService,
-): Promise<void> {
-  const migrationHelper = new MigrationHelper(
-    await currentVersion(storageService, logService),
-    storageService,
-    logService,
-  );
-  if (migrationHelper.currentVersion < 0) {
-    // Cannot determine state, assuming empty so we don't repeatedly apply a migration.
-    await storageService.save("stateVersion", CURRENT_VERSION);
-    return;
-  }
-  await MigrationBuilder.create()
+export function createMigrationBuilder() {
+  return MigrationBuilder.create()
     .with(MinVersionMigrator)
-    .with(FixPremiumMigrator, 2, 3)
     .with(RemoveEverBeenUnlockedMigrator, 3, 4)
     .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
     .with(RemoveLegacyEtmKeyMigrator, 5, 6)
@@ -56,9 +62,29 @@ export async function migrate(
     .with(MoveBiometricClientKeyHalfToStateProviders, 13, 14)
     .with(FolderMigrator, 14, 15)
     .with(LastSyncMigrator, 15, 16)
-    .with(EnablePasskeysMigrator, 16, CURRENT_VERSION)
-
-    .migrate(migrationHelper);
+    .with(EnablePasskeysMigrator, 16, 17)
+    .with(AutofillSettingsKeyMigrator, 17, 18)
+    .with(RequirePasswordOnStartMigrator, 18, 19)
+    .with(PrivateKeyMigrator, 19, 20)
+    .with(CollectionMigrator, 20, 21)
+    .with(CollapsedGroupingsMigrator, 21, 22)
+    .with(MoveBiometricPromptsToStateProviders, 22, 23)
+    .with(SmOnboardingTasksMigrator, 23, 24)
+    .with(ClearClipboardDelayMigrator, 24, 25)
+    .with(RevertLastSyncMigrator, 25, 26)
+    .with(BadgeSettingsMigrator, 26, 27)
+    .with(MoveBiometricUnlockToStateProviders, 27, 28)
+    .with(UserNotificationSettingsKeyMigrator, 28, 29)
+    .with(PolicyMigrator, 29, 30)
+    .with(EnableContextMenuMigrator, 30, 31)
+    .with(PreferredLanguageMigrator, 31, 32)
+    .with(AppIdMigrator, 32, 33)
+    .with(DomainSettingsMigrator, 33, 34)
+    .with(MoveThemeToStateProviderMigrator, 34, 35)
+    .with(VaultSettingsKeyMigrator, 35, 36)
+    .with(AvatarColorMigrator, 36, 37)
+    .with(TokenServiceStateProviderMigrator, 37, 38)
+    .with(MoveBillingAccountProfileMigrator, 38, CURRENT_VERSION);
 }
 
 export async function currentVersion(
@@ -91,8 +117,12 @@ export async function waitForMigrations(
   const isReady = async () => {
     const version = await currentVersion(storageService, logService);
     // The saved version is what we consider the latest
-    // migrations should be complete
-    return version === CURRENT_VERSION;
+    // migrations should be complete, the state version
+    // shouldn't become larger than `CURRENT_VERSION` in
+    // any normal usage of the application but it is common
+    // enough in dev scenarios where we want to consider that
+    // ready as well and return true in that scenario.
+    return version >= CURRENT_VERSION;
   };
 
   const wait = async (time: number) => {

@@ -13,6 +13,9 @@ import { OrganizationBadgeModule } from "./organization-badge/organization-badge
 import { PipesModule } from "./pipes/pipes.module";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
+import { VaultOnboardingService } from "./vault-onboarding/services/vault-onboarding.service";
+import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 import { VaultRoutingModule } from "./vault-routing.module";
 import { VaultComponent } from "./vault.component";
 
@@ -30,8 +33,15 @@ import { VaultComponent } from "./vault.component";
     BreadcrumbsModule,
     VaultItemsModule,
     CollectionDialogModule,
+    VaultOnboardingComponent,
   ],
   declarations: [VaultComponent, VaultHeaderComponent],
   exports: [VaultComponent],
+  providers: [
+    {
+      provide: VaultOnboardingServiceAbstraction,
+      useClass: VaultOnboardingService,
+    },
+  ],
 })
 export class VaultModule {}

@@ -7,7 +7,7 @@
             {{ "premiumMembership" | i18n }}
           </h1>
           <div class="box-content box-content-padded">
-            <div *ngIf="!isPremium">
+            <div *ngIf="!(isPremium$ | async)">
               <p class="text-center lead">{{ "premiumNotCurrentMember" | i18n }}</p>
               <p>{{ "premiumSignUpAndGet" | i18n }}</p>
               <ul class="bwi-ul">
@@ -40,7 +40,7 @@
                 {{ "premiumPrice" | i18n: (price | currency: "$") }}
               </p>
             </div>
-            <div *ngIf="isPremium">
+            <div *ngIf="isPremium$ | async">
               <p class="text-center lead">{{ "premiumCurrentMember" | i18n }}</p>
               <p class="text-center">{{ "premiumCurrentMemberThanks" | i18n }}</p>
             </div>
@@ -48,7 +48,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="primary" (click)="manage()" *ngIf="isPremium">
+        <button type="button" class="primary" (click)="manage()" *ngIf="isPremium$ | async">
           <b>{{ "premiumManage" | i18n }}</b>
         </button>
         <button
@@ -56,13 +56,13 @@
           type="button"
           class="primary"
           (click)="purchase()"
-          *ngIf="!isPremium"
+          *ngIf="!(isPremium$ | async)"
           [disabled]="$any(purchaseBtn).loading"
         >
           <b>{{ "premiumPurchase" | i18n }}</b>
         </button>
         <button type="button" data-dismiss="modal">{{ "close" | i18n }}</button>
-        <div class="right" *ngIf="!isPremium">
+        <div class="right" *ngIf="!(isPremium$ | async)">
           <button
             #refreshBtn
             type="button"

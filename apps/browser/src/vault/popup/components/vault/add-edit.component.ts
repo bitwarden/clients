@@ -10,6 +10,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -42,7 +43,6 @@ export class AddEditComponent extends BaseAddEditComponent {
   showAttachments = true;
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
-  private singleActionKey: string;
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
@@ -53,6 +53,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     platformUtilsService: PlatformUtilsService,
     auditService: AuditService,
     stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     collectionService: CollectionService,
     messagingService: MessagingService,
     private route: ActivatedRoute,
@@ -121,9 +122,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       if (params.selectedVault) {
         this.organizationId = params.selectedVault;
       }
-      if (params.singleActionKey) {
-        this.singleActionKey = params.singleActionKey;
-      }
+
       await this.load();
 
       if (!this.editMode || this.cloneMode) {
@@ -139,6 +138,10 @@ export class AddEditComponent extends BaseAddEditComponent {
       }
 
       this.openAttachmentsInPopup = BrowserPopupUtils.inPopup(window);
+
+      if (this.inAddEditPopoutWindow()) {
+        BrowserApi.messageListener("add-edit-popout", this.handleExtensionMessage.bind(this));
+      }
     });
 
     if (!this.editMode) {
@@ -160,7 +163,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     await super.load();
     this.showAutoFillOnPageLoadOptions =
       this.cipher.type === CipherType.Login &&
-      (await this.stateService.getEnableAutoFillOnPageLoad());
+      (await firstValueFrom(this.autofillSettingsService.autofillOnPageLoad$));
   }
 
   async submit(): Promise<boolean> {
@@ -356,10 +359,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   private inAddEditPopoutWindow() {
-    return BrowserPopupUtils.inSingleActionPopout(
-      window,
-      this.singleActionKey || VaultPopoutType.addEditVaultItem,
-    );
+    return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
   async captureTOTPFromTab() {
@@ -381,6 +381,12 @@ export class AddEditComponent extends BaseAddEditComponent {
         this.i18nService.t("errorOccurred"),
         this.i18nService.t("totpCaptureError"),
       );
+    }
+  }
+
+  private handleExtensionMessage(message: { [key: string]: any; command: string }) {
+    if (message.command === "inlineAutofillMenuRefreshAddEditCipher") {
+      this.load().catch((error) => this.logService.error(error));
     }
   }
 }

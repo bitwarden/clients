@@ -1,25 +1,26 @@
-<div class="page-header d-flex">
-  <h1>{{ "policies" | i18n }}</h1>
-</div>
-<ng-container *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
-</ng-container>
-<table class="table table-hover table-list" *ngIf="!loading">
-  <tbody>
-    <tr *ngFor="let p of policies">
-      <td *ngIf="p.display(organization)">
-        <a href="#" appStopClick (click)="edit(p)">{{ p.name | i18n }}</a>
-        <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{
-          "on" | i18n
-        }}</span>
-        <small class="text-muted d-block">{{ p.description | i18n }}</small>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<ng-template #editTemplate></ng-template>
+<app-header></app-header>
+
+<bit-container>
+  <ng-container *ngIf="loading">
+    <i
+      class="bwi bwi-spinner bwi-spin text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+  <table class="table table-hover table-list" *ngIf="!loading">
+    <tbody>
+      <tr *ngFor="let p of policies">
+        <td *ngIf="p.display(organization)">
+          <a href="#" appStopClick (click)="edit(p)">{{ p.name | i18n }}</a>
+          <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{
+            "on" | i18n
+          }}</span>
+          <small class="text-muted d-block">{{ p.description | i18n }}</small>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <ng-template #editTemplate></ng-template>
+</bit-container>

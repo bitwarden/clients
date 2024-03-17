@@ -2,13 +2,10 @@ import { Component, NgZone } from "@angular/core";
 import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-
-const BroadcasterSubscriptionId = "AccessibilityCookieComponent";
 
 @Component({
   selector: "app-accessibility-cookie",
@@ -27,40 +24,21 @@ export class AccessibilityCookieComponent {
     protected platformUtilsService: PlatformUtilsService,
     protected environmentService: EnvironmentService,
     protected i18nService: I18nService,
-    private broadcasterService: BroadcasterService,
     protected ngZone: NgZone,
   ) {}
-
-  async ngOnInit() {
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(() => {
-        switch (message.command) {
-          case "windowIsFocused":
-            if (this.listenForCookie) {
-              this.listenForCookie = false;
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.checkForCookie();
-            }
-            break;
-          default:
-        }
-      });
-    });
-  }
 
   registerhCaptcha() {
     this.platformUtilsService.launchUri("https://www.hcaptcha.com/accessibility");
   }
 
-  async checkForCookie() {
-    this.hCaptchaWindow.close();
+  async close() {
     const [cookie] = await ipc.auth.getHcaptchaAccessibilityCookie();
     if (cookie) {
       this.onCookieSavedSuccess();
     } else {
       this.onCookieSavedFailure();
     }
+    await this.router.navigate(["/login"]);
   }
 
   onCookieSavedSuccess() {
@@ -89,10 +67,6 @@ export class AccessibilityCookieComponent {
       return;
     }
     this.listenForCookie = true;
-    this.hCaptchaWindow = window.open(this.accessibilityForm.value.link);
-  }
-
-  ngOnDestroy() {
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    window.open(this.accessibilityForm.value.link, "_blank", "noopener noreferrer");
   }
 }

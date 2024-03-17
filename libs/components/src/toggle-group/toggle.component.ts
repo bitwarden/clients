@@ -70,10 +70,8 @@ export class ToggleComponent<TValue> {
       // Fix for bootstrap styles that add bottom margin
       "!tw-mb-0",
 
-      // Fix for badge being pushed slightly lower when inside a button.
-      // Inspired by bootstrap, which does the same.
-      "[&>[bitBadge]]:tw-relative",
-      "[&>[bitBadge]]:tw--top-px",
+      // Fix for badge being slightly off center vertically
+      "[&>[bitBadge]]:tw-mt-px",
     ];
   }
 

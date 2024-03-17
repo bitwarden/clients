@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "تم إنشاء حسابك الجديد! يمكنك الآن تسجيل الدخول."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "سجلتَ الدخول بنجاح"
+  },
+  "youMayCloseThisWindow": {
+    "message": "يمكنك إغلاق هذه النافذة"
+  },
   "masterPassSent": {
     "message": "لقد أرسلنا لك رسالة بريد إلكتروني تحتوي على تلميحات كلمة المرور الرئيسية."
   },
@@ -1548,7 +1554,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "التحقق مطلوب",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
@@ -1877,40 +1883,40 @@
     "message": "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزنة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "حاول مرة أخرى"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "التحقق مطلوب لهذا الإجراء. قم بتعيين رمز PIN للمتابعة."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "تعيين رقم التعريف الشخصي"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "التحقق بواسطة القياسات الحيوية"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "في انتظار تأكيد"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "لا يمكن إكمال القياسات الحيوية."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "هل تحتاج إلى طريقة مختلفة؟"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "استخدام كلمة المرور الرئيسية"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "استخدام PIN"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "استخدام المقاييس الحيوية"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "أدخِل رمز التحقق الذي أرسل إلى بريدك الإلكتروني."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "إعادة إرسال الرمز"
   },
   "hours": {
     "message": "ساعات"
@@ -2525,6 +2531,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "قم بتشغيل دوو واتبع الخطوات لإنهاء تسجيل الدخول."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك."
+  },
+  "launchDuo": {
+    "message": "تشغيل دوو في المتصفح"
+  },
   "importFormatError": {
     "message": "لم يتم تنسيق البيانات بشكل صحيح. الرجاء التحقق من ملف الاستيراد الخاص بك وحاول مرة أخرى."
   },
@@ -2606,13 +2621,13 @@
     "message": "اسم المستخدم أو كلمة المرور غير صحيحة"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "كلمة سر خاطئة"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "رمز غير صحيح"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "رمز PIN غير صحيح"
   },
   "multifactorAuthenticationFailed": {
     "message": "فشلت المصادقة المتعددة العوامل"

@@ -202,11 +202,11 @@ export class Organization {
       return this.canEditAnyCollection;
     }
     // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
-    // Providers are not affected by allowAdminAccessToAllCollectionItems flag
-    // note: canEditAnyCollection may change in the V1 to also ignore the allowAdminAccessToAllCollectionItems flag
+    // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
       this.isProviderUser ||
-      (this.allowAdminAccessToAllCollectionItems && this.canEditAnyCollection)
+      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.allowAdminAccessToAllCollectionItems && this.isAdmin)
     );
   }
 

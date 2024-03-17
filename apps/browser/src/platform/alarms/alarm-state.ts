@@ -22,7 +22,7 @@ const alarmState: AlarmState = {
  */
 export async function getAlarmTime(commandName: AlarmKeys): Promise<number> {
   let alarmTime: number;
-  if (BrowserApi.manifestVersion == 3) {
+  if (BrowserApi.isManifestVersion(3)) {
     const fromSessionStore = await chrome.storage.session.get(commandName);
     alarmTime = fromSessionStore[commandName];
   } else {
@@ -58,7 +58,7 @@ export async function clearAlarmTime(commandName: AlarmKeys): Promise<void> {
 }
 
 async function setAlarmTimeInternal(commandName: AlarmKeys, time: number): Promise<void> {
-  if (BrowserApi.manifestVersion == 3) {
+  if (BrowserApi.isManifestVersion(3)) {
     await chrome.storage.session.set({ [commandName]: time });
   } else {
     alarmState[commandName] = time;

@@ -8,7 +8,11 @@ function rgba(color) {
 
 module.exports = {
   prefix: "tw-",
-  content: ["./src/**/*.{html,ts}", "../../libs/components/src/**/*.{html,ts}"],
+  content: [
+    "./src/**/*.{html,ts}",
+    "../../libs/components/src/**/*.{html,ts}",
+    "../../libs/auth/src/**/*.{html,ts}",
+  ],
   safelist: [],
   corePlugins: { preflight: false },
   theme: {

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, Type, ViewChild, ViewContainerRef } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -9,9 +9,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductType } from "@bitwarden/common/enums";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { TwoFactorAuthenticatorComponent } from "./two-factor-authenticator.component";
 import { TwoFactorDuoComponent } from "./two-factor-duo.component";
@@ -40,7 +40,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organizationId: string;
   organization: Organization;
   providers: any[] = [];
-  canAccessPremium: boolean;
+  canAccessPremium$: Observable<boolean>;
   showPolicyWarning = false;
   loading = true;
   modal: ModalRef;
@@ -56,12 +56,12 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     protected modalService: ModalService,
     protected messagingService: MessagingService,
     protected policyService: PolicyService,
-    private stateService: StateService,
-  ) {}
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+  ) {
+    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+  }
 
   async ngOnInit() {
-    this.canAccessPremium = await this.stateService.getCanAccessPremium();
-
     for (const key in TwoFactorProviders) {
       // eslint-disable-next-line
       if (!TwoFactorProviders.hasOwnProperty(key)) {
@@ -174,7 +174,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   async premiumRequired() {
-    if (!this.canAccessPremium) {
+    if (!(await firstValueFrom(this.canAccessPremium$))) {
       this.messagingService.send("premiumRequired");
       return;
     }

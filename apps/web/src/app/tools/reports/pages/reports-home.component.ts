@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { reports, ReportType } from "../reports";
 import { ReportEntry, ReportVariant } from "../shared";
@@ -12,11 +13,12 @@ import { ReportEntry, ReportVariant } from "../shared";
 export class ReportsHomeComponent implements OnInit {
   reports: ReportEntry[];
 
-  constructor(private stateService: StateService) {}
+  constructor(private billingAccountProfileStateService: BillingAccountProfileStateService) {}
 
   async ngOnInit(): Promise<void> {
-    const userHasPremium = await this.stateService.getCanAccessPremium();
-
+    const userHasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    );
     const reportRequiresPremium = userHasPremium
       ? ReportVariant.Enabled
       : ReportVariant.RequiresPremium;

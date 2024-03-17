@@ -15,6 +15,7 @@ export class WebFileDownloadService implements FileDownloadService {
     if (builder.downloadMethod === "save") {
       a.download = request.fileName;
     } else if (!this.platformUtilsService.isSafari()) {
+      a.rel = "noreferrer";
       a.target = "_blank";
     }
     a.href = URL.createObjectURL(builder.blob);

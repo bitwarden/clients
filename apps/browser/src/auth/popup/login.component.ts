@@ -91,6 +91,8 @@ export class LoginComponent extends BaseLoginComponent {
   }
 
   async launchSsoBrowser() {
+    // Save off email for SSO
+    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
     await this.loginService.saveEmailSettings();
     // Generate necessary sso params
     const passwordOptions: any = {

@@ -12,7 +12,7 @@
 </header>
 <main tabindex="-1">
   <div class="content">
-    <ng-container *ngIf="!isPremium">
+    <ng-container *ngIf="!(isPremium$ | async)">
       <p class="text-center lead">{{ "premiumNotCurrentMember" | i18n }}</p>
       <p>{{ "premiumSignUpAndGet" | i18n }}</p>
       <ul class="bwi-ul">
@@ -61,7 +61,7 @@
         ></i>
       </button>
     </ng-container>
-    <ng-container *ngIf="isPremium">
+    <ng-container *ngIf="isPremium$ | async">
       <p class="text-center lead">{{ "premiumCurrentMember" | i18n }}</p>
       <p class="text-center">{{ "premiumCurrentMemberThanks" | i18n }}</p>
       <button type="button" class="btn block primary" (click)="manage()">

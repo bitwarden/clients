@@ -15,7 +15,7 @@ import {
   BitwardenJsonExport,
   BitwardenUnEncryptedIndividualJsonExport,
   BitwardenUnEncryptedOrgJsonExport,
-} from "@bitwarden/exporter/vault-export/bitwarden-json-export-types";
+} from "@bitwarden/vault-export-core";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";

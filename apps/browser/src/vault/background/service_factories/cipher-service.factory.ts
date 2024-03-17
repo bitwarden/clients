@@ -2,6 +2,14 @@ import { CipherService as AbstractCipherService } from "@bitwarden/common/vault/
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 
 import {
+  AutofillSettingsServiceInitOptions,
+  autofillSettingsServiceFactory,
+} from "../../../autofill/background/service_factories/autofill-settings-service.factory";
+import {
+  DomainSettingsServiceInitOptions,
+  domainSettingsServiceFactory,
+} from "../../../autofill/background/service_factories/domain-settings-service.factory";
+import {
   CipherFileUploadServiceInitOptions,
   cipherFileUploadServiceFactory,
 } from "../../../background/service-factories/cipher-file-upload-service.factory";
@@ -9,10 +17,6 @@ import {
   searchServiceFactory,
   SearchServiceInitOptions,
 } from "../../../background/service-factories/search-service.factory";
-import {
-  SettingsServiceInitOptions,
-  settingsServiceFactory,
-} from "../../../background/service-factories/settings-service.factory";
 import {
   apiServiceFactory,
   ApiServiceInitOptions,
@@ -47,12 +51,13 @@ type CipherServiceFactoryOptions = FactoryOptions;
 
 export type CipherServiceInitOptions = CipherServiceFactoryOptions &
   CryptoServiceInitOptions &
-  SettingsServiceInitOptions &
   ApiServiceInitOptions &
   CipherFileUploadServiceInitOptions &
   I18nServiceInitOptions &
   SearchServiceInitOptions &
   StateServiceInitOptions &
+  AutofillSettingsServiceInitOptions &
+  DomainSettingsServiceInitOptions &
   EncryptServiceInitOptions &
   ConfigServiceInitOptions;
 
@@ -67,11 +72,12 @@ export function cipherServiceFactory(
     async () =>
       new CipherService(
         await cryptoServiceFactory(cache, opts),
-        await settingsServiceFactory(cache, opts),
+        await domainSettingsServiceFactory(cache, opts),
         await apiServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
         await searchServiceFactory(cache, opts),
         await stateServiceFactory(cache, opts),
+        await autofillSettingsServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
         await cipherFileUploadServiceFactory(cache, opts),
         await configServiceFactory(cache, opts),

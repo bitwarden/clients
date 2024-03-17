@@ -23,4 +23,13 @@ export class SsoTokenRequest extends TokenRequest {
 
     return obj;
   }
+
+  static fromJSON(json: any) {
+    return Object.assign(Object.create(SsoTokenRequest.prototype), json, {
+      device: json.device ? DeviceRequest.fromJSON(json.device) : undefined,
+      twoFactor: json.twoFactor
+        ? Object.assign(new TokenTwoFactorRequest(), json.twoFactor)
+        : undefined,
+    });
+  }
 }

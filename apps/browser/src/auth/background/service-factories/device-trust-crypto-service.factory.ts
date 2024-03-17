@@ -31,6 +31,10 @@ import {
   i18nServiceFactory,
 } from "../../../platform/background/service-factories/i18n-service.factory";
 import {
+  KeyGenerationServiceInitOptions,
+  keyGenerationServiceFactory,
+} from "../../../platform/background/service-factories/key-generation-service.factory";
+import {
   PlatformUtilsServiceInitOptions,
   platformUtilsServiceFactory,
 } from "../../../platform/background/service-factories/platform-utils-service.factory";
@@ -42,6 +46,7 @@ import {
 type DeviceTrustCryptoServiceFactoryOptions = FactoryOptions;
 
 export type DeviceTrustCryptoServiceInitOptions = DeviceTrustCryptoServiceFactoryOptions &
+  KeyGenerationServiceInitOptions &
   CryptoFunctionServiceInitOptions &
   CryptoServiceInitOptions &
   EncryptServiceInitOptions &
@@ -61,6 +66,7 @@ export function deviceTrustCryptoServiceFactory(
     opts,
     async () =>
       new DeviceTrustCryptoService(
+        await keyGenerationServiceFactory(cache, opts),
         await cryptoFunctionServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),

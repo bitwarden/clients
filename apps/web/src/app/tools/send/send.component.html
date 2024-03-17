@@ -1,221 +1,206 @@
-<div class="container page-content">
-  <bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}" *ngIf="disableSend">
-    {{ "sendDisabledWarning" | i18n }}
-  </bit-callout>
-  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
-    <div class="groupings tw-col-span-3">
-      <div class="card vault-filters">
-        <div class="card-header d-flex">
-          {{ "filters" | i18n }}
+<app-header>
+  <ng-container slot="title-suffix">
+    <small #actionSpinner [appApiAction]="actionPromise">
+      <ng-container *ngIf="$any(actionSpinner).loading">
+        <i
+          class="bwi bwi-spinner bwi-spin text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="sr-only">{{ "loading" | i18n }}</span>
+      </ng-container>
+    </small>
+  </ng-container>
+
+  <button type="button" bitButton buttonType="primary" (click)="addSend()" [disabled]="disableSend">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "createSend" | i18n }}
+  </button>
+</app-header>
+
+<bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}" *ngIf="disableSend">
+  {{ "sendDisabledWarning" | i18n }}
+</bit-callout>
+<div class="tw-grid tw-grid-cols-12 tw-gap-4">
+  <div class="groupings tw-col-span-3">
+    <div class="card vault-filters">
+      <div class="card-header d-flex">
+        {{ "filters" | i18n }}
+      </div>
+      <div class="card-body">
+        <div class="tw-mb-4">
+          <bit-search
+            [(ngModel)]="searchText"
+            [placeholder]="'searchSends' | i18n"
+            (input)="searchTextChanged()"
+            appAutofocus
+          />
         </div>
-        <div class="card-body">
-          <div class="tw-mb-4">
-            <bit-search
-              [(ngModel)]="searchText"
-              [placeholder]="'searchSends' | i18n"
-              (input)="searchTextChanged()"
-              appAutofocus
-            />
+        <div class="filter">
+          <ul class="filter-options">
+            <li class="filter-option" [ngClass]="{ active: selectedAll }">
+              <span class="filter-buttons">
+                <button type="button" class="filter-button" appStopClick (click)="selectAll()">
+                  <i class="bwi bwi-fw bwi-filter"></i>{{ "allSends" | i18n }}
+                </button>
+              </span>
+            </li>
+          </ul>
+        </div>
+        <div class="filter">
+          <div class="filter-heading">
+            <h3>{{ "types" | i18n }}</h3>
           </div>
-          <div class="filter">
-            <ul class="filter-options">
-              <li class="filter-option" [ngClass]="{ active: selectedAll }">
-                <span class="filter-buttons">
-                  <button type="button" class="filter-button" appStopClick (click)="selectAll()">
-                    <i class="bwi bwi-fw bwi-filter"></i>{{ "allSends" | i18n }}
-                  </button>
-                </span>
-              </li>
-            </ul>
-          </div>
-          <div class="filter">
-            <div class="filter-heading">
-              <h3>{{ "types" | i18n }}</h3>
-            </div>
-            <ul class="filter-options">
-              <li class="filter-option" [ngClass]="{ active: selectedType === sendType.Text }">
-                <span class="filter-buttons">
-                  <button
-                    type="button"
-                    class="filter-button"
-                    appStopClick
-                    (click)="selectType(sendType.Text)"
-                  >
-                    <i class="bwi bwi-fw bwi-file-text"></i>{{ "sendTypeText" | i18n }}
-                  </button>
-                </span>
-              </li>
-              <li class="filter-option" [ngClass]="{ active: selectedType === sendType.File }">
-                <span class="filter-buttons">
-                  <button
-                    type="button"
-                    class="filter-button"
-                    appStopClick
-                    (click)="selectType(sendType.File)"
-                  >
-                    <i class="bwi bwi-fw bwi-file"></i>{{ "sendTypeFile" | i18n }}
-                  </button>
-                </span>
-              </li>
-            </ul>
-          </div>
+          <ul class="filter-options">
+            <li class="filter-option" [ngClass]="{ active: selectedType === sendType.Text }">
+              <span class="filter-buttons">
+                <button
+                  type="button"
+                  class="filter-button"
+                  appStopClick
+                  (click)="selectType(sendType.Text)"
+                >
+                  <i class="bwi bwi-fw bwi-file-text"></i>{{ "sendTypeText" | i18n }}
+                </button>
+              </span>
+            </li>
+            <li class="filter-option" [ngClass]="{ active: selectedType === sendType.File }">
+              <span class="filter-buttons">
+                <button
+                  type="button"
+                  class="filter-button"
+                  appStopClick
+                  (click)="selectType(sendType.File)"
+                >
+                  <i class="bwi bwi-fw bwi-file"></i>{{ "sendTypeFile" | i18n }}
+                </button>
+              </span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-    <div class="tw-col-span-9">
-      <div class="tw-flex">
-        <h1 bitTypography="h1">
-          {{ "send" | i18n }}
-          <small #actionSpinner [appApiAction]="actionPromise">
-            <ng-container *ngIf="$any(actionSpinner).loading">
+  </div>
+  <div class="tw-col-span-9">
+    <!--Listing Table-->
+    <bit-table [dataSource]="dataSource" *ngIf="filteredSends && filteredSends.length">
+      <ng-container header>
+        <tr>
+          <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+          <th bitCell bitSortable="deletionDate">{{ "deletionDate" | i18n }}</th>
+          <th bitCell>{{ "options" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let s of rows$ | async">
+          <td bitCell (click)="editSend(s)" class="tw-cursor-pointer">
+            <span class="tw-mr-2" aria-hidden="true">
+              <i class="bwi bwi-fw bwi-lg bwi-file" *ngIf="s.type == sendType.File"></i>
+              <i class="bwi bwi-fw bwi-lg bwi-file-text" *ngIf="s.type == sendType.Text"></i>
+            </span>
+            <button type="button" bitLink>
+              {{ s.name }}
+            </button>
+            <ng-container *ngIf="s.disabled">
               <i
-                class="bwi bwi-spinner bwi-spin text-muted"
-                title="{{ 'loading' | i18n }}"
+                class="bwi bwi-exclamation-triangle"
+                appStopProp
+                title="{{ 'disabled' | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="sr-only">{{ "loading" | i18n }}</span>
+              <span class="sr-only">{{ "disabled" | i18n }}</span>
             </ng-container>
-          </small>
-        </h1>
-        <div class="tw-ml-auto">
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            (click)="addSend()"
-            [disabled]="disableSend"
-          >
-            <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-            {{ "createSend" | i18n }}
-          </button>
-        </div>
-      </div>
-      <!--Listing Table-->
-      <bit-table [dataSource]="dataSource" *ngIf="filteredSends && filteredSends.length">
-        <ng-container header>
-          <tr>
-            <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-            <th bitCell bitSortable="deletionDate">{{ "deletionDate" | i18n }}</th>
-            <th bitCell>{{ "options" | i18n }}</th>
-          </tr>
-        </ng-container>
-        <ng-template body let-rows$>
-          <tr bitRow *ngFor="let s of rows$ | async">
-            <td bitCell (click)="editSend(s)" class="tw-cursor-pointer">
-              <span class="tw-mr-2" aria-hidden="true">
-                <i class="bwi bwi-fw bwi-lg bwi-file" *ngIf="s.type == sendType.File"></i>
-                <i class="bwi bwi-fw bwi-lg bwi-file-text" *ngIf="s.type == sendType.Text"></i>
-              </span>
-              <button type="button" bitLink>
-                {{ s.name }}
+            <ng-container *ngIf="s.password">
+              <i
+                class="bwi bwi-key"
+                appStopProp
+                title="{{ 'password' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="sr-only">{{ "password" | i18n }}</span>
+            </ng-container>
+            <ng-container *ngIf="s.maxAccessCountReached">
+              <i
+                class="bwi bwi-ban"
+                appStopProp
+                title="{{ 'maxAccessCountReached' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+            </ng-container>
+            <ng-container *ngIf="s.expired">
+              <i
+                class="bwi bwi-clock"
+                appStopProp
+                title="{{ 'expired' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="sr-only">{{ "expired" | i18n }}</span>
+            </ng-container>
+            <ng-container *ngIf="s.pendingDelete">
+              <i
+                class="bwi bwi-trash"
+                appStopProp
+                title="{{ 'pendingDeletion' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="sr-only">{{ "pendingDeletion" | i18n }}</span>
+            </ng-container>
+          </td>
+          <td bitCell class="tw-text-muted" (click)="editSend(s)" class="tw-cursor-pointer">
+            <small bitTypography="body2" appStopProp>{{ s.deletionDate | date: "medium" }}</small>
+          </td>
+          <td bitCell class="tw-w-0 tw-text-right">
+            <button
+              type="button"
+              [bitMenuTriggerFor]="sendOptions"
+              bitIconButton="bwi-ellipsis-v"
+              appA11yTitle="{{ 'options' | i18n }}"
+            ></button>
+            <bit-menu #sendOptions>
+              <button type="button" bitMenuItem (click)="copy(s)">
+                <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+                {{ "copySendLink" | i18n }}
               </button>
-              <ng-container *ngIf="s.disabled">
-                <i
-                  class="bwi bwi-exclamation-triangle"
-                  appStopProp
-                  title="{{ 'disabled' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "disabled" | i18n }}</span>
-              </ng-container>
-              <ng-container *ngIf="s.password">
-                <i
-                  class="bwi bwi-key"
-                  appStopProp
-                  title="{{ 'password' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "password" | i18n }}</span>
-              </ng-container>
-              <ng-container *ngIf="s.maxAccessCountReached">
-                <i
-                  class="bwi bwi-ban"
-                  appStopProp
-                  title="{{ 'maxAccessCountReached' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "maxAccessCountReached" | i18n }}</span>
-              </ng-container>
-              <ng-container *ngIf="s.expired">
-                <i
-                  class="bwi bwi-clock"
-                  appStopProp
-                  title="{{ 'expired' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "expired" | i18n }}</span>
-              </ng-container>
-              <ng-container *ngIf="s.pendingDelete">
-                <i
-                  class="bwi bwi-trash"
-                  appStopProp
-                  title="{{ 'pendingDeletion' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "pendingDeletion" | i18n }}</span>
-              </ng-container>
-            </td>
-            <td bitCell class="tw-text-muted" (click)="editSend(s)" class="tw-cursor-pointer">
-              <small bitTypography="body2" appStopProp>{{ s.deletionDate | date: "medium" }}</small>
-            </td>
-            <td bitCell class="tw-w-0 tw-text-right">
               <button
                 type="button"
-                [bitMenuTriggerFor]="sendOptions"
-                bitIconButton="bwi-ellipsis-v"
-                appA11yTitle="{{ 'options' | i18n }}"
-              ></button>
-              <bit-menu #sendOptions>
-                <button type="button" bitMenuItem (click)="copy(s)">
-                  <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-                  {{ "copySendLink" | i18n }}
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  (click)="removePassword(s)"
-                  *ngIf="s.password && !disableSend"
-                >
-                  <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                  {{ "removePassword" | i18n }}
-                </button>
-                <button type="button" bitMenuItem (click)="delete(s)">
-                  <span class="tw-text-danger">
-                    <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                    {{ "delete" | i18n }}
-                  </span>
-                </button>
-              </bit-menu>
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
-      <div class="no-items" *ngIf="filteredSends && !filteredSends.length">
-        <ng-container *ngIf="!loaded">
-          <i
-            class="bwi bwi-spinner bwi-spin text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-        <ng-container *ngIf="loaded">
-          <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-            <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
-            <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
-            <button
-              slot="button"
-              type="button"
-              bitButton
-              buttonType="secondary"
-              (click)="addSend()"
-            >
-              <i class="bwi bwi-plus" aria-hidden="true"></i>
-              {{ "createSend" | i18n }}
-            </button>
-          </bit-no-items>
-        </ng-container>
-      </div>
+                bitMenuItem
+                (click)="removePassword(s)"
+                *ngIf="s.password && !disableSend"
+              >
+                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                {{ "removePassword" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="delete(s)">
+                <span class="tw-text-danger">
+                  <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                  {{ "delete" | i18n }}
+                </span>
+              </button>
+            </bit-menu>
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+    <div class="no-items" *ngIf="filteredSends && !filteredSends.length">
+      <ng-container *ngIf="!loaded">
+        <i
+          class="bwi bwi-spinner bwi-spin text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="sr-only">{{ "loading" | i18n }}</span>
+      </ng-container>
+      <ng-container *ngIf="loaded">
+        <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+          <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
+          <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
+          <button slot="button" type="button" bitButton buttonType="secondary" (click)="addSend()">
+            <i class="bwi bwi-plus" aria-hidden="true"></i>
+            {{ "createSend" | i18n }}
+          </button>
+        </bit-no-items>
+      </ng-container>
     </div>
   </div>
 </div>

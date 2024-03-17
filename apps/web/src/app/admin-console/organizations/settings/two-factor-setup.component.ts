@@ -8,8 +8,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { TwoFactorDuoComponent } from "../../../auth/settings/two-factor-duo.component";
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor-setup.component";
@@ -27,10 +27,16 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent {
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
-    stateService: StateService,
     private organizationService: OrganizationService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
-    super(apiService, modalService, messagingService, policyService, stateService);
+    super(
+      apiService,
+      modalService,
+      messagingService,
+      policyService,
+      billingAccountProfileStateService,
+    );
   }
 
   async ngOnInit() {

@@ -1,5 +1,6 @@
 import { Component, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
@@ -19,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
 
@@ -59,6 +61,7 @@ export class LockComponent extends BaseLockComponent {
     userVerificationService: UserVerificationService,
     pinCryptoService: PinCryptoServiceAbstraction,
     private routerService: BrowserRouterService,
+    biometricStateService: BiometricStateService,
   ) {
     super(
       router,
@@ -80,6 +83,7 @@ export class LockComponent extends BaseLockComponent {
       deviceTrustCryptoService,
       userVerificationService,
       pinCryptoService,
+      biometricStateService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
@@ -100,14 +104,15 @@ export class LockComponent extends BaseLockComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
-    const disableAutoBiometricsPrompt =
-      (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
+    const autoBiometricsPrompt = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
 
     window.setTimeout(async () => {
       document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
       if (
         this.biometricLock &&
-        !disableAutoBiometricsPrompt &&
+        autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {

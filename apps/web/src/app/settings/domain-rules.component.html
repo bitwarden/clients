@@ -1,108 +1,109 @@
-<div class="page-header">
-  <h1>{{ "domainRules" | i18n }}</h1>
-</div>
-<p>{{ "domainRulesDesc" | i18n }}</p>
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-  <h2>{{ "customEqDomains" | i18n }}</h2>
-  <p *ngIf="loading">
-    <i
-      class="bwi bwi-spinner bwi-spin text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
-  </p>
-  <ng-container *ngIf="!loading">
-    <div class="form-group d-flex" *ngFor="let d of custom; let i = index; trackBy: indexTrackBy">
-      <div class="flex-fill">
-        <label for="customDomain_{{ i }}" class="sr-only">{{
-          "customDomainX" | i18n: i + 1
-        }}</label>
-        <textarea
-          class="form-control"
-          name="CustomDomain[{{ i }}]"
-          id="customDomain_{{ i }}"
-          [(ngModel)]="custom[i]"
-          placeholder="{{ 'ex' | i18n }} google.com, gmail.com"
-          required
-        ></textarea>
+<app-header></app-header>
+
+<bit-container>
+  <p>{{ "domainRulesDesc" | i18n }}</p>
+  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
+    <h2>{{ "customEqDomains" | i18n }}</h2>
+    <p *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="sr-only">{{ "loading" | i18n }}</span>
+    </p>
+    <ng-container *ngIf="!loading">
+      <div class="form-group d-flex" *ngFor="let d of custom; let i = index; trackBy: indexTrackBy">
+        <div class="flex-fill">
+          <label for="customDomain_{{ i }}" class="sr-only">{{
+            "customDomainX" | i18n: i + 1
+          }}</label>
+          <textarea
+            class="form-control"
+            name="CustomDomain[{{ i }}]"
+            id="customDomain_{{ i }}"
+            [(ngModel)]="custom[i]"
+            placeholder="{{ 'ex' | i18n }} google.com, gmail.com"
+            required
+          ></textarea>
+        </div>
+        <button
+          type="button"
+          class="btn btn-link text-danger ml-2"
+          (click)="remove(i)"
+          appA11yTitle="{{ 'remove' | i18n }}"
+        >
+          <i class="bwi bwi-minus-circle bwi-lg" aria-hidden="true"></i>
+        </button>
       </div>
-      <button
-        type="button"
-        class="btn btn-link text-danger ml-2"
-        (click)="remove(i)"
-        appA11yTitle="{{ 'remove' | i18n }}"
-      >
-        <i class="bwi bwi-minus-circle bwi-lg" aria-hidden="true"></i>
+      <button type="button" (click)="add()" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newCustomDomain" | i18n }}
       </button>
-    </div>
-    <button type="button" (click)="add()" class="btn btn-outline-secondary btn-sm mb-2">
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newCustomDomain" | i18n }}
+      <small class="text-muted d-block mb-3">{{ "newCustomDomainDesc" | i18n }}</small>
+    </ng-container>
+    <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <span>{{ "save" | i18n }}</span>
     </button>
-    <small class="text-muted d-block mb-3">{{ "newCustomDomainDesc" | i18n }}</small>
-  </ng-container>
-  <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "save" | i18n }}</span>
-  </button>
-  <h2 class="spaced-header">{{ "globalEqDomains" | i18n }}</h2>
-  <p *ngIf="loading">
-    <i
-      class="bwi bwi-spinner bwi-spin text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
-  </p>
-  <table class="table table-hover table-list" *ngIf="!loading && global.length > 0">
-    <tbody>
-      <tr *ngFor="let d of global">
-        <td [ngClass]="{ 'table-list-strike': d.excluded }">{{ d.domains }}</td>
-        <td class="table-list-options">
-          <div class="dropdown" appListDropdown>
-            <button
-              class="btn btn-outline-secondary dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-              appA11yTitle="{{ 'options' | i18n }}"
-            >
-              <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a
-                class="dropdown-item"
-                href="#"
-                appStopClick
-                (click)="toggleExcluded(d)"
-                *ngIf="!d.excluded"
+    <h2 class="spaced-header">{{ "globalEqDomains" | i18n }}</h2>
+    <p *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="sr-only">{{ "loading" | i18n }}</span>
+    </p>
+    <table class="table table-hover table-list" *ngIf="!loading && global.length > 0">
+      <tbody>
+        <tr *ngFor="let d of global">
+          <td [ngClass]="{ 'table-list-strike': d.excluded }">{{ d.domains }}</td>
+          <td class="table-list-options">
+            <div class="dropdown" appListDropdown>
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                appA11yTitle="{{ 'options' | i18n }}"
               >
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                {{ "exclude" | i18n }}
-              </a>
-              <a
-                class="dropdown-item"
-                href="#"
-                appStopClick
-                (click)="toggleExcluded(d)"
-                *ngIf="d.excluded"
-              >
-                <i class="bwi bwi-fw bwi-plus" aria-hidden="true"></i>
-                {{ "include" | i18n }}
-              </a>
-              <a class="dropdown-item" href="#" appStopClick (click)="customize(d)">
-                <i class="bwi bwi-fw bwi-cut" aria-hidden="true"></i>
-                {{ "customize" | i18n }}
-              </a>
+                <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  appStopClick
+                  (click)="toggleExcluded(d)"
+                  *ngIf="!d.excluded"
+                >
+                  <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                  {{ "exclude" | i18n }}
+                </a>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  appStopClick
+                  (click)="toggleExcluded(d)"
+                  *ngIf="d.excluded"
+                >
+                  <i class="bwi bwi-fw bwi-plus" aria-hidden="true"></i>
+                  {{ "include" | i18n }}
+                </a>
+                <a class="dropdown-item" href="#" appStopClick (click)="customize(d)">
+                  <i class="bwi bwi-fw bwi-cut" aria-hidden="true"></i>
+                  {{ "customize" | i18n }}
+                </a>
+              </div>
             </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "save" | i18n }}</span>
-  </button>
-</form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <span>{{ "save" | i18n }}</span>
+    </button>
+  </form>
+</bit-container>

@@ -1,5 +1,3 @@
-import { EncString } from "../../../../platform/models/domain/enc-string";
-
 /** Identifiers for email forwarding services.
  *  @remarks These are used to select forwarder-specific options.
  *  The must be kept in sync with the forwarder implementations.
@@ -24,26 +22,24 @@ export type ForwarderMetadata = {
   validForSelfHosted: boolean;
 };
 
-/** An email forwarding service configurable through an API. */
-export interface Forwarder {
-  /** Generate a forwarding email.
-   * @param website The website to generate a username for.
-   * @param options The options to use when generating the username.
-   */
-  generate(website: string | null, options: ApiOptions): Promise<string>;
-}
-
 /** Options common to all forwarder APIs */
 export type ApiOptions = {
   /** bearer token that authenticates bitwarden to the forwarder.
    *  This is required to issue an API request.
    */
   token?: string;
+} & RequestOptions;
 
-  /** encrypted bearer token that authenticates bitwarden to the forwarder.
-   *  This is used to store the token at rest and must be decoded before use.
+/** Options that provide contextual information about the application state
+ *  when a forwarder is invoked.
+ *  @remarks these fields should always be omitted when saving options.
+ */
+export type RequestOptions = {
+  /** @param website The domain of the website the generated email is used
+   *  within. This should be set to `null` when the request is not specific
+   *  to any website.
    */
-  encryptedToken?: EncString;
+  website: string | null;
 };
 
 /** Api configuration for forwarders that support self-hosted installations. */

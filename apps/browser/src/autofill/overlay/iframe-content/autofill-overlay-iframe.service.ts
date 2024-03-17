@@ -1,6 +1,6 @@
+import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { EVENTS } from "../../constants";
 import { setElementStyles } from "../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -15,7 +15,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
-  private ariaAlertTimeout: NodeJS.Timeout;
+  private ariaAlertTimeout: number | NodeJS.Timeout;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -41,7 +41,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly windowMessageHandlers: AutofillOverlayIframeWindowMessageHandlers = {
     updateAutofillOverlayListHeight: (message) =>
       this.updateElementStyles(this.iframe, message.styles),

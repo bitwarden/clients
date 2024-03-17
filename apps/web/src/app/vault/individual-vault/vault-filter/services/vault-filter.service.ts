@@ -16,7 +16,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -24,6 +24,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { CollectionAdminView } from "../../../core/views/collection-admin.view";
 import {
@@ -39,11 +40,6 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  protected _collapsedFilterNodes = new BehaviorSubject<Set<string>>(null);
-  collapsedFilterNodes$: Observable<Set<string>> = this._collapsedFilterNodes.pipe(
-    switchMap(async (nodes) => nodes ?? (await this.getCollapsedFilterNodes())),
-  );
-
   organizationTree$: Observable<TreeNode<OrganizationFilter>> =
     this.organizationService.memberOrganizations$.pipe(
       switchMap((orgs) => this.buildOrganizationTree(orgs)),
@@ -78,13 +74,19 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
 
+  private collapsedGroupingsState: ActiveUserState<string[]> =
+    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
+
+  readonly collapsedFilterNodes$: Observable<Set<string>> =
+    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+
   constructor(
-    protected stateService: StateService,
     protected organizationService: OrganizationService,
     protected folderService: FolderService,
     protected cipherService: CipherService,
     protected policyService: PolicyService,
     protected i18nService: I18nService,
+    protected stateProvider: StateProvider,
   ) {}
 
   async reloadCollections(collections: CollectionView[]) {
@@ -97,13 +99,11 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.stateService.setCollapsedGroupings(Array.from(collapsedFilterNodes));
-    this._collapsedFilterNodes.next(collapsedFilterNodes);
+    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
   }
 
   protected async getCollapsedFilterNodes(): Promise<Set<string>> {
-    const nodes = new Set(await this.stateService.getCollapsedGroupings());
-    return nodes;
+    return await firstValueFrom(this.collapsedFilterNodes$);
   }
 
   getOrganizationFilter() {

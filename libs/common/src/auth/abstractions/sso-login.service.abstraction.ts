@@ -55,6 +55,20 @@ export abstract class SsoLoginServiceAbstraction {
    */
   setOrganizationSsoIdentifier: (organizationIdentifier: string) => Promise<void>;
   /**
+   * Gets the user's email.
+   * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.
+   * @returns The user's email.
+   */
+  getSsoEmail: () => Promise<string>;
+  /**
+   * Sets the user's email.
+   * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.
+   * @param email The user's email.
+   * @returns A promise that resolves when the email has been set.
+   *
+   */
+  setSsoEmail: (email: string) => Promise<void>;
+  /**
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.

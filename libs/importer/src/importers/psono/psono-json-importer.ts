@@ -61,20 +61,22 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
         this.parseFolders(result, folder.folders, folder.name);
       }
 
-      this.processFolder(result, folder.name, folderHasItems);
-
-      this.handleItemParsing(result, folder.items);
+      if (!folderHasItems) {
+        this.processFolder(result, folder.name, folderHasItems);
+      } else {
+        this.handleItemParsing(result, folder.items, folder.name);
+      }
     });
   }
 
-  private handleItemParsing(result: ImportResult, items?: PsonoItemTypes[]) {
+  private handleItemParsing(result: ImportResult, items?: PsonoItemTypes[], folderName?: string) {
     if (items == null || items.length === 0) {
       return;
     }
 
     items.forEach((record) => {
       const cipher = this.parsePsonoItem(record);
-
+      this.processFolder(result, folderName, true);
       this.cleanupCipher(cipher);
       result.ciphers.push(cipher);
     });

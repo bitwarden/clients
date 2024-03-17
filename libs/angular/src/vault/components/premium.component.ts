@@ -1,6 +1,8 @@
-import { Directive, OnInit } from "@angular/core";
+import { Directive } from "@angular/core";
+import { Observable, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -9,11 +11,12 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { DialogService } from "@bitwarden/components";
 
 @Directive()
-export class PremiumComponent implements OnInit {
-  isPremium = false;
+export class PremiumComponent {
+  isPremium$: Observable<boolean>;
   price = 10;
   refreshPromise: Promise<any>;
   cloudWebVaultUrl: string;
+  private directiveIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     protected i18nService: I18nService,
@@ -22,13 +25,11 @@ export class PremiumComponent implements OnInit {
     private logService: LogService,
     protected stateService: StateService,
     protected dialogService: DialogService,
-    private environmentService: EnvironmentService,
+    environmentService: EnvironmentService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
-    this.cloudWebVaultUrl = this.environmentService.getCloudWebVaultUrl();
-  }
-
-  async ngOnInit() {
-    this.isPremium = await this.stateService.getCanAccessPremium();
+    this.cloudWebVaultUrl = environmentService.getCloudWebVaultUrl();
+    this.isPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
   }
 
   async refresh() {
@@ -36,7 +37,6 @@ export class PremiumComponent implements OnInit {
       this.refreshPromise = this.apiService.refreshIdentityToken();
       await this.refreshPromise;
       this.platformUtilsService.showToast("success", null, this.i18nService.t("refreshComplete"));
-      this.isPremium = await this.stateService.getCanAccessPremium();
     } catch (e) {
       this.logService.error(e);
     }

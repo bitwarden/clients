@@ -67,7 +67,7 @@
         [attr.href]="disablePasswordManagerLink"
         (click)="openDisablePasswordManagerLink($event)"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noreferrer"
       >
         {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
       </a>
@@ -90,11 +90,7 @@
       {{ "enableAutoFillOnPageLoadDesc" | i18n }}
       <b>{{ "warning" | i18n }}</b
       >: {{ "experimentalFeature" | i18n }}
-      <a
-        href="https://bitwarden.com/help/auto-fill-browser/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href="https://bitwarden.com/help/auto-fill-browser/" target="_blank" rel="noreferrer">
         {{ "learnMoreAboutAutofill" | i18n }}.
         <i
           [attr.aria-label]="'opensInANewWindow' | i18n"

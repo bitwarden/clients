@@ -48,6 +48,17 @@ export abstract class AccountService {
    */
   abstract setAccountStatus(userId: UserId, status: AuthenticationStatus): Promise<void>;
   /**
+   * Updates the `accounts$` observable with the new account status if the current status is higher than the `maxStatus`.
+   *
+   * This method only downgrades status to the maximum value sent in, it will not increase authentication status.
+   *
+   * @example An account is transitioning from unlocked to logged out. If callbacks that set the status to locked occur
+   * after it is updated to logged out, the account will be in the incorrect state.
+   * @param userId The user id of the account to be updated.
+   * @param maxStatus The new status of the account.
+   */
+  abstract setMaxAccountStatus(userId: UserId, maxStatus: AuthenticationStatus): Promise<void>;
+  /**
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId
    */

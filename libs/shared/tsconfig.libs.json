@@ -9,7 +9,7 @@
       "@bitwarden/billing": ["../billing/src"],
       "@bitwarden/common/*": ["../common/src/*"],
       "@bitwarden/components": ["../components/src"],
-      "@bitwarden/exporter/*": ["../exporter/src/*"],
+      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/importer/core": ["../importer/src"],
       "@bitwarden/importer/ui": ["../importer/src/components"],
       "@bitwarden/platform": ["../platform/src"],

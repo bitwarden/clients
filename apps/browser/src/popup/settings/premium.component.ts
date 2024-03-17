@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,6 +28,7 @@ export class PremiumComponent extends BasePremiumComponent {
     private currencyPipe: CurrencyPipe,
     dialogService: DialogService,
     environmentService: EnvironmentService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       i18nService,
@@ -36,6 +38,7 @@ export class PremiumComponent extends BasePremiumComponent {
       stateService,
       dialogService,
       environmentService,
+      billingAccountProfileStateService,
     );
 
     // Support old price string. Can be removed in future once all translations are properly updated.

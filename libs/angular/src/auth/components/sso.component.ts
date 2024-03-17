@@ -182,11 +182,14 @@ export class SsoComponent {
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
     try {
+      const email = await this.ssoLoginService.getSsoEmail();
+
       const credentials = new SsoLoginCredentials(
         code,
         codeVerifier,
         this.redirectUri,
         orgSsoIdentifier,
+        email,
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;

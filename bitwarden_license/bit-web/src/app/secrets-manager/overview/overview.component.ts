@@ -11,12 +11,12 @@ import {
   distinctUntilChanged,
   take,
   share,
+  firstValueFrom,
 } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../models/view/project-list.view";
@@ -47,6 +47,8 @@ import {
 import { ServiceAccountService } from "../service-accounts/service-account.service";
 import { SecretsListComponent } from "../shared/secrets-list.component";
 
+import { SMOnboardingTasks, SMOnboardingTasksService } from "./sm-onboarding-tasks.service";
+
 type Tasks = {
   [organizationId: string]: OrganizationTasks;
 };
@@ -71,6 +73,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected showOnboarding = false;
   protected loading = true;
   protected organizationEnabled = false;
+  protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{
     allProjects: ProjectListView[];
@@ -87,12 +90,14 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private serviceAccountService: ServiceAccountService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
-    private stateService: StateService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private smOnboardingTasksService: SMOnboardingTasksService,
   ) {}
 
   ngOnInit() {
+    this.onboardingTasks$ = this.smOnboardingTasksService.smOnboardingTasks$;
+
     const orgId$ = this.route.params.pipe(
       map((p) => p.organizationId),
       distinctUntilChanged(),
@@ -184,7 +189,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     organizationId: string,
     orgTasks: OrganizationTasks,
   ): Promise<OrganizationTasks> {
-    const prevTasks = ((await this.stateService.getSMOnboardingTasks()) || {}) as Tasks;
+    const prevTasks = (await firstValueFrom(this.onboardingTasks$)) as Tasks;
     const newlyCompletedOrgTasks = Object.fromEntries(
       Object.entries(orgTasks).filter(([_k, v]) => v === true),
     );
@@ -196,12 +201,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
       ...prevTasks[organizationId],
       ...newlyCompletedOrgTasks,
     };
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.stateService.setSMOnboardingTasks({
+
+    await this.smOnboardingTasksService.setSmOnboardingTasks({
       ...prevTasks,
       [organizationId]: nextOrgTasks,
     });
+
     return nextOrgTasks as OrganizationTasks;
   }
 

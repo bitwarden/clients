@@ -1,83 +1,71 @@
-<div class="tw-mb-4 tw-flex tw-items-start tw-justify-between">
-  <div>
-    <bit-breadcrumbs *ngIf="showBreadcrumbs">
+<app-header [title]="title" [icon]="icon">
+  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
+    <bit-breadcrumb
+      *ngIf="activeOrganizationId"
+      [route]="[]"
+      [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
+      queryParamsHandling="merge"
+    >
+      {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+    </bit-breadcrumb>
+    <ng-container>
       <bit-breadcrumb
-        *ngIf="activeOrganizationId"
+        *ngFor="let collection of collections"
+        icon="bwi-collection"
         [route]="[]"
-        [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
+        [queryParams]="{ collectionId: collection.id }"
         queryParamsHandling="merge"
       >
-        {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+        {{ collection.name }}
       </bit-breadcrumb>
-      <ng-container>
-        <bit-breadcrumb
-          *ngFor="let collection of collections"
-          icon="bwi-collection"
-          [route]="[]"
-          [queryParams]="{ collectionId: collection.id }"
-          queryParamsHandling="merge"
+    </ng-container>
+  </bit-breadcrumbs>
+
+  <ng-container slot="title-suffix">
+    <ng-container *ngIf="collection != null && (canEditCollection || canDeleteCollection)">
+      <button
+        bitIconButton="bwi-angle-down"
+        [bitMenuTriggerFor]="editCollectionMenu"
+        size="small"
+        type="button"
+        aria-haspopup="true"
+      ></button>
+      <bit-menu #editCollectionMenu>
+        <button
+          type="button"
+          *ngIf="canEditCollection"
+          bitMenuItem
+          (click)="editCollection(CollectionDialogTabType.Info)"
         >
-          {{ collection.name }}
-        </bit-breadcrumb>
-      </ng-container>
-    </bit-breadcrumbs>
-    <h1 class="tw-mb-0 tw-mt-1 tw-flex tw-items-center tw-space-x-2">
+          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          {{ "editInfo" | i18n }}
+        </button>
+        <button
+          type="button"
+          *ngIf="canEditCollection"
+          bitMenuItem
+          (click)="editCollection(CollectionDialogTabType.Access)"
+        >
+          <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+          {{ "access" | i18n }}
+        </button>
+        <button type="button" *ngIf="canDeleteCollection" bitMenuItem (click)="deleteCollection()">
+          <span class="tw-text-danger">
+            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+            {{ "delete" | i18n }}
+          </span>
+        </button>
+      </bit-menu>
+    </ng-container>
+    <small *ngIf="loading">
       <i
-        *ngIf="filter.collectionId && filter.collectionId !== All"
-        class="bwi bwi-collection"
+        class="bwi bwi-spinner bwi-spin text-muted"
+        title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
-      <span>{{ title }}</span>
-      <ng-container *ngIf="collection !== undefined && (canEditCollection || canDeleteCollection)">
-        <button
-          bitIconButton="bwi-angle-down"
-          [bitMenuTriggerFor]="editCollectionMenu"
-          size="small"
-          type="button"
-          aria-haspopup
-        ></button>
-        <bit-menu #editCollectionMenu>
-          <button
-            type="button"
-            *ngIf="canEditCollection"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Info)"
-          >
-            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-            {{ "editInfo" | i18n }}
-          </button>
-          <button
-            type="button"
-            *ngIf="canEditCollection"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Access)"
-          >
-            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-            {{ "access" | i18n }}
-          </button>
-          <button
-            type="button"
-            *ngIf="canDeleteCollection"
-            bitMenuItem
-            (click)="deleteCollection()"
-          >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-              {{ "delete" | i18n }}
-            </span>
-          </button>
-        </bit-menu>
-      </ng-container>
-      <small *ngIf="loading">
-        <i
-          class="bwi bwi-spinner bwi-spin text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-      </small>
-    </h1>
-  </div>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </small>
+  </ng-container>
 
   <div *ngIf="filter.type !== 'trash'" class="tw-shrink-0">
     <div appListDropdown>
@@ -107,4 +95,4 @@
       </bit-menu>
     </div>
   </div>
-</div>
+</app-header>

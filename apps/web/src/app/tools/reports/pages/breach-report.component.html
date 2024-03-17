@@ -1,63 +1,64 @@
-<div class="page-header">
-  <h1>{{ "dataBreachReport" | i18n }}</h1>
-</div>
-<p>{{ "breachDesc" | i18n }}</p>
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-  <div class="row">
-    <div class="form-group col-6">
-      <label for="username">{{ "username" | i18n }}</label>
-      <input
-        id="username"
-        type="text"
-        name="Username"
-        class="form-control"
-        [(ngModel)]="username"
-        required
-      />
-      <small class="form-text text-muted">{{ "breachCheckUsernameEmail" | i18n }}</small>
+<app-header></app-header>
+
+<bit-container>
+  <p>{{ "breachDesc" | i18n }}</p>
+  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
+    <div class="row">
+      <div class="form-group col-6">
+        <label for="username">{{ "username" | i18n }}</label>
+        <input
+          id="username"
+          type="text"
+          name="Username"
+          class="form-control"
+          [(ngModel)]="username"
+          required
+        />
+        <small class="form-text text-muted">{{ "breachCheckUsernameEmail" | i18n }}</small>
+      </div>
     </div>
+    <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
+      {{ "checkBreaches" | i18n }}
+    </button>
+  </form>
+  <div class="mt-4" *ngIf="!form.loading && checkedUsername">
+    <p *ngIf="error">{{ "reportError" | i18n }}...</p>
+    <ng-container *ngIf="!error">
+      <app-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!breachedAccounts.length">
+        {{ "breachUsernameNotFound" | i18n: checkedUsername }}
+      </app-callout>
+      <app-callout type="danger" title="{{ 'breachFound' | i18n }}" *ngIf="breachedAccounts.length">
+        {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
+      </app-callout>
+      <ul class="list-group list-group-breach" *ngIf="breachedAccounts.length">
+        <li *ngFor="let a of breachedAccounts" class="list-group-item min-height-fix">
+          <div class="row">
+            <div class="col-2 text-center">
+              <img [src]="a.logoPath" alt="" class="img-fluid" />
+            </div>
+            <div class="col-7">
+              <h3 class="text-lg">{{ a.title }}</h3>
+              <p [innerHTML]="a.description"></p>
+              <p class="mb-1">{{ "compromisedData" | i18n }}:</p>
+              <ul>
+                <li *ngFor="let d of a.dataClasses">{{ d }}</li>
+              </ul>
+            </div>
+            <div class="col-3">
+              <dl>
+                <dt>{{ "website" | i18n }}</dt>
+                <dd>{{ a.domain }}</dd>
+                <dt>{{ "affectedUsers" | i18n }}</dt>
+                <dd>{{ a.pwnCount | number }}</dd>
+                <dt>{{ "breachOccurred" | i18n }}</dt>
+                <dd>{{ a.breachDate | date: "mediumDate" }}</dd>
+                <dt>{{ "breachReported" | i18n }}</dt>
+                <dd>{{ a.addedDate | date: "mediumDate" }}</dd>
+              </dl>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </ng-container>
   </div>
-  <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
-    {{ "checkBreaches" | i18n }}
-  </button>
-</form>
-<div class="mt-4" *ngIf="!form.loading && checkedUsername">
-  <p *ngIf="error">{{ "reportError" | i18n }}...</p>
-  <ng-container *ngIf="!error">
-    <app-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!breachedAccounts.length">
-      {{ "breachUsernameNotFound" | i18n: checkedUsername }}
-    </app-callout>
-    <app-callout type="danger" title="{{ 'breachFound' | i18n }}" *ngIf="breachedAccounts.length">
-      {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
-    </app-callout>
-    <ul class="list-group list-group-breach" *ngIf="breachedAccounts.length">
-      <li *ngFor="let a of breachedAccounts" class="list-group-item min-height-fix">
-        <div class="row">
-          <div class="col-2 text-center">
-            <img [src]="a.logoPath" alt="" class="img-fluid" />
-          </div>
-          <div class="col-7">
-            <h3 class="text-lg">{{ a.title }}</h3>
-            <p [innerHTML]="a.description"></p>
-            <p class="mb-1">{{ "compromisedData" | i18n }}:</p>
-            <ul>
-              <li *ngFor="let d of a.dataClasses">{{ d }}</li>
-            </ul>
-          </div>
-          <div class="col-3">
-            <dl>
-              <dt>{{ "website" | i18n }}</dt>
-              <dd>{{ a.domain }}</dd>
-              <dt>{{ "affectedUsers" | i18n }}</dt>
-              <dd>{{ a.pwnCount | number }}</dd>
-              <dt>{{ "breachOccurred" | i18n }}</dt>
-              <dd>{{ a.breachDate | date: "mediumDate" }}</dd>
-              <dt>{{ "breachReported" | i18n }}</dt>
-              <dd>{{ a.addedDate | date: "mediumDate" }}</dd>
-            </dl>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </ng-container>
-</div>
+</bit-container>

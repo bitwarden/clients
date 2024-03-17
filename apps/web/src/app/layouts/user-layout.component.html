@@ -1,4 +1,40 @@
-<app-navbar></app-navbar>
-<app-payment-method-banners></app-payment-method-banners>
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<bit-layout>
+  <nav slot="sidebar">
+    <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'passwordManager' | i18n">
+      <bit-icon [icon]="logo"></bit-icon>
+    </a>
+
+    <bit-nav-item icon="bwi-collection" [text]="'vaults' | i18n" route="vault"></bit-nav-item>
+    <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
+    <bit-nav-group icon="bwi-wrench" [text]="'tools' | i18n" route="tools">
+      <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
+      <bit-nav-item [text]="'importData' | i18n" route="tools/import"></bit-nav-item>
+      <bit-nav-item [text]="'exportVault' | i18n" route="tools/export"></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-item icon="bwi-sliders" [text]="'reports' | i18n" route="reports"></bit-nav-item>
+    <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
+      <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
+      <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
+      <bit-nav-item [text]="'preferences' | i18n" route="settings/preferences"></bit-nav-item>
+      <bit-nav-item
+        [text]="'subscription' | i18n"
+        route="settings/subscription"
+        *ngIf="!hideSubscription"
+      ></bit-nav-item>
+      <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
+      <bit-nav-item
+        [text]="'emergencyAccess' | i18n"
+        route="settings/emergency-access"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'sponsoredFamilies' | i18n"
+        route="settings/sponsored-families"
+        *ngIf="hasFamilySponsorshipAvailable"
+      ></bit-nav-item>
+    </bit-nav-group>
+  </nav>
+  <app-payment-method-warnings
+    *ngIf="showPaymentMethodWarningBanners$ | async"
+  ></app-payment-method-warnings>
+  <router-outlet></router-outlet>
+</bit-layout>

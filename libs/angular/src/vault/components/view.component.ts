@@ -9,12 +9,13 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -68,6 +69,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
+  private directiveIsDestroyed$ = new Subject<boolean>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -99,6 +101,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
     protected datePipe: DatePipe,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   ngOnInit() {
@@ -116,11 +119,19 @@ export class ViewComponent implements OnDestroy, OnInit {
         }
       });
     });
+
+    this.billingAccountProfileStateService.hasPremiumFromAnySource$
+      .pipe(takeUntil(this.directiveIsDestroyed$))
+      .subscribe((canAccessPremium: boolean) => {
+        this.canAccessPremium = canAccessPremium;
+      });
   }
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.cleanUp();
+    this.directiveIsDestroyed$.next(true);
+    this.directiveIsDestroyed$.complete();
   }
 
   async load() {
@@ -130,7 +141,6 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cipher = await cipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipher),
     );
-    this.canAccessPremium = await this.stateService.getCanAccessPremium();
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
 

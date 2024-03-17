@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { AddCreditComponent } from "./add-credit.component";
@@ -14,7 +15,7 @@ import { TaxInfoComponent } from "./tax-info.component";
 import { UpdateLicenseComponent } from "./update-license.component";
 
 @NgModule({
-  imports: [SharedModule, PaymentComponent, TaxInfoComponent],
+  imports: [SharedModule, PaymentComponent, TaxInfoComponent, HeaderModule],
   declarations: [
     AddCreditComponent,
     AdjustPaymentComponent,

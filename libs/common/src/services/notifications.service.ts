@@ -167,6 +167,12 @@ export class NotificationsService implements NotificationsServiceAbstraction {
           await this.syncService.fullSync(false);
         }
         break;
+      case NotificationType.SyncOrganizations:
+        if (isAuthenticated) {
+          // An organization update may not have bumped the user's account revision date, so force a sync
+          await this.syncService.fullSync(true);
+        }
+        break;
       case NotificationType.SyncOrgKeys:
         if (isAuthenticated) {
           await this.syncService.fullSync(true);
