@@ -84,7 +84,7 @@ export class CipherService implements CipherServiceAbstraction {
       if (value == null) {
         this.searchService.clearIndex();
       } else {
-        this.searchService.indexCiphers(value);
+        await this.searchService.indexCiphers(value);
       }
     }
   }
@@ -328,7 +328,7 @@ export class CipherService implements CipherServiceAbstraction {
     const reindexRequired =
       this.searchService != null && (this.searchService.indexedEntityId ?? userId) !== userId;
     if (reindexRequired) {
-      this.searchService.indexCiphers(await this.getDecryptedCipherCache(), userId);
+      await this.searchService.indexCiphers(await this.getDecryptedCipherCache(), userId);
     }
   }
 

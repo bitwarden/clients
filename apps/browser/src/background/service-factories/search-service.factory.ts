@@ -14,12 +14,17 @@ import {
   logServiceFactory,
   LogServiceInitOptions,
 } from "../../platform/background/service-factories/log-service.factory";
+import {
+  stateProviderFactory,
+  StateProviderInitOptions,
+} from "../../platform/background/service-factories/state-provider.factory";
 
 type SearchServiceFactoryOptions = FactoryOptions;
 
 export type SearchServiceInitOptions = SearchServiceFactoryOptions &
   LogServiceInitOptions &
-  I18nServiceInitOptions;
+  I18nServiceInitOptions &
+  StateProviderInitOptions;
 
 export function searchServiceFactory(
   cache: { searchService?: AbstractSearchService } & CachedServices,
@@ -33,6 +38,7 @@ export function searchServiceFactory(
       new SearchService(
         await logServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
       ),
   );
 }

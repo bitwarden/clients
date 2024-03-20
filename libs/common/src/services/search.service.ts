@@ -1,16 +1,43 @@
 import * as lunr from "lunr";
+import { Observable, firstValueFrom, map } from "rxjs";
+import { Jsonify } from "type-fest";
 
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
 import { UriMatchStrategy } from "../models/domain/domain-service";
 import { I18nService } from "../platform/abstractions/i18n.service";
 import { LogService } from "../platform/abstractions/log.service";
+import {
+  ActiveUserState,
+  KeyDefinition,
+  StateProvider,
+  VAULT_SEARCH_MEMORY,
+} from "../platform/state";
 import { SendView } from "../tools/send/models/view/send.view";
 import { FieldType } from "../vault/enums";
 import { CipherType } from "../vault/enums/cipher-type";
 import { CipherView } from "../vault/models/view/cipher.view";
 
+export type SerializedLunrIndex = {
+  version: string;
+  fields: string[];
+  fieldVectors: [string, number[]];
+  invertedIndex: any[];
+  pipeline: string[];
+};
+
+export const LUNR_SEARCH_INDEX = new KeyDefinition<SerializedLunrIndex>(
+  VAULT_SEARCH_MEMORY,
+  "searchIndex",
+  {
+    deserializer: (obj: Jsonify<SerializedLunrIndex>) => obj,
+  },
+);
+
 export class SearchService implements SearchServiceAbstraction {
   private static registeredPipeline = false;
+
+  private index$: Observable<lunr.Index | null>;
+  private searchIndexState: ActiveUserState<SerializedLunrIndex>;
 
   indexedEntityId?: string = null;
   private indexing = false;
@@ -22,6 +49,7 @@ export class SearchService implements SearchServiceAbstraction {
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
+    private stateProvider: StateProvider,
   ) {
     this.i18nService.locale$.subscribe((locale) => {
       if (this.immediateSearchLocales.indexOf(locale) !== -1) {
@@ -30,6 +58,11 @@ export class SearchService implements SearchServiceAbstraction {
         this.searchableMinLength = this.defaultSearchableMinLength;
       }
     });
+
+    this.searchIndexState = this.stateProvider.getActive(LUNR_SEARCH_INDEX);
+    this.index$ = this.searchIndexState.state$.pipe(
+      map((searchIndex) => (searchIndex ? lunr.Index.load(searchIndex) : null)),
+    );
 
     // Currently have to ensure this is only done a single time. Lunr allows you to register a function
     // multiple times but they will add a warning message to the console. The way they do that breaks when ran on a service worker.
@@ -54,7 +87,7 @@ export class SearchService implements SearchServiceAbstraction {
     return !notSearchable;
   }
 
-  indexCiphers(ciphers: CipherView[], indexedEntityId?: string): void {
+  async indexCiphers(ciphers: CipherView[], indexedEntityId?: string): Promise<void> {
     if (this.indexing) {
       return;
     }
@@ -97,6 +130,8 @@ export class SearchService implements SearchServiceAbstraction {
     ciphers.forEach((c) => builder.add(c));
     this.index = builder.build();
 
+    await this.setIndexForSearch(this.index.toJSON() as SerializedLunrIndex);
+
     this.indexing = false;
 
     this.logService.info("Finished search indexing");
@@ -136,7 +171,7 @@ export class SearchService implements SearchServiceAbstraction {
       }
     }
 
-    const index = this.getIndexForSearch();
+    const index = await this.getIndexForSearch();
     if (index == null) {
       // Fall back to basic search if index is not available
       return this.searchCiphersBasic(ciphers, query);
@@ -230,8 +265,12 @@ export class SearchService implements SearchServiceAbstraction {
     return sendsMatched.concat(lowPriorityMatched);
   }
 
-  getIndexForSearch(): lunr.Index {
-    return this.index;
+  async getIndexForSearch(): Promise<lunr.Index | null> {
+    return await firstValueFrom(this.index$);
+  }
+
+  private async setIndexForSearch(index: SerializedLunrIndex): Promise<void> {
+    await this.searchIndexState.update(() => index);
   }
 
   private fieldExtractor(c: CipherView, joined: boolean) {

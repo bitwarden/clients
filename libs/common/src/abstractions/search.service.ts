@@ -5,7 +5,7 @@ export abstract class SearchService {
   indexedEntityId?: string = null;
   clearIndex: () => void;
   isSearchable: (query: string) => boolean;
-  indexCiphers: (ciphersToIndex: CipherView[], indexedEntityGuid?: string) => void;
+  indexCiphers: (ciphersToIndex: CipherView[], indexedEntityGuid?: string) => Promise<void>;
   searchCiphers: (
     query: string,
     filter?: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[],

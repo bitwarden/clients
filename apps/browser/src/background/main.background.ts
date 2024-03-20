@@ -490,7 +490,7 @@ export default class MainBackground {
       this.apiService,
       this.fileUploadService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService);
+    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
 
     this.collectionService = new CollectionService(
       this.cryptoService,

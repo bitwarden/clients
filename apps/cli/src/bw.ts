@@ -395,7 +395,7 @@ export class Main {
       this.sendService,
     );
 
-    this.searchService = new SearchService(this.logService, this.i18nService);
+    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
 
     this.broadcasterService = new BroadcasterService();
 

@@ -1,14 +1,15 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { SearchService } from "@bitwarden/common/services/search.service";
 
 export class PopupSearchService extends SearchService {
   constructor(
-    private mainSearchService: SearchService,
     consoleLogService: ConsoleLogService,
     i18nService: I18nService,
+    stateProvider: StateProvider,
   ) {
-    super(consoleLogService, i18nService);
+    super(consoleLogService, i18nService, stateProvider);
   }
 
   clearIndex() {
@@ -19,7 +20,7 @@ export class PopupSearchService extends SearchService {
     throw new Error("Not available.");
   }
 
-  getIndexForSearch() {
-    return this.mainSearchService.getIndexForSearch();
+  async getIndexForSearch() {
+    return await super.getIndexForSearch();
   }
 }
