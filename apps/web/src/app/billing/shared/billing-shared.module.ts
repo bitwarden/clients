@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
-import { AddCreditComponent } from "./add-credit.component";
+import { AddCreditDialogComponent } from "./add-credit-dialog.component";
 import { AdjustPaymentComponent } from "./adjust-payment.component";
 import { AdjustStorageComponent } from "./adjust-storage.component";
 import { BillingHistoryComponent } from "./billing-history.component";
@@ -17,7 +17,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
 @NgModule({
   imports: [SharedModule, PaymentComponent, TaxInfoComponent, HeaderModule],
   declarations: [
-    AddCreditComponent,
+    AddCreditDialogComponent,
     AdjustPaymentComponent,
     AdjustStorageComponent,
     BillingHistoryComponent,

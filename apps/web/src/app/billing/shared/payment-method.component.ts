@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -14,6 +15,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
+import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import { TaxInfoComponent } from "./tax-info.component";
 
 @Component({
@@ -26,7 +28,6 @@ export class PaymentMethodComponent implements OnInit {
   loading = false;
   firstLoaded = false;
   showAdjustPayment = false;
-  showAddCredit = false;
   billing: BillingPaymentResponse;
   org: OrganizationSubscriptionResponse;
   sub: SubscriptionResponse;
@@ -107,18 +108,17 @@ export class PaymentMethodComponent implements OnInit {
     this.loading = false;
   }
 
-  addCredit() {
-    this.showAddCredit = true;
-  }
-
-  closeAddCredit(load: boolean) {
-    this.showAddCredit = false;
-    if (load) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.load();
+  addCredit = async () => {
+    const dialogRef = openAddCreditDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+      },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === AddCreditDialogResult.Added) {
+      await this.load();
     }
-  }
+  };
 
   changePayment() {
     this.showAdjustPayment = true;

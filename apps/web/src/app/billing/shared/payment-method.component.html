@@ -33,22 +33,9 @@
       <strong>{{ creditOrBalance | currency: "$" }}</strong>
     </p>
     <p>{{ "creditAppliedDesc" | i18n }}</p>
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      (click)="addCredit()"
-      *ngIf="!showAddCredit"
-    >
+    <button type="button" bitButton buttonType="secondary" [bitAction]="addCredit">
       {{ "addCredit" | i18n }}
     </button>
-    <app-add-credit
-      [organizationId]="organizationId"
-      (onAdded)="closeAddCredit(true)"
-      (onCanceled)="closeAddCredit(false)"
-      *ngIf="showAddCredit"
-    >
-    </app-add-credit>
     <h2 class="spaced-header">{{ "paymentMethod" | i18n }}</h2>
     <p *ngIf="!paymentSource">{{ "noPaymentMethod" | i18n }}</p>
     <ng-container *ngIf="paymentSource">
