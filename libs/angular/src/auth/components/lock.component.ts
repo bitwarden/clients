@@ -346,7 +346,8 @@ export class LockComponent implements OnInit, OnDestroy {
         !this.platformUtilsService.supportsSecureStorage());
     this.email = await this.stateService.getEmail();
 
-    this.webVaultHostname = await this.environmentService.getHost();
+    const userId = await this.stateService.getUserId();
+    this.webVaultHostname = await this.environmentService.getHost(userId);
   }
 
   /**
