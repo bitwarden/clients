@@ -33,7 +33,8 @@
       <li
         *ngFor="let f of folders"
         [ngClass]="{
-          active: f.node.id === activeFilter.selectedFolderId && activeFilter.selectedFolder
+          active: f.node.id === activeFilter.selectedFolderId && activeFilter.selectedFolder,
+          'tw-rounded tw-bg-primary-300': f.node.id === folderOnDrag
         }"
         class="filter-option"
       >
@@ -58,11 +59,14 @@
           </button>
           <button
             type="button"
-            class="filter-button"
+            class="filter-button tw-w-full tw-text-start"
             (click)="applyFilter(f.node)"
             [attr.aria-pressed]="
               activeFilter.selectedFolder && f.node.id === activeFilter.selectedFolderId
             "
+            (drop)="onDrop($event, f.node)"
+            (dragleave)="onDragleave(f.node.id)"
+            (dragenter)="onDragenter(f.node.id)"
           >
             <i *ngIf="f.children.length === 0" class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
             &nbsp;{{ f.node.name }}

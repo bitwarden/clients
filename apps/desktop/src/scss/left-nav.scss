@@ -116,6 +116,10 @@
           color: themed("primaryColor");
           font-weight: bold;
         }
+        // To prevent dragleave event for children elements
+        * {
+          pointer-events: none;
+        }
       }
 
       .edit-button {

@@ -63,6 +63,12 @@
   "moveToOrgDesc": {
     "message": "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved."
   },
+  "moveToOrgConfirm": {
+    "message": "Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved. Are you sure you want to move this item?"
+  },
+  "moveItem": {
+    "message": "Move item"
+  },
   "attachments": {
     "message": "Attachments"
   },

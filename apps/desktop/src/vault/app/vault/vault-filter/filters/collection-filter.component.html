@@ -27,7 +27,10 @@
         *ngFor="let c of collections"
         [ngClass]="{ active: c.node.id === activeFilter.selectedCollectionId }"
       >
-        <span class="filter-buttons">
+        <span
+          class="filter-buttons"
+          [ngClass]="{ 'tw-rounded tw-bg-primary-300': c.node.id === collectionOnDrag }"
+        >
           <button
             type="button"
             *ngIf="c.children.length"
@@ -48,10 +51,13 @@
           </button>
           <button
             type="button"
-            class="filter-button"
+            class="filter-button tw-w-full tw-text-left"
             (click)="applyFilter(c.node)"
             [attr.aria-pressed]="c.node.id === activeFilter.selectedCollectionId"
             [title]="c.node.name"
+            (drop)="onDrop($event, c.node)"
+            (dragleave)="onDragleave(c.node.id)"
+            (dragenter)="onDragenter(c.node.id)"
           >
             <i
               *ngIf="c.children.length === 0"

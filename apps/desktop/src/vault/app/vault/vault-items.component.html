@@ -22,7 +22,11 @@
           class="flex-list-item virtual-scroll-item"
         >
           <app-vault-icon [cipher]="c"></app-vault-icon>
-          <div class="flex-cipher-list-item">
+          <div
+            class="flex-cipher-list-item tw-w-full"
+            draggable="true"
+            (dragstart)="setCipherOnDrag($event, c)"
+          >
             <span class="text">
               <span class="truncate-box">
                 <span class="truncate">{{ c.name }}</span>

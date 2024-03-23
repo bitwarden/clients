@@ -51,6 +51,7 @@ export class VaultFilterComponent implements OnInit {
     this.folders$ = await this.vaultFilterService.buildNestedFolders();
     this.collections = await this.initCollections();
     this.isLoaded = true;
+    this.activeFilter.status = "all";
   }
 
   // overwritten in web for organization vaults

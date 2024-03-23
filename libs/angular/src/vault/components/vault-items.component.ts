@@ -1,4 +1,5 @@
-import { Directive, EventEmitter, Input, Output } from "@angular/core";
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { Directive, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -12,6 +13,7 @@ export class VaultItemsComponent {
   @Output() onCipherRightClicked = new EventEmitter<CipherView>();
   @Output() onAddCipher = new EventEmitter();
   @Output() onAddCipherOptions = new EventEmitter();
+  @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
 
   loaded = false;
   ciphers: CipherView[] = [];
@@ -49,7 +51,14 @@ export class VaultItemsComponent {
   }
 
   async refresh() {
+    const scrollPosition = this.viewport?.measureScrollOffset("top");
     await this.reload(this.filter, this.deleted);
+    if (scrollPosition > 0) {
+      // this is a workaround to prevent the ViewChild viewport from being undefined.
+      setTimeout(() => {
+        this.viewport?.scrollToOffset(scrollPosition);
+      });
+    }
   }
 
   async applyFilter(filter: (cipher: CipherView) => boolean = null) {
