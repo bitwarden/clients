@@ -1,5 +1,4 @@
-import * as fetch from "node-fetch";
-
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { Response } from "../models/response";
@@ -12,12 +11,15 @@ const UPDATE_COMMAND = "npm install -g @bitwarden/cli";
 export class UpdateCommand {
   inPkg = false;
 
-  constructor(private platformUtilsService: PlatformUtilsService) {
+  constructor(
+    private platformUtilsService: PlatformUtilsService,
+    protected apiService: ApiService,
+  ) {
     this.inPkg = !!(process as any).pkg;
   }
 
   async run(): Promise<Response> {
-    const response = await fetch.default(CLIENTS_RELEASE_LIST_ENDPOINT);
+    const response = await this.apiService.nativeFetch(new Request(CLIENTS_RELEASE_LIST_ENDPOINT));
     if (response.status !== 200) {
       return Response.error("Error contacting update API: " + response.status);
     }

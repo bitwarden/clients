@@ -410,7 +410,7 @@ export class Program {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.main.platformUtilsService);
+        const command = new UpdateCommand(this.main.platformUtilsService, this.main.apiService);
         const response = await command.run();
         this.processResponse(response);
       });
