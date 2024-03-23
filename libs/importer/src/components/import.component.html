@@ -31,7 +31,23 @@
   </bit-form-field>
 
   <bit-form-field>
-    <bit-label>{{ organizationId ? ("collection" | i18n) : ("folder" | i18n) }}</bit-label>
+    <bit-label
+      >{{ organizationId ? ("collection" | i18n) : ("folder" | i18n) }}
+      <a
+        target="_blank"
+        rel="noopener"
+        appA11yTitle="{{
+          organizationId ? ('learnAboutCollections' | i18n) : ('learnAboutFolders' | i18n)
+        }}"
+        href="{{
+          organizationId
+            ? 'https://bitwarden.com/help/about-collections'
+            : 'https://bitwarden.com/help/folders'
+        }}"
+      >
+        <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+      </a>
+    </bit-label>
     <bit-select formControlName="targetSelector">
       <ng-container *ngIf="!organizationId">
         <bit-option [value]="null" label="-- {{ 'selectImportFolder' | i18n }} --" />
