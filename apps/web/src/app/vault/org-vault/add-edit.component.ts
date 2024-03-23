@@ -88,7 +88,11 @@ export class AddEditComponent extends BaseAddEditComponent {
     ) {
       if (this.organization != null) {
         return (
-          this.cloneMode && this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)
+          this.cloneMode &&
+          this.organization.canEditAllCiphers(
+            this.flexibleCollectionsV1Enabled,
+            this.restrictProviderAccess,
+          )
         );
       } else {
         return !this.editMode || this.cloneMode;
@@ -98,14 +102,24 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected loadCollections() {
-    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
+    if (
+      !this.organization.canEditAllCiphers(
+        this.flexibleCollectionsV1Enabled,
+        this.restrictProviderAccess,
+      )
+    ) {
       return super.loadCollections();
     }
     return Promise.resolve(this.collections);
   }
 
   protected async loadCipher() {
-    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
+    if (
+      !this.organization.canEditAllCiphers(
+        this.flexibleCollectionsV1Enabled,
+        this.restrictProviderAccess,
+      )
+    ) {
       return await super.loadCipher();
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
@@ -118,14 +132,24 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected encryptCipher() {
-    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
+    if (
+      !this.organization.canEditAllCiphers(
+        this.flexibleCollectionsV1Enabled,
+        this.restrictProviderAccess,
+      )
+    ) {
       return super.encryptCipher();
     }
     return this.cipherService.encrypt(this.cipher, null, null, this.originalCipher);
   }
 
   protected async deleteCipher() {
-    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
+    if (
+      !this.organization.canEditAllCiphers(
+        this.flexibleCollectionsV1Enabled,
+        this.restrictProviderAccess,
+      )
+    ) {
       return super.deleteCipher();
     }
     return this.cipher.isDeleted

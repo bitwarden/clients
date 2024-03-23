@@ -73,8 +73,16 @@
     </small>
   </ng-container>
 
+  <bit-search
+    *ngIf="organization?.isProviderUser"
+    class="tw-grow"
+    [ngModel]="searchText"
+    (ngModelChange)="onSearchTextChanged($event)"
+    [placeholder]="'searchCollection' | i18n"
+  ></bit-search>
+
   <div *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned" class="tw-shrink-0">
-    <div *ngIf="organization?.canCreateNewCollections" appListDropdown>
+    <div *ngIf="canCreateCipher && canCreateCollection" appListDropdown>
       <button
         bitButton
         buttonType="primary"
@@ -97,7 +105,7 @@
       </bit-menu>
     </div>
     <button
-      *ngIf="!organization?.canCreateNewCollections"
+      *ngIf="canCreateCipher && !canCreateCollection"
       type="button"
       bitButton
       buttonType="primary"
@@ -105,6 +113,17 @@
     >
       <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
       {{ "newItem" | i18n }}
+    </button>
+
+    <button
+      *ngIf="canCreateCollection && !canCreateCipher"
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="addCollection()"
+    >
+      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+      {{ "newCollection" | i18n }}
     </button>
   </div>
 </app-header>

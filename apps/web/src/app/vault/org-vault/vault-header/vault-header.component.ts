@@ -1,11 +1,13 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
@@ -22,7 +24,7 @@ import {
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
 })
-export class VaultHeaderComponent {
+export class VaultHeaderComponent implements OnInit {
   protected All = All;
   protected Unassigned = Unassigned;
 
@@ -41,6 +43,9 @@ export class VaultHeaderComponent {
   /** Currently selected collection */
   @Input() collection?: TreeNode<CollectionAdminView>;
 
+  /** The current search text in the header */
+  @Input() searchText: string;
+
   /** Emits an event when the new item button is clicked in the header */
   @Output() onAddCipher = new EventEmitter<void>();
 
@@ -53,8 +58,13 @@ export class VaultHeaderComponent {
   /** Emits an event when the delete collection button is clicked in the header */
   @Output() onDeleteCollection = new EventEmitter<void>();
 
+  /** Emits an event when the search text changes in the header*/
+  @Output() searchTextChanged = new EventEmitter<string>();
+
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected organizations$ = this.organizationService.organizations$;
+
+  private restrictProviderAccessFlag: boolean;
 
   constructor(
     private organizationService: OrganizationService,
@@ -62,7 +72,15 @@ export class VaultHeaderComponent {
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
     private router: Router,
+    private configService: ConfigService,
   ) {}
+
+  async ngOnInit() {
+    this.restrictProviderAccessFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.RestrictProviderAccess,
+      false,
+    );
+  }
 
   get title() {
     const headerType = this.organization?.flexibleCollections
@@ -186,7 +204,23 @@ export class VaultHeaderComponent {
     return this.collection.node.canDelete(this.organization);
   }
 
+  get canCreateCollection(): boolean {
+    return this.organization?.canCreateNewCollections;
+  }
+
+  get canCreateCipher(): boolean {
+    if (this.organization?.isProviderUser && this.restrictProviderAccessFlag) {
+      return false;
+    }
+    return true;
+  }
+
   deleteCollection() {
     this.onDeleteCollection.emit();
+  }
+
+  onSearchTextChanged(t: string) {
+    this.searchText = t;
+    this.searchTextChanged.emit(t);
   }
 }

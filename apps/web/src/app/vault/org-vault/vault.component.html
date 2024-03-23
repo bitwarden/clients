@@ -3,19 +3,20 @@
   [loading]="refreshing"
   [organization]="organization"
   [collection]="selectedCollection"
+  [searchText]="currentSearchText$ | async"
   (onAddCipher)="addCipher()"
   (onAddCollection)="addCollection()"
   (onEditCollection)="editCollection(selectedCollection.node, $event.tab)"
   (onDeleteCollection)="deleteCollection(selectedCollection.node)"
+  (searchTextChanged)="filterSearchText($event)"
 ></app-org-vault-header>
 
 <div class="row">
-  <div class="col-3">
+  <div class="col-3" *ngIf="!organization?.isProviderUser">
     <div class="groupings">
       <div class="content">
         <div class="inner-content">
           <app-organization-vault-filter
-            #vaultFilter
             [organization]="organization"
             [activeFilter]="activeFilter"
             [searchText]="currentSearchText$ | async"
@@ -25,7 +26,7 @@
       </div>
     </div>
   </div>
-  <div class="col-9">
+  <div [class]="organization?.isProviderUser ? 'col-12' : 'col-9'">
     <app-callout type="warning" *ngIf="activeFilter.isDeleted" icon="bwi bwi-exclamation-triangle">
       {{ trashCleanupWarning }}
     </app-callout>
