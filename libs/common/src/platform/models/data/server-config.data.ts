@@ -57,6 +57,7 @@ export class EnvironmentServerConfigData {
   identity: string;
   notifications: string;
   sso: string;
+  disableUserRegistration: boolean;
 
   constructor(response: Partial<EnvironmentServerConfigResponse>) {
     this.cloudRegion = response.cloudRegion;
@@ -65,6 +66,7 @@ export class EnvironmentServerConfigData {
     this.identity = response.identity;
     this.notifications = response.notifications;
     this.sso = response.sso;
+    this.disableUserRegistration = response.disableUserRegistration;
   }
 
   static fromJSON(obj: Jsonify<EnvironmentServerConfigData>): EnvironmentServerConfigData {

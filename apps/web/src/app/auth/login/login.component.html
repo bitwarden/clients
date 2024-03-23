@@ -65,13 +65,17 @@
             </a>
           </div>
 
-          <hr />
-
-          <p class="tw-m-0 tw-text-sm">
-            {{ "newAroundHere" | i18n }}
-            <!--mousedown event is used over click because it prevents the validation from firing  -->
-            <a routerLink="/register" (mousedown)="goToRegister()">{{ "createAccount" | i18n }}</a>
-          </p>
+          <ng-container *ngIf="serverConfig$ | async as serverConfig">
+            <ng-container *ngIf="serverConfig.environment && !serverConfig.environment.disableUserRegistration">
+              <hr />
+              <p class="tw-m-0 tw-text-sm" >
+                {{ "newAroundHere" | i18n }}
+                <!--mousedown event is used over click because it prevents the validation from firing  -->
+                <a routerLink="/register" (mousedown)="goToRegister()">{{ "createAccount" | i18n }}</a>
+              </p>
+            </ng-container>
+          </ng-container>
+          
         </ng-container>
 
         <div [ngClass]="{ 'tw-hidden': !validatedEmail }">

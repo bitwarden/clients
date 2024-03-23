@@ -30,6 +30,7 @@ export class EnvironmentServerConfigResponse extends BaseResponse {
   identity: string;
   notifications: string;
   sso: string;
+  disableUserRegistration: boolean;
 
   constructor(data: any = null) {
     super(data);
@@ -44,6 +45,7 @@ export class EnvironmentServerConfigResponse extends BaseResponse {
     this.identity = this.getResponseProperty("Identity");
     this.notifications = this.getResponseProperty("Notifications");
     this.sso = this.getResponseProperty("Sso");
+    this.disableUserRegistration = this.getResponseProperty("DisableUserRegistration");
   }
 }
 

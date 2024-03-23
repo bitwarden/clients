@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { takeUntil } from "rxjs";
+import { takeUntil, Observable  } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
@@ -27,6 +27,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 
 import { flagEnabled } from "../../../utils/flags";
 import { RouterService, StateService } from "../../core";
@@ -37,6 +39,8 @@ import { RouterService, StateService } from "../../core";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class LoginComponent extends BaseLoginComponent implements OnInit {
+  protected serverConfig$: Observable<ServerConfig> = this.configService.serverConfig$;
+  
   showResetPasswordAutoEnrollWarning = false;
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: ListResponse<PolicyResponse>;
@@ -65,6 +69,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     loginService: LoginService,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
+    private configService: ConfigServiceAbstraction,
   ) {
     super(
       devicesApiService,
