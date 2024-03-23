@@ -112,7 +112,7 @@ export class NativeMessagingMain {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.createWindowsRegistry(
-          "HKLM\\SOFTWARE\\Mozilla\\Firefox",
+          ["HKCU\\SOFTWARE\\Mozilla\\Firefox", "HKLM\\SOFTWARE\\Mozilla\\Firefox"],
           "HKCU\\SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden",
           path.join(destination, "firefox.json"),
         );
@@ -327,7 +327,11 @@ export class NativeMessagingMain {
     return regedit;
   }
 
-  private async createWindowsRegistry(check: string, location: string, jsonFile: string) {
+  private async createWindowsRegistry(
+    check: string | string[],
+    location: string,
+    jsonFile: string
+  ) {
     const regedit = this.getRegeditInstance();
 
     const list = util.promisify(regedit.list);
@@ -337,11 +341,31 @@ export class NativeMessagingMain {
     this.logService.debug(`Adding registry: ${location}`);
 
     // Check installed
-    try {
-      await list(check);
-    } catch {
-      this.logService.warning(`Not finding registry ${check} skipping.`);
-      return;
+    if (typeof check === "string") {
+      try {
+        await list(check);
+      } catch {
+        this.logService.warning(`Not finding registry ${check} skipping.`);
+        return;
+      }
+    } else if (Array.isArray(check)) {
+      let found = false;
+
+      // sequentially check each key
+      for (const key of check) {
+        try {
+          await list(key);
+          found = true;
+          break;
+        } catch {
+          this.logService.warning(`Not finding registry ${check} skipping.`);
+        }
+      }
+
+      // no key in the list was found
+      if (!found) {
+        return;
+      }
     }
 
     try {
