@@ -711,12 +711,6 @@ export class Main {
     await this.i18nService.init();
     this.twoFactorService.init();
     this.configService.init();
-
-    const installedVersion = await this.stateService.getInstalledVersion();
-    const currentVersion = await this.platformUtilsService.getApplicationVersion();
-    if (installedVersion == null || installedVersion !== currentVersion) {
-      await this.stateService.setInstalledVersion(currentVersion);
-    }
   }
 }
 

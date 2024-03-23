@@ -55,18 +55,6 @@ export class InitService {
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("os_" + this.platformUtilsService.getDeviceString());
       this.themingService.applyThemeChangesTo(this.document);
-      let installAction = null;
-      const installedVersion = await this.stateService.getInstalledVersion();
-      const currentVersion = await this.platformUtilsService.getApplicationVersion();
-      if (installedVersion == null) {
-        installAction = "install";
-      } else if (installedVersion !== currentVersion) {
-        installAction = "update";
-      }
-
-      if (installAction != null) {
-        await this.stateService.setInstalledVersion(currentVersion);
-      }
 
       const containerService = new ContainerService(this.cryptoService, this.encryptService);
       containerService.attachToGlobal(this.win);
