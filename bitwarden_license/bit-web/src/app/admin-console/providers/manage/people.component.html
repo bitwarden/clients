@@ -81,12 +81,7 @@
   <span class="sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container
-  *ngIf="
-    !loading &&
-    (isPaging()
-      ? pagedUsers
-      : (users | search: searchText : 'name' : 'email' : 'id')) as searchedUsers
-  "
+  *ngIf="!loading && (users | search: searchText : 'name' : 'email' : 'id') as searchedUsers"
 >
   <p *ngIf="!searchedUsers.length">{{ "noUsersInList" | i18n }}</p>
   <ng-container *ngIf="searchedUsers.length">
@@ -98,98 +93,94 @@
     >
       {{ "providerUsersNeedConfirmed" | i18n }}
     </app-callout>
-    <table
-      class="table table-hover table-list"
-      infiniteScroll
-      [infiniteScrollDistance]="1"
-      [infiniteScrollDisabled]="!isPaging()"
-      (scrolled)="loadMore()"
-    >
-      <tbody>
-        <tr *ngFor="let u of searchedUsers">
-          <td (click)="checkUser(u)" class="table-list-checkbox">
-            <input type="checkbox" [(ngModel)]="$any(u).checked" appStopProp />
-          </td>
-          <td width="30">
-            <bit-avatar [text]="u | userName" [id]="u.userId" size="small"></bit-avatar>
-          </td>
-          <td>
-            <a href="#" appStopClick (click)="edit(u)">{{ u.email }}</a>
-            <span bitBadge variant="secondary" *ngIf="u.status === userStatusType.Invited">{{
-              "invited" | i18n
-            }}</span>
-            <span bitBadge variant="warning" *ngIf="u.status === userStatusType.Accepted">{{
-              "accepted" | i18n
-            }}</span>
-            <small class="text-muted d-block" *ngIf="u.name">{{ u.name }}</small>
-          </td>
-          <td>
-            <ng-container *ngIf="$any(u).twoFactorEnabled">
-              <i
-                class="bwi bwi-lock"
-                title="{{ 'userUsingTwoStep' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="sr-only">{{ "userUsingTwoStep" | i18n }}</span>
-            </ng-container>
-          </td>
-          <td>
-            <span *ngIf="u.type === userType.ProviderAdmin">{{ "providerAdmin" | i18n }}</span>
-            <span *ngIf="u.type === userType.ServiceUser">{{ "serviceUser" | i18n }}</span>
-          </td>
-          <td class="table-list-options">
-            <div class="dropdown" appListDropdown>
-              <button
-                class="btn btn-outline-secondary dropdown-toggle"
-                type="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                appA11yTitle="{{ 'options' | i18n }}"
-              >
-                <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
-              </button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  appStopClick
-                  (click)="reinvite(u)"
-                  *ngIf="u.status === userStatusType.Invited"
+    <cdk-virtual-scroll-viewport scrollWindow itemSize="62">
+      <table class="table table-hover table-list">
+        <tbody>
+          <tr *cdkVirtualFor="let u of searchedUsers; templateCacheSize: 0" height="62">
+            <td (click)="checkUser(u)" class="table-list-checkbox">
+              <input type="checkbox" [(ngModel)]="$any(u).checked" appStopProp />
+            </td>
+            <td width="30">
+              <bit-avatar [text]="u | userName" [id]="u.userId" size="small"></bit-avatar>
+            </td>
+            <td>
+              <a href="#" appStopClick (click)="edit(u)">{{ u.email }}</a>
+              <span bitBadge variant="secondary" *ngIf="u.status === userStatusType.Invited">{{
+                "invited" | i18n
+              }}</span>
+              <span bitBadge variant="warning" *ngIf="u.status === userStatusType.Accepted">{{
+                "accepted" | i18n
+              }}</span>
+              <small class="text-muted d-block" *ngIf="u.name">{{ u.name }}</small>
+            </td>
+            <td>
+              <ng-container *ngIf="$any(u).twoFactorEnabled">
+                <i
+                  class="bwi bwi-lock"
+                  title="{{ 'userUsingTwoStep' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="sr-only">{{ "userUsingTwoStep" | i18n }}</span>
+              </ng-container>
+            </td>
+            <td>
+              <span *ngIf="u.type === userType.ProviderAdmin">{{ "providerAdmin" | i18n }}</span>
+              <span *ngIf="u.type === userType.ServiceUser">{{ "serviceUser" | i18n }}</span>
+            </td>
+            <td class="table-list-options">
+              <div class="dropdown" appListDropdown>
+                <button
+                  class="btn btn-outline-secondary dropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  appA11yTitle="{{ 'options' | i18n }}"
                 >
-                  <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                  {{ "resendInvitation" | i18n }}
-                </a>
-                <a
-                  class="dropdown-item text-success"
-                  href="#"
-                  appStopClick
-                  (click)="confirm(u)"
-                  *ngIf="u.status === userStatusType.Accepted"
-                >
-                  <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                  {{ "confirm" | i18n }}
-                </a>
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  appStopClick
-                  (click)="events(u)"
-                  *ngIf="accessEvents && u.status === userStatusType.Confirmed"
-                >
-                  <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
-                  {{ "eventLogs" | i18n }}
-                </a>
-                <a class="dropdown-item text-danger" href="#" appStopClick (click)="remove(u)">
-                  <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                  {{ "remove" | i18n }}
-                </a>
+                  <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    appStopClick
+                    (click)="reinvite(u)"
+                    *ngIf="u.status === userStatusType.Invited"
+                  >
+                    <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                    {{ "resendInvitation" | i18n }}
+                  </a>
+                  <a
+                    class="dropdown-item text-success"
+                    href="#"
+                    appStopClick
+                    (click)="confirm(u)"
+                    *ngIf="u.status === userStatusType.Accepted"
+                  >
+                    <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                    {{ "confirm" | i18n }}
+                  </a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    appStopClick
+                    (click)="events(u)"
+                    *ngIf="accessEvents && u.status === userStatusType.Confirmed"
+                  >
+                    <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
+                    {{ "eventLogs" | i18n }}
+                  </a>
+                  <a class="dropdown-item text-danger" href="#" appStopClick (click)="remove(u)">
+                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                    {{ "remove" | i18n }}
+                  </a>
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </cdk-virtual-scroll-viewport>
   </ng-container>
 </ng-container>
 <ng-template #addEdit></ng-template>

@@ -29,58 +29,54 @@
 >
   <p *ngIf="!searchedClients.length">{{ "noClientsInList" | i18n }}</p>
   <ng-container *ngIf="searchedClients.length">
-    <table
-      class="table table-hover table-list"
-      infiniteScroll
-      [infiniteScrollDistance]="1"
-      [infiniteScrollDisabled]="!isPaging()"
-      (scrolled)="loadMore()"
-    >
-      <thead>
-        <tr>
-          <th colspan="2">{{ "name" | i18n }}</th>
-          <th>{{ "numberOfUsers" | i18n }}</th>
-          <th>{{ "billingPlan" | i18n }}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let o of searchedClients">
-          <td width="30">
-            <bit-avatar [text]="o.organizationName" [id]="o.id" size="small"></bit-avatar>
-          </td>
-          <td>
-            <a [routerLink]="['/organizations', o.organizationId]">{{ o.organizationName }}</a>
-          </td>
-          <td>
-            <span>{{ o.userCount }}</span>
-            <span *ngIf="o.seats != null"> / {{ o.seats }}</span>
-          </td>
-          <td>
-            <span>{{ o.plan }}</span>
-          </td>
-          <td class="table-list-options" *ngIf="manageOrganizations">
-            <div class="dropdown" appListDropdown>
-              <button
-                class="btn btn-outline-secondary dropdown-toggle"
-                type="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                appA11yTitle="{{ 'options' | i18n }}"
-              >
-                <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
-              </button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item text-danger" href="#" appStopClick (click)="remove(o)">
-                  <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                  {{ "remove" | i18n }}
-                </a>
+    <cdk-virtual-scroll-viewport scrollWindow itemSize="50">
+      <table class="table table-hover table-list">
+        <thead>
+          <tr>
+            <th colspan="2">{{ "name" | i18n }}</th>
+            <th>{{ "numberOfUsers" | i18n }}</th>
+            <th>{{ "billingPlan" | i18n }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *cdkVirtualFor="let o of searchedClients; templateCacheSize: 0">
+            <td width="30">
+              <bit-avatar [text]="o.organizationName" [id]="o.id" size="small"></bit-avatar>
+            </td>
+            <td>
+              <a [routerLink]="['/organizations', o.organizationId]">{{ o.organizationName }}</a>
+            </td>
+            <td>
+              <span>{{ o.userCount }}</span>
+              <span *ngIf="o.seats != null"> / {{ o.seats }}</span>
+            </td>
+            <td>
+              <span>{{ o.plan }}</span>
+            </td>
+            <td class="table-list-options" *ngIf="manageOrganizations">
+              <div class="dropdown" appListDropdown>
+                <button
+                  class="btn btn-outline-secondary dropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  appA11yTitle="{{ 'options' | i18n }}"
+                >
+                  <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item text-danger" href="#" appStopClick (click)="remove(o)">
+                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                    {{ "remove" | i18n }}
+                  </a>
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+          </tr>
+        </tbody>
+      </table></cdk-virtual-scroll-viewport
+    >
   </ng-container>
 </ng-container>

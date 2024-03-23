@@ -43,12 +43,8 @@ export class ClientsComponent implements OnInit {
   showAddExisting = false;
 
   clients: ProviderOrganizationOrganizationDetailsResponse[];
-  pagedClients: ProviderOrganizationOrganizationDetailsResponse[];
 
-  protected didScroll = false;
-  protected pageSize = 100;
   protected actionPromise: Promise<unknown>;
-  private pagedClientsCount = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -99,41 +95,8 @@ export class ClientsComponent implements OnInit {
     this.loading = false;
   }
 
-  isPaging() {
-    const searching = this.isSearching();
-    if (searching && this.didScroll) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.resetPaging();
-    }
-    return !searching && this.clients && this.clients.length > this.pageSize;
-  }
-
   isSearching() {
     return this.searchService.isSearchable(this.searchText);
-  }
-
-  async resetPaging() {
-    this.pagedClients = [];
-    this.loadMore();
-  }
-
-  loadMore() {
-    if (!this.clients || this.clients.length <= this.pageSize) {
-      return;
-    }
-    const pagedLength = this.pagedClients.length;
-    let pagedSize = this.pageSize;
-    if (pagedLength === 0 && this.pagedClientsCount > this.pageSize) {
-      pagedSize = this.pagedClientsCount;
-    }
-    if (this.clients.length > pagedLength) {
-      this.pagedClients = this.pagedClients.concat(
-        this.clients.slice(pagedLength, pagedLength + pagedSize),
-      );
-    }
-    this.pagedClientsCount = this.pagedClients.length;
-    this.didScroll = this.pagedClients.length > this.pageSize;
   }
 
   async addExistingOrganization() {
