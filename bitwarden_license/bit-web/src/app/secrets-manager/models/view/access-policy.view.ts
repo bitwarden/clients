@@ -54,6 +54,10 @@ export class ProjectPeopleAccessPoliciesView {
   groupAccessPolicies: GroupProjectAccessPolicyView[];
 }
 
+export class ProjectServiceAccountsAccessPoliciesView {
+  serviceAccountAccessPolicies: ServiceAccountProjectAccessPolicyView[];
+}
+
 export class ServiceAccountPeopleAccessPoliciesView {
   userAccessPolicies: UserServiceAccountAccessPolicyView[];
   groupAccessPolicies: GroupServiceAccountAccessPolicyView[];

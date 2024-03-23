@@ -16,7 +16,7 @@ import {
 import {
   ApItemViewType,
   convertPotentialGranteesToApItemViewType,
-  convertToAccessPolicyItemViews,
+  convertPeoplePoliciesToApItemViewType,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
 import { ApPermissionEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-permission.enum";
@@ -37,7 +37,7 @@ export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
       this.accessPolicyService
         .getServiceAccountPeopleAccessPolicies(params.serviceAccountId)
         .then((policies) => {
-          return convertToAccessPolicyItemViews(policies);
+          return convertPeoplePoliciesToApItemViewType(policies);
         }),
     ),
     catchError(() => {
@@ -126,7 +126,7 @@ export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
         this.formGroup.value.accessPolicies,
       );
 
-      this.currentAccessPolicies = convertToAccessPolicyItemViews(peoplePoliciesViews);
+      this.currentAccessPolicies = convertPeoplePoliciesToApItemViewType(peoplePoliciesViews);
 
       this.platformUtilsService.showToast(
         "success",

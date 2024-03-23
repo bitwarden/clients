@@ -14,6 +14,7 @@ import {
   GroupServiceAccountAccessPolicyView,
   ProjectAccessPoliciesView,
   ProjectPeopleAccessPoliciesView,
+  ProjectServiceAccountsAccessPoliciesView,
   ServiceAccountProjectAccessPolicyView,
   UserProjectAccessPolicyView,
   UserServiceAccountAccessPolicyView,
@@ -22,6 +23,7 @@ import {
 import { PotentialGranteeView } from "../../models/view/potential-grantee.view";
 import { AccessPoliciesCreateRequest } from "../../shared/access-policies/models/requests/access-policies-create.request";
 import { PeopleAccessPoliciesRequest } from "../../shared/access-policies/models/requests/people-access-policies.request";
+import { ProjectServiceAccountsAccessPoliciesRequest } from "../../shared/access-policies/models/requests/project-service-accounts-access-policies.request";
 import { ProjectAccessPoliciesResponse } from "../../shared/access-policies/models/responses/project-access-policies.response";
 
 import { AccessPolicyUpdateRequest } from "./models/requests/access-policy-update.request";
@@ -31,11 +33,12 @@ import {
   GroupServiceAccountAccessPolicyResponse,
   UserServiceAccountAccessPolicyResponse,
   GroupProjectAccessPolicyResponse,
-  ServiceAccountProjectAccessPolicyResponse,
   UserProjectAccessPolicyResponse,
+  ServiceAccountProjectAccessPolicyResponse,
 } from "./models/responses/access-policy.response";
 import { PotentialGranteeResponse } from "./models/responses/potential-grantee.response";
 import { ProjectPeopleAccessPoliciesResponse } from "./models/responses/project-people-access-policies.response";
+import { ProjectServiceAccountsAccessPoliciesResponse } from "./models/responses/project-service-accounts-access-policies.response";
 import { ServiceAccountPeopleAccessPoliciesResponse } from "./models/responses/service-account-people-access-policies.response";
 
 @Injectable({
@@ -535,5 +538,71 @@ export class AccessPolicyService {
         return view;
       }),
     );
+  }
+
+  async getProjectServiceAccountsAccessPolicies(
+    projectId: string,
+    organizationId: string,
+  ): Promise<ProjectServiceAccountsAccessPoliciesView> {
+    const r = await this.apiService.send(
+      "GET",
+      "/projects/" + projectId + "/access-policies/service-accounts",
+      null,
+      true,
+      true,
+    );
+
+    const results = new ProjectServiceAccountsAccessPoliciesResponse(r);
+    return this.createProjectServiceAccountsAccessPoliciesView(results, organizationId);
+  }
+
+  async putProjectServiceAccountsAccessPolicies(
+    projectServiceAccountPoliciesView: ProjectServiceAccountsAccessPoliciesView,
+    grantedProjectId: string,
+    organizationId: string,
+  ): Promise<ProjectServiceAccountsAccessPoliciesView> {
+    const request = this.getProjectServiceAccountsAccessPoliciesRequest(
+      projectServiceAccountPoliciesView,
+    );
+    const r = await this.apiService.send(
+      "PUT",
+      "/projects/" + grantedProjectId + "/access-policies/service-accounts",
+      request,
+      true,
+      true,
+    );
+    const results = new ProjectServiceAccountsAccessPoliciesResponse(r);
+    return this.createProjectServiceAccountsAccessPoliciesView(results, organizationId);
+  }
+
+  private async createProjectServiceAccountsAccessPoliciesView(
+    projectServiceAccountsAccessPoliciesResponse: ProjectServiceAccountsAccessPoliciesResponse,
+    organizationId: string,
+  ): Promise<ProjectServiceAccountsAccessPoliciesView> {
+    const view = new ProjectServiceAccountsAccessPoliciesView();
+    const orgKey = await this.getOrganizationKey(organizationId);
+
+    view.serviceAccountAccessPolicies = await Promise.all(
+      projectServiceAccountsAccessPoliciesResponse.serviceAccountAccessPolicies.map(async (ap) => {
+        return await this.createServiceAccountProjectAccessPolicyView(orgKey, ap);
+      }),
+    );
+
+    return view;
+  }
+
+  private getProjectServiceAccountsAccessPoliciesRequest(
+    projectServiceAccountsAccessPoliciesView: ProjectServiceAccountsAccessPoliciesView,
+  ): ProjectServiceAccountsAccessPoliciesRequest {
+    const request = new ProjectServiceAccountsAccessPoliciesRequest();
+
+    if (projectServiceAccountsAccessPoliciesView.serviceAccountAccessPolicies?.length > 0) {
+      request.ProjectServiceAccountsAccessPolicyRequests =
+        projectServiceAccountsAccessPoliciesView.serviceAccountAccessPolicies.map((ap) => {
+          return this.getAccessPolicyRequest(ap.serviceAccountId, ap);
+        });
+    }
+
+    return request;
   }
 }

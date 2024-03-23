@@ -16,7 +16,7 @@ import {
 import {
   ApItemViewType,
   convertPotentialGranteesToApItemViewType,
-  convertToAccessPolicyItemViews,
+  convertPeoplePoliciesToApItemViewType,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
@@ -34,7 +34,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
   private currentAccessPolicies$ = combineLatest([this.route.params]).pipe(
     switchMap(([params]) =>
       this.accessPolicyService.getProjectPeopleAccessPolicies(params.projectId).then((policies) => {
-        return convertToAccessPolicyItemViews(policies);
+        return convertPeoplePoliciesToApItemViewType(policies);
       }),
     ),
     catchError(() => {
@@ -123,7 +123,7 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
         this.projectId,
         projectPeopleView,
       );
-      this.currentAccessPolicies = convertToAccessPolicyItemViews(peoplePoliciesViews);
+      this.currentAccessPolicies = convertPeoplePoliciesToApItemViewType(peoplePoliciesViews);
 
       if (showAccessRemovalWarning) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
