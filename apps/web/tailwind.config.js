@@ -6,5 +6,6 @@ config.content = [
   "../../libs/components/src/**/*.{html,ts}",
   "../../bitwarden_license/bit-web/src/**/*.{html,ts}",
 ];
+config.corePlugins.preflight = true;
 
 module.exports = config;
