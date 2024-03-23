@@ -1,6 +1,6 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, map, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,6 +43,7 @@ export class SecretsListComponent implements OnDestroy {
   @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
   @Output() newSecretEvent = new EventEmitter();
   @Output() restoreSecretsEvent = new EventEmitter();
+  @Output() bulkMoveToProjectEvent = new EventEmitter<SecretListView[]>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -105,6 +106,20 @@ export class SecretsListComponent implements OnDestroy {
     }
   }
 
+  bulkMoveToProject() {
+    if (this.selection.selected.length >= 1) {
+      this.bulkMoveToProjectEvent.emit(
+        this.secrets.filter((secret) => this.selection.isSelected(secret.id)),
+      );
+    } else {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("nothingSelected"),
+      );
+    }
+  }
+
   sortProjects = (a: SecretListView, b: SecretListView): number => {
     const aProjects = a.projects;
     const bProjects = b.projects;
@@ -114,6 +129,18 @@ export class SecretsListComponent implements OnDestroy {
 
     return aProjects[0]?.name.localeCompare(bProjects[0].name);
   };
+
+  protected hasWriteAccessOnSelected$ = this.selection.changed.pipe(
+    map(() => this.selectedHasWriteAccess()),
+  );
+
+  private selectedHasWriteAccess() {
+    const selectedSecrets = this.secrets.filter((secret) => this.selection.isSelected(secret.id));
+    if (selectedSecrets.some((secret) => secret.write)) {
+      return true;
+    }
+    return false;
+  }
 
   /**
    * TODO: Refactor to smart component and remove

@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
+import { combineLatestWith, lastValueFrom, Observable, startWith, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,6 +8,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService } from "@bitwarden/components";
 
 import { SecretListView } from "../models/view/secret-list.view";
+import {
+  BulkConfirmationDetails,
+  BulkConfirmationDialogComponent,
+  BulkConfirmationResult,
+} from "../shared/dialogs/bulk-confirmation-dialog.component";
 import { SecretsListComponent } from "../shared/secrets-list.component";
 
 import {
@@ -19,6 +24,10 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
+import {
+  SecretMoveProjectComponent,
+  SecretMoveProjectOperation,
+} from "./dialog/secret-move-project.component";
 import { SecretService } from "./secret.service";
 
 @Component({
@@ -108,5 +117,42 @@ export class SecretsComponent implements OnInit {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  async openMoveToProjectDialog(secrets: SecretListView[]) {
+    let secretsToMove = secrets;
+    const readonlySecrets = secrets.filter((secret) => secret.write == false);
+    if (readonlySecrets.length > 0) {
+      const dialogRef = this.dialogService.open<BulkConfirmationResult, BulkConfirmationDetails>(
+        BulkConfirmationDialogComponent,
+        {
+          data: {
+            title: "moveSecrets",
+            columnTitle: "secret",
+            message: "smSecretsMoveBulkConfirmation",
+            details: readonlySecrets.map((secret) => ({
+              id: secret.id,
+              name: secret.name,
+              description: "smSecretMoveAccessRestricted",
+            })),
+          },
+        },
+      );
+
+      const result = await lastValueFrom(dialogRef.closed);
+
+      if (result !== BulkConfirmationResult.Continue) {
+        return;
+      }
+
+      secretsToMove = secrets.filter((secret) => secret.write);
+    }
+
+    this.dialogService.open<unknown, SecretMoveProjectOperation>(SecretMoveProjectComponent, {
+      data: {
+        organizationId: this.organizationId,
+        secrets: secretsToMove,
+      },
+    });
   }
 }

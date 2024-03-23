@@ -7449,6 +7449,29 @@
   "skipToContent": {
     "message": "Skip to content"
   },
+  "moveToProject": {
+    "message": "Move to project"
+  },
+  "bulkMoveToProjectCallout": {
+    "message": "Moving secrets will give access to any users assigned to a project."
+  },
+  "smSecretsMoveBulkConfirmation": {
+    "message": "The following secrets can not be moved. Would you like to continue?",
+    "description": "The message shown to users when bulk moving secrets into a project and the user doesn't have access to edit some secrets."
+  },
+  "smSecretMoveAccessRestricted": {
+    "message": "You don't have permissions to move this secret",
+    "description": "The individual description shown to the user when the user doesn't have access to move a secret."
+  },
+  "moveSecrets": {
+    "message": "Move secrets"
+  },
+  "moveTo": {
+    "message": "Move to"
+  },
+  "currentProject": {
+    "message": "Current project"
+  },
   "managePermissionRequired": {
     "message": "At least one member or group must have can manage permission."
   },
