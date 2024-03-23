@@ -55,7 +55,7 @@
     "chalk": "4.1.2",
     "commander": "11.1.0",
     "form-data": "4.0.0",
-    "https-proxy-agent": "7.0.2",
+    "https-proxy-agent": "7.0.4",
     "inquirer": "8.2.6",
     "jsdom": "23.0.1",
     "jszip": "3.10.1",

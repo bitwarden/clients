@@ -174,7 +174,7 @@
     "core-js": "3.34.0",
     "duo_web_sdk": "github:duosecurity/duo_web_sdk",
     "form-data": "4.0.0",
-    "https-proxy-agent": "7.0.2",
+    "https-proxy-agent": "7.0.4",
     "inquirer": "8.2.6",
     "jquery": "3.7.1",
     "jsdom": "23.0.1",
