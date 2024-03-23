@@ -146,6 +146,7 @@ export class ServeCommand {
       this.main.environmentService,
       this.main.searchService,
       this.main.cryptoService,
+      this.main.apiService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.main.sendService,

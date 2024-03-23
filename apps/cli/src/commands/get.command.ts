@@ -57,12 +57,12 @@ export class GetCommand extends DownloadCommand {
     cryptoService: CryptoService,
     private stateService: StateService,
     private searchService: SearchService,
-    private apiService: ApiService,
+    protected apiService: ApiService,
     private organizationService: OrganizationService,
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
   ) {
-    super(cryptoService);
+    super(cryptoService, apiService);
   }
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
