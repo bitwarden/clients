@@ -25,7 +25,13 @@
       *ngIf="subscriptionMarkedForCancel"
     >
       <p>{{ "subscriptionPendingCanceled" | i18n }}</p>
-      <button bitButton buttonType="secondary" [bitAction]="reinstate" type="button">
+      <button
+        *ngIf="userOrg.canEditSubscription"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="reinstate"
+        type="button"
+      >
         {{ "reinstateSubscription" | i18n }}
       </button>
     </bit-callout>
