@@ -182,7 +182,7 @@
     "koa": "2.15.0",
     "koa-bodyparser": "4.4.1",
     "koa-json": "2.0.2",
-    "lowdb": "1.0.0",
+    "lowdb": "7.0.1",
     "lunr": "2.3.9",
     "multer": "1.4.5-lts.1",
     "ngx-infinite-scroll": "16.0.0",
