@@ -100,7 +100,7 @@ describe("InsertAutofillContentService", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
     windowSpy.mockRestore();
     confirmSpy.mockRestore();
     document.body.innerHTML = "";

@@ -172,7 +172,7 @@ describe("Browser Utils Service", () => {
     });
 
     afterEach(() => {
-      jest.resetAllMocks();
+      jest.clearAllMocks();
     });
 
     it("sends a copy to clipboard message to the desktop application if a user is using the safari browser", async () => {
@@ -264,7 +264,7 @@ describe("Browser Utils Service", () => {
     });
 
     afterEach(() => {
-      jest.resetAllMocks();
+      jest.clearAllMocks();
     });
 
     it("sends a ready from clipboard message to the desktop application if a user is using the safari browser", async () => {

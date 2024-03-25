@@ -14,7 +14,7 @@ describe("AppIdService", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe("getAppId", () => {
