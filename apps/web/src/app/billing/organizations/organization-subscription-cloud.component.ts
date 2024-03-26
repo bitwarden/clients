@@ -22,6 +22,10 @@ import {
 } from "../shared/offboarding-survey.component";
 
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
+import {
+  DownloadLicenseComponent,
+  DownloadLicenseDialogResult,
+} from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
 @Component({
@@ -321,8 +325,16 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     this.showChangePlan = false;
   }
 
-  downloadLicense() {
-    this.showDownloadLicense = !this.showDownloadLicense;
+  async downloadLicense() {
+    const dialogRef = DownloadLicenseComponent.open(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+      },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === DownloadLicenseDialogResult.Downloaded) {
+      return;
+    }
   }
 
   async manageBillingSync() {

@@ -216,13 +216,6 @@
         {{ (hasBillingSyncToken ? "manageBillingSync" : "setUpBillingSync") | i18n }}
       </button>
     </div>
-    <div class="tw-mt-3" *ngIf="showDownloadLicense">
-      <app-download-license
-        [organizationId]="organizationId"
-        (onDownloaded)="closeDownloadLicense()"
-        (onCanceled)="closeDownloadLicense()"
-      ></app-download-license>
-    </div>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
       <p bitTypography="body1">

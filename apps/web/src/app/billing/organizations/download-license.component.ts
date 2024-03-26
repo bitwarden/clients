@@ -1,50 +1,64 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { DialogConfig, DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
+import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService } from "@bitwarden/components";
+
+export enum DownloadLicenseDialogResult {
+  Cancelled = "cancelled",
+  Downloaded = "downloaded",
+}
+type DownloadLicenseDialogData = {
+  /** current organization id */
+  organizationId: string;
+};
 
 @Component({
   selector: "app-download-license",
   templateUrl: "download-license.component.html",
 })
 export class DownloadLicenseComponent {
-  @Input() organizationId: string;
-  @Output() onDownloaded = new EventEmitter();
-  @Output() onCanceled = new EventEmitter();
-
-  installationId: string;
-  formPromise: Promise<unknown>;
-
+  licenseForm = this.formBuilder.group({
+    installationId: ["", [Validators.required]],
+  });
   constructor(
+    @Inject(DIALOG_DATA) protected params: any,
+    private dialogRef: DialogRef,
     private fileDownloadService: FileDownloadService,
-    private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    protected formBuilder: FormBuilder,
   ) {}
 
-  async submit() {
-    if (this.installationId == null || this.installationId === "") {
+  submit = async () => {
+    this.licenseForm.markAllAsTouched();
+    if (
+      this.licenseForm.value.installationId == null ||
+      this.licenseForm.value.installationId === ""
+    ) {
       return;
     }
-
-    try {
-      this.formPromise = this.organizationApiService.getLicense(
-        this.organizationId,
-        this.installationId,
-      );
-      const license = await this.formPromise;
-      const licenseString = JSON.stringify(license, null, 2);
-      this.fileDownloadService.download({
-        fileName: "bitwarden_organization_license.json",
-        blobData: licenseString,
-      });
-      this.onDownloaded.emit();
-    } catch (e) {
-      this.logService.error(e);
-    }
+    const license = await this.organizationApiService.getLicense(
+      this.params.organizationId,
+      this.licenseForm.get("installationId").value,
+    );
+    const licenseString = JSON.stringify(license, null, 2);
+    this.fileDownloadService.download({
+      fileName: "bitwarden_organization_license.json",
+      blobData: licenseString,
+    });
+    this.dialogRef.close(DownloadLicenseDialogResult.Downloaded);
+  };
+  /**
+   * Strongly typed helper to open a DownloadLicenseComponent
+   * @param dialogService Instance of the dialog service that will be used to open the dialog
+   * @param config Configuration for the dialog
+   */
+  static open(dialogService: DialogService, config: DialogConfig<DownloadLicenseDialogData>) {
+    return dialogService.open<DownloadLicenseDialogResult>(DownloadLicenseComponent, config);
   }
-
-  cancel() {
-    this.onCanceled.emit();
-  }
+  cancel = () => {
+    this.dialogRef.close(DownloadLicenseDialogResult.Cancelled);
+  };
 }
