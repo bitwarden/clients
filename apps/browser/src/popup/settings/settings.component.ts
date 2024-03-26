@@ -441,9 +441,10 @@ export class SettingsComponent implements OnInit {
 
   async changePassword() {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "changeMasterPassword" },
-      content: { key: "changeMasterPasswordConfirmation" },
+      title: { key: "continueToWebApp" },
+      content: { key: "changeMasterPasswordOnWebConfirmation" },
       type: "info",
+      acceptButtonText: { key: "continue" },
     });
     if (confirmed) {
       const env = await firstValueFrom(this.environmentService.environment$);

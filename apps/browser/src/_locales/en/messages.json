@@ -172,6 +172,12 @@
   "changeMasterPassword": {
     "message": "Change master password"
   },
+  "continueToWebApp": {
+    "message": "Continue to web app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
+  },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -556,12 +562,6 @@
   },
   "addedFolder": {
     "message": "Folder added"
-  },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "You can change your master password on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"

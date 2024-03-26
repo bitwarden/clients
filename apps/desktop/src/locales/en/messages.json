@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Change master password"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "You can change your master password on the bitwarden.com web vault. Do you want to visit the website now?"
+  "continueToWebApp": {
+    "message": "Continue to web app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",

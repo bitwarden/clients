@@ -65,10 +65,10 @@ export class AccountMenu implements IMenubarMenu {
       id: "changeMasterPass",
       click: async () => {
         const result = await dialog.showMessageBox(this._window, {
-          title: this.localize("changeMasterPass"),
-          message: this.localize("changeMasterPass"),
-          detail: this.localize("changeMasterPasswordConfirmation"),
-          buttons: [this.localize("yes"), this.localize("no")],
+          title: this.localize("continueToWebApp"),
+          message: this.localize("continueToWebApp"),
+          detail: this.localize("changeMasterPasswordOnWebConfirmation"),
+          buttons: [this.localize("continue"), this.localize("cancel")],
           cancelId: 1,
           defaultId: 0,
           noLink: true,
