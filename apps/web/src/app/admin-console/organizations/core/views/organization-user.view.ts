@@ -26,6 +26,10 @@ export class OrganizationUserView {
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
   hasMasterPassword: boolean;
+  /**
+   * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
+   */
+  accessSecretsManager: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
