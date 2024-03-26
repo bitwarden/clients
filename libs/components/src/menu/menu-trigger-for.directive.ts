@@ -88,6 +88,7 @@ export class MenuTriggerForDirective implements OnDestroy {
       }
       this.destroyMenu();
     });
+    this.menu.keyManager.setFirstItemActive();
     this.keyDownEventsSub =
       this.menu.keyManager &&
       this.overlayRef
