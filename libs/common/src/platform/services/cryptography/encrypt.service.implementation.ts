@@ -92,7 +92,8 @@ export class EncryptServiceImplementation implements EncryptService {
         fastParams.macKey,
         "sha256",
       );
-      const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
+      /// no constant time comparison, because there is no backchannel for timing attacks
+      const macsEqual = fastParams.mac === computedMac;
       if (!macsEqual) {
         this.logMacFailed("mac failed.");
         return null;
