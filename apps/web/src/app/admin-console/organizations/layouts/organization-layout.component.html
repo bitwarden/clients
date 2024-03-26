@@ -3,7 +3,7 @@
     <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'adminConsole' | i18n">
       <bit-icon [icon]="logo"></bit-icon>
     </a>
-    <org-switcher [filter]="orgFilter"></org-switcher>
+    <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
 
     <bit-nav-item
       icon="bwi-collection"
