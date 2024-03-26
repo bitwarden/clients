@@ -6,6 +6,7 @@
     [disabled]="disabled"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
+    aria-label="Select vault item"
   />
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">

@@ -1,5 +1,10 @@
 <ng-container *ngIf="!hideMenu">
-  <button type="button" [bitMenuTriggerFor]="optionsMenu" class="filter-options-icon">
+  <button
+    type="button"
+    [bitMenuTriggerFor]="optionsMenu"
+    class="filter-options-icon"
+    aria-label="Toggle Organization Menu"
+  >
     <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
   </button>
   <bit-menu class="filter-organization-options" #optionsMenu>
@@ -21,6 +26,7 @@
         *ngIf="allowEnrollmentChanges(organization) && !organization.resetPasswordEnrolled"
         bitMenuItem
         (click)="toggleResetPasswordEnrollment(organization)"
+        aria-label="Enroll in Account Recovery"
       >
         <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>
         {{ "enrollAccountRecovery" | i18n }}
@@ -30,6 +36,7 @@
         *ngIf="allowEnrollmentChanges(organization) && organization.resetPasswordEnrolled"
         bitMenuItem
         (click)="toggleResetPasswordEnrollment(organization)"
+        aria-label="Withdraw Account Recovery"
       >
         <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
         {{ "withdrawAccountRecovery" | i18n }}
@@ -45,13 +52,19 @@
           {{ "unlinkSso" | i18n }}
         </button>
         <ng-template #linkSso>
-          <a href="#" bitMenuItem app-link-sso [organization]="organization">
+          <a href="#" bitMenuItem app-link-sso [organization]="organization" aria-label="Link SSO">
             <i class="bwi bwi-fw bwi-link" aria-hidden="true"></i>
             {{ "linkSso" | i18n }}
           </a>
         </ng-template>
       </ng-container>
-      <button *ngIf="showLeaveOrgOption" type="button" bitMenuItem (click)="leave(organization)">
+      <button
+        *ngIf="showLeaveOrgOption"
+        type="button"
+        bitMenuItem
+        (click)="leave(organization)"
+        aria-label="Leave Organization"
+      >
         <i class="bwi bwi-fw bwi-sign-out tw-text-danger" aria-hidden="true"></i>
         <span class="tw-text-danger">{{ "leave" | i18n }}</span>
       </button>
