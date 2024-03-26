@@ -74,6 +74,13 @@ const nativeMessaging = {
   onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
     ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
   },
+
+  manifests: {
+    generate: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.manifests", { create }),
+    generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
 };
 
 const crypto = {

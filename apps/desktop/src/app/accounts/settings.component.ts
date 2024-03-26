@@ -13,6 +13,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -26,6 +27,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 @Component({
   selector: "app-settings",
@@ -124,6 +126,8 @@ export class SettingsComponent implements OnInit {
     private desktopSettingsService: DesktopSettingsService,
     private biometricStateService: BiometricStateService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
+    private logService: LogService,
+    private nativeMessagingManifestService: NativeMessagingManifestService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -628,11 +632,20 @@ export class SettingsComponent implements OnInit {
     }
 
     await this.stateService.setEnableBrowserIntegration(this.form.value.enableBrowserIntegration);
-    this.messagingService.send(
-      this.form.value.enableBrowserIntegration
-        ? "enableBrowserIntegration"
-        : "disableBrowserIntegration",
+
+    const errorResult = await this.nativeMessagingManifestService.generate(
+      this.form.value.enableBrowserIntegration,
     );
+    if (errorResult !== null) {
+      this.logService.error("Error in browser integration: " + errorResult);
+      await this.dialogService.openSimpleDialog({
+        title: { key: "browserIntegrationErrorTitle" },
+        content: { key: "browserIntegrationErrorDesc" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "danger",
+      });
+    }
 
     if (!this.form.value.enableBrowserIntegration) {
       this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
@@ -651,11 +664,19 @@ export class SettingsComponent implements OnInit {
       await this.stateService.setDuckDuckGoSharedKey(null);
     }
 
-    this.messagingService.send(
-      this.form.value.enableDuckDuckGoBrowserIntegration
-        ? "enableDuckDuckGoBrowserIntegration"
-        : "disableDuckDuckGoBrowserIntegration",
+    const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
+      this.form.value.enableDuckDuckGoBrowserIntegration,
     );
+    if (errorResult !== null) {
+      this.logService.error("Error in DDG browser integration: " + errorResult);
+      await this.dialogService.openSimpleDialog({
+        title: { key: "browserIntegrationUnsupportedTitle" },
+        content: errorResult.message,
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "warning",
+      });
+    }
   }
 
   async saveBrowserIntegrationFingerprint() {

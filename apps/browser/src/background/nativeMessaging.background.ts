@@ -200,6 +200,8 @@ export class NativeMessagingBackground {
         this.privateKey = null;
         this.connected = false;
 
+        this.logService.error("NativeMessaging port disconnected because of error: " + error);
+
         const reason = error != null ? "desktopIntegrationDisabled" : null;
         reject(new Error(reason));
       });

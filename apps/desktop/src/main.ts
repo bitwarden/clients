@@ -270,12 +270,20 @@ export class Main {
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
-        if (
-          (await this.stateService.getEnableBrowserIntegration()) ||
-          (await firstValueFrom(
-            this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
-          ))
-        ) {
+        const [browserIntegrationEnabled, ddgIntegrationEnabled] = await Promise.all([
+          this.stateService.getEnableBrowserIntegration(),
+          firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
+        ]);
+
+        if (browserIntegrationEnabled || ddgIntegrationEnabled) {
+          // Re-register the native messaging host integrations on startup, in case they are not present
+          if (browserIntegrationEnabled) {
+            this.nativeMessagingMain.generateManifests().catch(this.logService.error);
+          }
+          if (ddgIntegrationEnabled) {
+            this.nativeMessagingMain.generateDdgManifests().catch(this.logService.error);
+          }
+
           this.nativeMessagingMain.listen();
         }
 
