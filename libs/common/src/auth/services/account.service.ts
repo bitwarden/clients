@@ -74,6 +74,10 @@ export class AccountServiceImplementation implements InternalAccountService {
     await this.setAccountInfo(userId, { email });
   }
 
+  async setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void> {
+    await this.setAccountInfo(userId, { emailVerified });
+  }
+
   async setAccountStatus(userId: UserId, status: AuthenticationStatus): Promise<void> {
     await this.setAccountInfo(userId, { status });
 

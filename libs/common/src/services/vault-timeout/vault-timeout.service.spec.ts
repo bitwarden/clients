@@ -124,6 +124,7 @@ describe("VaultTimeoutService", () => {
     accountService.activeAccount$ = new BehaviorSubject({
       id: globalSetups?.userId as UserId,
       email: "",
+      emailVerified: true,
       name: "",
       status: AuthenticationStatus.Unlocked,
     });
@@ -132,6 +133,7 @@ describe("VaultTimeoutService", () => {
         (agg, [id, info]) => {
           agg[id] = {
             email: "",
+            emailVerified: true,
             name: "",
             status: info.authStatus,
           };

@@ -25,7 +25,7 @@ describe("accountService", () => {
   let activeAccountIdState: FakeGlobalState<UserId>;
   const userId = "userId" as UserId;
   function userInfo(status: AuthenticationStatus): AccountInfo {
-    return { status, email: "email", name: "name" };
+    return { status, email: "email", emailVerified: true, name: "name" };
   }
 
   beforeEach(() => {
@@ -143,6 +143,30 @@ describe("accountService", () => {
 
     it("should not update if the email is the same", async () => {
       await sut.setAccountEmail(userId, "email");
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+  });
+
+  describe("setAccountEmailVerified", () => {
+    const initialState = { [userId]: userInfo(AuthenticationStatus.Unlocked) };
+    initialState[userId].emailVerified = false;
+    beforeEach(() => {
+      accountsState.stateSubject.next(initialState);
+    });
+
+    it("should update the account", async () => {
+      await sut.setAccountEmailVerified(userId, true);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo(AuthenticationStatus.Unlocked), emailVerified: true },
+      });
+    });
+
+    it("should not update if the email is the same", async () => {
+      await sut.setAccountEmailVerified(userId, false);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual(initialState);

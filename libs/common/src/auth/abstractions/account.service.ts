@@ -10,11 +10,23 @@ import { AuthenticationStatus } from "../enums/authentication-status";
 export type AccountInfo = {
   status: AuthenticationStatus;
   email: string;
+  emailVerified: boolean;
   name: string | undefined;
 };
 
 export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
-  return a?.status === b?.status && a?.email === b?.email && a?.name === b?.name;
+  if (a == null && b == null) {
+    return true;
+  }
+  const keys = new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})]) as Set<
+    keyof AccountInfo
+  >;
+  for (const key of keys) {
+    if (a?.[key] !== b?.[key]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export abstract class AccountService {
@@ -40,6 +52,12 @@ export abstract class AccountService {
    * @param email
    */
   abstract setAccountEmail(userId: UserId, email: string): Promise<void>;
+  /**
+   * updates the `acocunts$` observable with the new email verification status for the account.
+   * @param userId
+   * @param emailVerified
+   */
+  abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
   /**
    * Updates the `accounts$` observable with the new account status.
    * Also emits the `accountLock$` or `accountLogout$` observable if the status is `Locked` or `LoggedOut` respectively.

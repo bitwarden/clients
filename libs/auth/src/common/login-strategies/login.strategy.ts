@@ -185,6 +185,7 @@ export abstract class LoginStrategy {
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
       email: accountInformation.email,
+      emailVerified: accountInformation.email_verified,
       // TODO MDG: remove status from this object
       status: AuthenticationStatus.LoggedOut,
     });

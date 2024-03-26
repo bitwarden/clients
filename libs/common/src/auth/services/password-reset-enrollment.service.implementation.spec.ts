@@ -91,6 +91,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       const user1AccountInfo: AccountInfo = {
         name: "Test User 1",
         email: "test1@email.com",
+        emailVerified: true,
         status: AuthenticationStatus.Unlocked,
       };
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));

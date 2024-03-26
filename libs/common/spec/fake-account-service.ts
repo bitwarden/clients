@@ -14,6 +14,7 @@ export function mockAccountServiceWith(
     ...{
       name: "name",
       email: "email",
+      emailVerified: true,
       status: AuthenticationStatus.Locked,
     },
   };
