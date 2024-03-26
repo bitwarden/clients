@@ -1062,9 +1062,18 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async editCollection(c: CollectionView, tab: CollectionDialogTabType): Promise<void> {
+  async editCollection(
+    c: CollectionView,
+    tab: CollectionDialogTabType,
+    readonly: boolean = false,
+  ): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
-      data: { collectionId: c?.id, organizationId: this.organization?.id, initialTab: tab },
+      data: {
+        collectionId: c?.id,
+        organizationId: this.organization?.id,
+        initialTab: tab,
+        readonly: readonly,
+      },
     });
 
     const result = await lastValueFrom(dialog.closed);
