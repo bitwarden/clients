@@ -1,8 +1,10 @@
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -31,6 +33,7 @@ import {
   AccountProfile,
   AccountTokens,
 } from "@bitwarden/common/platform/models/domain/account";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -72,6 +75,7 @@ export abstract class LoginStrategy {
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected accountService: AccountService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -164,7 +168,7 @@ export abstract class LoginStrategy {
     // However, we must provide a user id so that the device key can be retrieved
     // as the state service won't have an active account at this point in time
     // even though the data exists in local storage.
-    const userId = accountInformation.sub;
+    const userId = accountInformation.sub as UserId;
 
     const deviceKey = await this.stateService.getDeviceKey({ userId });
     const accountKeys = new AccountKeys();
@@ -178,6 +182,13 @@ export abstract class LoginStrategy {
     const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
     const vaultTimeout = await this.stateService.getVaultTimeout();
 
+    await this.accountService.addAccount(userId, {
+      name: accountInformation.name,
+      email: accountInformation.email,
+      // TODO MDG: remove status from this object
+      status: AuthenticationStatus.LoggedOut,
+    });
+
     // set access token and refresh token before account initialization so authN status can be accurate
     // User id will be derived from the access token.
     await this.tokenService.setTokens(
@@ -186,6 +197,10 @@ export abstract class LoginStrategy {
       vaultTimeout,
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
+
+    // TODO MDG: remove status from this object
+    await this.accountService.setAccountStatus(userId, AuthenticationStatus.Locked);
+    await this.accountService.switchAccount(userId);
 
     await this.stateService.addAccount(
       new Account({

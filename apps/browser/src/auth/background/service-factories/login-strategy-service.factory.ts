@@ -59,6 +59,7 @@ import {
   PasswordStrengthServiceInitOptions,
 } from "../../../tools/background/service_factories/password-strength-service.factory";
 
+import { accountServiceFactory, AccountServiceInitOptions } from "./account-service.factory";
 import {
   authRequestServiceFactory,
   AuthRequestServiceInitOptions,
@@ -99,7 +100,8 @@ export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions
   AuthRequestServiceInitOptions &
   UserDecryptionOptionsServiceInitOptions &
   GlobalStateProviderInitOptions &
-  BillingAccountProfileStateServiceInitOptions;
+  BillingAccountProfileStateServiceInitOptions &
+  AccountServiceInitOptions;
 
 export function loginStrategyServiceFactory(
   cache: { loginStrategyService?: LoginStrategyServiceAbstraction } & CachedServices,
@@ -131,6 +133,7 @@ export function loginStrategyServiceFactory(
         await internalUserDecryptionOptionServiceFactory(cache, opts),
         await globalStateProviderFactory(cache, opts),
         await billingAccountProfileStateServiceFactory(cache, opts),
+        await accountServiceFactory(cache, opts),
       ),
   );
 }

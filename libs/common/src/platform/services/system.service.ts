@@ -1,6 +1,7 @@
 import { firstValueFrom, timeout } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
@@ -25,6 +26,7 @@ export class SystemService implements SystemServiceAbstraction {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
+    private accountService: AccountService,
   ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
@@ -72,6 +74,7 @@ export class SystemService implements SystemServiceAbstraction {
         if (timeoutAction === VaultTimeoutAction.LogOut) {
           const nextUser = await this.stateService.nextUpActiveUser();
           await this.stateService.setActiveUser(nextUser);
+          await this.accountService.switchAccount(nextUser);
         }
       }
 

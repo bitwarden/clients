@@ -2,6 +2,7 @@ import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -52,6 +53,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     private environmentService: EnvironmentService,
     private keyConnectorService: KeyConnectorService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       cryptoService,
@@ -65,6 +67,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      accountService,
     );
     this.cache = new BehaviorSubject(data);
   }

@@ -59,7 +59,7 @@ export abstract class AccountService {
    */
   abstract setMaxAccountStatus(userId: UserId, maxStatus: AuthenticationStatus): Promise<void>;
   /**
-   * Updates the `activeAccount$` observable with the new active account.
+   * Updates the `activeAccount$` observable with the new active account. Null userId indicates no active user.
    * @param userId
    */
   abstract switchAccount(userId: UserId): Promise<void>;

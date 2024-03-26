@@ -21,9 +21,9 @@ import { NotificationsService } from "@bitwarden/common/abstractions/notificatio
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -152,7 +152,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private providerService: ProviderService,
-    private organizationService: InternalOrganizationServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -403,6 +403,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case "switchAccount": {
             if (message.userId != null) {
               await this.stateService.setActiveUser(message.userId);
+              await this.accountService.switchAccount(message.userId);
             }
             const locked =
               (await this.authService.getAuthStatus(message.userId)) ===

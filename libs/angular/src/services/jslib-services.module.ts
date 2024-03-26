@@ -375,6 +375,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       GlobalStateProvider,
       BillingAccountProfileStateService,
+      AccountServiceAbstraction,
     ],
   }),
   safeProvider({

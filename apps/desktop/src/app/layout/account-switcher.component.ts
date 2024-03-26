@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -91,6 +92,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private router: Router,
     private tokenService: TokenService,
     private environmentService: EnvironmentService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -140,6 +142,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     await this.stateService.setRememberedEmail(null);
     await this.router.navigate(["/login"]);
     await this.stateService.setActiveUser(null);
+    await this.accountService.switchAccount(null);
   }
 
   private async createInactiveAccounts(baseAccounts: {
