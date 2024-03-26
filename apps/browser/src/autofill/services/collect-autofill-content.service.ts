@@ -86,9 +86,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
-    const autofillFieldsData: AutofillField[] = await this.buildAutofillFieldsData(
-      formFieldElements as FormFieldElement[],
-    );
+    const autofillFieldsData: AutofillField[] = (
+      await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
+    ).filter((field) => !!field);
     this.sortAutofillFieldElementsMap();
 
     if (!autofillFieldsData.length) {
@@ -327,15 +327,18 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * Builds an AutofillField object from the given form element. Will only return
    * shared field values if the element is a span element. Will not return any label
    * values if the element is a hidden input element.
-   * @param {ElementWithOpId<FormFieldElement>} element
-   * @param {number} index
-   * @returns {Promise<AutofillField>}
-   * @private
+   *
+   * @param element - The form field element to build the AutofillField object from
+   * @param index - The index of the form field element
    */
   private buildAutofillFieldItem = async (
     element: ElementWithOpId<FormFieldElement>,
     index: number,
-  ): Promise<AutofillField> => {
+  ): Promise<AutofillField | null> => {
+    if (element.closest("button[type='submit']")) {
+      return null;
+    }
+
     element.opid = `__${index}`;
 
     const existingAutofillField = this.autofillFieldElements.get(element);

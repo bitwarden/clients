@@ -805,6 +805,36 @@ describe("CollectAutofillContentService", () => {
   });
 
   describe("buildAutofillFieldItem", () => {
+    it("returns a `null` value if the field is a child of a `button[type='submit']`", async () => {
+      const usernameField = {
+        labelText: "Username",
+        id: "username-id",
+        type: "text",
+      };
+      document.body.innerHTML = `
+        <form>
+          <div>
+            <div>
+              <label for="${usernameField.id}">${usernameField.labelText}</label>
+              <button type="submit">
+                <input id="${usernameField.id}" type="${usernameField.type}" />
+              </button>
+            </div>
+          </div>
+        </form>
+      `;
+      const usernameInput = document.getElementById(
+        usernameField.id,
+      ) as ElementWithOpId<FillableFormFieldElement>;
+
+      const autofillFieldItem = await collectAutofillContentService["buildAutofillFieldItem"](
+        usernameInput,
+        0,
+      );
+
+      expect(autofillFieldItem).toBeNull();
+    });
+
     it("returns an existing autofill field item if it exists", async () => {
       const index = 0;
       const usernameField = {
@@ -824,27 +854,6 @@ describe("CollectAutofillContentService", () => {
         value: "username-value",
         dataStripe: "data-stripe",
       };
-      document.body.innerHTML = `
-        <form>
-          <label for="${usernameField.id}">${usernameField.labelText}</label>
-          <input
-            id="${usernameField.id}"
-            class="${usernameField.classes}"
-            name="${usernameField.name}"
-            type="${usernameField.type}"
-            maxlength="${usernameField.maxLength}"
-            tabindex="${usernameField.tabIndex}"
-            title="${usernameField.title}"
-            autocomplete="${usernameField.autocomplete}"
-            data-label="${usernameField.dataLabel}"
-            aria-label="${usernameField.ariaLabel}"
-            placeholder="${usernameField.placeholder}"
-            rel="${usernameField.rel}"
-            value="${usernameField.value}"
-            data-stripe="${usernameField.dataStripe}"
-          />
-        </form>
-      `;
       document.body.innerHTML = `
         <form>
           <label for="${usernameField.id}">${usernameField.labelText}</label>
