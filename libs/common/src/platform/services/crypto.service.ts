@@ -1023,34 +1023,6 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  async migrateAutoKeyIfNeeded(userId?: UserId) {
-    const oldAutoKey = await this.stateService.getCryptoMasterKeyAuto({ userId: userId });
-    if (!oldAutoKey) {
-      return;
-    }
-    // Decrypt
-    const masterKey = new SymmetricCryptoKey(Utils.fromB64ToArray(oldAutoKey)) as MasterKey;
-    if (await this.isLegacyUser(masterKey, userId)) {
-      // Legacy users don't have a user key, so no need to migrate.
-      // Instead, set the master key for additional isLegacyUser checks that will log the user out.
-      await this.setMasterKey(masterKey, userId);
-      return;
-    }
-    const encryptedUserKey = await this.stateService.getEncryptedCryptoSymmetricKey({
-      userId: userId,
-    });
-    const userKey = await this.decryptUserKeyWithMasterKey(
-      masterKey,
-      new EncString(encryptedUserKey),
-      userId,
-    );
-    // Migrate
-    await this.stateService.setUserKeyAutoUnlock(userKey.keyB64, { userId: userId });
-    await this.stateService.setCryptoMasterKeyAuto(null, { userId: userId });
-    // Set encrypted user key in case user immediately locks without syncing
-    await this.setMasterKeyEncryptedUserKey(encryptedUserKey);
-  }
-
   async decryptAndMigrateOldPinKey(
     masterPasswordOnRestart: boolean,
     pin: string,
