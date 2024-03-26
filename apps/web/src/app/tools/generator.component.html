@@ -300,6 +300,7 @@
             type="password"
             [(ngModel)]="usernameOptions.forwardedSimpleLoginApiKey"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
         <div class="form-group col-4" *ngIf="isSelfHosted">
@@ -324,6 +325,7 @@
             name="DuckDuckGoApiKey"
             [(ngModel)]="usernameOptions.forwardedDuckDuckGoToken"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
       </div>
@@ -336,6 +338,7 @@
             type="password"
             [(ngModel)]="usernameOptions.forwardedAnonAddyApiToken"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
         <div class="form-group col-4">
@@ -369,6 +372,7 @@
             type="password"
             [(ngModel)]="usernameOptions.forwardedFirefoxApiToken"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
       </div>
@@ -381,6 +385,7 @@
             type="password"
             [(ngModel)]="usernameOptions.forwardedFastmailApiToken"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
       </div>
@@ -393,6 +398,7 @@
             type="password"
             [(ngModel)]="usernameOptions.forwardedForwardEmailApiToken"
             (blur)="saveUsernameOptions()"
+            appInputVerbatim
           />
         </div>
         <div class="form-group col-4">

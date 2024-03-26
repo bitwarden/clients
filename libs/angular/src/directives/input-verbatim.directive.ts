@@ -20,10 +20,10 @@ export class InputVerbatimDirective {
       this.renderer.setAttribute(this.el.nativeElement, "autocomplete", "off");
     }
     if (!this.el.nativeElement.hasAttribute("autocapitalize")) {
-      this.renderer.setAttribute(this.el.nativeElement, "autocapitalize", "none");
+      this.renderer.setAttribute(this.el.nativeElement, "autocapitalize", "off");
     }
     if (!this.el.nativeElement.hasAttribute("autocorrect")) {
-      this.renderer.setAttribute(this.el.nativeElement, "autocorrect", "none");
+      this.renderer.setAttribute(this.el.nativeElement, "autocorrect", "off");
     }
     if (!this.el.nativeElement.hasAttribute("spellcheck")) {
       this.renderer.setAttribute(this.el.nativeElement, "spellcheck", "false");

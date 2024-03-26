@@ -20,7 +20,7 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
     <form>
       <bit-form-field>
         <bit-label>Password</bit-label>
-        <input bitInput type="password" />
+        <input bitInput appInputVerbatim type="password" />
         <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
       </bit-form-field>
     </form>
@@ -69,7 +69,7 @@ describe("PasswordInputToggle", () => {
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck).toBe(false);
     });
   });
 
@@ -106,7 +106,7 @@ describe("PasswordInputToggle", () => {
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck).toBe(false);
     });
   });
 });

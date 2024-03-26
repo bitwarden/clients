@@ -9,7 +9,13 @@
       </p>
       <bit-form-field>
         <bit-label>{{ "pin" | i18n }}</bit-label>
-        <input class="tw-font-mono" bitInput type="password" formControlName="pin" />
+        <input
+          class="tw-font-mono"
+          bitInput
+          appInputVerbatim
+          type="password"
+          formControlName="pin"
+        />
         <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
       </bit-form-field>
       <label class="tw-flex tw-items-start tw-gap-2" *ngIf="showMasterPassOnRestart">

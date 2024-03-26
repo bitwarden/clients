@@ -227,7 +227,7 @@
             <bit-label for="password" *ngIf="!hasPassword">{{ "password" | i18n }}</bit-label>
             <bit-label for="password" *ngIf="hasPassword">{{ "newPassword" | i18n }}</bit-label>
 
-            <input bitInput type="password" formControlName="password" />
+            <input bitInput appInputVerbatim type="password" formControlName="password" />
             <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
             <bit-hint>{{ "sendPasswordDesc" | i18n }}</bit-hint>
           </bit-form-field>
