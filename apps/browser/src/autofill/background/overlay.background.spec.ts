@@ -791,17 +791,24 @@ describe("OverlayBackground", () => {
           });
         });
 
-        it("will post a message to the overlay list facilitating an update of the list's position", () => {
+        it("will post a message to the overlay list facilitating an update of the list's position", async () => {
+          const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
           const focusedFieldData = createFocusedFieldDataMock();
           sendExtensionRuntimeMessage({ command: "updateFocusedFieldData", focusedFieldData });
 
-          overlayBackground["updateOverlayPosition"]({
-            overlayElement: AutofillOverlayElement.List,
-          });
-          sendExtensionRuntimeMessage({
-            command: "updateAutofillOverlayPosition",
-            overlayElement: AutofillOverlayElement.List,
-          });
+          await overlayBackground["updateOverlayPosition"](
+            {
+              overlayElement: AutofillOverlayElement.List,
+            },
+            sender,
+          );
+          sendExtensionRuntimeMessage(
+            {
+              command: "updateAutofillOverlayPosition",
+              overlayElement: AutofillOverlayElement.List,
+            },
+            sender,
+          );
 
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
             command: "updateIframePosition",

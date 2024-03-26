@@ -1,4 +1,6 @@
+import { SubFrameOffsetData } from "../background/abstractions/overlay.background";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -13,21 +15,25 @@ import {
 
 class AutofillInit implements AutofillInitInterface {
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
+  private readonly inlineMenuElements: InlineMenuElements | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
+  private sendCollectDetailsMessageTimeout: number | NodeJS.Timeout | undefined;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     fillForm: ({ message }) => this.fillForm(message),
     openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
-    closeAutofillOverlay: ({ message }) => this.removeAutofillOverlay(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItemFromOverlay(),
     redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
     updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
     bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
     bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
+    getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
+    getSubFrameOffsetsThroughWindowMessaging: ({ message }) =>
+      this.getSubFrameOffsetsThroughWindowMessaging(message),
   };
 
   /**
@@ -35,9 +41,28 @@ class AutofillInit implements AutofillInitInterface {
    * CollectAutofillContentService and InsertAutofillContentService classes.
    *
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
+   * @param inlineMenuElements - The inline menu elements, potentially undefined.
    */
-  constructor(autofillOverlayContentService?: AutofillOverlayContentService) {
+  constructor(
+    autofillOverlayContentService?: AutofillOverlayContentService,
+    inlineMenuElements?: InlineMenuElements,
+  ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
+    if (this.autofillOverlayContentService) {
+      this.extensionMessageHandlers = Object.assign(
+        this.extensionMessageHandlers,
+        this.autofillOverlayContentService.extensionMessageHandlers,
+      );
+    }
+
+    this.inlineMenuElements = inlineMenuElements;
+    if (this.inlineMenuElements) {
+      this.extensionMessageHandlers = Object.assign(
+        this.extensionMessageHandlers,
+        this.inlineMenuElements.extensionMessageHandlers,
+      );
+    }
+
     this.domElementVisibilityService = new DomElementVisibilityService();
     this.collectAutofillContentService = new CollectAutofillContentService(
       this.domElementVisibilityService,
@@ -47,6 +72,45 @@ class AutofillInit implements AutofillInitInterface {
       this.domElementVisibilityService,
       this.collectAutofillContentService,
     );
+
+    window.addEventListener("message", (event) => {
+      // if (event.source !== window) {
+      //   return;
+      // }
+
+      if (event.data.command === "calculateSubFramePositioning") {
+        const subFrameData = event.data.subFrameData;
+        let subFrameOffsets: SubFrameOffsetData;
+        const iframes = document.querySelectorAll("iframe");
+        for (let i = 0; i < iframes.length; i++) {
+          if (iframes[i].contentWindow === event.source) {
+            const iframeElement = iframes[i];
+            subFrameOffsets = this.calculateSubFrameOffsets(
+              iframeElement,
+              subFrameData.url,
+              subFrameData.frameId,
+            );
+
+            subFrameData.top += subFrameOffsets.top;
+            subFrameData.left += subFrameOffsets.left;
+
+            break;
+          }
+        }
+
+        if (globalThis.window.self !== globalThis.window.top) {
+          globalThis.parent.postMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+          );
+          return;
+        }
+
+        void sendExtensionMessage("updateSubFrameData", {
+          subFrameData,
+        });
+      }
+    });
   }
 
   /**
@@ -66,11 +130,13 @@ class AutofillInit implements AutofillInitInterface {
    * to act on the page.
    */
   private collectPageDetailsOnLoad() {
-    const sendCollectDetailsMessage = () =>
-      setTimeout(
+    const sendCollectDetailsMessage = () => {
+      this.clearSendCollectDetailsMessageTimeout();
+      this.sendCollectDetailsMessageTimeout = setTimeout(
         () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
         250,
       );
+    };
 
     if (document.readyState === "complete") {
       sendCollectDetailsMessage();
@@ -120,27 +186,18 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.blurAndRemoveOverlay();
-    this.updateOverlayIsCurrentlyFilling(true);
+    await sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: true });
     await this.insertAutofillContentService.fillForm(fillScript);
 
     if (!this.autofillOverlayContentService) {
       return;
     }
 
-    setTimeout(() => this.updateOverlayIsCurrentlyFilling(false), 250);
-  }
-
-  /**
-   * Handles updating the overlay is currently filling value.
-   *
-   * @param isCurrentlyFilling - Indicates if the overlay is currently filling
-   */
-  private updateOverlayIsCurrentlyFilling(isCurrentlyFilling: boolean) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.isCurrentlyFilling = isCurrentlyFilling;
+    setTimeout(
+      () =>
+        sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: false }),
+      250,
+    );
   }
 
   /**
@@ -167,33 +224,7 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.autofillOverlayContentService.blurMostRecentOverlayField();
-    this.removeAutofillOverlay();
-  }
-
-  /**
-   * Removes the autofill overlay if the field is not currently focused.
-   * If the autofill is currently filling, only the overlay list will be
-   * removed.
-   */
-  private removeAutofillOverlay(message?: AutofillExtensionMessage) {
-    if (message?.data?.forceCloseOverlay) {
-      this.autofillOverlayContentService?.removeAutofillOverlay();
-      return;
-    }
-
-    if (
-      !this.autofillOverlayContentService ||
-      this.autofillOverlayContentService.isFieldCurrentlyFocused
-    ) {
-      return;
-    }
-
-    if (this.autofillOverlayContentService.isCurrentlyFilling) {
-      this.autofillOverlayContentService.removeAutofillOverlayList();
-      return;
-    }
-
-    this.autofillOverlayContentService.removeAutofillOverlay();
+    void sendExtensionMessage("closeAutofillOverlay");
   }
 
   /**
@@ -249,6 +280,62 @@ class AutofillInit implements AutofillInitInterface {
     this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
   }
 
+  private async getSubFrameOffsets(
+    message: AutofillExtensionMessage,
+  ): Promise<SubFrameOffsetData | null> {
+    const { subFrameUrl } = message;
+    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    let iframeElement: HTMLIFrameElement | null = null;
+    const iframeElements = document.querySelectorAll(
+      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
+    ) as NodeListOf<HTMLIFrameElement>;
+    if (iframeElements.length === 1) {
+      iframeElement = iframeElements[0];
+    }
+
+    if (!iframeElement) {
+      return null;
+    }
+
+    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  private calculateSubFrameOffsets(
+    iframeElement: HTMLIFrameElement,
+    subFrameUrl?: string,
+    frameId?: number,
+  ): SubFrameOffsetData {
+    const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeStyles = globalThis.getComputedStyle(iframeElement);
+    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
+    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
+    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
+    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
+
+    return {
+      url: subFrameUrl,
+      frameId,
+      top: iframeRect.top + paddingTop + borderWidthTop,
+      left: iframeRect.left + paddingLeft + borderWidthLeft,
+    };
+  }
+
+  private getSubFrameOffsetsThroughWindowMessaging(message: any) {
+    globalThis.parent.postMessage(
+      {
+        command: "calculateSubFramePositioning",
+        subFrameData: {
+          url: window.location.href,
+          frameId: message.subFrameId,
+          left: 0,
+          top: 0,
+        },
+      },
+      "*",
+    );
+  }
+
   /**
    * Sets up the extension message listeners for the content script.
    */
@@ -285,6 +372,12 @@ class AutofillInit implements AutofillInitInterface {
     return true;
   };
 
+  private clearSendCollectDetailsMessageTimeout() {
+    if (this.sendCollectDetailsMessageTimeout) {
+      clearTimeout(this.sendCollectDetailsMessageTimeout as number);
+    }
+  }
+
   /**
    * Handles destroying the autofill init content script. Removes all
    * listeners, timeouts, and object instances to prevent memory leaks.
@@ -293,6 +386,8 @@ class AutofillInit implements AutofillInitInterface {
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();
+    this.inlineMenuElements?.destroy();
+    this.clearSendCollectDetailsMessageTimeout();
   }
 }
 

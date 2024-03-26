@@ -2,8 +2,26 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { PageDetail } from "../../services/abstractions/autofill.service";
 
 import { LockedVaultPendingNotificationsData } from "./notification.background";
+
+type PageDetailsForTab = Record<
+  chrome.runtime.MessageSender["tab"]["id"],
+  Map<chrome.runtime.MessageSender["frameId"], PageDetail>
+>;
+
+type SubFrameOffsetData = {
+  url?: string;
+  top: number;
+  left: number;
+  frameId?: number;
+} | null;
+
+type SubFrameOffsetsForTab = Record<
+  chrome.runtime.MessageSender["tab"]["id"],
+  Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
+>;
 
 type WebsiteIconData = {
   imageEnabled: boolean;
@@ -28,8 +46,12 @@ type OverlayBackgroundExtensionMessage = {
   sender?: string;
   details?: AutofillPageDetails;
   overlayElement?: string;
-  display?: string;
+  forceCloseOverlay?: boolean;
+  isOverlayHidden?: boolean;
+  setTransparentOverlay?: boolean;
   data?: LockedVaultPendingNotificationsData;
+  isFieldCurrentlyFocused?: boolean;
+  isCurrentlyFilling?: boolean;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
@@ -42,6 +64,8 @@ type OverlayPortMessage = {
 type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
+  tabId?: number;
+  frameId?: number;
 };
 
 type OverlayCipherData = {
@@ -66,18 +90,30 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillOverlay: () => void;
+  closeAutofillOverlay: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
   checkAutofillOverlayFocused: () => void;
   focusAutofillOverlayList: () => void;
-  updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
-  updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
-  updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  updateAutofillOverlayPosition: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  updateAutofillOverlayHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addEditCipherSubmitted: () => void;
   deletedCipher: () => void;
+  checkIsFieldCurrentlyFocused: () => boolean;
+  checkIsFieldCurrentlyFilling: () => boolean;
+  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
+  updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
+  checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
+  checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
+  updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
 };
 
 type PortMessageParam = {
@@ -116,6 +152,9 @@ interface OverlayBackground {
 }
 
 export {
+  PageDetailsForTab,
+  SubFrameOffsetData,
+  SubFrameOffsetsForTab,
   WebsiteIconData,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,

@@ -178,17 +178,17 @@ export class BrowserApi {
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
-  ): Promise<void> {
+  ): Promise<any> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<void>((resolve) => {
-      chrome.tabs.sendMessage(tab.id, obj, options, () => {
+    return new Promise<any>((resolve) => {
+      chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
         if (chrome.runtime.lastError) {
           // Some error happened
         }
-        resolve();
+        resolve(response);
       });
     });
   }
@@ -267,6 +267,12 @@ export class BrowserApi {
     return new Promise((resolve) =>
       chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
     );
+  }
+
+  static async getFrameDetails(
+    details: chrome.webNavigation.GetFrameDetails,
+  ): Promise<chrome.webNavigation.GetFrameResultDetails> {
+    return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
   }
 
   // Keep track of all the events registered in a Safari popup so we can remove

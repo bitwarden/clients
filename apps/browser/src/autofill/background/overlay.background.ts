@@ -22,23 +22,26 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
-  openViewVaultItemPopout,
   openAddEditVaultItemPopout,
+  openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { AutofillService } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
+  OverlayAddNewItemMessage,
+  OverlayBackground as OverlayBackgroundInterface,
+  OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
   OverlayCipherData,
   OverlayListPortMessageHandlers,
-  OverlayBackground as OverlayBackgroundInterface,
-  OverlayBackgroundExtensionMessage,
-  OverlayAddNewItemMessage,
   OverlayPortMessage,
+  PageDetailsForTab,
+  SubFrameOffsetData,
+  SubFrameOffsetsForTab,
   WebsiteIconData,
 } from "./abstractions/overlay.background";
 
@@ -47,41 +50,55 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
-  private pageDetailsForTab: Record<
-    chrome.runtime.MessageSender["tab"]["id"],
-    Map<chrome.runtime.MessageSender["frameId"], PageDetail>
-  > = {};
+  private pageDetailsForTab: PageDetailsForTab = {};
+  private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
   private focusedFieldData: FocusedFieldData;
+  private isFieldCurrentlyFocused: boolean = false;
+  private isCurrentlyFilling: boolean = false;
   private overlayPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
+    closeAutofillOverlay: ({ message, sender }) => this.closeOverlay(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getAutofillOverlayVisibility: () => this.getOverlayVisibility(),
     checkAutofillOverlayFocused: () => this.checkOverlayFocused(),
     focusAutofillOverlayList: () => this.focusOverlayList(),
-    updateAutofillOverlayPosition: ({ message }) => this.updateOverlayPosition(message),
-    updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
-    updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
+    updateAutofillOverlayPosition: ({ message, sender }) =>
+      this.updateOverlayPosition(message, sender),
+    updateAutofillOverlayHidden: ({ message, sender }) => this.updateOverlayHidden(message, sender),
+    updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
+    checkIsFieldCurrentlyFocused: () => this.isFieldCurrentlyFocused,
+    checkIsFieldCurrentlyFilling: () => this.isCurrentlyFilling,
+    updateIsFieldCurrentlyFocused: ({ message }) =>
+      (this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused),
+    updateIsFieldCurrentlyFilling: ({ message }) =>
+      (this.isCurrentlyFilling = message.isFieldCurrentlyFilling),
+    checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
+    checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
+    updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
+    rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
-    closeAutofillOverlay: ({ port }) => this.closeOverlay(port),
-    forceCloseAutofillOverlay: ({ port }) => this.closeOverlay(port, true),
+    closeAutofillOverlay: ({ port }) => this.closeOverlay(port.sender),
+    forceCloseAutofillOverlay: ({ port }) =>
+      this.closeOverlay(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
-    forceCloseAutofillOverlay: ({ port }) => this.closeOverlay(port, true),
+    forceCloseAutofillOverlay: ({ port }) =>
+      this.closeOverlay(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
@@ -103,6 +120,29 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private themeStateService: ThemeStateService,
   ) {}
 
+  private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
+    return await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuButtonVisible" },
+      { frameId: 0 },
+    );
+  }
+
+  private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
+    return await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuListVisible" },
+      { frameId: 0 },
+    );
+  }
+
+  updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (subFrameOffsetsForTab) {
+      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
+    }
+  }
+
   /**
    * Removes cached page details for a tab
    * based on the passed tabId.
@@ -110,12 +150,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param tabId - Used to reference the page details of a specific tab
    */
   removePageDetails(tabId: number) {
-    if (!this.pageDetailsForTab[tabId]) {
-      return;
+    if (this.pageDetailsForTab[tabId]) {
+      this.pageDetailsForTab[tabId].clear();
+      delete this.pageDetailsForTab[tabId];
     }
 
-    this.pageDetailsForTab[tabId].clear();
-    delete this.pageDetailsForTab[tabId];
+    if (this.subFrameOffsetsForTab[tabId]) {
+      this.subFrameOffsetsForTab[tabId].clear();
+      delete this.subFrameOffsetsForTab[tabId];
+    }
   }
 
   /**
@@ -211,6 +254,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
       details: message.details,
     };
 
+    if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
+      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
+    }
+
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
     if (!pageDetailsMap) {
       this.pageDetailsForTab[sender.tab.id] = new Map([[sender.frameId, pageDetails]]);
@@ -218,6 +265,88 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     pageDetailsMap.set(sender.frameId, pageDetails);
+  }
+
+  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    if (sender.frameId === this.focusedFieldData?.frameId) {
+      return;
+    }
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (!subFrameOffsetsForTab) {
+      return;
+    }
+
+    const frameTabs = Array.from(subFrameOffsetsForTab.keys());
+    for (const frameId of frameTabs) {
+      if (frameId === sender.frameId) {
+        continue;
+      }
+
+      subFrameOffsetsForTab.delete(frameId);
+      await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+    }
+
+    // TODO: Consider a better way to facilitate this delayed update
+    setTimeout(() => {
+      if (this.isFieldCurrentlyFocused) {
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.List }, sender);
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
+      }
+    }, 650);
+  }
+
+  private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
+    const tabId = tab.id;
+    let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
+    if (!subFrameOffsetsForTab) {
+      this.subFrameOffsetsForTab[tabId] = new Map();
+      subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
+    }
+
+    if (subFrameOffsetsForTab.get(frameId)) {
+      return;
+    }
+
+    const subFrameData = { url, top: 0, left: 0 };
+    let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
+
+    while (frameDetails && frameDetails.parentFrameId !== -1) {
+      const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
+        tab,
+        {
+          command: "getSubFrameOffsets",
+          subFrameUrl: frameDetails.url,
+          subFrameId: frameDetails.documentId,
+        },
+        { frameId: frameDetails.parentFrameId },
+      );
+
+      if (!subFrameOffset) {
+        subFrameOffsetsForTab.set(frameId, null);
+        void BrowserApi.tabSendMessage(
+          tab,
+          {
+            command: "getSubFrameOffsetsThroughWindowMessaging",
+            subFrameId: frameId,
+          },
+          {
+            frameId: frameId,
+          },
+        );
+        return;
+      }
+
+      subFrameData.top += subFrameOffset.top;
+      subFrameData.left += subFrameOffset.left;
+
+      frameDetails = await BrowserApi.getFrameDetails({
+        tabId,
+        frameId: frameDetails.parentFrameId,
+      });
+    }
+
+    subFrameOffsetsForTab.set(frameId, subFrameData);
   }
 
   /**
@@ -288,12 +417,46 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the sender tab to close the autofill overlay.
    *
    * @param sender - The sender of the port message
-   * @param forceCloseOverlay - Identifies whether the overlay should be force closed
+   * @param forceCloseOverlay - Identifies whether the overlay should be forced closed
+   * @param overlayElement - The overlay element to close, either the list or button
    */
-  private closeOverlay({ sender }: chrome.runtime.Port, forceCloseOverlay = false) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessageData(sender.tab, "closeAutofillOverlay", { forceCloseOverlay });
+  private closeOverlay(
+    sender: chrome.runtime.MessageSender,
+    {
+      forceCloseOverlay,
+      overlayElement,
+    }: { forceCloseOverlay?: boolean; overlayElement?: string } = {},
+  ) {
+    if (forceCloseOverlay) {
+      void BrowserApi.tabSendMessage(
+        sender.tab,
+        { command: "closeInlineMenu", overlayElement },
+        { frameId: 0 },
+      );
+      return;
+    }
+
+    if (this.isFieldCurrentlyFocused) {
+      return;
+    }
+
+    if (this.isCurrentlyFilling) {
+      void BrowserApi.tabSendMessage(
+        sender.tab,
+        {
+          command: "closeInlineMenu",
+          overlayElement: AutofillOverlayElement.List,
+        },
+        { frameId: 0 },
+      );
+      return;
+    }
+
+    void BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "closeInlineMenu", overlayElement },
+      { frameId: 0 },
+    );
   }
 
   /**
@@ -319,16 +482,32 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * is based on the focused field's position and dimensions.
    *
    * @param overlayElement - The overlay element to update, either the list or button
+   * @param sender - The sender of the extension message
    */
-  private updateOverlayPosition({ overlayElement }: { overlayElement?: string }) {
-    if (!overlayElement) {
+  private async updateOverlayPosition(
+    { overlayElement }: { overlayElement?: string },
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (!overlayElement || sender.tab.id !== this.focusedFieldData.tabId) {
       return;
+    }
+
+    await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "updateInlineMenuElementsPosition", overlayElement },
+      { frameId: 0 },
+    );
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[this.focusedFieldData.tabId];
+    let subFrameOffsets: SubFrameOffsetData;
+    if (subFrameOffsetsForTab) {
+      subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
       this.overlayButtonPort?.postMessage({
         command: "updateIframePosition",
-        styles: this.getOverlayButtonPosition(),
+        styles: this.getOverlayButtonPosition(subFrameOffsets),
       });
 
       return;
@@ -336,7 +515,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.overlayListPort?.postMessage({
       command: "updateIframePosition",
-      styles: this.getOverlayListPosition(),
+      styles: this.getOverlayListPosition(subFrameOffsets),
     });
   }
 
@@ -344,10 +523,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Gets the position of the focused field and calculates the position
    * of the overlay button based on the focused field's position and dimensions.
    */
-  private getOverlayButtonPosition() {
+  private getOverlayButtonPosition(subFrameOffsets: SubFrameOffsetData) {
     if (!this.focusedFieldData) {
       return;
     }
+
+    const subFrameTopOffset = subFrameOffsets?.top || 0;
+    const subFrameLeftOffset = subFrameOffsets?.left || 0;
 
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
     const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
@@ -356,15 +538,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
       elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
     }
 
-    const elementHeight = height - elementOffset;
-    const elementTopPosition = top + elementOffset / 2;
-    let elementLeftPosition = left + width - height + elementOffset / 2;
-
     const fieldPaddingRight = parseInt(paddingRight, 10);
     const fieldPaddingLeft = parseInt(paddingLeft, 10);
-    if (fieldPaddingRight > fieldPaddingLeft) {
-      elementLeftPosition = left + width - height - (fieldPaddingRight - elementOffset + 2);
-    }
+    const elementHeight = height - elementOffset;
+
+    const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
+    const elementLeftPosition =
+      fieldPaddingRight > fieldPaddingLeft
+        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
+        : subFrameLeftOffset + left + width - height + elementOffset / 2;
 
     return {
       top: `${Math.round(elementTopPosition)}px`,
@@ -378,16 +560,19 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Gets the position of the focused field and calculates the position
    * of the overlay list based on the focused field's position and dimensions.
    */
-  private getOverlayListPosition() {
+  private getOverlayListPosition(subFrameOffsets: SubFrameOffsetData) {
     if (!this.focusedFieldData) {
       return;
     }
 
+    const subFrameTopOffset = subFrameOffsets?.top || 0;
+    const subFrameLeftOffset = subFrameOffsets?.left || 0;
+
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
     return {
       width: `${Math.round(width)}px`,
-      top: `${Math.round(top + height)}px`,
-      left: `${Math.round(left)}px`,
+      top: `${Math.round(top + height + subFrameTopOffset)}px`,
+      left: `${Math.round(left + subFrameLeftOffset)}px`,
     };
   }
 
@@ -395,22 +580,40 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sets the focused field data to the data passed in the extension message.
    *
    * @param focusedFieldData - Contains the rects and styles of the focused field.
+   * @param sender - The sender of the extension message
    */
-  private setFocusedFieldData({ focusedFieldData }: OverlayBackgroundExtensionMessage) {
-    this.focusedFieldData = focusedFieldData;
+  private setFocusedFieldData(
+    { focusedFieldData }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
   }
 
   /**
    * Updates the overlay's visibility based on the display property passed in the extension message.
    *
    * @param display - The display property of the overlay, either "block" or "none"
+   * @param sender - The sender of the extension message
    */
-  private updateOverlayHidden({ display }: OverlayBackgroundExtensionMessage) {
-    if (!display) {
-      return;
+  private updateOverlayHidden(
+    { isOverlayHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const display = isOverlayHidden ? "none" : "block";
+    let styles: { display: string; opacity?: number } = { display };
+
+    if (typeof setTransparentOverlay !== "undefined") {
+      const opacity = setTransparentOverlay ? 0 : 1;
+      styles = { ...styles, opacity };
     }
 
-    const portMessage = { command: "updateOverlayHidden", styles: { display } };
+    const portMessage = { command: "updateOverlayHidden", styles };
+
+    void BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "toggleInlineMenuHidden", isInlineMenuHidden: isOverlayHidden },
+      { frameId: 0 },
+    );
 
     this.overlayButtonPort?.postMessage(portMessage);
     this.overlayListPort?.postMessage(portMessage);
@@ -478,15 +681,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private handleOverlayButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.unlockVault(port);
+      void this.unlockVault(port);
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.openOverlay(false, true);
+    void this.openOverlay(false, true);
   }
 
   /**
@@ -497,7 +696,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
 
-    this.closeOverlay(port);
+    this.closeOverlay(port.sender);
     const retryMessage: LockedVaultPendingNotificationsData = {
       commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
@@ -592,9 +791,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
+    void BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
   }
 
   /**
@@ -604,9 +801,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
+    if (sender.tab.id !== this.focusedFieldData.tabId) {
+      return;
+    }
+
+    void BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "addNewVaultItemFromOverlay" },
+      {
+        frameId: this.focusedFieldData.frameId || 0,
+      },
+    );
   }
 
   /**
@@ -673,7 +878,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const messageResponse = handler({ message, sender });
-    if (!messageResponse) {
+    if (typeof messageResponse === "undefined") {
       return;
     }
 
@@ -703,6 +908,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     port.onMessage.addListener(this.handleOverlayElementPortMessage);
+    port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
@@ -711,11 +917,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
     });
-    this.updateOverlayPosition({
-      overlayElement: isOverlayListPort
-        ? AutofillOverlayElement.List
-        : AutofillOverlayElement.Button,
-    });
+    void this.updateOverlayPosition(
+      {
+        overlayElement: isOverlayListPort
+          ? AutofillOverlayElement.List
+          : AutofillOverlayElement.Button,
+      },
+      port.sender,
+    );
   };
 
   /**
@@ -744,6 +953,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     handler({ message, port });
+  };
+
+  private handlePortOnDisconnect = (port: chrome.runtime.Port) => {
+    if (port.name === AutofillOverlayPort.List) {
+      this.overlayListPort = null;
+    }
+
+    if (port.name === AutofillOverlayPort.Button) {
+      this.overlayButtonPort = null;
+    }
   };
 }
 

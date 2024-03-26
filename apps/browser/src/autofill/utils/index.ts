@@ -73,7 +73,7 @@ async function sendExtensionMessage(
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
       if (chrome.runtime.lastError) {
-        return;
+        // Do nothing
       }
 
       resolve(response);
@@ -161,7 +161,7 @@ function setupAutofillInitDisconnectAction(windowContext: Window) {
 function elementIsFillableFormField(
   formFieldElement: FormFieldElement,
 ): formFieldElement is FillableFormFieldElement {
-  return formFieldElement?.tagName.toLowerCase() !== "span";
+  return !elementIsSpanElement(formFieldElement);
 }
 
 /**
@@ -171,7 +171,7 @@ function elementIsFillableFormField(
  * @param tagName -  The tag name to check against.
  */
 function elementIsInstanceOf<T extends Element>(element: Element, tagName: string): element is T {
-  return element?.tagName.toLowerCase() === tagName;
+  return nodeIsElement(element) && element.tagName.toLowerCase() === tagName;
 }
 
 /**
