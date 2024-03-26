@@ -5,7 +5,7 @@ import { MasterPasswordPolicyResponse } from "./master-password-policy.response"
 
 export class IdentityTwoFactorResponse extends BaseResponse {
   twoFactorProviders: TwoFactorProviderType[];
-  twoFactorProviders2 = new Map<TwoFactorProviderType, { [key: string]: string }>();
+  twoFactorProviders2: Record<TwoFactorProviderType, Record<string, string>>;
   captchaToken: string;
   ssoEmail2faSessionToken: string;
   email?: string;
@@ -15,15 +15,7 @@ export class IdentityTwoFactorResponse extends BaseResponse {
     super(response);
     this.captchaToken = this.getResponseProperty("CaptchaBypassToken");
     this.twoFactorProviders = this.getResponseProperty("TwoFactorProviders");
-    const twoFactorProviders2 = this.getResponseProperty("TwoFactorProviders2");
-    if (twoFactorProviders2 != null) {
-      for (const prop in twoFactorProviders2) {
-        // eslint-disable-next-line
-        if (twoFactorProviders2.hasOwnProperty(prop)) {
-          this.twoFactorProviders2.set(parseInt(prop, null), twoFactorProviders2[prop]);
-        }
-      }
-    }
+    this.twoFactorProviders2 = this.getResponseProperty("TwoFactorProviders2");
     this.masterPasswordPolicy = new MasterPasswordPolicyResponse(
       this.getResponseProperty("MasterPasswordPolicy"),
     );

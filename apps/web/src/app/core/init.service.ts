@@ -40,7 +40,6 @@ export class InitService {
       await this.vaultTimeoutService.init(true);
       await this.i18nService.init();
       (this.eventUploadService as EventUploadService).init(true);
-      this.twoFactorService.init();
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);

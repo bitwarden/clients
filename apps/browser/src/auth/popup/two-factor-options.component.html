@@ -13,7 +13,7 @@
       <button
         type="button"
         appStopClick
-        *ngFor="let p of providers"
+        *ngFor="let p of providers$ | async"
         class="box-content-row"
         (click)="choose(p)"
       >

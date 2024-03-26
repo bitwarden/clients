@@ -113,7 +113,7 @@ export class KeyDefinition<T> {
    * });
    * ```
    */
-  static record<T, TKey extends string = string>(
+  static record<T, TKey extends string | number = string>(
     stateDefinition: StateDefinition,
     key: string,
     // We have them provide options for the value of the record, depending on future options we add, this could get a little weird.

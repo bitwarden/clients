@@ -229,7 +229,9 @@ export class LoginCommand {
         }
       }
       if (response.requiresTwoFactor) {
-        const twoFactorProviders = this.twoFactorService.getSupportedProviders(null);
+        const twoFactorProviders = await firstValueFrom(
+          this.twoFactorService.getSupportedProviders$(null),
+        );
         if (twoFactorProviders.length === 0) {
           return Response.badRequest("No providers available for this client.");
         }

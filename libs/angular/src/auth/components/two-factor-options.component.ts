@@ -1,8 +1,11 @@
 import { Directive, EventEmitter, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import {
+  TwoFactorProviderDetails,
+  TwoFactorService,
+} from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,7 +16,7 @@ export class TwoFactorOptionsComponent implements OnInit {
   @Output() onProviderSelected = new EventEmitter<TwoFactorProviderType>();
   @Output() onRecoverSelected = new EventEmitter();
 
-  providers: any[] = [];
+  providers$: Observable<TwoFactorProviderDetails[]>;
 
   constructor(
     protected twoFactorService: TwoFactorService,
@@ -25,10 +28,10 @@ export class TwoFactorOptionsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.providers = this.twoFactorService.getSupportedProviders(this.win);
+    this.providers$ = this.twoFactorService.getSupportedProviders$(this.win);
   }
 
-  choose(p: any) {
+  async choose(p: TwoFactorProviderDetails) {
     this.onProviderSelected.emit(p.type);
   }
 

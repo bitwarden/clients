@@ -710,7 +710,6 @@ export class Main {
     await this.stateService.init();
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
-    this.twoFactorService.init();
     this.configService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();

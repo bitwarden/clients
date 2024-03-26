@@ -1,5 +1,9 @@
+import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { Utils } from "../../platform/misc/utils";
+import { GlobalStateProvider, KeyDefinition, TWO_FACTOR_MEMORY } from "../../platform/state";
 import {
   TwoFactorProviderDetails,
   TwoFactorService as TwoFactorServiceAbstraction,
@@ -59,16 +63,33 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
     },
   };
 
+export const PROVIDERS = KeyDefinition.record<Record<string, string>, TwoFactorProviderType>(
+  TWO_FACTOR_MEMORY,
+  "providers",
+  {
+    deserializer: (obj) => obj,
+  },
+);
+
+export const SELECTED = new KeyDefinition<TwoFactorProviderType>(TWO_FACTOR_MEMORY, "selected", {
+  deserializer: (obj) => obj,
+});
+
 export class TwoFactorService implements TwoFactorServiceAbstraction {
+  private providersState = this.globalStateProvider.get(PROVIDERS);
+  private selectedState = this.globalStateProvider.get(SELECTED);
+  readonly providers$ = this.providersState.state$.pipe(
+    map((providers) => Utils.recordToMap(providers)),
+  );
+  readonly selected$ = this.selectedState.state$;
   private twoFactorProvidersData: Map<TwoFactorProviderType, { [key: string]: string }>;
   private selectedTwoFactorProviderType: TwoFactorProviderType = null;
 
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-  ) {}
-
-  init() {
+    private globalStateProvider: GlobalStateProvider,
+  ) {
     TwoFactorProviders[TwoFactorProviderType.Email].name = this.i18nService.t("emailTitle");
     TwoFactorProviders[TwoFactorProviderType.Email].description = this.i18nService.t("emailDesc");
 
@@ -93,94 +114,99 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
       this.i18nService.t("yubiKeyDesc");
   }
 
-  getSupportedProviders(win: Window): TwoFactorProviderDetails[] {
-    const providers: any[] = [];
-    if (this.twoFactorProvidersData == null) {
-      return providers;
-    }
-
-    if (
-      this.twoFactorProvidersData.has(TwoFactorProviderType.OrganizationDuo) &&
-      this.platformUtilsService.supportsDuo()
-    ) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.OrganizationDuo]);
-    }
-
-    if (this.twoFactorProvidersData.has(TwoFactorProviderType.Authenticator)) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.Authenticator]);
-    }
-
-    if (this.twoFactorProvidersData.has(TwoFactorProviderType.Yubikey)) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.Yubikey]);
-    }
-
-    if (
-      this.twoFactorProvidersData.has(TwoFactorProviderType.Duo) &&
-      this.platformUtilsService.supportsDuo()
-    ) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.Duo]);
-    }
-
-    if (
-      this.twoFactorProvidersData.has(TwoFactorProviderType.WebAuthn) &&
-      this.platformUtilsService.supportsWebAuthn(win)
-    ) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.WebAuthn]);
-    }
-
-    if (this.twoFactorProvidersData.has(TwoFactorProviderType.Email)) {
-      providers.push(TwoFactorProviders[TwoFactorProviderType.Email]);
-    }
-
-    return providers;
-  }
-
-  getDefaultProvider(webAuthnSupported: boolean): TwoFactorProviderType {
-    if (this.twoFactorProvidersData == null) {
-      return null;
-    }
-
-    if (
-      this.selectedTwoFactorProviderType != null &&
-      this.twoFactorProvidersData.has(this.selectedTwoFactorProviderType)
-    ) {
-      return this.selectedTwoFactorProviderType;
-    }
-
-    let providerType: TwoFactorProviderType = null;
-    let providerPriority = -1;
-    this.twoFactorProvidersData.forEach((_value, type) => {
-      const provider = (TwoFactorProviders as any)[type];
-      if (provider != null && provider.priority > providerPriority) {
-        if (type === TwoFactorProviderType.WebAuthn && !webAuthnSupported) {
-          return;
+  getSupportedProviders$(win: Window): Observable<TwoFactorProviderDetails[]> {
+    return this.providers$.pipe(
+      map((twoFactorProvidersData) => {
+        const providers: any[] = [];
+        if (twoFactorProvidersData == null) {
+          return providers;
         }
 
-        providerType = type;
-        providerPriority = provider.priority;
-      }
-    });
+        if (
+          twoFactorProvidersData.has(TwoFactorProviderType.OrganizationDuo) &&
+          this.platformUtilsService.supportsDuo()
+        ) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.OrganizationDuo]);
+        }
 
-    return providerType;
+        if (twoFactorProvidersData.has(TwoFactorProviderType.Authenticator)) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.Authenticator]);
+        }
+
+        if (twoFactorProvidersData.has(TwoFactorProviderType.Yubikey)) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.Yubikey]);
+        }
+
+        if (
+          twoFactorProvidersData.has(TwoFactorProviderType.Duo) &&
+          this.platformUtilsService.supportsDuo()
+        ) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.Duo]);
+        }
+
+        if (
+          twoFactorProvidersData.has(TwoFactorProviderType.WebAuthn) &&
+          this.platformUtilsService.supportsWebAuthn(win)
+        ) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.WebAuthn]);
+        }
+
+        if (twoFactorProvidersData.has(TwoFactorProviderType.Email)) {
+          providers.push(TwoFactorProviders[TwoFactorProviderType.Email]);
+        }
+
+        return providers;
+      }),
+    );
   }
 
-  setSelectedProvider(type: TwoFactorProviderType) {
-    this.selectedTwoFactorProviderType = type;
+  getDefaultProvider$(webAuthnSupported: boolean): Observable<TwoFactorProviderType> {
+    return combineLatest([this.providers$, this.selected$]).pipe(
+      map(([providers, selected]) => {
+        if (providers == null) {
+          return null;
+        }
+
+        if (selected != null && providers.has(selected)) {
+          return selected;
+        }
+
+        let providerType: TwoFactorProviderType = null;
+        let providerPriority = -1;
+        providers.forEach((_value, type) => {
+          const provider = TwoFactorProviders[type];
+          if (provider != null && provider.priority > providerPriority) {
+            if (type === TwoFactorProviderType.WebAuthn && !webAuthnSupported) {
+              return;
+            }
+
+            providerType = type;
+            providerPriority = provider.priority;
+          }
+        });
+
+        return providerType;
+      }),
+    );
   }
 
-  clearSelectedProvider() {
-    this.selectedTwoFactorProviderType = null;
+  async setSelectedProvider(type: TwoFactorProviderType) {
+    await this.selectedState.update(() => type);
   }
 
-  setProviders(response: IdentityTwoFactorResponse) {
-    this.twoFactorProvidersData = response.twoFactorProviders2;
+  async clearSelectedProvider() {
+    await this.selectedState.update(() => null);
   }
 
-  clearProviders() {
-    this.twoFactorProvidersData = null;
+  async setProviders(response: IdentityTwoFactorResponse) {
+    await this.providersState.update(() => response.twoFactorProviders2);
   }
 
-  getProviders() {
-    return this.twoFactorProvidersData;
+  async clearProviders() {
+    await this.providersState.update(() => null);
+  }
+
+  async getProviders() {
+    return firstValueFrom(this.providers$);
   }
 }
