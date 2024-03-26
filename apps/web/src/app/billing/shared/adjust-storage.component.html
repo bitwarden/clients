@@ -1,43 +1,35 @@
-<form #form class="card" (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-  <div class="card-body">
-    <button type="button" class="close" appA11yTitle="{{ 'cancel' | i18n }}" (click)="cancel()">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    <h3 class="card-body-header">{{ (add ? "addStorage" : "removeStorage") | i18n }}</h3>
-    <div class="row">
-      <div class="form-group col-6">
-        <label for="storageAdjustment">{{
-          (add ? "gbStorageAdd" : "gbStorageRemove") | i18n
-        }}</label>
-        <input
-          id="storageAdjustment"
-          class="form-control"
-          type="number"
-          name="StorageGbAdjustment"
-          [(ngModel)]="storageAdjustment"
-          min="0"
-          max="99"
-          step="1"
-          required
-        />
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="(add ? 'addStorage' : 'removeStorage') | i18n">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ (add ? "storageAddNote" : "storageRemoveNote") | i18n }}</p>
+      <div class="tw-grid tw-grid-cols-12">
+        <bit-form-field class="tw-col-span-7">
+          <bit-label>{{ (add ? "gbStorageAdd" : "gbStorageRemove") | i18n }}</bit-label>
+          <input bitInput type="number" formControlName="storageAdjustment" />
+          <bit-hint *ngIf="add">
+            <strong>{{ "total" | i18n }}:</strong>
+            {{ formGroup.get("storageAdjustment").value || 0 }} GB &times;
+            {{ storageGbPrice | currency: "$" }} = {{ adjustedStorageTotal | currency: "$" }} /{{
+              interval | i18n
+            }}
+          </bit-hint>
+        </bit-form-field>
       </div>
-    </div>
-    <div *ngIf="add" class="mb-3">
-      <strong>{{ "total" | i18n }}:</strong> {{ storageAdjustment || 0 }} GB &times;
-      {{ storageGbPrice | currency: "$" }} = {{ adjustedStorageTotal | currency: "$" }} /{{
-        interval | i18n
-      }}
-    </div>
-    <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span>{{ "submit" | i18n }}</span>
-    </button>
-    <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
-      {{ "cancel" | i18n }}
-    </button>
-    <small class="d-block text-muted mt-3">
-      {{ (add ? "storageAddNote" : "storageRemoveNote") | i18n }}
-    </small>
-  </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "submit" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        [bitDialogClose]="DialogResult.Cancelled"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
 </form>
 <app-payment [showMethods]="false"></app-payment>

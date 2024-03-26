@@ -17,6 +17,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService } from "@bitwarden/components";
 
 import {
+  AdjustStorageDialogResult,
+  openAdjustStorageDialog,
+} from "../shared/adjust-storage.component";
+import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
 } from "../shared/offboarding-survey.component";
@@ -34,8 +38,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   userOrg: Organization;
   showChangePlan = false;
   showDownloadLicense = false;
-  adjustStorageAdd = true;
-  showAdjustStorage = false;
   hasBillingSyncToken: boolean;
   showAdjustSecretsManager = false;
   showSecretsManagerSubscribe = false;
@@ -347,19 +349,22 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     this.load();
   }
 
-  adjustStorage(add: boolean) {
-    this.adjustStorageAdd = add;
-    this.showAdjustStorage = true;
-  }
-
-  closeStorage(load: boolean) {
-    this.showAdjustStorage = false;
-    if (load) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.load();
-    }
-  }
+  adjustStorage = (add: boolean) => {
+    return async () => {
+      const dialogRef = openAdjustStorageDialog(this.dialogService, {
+        data: {
+          storageGbPrice: this.storageGbPrice,
+          add: add,
+          organizationId: this.organizationId,
+          interval: this.billingInterval,
+        },
+      });
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AdjustStorageDialogResult.Adjusted) {
+        await this.load();
+      }
+    };
+  };
 
   removeSponsorship = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
