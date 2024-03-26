@@ -48,20 +48,26 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
   ) {}
 
   async isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean> {
-    const userEnabledPasskeys = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
     const isUserLoggedIn =
       (await this.authService.getAuthStatus()) !== AuthenticationStatus.LoggedOut;
+    if (!isUserLoggedIn) {
+      return false;
+    }
 
     const neverDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
     const isExcludedDomain = neverDomains != null && hostname in neverDomains;
+    if (isExcludedDomain) {
+      return false;
+    }
 
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
     const isOriginEqualBitwardenVault = origin === serverConfig.environment?.vault;
+    if (isOriginEqualBitwardenVault) {
+      return false;
+    }
 
-    return (
-      userEnabledPasskeys && isUserLoggedIn && !isExcludedDomain && !isOriginEqualBitwardenVault
-    );
+    return await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
   }
 
   async createCredential(
@@ -70,6 +76,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     abortController = new AbortController(),
   ): Promise<CreateCredentialResult> {
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
       parsedOrigin.hostname,
       params.origin,
@@ -346,7 +353,7 @@ function setAbortTimeout(
     );
   }
 
-  return window.setTimeout(() => abortController.abort(), clampedTimeout);
+  return self.setTimeout(() => abortController.abort(), clampedTimeout);
 }
 
 /**

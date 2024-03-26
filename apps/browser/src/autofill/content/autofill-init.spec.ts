@@ -559,6 +559,17 @@ describe("AutofillInit", () => {
   });
 
   describe("destroy", () => {
+    it("clears the timeout used to collect page details on load", () => {
+      jest.spyOn(window, "clearTimeout");
+
+      autofillInit.init();
+      autofillInit.destroy();
+
+      expect(window.clearTimeout).toHaveBeenCalledWith(
+        autofillInit["collectPageDetailsOnLoadTimeout"],
+      );
+    });
+
     it("removes the extension message listeners", () => {
       autofillInit.destroy();
 

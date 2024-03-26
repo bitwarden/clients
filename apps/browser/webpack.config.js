@@ -166,8 +166,6 @@ const mainConfig = {
     "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
-    "content/fido2/trigger-fido2-content-script-injection":
-      "./src/vault/fido2/content/trigger-fido2-content-script-injection.ts",
     "content/fido2/content-script": "./src/vault/fido2/content/content-script.ts",
     "content/fido2/page-script": "./src/vault/fido2/content/page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
@@ -277,6 +275,8 @@ if (manifestVersion == 2) {
   mainConfig.entry.background = "./src/platform/background.ts";
   mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
     "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
+  mainConfig.entry["content/fido2/page-script-append-mv2"] =
+    "./src/vault/fido2/content/page-script-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {

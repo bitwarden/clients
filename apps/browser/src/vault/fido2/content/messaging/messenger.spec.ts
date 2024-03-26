@@ -68,7 +68,7 @@ describe("Messenger", () => {
     const abortController = new AbortController();
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messengerA.request(createRequest(), abortController);
+    messengerA.request(createRequest(), abortController.signal);
     abortController.abort();
 
     const received = handlerB.receive();

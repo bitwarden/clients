@@ -9,6 +9,7 @@
     "allowJs": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "lib": ["ES2021.String"],
     "paths": {
       "@bitwarden/admin-console": ["../../libs/admin-console/src"],
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],

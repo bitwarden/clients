@@ -47,7 +47,7 @@ export class Messenger {
   }
 
   /**
-   * The handler that will be called when a message is recieved. The handler should return
+   * The handler that will be called when a message is received. The handler should return
    * a promise that resolves to the response message. If the handler throws an error, the
    * error will be sent back to the sender.
    */
@@ -65,10 +65,10 @@ export class Messenger {
    * AbortController signals will be forwarded to the content script.
    *
    * @param request data to send to the content script
-   * @param abortController the abort controller that might be used to abort the request
+   * @param abortSignal the abort controller that might be used to abort the request
    * @returns the response from the content script
    */
-  async request(request: Message, abortController?: AbortController): Promise<Message> {
+  async request(request: Message, abortSignal?: AbortSignal): Promise<Message> {
     const requestChannel = new MessageChannel();
     const { port1: localPort, port2: remotePort } = requestChannel;
 
@@ -82,7 +82,7 @@ export class Messenger {
           metadata: { SENDER },
           type: MessageType.AbortRequest,
         });
-      abortController?.signal.addEventListener("abort", abortListener);
+      abortSignal?.addEventListener("abort", abortListener);
 
       this.broadcastChannel.postMessage(
         { ...request, SENDER, senderId: this.messengerId },
@@ -90,7 +90,7 @@ export class Messenger {
       );
       const response = await promise;
 
-      abortController?.signal.removeEventListener("abort", abortListener);
+      abortSignal?.removeEventListener("abort", abortListener);
 
       if (response.type === MessageType.ErrorResponse) {
         const error = new Error();
@@ -113,12 +113,7 @@ export class Messenger {
 
       const message = event.data;
       const port = event.ports?.[0];
-      if (
-        message?.SENDER !== SENDER ||
-        message.senderId == this.messengerId ||
-        message == null ||
-        port == null
-      ) {
+      if (message?.SENDER !== SENDER || message.senderId == this.messengerId || port == null) {
         return;
       }
 
@@ -165,10 +160,6 @@ export class Messenger {
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }
-  }
-
-  async sendReconnectCommand() {
-    await this.request({ type: MessageType.ReconnectRequest });
   }
 
   private async sendDisconnectCommand() {

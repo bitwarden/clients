@@ -24,13 +24,6 @@
     },
     {
       "all_frames": true,
-      "js": ["content/fido2/trigger-fido2-content-script-injection.js"],
-      "matches": ["https://*/*"],
-      "exclude_matches": ["https://*/*.xml*"],
-      "run_at": "document_start"
-    },
-    {
-      "all_frames": true,
       "css": ["content/autofill.css"],
       "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["*://*/*", "file:///*"],
@@ -67,7 +60,8 @@
     "clipboardWrite",
     "idle",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "webNavigation"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",

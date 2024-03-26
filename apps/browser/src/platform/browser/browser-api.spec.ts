@@ -550,4 +550,35 @@ describe("BrowserApi", () => {
       expect(callbackMock).toHaveBeenCalled();
     });
   });
+
+  describe("registerContentScriptsMv2", () => {
+    const details: browser.contentScripts.RegisteredContentScriptOptions = {
+      matches: ["<all_urls>"],
+      js: [{ file: "content/fido2/page-script.js" }],
+    };
+
+    it("registers content scripts through the `browser.contentScripts` API when the API is available", async () => {
+      globalThis.browser = mock<typeof browser>({
+        contentScripts: { register: jest.fn() },
+      });
+
+      await BrowserApi.registerContentScriptsMv2(details);
+
+      expect(browser.contentScripts.register).toHaveBeenCalledWith(details);
+    });
+
+    it("registers content scripts through the `registerContentScriptsPolyfill` when the `browser.contentScripts.register` API is not available", async () => {
+      globalThis.browser = mock<typeof browser>({
+        contentScripts: { register: undefined },
+      });
+      jest.spyOn(BrowserApi, "addListener");
+
+      await BrowserApi.registerContentScriptsMv2(details);
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.webNavigation.onCommitted,
+        expect.any(Function),
+      );
+    });
+  });
 });

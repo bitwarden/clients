@@ -16,6 +16,7 @@ class AutofillInit implements AutofillInitInterface {
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
+  private collectPageDetailsOnLoadTimeout: number | NodeJS.Timeout | undefined;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
@@ -66,17 +67,19 @@ class AutofillInit implements AutofillInitInterface {
    * to act on the page.
    */
   private collectPageDetailsOnLoad() {
-    const sendCollectDetailsMessage = () =>
-      setTimeout(
+    const sendCollectDetailsMessage = () => {
+      this.clearCollectPageDetailsOnLoadTimeout();
+      this.collectPageDetailsOnLoadTimeout = setTimeout(
         () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
         250,
       );
+    };
 
-    if (document.readyState === "complete") {
+    if (globalThis.document.readyState === "complete") {
       sendCollectDetailsMessage();
     }
 
-    window.addEventListener("load", sendCollectDetailsMessage);
+    globalThis.addEventListener("load", sendCollectDetailsMessage);
   }
 
   /**
@@ -250,6 +253,15 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
+   * Clears the send collect details message timeout.
+   */
+  private clearCollectPageDetailsOnLoadTimeout() {
+    if (this.collectPageDetailsOnLoadTimeout) {
+      clearTimeout(this.collectPageDetailsOnLoadTimeout);
+    }
+  }
+
+  /**
    * Sets up the extension message listeners for the content script.
    */
   private setupExtensionMessageListeners() {
@@ -290,6 +302,7 @@ class AutofillInit implements AutofillInitInterface {
    * listeners, timeouts, and object instances to prevent memory leaks.
    */
   destroy() {
+    this.clearCollectPageDetailsOnLoadTimeout();
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();

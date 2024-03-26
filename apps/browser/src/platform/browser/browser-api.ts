@@ -5,6 +5,8 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
+import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
+
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
   static isSafariApi: boolean =
@@ -590,5 +592,45 @@ export class BrowserApi {
         callback();
       }
     });
+  }
+
+  /**
+   * Handles registration of static content
+   * scripts within manifest v2.
+   *
+   * @param contentScriptOptions - Details of the registered content scripts
+   */
+  static async registerContentScriptsMv2(
+    contentScriptOptions: browser.contentScripts.RegisteredContentScriptOptions,
+  ): Promise<browser.contentScripts.RegisteredContentScript> {
+    if (typeof browser !== "undefined" && !!browser.contentScripts?.register) {
+      return await browser.contentScripts.register(contentScriptOptions);
+    }
+
+    return await registerContentScriptsPolyfill(contentScriptOptions);
+  }
+
+  /**
+   * Handles registration of static content
+   * scripts within manifest v3.
+   *
+   * @param scripts - Details of the registered content scripts
+   */
+  static async registerContentScriptsMv3(
+    scripts: chrome.scripting.RegisteredContentScript[],
+  ): Promise<void> {
+    await chrome.scripting.registerContentScripts(scripts);
+  }
+
+  /**
+   * Handles unregistering of static content
+   * scripts within manifest v3.
+   *
+   * @param filter - Optional filter to unregister content scripts. Passing an empty object will unregister all content scripts.
+   */
+  static async unregisterContentScriptsMv3(
+    filter?: chrome.scripting.ContentScriptFilter,
+  ): Promise<void> {
+    await chrome.scripting.unregisterContentScripts(filter);
   }
 }
