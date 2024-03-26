@@ -119,7 +119,7 @@
     "mini-css-extract-plugin": "2.7.6",
     "node-ipc": "9.2.1",
     "pkg": "5.8.1",
-    "postcss": "8.4.35",
+    "postcss": "8.4.38",
     "postcss-loader": "8.1.1",
     "prettier": "3.2.2",
     "prettier-plugin-tailwindcss": "0.5.12",
