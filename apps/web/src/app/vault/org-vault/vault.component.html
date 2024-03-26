@@ -26,6 +26,20 @@
     </div>
   </div>
   <div class="col-9">
+    <bit-toggle-group
+      *ngIf="showAddAccessToggle"
+      [selected]="addAccessStatus"
+      (selectedChange)="addAccessToggle($event)"
+      [attr.aria-label]="'addAccessFilter' | i18n"
+    >
+      <bit-toggle [value]="0">
+        {{ "all" | i18n }}
+      </bit-toggle>
+
+      <bit-toggle [value]="1">
+        {{ "addAccess" | i18n }}
+      </bit-toggle>
+    </bit-toggle-group>
     <app-callout type="warning" *ngIf="activeFilter.isDeleted" icon="bwi bwi-exclamation-triangle">
       {{ trashCleanupWarning }}
     </app-callout>

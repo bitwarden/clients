@@ -17,6 +17,7 @@ export class CollectionView implements View, ITreeNodeObject {
   readOnly: boolean = null;
   hidePasswords: boolean = null;
   manage: boolean = null;
+  addAccess: boolean = false;
   assigned: boolean = null;
 
   constructor(c?: Collection | CollectionAccessDetailsResponse) {
