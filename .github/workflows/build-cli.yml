@@ -62,7 +62,7 @@ jobs:
     name: Build CLI ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-11]
+        os: [ubuntu-22.04, macos-12]
     runs-on: ${{ matrix.os }}
     needs:
       - setup
