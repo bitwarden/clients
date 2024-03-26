@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-interface User {
+export interface User {
   name?: string;
   email?: string;
 }

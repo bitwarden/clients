@@ -1,6 +1,8 @@
 import { any, mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -26,21 +28,16 @@ describe("SendService", () => {
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
+  const authService = mock<AuthService>();
 
   let sendService: SendService;
 
   let stateService: MockProxy<StateService>;
-  let activeAccount: BehaviorSubject<string>;
-  let activeAccountUnlocked: BehaviorSubject<boolean>;
 
   beforeEach(() => {
-    activeAccount = new BehaviorSubject("123");
-    activeAccountUnlocked = new BehaviorSubject(true);
-
     stateService = mock<StateService>();
-    stateService.activeAccount$ = activeAccount;
-    stateService.activeAccountUnlocked$ = activeAccountUnlocked;
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+    authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
     stateService.getEncryptedSends.calledWith(any()).mockResolvedValue({
       "1": sendData("1", "Test Send"),
@@ -50,12 +47,17 @@ describe("SendService", () => {
       .calledWith(any())
       .mockResolvedValue([sendView("1", "Test Send")]);
 
-    sendService = new SendService(cryptoService, i18nService, keyGenerationService, stateService);
+    sendService = new SendService(
+      cryptoService,
+      i18nService,
+      keyGenerationService,
+      stateService,
+      authService,
+    );
   });
 
   afterEach(() => {
-    activeAccount.complete();
-    activeAccountUnlocked.complete();
+    jest.resetAllMocks();
   });
 
   describe("get", () => {

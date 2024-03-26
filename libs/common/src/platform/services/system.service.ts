@@ -1,4 +1,4 @@
-import { firstValueFrom, timeout } from "rxjs";
+import { firstValueFrom, map, timeout } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -65,7 +65,12 @@ export class SystemService implements SystemServiceAbstraction {
       clearInterval(this.reloadInterval);
       this.reloadInterval = null;
 
-      const currentUser = await firstValueFrom(this.stateService.activeAccount$.pipe(timeout(500)));
+      const currentUser = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          map((a) => a?.id),
+          timeout(500),
+        ),
+      );
       // Replace current active user if they will be logged out on reload
       if (currentUser != null) {
         const timeoutAction = await firstValueFrom(

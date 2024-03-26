@@ -45,7 +45,7 @@
             [bitMenuTriggerFor]="accountMenu"
             class="tw-border-0 tw-bg-transparent tw-p-0"
           >
-            <dynamic-avatar [id]="account.userId" [text]="account | userName"></dynamic-avatar>
+            <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
           </button>
 
           <bit-menu #accountMenu>
@@ -54,7 +54,7 @@
                 class="tw-flex tw-items-center tw-px-4 tw-py-1 tw-leading-tight tw-text-info"
                 appStopProp
               >
-                <dynamic-avatar [id]="account.userId" [text]="account | userName"></dynamic-avatar>
+                <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
                 <div class="tw-ml-2 tw-block tw-overflow-hidden tw-whitespace-nowrap">
                   <span>{{ "loggedInAs" | i18n }}</span>
                   <small class="tw-block tw-overflow-hidden tw-whitespace-nowrap tw-text-muted">

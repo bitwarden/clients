@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
@@ -12,6 +13,7 @@ import { PlatformUtilsService } from "../../platform/abstractions/platform-utils
 import { StateService } from "../../platform/abstractions/state.service";
 import { Account } from "../../platform/models/domain/account";
 import { StateEventRunnerService } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -27,6 +29,7 @@ describe("VaultTimeoutService", () => {
   let messagingService: MockProxy<MessagingService>;
   let searchService: MockProxy<SearchService>;
   let stateService: MockProxy<StateService>;
+  let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let stateEventRunnerService: MockProxy<StateEventRunnerService>;
@@ -51,6 +54,7 @@ describe("VaultTimeoutService", () => {
     authService = mock();
     vaultTimeoutSettingsService = mock();
     stateEventRunnerService = mock();
+    accountService = mock();
 
     lockedCallback = jest.fn();
     loggedOutCallback = jest.fn();
@@ -77,6 +81,7 @@ describe("VaultTimeoutService", () => {
       authService,
       vaultTimeoutSettingsService,
       stateEventRunnerService,
+      accountService,
       lockedCallback,
       loggedOutCallback,
     );
@@ -121,7 +126,13 @@ describe("VaultTimeoutService", () => {
 
     stateService.getUserId.mockResolvedValue(globalSetups?.userId);
 
-    stateService.activeAccount$ = new BehaviorSubject<string>(globalSetups?.userId);
+    // Set desired user active: note the only thing that matters here is that the ID is set
+    accountService.activeAccount$ = new BehaviorSubject({
+      id: globalSetups?.userId as UserId,
+      email: "",
+      name: "",
+      status: AuthenticationStatus.Unlocked,
+    });
 
     platformUtilsService.isViewOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
 

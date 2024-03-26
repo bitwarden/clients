@@ -567,6 +567,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KeyGenerationServiceAbstraction,
       StateServiceAbstraction,
+      AuthServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -628,6 +629,7 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       VaultTimeoutSettingsServiceAbstraction,
       StateEventRunnerService,
+      AccountServiceAbstraction,
       LOCKED_CALLBACK,
       LOGOUT_CALLBACK,
     ],

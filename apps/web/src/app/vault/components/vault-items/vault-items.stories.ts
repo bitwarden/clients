@@ -55,7 +55,6 @@ export default {
         {
           provide: StateService,
           useValue: {
-            activeAccount$: new BehaviorSubject("1").asObservable(),
             accounts$: new BehaviorSubject({ "1": { profile: { name: "Foo" } } }).asObservable(),
             async getShowFavicon() {
               return true;

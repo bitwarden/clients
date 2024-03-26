@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -70,11 +70,6 @@ export class StateService<
   protected accountsSubject = new BehaviorSubject<{ [userId: string]: TAccount }>({});
   accounts$ = this.accountsSubject.asObservable();
 
-  protected activeAccountSubject = new BehaviorSubject<string | null>(null);
-  activeAccount$ = this.activeAccountSubject.asObservable();
-
-  activeAccountUnlocked$: Observable<boolean>;
-
   private hasBeenInited = false;
   protected isRecoveredSession = false;
 
@@ -94,13 +89,7 @@ export class StateService<
     protected tokenService: TokenService,
     private migrationRunner: MigrationRunner,
     protected useAccountCache: boolean = true,
-  ) {
-    this.activeAccountUnlocked$ = this.accountService.activeAccount$.pipe(
-      map((a) => {
-        return a?.status === AuthenticationStatus.Unlocked;
-      }),
-    );
-  }
+  ) {}
 
   async init(initOptions: InitOptions = {}): Promise<void> {
     // Deconstruct and apply defaults
@@ -147,7 +136,6 @@ export class StateService<
         state.activeUserId = storedActiveUser;
       }
       await this.pushAccounts();
-      this.activeAccountSubject.next(state.activeUserId);
 
       return state;
     });
@@ -188,7 +176,6 @@ export class StateService<
     await this.updateState(async (state) => {
       state.activeUserId = userId;
       await this.storageService.save(keys.activeUserId, userId);
-      this.activeAccountSubject.next(state.activeUserId);
 
       return state;
     });

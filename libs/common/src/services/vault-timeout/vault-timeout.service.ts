@@ -1,8 +1,9 @@
-import { firstValueFrom, timeout } from "rxjs";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ClientType } from "../../enums";
@@ -32,6 +33,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private stateEventRunnerService: StateEventRunnerService,
+    private accountService: AccountService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (expired: boolean, userId?: string) => Promise<void> = null,
   ) {}
@@ -60,14 +62,18 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     // Get whether or not the view is open a single time so it can be compared for each user
     const isViewOpen = await this.platformUtilsService.isViewOpen();
 
-    const activeUserId = await firstValueFrom(this.stateService.activeAccount$.pipe(timeout(500)));
-
-    const accounts = await firstValueFrom(this.stateService.accounts$);
-    for (const userId in accounts) {
-      if (userId != null && (await this.shouldLock(userId, activeUserId, isViewOpen))) {
-        await this.executeTimeoutAction(userId);
-      }
-    }
+    await firstValueFrom(
+      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
+        switchMap(async ([activeAccount, accounts]) => {
+          const activeUserId = activeAccount?.id;
+          for (const userId in accounts) {
+            if (userId != null && (await this.shouldLock(userId, activeUserId, isViewOpen))) {
+              await this.executeTimeoutAction(userId);
+            }
+          }
+        }),
+      ),
+    );
   }
 
   async lock(userId?: string): Promise<void> {
