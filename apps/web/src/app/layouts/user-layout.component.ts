@@ -1,14 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Observable, combineLatest, concatMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigServiceAbstraction as ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -17,8 +16,6 @@ import { IconModule, LayoutComponent, NavigationModule } from "@bitwarden/compon
 import { PaymentMethodWarningsModule } from "../billing/shared";
 
 import { PasswordManagerLogo } from "./password-manager-logo";
-
-const BroadcasterSubscriptionId = "UserLayoutComponent";
 
 @Component({
   selector: "app-user-layout",
@@ -34,10 +31,10 @@ const BroadcasterSubscriptionId = "UserLayoutComponent";
     PaymentMethodWarningsModule,
   ],
 })
-export class UserLayoutComponent implements OnInit, OnDestroy {
+export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
-  hasFamilySponsorshipAvailable: boolean;
-  hideSubscription: boolean;
+  protected hasFamilySponsorshipAvailable$: Observable<boolean>;
+  protected showSubscription$: Observable<boolean>;
 
   protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
     FeatureFlag.ShowPaymentMethodWarningBanners,
@@ -45,8 +42,6 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
   );
 
   constructor(
-    private broadcasterService: BroadcasterService,
-    private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private organizationService: OrganizationService,
     private apiService: ApiService,
@@ -58,43 +53,28 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "purchasedPremium":
-            await this.load();
-            break;
-          default:
-        }
-      });
-    });
-
     await this.syncService.fullSync(false);
-    await this.load();
-  }
 
-  ngOnDestroy() {
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-  }
+    this.hasFamilySponsorshipAvailable$ = this.organizationService.canManageSponsorships$;
 
-  async load() {
-    const hasPremiumPersonally = await firstValueFrom(
+    // We want to hide the subscription menu for organizations that provide premium.
+    // Except if the user has premium personally or has a billing history.
+    this.showSubscription$ = combineLatest([
       this.billingAccountProfileStateService.hasPremiumPersonally$,
-    );
-    const hasPremiumFromOrg = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$,
-    );
-    const selfHosted = this.platformUtilsService.isSelfHost();
+    ]).pipe(
+      concatMap(async ([hasPremiumPersonally, hasPremiumFromOrg]) => {
+        const isCloud = !this.platformUtilsService.isSelfHost();
 
-    this.hasFamilySponsorshipAvailable = await this.organizationService.canManageSponsorships();
-    let billing = null;
-    if (!selfHosted) {
-      // TODO: We should remove the need to call this!
-      billing = await this.apiService.getUserBillingHistory();
-    }
-    this.hideSubscription =
-      !hasPremiumPersonally && hasPremiumFromOrg && (selfHosted || billing?.hasNoHistory);
+        let billing = null;
+        if (isCloud) {
+          // TODO: We should remove the need to call this!
+          billing = await this.apiService.getUserBillingHistory();
+        }
+
+        const cloudAndBillingHistory = isCloud && !billing?.hasNoHistory;
+        return hasPremiumPersonally || !hasPremiumFromOrg || cloudAndBillingHistory;
+      }),
+    );
   }
 }

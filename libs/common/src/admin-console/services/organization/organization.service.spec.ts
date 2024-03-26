@@ -121,7 +121,7 @@ describe("OrganizationService", () => {
       const mockData: OrganizationData[] = buildMockOrganizations(1);
       mockData[0].familySponsorshipAvailable = true;
       fakeActiveUserState.nextState(arrayToRecord(mockData));
-      const result = await organizationService.canManageSponsorships();
+      const result = await firstValueFrom(organizationService.canManageSponsorships$);
       expect(result).toBe(true);
     });
 
@@ -129,7 +129,7 @@ describe("OrganizationService", () => {
       const mockData: OrganizationData[] = buildMockOrganizations(1);
       mockData[0].familySponsorshipFriendlyName = "Something";
       fakeActiveUserState.nextState(arrayToRecord(mockData));
-      const result = await organizationService.canManageSponsorships();
+      const result = await firstValueFrom(organizationService.canManageSponsorships$);
       expect(result).toBe(true);
     });
 
@@ -137,7 +137,7 @@ describe("OrganizationService", () => {
       const mockData: OrganizationData[] = buildMockOrganizations(1);
       mockData[0].familySponsorshipFriendlyName = null;
       fakeActiveUserState.nextState(arrayToRecord(mockData));
-      const result = await organizationService.canManageSponsorships();
+      const result = await firstValueFrom(organizationService.canManageSponsorships$);
       expect(result).toBe(false);
     });
   });

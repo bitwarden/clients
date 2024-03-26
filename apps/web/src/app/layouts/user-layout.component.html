@@ -19,7 +19,7 @@
       <bit-nav-item
         [text]="'subscription' | i18n"
         route="settings/subscription"
-        *ngIf="!hideSubscription"
+        *ngIf="showSubscription$ | async"
       ></bit-nav-item>
       <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
       <bit-nav-item
@@ -29,7 +29,7 @@
       <bit-nav-item
         [text]="'sponsoredFamilies' | i18n"
         route="settings/sponsored-families"
-        *ngIf="hasFamilySponsorshipAvailable"
+        *ngIf="hasFamilySponsorshipAvailable$ | async"
       ></bit-nav-item>
     </bit-nav-group>
   </nav>
