@@ -108,7 +108,7 @@
     "gulp-json-editor": "2.6.0",
     "gulp-replace": "1.1.4",
     "gulp-zip": "6.0.0",
-    "html-loader": "4.2.0",
+    "html-loader": "5.0.0",
     "html-webpack-injector": "1.1.4",
     "html-webpack-plugin": "5.6.0",
     "husky": "9.0.11",
