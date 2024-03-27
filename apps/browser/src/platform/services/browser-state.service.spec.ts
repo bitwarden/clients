@@ -12,14 +12,11 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { State } from "@bitwarden/common/platform/models/domain/state";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { Account } from "../../models/account";
 import { BrowserComponentState } from "../../models/browserComponentState";
 import { BrowserGroupingsComponentState } from "../../models/browserGroupingsComponentState";
-import { BrowserSendComponentState } from "../../models/browserSendComponentState";
 
 import { BrowserStateService } from "./browser-state.service";
 
@@ -103,35 +100,6 @@ describe("Browser State Service", () => {
         state.accounts[userId].ciphers = componentState;
 
         const actual = await sut.getBrowserVaultItemsComponentState();
-        expect(actual).toStrictEqual(componentState);
-      });
-    });
-
-    describe("getBrowserSendComponentState", () => {
-      it("should return a BrowserSendComponentState", async () => {
-        const sendState = new BrowserSendComponentState();
-        sendState.sends = [new SendView(), new SendView()];
-        sendState.typeCounts = new Map<SendType, number>([
-          [SendType.File, 3],
-          [SendType.Text, 5],
-        ]);
-        state.accounts[userId].send = sendState;
-        (global as any)["watch"] = state;
-
-        const actual = await sut.getBrowserSendComponentState();
-        expect(actual).toBeInstanceOf(BrowserSendComponentState);
-        expect(actual).toMatchObject(sendState);
-      });
-    });
-
-    describe("getBrowserSendTypeComponentState", () => {
-      it("should return a BrowserComponentState", async () => {
-        const componentState = new BrowserComponentState();
-        componentState.scrollY = 0;
-        componentState.searchText = "test";
-        state.accounts[userId].sendType = componentState;
-
-        const actual = await sut.getBrowserSendTypeComponentState();
         expect(actual).toStrictEqual(componentState);
       });
     });

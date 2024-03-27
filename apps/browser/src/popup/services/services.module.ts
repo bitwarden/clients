@@ -116,6 +116,7 @@ import { ForegroundPlatformUtilsService } from "../../platform/services/platform
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
+import { BrowserSendStateService } from "../../tools/popup/services/browser-send-state.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
 
@@ -402,6 +403,13 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: OBSERVABLE_DISK_STORAGE,
       useExisting: AbstractStorageService,
+    },
+    {
+      provide: BrowserSendStateService,
+      useFactory: (stateProvider: StateProvider) => {
+        return new BrowserSendStateService(stateProvider);
+      },
+      deps: [StateProvider],
     },
     {
       provide: StateServiceAbstraction,

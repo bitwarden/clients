@@ -17,7 +17,6 @@ import { StateService as BaseStateService } from "@bitwarden/common/platform/ser
 import { Account } from "../../models/account";
 import { BrowserComponentState } from "../../models/browserComponentState";
 import { BrowserGroupingsComponentState } from "../../models/browserGroupingsComponentState";
-import { BrowserSendComponentState } from "../../models/browserSendComponentState";
 import { BrowserApi } from "../browser/browser-api";
 import { browserSession, sessionSync } from "../decorators/session-sync-observable";
 
@@ -154,46 +153,6 @@ export class BrowserStateService
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
     );
     account.ciphers = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  async getBrowserSendComponentState(options?: StorageOptions): Promise<BrowserSendComponentState> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.send;
-  }
-
-  async setBrowserSendComponentState(
-    value: BrowserSendComponentState,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.send = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  async getBrowserSendTypeComponentState(options?: StorageOptions): Promise<BrowserComponentState> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.sendType;
-  }
-
-  async setBrowserSendTypeComponentState(
-    value: BrowserComponentState,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.sendType = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),

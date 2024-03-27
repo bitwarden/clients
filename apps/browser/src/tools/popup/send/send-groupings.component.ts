@@ -18,7 +18,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { BrowserSendComponentState } from "../../../models/browserSendComponentState";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
-import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
+import { BrowserSendStateService } from "../services/browser-send-state.service";
 
 const ComponentId = "SendComponent";
 
@@ -43,7 +43,7 @@ export class SendGroupingsComponent extends BaseSendComponent {
     ngZone: NgZone,
     policyService: PolicyService,
     searchService: SearchService,
-    private stateService: BrowserStateService,
+    private stateService: BrowserSendStateService,
     private router: Router,
     private syncService: SyncService,
     private changeDetectorRef: ChangeDetectorRef,
