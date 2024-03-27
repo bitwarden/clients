@@ -1,6 +1,8 @@
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -61,6 +63,8 @@ export abstract class LoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
 
   constructor(
+    protected accountService: AccountService,
+    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected cryptoService: CryptoService,
     protected apiService: ApiService,
     protected tokenService: TokenService,

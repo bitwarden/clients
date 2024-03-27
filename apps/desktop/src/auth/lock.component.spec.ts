@@ -12,8 +12,11 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -23,7 +26,9 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { LockComponent } from "./lock.component";
@@ -39,6 +44,8 @@ const isWindowVisibleMock = jest.fn();
   },
 };
 
+const userId = "userId" as UserId;
+
 describe("LockComponent", () => {
   let component: LockComponent;
   let fixture: ComponentFixture<LockComponent>;
@@ -48,6 +55,8 @@ describe("LockComponent", () => {
   let broadcasterServiceMock: MockProxy<BroadcasterService>;
   let platformUtilsServiceMock: MockProxy<PlatformUtilsService>;
   let activatedRouteMock: MockProxy<ActivatedRoute>;
+  let mockMasterPasswordService: FakeMasterPasswordService;
+  let mockAccountService: FakeAccountService;
 
   beforeEach(async () => {
     stateServiceMock = mock<StateService>();
@@ -60,6 +69,9 @@ describe("LockComponent", () => {
     activatedRouteMock = mock<ActivatedRoute>();
     activatedRouteMock.queryParams = mock<ActivatedRoute["queryParams"]>();
 
+    mockAccountService = mockAccountServiceWith(userId);
+    mockMasterPasswordService = new FakeMasterPasswordService();
+
     biometricStateService.dismissedRequirePasswordOnStartCallout$ = of(false);
     biometricStateService.promptAutomatically$ = of(false);
     biometricStateService.promptCancelled$ = of(false);
@@ -67,6 +79,8 @@ describe("LockComponent", () => {
     await TestBed.configureTestingModule({
       declarations: [LockComponent, I18nPipe],
       providers: [
+        { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
+        { provide: AccountService, useValue: mockAccountService },
         {
           provide: I18nService,
           useValue: mock<I18nService>(),

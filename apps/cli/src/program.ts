@@ -253,6 +253,8 @@ export class Program {
         if (!cmd.check) {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
+            this.main.accountService,
+            this.main.masterPasswordService,
             this.main.cryptoService,
             this.main.stateService,
             this.main.cryptoFunctionService,
@@ -613,6 +615,8 @@ export class Program {
         this.processResponse(response, true);
       } else {
         const command = new UnlockCommand(
+          this.main.accountService,
+          this.main.masterPasswordService,
           this.main.cryptoService,
           this.main.stateService,
           this.main.cryptoFunctionService,

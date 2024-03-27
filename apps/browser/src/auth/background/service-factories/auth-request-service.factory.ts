@@ -17,18 +17,21 @@ import {
   FactoryOptions,
   factory,
 } from "../../../platform/background/service-factories/factory-options";
+
+import { accountServiceFactory, AccountServiceInitOptions } from "./account-service.factory";
 import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../../platform/background/service-factories/state-service.factory";
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "./master-password-service.factory";
 
 type AuthRequestServiceFactoryOptions = FactoryOptions;
 
 export type AuthRequestServiceInitOptions = AuthRequestServiceFactoryOptions &
   AppIdServiceInitOptions &
+  AccountServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   CryptoServiceInitOptions &
-  ApiServiceInitOptions &
-  StateServiceInitOptions;
+  ApiServiceInitOptions;
 
 export function authRequestServiceFactory(
   cache: { authRequestService?: AuthRequestServiceAbstraction } & CachedServices,
@@ -41,9 +44,10 @@ export function authRequestServiceFactory(
     async () =>
       new AuthRequestService(
         await appIdServiceFactory(cache, opts),
+        await accountServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await apiServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
       ),
   );
 }

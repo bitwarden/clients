@@ -11,6 +11,8 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -66,6 +68,8 @@ export class SsoComponent {
     protected logService: LogService,
     protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     protected configService: ConfigServiceAbstraction,
+    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -290,8 +294,10 @@ export class SsoComponent {
       // Set flag so that auth guard can redirect to set password screen after decryption (trusted or untrusted device)
       // Note: we cannot directly navigate in this scenario as we are in a pre-decryption state, and
       // if you try to set a new MP before decrypting, you will invalidate the user's data by making a new user key.
-      await this.stateService.setForceSetPasswordReason(
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
       );
     }
 

@@ -2,12 +2,14 @@ import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 
 import { AuthRequestService } from "./auth-request.service";
@@ -15,17 +17,27 @@ import { AuthRequestService } from "./auth-request.service";
 describe("AuthRequestService", () => {
   let sut: AuthRequestService;
 
+  let accountService: FakeAccountService;
+  let masterPasswordService: FakeMasterPasswordService;
   const appIdService = mock<AppIdService>();
   const cryptoService = mock<CryptoService>();
   const apiService = mock<ApiService>();
-  const stateService = mock<StateService>();
 
   let mockPrivateKey: Uint8Array;
+  const mockUserId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    accountService = mockAccountServiceWith(mockUserId);
+    masterPasswordService = new FakeMasterPasswordService();
 
-    sut = new AuthRequestService(appIdService, cryptoService, apiService, stateService);
+    sut = new AuthRequestService(
+      appIdService,
+      accountService,
+      masterPasswordService,
+      cryptoService,
+      apiService,
+    );
 
     mockPrivateKey = new Uint8Array(64);
   });
@@ -50,8 +62,8 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the master key and hash if they exist", async () => {
-      cryptoService.getMasterKey.mockResolvedValueOnce({ encKey: new Uint8Array(64) } as MasterKey);
-      stateService.getKeyHash.mockResolvedValueOnce("KEY_HASH");
+      masterPasswordService.masterKeySubject.next({ encKey: new Uint8Array(64) } as MasterKey);
+      masterPasswordService.masterKeyHashSubject.next("MASTER_KEY_HASH");
 
       await sut.approveOrDenyAuthRequest(
         true,
@@ -113,8 +125,8 @@ describe("AuthRequestService", () => {
         masterKeyHash: mockDecryptedMasterKeyHash,
       });
 
-      cryptoService.setMasterKey.mockResolvedValueOnce(undefined);
-      cryptoService.setMasterKeyHash.mockResolvedValueOnce(undefined);
+      masterPasswordService.masterKeySubject.next(undefined);
+      masterPasswordService.masterKeyHashSubject.next(undefined);
       cryptoService.decryptUserKeyWithMasterKey.mockResolvedValueOnce(mockDecryptedUserKey);
       cryptoService.setUserKey.mockResolvedValueOnce(undefined);
 
@@ -127,10 +139,18 @@ describe("AuthRequestService", () => {
         mockAuthReqResponse.masterPasswordHash,
         mockPrivateKey,
       );
-      expect(cryptoService.setMasterKey).toBeCalledWith(mockDecryptedMasterKey);
-      expect(cryptoService.setMasterKeyHash).toBeCalledWith(mockDecryptedMasterKeyHash);
-      expect(cryptoService.decryptUserKeyWithMasterKey).toBeCalledWith(mockDecryptedMasterKey);
-      expect(cryptoService.setUserKey).toBeCalledWith(mockDecryptedUserKey);
+      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
+        mockDecryptedMasterKey,
+        mockUserId,
+      );
+      expect(masterPasswordService.mock.setMasterKeyHash).toHaveBeenCalledWith(
+        mockDecryptedMasterKeyHash,
+        mockUserId,
+      );
+      expect(cryptoService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+        mockDecryptedMasterKey,
+      );
+      expect(cryptoService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey);
     });
   });
 

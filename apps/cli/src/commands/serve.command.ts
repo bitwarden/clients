@@ -122,6 +122,8 @@ export class ServeCommand {
     this.shareCommand = new ShareCommand(this.main.cipherService);
     this.lockCommand = new LockCommand(this.main.vaultTimeoutService);
     this.unlockCommand = new UnlockCommand(
+      this.main.accountService,
+      this.main.masterPasswordService,
       this.main.cryptoService,
       this.main.stateService,
       this.main.cryptoFunctionService,

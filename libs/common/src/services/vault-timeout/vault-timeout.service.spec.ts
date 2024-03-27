@@ -1,17 +1,21 @@
 import { MockProxy, any, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { FakeMasterPasswordService } from "../../auth/services/master-password/fake-master-password.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { Utils } from "../../platform/misc/utils";
 import { Account } from "../../platform/models/domain/account";
 import { StateEventRunnerService } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -19,6 +23,8 @@ import { FolderService } from "../../vault/abstractions/folder/folder.service.ab
 import { VaultTimeoutService } from "./vault-timeout.service";
 
 describe("VaultTimeoutService", () => {
+  let accountService: FakeAccountService;
+  let masterPasswordService: FakeMasterPasswordService;
   let cipherService: MockProxy<CipherService>;
   let folderService: MockProxy<FolderService>;
   let collectionService: MockProxy<CollectionService>;
@@ -39,7 +45,11 @@ describe("VaultTimeoutService", () => {
 
   let vaultTimeoutService: VaultTimeoutService;
 
+  const userId = Utils.newGuid() as UserId;
+
   beforeEach(() => {
+    accountService = mockAccountServiceWith(userId);
+    masterPasswordService = new FakeMasterPasswordService();
     cipherService = mock();
     folderService = mock();
     collectionService = mock();
@@ -66,6 +76,8 @@ describe("VaultTimeoutService", () => {
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
     vaultTimeoutService = new VaultTimeoutService(
+      accountService,
+      masterPasswordService,
       cipherService,
       folderService,
       collectionService,
@@ -123,6 +135,15 @@ describe("VaultTimeoutService", () => {
 
     stateService.activeAccount$ = new BehaviorSubject<string>(globalSetups?.userId);
 
+    if (globalSetups?.userId) {
+      accountService.activeAccountSubject.next({
+        id: globalSetups.userId as UserId,
+        status: accounts[globalSetups.userId]?.authStatus,
+        email: null,
+        name: null,
+      });
+    }
+
     platformUtilsService.isViewOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
 
     vaultTimeoutSettingsService.vaultTimeoutAction$.mockImplementation((userId) => {
@@ -156,8 +177,8 @@ describe("VaultTimeoutService", () => {
     expect(vaultTimeoutSettingsService.availableVaultTimeoutActions$).toHaveBeenCalledWith(userId);
     expect(stateService.setEverBeenUnlocked).toHaveBeenCalledWith(true, { userId: userId });
     expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, { userId: userId });
+    expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(null, userId);
     expect(cryptoService.clearUserKey).toHaveBeenCalledWith(false, userId);
-    expect(cryptoService.clearMasterKey).toHaveBeenCalledWith(userId);
     expect(cipherService.clearCache).toHaveBeenCalledWith(userId);
     expect(lockedCallback).toHaveBeenCalledWith(userId);
   };

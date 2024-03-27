@@ -1,9 +1,12 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -13,9 +16,10 @@ import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.s
 export class AuthRequestService implements AuthRequestServiceAbstraction {
   constructor(
     private appIdService: AppIdService,
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private cryptoService: CryptoService,
     private apiService: ApiService,
-    private stateService: StateService,
   ) {}
 
   async approveOrDenyAuthRequest(
@@ -30,8 +34,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     }
     const pubKey = Utils.fromB64ToArray(authRequest.publicKey);
 
-    const masterKey = await this.cryptoService.getMasterKey();
-    const masterKeyHash = await this.stateService.getKeyHash();
+    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    const masterKeyHash = await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId));
     let encryptedMasterKeyHash;
     let keyToEncrypt;
 
@@ -84,8 +89,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
 
     // Set masterKey + masterKeyHash in state after decryption (in case decryption fails)
-    await this.cryptoService.setMasterKey(masterKey);
-    await this.cryptoService.setMasterKeyHash(masterKeyHash);
+    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
+    await this.masterPasswordService.setMasterKeyHash(masterKeyHash, userId);
 
     await this.cryptoService.setUserKey(userKey);
   }

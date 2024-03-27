@@ -19,6 +19,7 @@ import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/adm
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -203,6 +204,7 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
       provide: CryptoServiceAbstraction,
       useClass: ElectronCryptoService,
       deps: [
+        InternalMasterPasswordServiceAbstraction,
         KeyGenerationServiceAbstraction,
         CryptoFunctionServiceAbstraction,
         EncryptService,

@@ -59,6 +59,7 @@ import {
   PasswordStrengthServiceInitOptions,
 } from "../../../tools/background/service_factories/password-strength-service.factory";
 
+import { accountServiceFactory, AccountServiceInitOptions } from "./account-service.factory";
 import {
   authRequestServiceFactory,
   AuthRequestServiceInitOptions,
@@ -71,6 +72,10 @@ import {
   keyConnectorServiceFactory,
   KeyConnectorServiceInitOptions,
 } from "./key-connector-service.factory";
+import {
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "./master-password-service.factory";
 import { tokenServiceFactory, TokenServiceInitOptions } from "./token-service.factory";
 import { twoFactorServiceFactory, TwoFactorServiceInitOptions } from "./two-factor-service.factory";
 import {
@@ -81,6 +86,8 @@ import {
 type LoginStrategyServiceFactoryOptions = FactoryOptions;
 
 export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions &
+  AccountServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   CryptoServiceInitOptions &
   ApiServiceInitOptions &
   TokenServiceInitOptions &
@@ -111,6 +118,8 @@ export function loginStrategyServiceFactory(
     opts,
     async () =>
       new LoginStrategyService(
+        await accountServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await apiServiceFactory(cache, opts),
         await tokenServiceFactory(cache, opts),

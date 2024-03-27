@@ -1,9 +1,17 @@
 import { VaultTimeoutService as AbstractVaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 
 import {
+  accountServiceFactory,
+  AccountServiceInitOptions,
+} from "../../auth/background/service-factories/account-service.factory";
+import {
   authServiceFactory,
   AuthServiceInitOptions,
 } from "../../auth/background/service-factories/auth-service.factory";
+import {
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "../../auth/background/service-factories/master-password-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
@@ -57,6 +65,8 @@ type VaultTimeoutServiceFactoryOptions = FactoryOptions & {
 };
 
 export type VaultTimeoutServiceInitOptions = VaultTimeoutServiceFactoryOptions &
+  AccountServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   CipherServiceInitOptions &
   FolderServiceInitOptions &
   CollectionServiceInitOptions &
@@ -79,6 +89,8 @@ export function vaultTimeoutServiceFactory(
     opts,
     async () =>
       new VaultTimeoutService(
+        await accountServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await cipherServiceFactory(cache, opts),
         await folderServiceFactory(cache, opts),
         await collectionServiceFactory(cache, opts),

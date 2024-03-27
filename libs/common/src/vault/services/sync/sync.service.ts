@@ -11,8 +11,10 @@ import { OrganizationData } from "../../../admin-console/models/data/organizatio
 import { PolicyData } from "../../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../../admin-console/models/data/provider.data";
 import { PolicyResponse } from "../../../admin-console/models/response/policy.response";
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { AvatarService } from "../../../auth/abstractions/avatar.service";
 import { KeyConnectorService } from "../../../auth/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
@@ -49,6 +51,8 @@ export class SyncService implements SyncServiceAbstraction {
   syncInProgress = false;
 
   constructor(
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private accountService: AccountService,
     private apiService: ApiService,
     private domainSettingsService: DomainSettingsService,
     private folderService: InternalFolderService,
@@ -352,8 +356,10 @@ export class SyncService implements SyncServiceAbstraction {
   private async setForceSetPasswordReasonIfNeeded(profileResponse: ProfileResponse) {
     // The `forcePasswordReset` flag indicates an admin has reset the user's password and must be updated
     if (profileResponse.forcePasswordReset) {
-      await this.stateService.setForceSetPasswordReason(
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
       );
     }
 
@@ -387,8 +393,10 @@ export class SyncService implements SyncServiceAbstraction {
     ) {
       // TDE user w/out MP went from having no password reset permission to having it.
       // Must set the force password reset reason so the auth guard will redirect to the set password page.
-      await this.stateService.setForceSetPasswordReason(
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
       );
     }
   }

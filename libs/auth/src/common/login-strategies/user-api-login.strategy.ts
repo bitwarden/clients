@@ -2,7 +2,9 @@ import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
@@ -39,6 +41,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
 
   constructor(
     data: UserApiLoginStrategyData,
+    accountService: AccountService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     cryptoService: CryptoService,
     apiService: ApiService,
     tokenService: TokenService,
@@ -54,6 +58,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
     billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
+      accountService,
+      masterPasswordService,
       cryptoService,
       apiService,
       tokenService,
@@ -95,7 +101,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
     await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
 
     if (response.apiUseKeyConnector) {
-      const masterKey = await this.cryptoService.getMasterKey();
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {
         const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
         await this.cryptoService.setUserKey(userKey);

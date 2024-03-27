@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -9,7 +11,9 @@ import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { MasterKey } from "../../types/key";
+import { AccountService } from "../abstractions/account.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import { TokenService } from "../abstractions/token.service";
 import { KdfConfig } from "../models/domain/kdf-config";
 import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user-key.request";
@@ -18,6 +22,8 @@ import { IdentityTokenResponse } from "../models/response/identity-token.respons
 
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private stateService: StateService,
     private cryptoService: CryptoService,
     private apiService: ApiService,
@@ -46,7 +52,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
   async migrateUser() {
     const organization = await this.getManagingOrganization();
-    const masterKey = await this.cryptoService.getMasterKey();
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
 
     try {
@@ -67,7 +74,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(url);
       const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
       const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
-      await this.cryptoService.setMasterKey(masterKey);
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setMasterKey(masterKey, userId);
     } catch (e) {
       this.handleKeyConnectorError(e);
     }
@@ -104,7 +112,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       kdfConfig,
     );
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
-    await this.cryptoService.setMasterKey(masterKey);
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
 
     const userKey = await this.cryptoService.makeUserKey(masterKey);
     await this.cryptoService.setUserKey(userKey[0]);

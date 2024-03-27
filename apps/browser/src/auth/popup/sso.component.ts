@@ -9,7 +9,9 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
@@ -45,7 +47,9 @@ export class SsoComponent extends BaseSsoComponent {
     logService: LogService,
     userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     configService: ConfigServiceAbstraction,
-    protected authService: AuthService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    accountService: AccountService,
+    private authService: AuthService,
     @Inject(WINDOW) private win: Window,
   ) {
     super(
@@ -63,6 +67,8 @@ export class SsoComponent extends BaseSsoComponent {
       logService,
       userDecryptionOptionsService,
       configService,
+      masterPasswordService,
+      accountService,
     );
 
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {

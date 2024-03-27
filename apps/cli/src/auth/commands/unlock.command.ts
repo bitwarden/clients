@@ -1,6 +1,10 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -18,6 +22,8 @@ import { CliUtils } from "../../utils";
 
 export class UnlockCommand {
   constructor(
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private cryptoService: CryptoService,
     private stateService: StateService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -45,11 +51,14 @@ export class UnlockCommand {
     const kdf = await this.stateService.getKdfType();
     const kdfConfig = await this.stateService.getKdfConfig();
     const masterKey = await this.cryptoService.makeMasterKey(password, email, kdf, kdfConfig);
-    const storedKeyHash = await this.cryptoService.getMasterKeyHash();
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const storedMasterKeyHash = await firstValueFrom(
+      this.masterPasswordService.masterKeyHash$(userId),
+    );
 
     let passwordValid = false;
     if (masterKey != null) {
-      if (storedKeyHash != null) {
+      if (storedMasterKeyHash != null) {
         passwordValid = await this.cryptoService.compareAndUpdateKeyHash(password, masterKey);
       } else {
         const serverKeyHash = await this.cryptoService.hashMasterKey(
@@ -67,7 +76,7 @@ export class UnlockCommand {
             masterKey,
             HashPurpose.LocalAuthorization,
           );
-          await this.cryptoService.setMasterKeyHash(localKeyHash);
+          await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
         } catch {
           // Ignore
         }
@@ -75,7 +84,8 @@ export class UnlockCommand {
     }
 
     if (passwordValid) {
-      await this.cryptoService.setMasterKey(masterKey);
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setMasterKey(masterKey, userId);
       const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
       await this.cryptoService.setUserKey(userKey);
 

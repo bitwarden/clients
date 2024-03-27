@@ -26,6 +26,7 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -120,6 +121,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
   constructor(
+    private masterPasswordService: MasterPasswordServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
@@ -408,8 +410,9 @@ export class AppComponent implements OnInit, OnDestroy {
               (await this.authService.getAuthStatus(message.userId)) ===
               AuthenticationStatus.Locked;
             const forcedPasswordReset =
-              (await this.stateService.getForceSetPasswordReason({ userId: message.userId })) !=
-              ForceSetPasswordReason.None;
+              (await firstValueFrom(
+                this.masterPasswordService.forceSetPasswordReason$(message.userId),
+              )) != ForceSetPasswordReason.None;
             if (locked) {
               this.messagingService.send("locked", { userId: message.userId });
             } else if (forcedPasswordReset) {

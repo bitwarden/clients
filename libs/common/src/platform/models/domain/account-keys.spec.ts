@@ -51,12 +51,6 @@ describe("AccountKeys", () => {
       expect(keys.publicKey).toEqual(Utils.fromByteStringToArray("hello"));
     });
 
-    it("should deserialize cryptoMasterKey", () => {
-      const spy = jest.spyOn(SymmetricCryptoKey, "fromJSON");
-      AccountKeys.fromJSON({} as any);
-      expect(spy).toHaveBeenCalled();
-    });
-
     it("should deserialize privateKey", () => {
       const spy = jest.spyOn(EncryptionPair, "fromJSON");
       AccountKeys.fromJSON({
@@ -70,8 +64,6 @@ describe("AccountKeys", () => {
       const expectedKeyB64 =
         "ZJNnhx9BbJeb2EAq1hlMjqt6GFsg9G/GzoFf6SbPKsaiMhKGDcbHcwcyEg56Lh8lfilpZz4SRM6UA7oFCg+lSg==";
 
-      const symmetricCryptoKeyFromJsonSpy = jest.spyOn(SymmetricCryptoKey, "fromJSON");
-
       // Act
       const accountKeys = AccountKeys.fromJSON({
         deviceKey: {
@@ -80,7 +72,6 @@ describe("AccountKeys", () => {
       } as any);
 
       // Assert
-      expect(symmetricCryptoKeyFromJsonSpy).toHaveBeenCalled();
       expect(accountKeys.deviceKey.keyB64).toEqual(expectedKeyB64);
     });
   });
