@@ -3,7 +3,7 @@
     "pretty": true,
     "moduleResolution": "node",
     "target": "ES2016",
-    "module": "es6",
+    "module": "es2020",
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
