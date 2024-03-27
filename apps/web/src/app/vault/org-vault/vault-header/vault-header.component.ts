@@ -1,10 +1,12 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
@@ -22,7 +24,7 @@ import {
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
 })
-export class VaultHeaderComponent {
+export class VaultHeaderComponent implements OnInit {
   protected All = All;
   protected Unassigned = Unassigned;
 
@@ -56,13 +58,22 @@ export class VaultHeaderComponent {
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected organizations$ = this.organizationService.organizations$;
 
+  private flexibleCollectionsV1Enabled = false;
+
   constructor(
     private organizationService: OrganizationService,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
     private router: Router,
+    private configService: ConfigServiceAbstraction,
   ) {}
+
+  async ngOnInit() {
+    this.flexibleCollectionsV1Enabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.FlexibleCollectionsV1),
+    );
+  }
 
   get title() {
     const headerType = this.organization?.flexibleCollections
@@ -153,7 +164,7 @@ export class VaultHeaderComponent {
     }
 
     // Otherwise, check if we can edit the specified collection
-    return this.collection.node.canEdit(this.organization);
+    return this.collection.node.canEdit(this.organization, this.flexibleCollectionsV1Enabled);
   }
 
   addCipher() {

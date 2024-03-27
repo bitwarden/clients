@@ -51,6 +51,7 @@
       [showAdminActions]="false"
       (onEvent)="onVaultItemsEvent($event)"
       [showBulkEditCollectionAccess]="showBulkCollectionAccess$ | async"
+      [flexibleCollectionsV1Enabled]="flexibleCollectionsV1Enabled$ | async"
     >
     </app-vault-items>
     <div
