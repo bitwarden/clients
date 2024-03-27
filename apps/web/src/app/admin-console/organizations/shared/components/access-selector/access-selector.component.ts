@@ -133,7 +133,7 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
 
   set items(val: AccessItemView[]) {
     const selected = (this.selectionList.formArray.getRawValue() ?? []).concat(
-      val.filter((m) => m.readonly),
+      val.filter((m) => isCollectionAccessViaGroup(m)),
     );
     this.selectionList.populateItems(
       val.map((m) => {
@@ -244,8 +244,10 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
     // Always clear the internal selection list on a new value
     this.selectionList.deselectAll();
 
-    // We need to also select any read only items to appear in the table
-    this.selectionList.selectItems(this.items.filter((m) => m.readonly).map((m) => m.id));
+    // We need to also select any collection access via a group - this is readonly but isn't included in the form value
+    this.selectionList.selectItems(
+      this.items.filter((m) => isCollectionAccessViaGroup(m)).map((m) => m.id),
+    );
 
     // If the new value is null, then we're done
     if (selectedItems == null) {
@@ -328,6 +330,14 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
     return this.permissionMode == PermissionMode.Edit && !item.readonly && !item.accessAllItems;
   }
 
+  /**
+   * Deselected items that are capable of being edited/selected. Excludes readonly items that the user does not have
+   * permission to grant access to.
+   */
+  protected get readonlyDeselectedItems() {
+    return this.selectionList.deselectedItems.filter((i) => !i.readonly);
+  }
+
   private _itemComparator(a: AccessItemView, b: AccessItemView) {
     return (
       a.type - b.type ||
@@ -336,4 +346,8 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
       Number(b.readonly) - Number(a.readonly)
     );
   }
+}
+
+function isCollectionAccessViaGroup(item: AccessItemView) {
+  return item.type === AccessItemType.Collection && item.viaGroupName != null;
 }

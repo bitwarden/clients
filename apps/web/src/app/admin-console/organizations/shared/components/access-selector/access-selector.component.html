@@ -26,7 +26,7 @@
     <bit-label>{{ selectorLabelText }}</bit-label>
     <bit-multi-select
       class="tw-w-full"
-      [baseItems]="selectionList.deselectedItems"
+      [baseItems]="readonlyDeselectedItems"
       [removeSelectedItems]="true"
       [disabled]="disabled"
       (onItemsConfirmed)="selectItems($event)"

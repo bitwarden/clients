@@ -31,6 +31,7 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { DialogService } from "@bitwarden/components";
 
 import { CollectionAdminService } from "../../../../../vault/core/collection-admin.service";
+import { CollectionAdminView } from "../../../../../vault/core/views/collection-admin.view";
 import {
   CollectionAccessSelectionView,
   GroupService,
@@ -206,25 +207,44 @@ export class MemberDialogComponent implements OnDestroy {
       collections: this.collectionAdminService.getAll(this.params.organizationId),
       userDetails: userDetails$,
       groups: groups$,
+      flexibleCollectionsV1Enabled: this.configService.getFeatureFlag$(
+        FeatureFlag.FlexibleCollectionsV1,
+        false,
+      ),
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.setFormValidators(organization);
+      .subscribe(
+        ({ organization, collections, userDetails, groups, flexibleCollectionsV1Enabled }) => {
+          this.setFormValidators(organization);
 
-        this.collectionAccessItems = [].concat(
-          collections.map((c) => mapCollectionToAccessItemView(c)),
-        );
+          this.collectionAccessItems = [].concat(
+            collections.map((c) =>
+              mapCollectionToAccessItemView(c, organization, flexibleCollectionsV1Enabled),
+            ),
+          );
 
-        this.groupAccessItems = [].concat(
-          groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g)),
-        );
+          this.groupAccessItems = [].concat(
+            groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g)),
+          );
 
-        if (this.params.organizationUserId) {
-          this.loadOrganizationUser(userDetails, groups, collections);
-        }
+          if (this.params.organizationUserId) {
+            this.loadOrganizationUser(
+              userDetails,
+              groups,
+              collections,
+              organization,
+              flexibleCollectionsV1Enabled,
+            );
+          } else {
+            // Populate all available collections, without any user details
+            this.collectionAccessItems = collections.map((c) =>
+              mapCollectionToAccessItemView(c, organization, flexibleCollectionsV1Enabled),
+            );
+          }
 
-        this.loading = false;
-      });
+          this.loading = false;
+        },
+      );
   }
 
   private setFormValidators(organization: Organization) {
@@ -246,7 +266,9 @@ export class MemberDialogComponent implements OnDestroy {
   private loadOrganizationUser(
     userDetails: OrganizationUserAdminView,
     groups: GroupView[],
-    collections: CollectionView[],
+    collections: CollectionAdminView[],
+    organization: Organization,
+    flexibleCollectionsV1Enabled: boolean,
   ) {
     if (!userDetails) {
       throw new Error("Could not find user to edit.");
@@ -295,12 +317,30 @@ export class MemberDialogComponent implements OnDestroy {
         }),
       );
 
-    this.collectionAccessItems = this.collectionAccessItems.concat(
-      collectionsFromGroups.map(({ collection, accessSelection, group }) =>
-        mapCollectionToAccessItemView(collection, accessSelection, group),
+    // Populate all available collections (including current user access where applicable)
+    this.collectionAccessItems = collections.map((c) =>
+      mapCollectionToAccessItemView(
+        c,
+        organization,
+        flexibleCollectionsV1Enabled,
+        c.users.find((access) => access.id === userDetails.id),
       ),
     );
 
+    // Populate additional collection access via groups (rendered as separate rows from user access)
+    this.collectionAccessItems = this.collectionAccessItems.concat(
+      collectionsFromGroups.map(({ collection, accessSelection, group }) =>
+        mapCollectionToAccessItemView(
+          collection,
+          organization,
+          flexibleCollectionsV1Enabled,
+          accessSelection,
+          group,
+        ),
+      ),
+    );
+
+    // Set current collections and groups the user has access to
     const accessSelections = mapToAccessSelections(userDetails);
     const groupAccessSelections = mapToGroupAccessSelections(userDetails.groups);
 
@@ -573,6 +613,8 @@ export class MemberDialogComponent implements OnDestroy {
 
 function mapCollectionToAccessItemView(
   collection: CollectionView,
+  organization: Organization,
+  flexibleCollectionsV1Enabled: boolean,
   accessSelection?: CollectionAccessSelectionView,
   group?: GroupView,
 ): AccessItemView {
@@ -581,7 +623,8 @@ function mapCollectionToAccessItemView(
     id: group ? `${collection.id}-${group.id}` : collection.id,
     labelName: collection.name,
     listName: collection.name,
-    readonly: group !== undefined,
+    readonly:
+      group !== undefined || !collection.canEdit(organization, flexibleCollectionsV1Enabled),
     readonlyPermission: accessSelection ? convertToPermission(accessSelection) : undefined,
     viaGroupName: group?.name,
   };
