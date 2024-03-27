@@ -86,6 +86,19 @@ type SafeConcreteProvider<
 };
 
 /**
+ * If useAngularDecorators: true is specified, do not require a deps array.
+ * This is a manual override for where @Injectable decorators are used
+ */
+type UseAngularDecorators<T extends { deps: any }> = Omit<T, "deps"> & {
+  useAngularDecorators: true;
+};
+
+/**
+ * Represents a type with a deps array that may optionally be overridden with useAngularDecorators
+ */
+type AllowAngularDecorators<T extends { deps: any }> = T | UseAngularDecorators<T>;
+
+/**
  * A factory function that creates a provider for the ngModule providers array.
  * This guarantees type safety for your provider definition. It does nothing at runtime.
  * @param provider Your provider object in the usual shape (e.g. using useClass, useValue, useFactory, etc.)
@@ -113,10 +126,10 @@ export const safeProvider = <
   DConcrete extends MapParametersToDeps<ConstructorParameters<IConcrete>>,
 >(
   provider:
-    | SafeClassProvider<AClass, IClass, DClass>
+    | AllowAngularDecorators<SafeClassProvider<AClass, IClass, DClass>>
     | SafeValueProvider<AValue, VValue>
-    | SafeFactoryProvider<AFactory, IFactory, DFactory>
+    | AllowAngularDecorators<SafeFactoryProvider<AFactory, IFactory, DFactory>>
     | SafeExistingProvider<AExisting, IExisting>
-    | SafeConcreteProvider<IConcrete, DConcrete>
+    | AllowAngularDecorators<SafeConcreteProvider<IConcrete, DConcrete>>
     | Constructor<unknown>,
 ): SafeProvider => provider as SafeProvider;

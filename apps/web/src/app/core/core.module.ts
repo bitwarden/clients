@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 
+import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
   STATE_FACTORY,
@@ -12,6 +13,7 @@ import {
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_DISK_LOCAL_STORAGE,
   WINDOW,
+  SafeInjectionToken,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
@@ -63,76 +65,94 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
   declarations: [],
   imports: [CommonModule, JslibServicesModule],
   providers: [
-    InitService,
-    RouterService,
-    EventService,
-    PolicyListService,
-    {
-      provide: APP_INITIALIZER,
+    safeProvider(InitService),
+    safeProvider(RouterService),
+    safeProvider(EventService),
+    safeProvider(PolicyListService),
+    safeProvider({
+      provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
       useFactory: (initService: InitService) => initService.init(),
       deps: [InitService],
       multi: true,
-    },
-    {
+    }),
+    safeProvider({
       provide: STATE_FACTORY,
       useValue: new StateFactory(GlobalState, Account),
-    },
-    {
+    }),
+    safeProvider({
       provide: STATE_SERVICE_USE_CACHE,
       useValue: false,
-    },
-    {
+    }),
+    safeProvider({
       provide: I18nServiceAbstraction,
       useClass: I18nService,
       deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, GlobalStateProvider],
-    },
-    { provide: AbstractStorageService, useClass: HtmlStorageService },
-    {
+    }),
+    safeProvider({ provide: AbstractStorageService, useClass: HtmlStorageService, deps: [] }),
+    safeProvider({
       provide: SECURE_STORAGE,
       // TODO: platformUtilsService.isDev has a helper for this, but using that service here results in a circular dependency.
       // We have a tech debt item in the backlog to break up platformUtilsService, but in the meantime simply checking the environment here is less cumbersome.
       useClass: process.env.NODE_ENV === "development" ? HtmlStorageService : MemoryStorageService,
-    },
-    {
+      deps: [],
+    }),
+    safeProvider({
       provide: MEMORY_STORAGE,
       useClass: MemoryStorageService,
-    },
-    { provide: OBSERVABLE_MEMORY_STORAGE, useClass: MemoryStorageServiceForStateProviders },
-    {
+      deps: [],
+    }),
+    safeProvider({
+      provide: OBSERVABLE_MEMORY_STORAGE,
+      useClass: MemoryStorageServiceForStateProviders,
+      deps: [],
+    }),
+    safeProvider({
       provide: OBSERVABLE_DISK_STORAGE,
       useFactory: () => new WindowStorageService(window.sessionStorage),
-    },
-    {
+      deps: [],
+    }),
+    safeProvider({
       provide: PlatformUtilsServiceAbstraction,
       useClass: WebPlatformUtilsService,
-    },
-    { provide: MessagingServiceAbstraction, useClass: BroadcasterMessagingService },
-    { provide: ModalServiceAbstraction, useClass: ModalService },
-    StateService,
-    {
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: MessagingServiceAbstraction,
+      useClass: BroadcasterMessagingService,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: ModalServiceAbstraction,
+      useClass: ModalService,
+      useAngularDecorators: true,
+    }),
+    safeProvider(StateService),
+    safeProvider({
       provide: BaseStateServiceAbstraction,
       useExisting: StateService,
-    },
-    {
+    }),
+    safeProvider({
       provide: FileDownloadService,
       useClass: WebFileDownloadService,
-    },
-    {
+      useAngularDecorators: true,
+    }),
+    safeProvider({
       provide: LoginServiceAbstraction,
       useClass: LoginService,
       deps: [StateService],
-    },
-    CollectionAdminService,
-    {
+    }),
+    safeProvider(CollectionAdminService),
+    safeProvider({
       provide: OBSERVABLE_DISK_LOCAL_STORAGE,
       useFactory: () => new WindowStorageService(window.localStorage),
-    },
-    {
+      deps: [],
+    }),
+    safeProvider({
       provide: StorageServiceProvider,
       useClass: WebStorageServiceProvider,
       deps: [OBSERVABLE_DISK_STORAGE, OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_LOCAL_STORAGE],
-    },
-    {
+    }),
+    safeProvider({
       provide: MigrationRunner,
       useClass: WebMigrationRunner,
       deps: [
@@ -141,19 +161,19 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
         MigrationBuilderService,
         OBSERVABLE_DISK_LOCAL_STORAGE,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: EnvironmentService,
       useClass: WebEnvironmentService,
       deps: [WINDOW, StateProvider, AccountService],
-    },
-    {
+    }),
+    safeProvider({
       provide: ThemeStateService,
       useFactory: (globalStateProvider: GlobalStateProvider) =>
         // Web chooses to have Light as the default theme
         new DefaultThemeStateService(globalStateProvider, ThemeType.Light),
       deps: [GlobalStateProvider],
-    },
+    }),
   ],
 })
 export class CoreModule {
