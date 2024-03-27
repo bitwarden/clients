@@ -99,7 +99,7 @@
                 class="btn block"
                 type="button"
                 routerLink="/accessibility-cookie"
-                (click)="setFormValues()"
+                (click)="setLoginEmailValues()"
               >
                 <i class="bwi bwi-universal-access" aria-hidden="true"></i>
                 {{ "loadAccessibilityCookie" | i18n }}
@@ -139,7 +139,7 @@
             type="button"
             class="text text-primary password-hint-btn"
             routerLink="/hint"
-            (click)="setFormValues()"
+            (click)="setLoginEmailValues()"
           >
             {{ "getMasterPasswordHint" | i18n }}
           </button>

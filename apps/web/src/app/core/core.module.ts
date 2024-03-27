@@ -15,9 +15,8 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
+import { LoginEmailServiceAbstraction, LoginEmailService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
-import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,6 +28,7 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
+// eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
@@ -118,9 +118,9 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
       useClass: WebFileDownloadService,
     },
     {
-      provide: LoginServiceAbstraction,
-      useClass: LoginService,
-      deps: [StateService],
+      provide: LoginEmailServiceAbstraction,
+      useClass: LoginEmailService,
+      deps: [StateProvider],
     },
     CollectionAdminService,
     {

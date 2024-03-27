@@ -5,9 +5,11 @@ import { firstValueFrom } from "rxjs";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  LoginStrategyServiceAbstraction,
+  LoginEmailServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -46,7 +48,7 @@ export class LoginComponent extends BaseLoginComponent {
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
     route: ActivatedRoute,
-    loginService: LoginService,
+    loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
@@ -66,7 +68,7 @@ export class LoginComponent extends BaseLoginComponent {
       formBuilder,
       formValidationErrorService,
       route,
-      loginService,
+      loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
     );
@@ -77,8 +79,8 @@ export class LoginComponent extends BaseLoginComponent {
     this.showPasswordless = flagEnabled("showPasswordless");
 
     if (this.showPasswordless) {
-      this.formGroup.controls.email.setValue(this.loginService.getEmail());
-      this.formGroup.controls.rememberEmail.setValue(this.loginService.getRememberEmail());
+      this.formGroup.controls.email.setValue(this.loginEmailService.getEmail());
+      this.formGroup.controls.rememberEmail.setValue(this.loginEmailService.getRememberEmail());
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.validateEmail();
@@ -94,7 +96,7 @@ export class LoginComponent extends BaseLoginComponent {
   async launchSsoBrowser() {
     // Save off email for SSO
     await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
-    await this.loginService.saveEmailSettings();
+    await this.loginEmailService.saveEmailSettings();
     // Generate necessary sso params
     const passwordOptions: any = {
       type: "password",

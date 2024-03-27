@@ -15,6 +15,7 @@ import {
 } from "rxjs";
 
 import {
+  LoginEmailServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -23,7 +24,6 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -82,7 +82,7 @@ export class BaseLoginDecryptionOptionsComponent implements OnInit, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected messagingService: MessagingService,
     protected tokenService: TokenService,
-    protected loginService: LoginService,
+    protected loginEmailService: LoginEmailServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected cryptoService: CryptoService,
     protected organizationUserService: OrganizationUserService,
@@ -244,23 +244,17 @@ export class BaseLoginDecryptionOptionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.loginService.setEmail(this.data.userEmail);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/login-with-device"]);
+    this.loginEmailService.setEmail(this.data.userEmail);
+    await this.router.navigate(["/login-with-device"]);
   }
 
   async requestAdminApproval() {
-    this.loginService.setEmail(this.data.userEmail);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/admin-approval-requested"]);
+    this.loginEmailService.setEmail(this.data.userEmail);
+    await this.router.navigate(["/admin-approval-requested"]);
   }
 
   async approveWithMasterPassword() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/lock"], { queryParams: { from: "login-initiated" } });
+    await this.router.navigate(["/lock"], { queryParams: { from: "login-initiated" } });
   }
 
   async createUser() {

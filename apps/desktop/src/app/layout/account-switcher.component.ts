@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -91,6 +92,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private router: Router,
     private tokenService: TokenService,
     private environmentService: EnvironmentService,
+    private loginEmailService: LoginEmailServiceAbstraction,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -137,7 +139,10 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async addAccount() {
     this.close();
-    await this.stateService.setRememberedEmail(null);
+
+    this.loginEmailService.setRememberEmail(false);
+    await this.loginEmailService.saveEmailSettings();
+
     await this.router.navigate(["/login"]);
     await this.stateService.setActiveUser(null);
   }
