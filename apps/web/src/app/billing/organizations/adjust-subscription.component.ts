@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-subscription-update.request";
@@ -17,37 +18,35 @@ export class AdjustSubscription {
   @Input() seatPrice = 0;
   @Input() interval = "year";
   @Output() onAdjusted = new EventEmitter();
-
-  formPromise: Promise<void>;
-  limitSubscription: boolean;
-  newSeatCount: number;
-  newMaxSeats: number;
+  adjustSubscriptionForm = this.formBuilder.group({
+    newSeatCount: [0, [Validators.min(0)]],
+    limitSubscription: [false],
+    newMaxSeats: [0, [Validators.min(0)]],
+  });
 
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private formBuilder: FormBuilder,
   ) {}
 
   ngOnInit() {
-    this.limitSubscription = this.maxAutoscaleSeats != null;
-    this.newSeatCount = this.currentSeatCount;
-    this.newMaxSeats = this.maxAutoscaleSeats;
+    this.adjustSubscriptionForm.patchValue({
+      newSeatCount: this.currentSeatCount,
+      limitSubscription: this.maxAutoscaleSeats != null,
+      newMaxSeats: this.maxAutoscaleSeats,
+    });
   }
 
-  async submit() {
+  submit = async () => {
     try {
       const request = new OrganizationSubscriptionUpdateRequest(
         this.additionalSeatCount,
-        this.newMaxSeats,
+        this.adjustSubscriptionForm.value.newMaxSeats,
       );
-      this.formPromise = this.organizationApiService.updatePasswordManagerSeats(
-        this.organizationId,
-        request,
-      );
-
-      await this.formPromise;
+      await this.organizationApiService.updatePasswordManagerSeats(this.organizationId, request);
 
       this.platformUtilsService.showToast(
         "success",
@@ -58,20 +57,24 @@ export class AdjustSubscription {
       this.logService.error(e);
     }
     this.onAdjusted.emit();
-  }
+  };
 
   limitSubscriptionChanged() {
-    if (!this.limitSubscription) {
-      this.newMaxSeats = null;
+    if (!this.adjustSubscriptionForm.value.limitSubscription) {
+      this.adjustSubscriptionForm.value.newMaxSeats = null;
     }
   }
 
   get additionalSeatCount(): number {
-    return this.newSeatCount ? this.newSeatCount - this.currentSeatCount : 0;
+    return this.adjustSubscriptionForm.value.newSeatCount
+      ? this.adjustSubscriptionForm.value.newSeatCount - this.currentSeatCount
+      : 0;
   }
 
   get additionalMaxSeatCount(): number {
-    return this.newMaxSeats ? this.newMaxSeats - this.currentSeatCount : 0;
+    return this.adjustSubscriptionForm.value.newMaxSeats
+      ? this.adjustSubscriptionForm.value.newMaxSeats - this.currentSeatCount
+      : 0;
   }
 
   get adjustedSeatTotal(): number {
