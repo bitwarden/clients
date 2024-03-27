@@ -54,7 +54,7 @@
     "@storybook/angular": "7.6.17",
     "@storybook/jest": "0.2.3",
     "@storybook/testing-library": "0.2.2",
-    "@types/argon2-browser": "1.18.1",
+    "@types/argon2-browser": "1.18.4",
     "@types/chrome": "0.0.262",
     "@types/duo_web_sdk": "2.7.1",
     "@types/firefox-webext-browser": "111.0.5",
