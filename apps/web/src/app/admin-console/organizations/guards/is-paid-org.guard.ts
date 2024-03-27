@@ -17,7 +17,7 @@ export class IsPaidOrgGuard implements CanActivate {
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const org = this.organizationService.get(route.params.organizationId);
+    const org = await this.organizationService.get(route.params.organizationId);
 
     if (org == null) {
       return this.router.createUrlTree(["/"]);

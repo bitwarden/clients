@@ -7,7 +7,6 @@ export enum FeatureFlag {
   GeneratorToolsModernization = "generator-tools-modernization",
   KeyRotationImprovements = "key-rotation-improvements",
   FlexibleCollectionsMigration = "flexible-collections-migration",
-  AC1607_PresentUserOffboardingSurvey = "AC-1607_present-user-offboarding-survey",
   ShowPaymentMethodWarningBanners = "show-payment-method-warning-banners",
 }
 

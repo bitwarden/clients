@@ -393,7 +393,10 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules
+    runs-on: macos-11
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
@@ -522,7 +525,10 @@ jobs:
 
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules  
+    runs-on: macos-11
     needs:
       - setup
       - macos-build
@@ -732,7 +738,10 @@ jobs:
 
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules    
+    runs-on: macos-11
     needs:
       - setup
       - macos-build

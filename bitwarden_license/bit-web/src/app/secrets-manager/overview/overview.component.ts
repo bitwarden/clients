@@ -12,6 +12,7 @@ import {
   take,
   share,
   firstValueFrom,
+  concatMap,
 } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -105,7 +106,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
     orgId$
       .pipe(
-        map((orgId) => this.organizationService.get(orgId)),
+        concatMap(async (orgId) => await this.organizationService.get(orgId)),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {

@@ -9,7 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType, ProductType } from "@bitwarden/common/enums";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -65,7 +65,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
-    configService: ConfigServiceAbstraction,
+    configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(

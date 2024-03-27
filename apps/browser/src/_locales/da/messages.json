@@ -709,7 +709,7 @@
     "message": "Vis indstillinger i kontekstmenuen"
   },
   "contextMenuItemDesc": {
-    "message": "Brug et sekundært klik for at få adgang til adgangskodegenerering og matchende logins til hjemmesiden."
+    "message": "Brug et sekundært klik for at tilgå adgangskodegenerering og matchende logins til webstedet."
   },
   "contextMenuItemDescAlt": {
     "message": "Brug et sekundært klik for at få adgang til adgangskodegenerering og matchende logins til webstedet. Gælder alle indloggede konti."
@@ -1033,7 +1033,7 @@
     "message": "Server URL"
   },
   "apiUrl": {
-    "message": "API server URL"
+    "message": "API-server URL"
   },
   "webVaultUrl": {
     "message": "Web-boks server URL"
@@ -1574,7 +1574,7 @@
     "message": "Advarsel: Dette er en ikke-sikret HTTP side, og alle indsendte oplysninger kan potentielt ses og ændres af andre. Dette login blev oprindeligt gemt på en sikker (HTTPS) side."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Do you still wish to fill this login?"
+    "message": "Ønsker dette login stadig udfyldt?"
   },
   "autofillIframeWarning": {
     "message": "Formularen hostes af et andet domæne end URI'en for det gemte login. Vælg OK for at autoudfylde alligevel, eller Afbryd for at stoppe."
@@ -1712,7 +1712,7 @@
     "message": "Biometri mislykkedes"
   },
   "biometricsFailedDesc": {
-    "message": "Biometri kan ikke fuldføres, overvej at bruge en hovedadgangskode eller logge ud og ind igen. Fortsætter problemet, kontakt Bitwarden-supporten."
+    "message": "Biometri kan ikke gennemføres. Overvej at bruge en hovedadgangskode eller at logge ud. Fortsætter problemet, kontakt Bitwarden-supporten."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Tilladelse ikke givet"
@@ -2027,7 +2027,7 @@
     "message": "Minutter"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Organisationspolitikker har sat maks. tilladt boks-timeout. til $HOURS$ time(r) og $MINUTES$ minut(ter).",
+    "message": "Organisationspolitikkerne har fastsat den maksimalt tilladte boks-timeout til $HOURS$ time(r) og $MINUTES$ minut(ter).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2314,7 +2314,7 @@
     "message": "Sådan autoudfyldes"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Vælg et emne fra denne skærm, brug genvejen $COMMAND$ eller udforsk andre valgmuligheder i Indstillinger.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2323,7 +2323,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Vælg et emne fra denne skærm eller udforsk andre valgmuligheder i Indstillinger."
   },
   "gotIt": {
     "message": "Forstået"
@@ -2385,12 +2385,6 @@
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Adgang nægtet. Nødvendig tilladelse til at se siden mangler."
@@ -2706,7 +2700,7 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start DUO og følg trinene for at fuldføre indlogningen."
+    "message": "Start Duo og følg trinnene for at fuldføre indlogningen."
   },
   "duoRequiredForAccount": {
     "message": "Duo-totrinsindlogning kræves for kontoen."
@@ -2718,7 +2712,7 @@
     "message": "Pop ud-udvidelse"
   },
   "launchDuo": {
-    "message": "Start DUO"
+    "message": "Start Duo"
   },
   "importFormatError": {
     "message": "Data er ikke korrekt formateret. Tjek importfilen og forsøg igen."

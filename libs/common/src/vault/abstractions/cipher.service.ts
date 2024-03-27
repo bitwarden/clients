@@ -1,5 +1,6 @@
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CipherId, CollectionId, OrganizationId } from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
@@ -63,6 +64,19 @@ export abstract class CipherService {
     admin?: boolean,
   ) => Promise<Cipher>;
   saveCollectionsWithServer: (cipher: Cipher) => Promise<any>;
+  /**
+   * Bulk update collections for many ciphers with the server
+   * @param orgId
+   * @param cipherIds
+   * @param collectionIds
+   * @param removeCollections - If true, the collections will be removed from the ciphers, otherwise they will be added
+   */
+  bulkUpdateCollectionsWithServer: (
+    orgId: OrganizationId,
+    cipherIds: CipherId[],
+    collectionIds: CollectionId[],
+    removeCollections: boolean,
+  ) => Promise<void>;
   upsert: (cipher: CipherData | CipherData[]) => Promise<any>;
   replace: (ciphers: { [id: string]: CipherData }) => Promise<any>;
   clear: (userId: string) => Promise<any>;

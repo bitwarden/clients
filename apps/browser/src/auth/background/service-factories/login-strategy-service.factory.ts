@@ -9,7 +9,10 @@ import {
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
 import { appIdServiceFactory } from "../../../platform/background/service-factories/app-id-service.factory";
-import { billingAccountProfileStateServiceFactory } from "../../../platform/background/service-factories/billing-account-profile-state-service.factory";
+import {
+  billingAccountProfileStateServiceFactory,
+  BillingAccountProfileStateServiceInitOptions,
+} from "../../../platform/background/service-factories/billing-account-profile-state-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
@@ -70,6 +73,10 @@ import {
 } from "./key-connector-service.factory";
 import { tokenServiceFactory, TokenServiceInitOptions } from "./token-service.factory";
 import { twoFactorServiceFactory, TwoFactorServiceInitOptions } from "./two-factor-service.factory";
+import {
+  internalUserDecryptionOptionServiceFactory,
+  UserDecryptionOptionsServiceInitOptions,
+} from "./user-decryption-options-service.factory";
 
 type LoginStrategyServiceFactoryOptions = FactoryOptions;
 
@@ -90,7 +97,9 @@ export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions
   PasswordStrengthServiceInitOptions &
   DeviceTrustCryptoServiceInitOptions &
   AuthRequestServiceInitOptions &
-  GlobalStateProviderInitOptions;
+  UserDecryptionOptionsServiceInitOptions &
+  GlobalStateProviderInitOptions &
+  BillingAccountProfileStateServiceInitOptions;
 
 export function loginStrategyServiceFactory(
   cache: { loginStrategyService?: LoginStrategyServiceAbstraction } & CachedServices,
@@ -119,6 +128,7 @@ export function loginStrategyServiceFactory(
         await policyServiceFactory(cache, opts),
         await deviceTrustCryptoServiceFactory(cache, opts),
         await authRequestServiceFactory(cache, opts),
+        await internalUserDecryptionOptionServiceFactory(cache, opts),
         await globalStateProviderFactory(cache, opts),
         await billingAccountProfileStateServiceFactory(cache, opts),
       ),

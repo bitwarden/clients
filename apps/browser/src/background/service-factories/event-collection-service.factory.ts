@@ -5,15 +5,14 @@ import {
   organizationServiceFactory,
   OrganizationServiceInitOptions,
 } from "../../admin-console/background/service-factories/organization-service.factory";
+import { accountServiceFactory } from "../../auth/background/service-factories/account-service.factory";
 import {
   FactoryOptions,
   CachedServices,
   factory,
 } from "../../platform/background/service-factories/factory-options";
-import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../platform/background/service-factories/state-service.factory";
+import { stateProviderFactory } from "../../platform/background/service-factories/state-provider.factory";
+import { StateServiceInitOptions } from "../../platform/background/service-factories/state-service.factory";
 import {
   cipherServiceFactory,
   CipherServiceInitOptions,
@@ -43,9 +42,10 @@ export function eventCollectionServiceFactory(
     async () =>
       new EventCollectionService(
         await cipherServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
         await organizationServiceFactory(cache, opts),
         await eventUploadServiceFactory(cache, opts),
+        await accountServiceFactory(cache, opts),
       ),
   );
 }

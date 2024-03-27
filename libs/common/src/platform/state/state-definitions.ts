@@ -22,6 +22,13 @@ import { StateDefinition } from "./state-definition";
 export const ORGANIZATIONS_DISK = new StateDefinition("organizations", "disk");
 export const POLICIES_DISK = new StateDefinition("policies", "disk");
 export const PROVIDERS_DISK = new StateDefinition("providers", "disk");
+export const ORGANIZATION_MANAGEMENT_PREFERENCES_DISK = new StateDefinition(
+  "organizationManagementPreferences",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -37,6 +44,7 @@ export const TOKEN_DISK_LOCAL = new StateDefinition("tokenDiskLocal", "disk", {
 });
 export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memory");
+export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
 
 // Autofill
 
@@ -65,10 +73,15 @@ export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", 
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
+export const CONFIG_DISK = new StateDefinition("config", "disk", {
+  web: "disk-local",
+});
 export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
+export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
-export const THEMING_DISK = new StateDefinition("theming", "disk");
+export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
+export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-local" });
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk");
 
 // Secrets Manager
@@ -81,6 +94,7 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
+export const EVENT_COLLECTION_DISK = new StateDefinition("eventCollection", "disk");
 
 // Vault
 

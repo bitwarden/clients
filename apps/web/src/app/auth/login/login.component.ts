@@ -120,7 +120,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
           invite.email,
           invite.organizationUserId,
         );
-        policyList = this.policyService.mapPoliciesFromToken(this.policies);
+        policyList = Policy.fromListResponse(this.policies);
       } catch (e) {
         this.logService.error(e);
       }

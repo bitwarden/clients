@@ -17,6 +17,10 @@
       "commitMessagePrefix": "[deps] Platform:"
     },
     {
+      "groupName": "napi",
+      "matchPackageNames": ["napi", "napi-build", "napi-derive"]
+    },
+    {
       "matchPackageNames": ["typescript", "zone.js"],
       "matchUpdateTypes": ["major", "minor"],
       "description": "Determined by Angular",

@@ -7,7 +7,6 @@ import { Subject, takeUntil } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PlanType } from "@bitwarden/common/billing/enums";
@@ -191,8 +190,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
           invite.organizationUserId,
         );
         if (policies.data != null) {
-          const policiesData = policies.data.map((p) => new PolicyData(p));
-          this.policies = policiesData.map((p) => new Policy(p));
+          this.policies = Policy.fromListResponse(policies);
         }
       } catch (e) {
         this.logService.error(e);

@@ -1,4 +1,5 @@
 import { Directive, Input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { CaptchaIFrame } from "@bitwarden/common/auth/captcha-iframe";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -19,7 +20,8 @@ export abstract class CaptchaProtectedComponent {
   ) {}
 
   async setupCaptcha() {
-    const webVaultUrl = this.environmentService.getWebVaultUrl();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
 
     this.captcha = new CaptchaIFrame(
       window,

@@ -545,7 +545,7 @@
     "message": "Angivelse af hovedadgangskode igen er obligatorisk."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Hovedadgangskoden skal udgøre minimum $VALUE$ tegn.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -780,7 +780,7 @@
     "message": "Kontakt os"
   },
   "helpAndFeedback": {
-    "message": "Help and feedback"
+    "message": "Hjælp og feedback"
   },
   "getHelp": {
     "message": "Få hjælp"
@@ -1420,10 +1420,10 @@
     "message": "oplås din boks"
   },
   "autoPromptWindowsHello": {
-    "message": "Bed om Windows Hello ved start"
+    "message": "Anmod om Windows Hello ved app-start"
   },
   "autoPromptTouchId": {
-    "message": "Bed om Touch ID ved start"
+    "message": "Anmod om Touch ID ved app-start"
   },
   "requirePasswordOnStart": {
     "message": "Kræv adgangskode eller PIN-kode ved app-start"
@@ -1643,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Tilføj et ekstra sikkerhedslag ved at kræve bekræftelse af fingeraftrykssætning, når der oprettes forbindelse mellem din computer og din browser. Dette kræver brugerhandling og bekræftelse, hver gang der forbindelse oprettes."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Benyt hardwareacceleration"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Denne indstilling er som standard TIL. Slå kun FRA, hvis der opleves grafiske problemer. Genstart kræves."
   },
   "approve": {
     "message": "Godkend"
@@ -1925,7 +1931,7 @@
     "message": "Minutter"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Organisationspolitikker påvirker din boks-timeout. Maksimalt tilladt boks-timeout er $HOURS$ time(r) og $MINUTES$ minut(ter)",
+    "message": "Organisationspolitikkerne har fastsat den maksimalt tilladte boks-timeout til $HOURS$ time(r) og $MINUTES$ minut(ter).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Logger ind på"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "selv-hostet"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Almindelige formater",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Fejlfinding"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Deaktivér hardwareacceleration og genstart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Aktivér hardwareacceleration og genstart"
   }
 }

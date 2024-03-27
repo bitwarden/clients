@@ -167,7 +167,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
         qParams.email,
         qParams.organizationUserId,
       );
-      policyList = this.policyService.mapPoliciesFromToken(policies);
+      policyList = Policy.fromListResponse(policies);
     } catch (e) {
       this.logService.error(e);
     }

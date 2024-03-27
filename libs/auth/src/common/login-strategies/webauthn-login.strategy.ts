@@ -17,6 +17,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions";
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -49,6 +50,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     logService: LogService,
     stateService: StateService,
     twoFactorService: TwoFactorService,
+    userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
@@ -61,6 +63,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
       logService,
       stateService,
       twoFactorService,
+      userDecryptionOptionsService,
       billingAccountProfileStateService,
     );
 

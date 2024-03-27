@@ -13,21 +13,27 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 
+import { SecretKeyDefinition } from "./secret-key-definition";
 import { UserEncryptor } from "./user-encryptor.abstraction";
 
 /** Describes the structure of data stored by the SecretState's
  *  encrypted state. Notably, this interface ensures that `Disclosed`
- *  round trips through JSON serialization.
+ *  round trips through JSON serialization. It also preserves the
+ *  Id.
+ *  @remarks Tuple representation chosen because it matches
+ *  `Object.entries` format.
  */
-type ClassifiedFormat<Disclosed> = {
+type ClassifiedFormat<Id, Disclosed> = {
+  /** Identifies records. `null` when storing a `value` */
+  readonly id: Id | null;
   /** Serialized {@link EncString} of the secret state's
    *  secret-level classified data.
    */
-  secret: string;
+  readonly secret: string;
   /** serialized representation of the secret state's
    * disclosed-level classified data.
    */
-  disclosed: Jsonify<Disclosed>;
+  readonly disclosed: Jsonify<Disclosed>;
 };
 
 /** Stores account-specific secrets protected by a UserKeyEncryptor.
@@ -38,15 +44,16 @@ type ClassifiedFormat<Disclosed> = {
  *
  *  DO NOT USE THIS for synchronized data.
  */
-export class SecretState<Plaintext extends object, Disclosed>
-  implements SingleUserState<Plaintext>
+export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
+  implements SingleUserState<Outer>
 {
   // The constructor is private to avoid creating a circular dependency when
   // wiring the derived and secret states together.
   private constructor(
-    private readonly encryptor: UserEncryptor<Plaintext, Disclosed>,
-    private readonly encrypted: SingleUserState<ClassifiedFormat<Disclosed>>,
-    private readonly plaintext: DerivedState<Plaintext>,
+    private readonly key: SecretKeyDefinition<Outer, Id, Plaintext, Disclosed, Secret>,
+    private readonly encryptor: UserEncryptor<Secret>,
+    private readonly encrypted: SingleUserState<ClassifiedFormat<Id, Disclosed>[]>,
+    private readonly plaintext: DerivedState<Outer>,
   ) {
     this.state$ = plaintext.state$;
     this.combinedState$ = plaintext.state$.pipe(map((state) => [this.encrypted.userId, state]));
@@ -61,10 +68,10 @@ export class SecretState<Plaintext extends object, Disclosed>
    *  updates after the secret has been recorded to state storage.
    *  @returns `undefined` when the account is locked.
    */
-  readonly state$: Observable<Plaintext>;
+  readonly state$: Observable<Outer>;
 
   /** {@link SingleUserState.combinedState$} */
-  readonly combinedState$: Observable<CombinedState<Plaintext>>;
+  readonly combinedState$: Observable<CombinedState<Outer>>;
 
   /** Creates a secret state bound to an account encryptor. The account must be unlocked
    *  when this method is called.
@@ -78,24 +85,28 @@ export class SecretState<Plaintext extends object, Disclosed>
    *    encrypted, and stored in a `secret` property. Disclosed-classification data is stored
    *    in a `disclosed` property. Omitted-classification data is not stored.
    */
-  static from<TFrom extends object, Disclosed>(
+  static from<Outer, Id, TFrom extends object, Disclosed, Secret>(
     userId: UserId,
-    key: KeyDefinition<TFrom>,
+    key: SecretKeyDefinition<Outer, Id, TFrom, Disclosed, Secret>,
     provider: StateProvider,
-    encryptor: UserEncryptor<TFrom, Disclosed>,
+    encryptor: UserEncryptor<Secret>,
   ) {
     // construct encrypted backing store while avoiding collisions between the derived key and the
     // backing storage key.
-    const secretKey = new KeyDefinition<ClassifiedFormat<Disclosed>>(key.stateDefinition, key.key, {
-      cleanupDelayMs: key.cleanupDelayMs,
-      // FIXME: When the fakes run deserializers and serialization can be guaranteed through
-      // state providers, decode `jsonValue.secret` instead of it running in `derive`.
-      deserializer: (jsonValue) => jsonValue as ClassifiedFormat<Disclosed>,
-    });
+    const secretKey = new KeyDefinition<ClassifiedFormat<Id, Disclosed>[]>(
+      key.stateDefinition,
+      key.key,
+      {
+        cleanupDelayMs: key.options.cleanupDelayMs,
+        // FIXME: When the fakes run deserializers and serialization can be guaranteed through
+        // state providers, decode `jsonValue.secret` instead of it running in `derive`.
+        deserializer: (jsonValue) => jsonValue as ClassifiedFormat<Id, Disclosed>[],
+      },
+    );
     const encryptedState = provider.getUser(userId, secretKey);
 
     // construct plaintext store
-    const plaintextDefinition = DeriveDefinition.from<ClassifiedFormat<Disclosed>, TFrom>(
+    const plaintextDefinition = DeriveDefinition.from<ClassifiedFormat<Id, Disclosed>[], Outer>(
       secretKey,
       {
         derive: async (from) => {
@@ -104,23 +115,38 @@ export class SecretState<Plaintext extends object, Disclosed>
             return null;
           }
 
-          // otherwise forward the decrypted data to the caller's derive implementation
-          const secret = EncString.fromJSON(from.secret);
-          const decrypted = await encryptor.decrypt(secret, from.disclosed, encryptedState.userId);
-          const result = key.deserializer(decrypted) as TFrom;
+          // decrypt each item
+          const decryptTasks = from.map(async ({ id, secret, disclosed }) => {
+            const encrypted = EncString.fromJSON(secret);
+            const decrypted = await encryptor.decrypt(encrypted, encryptedState.userId);
+
+            const declassified = key.classifier.declassify(disclosed, decrypted);
+            const result = key.options.deserializer(declassified);
+
+            return [id, result] as const;
+          });
+
+          // reconstruct expected type
+          const results = await Promise.all(decryptTasks);
+          const result = key.reconstruct(results);
 
           return result;
         },
         // wire in the caller's deserializer for memory serialization
-        deserializer: key.deserializer,
+        deserializer: (d) => {
+          const items = key.deconstruct(d);
+          const results = items.map(([k, v]) => [k, key.options.deserializer(v)] as const);
+          const result = key.reconstruct(results);
+          return result;
+        },
         // cache the decrypted data in memory
-        cleanupDelayMs: key.cleanupDelayMs,
+        cleanupDelayMs: key.options.cleanupDelayMs,
       },
     );
     const plaintextState = provider.getDerived(encryptedState.state$, plaintextDefinition, null);
 
     // wrap the encrypted and plaintext states in a `SecretState` facade
-    const secretState = new SecretState(encryptor, encryptedState, plaintextState);
+    const secretState = new SecretState(key, encryptor, encryptedState, plaintextState);
     return secretState;
   }
 
@@ -138,9 +164,9 @@ export class SecretState<Plaintext extends object, Disclosed>
    *   they can be lost when the secret state updates its backing store.
    */
   async update<TCombine>(
-    configureState: (state: Plaintext, dependencies: TCombine) => Plaintext,
-    options: StateUpdateOptions<Plaintext, TCombine> = null,
-  ): Promise<Plaintext> {
+    configureState: (state: Outer, dependencies: TCombine) => Outer,
+    options: StateUpdateOptions<Outer, TCombine> = null,
+  ): Promise<Outer> {
     // reactively grab the latest state from the caller. `zip` requires each
     // observable has a value, so `combined$` provides a default if necessary.
     const combined$ = options?.combineLatestWith ?? of(undefined);
@@ -155,7 +181,7 @@ export class SecretState<Plaintext extends object, Disclosed>
     );
 
     // update the backing store
-    let latestValue: Plaintext = null;
+    let latestValue: Outer = null;
     await this.encrypted.update((_, [, newStoredState]) => newStoredState, {
       combineLatestWith: newState$,
       shouldUpdate: (_, [shouldUpdate, , newState]) => {
@@ -171,10 +197,10 @@ export class SecretState<Plaintext extends object, Disclosed>
   }
 
   private async prepareCryptoState(
-    currentState: Plaintext,
+    currentState: Outer,
     shouldUpdate: () => boolean,
-    configureState: () => Plaintext,
-  ): Promise<[boolean, ClassifiedFormat<Disclosed>, Plaintext]> {
+    configureState: () => Outer,
+  ): Promise<[boolean, ClassifiedFormat<Id, Disclosed>[], Outer]> {
     // determine whether an update is necessary
     if (!shouldUpdate()) {
       return [false, undefined, currentState];
@@ -186,18 +212,25 @@ export class SecretState<Plaintext extends object, Disclosed>
       return [true, newState as any, newState];
     }
 
-    // the encrypt format *is* the storage format, so if the shape of that data changes,
-    // this needs to map it explicitly for compatibility purposes.
-    const newStoredState = await this.encryptor.encrypt(newState, this.encrypted.userId);
+    // convert the object to a list format so that all encrypt and decrypt
+    // operations are self-similar
+    const desconstructed = this.key.deconstruct(newState);
 
-    // the deserializer in the plaintextState's `derive` configuration always runs, but
-    // `encryptedState` is not guaranteed to serialize the data, so it's necessary to
-    // round-trip it proactively. This will cause some duplicate work in those situations
-    // where the backing store does deserialize the data.
-    //
-    // FIXME: Once there's a backing store configuration setting guaranteeing serialization,
-    // remove this code and configure the backing store as appropriate.
-    const serializedState = JSON.parse(JSON.stringify(newStoredState));
+    // encrypt each value individually
+    const encryptTasks = desconstructed.map(async ([id, state]) => {
+      const classified = this.key.classifier.classify(state);
+      const encrypted = await this.encryptor.encrypt(classified.secret, this.encrypted.userId);
+
+      // the deserializer in the plaintextState's `derive` configuration always runs, but
+      // `encryptedState` is not guaranteed to serialize the data, so it's necessary to
+      // round-trip it proactively. This will cause some duplicate work in those situations
+      // where the backing store does deserialize the data.
+      const serialized = JSON.parse(
+        JSON.stringify({ id, secret: encrypted, disclosed: classified.disclosed }),
+      );
+      return serialized as ClassifiedFormat<Id, Disclosed>;
+    });
+    const serializedState = await Promise.all(encryptTasks);
 
     return [true, serializedState, newState];
   }

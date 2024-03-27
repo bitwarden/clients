@@ -1,6 +1,7 @@
 import { Component, NgZone } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -114,7 +115,8 @@ export class LoginComponent extends BaseLoginComponent {
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
     await this.ssoLoginService.setSsoState(state);
 
-    let url = this.environmentService.getWebVaultUrl();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    let url = env.getWebVaultUrl();
     if (url == null) {
       url = "https://vault.bitwarden.com";
     }

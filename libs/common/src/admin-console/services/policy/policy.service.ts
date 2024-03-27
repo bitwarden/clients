@@ -1,6 +1,5 @@
 import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
-import { ListResponse } from "../../../models/response/list.response";
 import { KeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
@@ -11,7 +10,6 @@ import { MasterPasswordPolicyOptions } from "../../models/domain/master-password
 import { Organization } from "../../models/domain/organization";
 import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
-import { PolicyResponse } from "../../models/response/policy.response";
 
 const policyRecordToArray = (policiesMap: { [id: string]: PolicyData }) =>
   Object.values(policiesMap || {}).map((f) => new Policy(f));
@@ -210,19 +208,6 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     resetPasswordPolicyOptions.autoEnrollEnabled = policy?.data?.autoEnrollEnabled ?? false;
 
     return [resetPasswordPolicyOptions, policy?.enabled ?? false];
-  }
-
-  mapPolicyFromResponse(policyResponse: PolicyResponse): Policy {
-    const policyData = new PolicyData(policyResponse);
-    return new Policy(policyData);
-  }
-
-  mapPoliciesFromToken(policiesResponse: ListResponse<PolicyResponse>): Policy[] {
-    if (policiesResponse?.data == null) {
-      return null;
-    }
-
-    return policiesResponse.data.map((response) => this.mapPolicyFromResponse(response));
   }
 
   async upsert(policy: PolicyData): Promise<void> {

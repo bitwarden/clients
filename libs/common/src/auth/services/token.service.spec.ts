@@ -1,7 +1,10 @@
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
+import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
@@ -12,7 +15,6 @@ import { DecodedAccessToken, TokenService } from "./token.service";
 import {
   ACCESS_TOKEN_DISK,
   ACCESS_TOKEN_MEMORY,
-  ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE,
   API_KEY_CLIENT_ID_DISK,
   API_KEY_CLIENT_ID_MEMORY,
   API_KEY_CLIENT_SECRET_DISK,
@@ -28,7 +30,10 @@ describe("TokenService", () => {
   let singleUserStateProvider: FakeSingleUserStateProvider;
   let globalStateProvider: FakeGlobalStateProvider;
 
-  const secureStorageService = mock<AbstractStorageService>();
+  let secureStorageService: MockProxy<AbstractStorageService>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
+  let encryptService: MockProxy<EncryptService>;
+  let logService: MockProxy<LogService>;
 
   const memoryVaultTimeoutAction = VaultTimeoutAction.LogOut;
   const memoryVaultTimeout = 30;
@@ -74,11 +79,18 @@ describe("TokenService", () => {
     userId: userIdFromAccessToken,
   };
 
+  const accessTokenKeyB64 = { keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8" };
+
   beforeEach(() => {
     jest.clearAllMocks();
 
     singleUserStateProvider = new FakeSingleUserStateProvider();
     globalStateProvider = new FakeGlobalStateProvider();
+
+    secureStorageService = mock<AbstractStorageService>();
+    keyGenerationService = mock<KeyGenerationService>();
+    encryptService = mock<EncryptService>();
+    logService = mock<LogService>();
 
     const supportsSecureStorage = false; // default to false; tests will override as needed
     tokenService = createTokenService(supportsSecureStorage);
@@ -89,8 +101,8 @@ describe("TokenService", () => {
   });
 
   describe("Access Token methods", () => {
-    const accessTokenPartialSecureStorageKey = `_accessToken`;
-    const accessTokenSecureStorageKey = `${userIdFromAccessToken}${accessTokenPartialSecureStorageKey}`;
+    const accessTokenKeyPartialSecureStorageKey = `_accessTokenKey`;
+    const accessTokenKeySecureStorageKey = `${userIdFromAccessToken}${accessTokenKeyPartialSecureStorageKey}`;
 
     describe("setAccessToken", () => {
       it("should throw an error if the access token is null", async () => {
@@ -150,17 +162,21 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should set the access token in secure storage, null out data on disk or in memory, and set a flag to indicate the token has been migrated", async () => {
+        it("should set an access token key in secure storage, the encrypted access token in disk, and clear out the token in memory", async () => {
           // Arrange:
 
-          // For testing purposes, let's assume that the access token is already in disk and memory
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
+          // For testing purposes, let's assume that the access token is already in memory
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
             .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+
+          keyGenerationService.createKey.mockResolvedValue("accessTokenKey" as any);
+
+          const mockEncryptedAccessToken = "encryptedAccessToken";
+
+          encryptService.encrypt.mockResolvedValue({
+            encryptedString: mockEncryptedAccessToken,
+          } as any);
 
           // Act
           await tokenService.setAccessToken(
@@ -170,27 +186,22 @@ describe("TokenService", () => {
           );
           // Assert
 
-          // assert that the access token was set in secure storage
+          // assert that the AccessTokenKey was set in secure storage
           expect(secureStorageService.save).toHaveBeenCalledWith(
-            accessTokenSecureStorageKey,
-            accessTokenJwt,
+            accessTokenKeySecureStorageKey,
+            "accessTokenKey",
             secureStorageOptions,
           );
 
-          // assert data was migrated out of disk and memory + flag was set
+          // assert that the access token was encrypted and set in disk
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
-          ).toHaveBeenCalledWith(null);
+          ).toHaveBeenCalledWith(mockEncryptedAccessToken);
+
+          // assert data was migrated out of memory
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
           ).toHaveBeenCalledWith(null);
-
-          expect(
-            singleUserStateProvider.getFake(
-              userIdFromAccessToken,
-              ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE,
-            ).nextMock,
-          ).toHaveBeenCalledWith(true);
         });
       });
     });
@@ -216,7 +227,13 @@ describe("TokenService", () => {
       });
 
       describe("Memory storage tests", () => {
-        it("should get the access token from memory with no user id specified (uses global active user)", async () => {
+        test.each([
+          [
+            "should get the access token from memory for the provided user id",
+            userIdFromAccessToken,
+          ],
+          ["should get the access token from memory with no user id provided", undefined],
+        ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
@@ -228,37 +245,28 @@ describe("TokenService", () => {
             .stateSubject.next([userIdFromAccessToken, undefined]);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          if (!userId) {
+            globalStateProvider
+              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
+              .stateSubject.next(userIdFromAccessToken);
+          }
 
           // Act
-          const result = await tokenService.getAccessToken();
+          const result = await tokenService.getAccessToken(userId);
 
-          // Assert
-          expect(result).toEqual(accessTokenJwt);
-        });
-
-        it("should get the access token from memory for the specified user id", async () => {
-          // Arrange
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
-          // set disk to undefined
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
-
-          // Act
-          const result = await tokenService.getAccessToken(userIdFromAccessToken);
           // Assert
           expect(result).toEqual(accessTokenJwt);
         });
       });
 
       describe("Disk storage tests (secure storage not supported on platform)", () => {
-        it("should get the access token from disk with no user id specified", async () => {
+        test.each([
+          [
+            "should get the access token from disk for the specified user id",
+            userIdFromAccessToken,
+          ],
+          ["should get the access token from disk with no user id specified", undefined],
+        ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
@@ -269,28 +277,14 @@ describe("TokenService", () => {
             .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          if (!userId) {
+            globalStateProvider
+              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
+              .stateSubject.next(userIdFromAccessToken);
+          }
 
           // Act
-          const result = await tokenService.getAccessToken();
-          // Assert
-          expect(result).toEqual(accessTokenJwt);
-        });
-
-        it("should get the access token from disk for the specified user id", async () => {
-          // Arrange
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
-
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
-          // Act
-          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+          const result = await tokenService.getAccessToken(userId);
           // Assert
           expect(result).toEqual(accessTokenJwt);
         });
@@ -302,7 +296,16 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should get the access token from secure storage when no user id is specified and the migration flag is set to true", async () => {
+        test.each([
+          [
+            "should get the encrypted access token from disk, decrypt it, and return it when user id is provided",
+            userIdFromAccessToken,
+          ],
+          [
+            "should get the encrypted access token from disk, decrypt it, and return it when no user id is provided",
+            undefined,
+          ],
+        ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
@@ -310,76 +313,35 @@ describe("TokenService", () => {
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .stateSubject.next([userIdFromAccessToken, "encryptedAccessToken"]);
 
-          secureStorageService.get.mockResolvedValue(accessTokenJwt);
+          secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
+          encryptService.decryptToUtf8.mockResolvedValue("decryptedAccessToken");
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
-
-          // set access token migration flag to true
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE)
-            .stateSubject.next([userIdFromAccessToken, true]);
+          if (!userId) {
+            globalStateProvider
+              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
+              .stateSubject.next(userIdFromAccessToken);
+          }
 
           // Act
-          const result = await tokenService.getAccessToken();
-          // Assert
-          expect(result).toEqual(accessTokenJwt);
-        });
-
-        it("should get the access token from secure storage when user id is specified and the migration flag set to true", async () => {
-          // Arrange
-
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
-
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
-
-          secureStorageService.get.mockResolvedValue(accessTokenJwt);
-
-          // set access token migration flag to true
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE)
-            .stateSubject.next([userIdFromAccessToken, true]);
-
-          // Act
-          const result = await tokenService.getAccessToken(userIdFromAccessToken);
-          // Assert
-          expect(result).toEqual(accessTokenJwt);
-        });
-
-        it("should fallback and get the access token from disk when user id is specified and the migration flag is set to false even if the platform supports secure storage", async () => {
-          // Arrange
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
-
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
-          // set access token migration flag to false
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE)
-            .stateSubject.next([userIdFromAccessToken, false]);
-
-          // Act
-          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+          const result = await tokenService.getAccessToken(userId);
 
           // Assert
-          expect(result).toEqual(accessTokenJwt);
-
-          // assert that secure storage was not called
-          expect(secureStorageService.get).not.toHaveBeenCalled();
+          expect(result).toEqual("decryptedAccessToken");
         });
 
-        it("should fallback and get the access token from disk when no user id is specified and the migration flag is set to false even if the platform supports secure storage", async () => {
+        test.each([
+          [
+            "should fallback and get the unencrypted access token from disk when there isn't an access token key in secure storage and a user id is provided",
+            userIdFromAccessToken,
+          ],
+          [
+            "should fallback and get the unencrypted access token from disk when there isn't an access token key in secure storage and no user id is provided",
+            undefined,
+          ],
+        ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
@@ -390,23 +352,19 @@ describe("TokenService", () => {
             .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          if (!userId) {
+            globalStateProvider
+              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
+              .stateSubject.next(userIdFromAccessToken);
+          }
 
-          // set access token migration flag to false
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE)
-            .stateSubject.next([userIdFromAccessToken, false]);
+          // No access token key set
 
           // Act
-          const result = await tokenService.getAccessToken();
+          const result = await tokenService.getAccessToken(userId);
 
           // Assert
           expect(result).toEqual(accessTokenJwt);
-
-          // assert that secure storage was not called
-          expect(secureStorageService.get).not.toHaveBeenCalled();
         });
       });
     });
@@ -426,7 +384,16 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should clear the access token from all storage locations for the specified user id", async () => {
+        test.each([
+          [
+            "should clear the access token from all storage locations for the provided user id",
+            userIdFromAccessToken,
+          ],
+          [
+            "should clear the access token from all storage locations for the global active user",
+            undefined,
+          ],
+        ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
@@ -435,6 +402,13 @@ describe("TokenService", () => {
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
             .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+
+          // Need to have global active id set to the user id
+          if (!userId) {
+            globalStateProvider
+              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
+              .stateSubject.next(userIdFromAccessToken);
+          }
 
           // Act
           await tokenService.clearAccessToken(userIdFromAccessToken);
@@ -448,39 +422,7 @@ describe("TokenService", () => {
           ).toHaveBeenCalledWith(null);
 
           expect(secureStorageService.remove).toHaveBeenCalledWith(
-            accessTokenSecureStorageKey,
-            secureStorageOptions,
-          );
-        });
-
-        it("should clear the access token from all storage locations for the global active user", async () => {
-          // Arrange
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
-          singleUserStateProvider
-            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
-
-          // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
-
-          // Act
-          await tokenService.clearAccessToken();
-
-          // Assert
-          expect(
-            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
-          ).toHaveBeenCalledWith(null);
-          expect(
-            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
-          ).toHaveBeenCalledWith(null);
-
-          expect(secureStorageService.remove).toHaveBeenCalledWith(
-            accessTokenSecureStorageKey,
+            accessTokenKeySecureStorageKey,
             secureStorageOptions,
           );
         });
@@ -2232,6 +2174,9 @@ describe("TokenService", () => {
       globalStateProvider,
       supportsSecureStorage,
       secureStorageService,
+      keyGenerationService,
+      encryptService,
+      logService,
     );
   }
 });

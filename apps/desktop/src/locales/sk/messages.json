@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Povoliť dodatočné zabezpečenie tým, že bude potrebné overenie odtlačku pri prepájaní desktopovej aplikácie a prehliadača. Ak je toto nastavenie zapnuté, pri každom pripojení bude od používateľa požadované overenie."
   },
+  "enableHardwareAcceleration": {
+    "message": "Použiť hardvérové zrýchlenie"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Predvolené nastavenie je ZAPNUTÉ. Vypnite iba v prípade, že máte problémy s grafikou. Vyžaduje sa reštart."
+  },
   "approve": {
     "message": "Schváliť"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Prihlásenie na"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "vlastný hosting"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Riešenie problémov"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Zakázať hardvérové zrýchlenie a reštartovať"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Povoliť hardvérové zrýchlenie a reštartovať"
   }
 }

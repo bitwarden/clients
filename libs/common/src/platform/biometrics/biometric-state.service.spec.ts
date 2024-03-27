@@ -1,8 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
-import { makeEncString } from "../../../spec";
-import { mockAccountServiceWith } from "../../../spec/fake-account-service";
-import { FakeSingleUserState } from "../../../spec/fake-state";
+import { makeEncString, trackEmissions } from "../../../spec";
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
+import { FakeGlobalState, FakeSingleUserState } from "../../../spec/fake-state";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { UserId } from "../../types/guid";
 import { EncryptedString } from "../models/domain/enc-string";
@@ -23,10 +23,11 @@ describe("BiometricStateService", () => {
   const userId = "userId" as UserId;
   const encClientKeyHalf = makeEncString();
   const encryptedClientKeyHalf = encClientKeyHalf.encryptedString;
-  const accountService = mockAccountServiceWith(userId);
+  let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
 
   beforeEach(() => {
+    accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
 
     sut = new DefaultBiometricStateService(stateProvider);
@@ -145,18 +146,88 @@ describe("BiometricStateService", () => {
   });
 
   describe("setPromptCancelled", () => {
+    let existingState: Record<UserId, boolean>;
+
+    beforeEach(() => {
+      existingState = { ["otherUser" as UserId]: false };
+      stateProvider.global.getFake(PROMPT_CANCELLED).stateSubject.next(existingState);
+    });
+
     test("observable is updated", async () => {
-      await sut.setPromptCancelled();
+      await sut.setUserPromptCancelled();
 
       expect(await firstValueFrom(sut.promptCancelled$)).toBe(true);
     });
 
     it("updates state", async () => {
-      await sut.setPromptCancelled();
+      await sut.setUserPromptCancelled();
 
-      const nextMock = stateProvider.activeUser.getFake(PROMPT_CANCELLED).nextMock;
-      expect(nextMock).toHaveBeenCalledWith([userId, true]);
+      const nextMock = stateProvider.global.getFake(PROMPT_CANCELLED).nextMock;
+      expect(nextMock).toHaveBeenCalledWith({ ...existingState, [userId]: true });
       expect(nextMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws when called with no active user", async () => {
+      await accountService.switchAccount(null);
+      await expect(sut.setUserPromptCancelled()).rejects.toThrow(
+        "Cannot update biometric prompt cancelled state without an active user",
+      );
+      const nextMock = stateProvider.global.getFake(PROMPT_CANCELLED).nextMock;
+      expect(nextMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("resetAllPromptCancelled", () => {
+    it("deletes all prompt cancelled state", async () => {
+      await sut.resetAllPromptCancelled();
+
+      const nextMock = stateProvider.global.getFake(PROMPT_CANCELLED).nextMock;
+      expect(nextMock).toHaveBeenCalledWith(null);
+      expect(nextMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("updates observable to false", async () => {
+      const emissions = trackEmissions(sut.promptCancelled$);
+
+      await sut.setUserPromptCancelled();
+
+      await sut.resetAllPromptCancelled();
+
+      expect(emissions).toEqual([false, true, false]);
+    });
+  });
+
+  describe("resetUserPromptCancelled", () => {
+    let existingState: Record<UserId, boolean>;
+    let state: FakeGlobalState<Record<UserId, boolean>>;
+
+    beforeEach(async () => {
+      await accountService.switchAccount(userId);
+      existingState = { [userId]: true, ["otherUser" as UserId]: false };
+      state = stateProvider.global.getFake(PROMPT_CANCELLED);
+      state.stateSubject.next(existingState);
+    });
+
+    it("deletes specified user prompt cancelled state", async () => {
+      await sut.resetUserPromptCancelled("otherUser" as UserId);
+
+      expect(state.nextMock).toHaveBeenCalledWith({ [userId]: true });
+      expect(state.nextMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("deletes active user when called with no user", async () => {
+      await sut.resetUserPromptCancelled();
+
+      expect(state.nextMock).toHaveBeenCalledWith({ ["otherUser" as UserId]: false });
+      expect(state.nextMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("updates observable to false", async () => {
+      const emissions = trackEmissions(sut.promptCancelled$);
+
+      await sut.resetUserPromptCancelled();
+
+      expect(emissions).toEqual([true, false]);
     });
   });
 

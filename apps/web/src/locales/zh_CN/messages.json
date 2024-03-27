@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "要求现有成员更改他们的密码"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "您无权删除此工程",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7595,7 +7589,7 @@
     "message": "免费 1 年"
   },
   "newWebApp": {
-    "message": "欢迎来到全新改进的网页应用。了解更多更新信息。"
+    "message": "欢迎使用全新改进的网页 App。了解更多有关变更的信息。"
   },
   "releaseBlog": {
     "message": "阅读发布博客"
@@ -7607,9 +7601,46 @@
     "message": "提供商门户"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "您不能将自己添加到群组。"
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "您不能将自己添加到群组。"
+  },
+  "assign": {
+    "message": "Assign"
+  },
+  "assignToCollections": {
+    "message": "Assign to collections"
+  },
+  "assignToTheseCollections": {
+    "message": "Assign to these collections"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Select the collections that the items will be shared with. Once an item is updated in one collection, it will be reflected in all collections. Only organization members with access to these collections will be able to see the items."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Select collections to assign"
+  },
+  "noCollectionsAssigned": {
+    "message": "No collections have been assigned"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Items"
   }
 }

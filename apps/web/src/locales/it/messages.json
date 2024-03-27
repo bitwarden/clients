@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Obbliga i membri esistenti a cambiare le loro password"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Non hai l'autorizzazione per eliminare questo progetto",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7607,9 +7601,46 @@
     "message": "Portale Fornitori"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Non puoi aggiungerti da solo ai gruppi."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Non puoi aggiungerti da solo alle raccolte."
+  },
+  "assign": {
+    "message": "Assegna"
+  },
+  "assignToCollections": {
+    "message": "Assegna alle raccolte"
+  },
+  "assignToTheseCollections": {
+    "message": "Assegna a queste raccolte"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Seleziona le raccolte con cui questi elementi saranno condivisi. Una volta un elemento è aggiornato in una raccolta, la modifica si rifletterà in tutte le raccolte. Solo i membri dell'organizzazione con accesso a queste raccolte potranno visualizzare gli elementi."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Seleziona le raccolte da assegnare"
+  },
+  "noCollectionsAssigned": {
+    "message": "Nessuna raccolta è stata assegnata"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Raccolte assegnate"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Hai selezionato $TOTAL_COUNT$ elementi. Non puoi aggiornare $READONLY_COUNT$ elementi perché non hai l'autorizzazione per modificarli.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Elementi"
   }
 }

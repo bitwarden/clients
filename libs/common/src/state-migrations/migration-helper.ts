@@ -9,12 +9,29 @@ export type KeyDefinitionLike = {
   key: string;
 };
 
+export type MigrationHelperType = "general" | "web-disk-local";
+
 export class MigrationHelper {
   constructor(
     public currentVersion: number,
     private storageService: AbstractStorageService,
     public logService: LogService,
-  ) {}
+    type: MigrationHelperType,
+  ) {
+    this.type = type;
+  }
+
+  /**
+   * On some clients, migrations are ran multiple times without direct action from the migration writer.
+   *
+   * All clients will run through migrations at least once, this run is referred to as `"general"`. If a migration is
+   * ran more than that single time, they will get a unique name if that the write can make conditional logic based on which
+   * migration run this is.
+   *
+   * @remarks The preferrable way of writing migrations is ALWAYS to be defensive and reflect on the data you are given back. This
+   * should really only be used when reflecting on the data given isn't enough.
+   */
+  type: MigrationHelperType;
 
   /**
    * Gets a value from the storage service at the given key.

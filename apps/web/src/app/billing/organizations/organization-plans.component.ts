@@ -150,7 +150,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     if (this.organizationId) {
-      this.organization = this.organizationService.get(this.organizationId);
+      this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
     }

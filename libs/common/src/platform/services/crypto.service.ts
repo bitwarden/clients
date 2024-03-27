@@ -1,5 +1,5 @@
 import * as bigInt from "big-integer";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, filter, firstValueFrom, map } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
@@ -100,7 +100,9 @@ export class CryptoService implements CryptoServiceAbstraction {
     // User Asymmetric Key Pair
     this.activeUserEncryptedPrivateKeyState = stateProvider.getActive(USER_ENCRYPTED_PRIVATE_KEY);
     this.activeUserPrivateKeyState = stateProvider.getDerived(
-      this.activeUserEncryptedPrivateKeyState.combinedState$,
+      this.activeUserEncryptedPrivateKeyState.combinedState$.pipe(
+        filter(([_userId, key]) => key != null),
+      ),
       USER_PRIVATE_KEY,
       {
         encryptService: this.encryptService,
@@ -109,7 +111,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     );
     this.activeUserPrivateKey$ = this.activeUserPrivateKeyState.state$; // may be null
     this.activeUserPublicKeyState = stateProvider.getDerived(
-      this.activeUserPrivateKey$,
+      this.activeUserPrivateKey$.pipe(filter((key) => key != null)),
       USER_PUBLIC_KEY,
       {
         cryptoFunctionService: this.cryptoFunctionService,
@@ -122,7 +124,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       USER_ENCRYPTED_ORGANIZATION_KEYS,
     );
     this.activeUserOrgKeysState = stateProvider.getDerived(
-      this.activeUserEncryptedOrgKeysState.state$,
+      this.activeUserEncryptedOrgKeysState.state$.pipe(filter((keys) => keys != null)),
       USER_ORGANIZATION_KEYS,
       { cryptoService: this },
     );
@@ -133,7 +135,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       USER_ENCRYPTED_PROVIDER_KEYS,
     );
     this.activeUserProviderKeysState = stateProvider.getDerived(
-      this.activeUserEncryptedProviderKeysState.state$,
+      this.activeUserEncryptedProviderKeysState.state$.pipe(filter((keys) => keys != null)),
       USER_PROVIDER_KEYS,
       { encryptService: this.encryptService, cryptoService: this },
     );

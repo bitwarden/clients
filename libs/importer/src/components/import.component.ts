@@ -207,7 +207,7 @@ export class ImportComponent implements OnInit, OnDestroy {
     this.setImportOptions();
 
     await this.initializeOrganizations();
-    if (this.organizationId && this.canAccessImportExport(this.organizationId)) {
+    if (this.organizationId && (await this.canAccessImportExport(this.organizationId))) {
       this.handleOrganizationImportInit();
     } else {
       this.handleImportInit();
@@ -359,7 +359,7 @@ export class ImportComponent implements OnInit, OnDestroy {
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
-        this.canAccessImportExport(this.organizationId) && this._isFromAC,
+        (await this.canAccessImportExport(this.organizationId)) && this._isFromAC,
       );
 
       //No errors, display success message
@@ -379,11 +379,11 @@ export class ImportComponent implements OnInit, OnDestroy {
     }
   }
 
-  private canAccessImportExport(organizationId?: string): boolean {
+  private async canAccessImportExport(organizationId?: string): Promise<boolean> {
     if (!organizationId) {
       return false;
     }
-    return this.organizationService.get(this.organizationId)?.canAccessImportExport;
+    return (await this.organizationService.get(this.organizationId))?.canAccessImportExport;
   }
 
   getFormatInstructionTitle() {

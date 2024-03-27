@@ -24,7 +24,7 @@ export class NativeMessagingMain {
     private exePath: string,
   ) {}
 
-  async listen() {
+  listen() {
     ipc.config.id = "bitwarden";
     ipc.config.retry = 1500;
     const ipcSocketRoot = getIpcSocketRoot();

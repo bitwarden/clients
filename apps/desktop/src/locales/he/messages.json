@@ -561,10 +561,10 @@
     "message": "החשבון החדש שלך נוצר בהצלחה! כעת ניתן להתחבר למערכת."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "נכנסת בהצלחה"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "אפשר לסגור את החלון הזה"
   },
   "masterPassSent": {
     "message": "שלחנו לך אימייל עם רמז לסיסמה הראשית."
@@ -1505,7 +1505,7 @@
     "message": "יש לבצע אימות מחדש כדי לגשת לכספת שוב."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "יש להגדיר שיטת שחרור נעילה כדי לשנות את פעולת תום הזמן של הכספת שלך."
   },
   "lock": {
     "message": "נעילה",
@@ -1643,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "הפעל שכבת אבטחה נוספת באמצעות בקשת אימות טביעות אצבע בעת יצירת קישור בין שולחן העבודה לדפדפן. כשהוא מופעל, זה דורש התערבות ואימות משתמש בכל פעם שנוצר חיבור."
+  },
+  "enableHardwareAcceleration": {
+    "message": "להשתמש בהאצת חומרה"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "ההגדרה הזאת פעילה כברירת מחדל. יש לכבות רק אם יש כל מיני תקלות גרפיות. צריך להפעיל מחדש."
   },
   "approve": {
     "message": "לְאַשֵׁר"
@@ -2289,7 +2295,7 @@
     "message": "Check known data breaches for this password"
   },
   "important": {
-    "message": "Important:"
+    "message": "חשוב:"
   },
   "masterPasswordHint": {
     "message": "Your master password cannot be recovered if you forget it!"
@@ -2339,12 +2345,6 @@
   },
   "loggingInOn": {
     "message": "Logging in on"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "selfHostedServer": {
     "message": "self-hosted"
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "תסדירים נפוצים",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disable hardware acceleration and restart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Enable hardware acceleration and restart"
   }
 }

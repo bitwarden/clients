@@ -327,7 +327,7 @@
     "message": "密碼"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "程式產生驗證碼"
   },
   "passphrase": {
     "message": "密碼短語"
@@ -372,7 +372,7 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "設定中設定解鎖"
   },
   "rateExtension": {
     "message": "為本套件評分"
@@ -494,10 +494,10 @@
     "message": "帳戶已建立！現在可以登入了。"
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "登入成功"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "您可以關閉此視窗"
   },
   "masterPassSent": {
     "message": "已寄出包含您主密碼提示的電子郵件。"
@@ -522,13 +522,13 @@
     "message": "無法在此頁面自動填入所選項目。請手動複製貼上。"
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "無法掃描此網頁的二維碼"
   },
   "totpCaptureSuccess": {
     "message": "已新增驗證器金鑰。"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "從目前網頁掃描驗證器二維碼"
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
@@ -1061,7 +1061,7 @@
     "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "編輯瀏覽器設定"
   },
   "autofillOverlayVisibilityOff": {
     "message": "關閉",
@@ -1500,7 +1500,7 @@
     "message": "無效的 PIN 碼。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Too many invalid PIN entry attempts. Logging out."
+    "message": "輸入太多無效 PIN 碼。 登出。"
   },
   "unlockWithBiometrics": {
     "message": "使用生物特徵辨識解鎖"
@@ -2005,7 +2005,7 @@
     "message": "選擇資料夾⋯"
   },
   "noFoldersFound": {
-    "message": "No folders found",
+    "message": "未找到資料夾",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2017,7 +2017,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "需要驗證",
     "description": "Default title for the user verification dialog."
   },
   "hours": {
@@ -2386,12 +2386,6 @@
     "message": "EU",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
   },
@@ -2558,7 +2552,7 @@
     "description": "Notification message for when an import has failed."
   },
   "importNetworkError": {
-    "message": "Network error encountered during import.",
+    "message": "匯入時遇到網路錯誤",
     "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
@@ -2664,34 +2658,34 @@
     "message": "Verification required for this action. Set a PIN to continue."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "設定 PIN 碼"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "生物辨識驗證"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "正在等待確認"
   },
   "couldNotCompleteBiometrics": {
     "message": "Could not complete biometrics."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "需要不同的方法嗎？"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "用主密碼"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "使用 PIN 碼"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "用生物識別"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "Enter the verification code that was sent to your email."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "重新傳送驗證碼"
   },
   "total": {
     "message": "總計"
@@ -2718,7 +2712,7 @@
     "message": "Popout extension"
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "開啟Duo"
   },
   "importFormatError": {
     "message": "資料格式不正確。請檢查您匯入的檔案後再試一次。"
@@ -2852,13 +2846,13 @@
     "message": "使用者名稱或密碼不正確"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "密碼錯誤"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "錯誤驗證碼"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "PIN 碼錯誤"
   },
   "multifactorAuthenticationFailed": {
     "message": "多因素驗證失敗"
@@ -2919,7 +2913,7 @@
     "message": "切換帳戶"
   },
   "switchAccounts": {
-    "message": "Switch accounts"
+    "message": "切換帳號"
   },
   "switchToAccount": {
     "message": "切換帳戶"
@@ -2991,7 +2985,7 @@
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
-    "message": "Make default",
+    "message": "設為預設",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {

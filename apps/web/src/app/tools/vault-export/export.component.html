@@ -1,20 +1,14 @@
 <app-header></app-header>
 
 <bit-container>
-  <form
-    #form
-    (ngSubmit)="submit()"
-    [appApiAction]="formPromise"
-    [formGroup]="exportForm"
-    *ngIf="exportForm"
-  >
+  <form [formGroup]="exportForm" [bitSubmit]="submit">
     <bit-callout type="danger" title="{{ 'vaultExportDisabled' | i18n }}" *ngIf="disabledByPolicy">
       {{ "personalVaultExportPolicyInEffect" | i18n }}
     </bit-callout>
-    <app-export-scope-callout
+    <tools-export-scope-callout
       [organizationId]="organizationId"
       *ngIf="!disabledByPolicy"
-    ></app-export-scope-callout>
+    ></tools-export-scope-callout>
 
     <ng-container *ngIf="organizations$ | async as organizations">
       <bit-form-field *ngIf="organizations.length > 0">
@@ -110,9 +104,9 @@
 
     <button
       bitButton
+      bitFormButton
       type="submit"
       buttonType="primary"
-      [loading]="form.loading"
       [disabled]="disabledByPolicy"
     >
       {{ "confirmFormat" | i18n }}

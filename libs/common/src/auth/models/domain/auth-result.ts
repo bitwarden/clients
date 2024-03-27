@@ -8,7 +8,7 @@ export class AuthResult {
   // TODO: PM-3287 - Remove this after 3 releases of backwards compatibility. - Target release 2023.12 for removal
   /**
    * @deprecated
-   * Replace with using AccountDecryptionOptions to determine if the user does
+   * Replace with using UserDecryptionOptions to determine if the user does
    * not have a master password and is not using Key Connector.
    * */
   resetMasterPassword = false;

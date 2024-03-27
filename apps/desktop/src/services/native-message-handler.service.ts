@@ -12,6 +12,7 @@ import { StateService } from "@bitwarden/common/platform/services/state.service"
 import { DialogService } from "@bitwarden/components";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
+import { DesktopAutofillSettingsService } from "../autofill/services/desktop-autofill-settings.service";
 import { DecryptedCommandData } from "../models/native-messaging/decrypted-command-data";
 import { EncryptedMessage } from "../models/native-messaging/encrypted-message";
 import { EncryptedMessageResponse } from "../models/native-messaging/encrypted-message-response";
@@ -34,6 +35,7 @@ export class NativeMessageHandlerService {
     private messagingService: MessagingService,
     private encryptedMessageHandlerService: EncryptedMessageHandlerService,
     private dialogService: DialogService,
+    private desktopAutofillSettingsService: DesktopAutofillSettingsService,
   ) {}
 
   async handleMessage(message: Message) {
@@ -71,7 +73,9 @@ export class NativeMessageHandlerService {
 
     try {
       const remotePublicKey = Utils.fromB64ToArray(publicKey);
-      const ddgEnabled = await this.stateService.getEnableDuckDuckGoBrowserIntegration();
+      const ddgEnabled = await firstValueFrom(
+        this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+      );
 
       if (!ddgEnabled) {
         this.sendResponse({

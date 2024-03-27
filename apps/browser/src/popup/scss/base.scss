@@ -17,6 +17,8 @@ body {
 body {
   width: 375px !important;
   height: 600px !important;
+  position: relative;
+  min-height: 100vh;
   overflow: hidden;
   color: $text-color;
   background-color: $background-color;
@@ -169,7 +171,7 @@ cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
   }
 }
 
-header:not(bit-callout header) {
+header:not(bit-callout header, bit-dialog header) {
   height: 44px;
   display: flex;
 

@@ -232,28 +232,9 @@
         <button
           bitButton
           buttonType="danger"
-          [bitAction]="cancelWithWarning"
+          (click)="cancelSubscription()"
           type="button"
-          *ngIf="
-            subscription &&
-            !subscription.cancelled &&
-            !subscriptionMarkedForCancel &&
-            !(presentUserWithOffboardingSurvey$ | async)
-          "
-        >
-          {{ "cancelSubscription" | i18n }}
-        </button>
-        <button
-          bitButton
-          buttonType="danger"
-          (click)="cancelWithOffboardingSurvey()"
-          type="button"
-          *ngIf="
-            subscription &&
-            !subscription.cancelled &&
-            !subscriptionMarkedForCancel &&
-            (presentUserWithOffboardingSurvey$ | async)
-          "
+          *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
         >
           {{ "cancelSubscription" | i18n }}
         </button>

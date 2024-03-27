@@ -40,6 +40,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import { AuthRequestLoginStrategy } from "../../login-strategies/auth-request-login.strategy";
 import { PasswordLoginStrategy } from "../../login-strategies/password-login.strategy";
 import { SsoLoginStrategy } from "../../login-strategies/sso-login.strategy";
@@ -101,6 +102,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected policyService: PolicyService,
     protected deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     protected authRequestService: AuthRequestServiceAbstraction,
+    protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected stateProvider: GlobalStateProvider,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
@@ -354,6 +356,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.logService,
               this.stateService,
               this.twoFactorService,
+              this.userDecryptionOptionsService,
               this.passwordStrengthService,
               this.policyService,
               this,
@@ -371,6 +374,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.logService,
               this.stateService,
               this.twoFactorService,
+              this.userDecryptionOptionsService,
               this.keyConnectorService,
               this.deviceTrustCryptoService,
               this.authRequestService,
@@ -389,6 +393,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.logService,
               this.stateService,
               this.twoFactorService,
+              this.userDecryptionOptionsService,
               this.environmentService,
               this.keyConnectorService,
               this.billingAccountProfileStateService,
@@ -405,6 +410,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.logService,
               this.stateService,
               this.twoFactorService,
+              this.userDecryptionOptionsService,
               this.deviceTrustCryptoService,
               this.billingAccountProfileStateService,
             );
@@ -420,6 +426,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.logService,
               this.stateService,
               this.twoFactorService,
+              this.userDecryptionOptionsService,
               this.billingAccountProfileStateService,
             );
         }

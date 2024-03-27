@@ -113,7 +113,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgGetEnableChangedPasswordPrompt: () => Promise<boolean>;
   bgGetEnableAddedLoginPrompt: () => Promise<boolean>;
   bgGetExcludedDomains: () => Promise<NeverDomains>;
-  getWebVaultUrlForNotification: () => string;
+  getWebVaultUrlForNotification: () => Promise<string>;
 };
 
 export {

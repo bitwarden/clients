@@ -40,6 +40,7 @@
                   [(ngModel)]="$any(c).checked"
                   name="Collection[{{ i }}].Checked"
                   appStopProp
+                  [disabled]="!c.canEditItems(this.organization, this.flexibleCollectionsV1Enabled)"
                 />
               </td>
               <td>

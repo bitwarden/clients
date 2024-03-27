@@ -1,4 +1,5 @@
 import { OptionValues } from "commander";
+import { firstValueFrom } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -32,7 +33,8 @@ export class SendGetCommand extends DownloadCommand {
       return Response.notFound();
     }
 
-    const webVaultUrl = this.environmentService.getWebVaultUrl();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
     let filter = (s: SendView) => true;
     let selector = async (s: SendView): Promise<Response> =>
       Response.success(new SendResponse(s, webVaultUrl));

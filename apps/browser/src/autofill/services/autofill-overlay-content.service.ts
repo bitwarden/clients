@@ -30,6 +30,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
   autofillOverlayVisibility: number;
+  private isFirefoxBrowser =
+    globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
+    globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
+  private readonly generateRandomCustomElementName = generateRandomCustomElementName;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
@@ -593,6 +597,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private updateOverlayButtonPosition() {
     if (!this.overlayButtonElement) {
       this.createAutofillOverlayButton();
+      this.updateCustomElementDefaultStyles(this.overlayButtonElement);
     }
 
     if (!this.isOverlayButtonVisible) {
@@ -613,6 +618,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private updateOverlayListPosition() {
     if (!this.overlayListElement) {
       this.createAutofillOverlayList();
+      this.updateCustomElementDefaultStyles(this.overlayListElement);
     }
 
     if (!this.isOverlayListVisible) {
@@ -765,11 +771,24 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    const customElementName = generateRandomCustomElementName();
-    globalThis.customElements?.define(customElementName, AutofillOverlayButtonIframe);
-    this.overlayButtonElement = globalThis.document.createElement(customElementName);
+    if (this.isFirefoxBrowser) {
+      this.overlayButtonElement = globalThis.document.createElement("div");
+      new AutofillOverlayButtonIframe(this.overlayButtonElement);
 
-    this.updateCustomElementDefaultStyles(this.overlayButtonElement);
+      return;
+    }
+
+    const customElementName = this.generateRandomCustomElementName();
+    globalThis.customElements?.define(
+      customElementName,
+      class extends HTMLElement {
+        constructor() {
+          super();
+          new AutofillOverlayButtonIframe(this);
+        }
+      },
+    );
+    this.overlayButtonElement = globalThis.document.createElement(customElementName);
   }
 
   /**
@@ -781,11 +800,24 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    const customElementName = generateRandomCustomElementName();
-    globalThis.customElements?.define(customElementName, AutofillOverlayListIframe);
-    this.overlayListElement = globalThis.document.createElement(customElementName);
+    if (this.isFirefoxBrowser) {
+      this.overlayListElement = globalThis.document.createElement("div");
+      new AutofillOverlayListIframe(this.overlayListElement);
 
-    this.updateCustomElementDefaultStyles(this.overlayListElement);
+      return;
+    }
+
+    const customElementName = this.generateRandomCustomElementName();
+    globalThis.customElements?.define(
+      customElementName,
+      class extends HTMLElement {
+        constructor() {
+          super();
+          new AutofillOverlayListIframe(this);
+        }
+      },
+    );
+    this.overlayListElement = globalThis.document.createElement(customElementName);
   }
 
   /**

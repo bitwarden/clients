@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Masaüstü uygulamanızla tarayıcınız arasında bağlantı kurulurken parmak izi ifadesi doğrulamasını zorunlu kılarak ek bir güvenlik önlemi alabilirsiniz. Bu ayarı açarsanız her bağlantı kurulduğunda tekrar doğrulama yapmanız gerekir."
   },
+  "enableHardwareAcceleration": {
+    "message": "Donanım hızlandırması kullan"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Varsayılan olarak bu ayar AÇIK'tır. Yalnızca grafiksel sorunlarla karşılaşırsanız KAPATIN. Yeniden başlatma gerekli."
+  },
   "approve": {
     "message": "Onayla"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Giriş yapılan konum"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "şirket içinde barındırılan"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Sorun giderme"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Donanım hızlandırmayı devre dışı bırakın ve yeniden başlatın"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Donanım hızlandırmayı etkinleştirin ve yeniden başlatın"
   }
 }

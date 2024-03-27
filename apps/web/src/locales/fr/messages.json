@@ -624,7 +624,7 @@
     "message": "Utiliser une méthode de connexion différente"
   },
   "loginWithPasskey": {
-    "message": "Se connecter avec la clé d'accès"
+    "message": "Se connecter avec une clé d'accès"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Passkey invalide. Veuillez réessayer de nouveau."
@@ -633,7 +633,7 @@
     "message": "La 2FA pour les Passkey n'est pas pris en charge. Mettez à jour l'application pour vous connecter."
   },
   "loginWithPasskeyInfo": {
-    "message": "Utilisez une clé d'accès générée qui vous connectera automatiquement sans mot de passe. Les fonctions biométriques, comme la reconnaissance faciale, l'empreinte digitale, ou une autre méthode de sécurité FIDO2 vérifiera votre identité."
+    "message": "Utilisez une clé d'accès générée qui vous connectera automatiquement sans mot de passe. La biométrie, comme la reconnaissance faciale ou les empreintes digitales, ou une autre méthode de sécurité FIDO2 vérifiera votre identité."
   },
   "newPasskey": {
     "message": "Nouvelle clé d'accès"
@@ -678,7 +678,7 @@
     "message": "Utilisé pour le chiffrement"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Se connecter avec la clé d'accès activée"
+    "message": "Se connecter avec une clé d'accès activée"
   },
   "passkeySaved": {
     "message": "$NAME$ a été enregistrée",
@@ -738,7 +738,7 @@
     "message": "Le mot de passe principal est le mot de passe que vous utilisez pour accéder à votre coffre. Il est très important de ne pas oublier votre mot de passe principal. Il n'existe aucun moyen de récupérer le mot de passe si vous l'oubliez."
   },
   "masterPassImportant": {
-    "message": "Le mot de passe principal ne peut pas être récupéré si vous l'oubliez !"
+    "message": "Votre mot de passe principal ne peut pas être récupéré si vous l'oubliez !"
   },
   "masterPassHintDesc": {
     "message": "Un indice de mot de passe principal peut vous aider à vous souvenir de votre mot de passe si vous l'oubliez."
@@ -1084,7 +1084,7 @@
     "message": "Format de fichier"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "Ce fichier d'exportation sera protégé par mot de passe et nécessitera le mot de passe pour que le fichier soit déchiffré."
+    "message": "L'export de ce fichier sera protégé par un mot de passe et nécessitera le mot de passe du fichier pour être déchiffré."
   },
   "exportPasswordDescription": {
     "message": "Ce mot de passe sera utilisé pour exporter et importer ce fichier"
@@ -1093,7 +1093,7 @@
     "message": "Confirmer le mot de passe principal"
   },
   "confirmFormat": {
-    "message": "Confirmer le Format"
+    "message": "Confirmer le format"
   },
   "filePassword": {
     "message": "Mot de Passe du Fichier"
@@ -1114,7 +1114,7 @@
     "message": "Restreint à ce compte"
   },
   "passwordProtected": {
-    "message": "Protégé par Mot de Passe"
+    "message": "Protégé par mot de passe"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Le \"Mot de Passe\" et le \"Mot de Passe Confirmé\" ne correspondent pas."
@@ -1123,7 +1123,7 @@
     "message": "Confirmer l'Importation du Coffre"
   },
   "confirmVaultImportDesc": {
-    "message": "Ce fichier est protégé par mot de passe. Veuillez entrer le mot de passe du fichier pour importer des données."
+    "message": "Ce fichier est protégé par un mot de passe. Veuillez saisir le mot de passe du fichier pour importer les données."
   },
   "exportSuccess": {
     "message": "Les données de votre coffre-fort ont été exportées."
@@ -1145,7 +1145,7 @@
     "message": "Éviter les caractères ambigus"
   },
   "regeneratePassword": {
-    "message": "Regénérer un mot de passe"
+    "message": "Régénérer un mot de passe"
   },
   "length": {
     "message": "Longueur"
@@ -1437,7 +1437,7 @@
     "message": "Sélectionnez le fichier à importer"
   },
   "chooseFile": {
-    "message": "Choisir le fichier"
+    "message": "Choisir un fichier"
   },
   "noFileChosen": {
     "message": "Aucun fichier choisi"
@@ -1486,7 +1486,7 @@
     "message": "Règles de domaine"
   },
   "domainRulesDesc": {
-    "message": "Si vous avez un même identifiant sur plusieurs noms de domaines différents, vous pouvez marquer le site web comme \"équivalent\". Des domaines \"globaux\" sont déjà créés pour vous par Bitwarden."
+    "message": "Si vous avez le même identifiant sur plusieurs domaines de sites web différents, vous pouvez marquer le site web comme \"équivalent\". Les domaines \"globaux\" sont ceux qui ont déjà été créés pour vous par Bitwarden."
   },
   "globalEqDomains": {
     "message": "Domaines équivalents globaux"
@@ -1547,7 +1547,7 @@
     "message": "Si vous avez configuré SSO ou si vous prévoyez de le faire, l'authentification à deux facteurs peut déjà être imposée via votre fournisseur d'identité."
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement verrouiler l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pouvez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver dans un lieu sûr."
+    "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement vous verrouiller l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pourriez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver en lieu sûr."
   },
   "viewRecoveryCode": {
     "message": "Voir le code de récupération"
@@ -1793,7 +1793,7 @@
     "message": "Rapports"
   },
   "reportsDesc": {
-    "message": "Identifiez et fermez les trous de sécurité dans vos comptes en ligne en cliquant sur les rapports ci-dessous.",
+    "message": "Identifiez et comblez les failles de sécurité de vos comptes en ligne en cliquant sur les rapports ci-dessous.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
@@ -1801,10 +1801,10 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
-    "message": "Rapport sur les sites web non sécurisés"
+    "message": "Sites web non sécurisés"
   },
   "unsecuredWebsitesReportDesc": {
-    "message": "L'utilisation de sites Web non sécurisés avec le schéma http:// peut être dangereuse. Si le site Web le permet, vous devriez toujours y accéder en utilisant le schéma https:// afin que votre connexion soit chiffrée."
+    "message": "Les URL qui commencent par http:// n'utilisent pas le meilleur chiffrement disponible. Modifiez les URI de connexion de ces comptes en https:// pour une navigation plus sûre."
   },
   "unsecuredWebsitesFound": {
     "message": "Sites web non sécurisés trouvés"
@@ -1846,7 +1846,7 @@
     "message": "Instructions"
   },
   "exposedPasswordsReport": {
-    "message": "Rapport sur les mots de passe exposés"
+    "message": "Mots de passe exposés"
   },
   "exposedPasswordsReportDesc": {
     "message": "Les mots de passe exposés lors d'une brèche de données sont des cibles faciles pour les attaquants. Changez ces mots de passe pour éviter des intrusions potentielles."
@@ -1879,10 +1879,10 @@
     }
   },
   "weakPasswordsReport": {
-    "message": "Rapport sur les mots de passe faibles"
+    "message": "Mots de passe faibles"
   },
   "weakPasswordsReportDesc": {
-    "message": "Les mots de passe faibles peuvent être facilement devinés par des pirates informatiques et des outils automatisés qui sont utilisés pour pirater les mots de passe. Le générateur de mots de passe Bitwarden peut vous aider à créer des mots de passe forts."
+    "message": "Les mots de passe faibles peuvent être facilement devinés par les assaillants. Remplacez ces mots de passe par des mots de passe robustes à l'aide du générateur de mots de passe."
   },
   "weakPasswordsFound": {
     "message": "Mots de passe faibles trouvés"
@@ -1900,10 +1900,10 @@
     "message": "Aucun élément dans votre coffre n'a de mots de passe faibles."
   },
   "reusedPasswordsReport": {
-    "message": "Rapport sur les mots de passe réutilisés"
+    "message": "Mots de passe réutilisés"
   },
   "reusedPasswordsReportDesc": {
-    "message": "Si un service que vous utilisez est compromis, la réutilisation du même mot de passe ailleurs peut permettre aux pirates d'accéder facilement à un plus grand nombre de vos comptes en ligne. Vous devriez utiliser un mot de passe unique pour chaque compte ou service."
+    "message": "La réutilisation des mots de passe permet aux assaillants de s'introduire plus facilement dans plusieurs comptes. Modifiez ces mots de passe afin que chacun soit unique."
   },
   "reusedPasswordsFound": {
     "message": "Mots de passe réutilisés trouvés"
@@ -1930,10 +1930,10 @@
     }
   },
   "dataBreachReport": {
-    "message": "Rapport sur les fuites de données"
+    "message": "Brèches de données"
   },
   "breachDesc": {
-    "message": "Les comptes ayant fait l'objet d'une brèche de données peuvent exposer vos informations personnelles. Sécurisez les comptes ayant fait l'objet d'une brèche de données en activant la fonction 2FA ou en créant un mot de passe plus robuste."
+    "message": "Les comptes ayant fait l'objet d'une brèche de données peuvent exposer vos informations personnelles. Sécurisez les comptes ayant fait l'objet d'une brèche de données en activant le 2FA ou en créant un mot de passe plus robuste."
   },
   "breachCheckUsernameEmail": {
     "message": "Vérifiez tous les noms d'utilisateur ou adresses électroniques que vous utilisez."
@@ -2290,7 +2290,7 @@
     "description": "Noun. A refunded payment that was charged."
   },
   "chargesStatement": {
-    "message": "Tous les frais apparaîtront sur votre relevé sous $STATEMENT_NAME$.",
+    "message": "Tous les frais apparaîtront sur votre relevé en tant que $STATEMENT_NAME$.",
     "placeholders": {
       "statement_name": {
         "content": "$1",
@@ -3675,7 +3675,7 @@
     "message": "Délai d'expiration du coffre"
   },
   "vaultTimeoutDesc": {
-    "message": "Choisissez quand votre coffre expirera et effectuera l'action sélectionnée."
+    "message": "Choisissez quand votre coffre entreprendra l'action après le délai d'expiration du coffre."
   },
   "vaultTimeoutLogoutDesc": {
     "message": "Choisissez quand votre coffre sera déconnecté."
@@ -3769,10 +3769,10 @@
     "message": "Le mot de passe principal que vous avez choisi est faible. Vous devriez utiliser un mot de passe principal fort (ou une phrase de passe) pour protéger correctement votre compte Bitwarden. Êtes-vous sûr de vouloir utiliser ce mot de passe principal ?"
   },
   "rotateAccountEncKey": {
-    "message": "Révoquer également la clé de chiffrement de mon compte"
+    "message": "Régénérer également la clé de chiffrement de mon compte"
   },
   "rotateEncKeyTitle": {
-    "message": "Faire pivoter la clé de chiffrement"
+    "message": "Régénérer la clé de chiffrement"
   },
   "rotateEncKeyConfirmation": {
     "message": "Êtes-vous sûr de vouloir révoquer la clé de chiffrement de votre compte ?"
@@ -3788,10 +3788,10 @@
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez révoquer la clé de chiffrement de votre compte."
+    "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
   },
   "yourAccountsFingerprint": {
-    "message": "La phrase d'empreinte de votre compte",
+    "message": "Phrase d'empreinte de votre compte",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintEnsureIntegrityVerify": {
@@ -4273,7 +4273,7 @@
     "message": "Accès d'urgence"
   },
   "emergencyAccessDesc": {
-    "message": "Accorder et gérer l'accès d'urgence pour les contacts de confiance. Les contacts de confiance peuvent demander l'accès à votre compte pour l'afficher ou en prendre le contrôle en cas d'urgence. Visitez notre page d'aide pour plus d'informations et de détails sur le fonctionnement du partage à divulgation nulle de connaissance."
+    "message": "Accordez et gérez l'accès d'urgence pour les contacts de confiance. Les contacts de confiance peuvent demander l'accès pour afficher ou reprendre le contrôle de votre compte en cas d'urgence. Consultez notre page d'aide pour plus d'informations et de détails sur le fonctionnement du partage à divulgation nulle de connaissance (zero knowledge sharing)."
   },
   "emergencyAccessOwnerWarning": {
     "message": "Vous êtes propriétaire d'une ou de plusieurs organisations. Si vous autorisez la prise de contrôle à un contact d'urgence, il sera en mesure d'utiliser toutes vos permissions de propriétaire après la prise de contrôle."
@@ -5513,7 +5513,7 @@
     "message": "Générer le Jeton"
   },
   "rotateToken": {
-    "message": "Permiter le Jeton"
+    "message": "Régénérer le jeton"
   },
   "rotateBillingSyncTokenWarning": {
     "message": "Si vous continuez, vous devrez reconfigurer la synchronisation de facturation sur votre serveur auto-hébergé."
@@ -5528,7 +5528,7 @@
     "message": "Pour configurer votre organisation sur votre propre serveur, vous devrez télécharger votre fichier de licence. Pour prendre en charge les forfaits Familles Gratuits et les fonctionnalités avancées de facturation pour votre organisation auto-hébergée, vous devrez configurer la synchronisation de facturation."
   },
   "billingSyncApiKeyRotated": {
-    "message": "Jeton permuté."
+    "message": "Jeton régénéré"
   },
   "billingSyncDesc": {
     "message": "La Synchronisation de Facturation fournit des forfaits Familles Gratuits pour les membres et des capacités de facturation avancées en liant votre Bitwarden auto-hébergé au serveur cloud Bitwarden."
@@ -5658,7 +5658,7 @@
     "message": "Historique de facturation"
   },
   "backToReports": {
-    "message": "Retour aux Rapports"
+    "message": "Retour aux rapports"
   },
   "organizationPicker": {
     "message": "Sélecteur d'organisation"
@@ -5838,11 +5838,11 @@
     "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Êtes-vous sûr de vouloir régénérer la clé API du SCIM ? La clé actuelle ne fonctionnera plus pour les intégrations existantes.",
+    "message": "Êtes-vous sûr de vouloir régénérer la clé API SCIM ? La clé actuelle ne fonctionnera plus pour aucune intégration existante.",
     "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
   },
   "rotateKey": {
-    "message": "Pivoter la Clé"
+    "message": "Régénérer la clé"
   },
   "scimApiKey": {
     "message": "Clé API SCIM",
@@ -6881,7 +6881,7 @@
     "message": "Mettez à jour vos paramètres de chiffrement pour répondre à de nouvelles recommandations de sécurité et améliorer la protection de votre compte."
   },
   "changeKdfLoggedOutWarning": {
-    "message": "En poursuivant, vous serez déconnecté de toutes les sessions actives. Vous devrez vous reconnecter et terminer le paramétrage de l'authentification à deux facteurs. Nous vous recommandons d'exporter votre coffre avant de modifier vos paramètres de chiffrement afin d'éviter toute perte de données."
+    "message": "En poursuivant, vous serez déconnecté de toutes les sessions actives. Vous devrez vous reconnecter et terminer la configuration de l'authentification à deux facteurs. Nous vous recommandons d'exporter votre coffre avant de modifier vos paramètres de chiffrement afin d'éviter toute perte de données."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -7062,12 +7062,6 @@
   },
   "enforceOnLoginDesc": {
     "message": "Exiger que les membres existants changent leurs mots de passe"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Vous n'avez pas les droits pour supprimer ce projet",
@@ -7408,13 +7402,13 @@
     "message": "Paramètre de gestion de la collection mis à jour"
   },
   "passwordManagerPlanPrice": {
-    "message": "Prix du plan du Gestionnaire de Mots de Passe"
+    "message": "Prix du plan Password Manager"
   },
   "secretsManagerPlanPrice": {
     "message": "Prix du plan du Secrets Manager"
   },
   "passwordManager": {
-    "message": "Gestionnaire de Mots de Passe"
+    "message": "Password Manager"
   },
   "freeOrganization": {
     "message": "Organisation gratuite"
@@ -7607,9 +7601,46 @@
     "message": "Portail fournisseur"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Vous ne pouvez vous ajoutez vous-même aux groupes."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Vous ne pouvez vous ajoutez vous-même aux collections."
+  },
+  "assign": {
+    "message": "Assigner"
+  },
+  "assignToCollections": {
+    "message": "Assigner aux collections"
+  },
+  "assignToTheseCollections": {
+    "message": "Assigner à ces collections"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Sélectionnez les collections avec lesquelles les éléments seront partagés. Une fois qu'un élément est mis à jour dans une collection, il le sera aussi dans toutes ces collections. Seuls les membres de l'organisation ayant accès à ces collections pourront voir les éléments."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Sélectionnez les collections à assigner"
+  },
+  "noCollectionsAssigned": {
+    "message": "Aucune collection n'a été assignée"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Collections assignées avec succès"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Vous avez sélectionné $TOTAL_COUNT$ éléments. Vous ne pouvez pas mettre à jour $READONLY_COUNT$ de ces éléments parce que vous n'avez pas les autorisations pour les éditer.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Éléments"
   }
 }

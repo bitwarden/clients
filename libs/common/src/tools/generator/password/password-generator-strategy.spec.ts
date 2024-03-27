@@ -4,6 +4,7 @@
  */
 
 import { mock } from "jest-mock-extended";
+import { of, firstValueFrom } from "rxjs";
 
 import { PolicyType } from "../../../admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
@@ -24,17 +25,8 @@ import {
 const SomeUser = "some user" as UserId;
 
 describe("Password generation strategy", () => {
-  describe("evaluator()", () => {
-    it("should throw if the policy type is incorrect", () => {
-      const strategy = new PasswordGeneratorStrategy(null, null);
-      const policy = mock<Policy>({
-        type: PolicyType.DisableSend,
-      });
-
-      expect(() => strategy.evaluator(policy)).toThrow(new RegExp("Mismatched policy type\\. .+"));
-    });
-
-    it("should map to the policy evaluator", () => {
+  describe("toEvaluator()", () => {
+    it("should map to a password policy evaluator", async () => {
       const strategy = new PasswordGeneratorStrategy(null, null);
       const policy = mock<Policy>({
         type: PolicyType.PasswordGenerator,
@@ -49,7 +41,8 @@ describe("Password generation strategy", () => {
         },
       });
 
-      const evaluator = strategy.evaluator(policy);
+      const evaluator$ = of([policy]).pipe(strategy.toEvaluator());
+      const evaluator = await firstValueFrom(evaluator$);
 
       expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
       expect(evaluator.policy).toMatchObject({
@@ -63,13 +56,18 @@ describe("Password generation strategy", () => {
       });
     });
 
-    it("should map `null`  to a default policy evaluator", () => {
-      const strategy = new PasswordGeneratorStrategy(null, null);
-      const evaluator = strategy.evaluator(null);
+    it.each([[[]], [null], [undefined]])(
+      "should map `%p` to a disabled password policy evaluator",
+      async (policies) => {
+        const strategy = new PasswordGeneratorStrategy(null, null);
 
-      expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
-      expect(evaluator.policy).toMatchObject(DisabledPasswordGeneratorPolicy);
-    });
+        const evaluator$ = of(policies).pipe(strategy.toEvaluator());
+        const evaluator = await firstValueFrom(evaluator$);
+
+        expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
+        expect(evaluator.policy).toMatchObject(DisabledPasswordGeneratorPolicy);
+      },
+    );
   });
 
   describe("durableState", () => {

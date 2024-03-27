@@ -1,4 +1,6 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
+
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
@@ -21,6 +23,8 @@ import {
 } from "../models/request/update-devices-trust.request";
 
 export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstraction {
+  supportsDeviceTrust$: Observable<boolean>;
+
   constructor(
     private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -31,7 +35,12 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     private devicesApiService: DevicesApiServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-  ) {}
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+  ) {
+    this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
+      map((options) => options?.trustedDeviceOption != null ?? false),
+    );
+  }
 
   /**
    * @description Retrieves the users choice to trust the device which can only happen after decryption
@@ -202,10 +211,5 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
 
       return null;
     }
-  }
-
-  async supportsDeviceTrust(): Promise<boolean> {
-    const decryptionOptions = await this.stateService.getAccountDecryptionOptions();
-    return decryptionOptions?.trustedDeviceOption != null;
   }
 }

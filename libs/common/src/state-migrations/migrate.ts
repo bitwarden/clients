@@ -35,6 +35,16 @@ import { AvatarColorMigrator } from "./migrations/37-move-avatar-color-to-state-
 import { TokenServiceStateProviderMigrator } from "./migrations/38-migrate-token-svc-to-state-provider";
 import { MoveBillingAccountProfileMigrator } from "./migrations/39-move-billing-account-profile-to-state-providers";
 import { RemoveEverBeenUnlockedMigrator } from "./migrations/4-remove-ever-been-unlocked";
+import { OrganizationMigrator } from "./migrations/40-move-organization-state-to-state-provider";
+import { EventCollectionMigrator } from "./migrations/41-move-event-collection-to-state-provider";
+import { EnableFaviconMigrator } from "./migrations/42-move-enable-favicon-to-domain-settings-state-provider";
+import { AutoConfirmFingerPrintsMigrator } from "./migrations/43-move-auto-confirm-finger-prints-to-state-provider";
+import { UserDecryptionOptionsMigrator } from "./migrations/44-move-user-decryption-options-to-state-provider";
+import { MergeEnvironmentState } from "./migrations/45-merge-environment-state";
+import { DeleteBiometricPromptCancelledData } from "./migrations/46-delete-orphaned-biometric-prompt-data";
+import { MoveDesktopSettingsMigrator } from "./migrations/47-move-desktop-settings";
+import { MoveDdgToStateProviderMigrator } from "./migrations/48-move-ddg-to-state-provider";
+import { AccountServerConfigMigrator } from "./migrations/49-move-account-server-configs";
 import { AddKeyTypeToOrgKeysMigrator } from "./migrations/5-add-key-type-to-org-keys";
 import { RemoveLegacyEtmKeyMigrator } from "./migrations/6-remove-legacy-etm-key";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
@@ -43,7 +53,7 @@ import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-setting
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 39;
+export const CURRENT_VERSION = 49;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -84,7 +94,17 @@ export function createMigrationBuilder() {
     .with(VaultSettingsKeyMigrator, 35, 36)
     .with(AvatarColorMigrator, 36, 37)
     .with(TokenServiceStateProviderMigrator, 37, 38)
-    .with(MoveBillingAccountProfileMigrator, 38, CURRENT_VERSION);
+    .with(MoveBillingAccountProfileMigrator, 38, 39)
+    .with(OrganizationMigrator, 39, 40)
+    .with(EventCollectionMigrator, 40, 41)
+    .with(EnableFaviconMigrator, 41, 42)
+    .with(AutoConfirmFingerPrintsMigrator, 42, 43)
+    .with(UserDecryptionOptionsMigrator, 43, 44)
+    .with(MergeEnvironmentState, 44, 45)
+    .with(DeleteBiometricPromptCancelledData, 45, 46)
+    .with(MoveDesktopSettingsMigrator, 46, 47)
+    .with(MoveDdgToStateProviderMigrator, 47, 48)
+    .with(AccountServerConfigMigrator, 48, CURRENT_VERSION);
 }
 
 export async function currentVersion(

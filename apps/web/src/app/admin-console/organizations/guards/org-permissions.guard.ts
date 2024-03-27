@@ -28,7 +28,7 @@ export class OrganizationPermissionsGuard implements CanActivate {
       await this.syncService.fullSync(false);
     }
 
-    const org = this.organizationService.get(route.params.organizationId);
+    const org = await this.organizationService.get(route.params.organizationId);
     if (org == null) {
       return this.router.createUrlTree(["/"]);
     }

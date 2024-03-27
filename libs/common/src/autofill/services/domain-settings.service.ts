@@ -16,6 +16,10 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 
+const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
+  deserializer: (value: boolean) => value ?? true,
+});
+
 const NEVER_DOMAINS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "neverDomains", {
   deserializer: (value: NeverDomains) => value ?? null,
 });
@@ -34,6 +38,8 @@ const DEFAULT_URI_MATCH_STRATEGY = new KeyDefinition(
 );
 
 export abstract class DomainSettingsService {
+  showFavicons$: Observable<boolean>;
+  setShowFavicons: (newValue: boolean) => Promise<void>;
   neverDomains$: Observable<NeverDomains>;
   setNeverDomains: (newValue: NeverDomains) => Promise<void>;
   equivalentDomains$: Observable<EquivalentDomains>;
@@ -44,6 +50,9 @@ export abstract class DomainSettingsService {
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
+  private showFaviconsState: GlobalState<boolean>;
+  readonly showFavicons$: Observable<boolean>;
+
   private neverDomainsState: GlobalState<NeverDomains>;
   readonly neverDomains$: Observable<NeverDomains>;
 
@@ -54,6 +63,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
   constructor(private stateProvider: StateProvider) {
+    this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
+    this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
+
     this.neverDomainsState = this.stateProvider.getGlobal(NEVER_DOMAINS);
     this.neverDomains$ = this.neverDomainsState.state$.pipe(map((x) => x ?? null));
 
@@ -64,6 +76,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
     );
+  }
+
+  async setShowFavicons(newValue: boolean): Promise<void> {
+    await this.showFaviconsState.update(() => newValue);
   }
 
   async setNeverDomains(newValue: NeverDomains): Promise<void> {

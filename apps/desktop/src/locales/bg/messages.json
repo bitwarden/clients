@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Допълнително ниво на сигурност, чрез изискване на потвърждаване на биометричните данни при създаване на връзка между самостоятелното приложение и браузъра. При включваното му потребителят трябва да потвърждава всяко установяване на връзка."
   },
+  "enableHardwareAcceleration": {
+    "message": "Използване на хардуерно ускорение"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Тази настройка по подразбиране е включена. Изключете я, само ако изпитвате графични проблеми. Нужно е рестартиране."
+  },
   "approve": {
     "message": "Одобряване"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Вписване в"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "собствен хостинг"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Често използвани формати",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Отстраняване на проблеми"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Изключете хардуерното ускорение и рестартирайте"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Включете хардуерното ускорение и рестартирайте"
   }
 }

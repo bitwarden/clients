@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -17,7 +19,7 @@ export class StatusCommand {
 
   async run(): Promise<Response> {
     try {
-      const baseUrl = this.baseUrl();
+      const baseUrl = await this.baseUrl();
       const status = await this.status();
       const lastSync = await this.syncService.getLastSync();
       const userId = await this.stateService.getUserId();
@@ -37,8 +39,9 @@ export class StatusCommand {
     }
   }
 
-  private baseUrl(): string {
-    return this.envService.getUrls().base;
+  private async baseUrl(): Promise<string> {
+    const env = await firstValueFrom(this.envService.environment$);
+    return env.getUrls().base;
   }
 
   private async status(): Promise<"unauthenticated" | "locked" | "unlocked"> {

@@ -1,18 +1,19 @@
+import { map, pipe } from "rxjs";
+
 import { GeneratorStrategy } from "..";
 import { PolicyType } from "../../../admin-console/enums";
-// FIXME: use index.ts imports once policy abstractions and models
-// implement ADR-0002
-import { Policy } from "../../../admin-console/models/domain/policy";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { PASSPHRASE_SETTINGS } from "../key-definitions";
 import { PasswordGenerationServiceAbstraction } from "../password/password-generation.service.abstraction";
+import { reduceCollection } from "../reduce-collection.operator";
 
 import { PassphraseGenerationOptions } from "./passphrase-generation-options";
 import { PassphraseGeneratorOptionsEvaluator } from "./passphrase-generator-options-evaluator";
 import {
   DisabledPassphraseGeneratorPolicy,
   PassphraseGeneratorPolicy,
+  leastPrivilege,
 } from "./passphrase-generator-policy";
 
 const ONE_MINUTE = 60 * 1000;
@@ -23,6 +24,7 @@ export class PassphraseGeneratorStrategy
 {
   /** instantiates the password generator strategy.
    *  @param legacy generates the passphrase
+   *  @param stateProvider provides durable state
    */
   constructor(
     private legacy: PasswordGenerationServiceAbstraction,
@@ -39,26 +41,17 @@ export class PassphraseGeneratorStrategy
     return PolicyType.PasswordGenerator;
   }
 
+  /** {@link GeneratorStrategy.cache_ms} */
   get cache_ms() {
     return ONE_MINUTE;
   }
 
-  /** {@link GeneratorStrategy.evaluator} */
-  evaluator(policy: Policy): PassphraseGeneratorOptionsEvaluator {
-    if (!policy) {
-      return new PassphraseGeneratorOptionsEvaluator(DisabledPassphraseGeneratorPolicy);
-    }
-
-    if (policy.type !== this.policy) {
-      const details = `Expected: ${this.policy}. Received: ${policy.type}`;
-      throw Error("Mismatched policy type. " + details);
-    }
-
-    return new PassphraseGeneratorOptionsEvaluator({
-      minNumberWords: policy.data.minNumberWords,
-      capitalize: policy.data.capitalize,
-      includeNumber: policy.data.includeNumber,
-    });
+  /** {@link GeneratorStrategy.toEvaluator} */
+  toEvaluator() {
+    return pipe(
+      reduceCollection(leastPrivilege, DisabledPassphraseGeneratorPolicy),
+      map((policy) => new PassphraseGeneratorOptionsEvaluator(policy)),
+    );
   }
 
   /** {@link GeneratorStrategy.generate} */

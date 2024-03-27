@@ -10,6 +10,7 @@ import { InternalPolicyService } from "../../abstractions/policy/policy.service.
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
+import { Policy } from "../../models/domain/policy";
 import { PolicyRequest } from "../../models/request/policy.request";
 import { PolicyResponse } from "../../models/response/policy.response";
 
@@ -86,9 +87,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
       const masterPasswordPolicyResponse =
         await this.getMasterPasswordPolicyResponseForOrgUser(orgId);
 
-      const masterPasswordPolicy = this.policyService.mapPolicyFromResponse(
-        masterPasswordPolicyResponse,
-      );
+      const masterPasswordPolicy = Policy.fromResponse(masterPasswordPolicyResponse);
 
       if (!masterPasswordPolicy) {
         return null;

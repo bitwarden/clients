@@ -46,7 +46,7 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
 
     // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
     // login decryption options component.
-    const tdeEnabled = await deviceTrustCryptoService.supportsDeviceTrust();
+    const tdeEnabled = await firstValueFrom(deviceTrustCryptoService.supportsDeviceTrust$);
     const everHadUserKey = await firstValueFrom(cryptoService.everHadUserKey$);
     if (authStatus === AuthenticationStatus.Locked && tdeEnabled && !everHadUserKey) {
       return router.createUrlTree([routes.notDecrypted], { queryParams: route.queryParams });

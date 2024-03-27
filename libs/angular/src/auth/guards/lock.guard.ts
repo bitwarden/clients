@@ -53,7 +53,7 @@ export function lockGuard(): CanActivateFn {
 
     // User is authN and in locked state.
 
-    const tdeEnabled = await deviceTrustCryptoService.supportsDeviceTrust();
+    const tdeEnabled = await firstValueFrom(deviceTrustCryptoService.supportsDeviceTrust$);
 
     // Create special exception which allows users to go from the login-initiated page to the lock page for the approve w/ MP flow
     // The MP check is necessary to prevent direct manual navigation from other locked state pages for users who don't have a MP

@@ -6,33 +6,33 @@
   <div bitDialogContent>
     <p>&copy; Bitwarden Inc. 2015-{{ year }}</p>
     <p>{{ "version" | i18n }}: {{ version }}</p>
-    <ng-container *ngIf="serverConfig$ | async as serverConfig">
-      <p *ngIf="isCloud">
-        {{ "serverVersion" | i18n }}: {{ this.serverConfig?.version }}
-        <span *ngIf="!serverConfig.isValid()">
-          ({{ "lastSeenOn" | i18n: (serverConfig.utcDate | date: "mediumDate") }})
+    <ng-container *ngIf="data$ | async as data">
+      <p *ngIf="data.isCloud">
+        {{ "serverVersion" | i18n }}: {{ data.serverConfig?.version }}
+        <span *ngIf="!data.serverConfig.isValid()">
+          ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
         </span>
       </p>
 
-      <ng-container *ngIf="!isCloud">
-        <ng-container *ngIf="serverConfig.server">
+      <ng-container *ngIf="!data.isCloud">
+        <ng-container *ngIf="data.serverConfig.server">
           <p>
             {{ "serverVersion" | i18n }} <small>({{ "thirdParty" | i18n }})</small>:
-            {{ this.serverConfig?.version }}
-            <span *ngIf="!serverConfig.isValid()">
-              ({{ "lastSeenOn" | i18n: (serverConfig.utcDate | date: "mediumDate") }})
+            {{ data.serverConfig?.version }}
+            <span *ngIf="!data.serverConfig.isValid()">
+              ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
             </span>
           </p>
           <div>
-            <small>{{ "thirdPartyServerMessage" | i18n: serverConfig.server?.name }}</small>
+            <small>{{ "thirdPartyServerMessage" | i18n: data.serverConfig.server?.name }}</small>
           </div>
         </ng-container>
 
-        <p *ngIf="!serverConfig.server">
+        <p *ngIf="!data.serverConfig.server">
           {{ "serverVersion" | i18n }} <small>({{ "selfHostedServer" | i18n }})</small>:
-          {{ this.serverConfig?.version }}
-          <span *ngIf="!serverConfig.isValid()">
-            ({{ "lastSeenOn" | i18n: (serverConfig.utcDate | date: "mediumDate") }})
+          {{ data.serverConfig?.version }}
+          <span *ngIf="!data.serverConfig.isValid()">
+            ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
           </span>
         </p>
       </ng-container>

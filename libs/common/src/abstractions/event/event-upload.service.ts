@@ -1,3 +1,5 @@
+import { UserId } from "../../types/guid";
+
 export abstract class EventUploadService {
-  uploadEvents: (userId?: string) => Promise<void>;
+  uploadEvents: (userId?: UserId) => Promise<void>;
 }

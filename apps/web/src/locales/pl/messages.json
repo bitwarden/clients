@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Wymagaj od istniejących członków zmiany haseł"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Nie masz uprawnień do usunięcia tego projektu",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7611,5 +7605,42 @@
   },
   "restrictedCollectionAccess": {
     "message": "You cannot add yourself to collections."
+  },
+  "assign": {
+    "message": "Przypisz"
+  },
+  "assignToCollections": {
+    "message": "Przypisz do kolekcji"
+  },
+  "assignToTheseCollections": {
+    "message": "Przypisz do tych kolekcji"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Wybierz kolekcje, z którymi elementy będą udostępniane. Gdy element zostanie zaktualizowany w jednej kolekcji, zostanie to odzwierciedlone we wszystkich kolekcjach. Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć te elementy."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Wybierz kolekcje do przypisania"
+  },
+  "noCollectionsAssigned": {
+    "message": "Nie przypisano kolekcji"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Pomyślnie przypisano kolekcje"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Wybrałeś $TOTAL_COUNT$ elementów. Nie możesz zaktualizować $READONLY_COUNT$ elementów, ponieważ nie masz uprawnień do edycji.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Elementy"
   }
 }

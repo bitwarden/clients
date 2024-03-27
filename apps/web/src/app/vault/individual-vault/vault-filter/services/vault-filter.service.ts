@@ -1,13 +1,11 @@
 import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
-  combineLatest,
   combineLatestWith,
   firstValueFrom,
   map,
   Observable,
   of,
-  ReplaySubject,
   switchMap,
 } from "rxjs";
 
@@ -18,6 +16,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -57,17 +56,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     map((folders) => this.buildFolderTree(folders)),
   );
 
-  // TODO: Remove once collections is refactored with observables
-  // replace with collection service observable
-  private collectionViews$ = new ReplaySubject<CollectionView[]>(1);
-  filteredCollections$: Observable<CollectionView[]> = combineLatest([
-    this.collectionViews$,
-    this._organizationFilter,
-  ]).pipe(
-    switchMap(([collections, org]) => {
-      return this.filterCollections(collections, org);
-    }),
-  );
+  filteredCollections$: Observable<CollectionView[]> =
+    this.collectionService.decryptedCollections$.pipe(
+      combineLatestWith(this._organizationFilter),
+      switchMap(([collections, org]) => {
+        return this.filterCollections(collections, org);
+      }),
+    );
+
   collectionTree$: Observable<TreeNode<CollectionFilter>> = this.filteredCollections$.pipe(
     map((collections) => this.buildCollectionTree(collections)),
   );
@@ -87,11 +83,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected stateProvider: StateProvider,
+    protected collectionService: CollectionService,
   ) {}
-
-  async reloadCollections(collections: CollectionView[]) {
-    this.collectionViews$.next(collections);
-  }
 
   async getCollectionNodeFromTree(id: string) {
     const collections = await firstValueFrom(this.collectionTree$);

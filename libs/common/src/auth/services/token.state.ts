@@ -8,14 +8,6 @@ export const ACCESS_TOKEN_MEMORY = new KeyDefinition<string>(TOKEN_MEMORY, "acce
   deserializer: (accessToken) => accessToken,
 });
 
-export const ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE = new KeyDefinition<boolean>(
-  TOKEN_DISK,
-  "accessTokenMigratedToSecureStorage",
-  {
-    deserializer: (accessTokenMigratedToSecureStorage) => accessTokenMigratedToSecureStorage,
-  },
-);
-
 export const REFRESH_TOKEN_DISK = new KeyDefinition<string>(TOKEN_DISK, "refreshToken", {
   deserializer: (refreshToken) => refreshToken,
 });

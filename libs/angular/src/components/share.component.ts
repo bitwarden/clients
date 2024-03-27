@@ -62,6 +62,7 @@ export class ShareComponent implements OnInit, OnDestroy {
     this.organizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (this.organizationId == null && orgs.length > 0) {
         this.organizationId = orgs[0].id;
+        this.filterCollections();
       }
     });
 
@@ -69,8 +70,6 @@ export class ShareComponent implements OnInit, OnDestroy {
     this.cipher = await cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain),
     );
-
-    this.filterCollections();
   }
 
   filterCollections() {

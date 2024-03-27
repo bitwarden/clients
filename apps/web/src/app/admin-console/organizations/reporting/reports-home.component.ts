@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { filter, map, Observable, startWith } from "rxjs";
+import { filter, map, Observable, startWith, concatMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
@@ -28,7 +28,7 @@ export class ReportsHomeComponent implements OnInit {
     );
 
     this.reports$ = this.route.params.pipe(
-      map((params) => this.organizationService.get(params.organizationId)),
+      concatMap((params) => this.organizationService.get$(params.organizationId)),
       map((org) => this.buildReports(org.isFreeOrg)),
     );
   }

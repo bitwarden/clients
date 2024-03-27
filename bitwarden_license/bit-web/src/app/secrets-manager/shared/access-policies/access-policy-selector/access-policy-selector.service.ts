@@ -17,7 +17,7 @@ export class AccessPolicySelectorService {
     organizationId: string,
     selectedPoliciesValues: ApItemValueType[],
   ): Promise<boolean> {
-    const organization = this.organizationService.get(organizationId);
+    const organization = await this.organizationService.get(organizationId);
     if (organization.isOwner || organization.isAdmin) {
       return false;
     }

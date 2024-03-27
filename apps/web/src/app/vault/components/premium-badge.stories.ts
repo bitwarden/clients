@@ -1,6 +1,8 @@
 import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { BadgeModule, I18nMockService } from "@bitwarden/components";
@@ -32,6 +34,12 @@ export default {
           provide: MessagingService,
           useFactory: () => {
             return new MockMessagingService();
+          },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: of(false),
           },
         },
       ],

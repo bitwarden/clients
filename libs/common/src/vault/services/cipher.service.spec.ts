@@ -7,7 +7,7 @@ import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
-import { ConfigServiceAbstraction } from "../../platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -108,7 +108,7 @@ describe("Cipher Service", () => {
   const i18nService = mock<I18nService>();
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
-  const configService = mock<ConfigServiceAbstraction>();
+  const configService = mock<ConfigService>();
 
   let cipherService: CipherService;
   let cipherObj: Cipher;

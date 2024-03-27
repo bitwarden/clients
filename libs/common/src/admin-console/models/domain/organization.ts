@@ -320,6 +320,10 @@ export class Organization {
     return !this.useTotp;
   }
 
+  get canManageSponsorships() {
+    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
+  }
+
   static fromJSON(json: Jsonify<Organization>) {
     if (json == null) {
       return null;

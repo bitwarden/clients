@@ -1,15 +1,21 @@
 import { Directive } from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { LoginStrategyServiceAbstraction, SsoLoginCredentials } from "@bitwarden/auth/common";
+import {
+  LoginStrategyServiceAbstraction,
+  SsoLoginCredentials,
+  TrustedDeviceUserDecryptionOption,
+  UserDecryptionOptions,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,7 +23,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { AccountDecryptionOptions } from "@bitwarden/common/platform/models/domain/account";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 @Directive()
@@ -59,7 +64,8 @@ export class SsoComponent {
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected logService: LogService,
-    protected configService: ConfigServiceAbstraction,
+    protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    protected configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -151,8 +157,10 @@ export class SsoComponent {
     // Save state (regardless of new or existing)
     await this.ssoLoginService.setSsoState(state);
 
+    const env = await firstValueFrom(this.environmentService.environment$);
+
     let authorizeUrl =
-      this.environmentService.getIdentityUrl() +
+      env.getIdentityUrl() +
       "/connect/authorize?" +
       "client_id=" +
       this.clientId +
@@ -194,9 +202,6 @@ export class SsoComponent {
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
 
-      const acctDecryptionOpts: AccountDecryptionOptions =
-        await this.stateService.getAccountDecryptionOptions();
-
       if (authResult.requiresTwoFactor) {
         return await this.handleTwoFactorRequired(orgSsoIdentifier);
       }
@@ -217,15 +222,20 @@ export class SsoComponent {
         return await this.handleForcePasswordReset(orgSsoIdentifier);
       }
 
+      // must come after 2fa check since user decryption options aren't available if 2fa is required
+      const userDecryptionOpts = await firstValueFrom(
+        this.userDecryptionOptionsService.userDecryptionOptions$,
+      );
+
       const tdeEnabled = await this.isTrustedDeviceEncEnabled(
-        acctDecryptionOpts.trustedDeviceOption,
+        userDecryptionOpts.trustedDeviceOption,
       );
 
       if (tdeEnabled) {
         return await this.handleTrustedDeviceEncryptionEnabled(
           authResult,
           orgSsoIdentifier,
-          acctDecryptionOpts,
+          userDecryptionOpts,
         );
       }
 
@@ -233,8 +243,8 @@ export class SsoComponent {
       // have one and they aren't using key connector.
       // Note: TDE & Key connector are mutually exclusive org config options.
       const requireSetPassword =
-        !acctDecryptionOpts.hasMasterPassword &&
-        acctDecryptionOpts.keyConnectorOption === undefined;
+        !userDecryptionOpts.hasMasterPassword &&
+        userDecryptionOpts.keyConnectorOption === undefined;
 
       if (requireSetPassword || authResult.resetMasterPassword) {
         // Change implies going no password -> password in this case
@@ -270,12 +280,12 @@ export class SsoComponent {
   private async handleTrustedDeviceEncryptionEnabled(
     authResult: AuthResult,
     orgIdentifier: string,
-    acctDecryptionOpts: AccountDecryptionOptions,
+    userDecryptionOpts: UserDecryptionOptions,
   ): Promise<void> {
     // If user doesn't have a MP, but has reset password permission, they must set a MP
     if (
-      !acctDecryptionOpts.hasMasterPassword &&
-      acctDecryptionOpts.trustedDeviceOption.hasManageResetPasswordPermission
+      !userDecryptionOpts.hasMasterPassword &&
+      userDecryptionOpts.trustedDeviceOption.hasManageResetPasswordPermission
     ) {
       // Set flag so that auth guard can redirect to set password screen after decryption (trusted or untrusted device)
       // Note: we cannot directly navigate in this scenario as we are in a pre-decryption state, and

@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Bude vyžadovat od stávajících členů, aby změnili svá hesla"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Nemáte oprávnění tento projekt smazat",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7607,9 +7601,46 @@
     "message": "Portál poskytovatele"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Do skupin nemůžete přidat sami sebe."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Do kolekcí nemůžete přidat sami sebe."
+  },
+  "assign": {
+    "message": "Přiřadit"
+  },
+  "assignToCollections": {
+    "message": "Přiřadit ke kolekcím"
+  },
+  "assignToTheseCollections": {
+    "message": "Přiřadit k těmto kolekcím"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Vyberte kolekce, se kterými budou položky sdíleny. Jakmile bude položka aktualizována v jedné kolekci, bude zobrazena ve všech kolekcích. Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Vyberte kolekce pro přiřazení"
+  },
+  "noCollectionsAssigned": {
+    "message": "Nebyly přiřazeny žádné kolekce"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Kolekce byly úspěšně přiřazeny"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Položky"
   }
 }

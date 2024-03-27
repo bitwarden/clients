@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "ನಿಮ್ಮ ಡೆಸ್ಕ್‌ಟಾಪ್ ಮತ್ತು ಬ್ರೌಸರ್ ನಡುವೆ ಲಿಂಕ್ ಅನ್ನು ಸ್ಥಾಪಿಸುವಾಗ ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಪದಗುಚ್ ಕಾಯಂಗೊಳಿಸುವಿಕೆ ಅಗತ್ಯವಿರುವ ಮೂಲಕ ಹೆಚ್ಚುವರಿ ಭದ್ರತೆಯ ಪದರವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ. ಸಕ್ರಿಯಗೊಳಿಸಿದಾಗ, ಪ್ರತಿ ಬಾರಿ ಸಂಪರ್ಕವನ್ನು ಸ್ಥಾಪಿಸಿದಾಗ ಬಳಕೆದಾರರ ಹಸ್ತಕ್ಷೇಪ ಮತ್ತು ಪರಿಶೀಲನೆ ಅಗತ್ಯವಾಗಿರುತ್ತದೆ."
   },
+  "enableHardwareAcceleration": {
+    "message": "Use hardware acceleration"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
+  },
   "approve": {
     "message": "ಅನುಮೋದಿಸಿದೆ"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Logging in on"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "self-hosted"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disable hardware acceleration and restart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Enable hardware acceleration and restart"
   }
 }

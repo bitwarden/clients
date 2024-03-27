@@ -9,7 +9,6 @@ import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 
 import { DataPacker } from "./data-packer.abstraction";
-import { SecretClassifier } from "./secret-classifier";
 import { UserKeyEncryptor } from "./user-key-encryptor";
 
 describe("UserKeyEncryptor", () => {
@@ -38,20 +37,18 @@ describe("UserKeyEncryptor", () => {
 
   describe("encrypt", () => {
     it("should throw if value was not supplied", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
 
       await expect(encryptor.encrypt(null, anyUserId)).rejects.toThrow(
-        "value cannot be null or undefined",
+        "secret cannot be null or undefined",
       );
       await expect(encryptor.encrypt(undefined, anyUserId)).rejects.toThrow(
-        "value cannot be null or undefined",
+        "secret cannot be null or undefined",
       );
     });
 
     it("should throw if userId was not supplied", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
 
       await expect(encryptor.encrypt({} as any, null)).rejects.toThrow(
         "userId cannot be null or undefined",
@@ -61,80 +58,54 @@ describe("UserKeyEncryptor", () => {
       );
     });
 
-    it("should classify data into a disclosed value and an encrypted packed value using the user's key", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const classifierClassify = jest.spyOn(classifier, "classify");
-      const disclosed = {} as any;
-      const secret = {} as any;
-      classifierClassify.mockReturnValue({ disclosed, secret });
-
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+    it("should encrypt a packed value using the user's key", async () => {
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
       const value = { foo: true };
 
       const result = await encryptor.encrypt(value, anyUserId);
 
-      expect(classifierClassify).toHaveBeenCalledWith(value);
+      // these are data flow expectations; the operations all all pass-through mocks
       expect(keyService.getUserKey).toHaveBeenCalledWith(anyUserId);
-      expect(dataPacker.pack).toHaveBeenCalledWith(secret);
-      expect(encryptService.encrypt).toHaveBeenCalledWith(secret, userKey);
-      expect(result.secret).toBe(secret);
-      expect(result.disclosed).toBe(disclosed);
+      expect(dataPacker.pack).toHaveBeenCalledWith(value);
+      expect(encryptService.encrypt).toHaveBeenCalledWith(value, userKey);
+      expect(result).toBe(value);
     });
   });
 
   describe("decrypt", () => {
     it("should throw if secret was not supplied", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
 
-      await expect(encryptor.decrypt(null, {} as any, anyUserId)).rejects.toThrow(
+      await expect(encryptor.decrypt(null, anyUserId)).rejects.toThrow(
         "secret cannot be null or undefined",
       );
-      await expect(encryptor.decrypt(undefined, {} as any, anyUserId)).rejects.toThrow(
+      await expect(encryptor.decrypt(undefined, anyUserId)).rejects.toThrow(
         "secret cannot be null or undefined",
-      );
-    });
-
-    it("should throw if disclosed was not supplied", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
-
-      await expect(encryptor.decrypt({} as any, null, anyUserId)).rejects.toThrow(
-        "disclosed cannot be null or undefined",
-      );
-      await expect(encryptor.decrypt({} as any, undefined, anyUserId)).rejects.toThrow(
-        "disclosed cannot be null or undefined",
       );
     });
 
     it("should throw if userId was not supplied", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
 
-      await expect(encryptor.decrypt({} as any, {} as any, null)).rejects.toThrow(
+      await expect(encryptor.decrypt({} as any, null)).rejects.toThrow(
         "userId cannot be null or undefined",
       );
-      await expect(encryptor.decrypt({} as any, {} as any, undefined)).rejects.toThrow(
+      await expect(encryptor.decrypt({} as any, undefined)).rejects.toThrow(
         "userId cannot be null or undefined",
       );
     });
 
     it("should declassify a decrypted packed value using the user's key", async () => {
-      const classifier = SecretClassifier.allSecret<object>();
-      const classifierDeclassify = jest.spyOn(classifier, "declassify");
-      const declassified = {} as any;
-      classifierDeclassify.mockReturnValue(declassified);
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, classifier, dataPacker);
+      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
       const secret = "encrypted" as any;
-      const disclosed = {} as any;
 
-      const result = await encryptor.decrypt(secret, disclosed, anyUserId);
+      const result = await encryptor.decrypt(secret, anyUserId);
 
+      // these are data flow expectations; the operations all all pass-through mocks
       expect(keyService.getUserKey).toHaveBeenCalledWith(anyUserId);
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(secret, userKey);
       expect(dataPacker.unpack).toHaveBeenCalledWith(secret);
-      expect(classifierDeclassify).toHaveBeenCalledWith(disclosed, secret);
-      expect(result).toBe(declassified);
+      expect(result).toBe(secret);
     });
   });
 });

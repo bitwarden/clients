@@ -1,10 +1,10 @@
-import { map, Observable } from "rxjs";
+import { map, Observable, of, switchMap } from "rxjs";
 
 import {
   ActiveUserState,
-  ActiveUserStateProvider,
   BILLING_DISK,
   KeyDefinition,
+  StateProvider,
 } from "../../../platform/state";
 import {
   BillingAccountProfile,
@@ -26,24 +26,34 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
   hasPremiumPersonally$: Observable<boolean>;
   hasPremiumFromAnySource$: Observable<boolean>;
 
-  constructor(activeUserStateProvider: ActiveUserStateProvider) {
-    this.billingAccountProfileState = activeUserStateProvider.get(
+  constructor(stateProvider: StateProvider) {
+    this.billingAccountProfileState = stateProvider.getActive(
       BILLING_ACCOUNT_PROFILE_KEY_DEFINITION,
     );
 
-    this.hasPremiumFromAnyOrganization$ = this.billingAccountProfileState.state$.pipe(
+    // Setup an observable that will always track the currently active user
+    // but will fallback to emitting null when there is no active user.
+    const billingAccountProfileOrNull = stateProvider.activeUserId$.pipe(
+      switchMap((userId) =>
+        userId != null
+          ? stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).state$
+          : of(null),
+      ),
+    );
+
+    this.hasPremiumFromAnyOrganization$ = billingAccountProfileOrNull.pipe(
       map((billingAccountProfile) => !!billingAccountProfile?.hasPremiumFromAnyOrganization),
     );
 
-    this.hasPremiumPersonally$ = this.billingAccountProfileState.state$.pipe(
+    this.hasPremiumPersonally$ = billingAccountProfileOrNull.pipe(
       map((billingAccountProfile) => !!billingAccountProfile?.hasPremiumPersonally),
     );
 
-    this.hasPremiumFromAnySource$ = this.billingAccountProfileState.state$.pipe(
+    this.hasPremiumFromAnySource$ = billingAccountProfileOrNull.pipe(
       map(
         (billingAccountProfile) =>
-          billingAccountProfile?.hasPremiumFromAnyOrganization ||
-          billingAccountProfile?.hasPremiumPersonally,
+          billingAccountProfile?.hasPremiumFromAnyOrganization === true ||
+          billingAccountProfile?.hasPremiumPersonally === true,
       ),
     );
   }

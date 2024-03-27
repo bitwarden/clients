@@ -110,7 +110,7 @@ export class ImportService implements ImportServiceAbstraction {
     importer: Importer,
     fileContents: string,
     organizationId: string = null,
-    selectedImportTarget: string = null,
+    selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean,
   ): Promise<ImportResult> {
     let importResult: ImportResult;
@@ -147,11 +147,7 @@ export class ImportService implements ImportServiceAbstraction {
       }
     }
 
-    if (
-      organizationId &&
-      Utils.isNullOrWhitespace(selectedImportTarget) &&
-      !canAccessImportExport
-    ) {
+    if (organizationId && !selectedImportTarget && !canAccessImportExport) {
       const hasUnassignedCollections =
         importResult.collectionRelationships.length < importResult.ciphers.length;
       if (hasUnassignedCollections) {
@@ -428,29 +424,32 @@ export class ImportService implements ImportServiceAbstraction {
   private async setImportTarget(
     importResult: ImportResult,
     organizationId: string,
-    importTarget: string,
+    importTarget: FolderView | CollectionView,
   ) {
-    if (Utils.isNullOrWhitespace(importTarget)) {
+    if (!importTarget) {
       return;
     }
 
     if (organizationId) {
-      const collectionViews: CollectionView[] = await this.collectionService.getAllDecrypted();
-      const targetCollection = collectionViews.find((c) => c.id === importTarget);
+      if (!(importTarget instanceof CollectionView)) {
+        throw new Error("Error assigning target collection");
+      }
 
       const noCollectionRelationShips: [number, number][] = [];
       importResult.ciphers.forEach((c, index) => {
-        if (!Array.isArray(c.collectionIds) || c.collectionIds.length == 0) {
-          c.collectionIds = [targetCollection.id];
+        if (
+          !Array.isArray(importResult.collectionRelationships) ||
+          !importResult.collectionRelationships.some(([cipherPos]) => cipherPos === index)
+        ) {
           noCollectionRelationShips.push([index, 0]);
         }
       });
 
       const collections: CollectionView[] = [...importResult.collections];
-      importResult.collections = [targetCollection];
+      importResult.collections = [importTarget as CollectionView];
       collections.map((x) => {
         const f = new CollectionView();
-        f.name = `${targetCollection.name}/${x.name}`;
+        f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });
 
@@ -463,21 +462,22 @@ export class ImportService implements ImportServiceAbstraction {
       return;
     }
 
-    const folderViews = await this.folderService.getAllDecryptedFromState();
-    const targetFolder = folderViews.find((f) => f.id === importTarget);
+    if (!(importTarget instanceof FolderView)) {
+      throw new Error("Error assigning target folder");
+    }
 
     const noFolderRelationShips: [number, number][] = [];
     importResult.ciphers.forEach((c, index) => {
       if (Utils.isNullOrEmpty(c.folderId)) {
-        c.folderId = targetFolder.id;
+        c.folderId = importTarget.id;
         noFolderRelationShips.push([index, 0]);
       }
     });
 
     const folders: FolderView[] = [...importResult.folders];
-    importResult.folders = [targetFolder];
+    importResult.folders = [importTarget as FolderView];
     folders.map((x) => {
-      const newFolderName = `${targetFolder.name}/${x.name}`;
+      const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();
       f.name = newFolderName;
       importResult.folders.push(f);

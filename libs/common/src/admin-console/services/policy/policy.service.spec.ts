@@ -16,9 +16,7 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
-import { PolicyResponse } from "../../../admin-console/models/response/policy.response";
 import { POLICIES, PolicyService } from "../../../admin-console/services/policy/policy.service";
-import { ListResponse } from "../../../models/response/list.response";
 import { PolicyId, UserId } from "../../../types/guid";
 
 describe("PolicyService", () => {
@@ -262,66 +260,6 @@ describe("PolicyService", () => {
       const result = policyService.getResetPasswordPolicyOptions(policies, "test-organization-3");
 
       expect(result).toEqual([{ autoEnrollEnabled: true }, true]);
-    });
-  });
-
-  describe("mapPoliciesFromToken", () => {
-    it("null", async () => {
-      const result = policyService.mapPoliciesFromToken(null);
-
-      expect(result).toEqual(null);
-    });
-
-    it("null data", async () => {
-      const model = new ListResponse(null, PolicyResponse);
-      model.data = null;
-      const result = policyService.mapPoliciesFromToken(model);
-
-      expect(result).toEqual(null);
-    });
-
-    it("empty array", async () => {
-      const model = new ListResponse(null, PolicyResponse);
-      const result = policyService.mapPoliciesFromToken(model);
-
-      expect(result).toEqual([]);
-    });
-
-    it("success", async () => {
-      const policyResponse: any = {
-        Data: [
-          {
-            Id: "1",
-            OrganizationId: "organization-1",
-            Type: PolicyType.DisablePersonalVaultExport,
-            Enabled: true,
-            Data: { requireUpper: true },
-          },
-          {
-            Id: "2",
-            OrganizationId: "organization-2",
-            Type: PolicyType.DisableSend,
-            Enabled: false,
-            Data: { minComplexity: 5, minLength: 20 },
-          },
-        ],
-      };
-      const model = new ListResponse(policyResponse, PolicyResponse);
-      const result = policyService.mapPoliciesFromToken(model);
-
-      expect(result).toEqual([
-        new Policy(
-          policyData("1", "organization-1", PolicyType.DisablePersonalVaultExport, true, {
-            requireUpper: true,
-          }),
-        ),
-        new Policy(
-          policyData("2", "organization-2", PolicyType.DisableSend, false, {
-            minComplexity: 5,
-            minLength: 20,
-          }),
-        ),
-      ]);
     });
   });
 

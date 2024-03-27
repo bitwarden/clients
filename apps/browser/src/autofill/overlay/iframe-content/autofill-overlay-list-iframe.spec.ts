@@ -1,8 +1,15 @@
-import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
 import AutofillOverlayListIframe from "./autofill-overlay-list-iframe";
 
 describe("AutofillOverlayListIframe", () => {
-  window.customElements.define("autofill-overlay-list-iframe", AutofillOverlayListIframe);
+  window.customElements.define(
+    "autofill-overlay-list-iframe",
+    class extends HTMLElement {
+      constructor() {
+        super();
+        new AutofillOverlayListIframe(this);
+      }
+    },
+  );
 
   afterAll(() => {
     jest.clearAllMocks();
@@ -13,7 +20,7 @@ describe("AutofillOverlayListIframe", () => {
 
     const iframe = document.querySelector("autofill-overlay-list-iframe");
 
-    expect(iframe).toBeInstanceOf(AutofillOverlayListIframe);
-    expect(iframe).toBeInstanceOf(AutofillOverlayIframeElement);
+    expect(iframe).toBeInstanceOf(HTMLElement);
+    expect(iframe.shadowRoot).toBeDefined();
   });
 });

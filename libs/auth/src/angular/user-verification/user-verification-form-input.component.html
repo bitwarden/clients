@@ -49,12 +49,12 @@
         </div>
       </div>
 
-      <app-callout type="error" *ngIf="biometricsVerificationFailed">
+      <bit-callout type="danger" *ngIf="biometricsVerificationFailed">
         {{ "couldNotCompleteBiometrics" | i18n }}
         <button bitLink type="button" linkType="primary" (click)="verifyUserViaBiometrics()">
           {{ "tryAgain" | i18n }}
         </button>
-      </app-callout>
+      </bit-callout>
     </ng-container>
 
     <!-- Alternate verification options if user has more than 1 -->

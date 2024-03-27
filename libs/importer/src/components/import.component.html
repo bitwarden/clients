@@ -37,7 +37,7 @@
         <bit-option [value]="null" label="-- {{ 'selectImportFolder' | i18n }} --" />
         <bit-option
           *ngFor="let f of folders$ | async"
-          [value]="f.id"
+          [value]="f"
           [label]="f.name"
           icon="bwi-folder"
         />
@@ -46,7 +46,7 @@
         <bit-option [value]="null" label="-- {{ 'selectImportCollection' | i18n }} --" />
         <bit-option
           *ngFor="let c of collections$ | async"
-          [value]="c.id"
+          [value]="c"
           [label]="c.name"
           icon="bwi-collection"
         />

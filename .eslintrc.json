@@ -67,7 +67,7 @@
             "pathGroupsExcludedImportTypes": ["builtin"]
           }
         ],
-        "rxjs-angular/prefer-takeuntil": "error",
+        "rxjs-angular/prefer-takeuntil": ["error", { "alias": ["takeUntilDestroyed"] }],
         "rxjs/no-exposed-subjects": ["error", { "allowProtected": true }],
         "no-restricted-syntax": [
           "error",
@@ -188,6 +188,15 @@
         "no-restricted-imports": [
           "error",
           { "patterns": ["@bitwarden/vault-export-core/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/export/vault-export/vault-export-ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-ui/*", "src/**/*"] }
         ]
       }
     },

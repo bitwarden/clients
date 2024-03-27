@@ -3,8 +3,9 @@ import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
 
 class AutofillOverlayListIframe extends AutofillOverlayIframeElement {
-  constructor() {
+  constructor(element: HTMLElement) {
     super(
+      element,
       "overlay/list.html",
       AutofillOverlayPort.List,
       {

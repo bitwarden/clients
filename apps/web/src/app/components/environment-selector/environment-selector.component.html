@@ -1,38 +1,25 @@
 <div class="tw-mb-1" *ngIf="showRegionSelector">
   <bit-menu #environmentOptions>
     <a
+      *ngFor="let region of availableRegions"
       bitMenuItem
       [attr.href]="
-        isUsServer ? 'javascript:void(0)' : 'https://vault.bitwarden.com' + routeAndParams
+        region == currentRegion ? 'javascript:void(0)' : region.urls.webVault + routeAndParams
       "
       class="pr-4"
     >
       <i
         class="bwi bwi-fw bwi-sm bwi-check pb-1"
         aria-hidden="true"
-        [style.visibility]="isUsServer ? 'visible' : 'hidden'"
+        [style.visibility]="region == currentRegion ? 'visible' : 'hidden'"
       ></i>
-      {{ "usDomain" | i18n }}
-    </a>
-    <a
-      bitMenuItem
-      [attr.href]="
-        isEuServer ? 'javascript:void(0)' : 'https://vault.bitwarden.eu' + routeAndParams
-      "
-      class="pr-4"
-    >
-      <i
-        class="bwi bwi-fw bwi-sm bwi-check pb-1"
-        aria-hidden="true"
-        [style.visibility]="isEuServer ? 'visible' : 'hidden'"
-      ></i>
-      {{ "euDomain" | i18n }}
+      {{ region.domain }}
     </a>
   </bit-menu>
   <div>
     {{ "server" | i18n }}:
     <a [routerLink]="[]" [bitMenuTriggerFor]="environmentOptions">
-      <b>{{ isEuServer ? ("euDomain" | i18n) : ("usDomain" | i18n) }}</b
+      <b>{{ currentRegion?.domain }}</b
       ><i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
     </a>
   </div>

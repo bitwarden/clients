@@ -54,6 +54,7 @@
       [showBulkEditCollectionAccess]="
         (showBulkEditCollectionAccess$ | async) && organization?.flexibleCollections
       "
+      [showBulkAddToCollections]="organization?.flexibleCollections"
       [viewingOrgVault]="true"
     >
     </app-vault-items>

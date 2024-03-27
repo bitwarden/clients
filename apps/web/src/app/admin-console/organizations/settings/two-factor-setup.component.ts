@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, takeUntil } from "rxjs";
+import { concatMap, takeUntil, map } from "rxjs";
 import { tap } from "rxjs/operators";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -42,9 +42,14 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent {
   async ngOnInit() {
     this.route.params
       .pipe(
-        tap((params) => {
-          this.organizationId = params.organizationId;
-          this.organization = this.organizationService.get(this.organizationId);
+        concatMap((params) =>
+          this.organizationService
+            .get$(params.organizationId)
+            .pipe(map((organization) => ({ params, organization }))),
+        ),
+        tap(async (mapResponse) => {
+          this.organizationId = mapResponse.params.organizationId;
+          this.organization = mapResponse.organization;
         }),
         concatMap(async () => await super.ngOnInit()),
         takeUntil(this.destroy$),

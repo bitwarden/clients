@@ -5,12 +5,12 @@
         <h1 class="modal-title" id="generatorTitle">
           {{ "generator" | i18n }}
         </h1>
-        <app-callout
+        <bit-callout
           type="info"
           *ngIf="enforcedPasswordPolicyOptions?.inEffect() && type === 'password'"
         >
           {{ "passwordGeneratorPolicyInEffect" | i18n }}
-        </app-callout>
+        </bit-callout>
         <div class="generated-block" *ngIf="type === 'password'">
           <div
             class="generated-wrapper"

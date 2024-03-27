@@ -16,7 +16,7 @@ export const organizationEnabledGuard: CanActivateFn = async (route: ActivatedRo
     await syncService.fullSync(false);
   }
 
-  const org = orgService.get(route.params.organizationId);
+  const org = await orgService.get(route.params.organizationId);
   if (org == null || !org.canAccessSecretsManager) {
     return createUrlTreeFromSnapshot(route, ["/"]);
   }

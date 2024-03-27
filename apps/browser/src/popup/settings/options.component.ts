@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -56,7 +55,6 @@ export class OptionsComponent implements OnInit {
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     i18nService: I18nService,
     private themeStateService: ThemeStateService,
-    private settingsService: SettingsService,
     private vaultSettingsService: VaultSettingsService,
   ) {
     this.themeOptions = [
@@ -119,7 +117,7 @@ export class OptionsComponent implements OnInit {
 
     this.enableAutoTotpCopy = await firstValueFrom(this.autofillSettingsService.autoCopyTotp$);
 
-    this.enableFavicon = !this.settingsService.getDisableFavicon();
+    this.enableFavicon = await firstValueFrom(this.domainSettingsService.showFavicons$);
 
     this.enableBadgeCounter = await firstValueFrom(this.badgeSettingsService.enableBadgeCounter$);
 
@@ -169,7 +167,7 @@ export class OptionsComponent implements OnInit {
   }
 
   async updateFavicon() {
-    await this.settingsService.setDisableFavicon(!this.enableFavicon);
+    await this.domainSettingsService.setShowFavicons(this.enableFavicon);
   }
 
   async updateBadgeCounter() {

@@ -1,12 +1,15 @@
+import { firstValueFrom } from "rxjs";
+
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
+import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { GroupPolicyEnvironment } from "../../admin-console/types/group-policy-environment";
 import { devFlagEnabled, devFlagValue } from "../flags";
 
-export class BrowserEnvironmentService extends EnvironmentService {
+export class BrowserEnvironmentService extends DefaultEnvironmentService {
   constructor(
     private logService: LogService,
     stateProvider: StateProvider,
@@ -29,16 +32,18 @@ export class BrowserEnvironmentService extends EnvironmentService {
       return false;
     }
 
-    const env = await this.getManagedEnvironment();
+    const managedEnv = await this.getManagedEnvironment();
+    const env = await firstValueFrom(this.environment$);
+    const urls = env.getUrls();
 
     return (
-      env.base != this.baseUrl ||
-      env.webVault != this.webVaultUrl ||
-      env.api != this.webVaultUrl ||
-      env.identity != this.identityUrl ||
-      env.icons != this.iconsUrl ||
-      env.notifications != this.notificationsUrl ||
-      env.events != this.eventsUrl
+      managedEnv.base != urls.base ||
+      managedEnv.webVault != urls.webVault ||
+      managedEnv.api != urls.api ||
+      managedEnv.identity != urls.identity ||
+      managedEnv.icons != urls.icons ||
+      managedEnv.notifications != urls.notifications ||
+      managedEnv.events != urls.events
     );
   }
 
@@ -62,7 +67,7 @@ export class BrowserEnvironmentService extends EnvironmentService {
 
   async setUrlsToManagedEnvironment() {
     const env = await this.getManagedEnvironment();
-    await this.setUrls({
+    await this.setEnvironment(Region.SelfHosted, {
       base: env.base,
       webVault: env.webVault,
       api: env.api,

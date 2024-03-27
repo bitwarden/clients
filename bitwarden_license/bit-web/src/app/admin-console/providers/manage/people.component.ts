@@ -7,6 +7,7 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
@@ -18,7 +19,6 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService } from "@bitwarden/components";
 import { BasePeopleComponent } from "@bitwarden/web-vault/app/admin-console/common/base.people.component";
@@ -67,9 +67,9 @@ export class PeopleComponent
     logService: LogService,
     searchPipe: SearchPipe,
     userNamePipe: UserNamePipe,
-    stateService: StateService,
     private providerService: ProviderService,
     dialogService: DialogService,
+    organizationManagementPreferencesService: OrganizationManagementPreferencesService,
   ) {
     super(
       apiService,
@@ -82,8 +82,8 @@ export class PeopleComponent
       logService,
       searchPipe,
       userNamePipe,
-      stateService,
       dialogService,
+      organizationManagementPreferencesService,
     );
   }
 

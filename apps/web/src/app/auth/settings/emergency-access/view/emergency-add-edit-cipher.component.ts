@@ -6,7 +6,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -52,7 +52,7 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent {
     sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
-    configService: ConfigServiceAbstraction,
+    configService: ConfigService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(

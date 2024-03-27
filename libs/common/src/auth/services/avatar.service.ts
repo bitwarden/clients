@@ -27,6 +27,10 @@ export class AvatarService implements AvatarServiceAbstraction {
     await this.stateProvider.setUserState(AVATAR_COLOR, avatarColor);
   }
 
+  async setSyncAvatarColor(userId: UserId, color: string): Promise<void> {
+    await this.stateProvider.getUser(userId, AVATAR_COLOR).update(() => color);
+  }
+
   getUserAvatarColor$(userId: UserId): Observable<string | null> {
     return this.stateProvider.getUser(userId, AVATAR_COLOR).state$;
   }

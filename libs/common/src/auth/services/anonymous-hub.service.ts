@@ -5,6 +5,7 @@ import {
   IHubProtocol,
 } from "@microsoft/signalr";
 import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
+import { firstValueFrom } from "rxjs";
 
 import { LoginStrategyServiceAbstraction } from "../../../../auth/src/common/abstractions/login-strategy.service";
 import {
@@ -26,7 +27,7 @@ export class AnonymousHubService implements AnonymousHubServiceAbstraction {
   ) {}
 
   async createHubConnection(token: string) {
-    this.url = this.environmentService.getNotificationsUrl();
+    this.url = (await firstValueFrom(this.environmentService.environment$)).getNotificationsUrl();
 
     this.anonHubConnection = new HubConnectionBuilder()
       .withUrl(this.url + "/anonymous-hub?Token=" + token, {

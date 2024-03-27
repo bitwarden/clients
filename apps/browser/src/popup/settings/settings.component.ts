@@ -446,9 +446,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
+      const env = await firstValueFrom(this.environmentService.environment$);
+      await BrowserApi.createNewTab(env.getWebVaultUrl());
     }
   }
 
@@ -479,10 +478,9 @@ export class SettingsComponent implements OnInit {
   }
 
   async webVault() {
-    const url = this.environmentService.getWebVaultUrl();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.createNewTab(url);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const url = env.getWebVaultUrl();
+    await BrowserApi.createNewTab(url);
   }
 
   async import() {

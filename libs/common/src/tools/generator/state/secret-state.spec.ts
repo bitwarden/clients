@@ -9,15 +9,18 @@ import {
   awaitAsync,
 } from "../../../../spec";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { KeyDefinition, GENERATOR_DISK } from "../../../platform/state";
+import { GENERATOR_DISK } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 
+import { SecretClassifier } from "./secret-classifier";
+import { SecretKeyDefinition } from "./secret-key-definition";
 import { SecretState } from "./secret-state";
 import { UserEncryptor } from "./user-encryptor.abstraction";
 
 type FooBar = { foo: boolean; bar: boolean; date?: Date };
-const FOOBAR_KEY = new KeyDefinition<FooBar>(GENERATOR_DISK, "fooBar", {
-  deserializer: (fb) => {
+const classifier = SecretClassifier.allSecret<FooBar>();
+const options: any = {
+  deserializer: (fb: FooBar) => {
     const result: FooBar = { foo: fb.foo, bar: fb.bar };
 
     if (fb.date) {
@@ -26,23 +29,27 @@ const FOOBAR_KEY = new KeyDefinition<FooBar>(GENERATOR_DISK, "fooBar", {
 
     return result;
   },
-});
+};
+const FOOBAR_VALUE = SecretKeyDefinition.value(GENERATOR_DISK, "fooBar", classifier, options);
+const FOOBAR_ARRAY = SecretKeyDefinition.array(GENERATOR_DISK, "fooBar", classifier, options);
+const FOOBAR_RECORD = SecretKeyDefinition.record(GENERATOR_DISK, "fooBar", classifier, options);
+
 const SomeUser = "some user" as UserId;
 
-function mockEncryptor(fooBar: FooBar[] = []): UserEncryptor<FooBar, Record<string, never>> {
+function mockEncryptor(fooBar: FooBar[] = []): UserEncryptor<FooBar> {
   // stores "encrypted values" so that they can be "decrypted" later
   // while allowing the operations to be interleaved.
   const encrypted = new Map<string, Jsonify<FooBar>>(
     fooBar.map((fb) => [toKey(fb).encryptedString, toValue(fb)] as const),
   );
 
-  const result = mock<UserEncryptor<FooBar, Record<string, never>>>({
+  const result = mock<UserEncryptor<FooBar>>({
     encrypt(value: FooBar, user: UserId) {
       const encString = toKey(value);
       encrypted.set(encString.encryptedString, toValue(value));
-      return Promise.resolve({ secret: encString, disclosed: {} });
+      return Promise.resolve(encString);
     },
-    decrypt(secret: EncString, disclosed: Record<string, never>, userId: UserId) {
+    decrypt(secret: EncString, userId: UserId) {
       const decString = encrypted.get(toValue(secret.encryptedString));
       return Promise.resolve(decString);
     },
@@ -59,9 +66,9 @@ function mockEncryptor(fooBar: FooBar[] = []): UserEncryptor<FooBar, Record<stri
     return JSON.parse(JSON.stringify(value));
   }
 
-  // chromatic pops a false positive about missing `encrypt` and `decrypt`
+  // typescript pops a false positive about missing `encrypt` and `decrypt`
   // functions, so assert the type manually.
-  return result as unknown as UserEncryptor<FooBar, Record<string, never>>;
+  return result as unknown as UserEncryptor<FooBar>;
 }
 
 async function fakeStateProvider() {
@@ -76,7 +83,7 @@ describe("UserEncryptor", () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
 
-      const result = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const result = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
 
       expect(result).toBeInstanceOf(SecretState);
     });
@@ -87,7 +94,7 @@ describe("UserEncryptor", () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
 
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
 
       expect(state.userId).toEqual(SomeUser);
     });
@@ -95,7 +102,7 @@ describe("UserEncryptor", () => {
     it("state$ gets a set value", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const value = { foo: true, bar: false };
 
       await state.update(() => value);
@@ -105,10 +112,55 @@ describe("UserEncryptor", () => {
       expect(result).toEqual(value);
     });
 
+    it("round-trips json-serializable values", async () => {
+      const provider = await fakeStateProvider();
+      const encryptor = mockEncryptor();
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
+      const value = { foo: true, bar: true, date: new Date(1) };
+
+      await state.update(() => value);
+      await awaitAsync();
+      const result = await firstValueFrom(state.state$);
+
+      expect(result).toEqual(value);
+    });
+
+    it("state$ gets a set array", async () => {
+      const provider = await fakeStateProvider();
+      const encryptor = mockEncryptor();
+      const state = SecretState.from(SomeUser, FOOBAR_ARRAY, provider, encryptor);
+      const array = [
+        { foo: true, bar: false, date: new Date(1) },
+        { foo: false, bar: true },
+      ];
+
+      await state.update(() => array);
+      await awaitAsync();
+      const result = await firstValueFrom(state.state$);
+
+      expect(result).toStrictEqual(array);
+    });
+
+    it("state$ gets a set record", async () => {
+      const provider = await fakeStateProvider();
+      const encryptor = mockEncryptor();
+      const state = SecretState.from(SomeUser, FOOBAR_RECORD, provider, encryptor);
+      const record = {
+        baz: { foo: true, bar: false, date: new Date(1) },
+        biz: { foo: false, bar: true },
+      };
+
+      await state.update(() => record);
+      await awaitAsync();
+      const result = await firstValueFrom(state.state$);
+
+      expect(result).toStrictEqual(record);
+    });
+
     it("combinedState$ gets a set value with the userId", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const value = { foo: true, bar: false };
 
       await state.update(() => value);
@@ -119,23 +171,10 @@ describe("UserEncryptor", () => {
       expect(userId).toEqual(SomeUser);
     });
 
-    it("round-trips json-serializable values", async () => {
-      const provider = await fakeStateProvider();
-      const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
-      const value = { foo: true, bar: true, date: new Date(1) };
-
-      await state.update(() => value);
-      await awaitAsync();
-      const result = await firstValueFrom(state.state$);
-
-      expect(result).toEqual(value);
-    });
-
     it("gets the last set value", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const initialValue = { foo: true, bar: false };
       const replacementValue = { foo: false, bar: false };
 
@@ -150,7 +189,7 @@ describe("UserEncryptor", () => {
     it("interprets shouldUpdate option", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const initialValue = { foo: true, bar: false };
       const replacementValue = { foo: false, bar: false };
 
@@ -164,7 +203,7 @@ describe("UserEncryptor", () => {
     it("sets the state to `null` when `update` returns `null`", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const value = { foo: true, bar: false };
 
       await state.update(() => value);
@@ -178,7 +217,7 @@ describe("UserEncryptor", () => {
     it("sets the state to `null` when `update` returns `undefined`", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const value = { foo: true, bar: false };
 
       await state.update(() => value);
@@ -192,7 +231,7 @@ describe("UserEncryptor", () => {
     it("sends rxjs observables into the shouldUpdate method", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const combinedWith$ = from([1]);
       let combinedShouldUpdate = 0;
 
@@ -210,7 +249,7 @@ describe("UserEncryptor", () => {
     it("sends rxjs observables into the update method", async () => {
       const provider = await fakeStateProvider();
       const encryptor = mockEncryptor();
-      const state = SecretState.from(SomeUser, FOOBAR_KEY, provider, encryptor);
+      const state = SecretState.from(SomeUser, FOOBAR_VALUE, provider, encryptor);
       const combinedWith$ = from([1]);
       let combinedUpdate = 0;
 

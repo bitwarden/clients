@@ -177,6 +177,7 @@ const renderer = {
       ENV: ENV,
       FLAGS: envConfig.flags,
       DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
+      ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
     }),
   ],
 };

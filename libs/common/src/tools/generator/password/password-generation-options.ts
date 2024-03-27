@@ -78,6 +78,6 @@ export const DefaultPasswordGenerationOptions: Partial<PasswordGenerationOptions
   lowercase: true,
   number: true,
   minNumber: 1,
-  special: true,
-  minSpecial: 1,
+  special: false,
+  minSpecial: 0,
 });

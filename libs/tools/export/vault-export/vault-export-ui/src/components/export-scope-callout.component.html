@@ -1,0 +1,5 @@
+<ng-container *ngIf="show">
+  <bit-callout type="info" title="{{ scopeConfig.title | i18n }}">
+    {{ scopeConfig.description | i18n: scopeConfig.scopeIdentifier }}
+  </bit-callout>
+</ng-container>

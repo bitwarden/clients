@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "パスワードを変更するには、メンバーが存在しないといけません"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "このプロジェクトを削除する権限がありません",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7611,5 +7605,42 @@
   },
   "restrictedCollectionAccess": {
     "message": "コレクションに自分自身を追加することはできません。"
+  },
+  "assign": {
+    "message": "割り当て"
+  },
+  "assignToCollections": {
+    "message": "コレクションに割り当てる"
+  },
+  "assignToTheseCollections": {
+    "message": "これらのコレクションに割り当てる"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "アイテムを共有するコレクションを選択します。1つのコレクションでアイテムが更新されると、すべてのコレクションに反映されます。これらのコレクションにアクセスできる組織メンバーだけがアイテムを見ることができます。"
+  },
+  "selectCollectionsToAssign": {
+    "message": "割り当てるコレクションを選択"
+  },
+  "noCollectionsAssigned": {
+    "message": "コレクションが割り当てられていません"
+  },
+  "successfullyAssignedCollections": {
+    "message": "コレクションの割り当てに成功しました"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ アイテムを選択しました。編集権限がないため、$READONLY_COUNT$ アイテムを更新できません。",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "アイテム"
   }
 }

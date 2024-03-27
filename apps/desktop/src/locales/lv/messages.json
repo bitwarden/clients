@@ -1025,7 +1025,7 @@
     "message": "Pārsāknēt, lai atjauninātu"
   },
   "restartToUpdateDesc": {
-    "message": "Versija $VERSION_NUM$ ir gatava instalēšanai. Lai pabeigtu instalēšanu, lietojumprogramma ir jārestartē. Vai vēlaties restartēt un atjaunināt tūlīt?",
+    "message": "Versija $VERSION_NUM$ ir gatava uzstādīšanai. Ir jāpārsāknē lietotne, lai pabeigtu uzstādīšanu. Vai pārsāknēt un atjaunināt tagad?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1037,7 +1037,7 @@
     "message": "Pieejams atjauninājums"
   },
   "updateAvailableDesc": {
-    "message": "Atrasts atjauninājums. Vai vēlaties to lejupielādēt?"
+    "message": "Atrasts atjauninājums. Vai lejupielādēt to?"
   },
   "restart": {
     "message": "Pārsāknēt"
@@ -1643,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Iespējo papildu drošības slāni, pieprasot atpazīšanas vārdkopas pārbaudi, kad tiek izveidota saikne starp darbvirsmu un pārlūku. Ir nepieciešama lietotāja darbība un apliecināšana katru reizi, kad tiek izveidots savienojums."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Izmantot aparatūras paātrināšanu"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Pēc noklusējuma šis iestatījums ir ieslēgts. Izslēgt tikai tad, ja tiek pieredzētas attēlojuma nepilnības. Nepieciešama pārsāknēšana."
   },
   "approve": {
     "message": "Apstiprināt"
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Piesakās"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "pašizvietots"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Izplatīti veidoli",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Sarežģījumu novēršana"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Atspējot aparatūras paātrinājumu un pārsāknēt"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Iespējot aparatūras paātrinājumu un pārsāknēt"
   }
 }

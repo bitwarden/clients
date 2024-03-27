@@ -14,7 +14,7 @@ import {
 describe.each([
   [ENCRYPTED_CLIENT_KEY_HALF, "encryptedClientKeyHalf"],
   [DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT, true],
-  [PROMPT_CANCELLED, true],
+  [PROMPT_CANCELLED, { userId1: true, userId2: false }],
   [PROMPT_AUTOMATICALLY, true],
   [REQUIRE_PASSWORD_ON_START, true],
   [BIOMETRIC_UNLOCK_ENABLED, true],

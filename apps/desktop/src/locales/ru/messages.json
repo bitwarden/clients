@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Добавьте дополнительный уровень безопасности, требуя подтверждения отпечатка фразы при установлении связи между компьютером и браузером. Это потребует действий пользователя и подтверждения при каждом создании соединения."
   },
+  "enableHardwareAcceleration": {
+    "message": "Использовать аппаратное ускорение"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "По умолчанию этот параметр включен. Отключайте его только в том случае, если у вас возникли проблемы с графикой. Требуется перезагрузка."
+  },
   "approve": {
     "message": "Принять"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Войти на"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "собственный хостинг"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Отключить аппаратное ускорение и перезапустить"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Включить аппаратное ускорение и перезапустить"
   }
 }

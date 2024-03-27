@@ -2,6 +2,10 @@ import { TokenService as AbstractTokenService } from "@bitwarden/common/auth/abs
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 
 import {
+  EncryptServiceInitOptions,
+  encryptServiceFactory,
+} from "../../../platform/background/service-factories/encrypt-service.factory";
+import {
   FactoryOptions,
   CachedServices,
   factory,
@@ -10,6 +14,14 @@ import {
   GlobalStateProviderInitOptions,
   globalStateProviderFactory,
 } from "../../../platform/background/service-factories/global-state-provider.factory";
+import {
+  KeyGenerationServiceInitOptions,
+  keyGenerationServiceFactory,
+} from "../../../platform/background/service-factories/key-generation-service.factory";
+import {
+  LogServiceInitOptions,
+  logServiceFactory,
+} from "../../../platform/background/service-factories/log-service.factory";
 import {
   PlatformUtilsServiceInitOptions,
   platformUtilsServiceFactory,
@@ -29,7 +41,10 @@ export type TokenServiceInitOptions = TokenServiceFactoryOptions &
   SingleUserStateProviderInitOptions &
   GlobalStateProviderInitOptions &
   PlatformUtilsServiceInitOptions &
-  SecureStorageServiceInitOptions;
+  SecureStorageServiceInitOptions &
+  KeyGenerationServiceInitOptions &
+  EncryptServiceInitOptions &
+  LogServiceInitOptions;
 
 export function tokenServiceFactory(
   cache: { tokenService?: AbstractTokenService } & CachedServices,
@@ -45,6 +60,9 @@ export function tokenServiceFactory(
         await globalStateProviderFactory(cache, opts),
         (await platformUtilsServiceFactory(cache, opts)).supportsSecureStorage(),
         await secureStorageServiceFactory(cache, opts),
+        await keyGenerationServiceFactory(cache, opts),
+        await encryptServiceFactory(cache, opts),
+        await logServiceFactory(cache, opts),
       ),
   );
 }

@@ -1,7 +1,7 @@
 import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
@@ -82,10 +82,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
-  }
-
-  get selfHostedDomain() {
-    return this.environmentService.hasBaseUrl() ? this.environmentService.getWebVaultUrl() : null;
   }
 
   async ngOnInit() {
@@ -245,7 +241,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
 
     // Build URI
-    const webUrl = this.environmentService.getWebVaultUrl();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webUrl = env.getWebVaultUrl();
 
     // Launch browser
     this.platformUtilsService.launchUri(

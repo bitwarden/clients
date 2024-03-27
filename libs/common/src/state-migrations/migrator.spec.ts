@@ -26,7 +26,7 @@ describe("migrator default methods", () => {
   beforeEach(() => {
     storage = mock();
     logService = mock();
-    helper = new MigrationHelper(0, storage, logService);
+    helper = new MigrationHelper(0, storage, logService, "general");
     sut = new TestMigrator(0, 1);
   });
 

@@ -95,7 +95,7 @@
     "message": "Saisie automatique de l'identifiant"
   },
   "autoFillCard": {
-    "message": "Saisie automatique de la carte"
+    "message": "Saisie automatique de la carte de paiement"
   },
   "autoFillIdentity": {
     "message": "Saisie automatique de l'identité"
@@ -110,7 +110,7 @@
     "message": "Aucun identifiant correspondant"
   },
   "noCards": {
-    "message": "Aucune carte"
+    "message": "Aucune carte de paiement"
   },
   "noIdentities": {
     "message": "Aucune identité"
@@ -119,7 +119,7 @@
     "message": "Ajouter un identifiant"
   },
   "addCardMenu": {
-    "message": "Ajouter une carte"
+    "message": "Ajouter une carte de paiement"
   },
   "addIdentityMenu": {
     "message": "Ajouter une identité"
@@ -131,7 +131,7 @@
     "message": "Connectez-vous à votre coffre"
   },
   "autoFillInfo": {
-    "message": "Il n'y a pas d'identifiants disponibles pour la saisie automatique dans l'onglet actuel."
+    "message": "Il n'y a pas d'identifiants disponibles pour la saisie automatique de l'onglet actuel du navigateur."
   },
   "addLogin": {
     "message": "Ajouter un identifiant"
@@ -223,7 +223,7 @@
     "message": "Centre d'aide Bitwarden"
   },
   "communityForums": {
-    "message": "Explorez les forums de la communauté Bitwarden"
+    "message": "Explorer les forums de la communauté Bitwarden"
   },
   "contactSupport": {
     "message": "Contacter le support Bitwarden"
@@ -312,7 +312,7 @@
     "message": "Modifier"
   },
   "view": {
-    "message": "Voir"
+    "message": "Afficher"
   },
   "noItemsInList": {
     "message": "Aucun identifiant à afficher."
@@ -327,7 +327,7 @@
     "message": "Mot de passe"
   },
   "totp": {
-    "message": "Application d'authentification"
+    "message": "Secret de l'Authentificateur"
   },
   "passphrase": {
     "message": "Phrase de passe"
@@ -360,7 +360,7 @@
     "message": "Site web"
   },
   "toggleVisibility": {
-    "message": "Afficher/Masquer"
+    "message": "Permuter la visibilité"
   },
   "manage": {
     "message": "Gérer"
@@ -522,16 +522,16 @@
     "message": "Impossible de saisir automatiquement l'élément sélectionné sur cette page. Essayez plutôt le copier-coller."
   },
   "totpCaptureError": {
-    "message": "Impossible de scanner le code QR à partir de la page web actuelle"
+    "message": "Impossible de scanner le QR code à partir de la page web actuelle"
   },
   "totpCaptureSuccess": {
-    "message": "Clé d'authentification ajoutée"
+    "message": "Clé de l'Authentificateur ajoutée"
   },
   "totpCapture": {
-    "message": "Scanner le code QR à partir de la page web actuelle"
+    "message": "Scanner le QR code de l'authentificateur à partir de la page web actuelle"
   },
   "copyTOTP": {
-    "message": "Copier la clé TOTP"
+    "message": "Copier la clé de l'Authentificateur (TOTP)"
   },
   "loggedOut": {
     "message": "Déconnecté"
@@ -644,25 +644,25 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "Demander à ajouter un identifiant"
+    "message": "Demander d'ajouter un identifiant"
   },
   "addLoginNotificationDesc": {
-    "message": "Demander à ajouter un élément si aucun n'est trouvé dans votre coffre."
+    "message": "Demander d'ajouter un élément si aucun n'est trouvé dans votre coffre."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Demandez d'ajouter un élément s'il celui-ci n'est pas trouvé dans votre coffre. S'applique à tous les comptes connectés."
+    "message": "Demande l'ajout d'un élément si celui-ci n'est pas trouvé dans votre coffre. S'applique à tous les comptes connectés."
   },
   "showCardsCurrentTab": {
-    "message": "Afficher les cartes de paiement sur page d'Onglet"
+    "message": "Afficher les cartes de paiement sur la Page d'onglet"
   },
   "showCardsCurrentTabDesc": {
-    "message": "Lister les éléments de la carte sur la page de l'onglet pour faciliter la saisie automatique."
+    "message": "Liste les éléments des cartes de paiement sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "showIdentitiesCurrentTab": {
-    "message": "Afficher les identités sur page d'Onglet"
+    "message": "Afficher les identités sur la page d'onglet"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Lister les éléments d'identité sur la page de l'onglet pour faciliter la saisie automatique."
+    "message": "Liste les éléments d'identité sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "clearClipboard": {
     "message": "Effacer le presse-papiers",
@@ -679,19 +679,19 @@
     "message": "Enregistrer"
   },
   "enableChangedPasswordNotification": {
-    "message": "Demander à mettre à jour un identifiant existant"
+    "message": "Demander de mettre à jour un identifiant existant"
   },
   "changedPasswordNotificationDesc": {
-    "message": "Demander à mettre à jour le mot de passe d'un identifiant lorsqu'un changement est détecté sur un site Web."
+    "message": "Demande la mise à jour du mot de passe d'un identifiant lorsqu'un changement est détecté sur un site Web."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Demander à mettre à jour le mot de passe d'un identifiant lorsqu'un changement est détecté sur un site web. S'applique à tous les comptes connectés."
+    "message": "Demande la mise à jour du mot de passe d'un identifiant lorsqu'un changement est détecté sur un site web. S'applique à tous les comptes connectés."
   },
   "enableUsePasskeys": {
-    "message": "Demander à enregistrer et utiliser les clés d'accès"
+    "message": "Demander d'enregistrer et d'utiliser les clés d'identification (passkeys)"
   },
   "usePasskeysDesc": {
-    "message": "Demander d'enregistrer de nouvelles clés d'accès ou bien de se connecter à l'aide de clés stockées dans votre coffre. S'applique à tous les comptes connectés."
+    "message": "Demande l'enregistrement de nouvelles clés d'identification (passkeys) ou la connexion à l'aide des clés d'identification (passkeys) stockées dans votre coffre. S'applique à tous les comptes connectés."
   },
   "notificationChangeDesc": {
     "message": "Souhaitez-vous mettre à jour ce mot de passe dans Bitwarden ?"
@@ -719,7 +719,7 @@
     "description": "Default URI match detection for auto-fill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Choisissez la manière de gestion par défaut de la détection de correspondance URI pour les identifiants lors de l'exécution d'actions telles que la saisie automatique."
+    "message": "Choisit la manière dont la détection des correspondances URI est gérée par défaut pour les connexions lors d'actions telles que la saisie automatique."
   },
   "theme": {
     "message": "Thème"
@@ -802,7 +802,7 @@
     "message": "En savoir plus"
   },
   "authenticatorKeyTotp": {
-    "message": "Clé d'authentification (TOTP)"
+    "message": "Clé de l'Authentificateur (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Code de vérification (TOTP)"
@@ -841,7 +841,7 @@
     "message": "La taille maximale du fichier est de 500 Mo."
   },
   "featureUnavailable": {
-    "message": "Fonctionnalité non disponible"
+    "message": "Fonctionnalité indisponible"
   },
   "encryptionKeyMigrationRequired": {
     "message": "Migration de la clé de chiffrement nécessaire. Veuillez vous connecter sur le coffre web pour mettre à jour votre clé de chiffrement."
@@ -907,7 +907,7 @@
     "message": "Actualisation terminée"
   },
   "enableAutoTotpCopy": {
-    "message": "Copier TOTP automatiquement"
+    "message": "Copier le TOTP automatiquement"
   },
   "disableAutoTotpCopyDesc": {
     "message": "Si un identifiant possède une clé d'authentification, copie le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant."
@@ -967,7 +967,7 @@
     "message": "Authentifier WebAuthn"
   },
   "loginUnavailable": {
-    "message": "Identifiant non disponible"
+    "message": "Identifiant indisponible"
   },
   "noTwoStepProviders": {
     "message": "Ce compte dispose d'une authentification à deux facteurs de configurée, cependant, aucun des fournisseurs à deux facteurs configurés n'est pris en charge par ce navigateur web."
@@ -1887,7 +1887,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendShareDesc": {
-    "message": "Copier dans le presse-papiers le lien de ce Send lors de l'enregistrement.",
+    "message": "Copier le lien de ce Send dans le presse-papiers lors de l'enregistrement.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2166,7 +2166,7 @@
     "message": "Service"
   },
   "forwardedEmail": {
-    "message": "Alias d'email transféré"
+    "message": "Alias de courriel transféré"
   },
   "forwardedEmailDesc": {
     "message": "Générer un alias de courriel avec un service de transfert externe."
@@ -2385,12 +2385,6 @@
   "eu": {
     "message": "UE",
     "description": "European Union"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Accès refusé. Vous n'avez pas l'autorisation de voir cette page."
@@ -2792,55 +2786,55 @@
     "message": "Confirmez le mot de passe du fichier"
   },
   "typePasskey": {
-    "message": "Clé d'accès"
+    "message": "Clé d'identification (passkey)"
   },
   "passkeyNotCopied": {
-    "message": "La clé d'accès ne sera pas copiée"
+    "message": "La clé d'identification (passkey) ne sera pas copiée"
   },
   "passkeyNotCopiedAlert": {
-    "message": "La clé d'accès ne sera pas présente sur l'entrée clonée. Continuer quand même ?"
+    "message": "La clé d'identification (passkey) ne sera pas copiée dans l'élément cloné. Voulez-vous continuer à cloner cet élément ?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Le site requiert une vérification qui n'est pas supportée pour les comptes sans mot de passe maître."
+    "message": "Vérification requise par le site initiateur. Cette fonctionnalité n'est pas encore implémentée pour les comptes sans mot de passe principal."
   },
   "logInWithPasskey": {
-    "message": "Se connecter avec une clé d'accès ?"
+    "message": "Se connecter avec une clé d'identification (passkey) ?"
   },
   "passkeyAlreadyExists": {
-    "message": "Une clé d'accès existe déjà pour cette application."
+    "message": "Une clé d'identification (passkey) existe déjà pour cette application."
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "Aucune clé d'accès trouvée pour cette application."
+    "message": "Aucune clé d'identification (passkey) trouvée pour cette application."
   },
   "noMatchingPasskeyLogin": {
-    "message": "Vous n'avez aucun élément correspondant à ce site."
+    "message": "Vous n'avez pas d'identifiant correspondant à ce site."
   },
   "confirm": {
     "message": "Confirmer"
   },
   "savePasskey": {
-    "message": "Enregistrer la clé d'accès"
+    "message": "Enregistrer la clé d'identification (passkey)"
   },
   "savePasskeyNewLogin": {
-    "message": "Enregistrer comme nouvel élément"
+    "message": "Enregistrer la clé d'identification (passkey) comme nouvel identifiant"
   },
   "choosePasskey": {
-    "message": "Choisissez l'élément à associer à la clé d'accès"
+    "message": "Choisissez cette clé d'identification (passkey) pour l'enregistrer avec cet identifiant"
   },
   "passkeyItem": {
-    "message": "Élément avec clé d'accès"
+    "message": "Élément clé d'identification (passkey)"
   },
   "overwritePasskey": {
-    "message": "Écraser la clé d'accès existante ?"
+    "message": "Écraser la clé d'identification (passkey) ?"
   },
   "overwritePasskeyAlert": {
-    "message": "Cet élément contient déjà une clé d'accès. Voulez-vous vraiment l'écraser ?"
+    "message": "Cet élément contient déjà une clé d'identification (passkey). Êtes-vous sûr de vouloir écraser la clé d'identification (passkey) actuelle ?"
   },
   "featureNotSupported": {
     "message": "Fonctionnalité non supportée"
   },
   "yourPasskeyIsLocked": {
-    "message": "Authentification requise pour utiliser cette clé d'accès. Veuillez vérifier votre identité pour continuer."
+    "message": "Authentification requise pour utiliser une clé d'identification (passkey). Vérifiez votre identité pour continuer."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
@@ -2995,15 +2989,15 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {
-    "message": "Credentials saved successfully!",
+    "message": "Identifiants enregistrés avec succès !",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
-    "message": "Credentials updated successfully!",
+    "message": "Identifiants mis à jour avec succès !",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
-    "message": "Error saving credentials. Check console for details.",
+    "message": "Erreur lors de l'enregistrement des identifiants. Consultez la console pour plus de détails.",
     "description": "Notification message for when saving credentials has failed."
   }
 }

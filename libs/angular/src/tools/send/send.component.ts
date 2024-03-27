@@ -1,5 +1,5 @@
 import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -198,9 +198,9 @@ export class SendComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  copy(s: SendView) {
-    const sendLinkBaseUrl = this.environmentService.getSendUrl();
-    const link = sendLinkBaseUrl + s.accessId + "/" + s.urlB64Key;
+  async copy(s: SendView) {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const link = env.getSendUrl() + s.accessId + "/" + s.urlB64Key;
     this.platformUtilsService.copyToClipboard(link);
     this.platformUtilsService.showToast(
       "success",

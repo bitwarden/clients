@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { CoreOrganizationModule } from "../../core-organization.module";
 import { GroupView } from "../../views/group.view";
@@ -18,7 +18,7 @@ import { GroupDetailsResponse, GroupResponse } from "./responses/group.response"
 export class GroupService {
   constructor(
     protected apiService: ApiService,
-    protected configService: ConfigServiceAbstraction,
+    protected configService: ConfigService,
   ) {}
 
   async get(orgId: string, groupId: string): Promise<GroupView> {
@@ -52,7 +52,7 @@ export class GroupService {
 export class InternalGroupService extends GroupService {
   constructor(
     protected apiService: ApiService,
-    protected configService: ConfigServiceAbstraction,
+    protected configService: ConfigService,
   ) {
     super(apiService, configService);
   }

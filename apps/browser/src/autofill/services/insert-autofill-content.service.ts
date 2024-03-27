@@ -185,11 +185,18 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
   /**
    * Handles finding an element by opid and triggering click and focus events on the element.
-   * @param {string} opid
-   * @private
+   * To ensure that we trigger a blur event correctly on a filled field, we first check if the
+   * element is already focused. If it is, we blur the element before focusing on it again.
+   *
+   * @param {string} opid - The opid of the element to focus on.
    */
   private handleFocusOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
+
+    if (document.activeElement === element) {
+      element.blur();
+    }
+
     this.simulateUserMouseClickAndFocusEventInteractions(element, true);
   }
 
@@ -282,7 +289,6 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     }
 
     this.simulateInputElementChangedEvent(element);
-    element.blur();
   }
 
   /**
@@ -378,10 +384,6 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     for (let index = 0; index < simulatedInputEvents.length; index++) {
       element.dispatchEvent(new Event(simulatedInputEvents[index], { bubbles: true }));
     }
-  }
-
-  private nodeIsElement(node: Node): node is HTMLElement {
-    return node.nodeType === Node.ELEMENT_NODE;
   }
 }
 

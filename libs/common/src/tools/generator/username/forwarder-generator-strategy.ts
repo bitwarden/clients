@@ -1,14 +1,16 @@
+import { map, pipe } from "rxjs";
+
 import { PolicyType } from "../../../admin-console/enums";
-import { Policy } from "../../../admin-console/models/domain/policy";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { KeyDefinition, StateProvider } from "../../../platform/state";
+import { KeyDefinition, SingleUserState, StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { GeneratorStrategy } from "../abstractions";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { NoPolicy } from "../no-policy";
 import { PaddedDataPacker } from "../state/padded-data-packer";
 import { SecretClassifier } from "../state/secret-classifier";
+import { SecretKeyDefinition } from "../state/secret-key-definition";
 import { SecretState } from "../state/secret-state";
 import { UserKeyEncryptor } from "../state/user-key-encryptor";
 
@@ -39,7 +41,7 @@ export abstract class ForwarderGeneratorStrategy<
     this.cache_ms = ONE_MINUTE;
   }
 
-  private durableStates = new Map<UserId, SecretState<Options, Record<string, never>>>();
+  private durableStates = new Map<UserId, SingleUserState<Options>>();
 
   /** {@link GeneratorStrategy.durableState} */
   durableState = (userId: UserId) => {
@@ -47,7 +49,24 @@ export abstract class ForwarderGeneratorStrategy<
 
     if (!state) {
       const encryptor = this.createEncryptor();
-      state = SecretState.from(userId, this.key, this.stateProvider, encryptor);
+      // always exclude request properties
+      const classifier = SecretClassifier.allSecret<Options>().exclude("website");
+
+      // Derive the secret key definition
+      const key = SecretKeyDefinition.value(this.key.stateDefinition, this.key.key, classifier, {
+        deserializer: (d) => this.key.deserializer(d),
+        cleanupDelayMs: this.key.cleanupDelayMs,
+      });
+
+      // the type parameter is explicit because type inference fails for `Omit<Options, "website">`
+      state = SecretState.from<
+        Options,
+        void,
+        Options,
+        Record<keyof Options, never>,
+        Omit<Options, "website">
+      >(userId, key, this.stateProvider, encryptor);
+
       this.durableStates.set(userId, state);
     }
 
@@ -55,19 +74,16 @@ export abstract class ForwarderGeneratorStrategy<
   };
 
   private createEncryptor() {
-    // always exclude request properties
-    const classifier = SecretClassifier.allSecret<Options>().exclude("website");
-
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    return new UserKeyEncryptor(this.encryptService, this.keyService, classifier, packer);
+    return new UserKeyEncryptor(this.encryptService, this.keyService, packer);
   }
 
   /** Determine where forwarder configuration is stored  */
   protected abstract readonly key: KeyDefinition<Options>;
 
-  /** {@link GeneratorStrategy.evaluator} */
-  evaluator = (_policy: Policy) => {
-    return new DefaultPolicyEvaluator<Options>();
+  /** {@link GeneratorStrategy.toEvaluator} */
+  toEvaluator = () => {
+    return pipe(map((_) => new DefaultPolicyEvaluator<Options>()));
   };
 }

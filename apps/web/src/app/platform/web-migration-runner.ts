@@ -46,7 +46,7 @@ class WebMigrationHelper extends MigrationHelper {
     storageService: WindowStorageService,
     logService: LogService,
   ) {
-    super(currentVersion, storageService, logService);
+    super(currentVersion, storageService, logService, "web-disk-local");
     this.diskLocalStorageService = storageService;
   }
 

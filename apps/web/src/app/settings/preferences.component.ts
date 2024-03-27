@@ -2,13 +2,12 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
 
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -50,9 +49,8 @@ export class PreferencesComponent implements OnInit {
     private i18nService: I18nService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private platformUtilsService: PlatformUtilsService,
-    private messagingService: MessagingService,
     private themeStateService: ThemeStateService,
-    private settingsService: SettingsService,
+    private domainSettingsService: DomainSettingsService,
     private dialogService: DialogService,
   ) {
     this.vaultTimeoutOptions = [
@@ -137,7 +135,7 @@ export class PreferencesComponent implements OnInit {
       vaultTimeoutAction: await firstValueFrom(
         this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
       ),
-      enableFavicons: !(await this.settingsService.getDisableFavicon()),
+      enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
     };
@@ -160,7 +158,7 @@ export class PreferencesComponent implements OnInit {
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
-    await this.settingsService.setDisableFavicon(!values.enableFavicons);
+    await this.domainSettingsService.setShowFavicons(values.enableFavicons);
     await this.themeStateService.setSelectedTheme(values.theme);
     await this.i18nService.setLocale(values.locale);
     if (values.locale !== this.startingLocale) {

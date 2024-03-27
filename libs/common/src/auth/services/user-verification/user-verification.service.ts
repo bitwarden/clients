@@ -1,3 +1,7 @@
+import { firstValueFrom } from "rxjs";
+
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+
 import { PinCryptoServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin-crypto.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
@@ -33,6 +37,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private userVerificationApiService: UserVerificationApiServiceAbstraction,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private pinCryptoService: PinCryptoServiceAbstraction,
     private logService: LogService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction,
@@ -136,7 +141,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         return this.verifyUserByMasterPassword(verification);
       case VerificationType.PIN:
         return this.verifyUserByPIN(verification);
-        break;
       case VerificationType.Biometrics:
         return this.verifyUserByBiometrics();
       default: {
@@ -210,16 +214,19 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
    * Note: This only checks the server, not the local state
    * @param userId The user id to check. If not provided, the current user is used
    * @returns True if the user has a master password
+   * @deprecated Use UserDecryptionOptionsService.hasMasterPassword$ instead
    */
   async hasMasterPassword(userId?: string): Promise<boolean> {
-    const decryptionOptions = await this.stateService.getAccountDecryptionOptions({ userId });
+    if (userId) {
+      const decryptionOptions = await firstValueFrom(
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+      );
 
-    if (decryptionOptions?.hasMasterPassword != undefined) {
-      return decryptionOptions.hasMasterPassword;
+      if (decryptionOptions?.hasMasterPassword != undefined) {
+        return decryptionOptions.hasMasterPassword;
+      }
     }
-
-    // TODO: PM-3518 - Left for backwards compatibility, remove after 2023.12.0
-    return !(await this.stateService.getUsesKeyConnector({ userId }));
+    return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
   }
 
   async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {

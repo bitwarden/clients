@@ -3,13 +3,15 @@ import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { firstValueFrom } from "rxjs";
 
-import { WindowState } from "@bitwarden/common/models/domain/window-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 
+import { WindowState } from "../platform/models/domain/window-state";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import {
   cleanUserAgent,
   isDev,
@@ -40,6 +42,7 @@ export class WindowMain {
     private biometricStateService: BiometricStateService,
     private logService: LogService,
     private storageService: AbstractStorageService,
+    private desktopSettingsService: DesktopSettingsService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
@@ -94,7 +97,7 @@ export class WindowMain {
         // down the application.
         app.on("before-quit", async () => {
           // Allow biometric to auto-prompt on reload
-          await this.biometricStateService.resetPromptCancelled();
+          await this.biometricStateService.resetAllPromptCancelled();
           this.isQuitting = true;
         });
 
@@ -121,7 +124,7 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win === null) {
+          if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon
@@ -141,7 +144,7 @@ export class WindowMain {
       this.defaultWidth,
       this.defaultHeight,
     );
-    this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
+    this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
@@ -265,7 +268,7 @@ export class WindowMain {
   async toggleAlwaysOnTop() {
     this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
     this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
-    await this.stateService.setEnableAlwaysOnTop(this.enableAlwaysOnTop);
+    await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
@@ -284,7 +287,7 @@ export class WindowMain {
       const bounds = win.getBounds();
 
       if (this.windowStates[configKey] == null) {
-        this.windowStates[configKey] = await this.stateService.getWindow();
+        this.windowStates[configKey] = await firstValueFrom(this.desktopSettingsService.window$);
         if (this.windowStates[configKey] == null) {
           this.windowStates[configKey] = <WindowState>{};
         }
@@ -304,14 +307,14 @@ export class WindowMain {
         this.windowStates[configKey].zoomFactor = win.webContents.zoomFactor;
       }
 
-      await this.stateService.setWindow(this.windowStates[configKey]);
+      await this.desktopSettingsService.setWindow(this.windowStates[configKey]);
     } catch (e) {
       this.logService.error(e);
     }
   }
 
   private async getWindowState(defaultWidth: number, defaultHeight: number) {
-    const state = await this.stateService.getWindow();
+    const state = await firstValueFrom(this.desktopSettingsService.window$);
 
     const isValid = state != null && (this.stateHasBounds(state) || state.isMaximized);
     let displayBounds: Electron.Rectangle = null;

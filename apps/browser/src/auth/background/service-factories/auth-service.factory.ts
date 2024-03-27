@@ -15,17 +15,20 @@ import {
   factory,
 } from "../../../platform/background/service-factories/factory-options";
 import {
-  messagingServiceFactory,
   MessagingServiceInitOptions,
+  messagingServiceFactory,
 } from "../../../platform/background/service-factories/messaging-service.factory";
 import {
   StateServiceInitOptions,
   stateServiceFactory,
 } from "../../../platform/background/service-factories/state-service.factory";
 
+import { AccountServiceInitOptions, accountServiceFactory } from "./account-service.factory";
+
 type AuthServiceFactoryOptions = FactoryOptions;
 
 export type AuthServiceInitOptions = AuthServiceFactoryOptions &
+  AccountServiceInitOptions &
   MessagingServiceInitOptions &
   CryptoServiceInitOptions &
   ApiServiceInitOptions &
@@ -41,6 +44,7 @@ export function authServiceFactory(
     opts,
     async () =>
       new AuthService(
+        await accountServiceFactory(cache, opts),
         await messagingServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await apiServiceFactory(cache, opts),

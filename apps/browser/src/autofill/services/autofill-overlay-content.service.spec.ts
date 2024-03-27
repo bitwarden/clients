@@ -877,6 +877,44 @@ describe("AutofillOverlayContentService", () => {
         sender: "autofillOverlayContentService",
       });
     });
+
+    it("builds the overlay elements as custom web components if the user's browser is not Firefox", () => {
+      let namesIndex = 0;
+      const customNames = ["op-autofill-overlay-button", "op-autofill-overlay-list"];
+
+      jest
+        .spyOn(autofillOverlayContentService as any, "generateRandomCustomElementName")
+        .mockImplementation(() => {
+          if (namesIndex > 1) {
+            return "";
+          }
+          const customName = customNames[namesIndex];
+          namesIndex++;
+
+          return customName;
+        });
+      autofillOverlayContentService["isFirefoxBrowser"] = false;
+
+      autofillOverlayContentService.openAutofillOverlay();
+
+      expect(autofillOverlayContentService["overlayButtonElement"]).toBeInstanceOf(HTMLElement);
+      expect(autofillOverlayContentService["overlayButtonElement"].tagName).toEqual(
+        customNames[0].toUpperCase(),
+      );
+      expect(autofillOverlayContentService["overlayListElement"]).toBeInstanceOf(HTMLElement);
+      expect(autofillOverlayContentService["overlayListElement"].tagName).toEqual(
+        customNames[1].toUpperCase(),
+      );
+    });
+
+    it("builds the overlay elements as `div` elements if the user's browser is Firefox", () => {
+      autofillOverlayContentService["isFirefoxBrowser"] = true;
+
+      autofillOverlayContentService.openAutofillOverlay();
+
+      expect(autofillOverlayContentService["overlayButtonElement"]).toBeInstanceOf(HTMLDivElement);
+      expect(autofillOverlayContentService["overlayListElement"]).toBeInstanceOf(HTMLDivElement);
+    });
   });
 
   describe("focusMostRecentOverlayField", () => {

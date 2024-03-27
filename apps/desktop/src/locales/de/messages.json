@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Eine zusätzliche Sicherheitsebene hinzufügen, indem eine Fingerabdruck-Phrasen-Validierung verlangt wird, wenn eine Verbindung zwischen deiner Desktop-Anwendung und dem Browser aufgebaut wird. Nach Aktivierung ist bei jedem Verbindungsaufbau ein Benutzer-Eingriff und Verifizierung erforderlich."
   },
+  "enableHardwareAcceleration": {
+    "message": "Hardwarebeschleunigung verwenden"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Standardmäßig ist diese Einstellung eingeschaltet. Schalte sie nur aus, wenn grafische Probleme auftreten. Neustart ist erforderlich."
+  },
   "approve": {
     "message": "Genehmigen"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Anmelden bei"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "selbst gehostet"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Gängigste Formate",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Problembehandlung"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Hardwarebeschleunigung deaktivieren und neu starten"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Hardwarebeschleunigung aktivieren und neu starten"
   }
 }

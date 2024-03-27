@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,15 +26,27 @@ export class CollectionsComponent extends BaseCollectionsComponent {
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     cipherService: CipherService,
+    organizationService: OrganizationService,
     private apiService: ApiService,
     logService: LogService,
   ) {
-    super(collectionService, platformUtilsService, i18nService, cipherService, logService);
+    super(
+      collectionService,
+      platformUtilsService,
+      i18nService,
+      cipherService,
+      organizationService,
+      logService,
+    );
     this.allowSelectNone = true;
   }
 
   protected async loadCipher() {
-    if (!this.organization.canViewAllCollections) {
+    // if cipher is unassigned use apiService. We can see this by looking at this.collectionIds
+    if (
+      !this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled) &&
+      this.collectionIds.length !== 0
+    ) {
       return await super.loadCipher();
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
@@ -55,7 +68,10 @@ export class CollectionsComponent extends BaseCollectionsComponent {
   }
 
   protected saveCollections() {
-    if (this.organization.canEditAnyCollection) {
+    if (
+      this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled) ||
+      this.collectionIds.length === 0
+    ) {
       const request = new CipherCollectionsRequest(this.cipherDomain.collectionIds);
       return this.apiService.putCipherCollectionsAdmin(this.cipherId, request);
     } else {

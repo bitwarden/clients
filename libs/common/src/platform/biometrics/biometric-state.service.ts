@@ -1,4 +1,4 @@
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
 
 import { UserId } from "../../types/guid";
 import { EncryptedString, EncString } from "../models/domain/enc-string";
@@ -81,13 +81,18 @@ export abstract class BiometricStateService {
    */
   abstract setDismissedRequirePasswordOnStartCallout(): Promise<void>;
   /**
-   * Updates the active user's state to reflect that they've cancelled the biometric prompt this lock.
+   * Updates the active user's state to reflect that they've cancelled the biometric prompt.
    */
-  abstract setPromptCancelled(): Promise<void>;
+  abstract setUserPromptCancelled(): Promise<void>;
   /**
-   * Resets the active user's state to reflect that they haven't cancelled the biometric prompt this lock.
+   * Resets the given user's state to reflect that they haven't cancelled the biometric prompt.
+   * @param userId the user to reset the prompt cancelled state for. If not provided, the currently active user will be used.
    */
-  abstract resetPromptCancelled(): Promise<void>;
+  abstract resetUserPromptCancelled(userId?: UserId): Promise<void>;
+  /**
+   * Resets all user's state to reflect that they haven't cancelled the biometric prompt.
+   */
+  abstract resetAllPromptCancelled(): Promise<void>;
   /**
    * Updates the currently active user's setting for auto prompting for biometrics on application start and lock
    * @param prompt Whether or not to prompt for biometrics on application start.
@@ -107,7 +112,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
   private requirePasswordOnStartState: ActiveUserState<boolean>;
   private encryptedClientKeyHalfState: ActiveUserState<EncryptedString | undefined>;
   private dismissedRequirePasswordOnStartCalloutState: ActiveUserState<boolean>;
-  private promptCancelledState: ActiveUserState<boolean>;
+  private promptCancelledState: GlobalState<Record<UserId, boolean>>;
   private promptAutomaticallyState: ActiveUserState<boolean>;
   private fingerprintValidatedState: GlobalState<boolean>;
   biometricUnlockEnabled$: Observable<boolean>;
@@ -138,8 +143,15 @@ export class DefaultBiometricStateService implements BiometricStateService {
     this.dismissedRequirePasswordOnStartCallout$ =
       this.dismissedRequirePasswordOnStartCalloutState.state$.pipe(map(Boolean));
 
-    this.promptCancelledState = this.stateProvider.getActive(PROMPT_CANCELLED);
-    this.promptCancelled$ = this.promptCancelledState.state$.pipe(map(Boolean));
+    this.promptCancelledState = this.stateProvider.getGlobal(PROMPT_CANCELLED);
+    this.promptCancelled$ = combineLatest([
+      this.stateProvider.activeUserId$,
+      this.promptCancelledState.state$,
+    ]).pipe(
+      map(([userId, record]) => {
+        return record?.[userId] ?? false;
+      }),
+    );
     this.promptAutomaticallyState = this.stateProvider.getActive(PROMPT_AUTOMATICALLY);
     this.promptAutomatically$ = this.promptAutomaticallyState.state$.pipe(map(Boolean));
 
@@ -202,7 +214,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
 
   async logout(userId: UserId): Promise<void> {
     await this.stateProvider.getUser(userId, ENCRYPTED_CLIENT_KEY_HALF).update(() => null);
-    await this.stateProvider.getUser(userId, PROMPT_CANCELLED).update(() => null);
+    await this.resetUserPromptCancelled(userId);
     // Persist auto prompt setting through logout
     // Persist dismissed require password on start callout through logout
   }
@@ -211,11 +223,41 @@ export class DefaultBiometricStateService implements BiometricStateService {
     await this.dismissedRequirePasswordOnStartCalloutState.update(() => true);
   }
 
-  async setPromptCancelled(): Promise<void> {
-    await this.promptCancelledState.update(() => true);
+  async resetUserPromptCancelled(userId: UserId): Promise<void> {
+    await this.stateProvider.getGlobal(PROMPT_CANCELLED).update(
+      (data, activeUserId) => {
+        delete data[userId ?? activeUserId];
+        return data;
+      },
+      {
+        combineLatestWith: this.stateProvider.activeUserId$,
+        shouldUpdate: (data, activeUserId) => data?.[userId ?? activeUserId] != null,
+      },
+    );
   }
 
-  async resetPromptCancelled(): Promise<void> {
+  async setUserPromptCancelled(): Promise<void> {
+    await this.promptCancelledState.update(
+      (record, userId) => {
+        record ??= {};
+        record[userId] = true;
+        return record;
+      },
+      {
+        combineLatestWith: this.stateProvider.activeUserId$,
+        shouldUpdate: (_, userId) => {
+          if (userId == null) {
+            throw new Error(
+              "Cannot update biometric prompt cancelled state without an active user",
+            );
+          }
+          return true;
+        },
+      },
+    );
+  }
+
+  async resetAllPromptCancelled(): Promise<void> {
     await this.promptCancelledState.update(() => null);
   }
 

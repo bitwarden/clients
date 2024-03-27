@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 @Component({
   selector: "app-user-confirm",
@@ -22,7 +22,7 @@ export class UserConfirmComponent implements OnInit {
   constructor(
     private cryptoService: CryptoService,
     private logService: LogService,
-    private stateService: StateService,
+    private organizationManagementPreferencesService: OrganizationManagementPreferencesService,
   ) {}
 
   async ngOnInit() {
@@ -45,7 +45,7 @@ export class UserConfirmComponent implements OnInit {
     }
 
     if (this.dontAskAgain) {
-      await this.stateService.setAutoConfirmFingerprints(true);
+      await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
 
     this.onConfirmedUser.emit();

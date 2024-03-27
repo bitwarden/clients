@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -31,8 +32,10 @@ describe("vault filter service", () => {
   let cipherService: MockProxy<CipherService>;
   let policyService: MockProxy<PolicyService>;
   let i18nService: MockProxy<I18nService>;
+  let collectionService: MockProxy<CollectionService>;
   let organizations: ReplaySubject<Organization[]>;
   let folderViews: ReplaySubject<FolderView[]>;
+  let collectionViews: ReplaySubject<CollectionView[]>;
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -48,12 +51,15 @@ describe("vault filter service", () => {
     accountService = mockAccountServiceWith(mockUserId);
     stateProvider = new FakeStateProvider(accountService);
     i18nService.collator = new Intl.Collator("en-US");
+    collectionService = mock<CollectionService>();
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
+    collectionViews = new ReplaySubject<CollectionView[]>(1);
 
     organizationService.memberOrganizations$ = organizations;
     folderService.folderViews$ = folderViews;
+    collectionService.decryptedCollections$ = collectionViews;
 
     vaultFilterService = new VaultFilterService(
       organizationService,
@@ -62,6 +68,7 @@ describe("vault filter service", () => {
       policyService,
       i18nService,
       stateProvider,
+      collectionService,
     );
     collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
   });
@@ -196,9 +203,7 @@ describe("vault filter service", () => {
           createCollectionView("1", "collection 1", "org test id"),
           createCollectionView("2", "collection 2", "non matching org id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         await expect(firstValueFrom(vaultFilterService.filteredCollections$)).resolves.toEqual([
           createCollectionView("1", "collection 1", "org test id"),
@@ -213,9 +218,7 @@ describe("vault filter service", () => {
           createCollectionView("id-2", "Collection 1/Collection 2", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -228,9 +231,7 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -246,9 +247,7 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -266,9 +265,7 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 

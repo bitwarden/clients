@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { FeatureFlag, FeatureFlagValue } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { IfFeatureDirective } from "./if-feature.directive";
@@ -39,7 +39,7 @@ class TestComponent {
 describe("IfFeatureDirective", () => {
   let fixture: ComponentFixture<TestComponent>;
   let content: HTMLElement;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   const mockConfigFlagValue = (flag: FeatureFlag, flagValue: FeatureFlagValue) => {
     mockConfigService.getFeatureFlag.mockImplementation((f, defaultValue) =>
@@ -51,14 +51,14 @@ describe("IfFeatureDirective", () => {
     fixture.debugElement.query(By.css(`[data-testid="${testId}"]`))?.nativeElement;
 
   beforeEach(async () => {
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
       declarations: [IfFeatureDirective, TestComponent],
       providers: [
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: ConfigServiceAbstraction,
+          provide: ConfigService,
           useValue: mockConfigService,
         },
       ],

@@ -1,8 +1,15 @@
 import AutofillOverlayButtonIframe from "./autofill-overlay-button-iframe";
-import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
 
 describe("AutofillOverlayButtonIframe", () => {
-  window.customElements.define("autofill-overlay-button-iframe", AutofillOverlayButtonIframe);
+  window.customElements.define(
+    "autofill-overlay-button-iframe",
+    class extends HTMLElement {
+      constructor() {
+        super();
+        new AutofillOverlayButtonIframe(this);
+      }
+    },
+  );
 
   afterAll(() => {
     jest.clearAllMocks();
@@ -13,7 +20,7 @@ describe("AutofillOverlayButtonIframe", () => {
 
     const iframe = document.querySelector("autofill-overlay-button-iframe");
 
-    expect(iframe).toBeInstanceOf(AutofillOverlayButtonIframe);
-    expect(iframe).toBeInstanceOf(AutofillOverlayIframeElement);
+    expect(iframe).toBeInstanceOf(HTMLElement);
+    expect(iframe.shadowRoot).toBeDefined();
   });
 });

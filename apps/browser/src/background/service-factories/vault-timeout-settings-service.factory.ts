@@ -10,6 +10,10 @@ import {
   TokenServiceInitOptions,
 } from "../../auth/background/service-factories/token-service.factory";
 import {
+  userDecryptionOptionsServiceFactory,
+  UserDecryptionOptionsServiceInitOptions,
+} from "../../auth/background/service-factories/user-decryption-options-service.factory";
+import {
   biometricStateServiceFactory,
   BiometricStateServiceInitOptions,
 } from "../../platform/background/service-factories/biometric-state-service.factory";
@@ -30,6 +34,7 @@ import {
 type VaultTimeoutSettingsServiceFactoryOptions = FactoryOptions;
 
 export type VaultTimeoutSettingsServiceInitOptions = VaultTimeoutSettingsServiceFactoryOptions &
+  UserDecryptionOptionsServiceInitOptions &
   CryptoServiceInitOptions &
   TokenServiceInitOptions &
   PolicyServiceInitOptions &
@@ -46,6 +51,7 @@ export function vaultTimeoutSettingsServiceFactory(
     opts,
     async () =>
       new VaultTimeoutSettingsService(
+        await userDecryptionOptionsServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await tokenServiceFactory(cache, opts),
         await policyServiceFactory(cache, opts),

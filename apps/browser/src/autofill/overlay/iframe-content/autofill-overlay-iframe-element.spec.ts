@@ -4,7 +4,21 @@ import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
 jest.mock("./autofill-overlay-iframe.service");
 
 describe("AutofillOverlayIframeElement", () => {
-  window.customElements.define("autofill-overlay-iframe", AutofillOverlayIframeElement);
+  window.customElements.define(
+    "autofill-overlay-iframe",
+    class extends HTMLElement {
+      constructor() {
+        super();
+        new AutofillOverlayIframeElement(
+          this,
+          "overlay/button.html",
+          "overlay/button",
+          { background: "transparent", border: "none" },
+          "bitwardenOverlayButton",
+        );
+      }
+    },
+  );
 
   afterAll(() => {
     jest.clearAllMocks();

@@ -84,7 +84,10 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
 
       if (existingAccessToken != null) {
         // Only migrate data that exists
-        await helper.setToUser(userId, ACCESS_TOKEN_DISK, existingAccessToken);
+        if (helper.type !== "web-disk-local") {
+          // only migrate access token to session storage - never local.
+          await helper.setToUser(userId, ACCESS_TOKEN_DISK, existingAccessToken);
+        }
         delete account.tokens.accessToken;
         updatedAccount = true;
       }
@@ -93,7 +96,10 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
       const existingRefreshToken = account?.tokens?.refreshToken;
 
       if (existingRefreshToken != null) {
-        await helper.setToUser(userId, REFRESH_TOKEN_DISK, existingRefreshToken);
+        if (helper.type !== "web-disk-local") {
+          // only migrate refresh token to session storage - never local.
+          await helper.setToUser(userId, REFRESH_TOKEN_DISK, existingRefreshToken);
+        }
         delete account.tokens.refreshToken;
         updatedAccount = true;
       }
@@ -102,7 +108,10 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
       const existingApiKeyClientId = account?.profile?.apiKeyClientId;
 
       if (existingApiKeyClientId != null) {
-        await helper.setToUser(userId, API_KEY_CLIENT_ID_DISK, existingApiKeyClientId);
+        if (helper.type !== "web-disk-local") {
+          // only migrate client id to session storage - never local.
+          await helper.setToUser(userId, API_KEY_CLIENT_ID_DISK, existingApiKeyClientId);
+        }
         delete account.profile.apiKeyClientId;
         updatedAccount = true;
       }
@@ -110,7 +119,10 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
       // Migrate API key client secret
       const existingApiKeyClientSecret = account?.keys?.apiKeyClientSecret;
       if (existingApiKeyClientSecret != null) {
-        await helper.setToUser(userId, API_KEY_CLIENT_SECRET_DISK, existingApiKeyClientSecret);
+        if (helper.type !== "web-disk-local") {
+          // only migrate client secret to session storage - never local.
+          await helper.setToUser(userId, API_KEY_CLIENT_SECRET_DISK, existingApiKeyClientSecret);
+        }
         delete account.keys.apiKeyClientSecret;
         updatedAccount = true;
       }

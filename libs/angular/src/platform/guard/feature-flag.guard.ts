@@ -2,7 +2,7 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,7 +23,7 @@ export const canAccessFeature = (
   redirectUrlOnDisabled?: string,
 ): CanActivateFn => {
   return async () => {
-    const configService = inject(ConfigServiceAbstraction);
+    const configService = inject(ConfigService);
     const platformUtilsService = inject(PlatformUtilsService);
     const router = inject(Router);
     const i18nService = inject(I18nService);

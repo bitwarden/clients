@@ -3,7 +3,6 @@ import { KeyDefinition } from "../../platform/state";
 import {
   ACCESS_TOKEN_DISK,
   ACCESS_TOKEN_MEMORY,
-  ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE,
   API_KEY_CLIENT_ID_DISK,
   API_KEY_CLIENT_ID_MEMORY,
   API_KEY_CLIENT_SECRET_DISK,
@@ -17,7 +16,6 @@ import {
 describe.each([
   [ACCESS_TOKEN_DISK, "accessTokenDisk"],
   [ACCESS_TOKEN_MEMORY, "accessTokenMemory"],
-  [ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE, true],
   [REFRESH_TOKEN_DISK, "refreshTokenDisk"],
   [REFRESH_TOKEN_MEMORY, "refreshTokenMemory"],
   [REFRESH_TOKEN_MIGRATED_TO_SECURE_STORAGE, true],

@@ -1,7 +1,9 @@
+import { ListResponse } from "../../../models/response/list.response";
 import Domain from "../../../platform/models/domain/domain-base";
 import { PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../data/policy.data";
+import { PolicyResponse } from "../response/policy.response";
 
 export class Policy extends Domain {
   id: PolicyId;
@@ -26,5 +28,13 @@ export class Policy extends Domain {
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;
+  }
+
+  static fromResponse(response: PolicyResponse): Policy {
+    return new Policy(new PolicyData(response));
+  }
+
+  static fromListResponse(response: ListResponse<PolicyResponse>): Policy[] | undefined {
+    return response.data?.map((d) => Policy.fromResponse(d)) ?? undefined;
   }
 }

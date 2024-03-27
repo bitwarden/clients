@@ -11,9 +11,9 @@ export type UserVerificationCalloutOptions = {
 
   /**
    * The type of the callout.
-   * Can be "warning", "danger", "error", or "tip".
+   * Can be "warning", "danger", "info", or "success".
    */
-  type: "warning" | "danger" | "error" | "tip";
+  type: "warning" | "danger" | "info" | "success";
 };
 
 /**

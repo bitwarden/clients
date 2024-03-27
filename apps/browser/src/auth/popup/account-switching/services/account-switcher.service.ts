@@ -65,7 +65,7 @@ export class AccountSwitcherService {
               name: account.name ?? account.email,
               email: account.email,
               id: id,
-              server: await this.environmentService.getHost(id),
+              server: (await this.environmentService.getEnvironment(id))?.getHostname(),
               status: account.status,
               isActive: id === activeAccount?.id,
               avatarColor: await firstValueFrom(

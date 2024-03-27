@@ -30,9 +30,9 @@ import {
   Account,
   AccountProfile,
   AccountTokens,
-  AccountDecryptionOptions,
 } from "@bitwarden/common/platform/models/domain/account";
 
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
   UserApiLoginCredentials,
   PasswordLoginCredentials,
@@ -40,6 +40,7 @@ import {
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
 } from "../models/domain/login-credentials";
+import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 type IdentityResponse = IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse;
@@ -69,6 +70,7 @@ export abstract class LoginStrategy {
     protected logService: LogService,
     protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
+    protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
@@ -203,9 +205,12 @@ export abstract class LoginStrategy {
           ...new AccountTokens(),
         },
         keys: accountKeys,
-        decryptionOptions: AccountDecryptionOptions.fromResponse(tokenResponse),
         adminAuthRequest: adminAuthRequest?.toJSON(),
       }),
+    );
+
+    await this.userDecryptionOptionsService.setUserDecryptionOptions(
+      UserDecryptionOptions.fromResponse(tokenResponse),
     );
 
     await this.billingAccountProfileStateService.setHasPremium(accountInformation.premium, false);

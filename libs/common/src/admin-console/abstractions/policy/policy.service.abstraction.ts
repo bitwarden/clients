@@ -1,13 +1,11 @@
 import { Observable } from "rxjs";
 
-import { ListResponse } from "../../../models/response/list.response";
 import { UserId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
-import { PolicyResponse } from "../../models/response/policy.response";
 
 export abstract class PolicyService {
   /**
@@ -75,18 +73,6 @@ export abstract class PolicyService {
     policies: Policy[],
     orgId: string,
   ) => [ResetPasswordPolicyOptions, boolean];
-
-  // Helpers
-
-  /**
-   * Instantiates {@link Policy} objects from {@link PolicyResponse} objects.
-   */
-  mapPolicyFromResponse: (policyResponse: PolicyResponse) => Policy;
-
-  /**
-   * Instantiates {@link Policy} objects from {@link ListResponse<PolicyResponse>} objects.
-   */
-  mapPoliciesFromToken: (policiesResponse: ListResponse<PolicyResponse>) => Policy[];
 }
 
 export abstract class InternalPolicyService extends PolicyService {

@@ -2386,12 +2386,6 @@
     "message": "UE",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Mynediad wedi ei wrthod. Does gennych chi ddim caniatâd i weld y dudalen hon."
   },

@@ -8,13 +8,8 @@ import { NotificationsService as NotificationsServiceAbstraction } from "@bitwar
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import {
-  EnvironmentService as EnvironmentServiceAbstraction,
-  Urls,
-} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
@@ -23,7 +18,6 @@ import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/va
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private environmentService: EnvironmentServiceAbstraction,
     private notificationsService: NotificationsServiceAbstraction,
     private vaultTimeoutService: VaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
@@ -33,20 +27,12 @@ export class InitService {
     private cryptoService: CryptoServiceAbstraction,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
-    private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.stateService.init();
-
-      const urls = process.env.URLS as Urls;
-      urls.base ??= this.win.location.origin;
-      await this.environmentService.setUrls(urls);
-      // Workaround to ignore stateService.activeAccount until process.env.URLS are set
-      // TODO: Remove this when implementing ticket PM-2637
-      this.environmentService.initialized = true;
 
       setTimeout(() => this.notificationsService.init(), 3000);
       await this.vaultTimeoutService.init(true);
@@ -58,8 +44,6 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       const containerService = new ContainerService(this.cryptoService, this.encryptService);
       containerService.attachToGlobal(this.win);
-
-      this.configService.init();
     };
   }
 }

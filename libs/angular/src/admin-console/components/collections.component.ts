@@ -1,5 +1,7 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,6 +21,8 @@ export class CollectionsComponent implements OnInit {
   cipher: CipherView;
   collectionIds: string[];
   collections: CollectionView[] = [];
+  organization: Organization;
+  flexibleCollectionsV1Enabled: boolean;
 
   protected cipherDomain: Cipher;
 
@@ -27,6 +31,7 @@ export class CollectionsComponent implements OnInit {
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected cipherService: CipherService,
+    protected organizationService: OrganizationService,
     private logService: LogService,
   ) {}
 
@@ -48,11 +53,21 @@ export class CollectionsComponent implements OnInit {
         (c as any).checked = this.collectionIds != null && this.collectionIds.indexOf(c.id) > -1;
       });
     }
+
+    if (this.organization == null) {
+      this.organization = await this.organizationService.get(this.cipher.organizationId);
+    }
   }
 
   async submit() {
     const selectedCollectionIds = this.collections
-      .filter((c) => !!(c as any).checked)
+      .filter((c) => {
+        if (this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
+          return !!(c as any).checked;
+        } else {
+          return !!(c as any).checked && c.readOnly == null;
+        }
+      })
       .map((c) => c.id);
     if (!this.allowSelectNone && selectedCollectionIds.length === 0) {
       this.platformUtilsService.showToast(

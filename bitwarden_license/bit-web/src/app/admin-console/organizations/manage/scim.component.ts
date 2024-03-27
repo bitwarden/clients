@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { UntypedFormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -76,13 +77,13 @@ export class ScimComponent implements OnInit {
       apiKeyRequest,
     );
     this.formData.setValue({
-      endpointUrl: this.getScimEndpointUrl(),
+      endpointUrl: await this.getScimEndpointUrl(),
       clientSecret: apiKeyResponse.apiKey,
     });
   }
 
   async copyScimUrl() {
-    this.platformUtilsService.copyToClipboard(this.getScimEndpointUrl());
+    this.platformUtilsService.copyToClipboard(await this.getScimEndpointUrl());
   }
 
   async rotateScimKey() {
@@ -148,8 +149,9 @@ export class ScimComponent implements OnInit {
     this.formPromise = null;
   }
 
-  getScimEndpointUrl() {
-    return this.environmentService.getScimUrl() + "/" + this.organizationId;
+  async getScimEndpointUrl() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    return env.getScimUrl() + "/" + this.organizationId;
   }
 
   toggleScimKey() {
@@ -163,7 +165,7 @@ export class ScimComponent implements OnInit {
       this.showScimSettings = true;
       this.enabled.setValue(true);
       this.formData.setValue({
-        endpointUrl: this.getScimEndpointUrl(),
+        endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: "",
       });
       await this.loadApiKey();

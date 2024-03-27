@@ -5,7 +5,6 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
@@ -19,7 +18,6 @@ export class InitService {
     private stateService: StateServiceAbstraction,
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
-    private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -55,7 +53,6 @@ export class InitService {
         this.logService.info("Force redraw is on");
       }
 
-      this.configService.init();
       this.setupVaultPopupHeartbeat();
     };
   }

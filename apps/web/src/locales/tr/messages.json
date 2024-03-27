@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Mevcut üyelerin parolalarını değiştirmelerini zorunlu tut"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Bu projeyi silme izniniz yok",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7607,9 +7601,46 @@
     "message": "Sağlayıcı Portalı"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Kendinizi gruplara ekleyemezsiniz."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Kendinizi koleksiyonlara ekleyemezsiniz."
+  },
+  "assign": {
+    "message": "Ata"
+  },
+  "assignToCollections": {
+    "message": "Koleksiyonlara ata"
+  },
+  "assignToTheseCollections": {
+    "message": "Bu koleksiyonlara ata"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Öğelerin paylaşılacağı koleksiyonları seçin. Bir koleksiyondaki bir öğe güncellendiğinde tüm koleksiyonlara yansıtılacaktır. Öğeleri yalnızca bu koleksiyonlara erişimi olan kuruluş üyeleri görebilir."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Atanacak koleksiyonları seçin"
+  },
+  "noCollectionsAssigned": {
+    "message": "Hiçbir koleksiyon atanmadı"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Başarıyla atanan koleksiyonlar"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ öğe seçtiniz. Düzenleme izniniz olmadığı için $READONLY_COUNT$ öğeyi güncelleyemezsiniz.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Ögeler"
   }
 }

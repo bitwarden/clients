@@ -1,5 +1,6 @@
+import { map, pipe } from "rxjs";
+
 import { PolicyType } from "../../../admin-console/enums";
-import { Policy } from "../../../admin-console/models/domain/policy";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { GeneratorStrategy } from "../abstractions";
@@ -41,18 +42,9 @@ export class SubaddressGeneratorStrategy
     return ONE_MINUTE;
   }
 
-  /** {@link GeneratorStrategy.evaluator} */
-  evaluator(policy: Policy) {
-    if (!policy) {
-      return new DefaultPolicyEvaluator<SubaddressGenerationOptions>();
-    }
-
-    if (policy.type !== this.policy) {
-      const details = `Expected: ${this.policy}. Received: ${policy.type}`;
-      throw Error("Mismatched policy type. " + details);
-    }
-
-    return new DefaultPolicyEvaluator<SubaddressGenerationOptions>();
+  /** {@link GeneratorStrategy.toEvaluator} */
+  toEvaluator() {
+    return pipe(map((_) => new DefaultPolicyEvaluator<SubaddressGenerationOptions>()));
   }
 
   /** {@link GeneratorStrategy.generate} */

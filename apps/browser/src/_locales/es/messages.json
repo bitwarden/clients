@@ -2386,12 +2386,6 @@
     "message": "Unión Europea",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Acceso denegado. No tiene permiso para ver esta página."
   },

@@ -25,8 +25,12 @@ import { KdfType } from "@bitwarden/common/platform/enums";
 import { FakeGlobalState, FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 
-import { AuthRequestServiceAbstraction } from "../../abstractions";
+import {
+  AuthRequestServiceAbstraction,
+  InternalUserDecryptionOptionsServiceAbstraction,
+} from "../../abstractions";
 import { PasswordLoginCredentials } from "../../models";
+import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
 import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
@@ -51,6 +55,7 @@ describe("LoginStrategyService", () => {
   let policyService: MockProxy<PolicyService>;
   let deviceTrustCryptoService: MockProxy<DeviceTrustCryptoServiceAbstraction>;
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
+  let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let stateProvider: FakeGlobalStateProvider;
@@ -74,6 +79,7 @@ describe("LoginStrategyService", () => {
     policyService = mock<PolicyService>();
     deviceTrustCryptoService = mock<DeviceTrustCryptoServiceAbstraction>();
     authRequestService = mock<AuthRequestServiceAbstraction>();
+    userDecryptionOptionsService = mock<UserDecryptionOptionsService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     stateProvider = new FakeGlobalStateProvider();
 
@@ -95,6 +101,7 @@ describe("LoginStrategyService", () => {
       policyService,
       deviceTrustCryptoService,
       authRequestService,
+      userDecryptionOptionsService,
       stateProvider,
       billingAccountProfileStateService,
     );

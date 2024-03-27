@@ -87,12 +87,12 @@ describe("VaultSettingsKeyMigrator", () => {
       expect(helper.setToUser).toHaveBeenCalledWith(
         "user-1",
         { ...vaultSettingsStateDefinition, key: "showCardsCurrentTab" },
-        true,
+        false,
       );
       expect(helper.setToUser).toHaveBeenCalledWith(
         "user-1",
         { ...vaultSettingsStateDefinition, key: "showIdentitiesCurrentTab" },
-        true,
+        false,
       );
     });
   });

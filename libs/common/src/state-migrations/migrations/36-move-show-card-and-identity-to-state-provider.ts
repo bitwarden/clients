@@ -30,7 +30,7 @@ export class VaultSettingsKeyMigrator extends Migrator<35, 36> {
         await helper.setToUser(
           userId,
           { ...vaultSettingsStateDefinition, key: "showCardsCurrentTab" },
-          accountSettings.dontShowCardsCurrentTab,
+          !accountSettings.dontShowCardsCurrentTab,
         );
         delete account.settings.dontShowCardsCurrentTab;
         updateAccount = true;
@@ -40,7 +40,7 @@ export class VaultSettingsKeyMigrator extends Migrator<35, 36> {
         await helper.setToUser(
           userId,
           { ...vaultSettingsStateDefinition, key: "showIdentitiesCurrentTab" },
-          accountSettings.dontShowIdentitiesCurrentTab,
+          !accountSettings.dontShowIdentitiesCurrentTab,
         );
         delete account.settings.dontShowIdentitiesCurrentTab;
         updateAccount = true;

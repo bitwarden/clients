@@ -5,7 +5,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 
@@ -55,7 +55,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
    * @param syncService - Used to trigger a full sync after the import is completed.
    */
   constructor(
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private authService: AuthService,
     private policyService: PolicyService,
     private notificationBackground: NotificationBackground,

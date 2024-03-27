@@ -1,28 +1,32 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
-import { MockProxy, mock } from "jest-mock-extended";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
+  LoginStrategyServiceAbstraction,
+  FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
+  FakeUserDecryptionOptions as UserDecryptionOptions,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { KeyConnectorUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/key-connector-user-decryption-option";
-import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { AccountDecryptionOptions } from "@bitwarden/common/platform/models/domain/account";
 
 import { TwoFactorComponent } from "./two-factor.component";
 
@@ -56,19 +60,22 @@ describe("TwoFactorComponent", () => {
   let mockTwoFactorService: MockProxy<TwoFactorService>;
   let mockAppIdService: MockProxy<AppIdService>;
   let mockLoginService: MockProxy<LoginService>;
+  let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
-  let mockAcctDecryptionOpts: {
-    noMasterPassword: AccountDecryptionOptions;
-    withMasterPassword: AccountDecryptionOptions;
-    withMasterPasswordAndTrustedDevice: AccountDecryptionOptions;
-    withMasterPasswordAndTrustedDeviceWithManageResetPassword: AccountDecryptionOptions;
-    withMasterPasswordAndKeyConnector: AccountDecryptionOptions;
-    noMasterPasswordWithTrustedDevice: AccountDecryptionOptions;
-    noMasterPasswordWithTrustedDeviceWithManageResetPassword: AccountDecryptionOptions;
-    noMasterPasswordWithKeyConnector: AccountDecryptionOptions;
+  let mockUserDecryptionOpts: {
+    noMasterPassword: UserDecryptionOptions;
+    withMasterPassword: UserDecryptionOptions;
+    withMasterPasswordAndTrustedDevice: UserDecryptionOptions;
+    withMasterPasswordAndTrustedDeviceWithManageResetPassword: UserDecryptionOptions;
+    withMasterPasswordAndKeyConnector: UserDecryptionOptions;
+    noMasterPasswordWithTrustedDevice: UserDecryptionOptions;
+    noMasterPasswordWithTrustedDeviceWithManageResetPassword: UserDecryptionOptions;
+    noMasterPasswordWithKeyConnector: UserDecryptionOptions;
   };
+
+  let selectedUserDecryptionOptions: BehaviorSubject<UserDecryptionOptions>;
 
   beforeEach(() => {
     mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
@@ -83,51 +90,55 @@ describe("TwoFactorComponent", () => {
     mockTwoFactorService = mock<TwoFactorService>();
     mockAppIdService = mock<AppIdService>();
     mockLoginService = mock<LoginService>();
+    mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
-    mockAcctDecryptionOpts = {
-      noMasterPassword: new AccountDecryptionOptions({
+    mockUserDecryptionOpts = {
+      noMasterPassword: new UserDecryptionOptions({
         hasMasterPassword: false,
         trustedDeviceOption: undefined,
         keyConnectorOption: undefined,
       }),
-      withMasterPassword: new AccountDecryptionOptions({
+      withMasterPassword: new UserDecryptionOptions({
         hasMasterPassword: true,
         trustedDeviceOption: undefined,
         keyConnectorOption: undefined,
       }),
-      withMasterPasswordAndTrustedDevice: new AccountDecryptionOptions({
+      withMasterPasswordAndTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: true,
         trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
         keyConnectorOption: undefined,
       }),
-      withMasterPasswordAndTrustedDeviceWithManageResetPassword: new AccountDecryptionOptions({
+      withMasterPasswordAndTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: true,
         trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
         keyConnectorOption: undefined,
       }),
-      withMasterPasswordAndKeyConnector: new AccountDecryptionOptions({
+      withMasterPasswordAndKeyConnector: new UserDecryptionOptions({
         hasMasterPassword: true,
         trustedDeviceOption: undefined,
         keyConnectorOption: new KeyConnectorUserDecryptionOption("http://example.com"),
       }),
-      noMasterPasswordWithTrustedDevice: new AccountDecryptionOptions({
+      noMasterPasswordWithTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: false,
         trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
         keyConnectorOption: undefined,
       }),
-      noMasterPasswordWithTrustedDeviceWithManageResetPassword: new AccountDecryptionOptions({
+      noMasterPasswordWithTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: false,
         trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
         keyConnectorOption: undefined,
       }),
-      noMasterPasswordWithKeyConnector: new AccountDecryptionOptions({
+      noMasterPasswordWithKeyConnector: new UserDecryptionOptions({
         hasMasterPassword: false,
         trustedDeviceOption: undefined,
         keyConnectorOption: new KeyConnectorUserDecryptionOption("http://example.com"),
       }),
     };
+
+    selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(null);
+    mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
 
     TestBed.configureTestingModule({
       declarations: [TestTwoFactorComponent],
@@ -153,8 +164,12 @@ describe("TwoFactorComponent", () => {
         { provide: TwoFactorService, useValue: mockTwoFactorService },
         { provide: AppIdService, useValue: mockAppIdService },
         { provide: LoginService, useValue: mockLoginService },
+        {
+          provide: UserDecryptionOptionsServiceAbstraction,
+          useValue: mockUserDecryptionOptionsService,
+        },
         { provide: SsoLoginServiceAbstraction, useValue: mockSsoLoginService },
-        { provide: ConfigServiceAbstraction, useValue: mockConfigService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -213,9 +228,7 @@ describe("TwoFactorComponent", () => {
         component.remember = remember;
         component.captchaToken = captchaToken;
 
-        mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword,
-        );
+        selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
       });
 
       it("calls authService.logInTwoFactor with correct parameters when form is submitted", async () => {
@@ -289,17 +302,15 @@ describe("TwoFactorComponent", () => {
         describe("Given user needs to set a master password", () => {
           beforeEach(() => {
             // Only need to test the case where the user has no master password to test the primary change mp flow here
-            mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.noMasterPassword,
-            );
+            selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPassword);
           });
 
           testChangePasswordOnSuccessfulLogin();
         });
 
         it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
-          mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector,
+          selectedUserDecryptionOptions.next(
+            mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
           );
 
           await component.doSubmit();
@@ -321,9 +332,7 @@ describe("TwoFactorComponent", () => {
 
           beforeEach(() => {
             // use standard user with MP because this test is not concerned with password reset.
-            mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPassword,
-            );
+            selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
 
             const authResult = new AuthResult();
             authResult.forcePasswordReset = forceResetPasswordReason;
@@ -385,8 +394,8 @@ describe("TwoFactorComponent", () => {
 
         describe("Given Trusted Device Encryption is enabled and user needs to set a master password", () => {
           beforeEach(() => {
-            mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword,
+            selectedUserDecryptionOptions.next(
+              mockUserDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword,
             );
 
             const authResult = new AuthResult();
@@ -420,8 +429,8 @@ describe("TwoFactorComponent", () => {
 
             beforeEach(() => {
               // use standard user with MP because this test is not concerned with password reset.
-              mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-                mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
+              selectedUserDecryptionOptions.next(
+                mockUserDecryptionOpts.withMasterPasswordAndTrustedDevice,
               );
 
               const authResult = new AuthResult();
@@ -436,8 +445,8 @@ describe("TwoFactorComponent", () => {
         describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is not required", () => {
           let authResult;
           beforeEach(() => {
-            mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
+            selectedUserDecryptionOptions.next(
+              mockUserDecryptionOpts.withMasterPasswordAndTrustedDevice,
             );
 
             authResult = new AuthResult();

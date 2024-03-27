@@ -18,6 +18,7 @@ export class MigrationRunner {
       await currentVersion(this.diskStorage, this.logService),
       this.diskStorage,
       this.logService,
+      "general",
     );
 
     if (migrationHelper.currentVersion < 0) {

@@ -1,4 +1,4 @@
-import { Observable, map, firstValueFrom } from "rxjs";
+import { Observable, map, firstValueFrom, of, switchMap, take } from "rxjs";
 
 import { KeyDefinition, PROVIDERS_DISK, StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
@@ -18,9 +18,17 @@ export class ProviderService implements ProviderServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
   private providers$(userId?: UserId): Observable<Provider[] | undefined> {
-    return this.stateProvider
-      .getUserState$(PROVIDERS, userId)
-      .pipe(this.mapProviderRecordToArray());
+    // FIXME: Can be replaced with `getUserStateOrDefault$` if we weren't trying to pick this.
+    return (
+      userId != null
+        ? this.stateProvider.getUser(userId, PROVIDERS).state$
+        : this.stateProvider.activeUserId$.pipe(
+            take(1),
+            switchMap((userId) =>
+              userId != null ? this.stateProvider.getUser(userId, PROVIDERS).state$ : of(null),
+            ),
+          )
+    ).pipe(this.mapProviderRecordToArray());
   }
 
   private mapProviderRecordToArray() {

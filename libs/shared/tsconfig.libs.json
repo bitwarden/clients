@@ -10,6 +10,7 @@
       "@bitwarden/common/*": ["../common/src/*"],
       "@bitwarden/components": ["../components/src"],
       "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"],
+      "@bitwarden/vault-export-ui": ["../tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/importer/core": ["../importer/src"],
       "@bitwarden/importer/ui": ["../importer/src/components"],
       "@bitwarden/platform": ["../platform/src"],

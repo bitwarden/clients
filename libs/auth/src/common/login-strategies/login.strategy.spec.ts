@@ -28,7 +28,6 @@ import {
   AccountProfile,
   AccountTokens,
   AccountKeys,
-  AccountDecryptionOptions,
 } from "@bitwarden/common/platform/models/domain/account";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -39,8 +38,10 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserKey, MasterKey, DeviceKey } from "@bitwarden/common/types/key";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions/login-strategy.service";
-import { PasswordLoginCredentials } from "../models/domain/login-credentials";
+import { LoginStrategyServiceAbstraction } from "../abstractions";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
+import { PasswordLoginCredentials } from "../models";
+import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
@@ -108,6 +109,7 @@ describe("LoginStrategy", () => {
   let logService: MockProxy<LogService>;
   let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
+  let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
@@ -126,7 +128,7 @@ describe("LoginStrategy", () => {
     logService = mock<LogService>();
     stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
-
+    userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     policyService = mock<PolicyService>();
     passwordStrengthService = mock<PasswordStrengthService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
@@ -146,6 +148,7 @@ describe("LoginStrategy", () => {
       logService,
       stateService,
       twoFactorService,
+      userDecryptionOptionsService,
       passwordStrengthService,
       policyService,
       loginStrategyService,
@@ -204,8 +207,10 @@ describe("LoginStrategy", () => {
             ...new AccountTokens(),
           },
           keys: new AccountKeys(),
-          decryptionOptions: AccountDecryptionOptions.fromResponse(idTokenResponse),
         }),
+      );
+      expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
+        UserDecryptionOptions.fromResponse(idTokenResponse),
       );
       expect(messagingService.send).toHaveBeenCalledWith("loggedIn");
     });
@@ -409,6 +414,7 @@ describe("LoginStrategy", () => {
         logService,
         stateService,
         twoFactorService,
+        userDecryptionOptionsService,
         passwordStrengthService,
         policyService,
         loginStrategyService,

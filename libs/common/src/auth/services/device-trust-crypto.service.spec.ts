@@ -1,6 +1,9 @@
 import { matches, mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+
+import { UserDecryptionOptions } from "../../../../auth/src/common/models/domain/user-decryption-options";
 import { DeviceType } from "../../enums";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
@@ -34,9 +37,15 @@ describe("deviceTrustCryptoService", () => {
   const devicesApiService = mock<DevicesApiServiceAbstraction>();
   const i18nService = mock<I18nService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
+
+  const decryptionOptions = new BehaviorSubject<UserDecryptionOptions>(null);
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    decryptionOptions.next({} as any);
+    userDecryptionOptionsService.userDecryptionOptions$ = decryptionOptions;
 
     deviceTrustCryptoService = new DeviceTrustCryptoService(
       keyGenerationService,
@@ -48,6 +57,7 @@ describe("deviceTrustCryptoService", () => {
       devicesApiService,
       i18nService,
       platformUtilsService,
+      userDecryptionOptionsService,
     );
   });
 

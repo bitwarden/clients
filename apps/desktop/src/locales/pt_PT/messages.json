@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Adicione uma camada adicional de segurança, exigindo a confirmação da frase de impressão digital ao estabelecer uma ligação entre o computador e o navegador. Isto requer a ação e a verificação do utilizador sempre que é criada uma ligação."
   },
+  "enableHardwareAcceleration": {
+    "message": "Utilizar a aceleração de hardware"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Por predefinição, esta definição está ativada. Desative-a apenas se tiver problemas gráficos. É necessário reiniciar."
+  },
   "approve": {
     "message": "Aprovar"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "A iniciar sessão em"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "auto-hospedado"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Formatos comuns",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Resolução de problemas"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Desativar a aceleração de hardware e reiniciar"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Ativar a aceleração de hardware e reiniciar"
   }
 }

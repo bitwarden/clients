@@ -1,13 +1,13 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Observable, map } from "rxjs";
 
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import {
-  EnvironmentService as EnvironmentServiceAbstraction,
+  EnvironmentService,
   Region,
+  RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
 @Component({
@@ -34,7 +34,7 @@ import {
     ]),
   ],
 })
-export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
+export class EnvironmentSelectorComponent {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
   isOpen = false;
   showingModal = false;
@@ -48,29 +48,18 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       overlayY: "top",
     },
   ];
-  protected componentDestroyed$: Subject<void> = new Subject();
+
+  protected availableRegions = this.environmentService.availableRegions();
+  protected selectedRegion$: Observable<RegionConfig | undefined> =
+    this.environmentService.environment$.pipe(
+      map((e) => e.getRegion()),
+      map((r) => this.availableRegions.find((ar) => ar.key === r)),
+    );
 
   constructor(
-    protected environmentService: EnvironmentServiceAbstraction,
-    protected configService: ConfigServiceAbstraction,
+    protected environmentService: EnvironmentService,
     protected router: Router,
   ) {}
-
-  async ngOnInit() {
-    this.configService.serverConfig$.pipe(takeUntil(this.componentDestroyed$)).subscribe(() => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.updateEnvironmentInfo();
-    });
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateEnvironmentInfo();
-  }
-
-  ngOnDestroy(): void {
-    this.componentDestroyed$.next();
-    this.componentDestroyed$.complete();
-  }
 
   async toggle(option: Region) {
     this.isOpen = !this.isOpen;
@@ -78,29 +67,15 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateEnvironmentInfo();
-
     if (option === Region.SelfHosted) {
       this.onOpenSelfHostedSettings.emit();
       return;
     }
 
-    await this.environmentService.setRegion(option);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateEnvironmentInfo();
-  }
-
-  async updateEnvironmentInfo() {
-    this.selectedEnvironment = this.environmentService.selectedRegion;
+    await this.environmentService.setEnvironment(option);
   }
 
   close() {
     this.isOpen = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateEnvironmentInfo();
   }
 }

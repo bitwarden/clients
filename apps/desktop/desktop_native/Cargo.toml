@@ -16,20 +16,19 @@ manual_test = []
 aes = "=0.8.4"
 anyhow = "=1.0.80"
 arboard = { version = "=3.3.0", default-features = false, features = ["wayland-data-control"] }
-base64 = "=0.21.5"
+base64 = "=0.22.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
-napi = { version = "=2.13.3", features = ["async"] }
-napi-derive = "=2.13.0"
+napi = { version = "=2.16.0", features = ["async"] }
+napi-derive = "=2.16.0"
 rand = "=0.8.5"
 retry = "=2.0.0"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
 thiserror = "=1.0.51"
-tokio = { version = "=1.32.0", features = ["full"] }
 typenum = "=1.17.0"
 
 [build-dependencies]
-napi-build = "=2.0.1"
+napi-build = "=2.1.2"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "=1.0.2"

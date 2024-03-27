@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "在您的桌面与浏览器间建立连接时，通过要求指纹短语确认，来增加一个额外的安全层。每次建立连接都需要用户操作和验证。"
   },
+  "enableHardwareAcceleration": {
+    "message": "使用硬件加速"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "此设置默认为开启。仅当您遇到图形问题时才关闭。需要重启。"
+  },
   "approve": {
     "message": "批准"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "登录到"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "自托管"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "通用格式",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "故障排除"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "禁用硬件加速并重启"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "启用硬件加速并重启"
   }
 }

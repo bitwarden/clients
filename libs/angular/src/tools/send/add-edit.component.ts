@@ -1,7 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { BehaviorSubject, Subject, concatMap, firstValueFrom, map, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -123,7 +123,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
       { name: i18nService.t("sendTypeText"), value: SendType.Text, premium: false },
     ];
-    this.sendLinkBaseUrl = this.environmentService.getSendUrl();
   }
 
   get link(): string {
@@ -189,6 +188,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
           this.formGroup.controls.hideEmail.disable();
         }
       });
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+    this.sendLinkBaseUrl = env.getSendUrl();
 
     this.billingAccountProfileStateService.hasPremiumFromAnySource$
       .pipe(takeUntil(this.destroy$))

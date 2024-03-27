@@ -7,17 +7,15 @@
     #trigger="cdkOverlayOrigin"
     aria-haspopup="dialog"
     aria-controls="cdk-overlay-container"
-    [ngSwitch]="selectedEnvironment"
   >
-    <span *ngSwitchCase="ServerEnvironmentType.US" class="text-primary">{{
-      "usDomain" | i18n
-    }}</span>
-    <span *ngSwitchCase="ServerEnvironmentType.EU" class="text-primary">{{
-      "euDomain" | i18n
-    }}</span>
-    <span *ngSwitchCase="ServerEnvironmentType.SelfHosted" class="text-primary">{{
-      "selfHostedServer" | i18n
-    }}</span>
+    <span class="text-primary">
+      <ng-container *ngIf="selectedRegion$ | async as selectedRegion; else fallback">
+        {{ selectedRegion.domain }}
+      </ng-container>
+      <ng-template #fallback>
+        {{ "selfHostedServer" | i18n }}
+      </ng-template>
+    </span>
     <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
   </button>
 </div>
@@ -41,40 +39,23 @@
       role="dialog"
       aria-modal="true"
     >
-      <button
-        type="button"
-        class="environment-selector-dialog-item"
-        (click)="toggle(ServerEnvironmentType.US)"
-        [attr.aria-pressed]="selectedEnvironment === ServerEnvironmentType.US ? 'true' : 'false'"
-      >
-        <i
-          class="bwi bwi-fw bwi-sm bwi-check"
-          style="padding-bottom: 1px"
-          aria-hidden="true"
-          [style.visibility]="
-            selectedEnvironment === ServerEnvironmentType.US ? 'visible' : 'hidden'
-          "
-        ></i>
-        <span>{{ "usDomain" | i18n }}</span>
-      </button>
-      <br />
-      <button
-        type="button"
-        class="environment-selector-dialog-item"
-        (click)="toggle(ServerEnvironmentType.EU)"
-        [attr.aria-pressed]="selectedEnvironment === ServerEnvironmentType.EU ? 'true' : 'false'"
-      >
-        <i
-          class="bwi bwi-fw bwi-sm bwi-check"
-          style="padding-bottom: 1px"
-          aria-hidden="true"
-          [style.visibility]="
-            selectedEnvironment === ServerEnvironmentType.EU ? 'visible' : 'hidden'
-          "
-        ></i>
-        <span>{{ "euDomain" | i18n }}</span>
-      </button>
-      <br />
+      <ng-container *ngFor="let region of availableRegions">
+        <button
+          type="button"
+          class="environment-selector-dialog-item"
+          (click)="toggle(region.key)"
+          [attr.aria-pressed]="selectedEnvironment === region.key ? 'true' : 'false'"
+        >
+          <i
+            class="bwi bwi-fw bwi-sm bwi-check"
+            style="padding-bottom: 1px"
+            aria-hidden="true"
+            [style.visibility]="selectedEnvironment === region.key ? 'visible' : 'hidden'"
+          ></i>
+          <span>{{ region.domain }}</span>
+        </button>
+        <br />
+      </ng-container>
       <button
         type="button"
         class="environment-selector-dialog-item"

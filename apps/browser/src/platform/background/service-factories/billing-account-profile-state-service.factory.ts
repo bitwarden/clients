@@ -1,9 +1,8 @@
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 
-import { activeUserStateProviderFactory } from "./active-user-state-provider.factory";
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
-import { StateProviderInitOptions } from "./state-provider.factory";
+import { StateProviderInitOptions, stateProviderFactory } from "./state-provider.factory";
 
 type BillingAccountProfileStateServiceFactoryOptions = FactoryOptions;
 
@@ -21,8 +20,6 @@ export function billingAccountProfileStateServiceFactory(
     "billingAccountProfileStateService",
     opts,
     async () =>
-      new DefaultBillingAccountProfileStateService(
-        await activeUserStateProviderFactory(cache, opts),
-      ),
+      new DefaultBillingAccountProfileStateService(await stateProviderFactory(cache, opts)),
   );
 }

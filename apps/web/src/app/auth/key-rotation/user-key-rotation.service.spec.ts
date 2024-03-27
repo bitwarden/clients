@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
@@ -39,7 +39,7 @@ describe("KeyRotationService", () => {
   let mockCryptoService: MockProxy<CryptoService>;
   let mockEncryptService: MockProxy<EncryptService>;
   let mockStateService: MockProxy<StateService>;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   beforeAll(() => {
     mockApiService = mock<UserKeyRotationApiService>();
@@ -52,7 +52,7 @@ describe("KeyRotationService", () => {
     mockCryptoService = mock<CryptoService>();
     mockEncryptService = mock<EncryptService>();
     mockStateService = mock<StateService>();
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
     keyRotationService = new UserKeyRotationService(
       mockApiService,

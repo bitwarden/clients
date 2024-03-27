@@ -19,7 +19,7 @@
     <app-callout type="warning" title="{{ 'vaultExportDisabled' | i18n }}" *ngIf="disabledByPolicy">
       {{ "personalVaultExportPolicyInEffect" | i18n }}
     </app-callout>
-    <app-export-scope-callout *ngIf="!disabledByPolicy"></app-export-scope-callout>
+    <tools-export-scope-callout *ngIf="!disabledByPolicy"></tools-export-scope-callout>
 
     <div class="box">
       <div class="box-content">

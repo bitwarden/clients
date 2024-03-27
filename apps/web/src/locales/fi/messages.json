@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Vaadi nykyisiä jäseniä vaihtamaan salasanansa"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Käyttöoikeutesi eivät salli tämän projektin poistamista",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7607,9 +7601,46 @@
     "message": "Toimittajaportaali"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Et voi lisätä itseäsi ryhmiin."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Et voi lisätä itseäsi kokoelmiin."
+  },
+  "assign": {
+    "message": "Määritä"
+  },
+  "assignToCollections": {
+    "message": "Määritä kokoelmiin"
+  },
+  "assignToTheseCollections": {
+    "message": "Määritä näihin kokoelmiin"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Valitse kokoelmat, joihin kohteet jaetaan. Kun kohdetta muokataan yhdessä kokoelmassa, päivittyy muutos kaikkiin kokoelmiin. Kohteet näkyvät vain niille organisaation jäsenille, joilla on näiden kokoelmien käyttöoikeus."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Valitse määritettävät kokoelmat"
+  },
+  "noCollectionsAssigned": {
+    "message": "Kokoelmia ei ole määritetty"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Kokoelmat on määritetty"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Olet valinnut $TOTAL_COUNT$ kohdetta. Et voi muuttaa näistä $READONLY_COUNT$ kohdetta, koska käyttöoikeutesi eivät riitä niiden muokkaukseen.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Kohteet"
   }
 }

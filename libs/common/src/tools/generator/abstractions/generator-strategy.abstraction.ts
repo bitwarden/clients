@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { PolicyType } from "../../../admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
@@ -21,13 +23,16 @@ export abstract class GeneratorStrategy<Options, Policy> {
   /** Length of time in milliseconds to cache the evaluator */
   cache_ms: number;
 
-  /** Creates an evaluator from a generator policy.
+  /** Operator function that converts a policy collection observable to a single
+   *   policy evaluator observable.
    * @param policy The policy being evaluated.
    * @returns the policy evaluator. If `policy` is is `null` or `undefined`,
    * then the evaluator defaults to the application's limits.
    * @throws when the policy's type does not match the generator's policy type.
    */
-  evaluator: (policy: AdminPolicy) => PolicyEvaluator<Policy, Options>;
+  toEvaluator: () => (
+    source: Observable<AdminPolicy[]>,
+  ) => Observable<PolicyEvaluator<Policy, Options>>;
 
   /** Generates credentials from the given options.
    * @param options The options used to generate the credentials.

@@ -4,7 +4,7 @@
  */
 
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, pipe } from "rxjs";
 
 import { FakeSingleUserState, awaitAsync } from "../../../spec";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,12 +20,12 @@ import { PasswordGenerationOptions } from "./password";
 
 import { DefaultGeneratorService } from ".";
 
-function mockPolicyService(config?: { state?: BehaviorSubject<Policy> }) {
+function mockPolicyService(config?: { state?: BehaviorSubject<Policy[]> }) {
   const service = mock<PolicyService>();
 
   // FIXME: swap out the mock return value when `getAll$` becomes available
-  const stateValue = config?.state ?? new BehaviorSubject<Policy>(null);
-  service.get$.mockReturnValue(stateValue);
+  const stateValue = config?.state ?? new BehaviorSubject<Policy[]>([null]);
+  service.getAll$.mockReturnValue(stateValue);
 
   // const stateValue = config?.state ?? new BehaviorSubject<Policy[]>(null);
   // service.getAll$.mockReturnValue(stateValue);
@@ -46,7 +46,9 @@ function mockGeneratorStrategy(config?: {
     // the value from `config`.
     durableState: jest.fn(() => durableState),
     policy: config?.policy ?? PolicyType.DisableSend,
-    evaluator: jest.fn(() => config?.evaluator ?? mock<PolicyEvaluator<any, any>>()),
+    toEvaluator: jest.fn(() =>
+      pipe(map(() => config?.evaluator ?? mock<PolicyEvaluator<any, any>>())),
+    ),
   });
 
   return strategy;
@@ -94,9 +96,7 @@ describe("Password generator service", () => {
 
       await firstValueFrom(service.evaluator$(SomeUser));
 
-      // FIXME: swap out the expect when `getAll$` becomes available
-      expect(policy.get$).toHaveBeenCalledWith(PolicyType.PasswordGenerator);
-      //expect(policy.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
+      expect(policy.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
     });
 
     it("should map the policy using the generation strategy", async () => {
@@ -112,21 +112,22 @@ describe("Password generator service", () => {
 
     it("should update the evaluator when the password generator policy changes", async () => {
       // set up dependencies
-      const state = new BehaviorSubject<Policy>(null);
+      const state = new BehaviorSubject<Policy[]>([null]);
       const policy = mockPolicyService({ state });
       const strategy = mockGeneratorStrategy();
       const service = new DefaultGeneratorService(strategy, policy);
 
-      // model responses for the observable update
+      // model responses for the observable update. The map is called multiple times,
+      // and the array shift ensures reference equality is maintained.
       const firstEvaluator = mock<PolicyEvaluator<any, any>>();
-      strategy.evaluator.mockReturnValueOnce(firstEvaluator);
       const secondEvaluator = mock<PolicyEvaluator<any, any>>();
-      strategy.evaluator.mockReturnValueOnce(secondEvaluator);
+      const evaluators = [firstEvaluator, secondEvaluator];
+      strategy.toEvaluator.mockReturnValueOnce(pipe(map(() => evaluators.shift())));
 
       // act
       const evaluator$ = service.evaluator$(SomeUser);
       const firstResult = await firstValueFrom(evaluator$);
-      state.next(null);
+      state.next([null]);
       const secondResult = await firstValueFrom(evaluator$);
 
       // assert
@@ -142,9 +143,7 @@ describe("Password generator service", () => {
       await firstValueFrom(service.evaluator$(SomeUser));
       await firstValueFrom(service.evaluator$(SomeUser));
 
-      // FIXME: swap out the expect when `getAll$` becomes available
-      expect(policy.get$).toHaveBeenCalledTimes(1);
-      //expect(policy.getAll$).toHaveBeenCalledTimes(1);
+      expect(policy.getAll$).toHaveBeenCalledTimes(1);
     });
 
     it("should cache the password generator policy for each user", async () => {
@@ -155,9 +154,8 @@ describe("Password generator service", () => {
       await firstValueFrom(service.evaluator$(SomeUser));
       await firstValueFrom(service.evaluator$(AnotherUser));
 
-      // FIXME: enable this test when `getAll$` becomes available
-      // expect(policy.getAll$).toHaveBeenNthCalledWith(1, PolicyType.PasswordGenerator, SomeUser);
-      // expect(policy.getAll$).toHaveBeenNthCalledWith(2, PolicyType.PasswordGenerator, AnotherUser);
+      expect(policy.getAll$).toHaveBeenNthCalledWith(1, PolicyType.PasswordGenerator, SomeUser);
+      expect(policy.getAll$).toHaveBeenNthCalledWith(2, PolicyType.PasswordGenerator, AnotherUser);
     });
   });
 

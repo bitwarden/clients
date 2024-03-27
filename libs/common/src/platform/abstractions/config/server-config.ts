@@ -7,7 +7,6 @@ import {
 } from "../../models/data/server-config.data";
 
 const dayInMilliseconds = 24 * 3600 * 1000;
-const eighteenHoursInMilliseconds = 18 * 3600 * 1000;
 
 export class ServerConfig {
   version: string;
@@ -36,10 +35,6 @@ export class ServerConfig {
 
   isValid(): boolean {
     return this.getAgeInMilliseconds() <= dayInMilliseconds;
-  }
-
-  expiresSoon(): boolean {
-    return this.getAgeInMilliseconds() >= eighteenHoursInMilliseconds;
   }
 
   static fromJSON(obj: Jsonify<ServerConfig>): ServerConfig {

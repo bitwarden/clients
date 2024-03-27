@@ -145,7 +145,7 @@
         type="button"
         buttonType="danger"
         class="btn-submit tw-ml-auto"
-        (click)="cancel()"
+        (click)="cancelSubscription()"
         [appApiAction]="cancelPromise"
         [disabled]="$any(cancelBtn).loading"
         *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"

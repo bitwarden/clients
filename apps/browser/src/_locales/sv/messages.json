@@ -494,7 +494,7 @@
     "message": "Ditt nya konto har skapats! Du kan logga in nu."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Du är nu inloggad"
   },
   "youMayCloseThisWindow": {
     "message": "Du kan stänga detta fönster"
@@ -522,7 +522,7 @@
     "message": "Kunde inte automatiskt fylla i det valda objektet på den här webbsidan. Klipp/klistra informationen istället."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "Det går inte att skanna QR-koden från den aktuella webbsidan"
   },
   "totpCaptureSuccess": {
     "message": "Authenticator key added"
@@ -868,7 +868,7 @@
     "message": "1 GB lagring av krypterade filer."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
@@ -1993,7 +1993,7 @@
     "message": "Ditt huvudlösenord ändrades nyligen av en administratör i din organisation. För att få tillgång till valvet måste du uppdatera det nu. Om du fortsätter kommer du att loggas ut från din nuvarande session, vilket kräver att du loggar in igen. Aktiva sessioner på andra enheter kan komma att vara aktiva i upp till en timme."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+    "message": "Ditt huvudlösenord följer inte ett eller flera av din organisations regler. För att komma åt ditt valv så måste du ändra ditt huvudlösenord nu. Om du gör det kommer du att loggas du ut ur din nuvarande session så du måste logga in på nytt. Aktiva sessioner på andra enheter kommer fortsatt vara aktiva i upp till en timme."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatiskt deltagande"
@@ -2009,11 +2009,11 @@
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "message": "Din organisations behörigheter uppdaterades, vilket kräver att du anger ett huvudlösenord.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Your organization requires you to set a master password.",
+    "message": "Din organisation kräver att du anger ett huvudlösenord.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
@@ -2215,7 +2215,7 @@
     "message": "Serverversion"
   },
   "selfHostedServer": {
-    "message": "self-hosted"
+    "message": "självhostad"
   },
   "thirdParty": {
     "message": "Tredje part"
@@ -2371,7 +2371,7 @@
     "message": "Uncheck if using a public device"
   },
   "approveFromYourOtherDevice": {
-    "message": "Approve from your other device"
+    "message": "Godkänn från din andra enhet"
   },
   "requestAdminApproval": {
     "message": "Be om godkännande från administratör"
@@ -2380,17 +2380,11 @@
     "message": "Godkänn med huvudlösenord"
   },
   "ssoIdentifierRequired": {
-    "message": "Organization SSO identifier is required."
+    "message": "Organisationens SSO-identifierare krävs."
   },
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
@@ -2402,10 +2396,10 @@
     "message": "Display"
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Ditt konto har skapats!"
   },
   "adminApprovalRequested": {
-    "message": "Admin approval requested"
+    "message": "Godkännande från administratör har begärts"
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Din begäran har skickats till din administratör."
@@ -2420,13 +2414,13 @@
     "message": "Inloggning godkänd"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Användarens e-postadress saknas"
   },
   "deviceTrusted": {
     "message": "Device trusted"
   },
   "inputRequired": {
-    "message": "Input is required."
+    "message": "Inmatning är obligatoriskt."
   },
   "required": {
     "message": "obligatoriskt"
@@ -2526,7 +2520,7 @@
     "message": "Undermeny"
   },
   "toggleCollapse": {
-    "message": "Toggle collapse",
+    "message": "Växla synlig/dold",
     "description": "Toggling an expand/collapse state."
   },
   "filelessImport": {
@@ -2550,7 +2544,7 @@
     "description": "Notification message for when an import is in progress."
   },
   "dataSuccessfullyImported": {
-    "message": "Data successfully imported!",
+    "message": "Data har importerats till ditt valv!",
     "description": "Notification message for when an import has completed successfully."
   },
   "dataImportFailed": {
@@ -2577,7 +2571,7 @@
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "Hoppa till innehåll"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden automatisk ifyllnadsmenyknapp",
@@ -2596,11 +2590,11 @@
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
-    "message": "Unlock account",
+    "message": "Lås upp konto",
     "description": "Button text to display in overlay when the account is locked."
   },
   "fillCredentialsFor": {
-    "message": "Fill credentials for",
+    "message": "Fyll i uppgifter för",
     "description": "Screen reader text for when overlay item is in focused"
   },
   "partialUsername": {
@@ -2624,7 +2618,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "Turn on"
+    "message": "Aktivera"
   },
   "ignore": {
     "message": "Ignorera"
@@ -2634,7 +2628,7 @@
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Fel vid import"
   },
   "importErrorDesc": {
     "message": "Det uppstod ett problem med den data du försökte importera. Åtgärda de fel som anges nedan i din källfil och försök igen."
@@ -2646,10 +2640,10 @@
     "message": "Beskrivning"
   },
   "importSuccess": {
-    "message": "Data successfully imported"
+    "message": "Data har importerats till ditt valv"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Sammanlagt $AMOUNT$ objekt importerades.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2670,10 +2664,10 @@
     "message": "Verifiera med biometri"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Väntar på bekräftelse"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Det gick inte att slutföra biometri."
   },
   "needADifferentMethod": {
     "message": "Behöver du en annan metod?"
@@ -2688,16 +2682,16 @@
     "message": "Använd biometri"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "Ange verifieringskoden som skickades till din e-postadress."
   },
   "resendCode": {
     "message": "Skicka kod igen"
   },
   "total": {
-    "message": "Total"
+    "message": "Totalt"
   },
   "importWarning": {
-    "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
+    "message": "Du importerar data till $ORGANIZATION$. Din data kan komma att delas med medlemmar i den här organisationen. Vill du fortsätta?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2718,19 +2712,19 @@
     "message": "Popout extension"
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "Starta Duo"
   },
   "importFormatError": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Datan är inte korrekt formaterad. Vänligen kontrollera din importerade fil och försök igen."
   },
   "importNothingError": {
     "message": "Ingenting har importerats."
   },
   "importEncKeyError": {
-    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+    "message": "Ett fel uppstod vid dekryptering av den exporterade filen. Din krypteringsnyckel matchar inte krypteringsnyckeln som användes för att exportera datan."
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Ogiltigt fillösenord, använd lösenordet du angav när du skapade exportfilen."
   },
   "importDestination": {
     "message": "Importdestination"
@@ -2755,13 +2749,13 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Filen innehåller otilldelade objekt."
   },
   "selectFormat": {
-    "message": "Select the format of the import file"
+    "message": "Välj importfilens format"
   },
   "selectImportFile": {
-    "message": "Select the import file"
+    "message": "Välj importfilen"
   },
   "chooseFile": {
     "message": "Välj fil"
@@ -2770,10 +2764,10 @@
     "message": "Ingen fil vald"
   },
   "orCopyPasteFileContents": {
-    "message": "or copy/paste the import file contents"
+    "message": "eller kopiera och klistra in innehållet från filen"
   },
   "instructionsFor": {
-    "message": "$NAME$ Instructions",
+    "message": "Instruktioner för $NAME$",
     "description": "The title for the import tool instructions.",
     "placeholders": {
       "name": {
@@ -2783,13 +2777,13 @@
     }
   },
   "confirmVaultImport": {
-    "message": "Confirm vault import"
+    "message": "Bekräfta importering av valv"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Den här filen är lösenordsskyddad. Ange lösenordet för att importera data."
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "Bekräfta fillösenord"
   },
   "typePasskey": {
     "message": "Lösennyckel"
@@ -2837,7 +2831,7 @@
     "message": "Detta objekt innehåller redan en lösennyckel. Är du säker på att du vill skriva över nuvarande lösennyckeln?"
   },
   "featureNotSupported": {
-    "message": "Feature not yet supported"
+    "message": "Funktionen stöds ännu inte"
   },
   "yourPasskeyIsLocked": {
     "message": "Autentisering krävs för att använda lösennyckel. Verifiera din identitet för att fortsätta."
@@ -2913,19 +2907,19 @@
     "message": "Samling"
   },
   "lastPassYubikeyDesc": {
-    "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+    "message": "Sätt in YubiKey som associeras med ditt LastPass-konto i din dators USB-port, tryck sedan på knappen."
   },
   "switchAccount": {
-    "message": "Switch account"
+    "message": "Byt konto"
   },
   "switchAccounts": {
-    "message": "Switch accounts"
+    "message": "Byt konto"
   },
   "switchToAccount": {
-    "message": "Switch to account"
+    "message": "Byt till konto"
   },
   "activeAccount": {
-    "message": "Active account"
+    "message": "Aktivt konto"
   },
   "availableAccounts": {
     "message": "Tillgängliga konton"
@@ -2952,10 +2946,10 @@
     "message": "Använd din enhet eller hårdvarunyckel"
   },
   "justOnce": {
-    "message": "Just once"
+    "message": "Bara en gång"
   },
   "alwaysForThisSite": {
-    "message": "Always for this site"
+    "message": "Alltid för denna webbplats"
   },
   "domainAddedToExcludedDomains": {
     "message": "$DOMAIN$ added to excluded domains.",
@@ -2991,7 +2985,7 @@
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
-    "message": "Make default",
+    "message": "Gör till standard",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {

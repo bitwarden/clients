@@ -404,7 +404,7 @@
     "message": "Μήκος"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Ελάχιστο μήκος κωδικού"
   },
   "uppercase": {
     "message": "Κεφαλαία (A-Z)"
@@ -479,7 +479,7 @@
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB."
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+    "message": "Απαιτείται μεταφορά κλειδιού κρυπτογράφησης. Παρακαλούμε συνδεθείτε μέσω του διαδικτυακής κρύπτης για να ενημερώσετε το κλειδί κρυπτογράφησης."
   },
   "editedFolder": {
     "message": "Ο φάκελος αποθηκεύτηκε"
@@ -561,10 +561,10 @@
     "message": "Ο λογαριασμός σας έχει δημιουργηθεί! Τώρα μπορείτε να συνδεθείτε."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Έχετε συνδεθεί επιτυχώς"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Μπορείτε να κλείσετε αυτό το παράθυρο"
   },
   "masterPassSent": {
     "message": "Σας στείλαμε ένα email με την υπόδειξη του κύριου κωδικού."
@@ -1414,7 +1414,7 @@
     "message": "Ξεκλείδωμα με Touch ID"
   },
   "additionalTouchIdSettings": {
-    "message": "Additional Touch ID settings"
+    "message": "Πρόσθετες ρυθμίσεις Touch ID"
   },
   "touchIdConsentMessage": {
     "message": "Ξεκλειδώστε το vault σας"
@@ -1505,7 +1505,7 @@
     "message": "Ένα αποσυνδεδεμένο vault απαιτεί να κάνετε ξανά έλεγχο ταυτότητας για να αποκτήσετε πρόσβαση σε αυτό."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Ρυθμίστε μια μέθοδο ξεκλειδώματος για να αλλάξετε την ενέργεια χρονικού ορίου κρύπτης."
   },
   "lock": {
     "message": "Κλείδωμα",
@@ -1546,11 +1546,11 @@
     "message": "Ορισμός Κύριου Κωδικού"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "message": "Τα δικαιώματα του οργανισμού σας ενημερώθηκαν, απαιτώντας από εσάς να ορίσετε έναν κύριο κωδικό πρόσβασης.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Your organization requires you to set a master password.",
+    "message": "Ο οργανισμός σας απαιτεί να ορίσετε έναν κύριο κωδικό πρόσβασης.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
@@ -1643,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Ενεργοποιήστε ένα πρόσθετο επίπεδο ασφάλειας απαιτώντας επικύρωση φράσης δακτυλικών αποτυπωμάτων κατά τη δημιουργία μιας σύνδεσης μεταξύ της επιφάνειας εργασίας σας και του προγράμματος περιήγησης. Όταν ενεργοποιηθεί, αυτό απαιτεί παρέμβαση χρήστη και επαλήθευση κάθε φορά που δημιουργείται σύνδεση."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Use hardware acceleration"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
   },
   "approve": {
     "message": "Έγκριση"
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Logging in on"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "self-hosted"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disable hardware acceleration and restart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Enable hardware acceleration and restart"
   }
 }

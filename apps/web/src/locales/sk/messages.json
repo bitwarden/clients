@@ -7063,12 +7063,6 @@
   "enforceOnLoginDesc": {
     "message": "Požadovať po súčasných členoch, aby si zmenili heslo"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "smProjectDeleteAccessRestricted": {
     "message": "Na odstránenie tohto projektu nemáte oprávnenia",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
@@ -7607,9 +7601,46 @@
     "message": "Portál poskytovateľa"
   },
   "restrictedGroupAccess": {
-    "message": "You cannot add yourself to groups."
+    "message": "Seba nemôžete pridať do skupín."
   },
   "restrictedCollectionAccess": {
-    "message": "You cannot add yourself to collections."
+    "message": "Seba nemôžete pridať do zbierok."
+  },
+  "assign": {
+    "message": "Prideliť"
+  },
+  "assignToCollections": {
+    "message": "Prideliť k zbierkam"
+  },
+  "assignToTheseCollections": {
+    "message": "Prideliť k týmto zbierkam"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Vyberte zbierky s ktorými budú položky zdieľané. Zmeny položky v jednej zbierke sa prejavia vo všetkých zbierkach. Iba členovia organizácie s prístupom k týmto zbierkam budu položky vidieť."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Vyberte zbierky na pridelenie"
+  },
+  "noCollectionsAssigned": {
+    "message": "Neboli pridelené žiadne zbierky"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Úspešne pridelené zbierky"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Vybrali ste $TOTAL_COUNT$ položiek. Nemôžete aktualizovať $READONLY_COUNT$ položiek, pretože nemáte oprávnenie na úpravu.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Položky"
   }
 }

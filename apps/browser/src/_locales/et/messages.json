@@ -2386,12 +2386,6 @@
     "message": "EL",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Ligipääs keelatud. Sul pole lubatud seda lehekülge vaadata."
   },

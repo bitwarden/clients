@@ -16,6 +16,17 @@ export abstract class AvatarService {
    */
   abstract setAvatarColor(color: string): Promise<void>;
   /**
+   * Sets the avatar color for the given user, meant to be used via sync.
+   *
+   * @remarks This is meant to be used for getting an updated avatar color from
+   *          the sync endpoint. If the user is changing their avatar color
+   *          on device, you should instead call {@link setAvatarColor}.
+   *
+   * @param userId The user id for the user to set the avatar color for
+   * @param color The color to set the avatar color to
+   */
+  abstract setSyncAvatarColor(userId: UserId, color: string): Promise<void>;
+  /**
    * Gets the avatar color of the specified user.
    *
    * @remarks This is most useful for account switching where we show an

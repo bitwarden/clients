@@ -1,10 +1,5 @@
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
-
-import {
-  authServiceFactory,
-  AuthServiceInitOptions,
-} from "../../../auth/background/service-factories/auth-service.factory";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 
 import { configApiServiceFactory, ConfigApiServiceInitOptions } from "./config-api.service.factory";
 import {
@@ -13,37 +8,30 @@ import {
 } from "./environment-service.factory";
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
 import { logServiceFactory, LogServiceInitOptions } from "./log-service.factory";
-import { stateServiceFactory, StateServiceInitOptions } from "./state-service.factory";
+import { stateProviderFactory, StateProviderInitOptions } from "./state-provider.factory";
 
-type ConfigServiceFactoryOptions = FactoryOptions & {
-  configServiceOptions?: {
-    subscribe?: boolean;
-  };
-};
+type ConfigServiceFactoryOptions = FactoryOptions;
 
 export type ConfigServiceInitOptions = ConfigServiceFactoryOptions &
-  StateServiceInitOptions &
   ConfigApiServiceInitOptions &
-  AuthServiceInitOptions &
   EnvironmentServiceInitOptions &
-  LogServiceInitOptions;
+  LogServiceInitOptions &
+  StateProviderInitOptions;
 
 export function configServiceFactory(
-  cache: { configService?: ConfigServiceAbstraction } & CachedServices,
+  cache: { configService?: ConfigService } & CachedServices,
   opts: ConfigServiceInitOptions,
-): Promise<ConfigServiceAbstraction> {
+): Promise<ConfigService> {
   return factory(
     cache,
     "configService",
     opts,
     async () =>
-      new ConfigService(
-        await stateServiceFactory(cache, opts),
+      new DefaultConfigService(
         await configApiServiceFactory(cache, opts),
-        await authServiceFactory(cache, opts),
         await environmentServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
-        opts.configServiceOptions?.subscribe ?? true,
+        await stateProviderFactory(cache, opts),
       ),
   );
 }

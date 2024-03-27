@@ -30,7 +30,7 @@
               </button>
             </h2>
             <ng-container *ngIf="showSecurity">
-              <app-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
+              <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
                 <span *ngIf="policy.timeout && policy.action">
                   {{
                     "vaultTimeoutPolicyWithActionInEffect"
@@ -46,7 +46,7 @@
                 <span *ngIf="!policy.timeout && policy.action">
                   {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
                 </span>
-              </app-callout>
+              </bit-callout>
               <app-vault-timeout-input
                 [vaultTimeoutOptions]="vaultTimeoutOptions"
                 [formControl]="form.controls.vaultTimeout"
@@ -410,6 +410,23 @@
                 </div>
                 <small id="enableBrowserIntegrationFingerprintHelp" class="help-block">{{
                   "enableBrowserIntegrationFingerprintDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group">
+                <div class="checkbox">
+                  <label for="enableHardwareAcceleration">
+                    <input
+                      id="enableHardwareAcceleration"
+                      type="checkbox"
+                      aria-describedby="enableHardwareAccelerationHelp"
+                      formControlName="enableHardwareAcceleration"
+                      (change)="saveHardwareAcceleration()"
+                    />
+                    {{ "enableHardwareAcceleration" | i18n }}
+                  </label>
+                </div>
+                <small id="enableHardwareAccelerationHelp" class="help-block">{{
+                  "enableHardwareAccelerationDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="showDuckDuckGoIntegrationOption">

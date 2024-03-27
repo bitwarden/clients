@@ -16,7 +16,7 @@ export class OrganizationRedirectGuard implements CanActivate {
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const org = this.organizationService.get(route.params.organizationId);
+    const org = await this.organizationService.get(route.params.organizationId);
 
     const customRedirect = route.data?.autoRedirectCallback;
     if (customRedirect) {

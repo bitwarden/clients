@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Engedélyezzünk további biztonsági réteget ujjlenyomat kifejezés-hitelesítés kérésével az asztal és a böngésző közötti kapcsolat létrehozásakor. Ha engedélyezve van, ez minden egyes kapcsolat létrehozásakor felhasználói beavatkozást és ellenőrzést igényel."
   },
+  "enableHardwareAcceleration": {
+    "message": "Hardver gyorsítás használata"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Alapértelmezés szerint ez a beállítás BE. Csak akkor kapcsoljuk KI, ha grafikus problémákat tapasztalunk. Újraindítás szükséges."
+  },
   "approve": {
     "message": "Jóváhagyás"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Bejelentkezés:"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "saját üzemeltetésű"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Általános formátumok",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Hibaelhárítás"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "A hardveres gyorsítás letiltása és újraindítás"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "A hardveres gyorsítás engedélyezése és újraindítás"
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -11,8 +11,6 @@ import { PlanType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { ProductType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction as ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,7 +41,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSecretsManagerSubscribe = false;
   firstLoaded = false;
   loading: boolean;
-  presentUserWithOffboardingSurvey$: Observable<boolean>;
 
   protected readonly teamsStarter = ProductType.TeamsStarter;
 
@@ -58,7 +55,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
     private dialogService: DialogService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -78,10 +74,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.presentUserWithOffboardingSurvey$ = this.configService.getFeatureFlag$<boolean>(
-      FeatureFlag.AC1607_PresentUserOffboardingSurvey,
-    );
   }
 
   ngOnDestroy() {
@@ -94,7 +86,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       return;
     }
     this.loading = true;
-    this.userOrg = this.organizationService.get(this.organizationId);
+    this.userOrg = await this.organizationService.get(this.organizationId);
     if (this.userOrg.canViewSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
       this.lineItems = this.sub?.subscription?.items;
@@ -278,7 +270,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     );
   }
 
-  cancelWithOffboardingSurvey = async () => {
+  cancelSubscription = async () => {
     const reference = openOffboardingSurvey(this.dialogService, {
       data: {
         type: "Organization",
@@ -293,36 +285,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     }
 
     await this.load();
-  };
-
-  cancelWithWarning = async () => {
-    if (this.loading) {
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "cancelSubscription" },
-      content: { key: "cancelConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await this.organizationApiService.cancel(this.organizationId);
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("canceledSubscription"),
-      );
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.load();
-    } catch (e) {
-      this.logService.error(e);
-    }
   };
 
   reinstate = async () => {

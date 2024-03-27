@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Dodaj dodatkową warstwę zabezpieczeń, weryfikując unikalny identyfikator konta podczas tworzenia linku między aplikacją a przeglądarką. Funkcja ta wymaga weryfikacji identyfikatora przy każdym nawiązaniu połączenia."
   },
+  "enableHardwareAcceleration": {
+    "message": "Użyj przyśpieszenia sprzętowego"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Domyślnie to ustawienie jest włączone. Wyłącz tylko wtedy, gdy wystąpią problemy graficzne. Wymagane jest ponowne uruchomienie."
+  },
   "approve": {
     "message": "Zatwierdź"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Logowanie do"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "samodzielnie hostowany"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Popularne formaty",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Rozwiązywanie problemów"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Wyłącz akcelerację sprzętową i uruchom ponownie"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Włącz akcelerację sprzętową i uruchom ponownie"
   }
 }

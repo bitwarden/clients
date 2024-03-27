@@ -1,6 +1,11 @@
 import { mock } from "jest-mock-extended";
+import { of, firstValueFrom } from "rxjs";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { PolicyType } from "../../../admin-console/enums";
+// FIXME: use index.ts imports once policy abstractions and models
+// implement ADR-0002
+import { Policy } from "../../../admin-console/models/domain/policy";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { StateProvider } from "../../../platform/state";
@@ -29,6 +34,12 @@ class TestForwarder extends ForwarderGeneratorStrategy<ApiOptions> {
 
 const SomeUser = "some user" as UserId;
 const AnotherUser = "another user" as UserId;
+const SomePolicy = mock<Policy>({
+  type: PolicyType.PasswordGenerator,
+  data: {
+    minLength: 10,
+  },
+});
 
 describe("ForwarderGeneratorStrategy", () => {
   const encryptService = mock<EncryptService>();
@@ -63,11 +74,17 @@ describe("ForwarderGeneratorStrategy", () => {
     });
   });
 
-  it("evaluator returns the default policy evaluator", () => {
-    const strategy = new TestForwarder(null, null, null);
+  describe("toEvaluator()", () => {
+    it.each([[[]], [null], [undefined], [[SomePolicy]], [[SomePolicy, SomePolicy]]])(
+      "should map any input (= %p) to the default policy evaluator",
+      async (policies) => {
+        const strategy = new TestForwarder(encryptService, keyService, stateProvider);
 
-    const result = strategy.evaluator(null);
+        const evaluator$ = of(policies).pipe(strategy.toEvaluator());
+        const evaluator = await firstValueFrom(evaluator$);
 
-    expect(result).toBeInstanceOf(DefaultPolicyEvaluator);
+        expect(evaluator).toBeInstanceOf(DefaultPolicyEvaluator);
+      },
+    );
   });
 });

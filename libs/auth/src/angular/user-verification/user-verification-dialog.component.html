@@ -18,12 +18,12 @@
           {{ dialogOptions.bodyText | i18n }}
         </p>
 
-        <app-callout
+        <bit-callout
           *ngIf="dialogOptions.calloutOptions"
           [type]="dialogOptions.calloutOptions.type"
         >
           {{ dialogOptions.calloutOptions.text | i18n }}
-        </app-callout>
+        </bit-callout>
       </ng-container>
 
       <!-- Shown when client side verification methods picked and no verification methods found -->

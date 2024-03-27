@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "short_name": "__MSG_appName__",
-  "version": "2024.3.0",
+  "version": "2024.3.1",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -18,23 +18,24 @@
     {
       "all_frames": false,
       "js": ["content/content-message-handler.js"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "matches": ["*://*/*", "file:///*"],
+      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
     },
     {
       "all_frames": true,
-      "js": [
-        "content/trigger-autofill-script-injection.js",
-        "content/fido2/trigger-fido2-content-script-injection.js"
-      ],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "js": ["content/fido2/trigger-fido2-content-script-injection.js"],
+      "matches": ["https://*/*"],
+      "exclude_matches": ["https://*/*.xml*"],
       "run_at": "document_start"
     },
     {
       "all_frames": true,
       "css": ["content/autofill.css"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "run_at": "document_end"
+      "js": ["content/trigger-autofill-script-injection.js"],
+      "matches": ["*://*/*", "file:///*"],
+      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
+      "run_at": "document_start"
     },
     {
       "all_frames": false,
@@ -57,6 +58,7 @@
   },
   "permissions": [
     "<all_urls>",
+    "*://*/*",
     "tabs",
     "contextMenus",
     "storage",
@@ -64,8 +66,6 @@
     "clipboardRead",
     "clipboardWrite",
     "idle",
-    "http://*/*",
-    "https://*/*",
     "webRequest",
     "webRequestBlocking"
   ],

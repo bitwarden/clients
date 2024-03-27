@@ -1,5 +1,5 @@
-import { Directive } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { OnInit, Directive } from "@angular/core";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -11,12 +11,11 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { DialogService } from "@bitwarden/components";
 
 @Directive()
-export class PremiumComponent {
+export class PremiumComponent implements OnInit {
   isPremium$: Observable<boolean>;
   price = 10;
   refreshPromise: Promise<any>;
   cloudWebVaultUrl: string;
-  private directiveIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     protected i18nService: I18nService,
@@ -25,11 +24,14 @@ export class PremiumComponent {
     private logService: LogService,
     protected stateService: StateService,
     protected dialogService: DialogService,
-    environmentService: EnvironmentService,
+    private environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
-    this.cloudWebVaultUrl = environmentService.getCloudWebVaultUrl();
     this.isPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+  }
+
+  async ngOnInit() {
+    this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
   }
 
   async refresh() {

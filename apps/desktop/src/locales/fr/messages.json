@@ -448,7 +448,7 @@
     "message": "Rechercher dans la collection"
   },
   "searchFolder": {
-    "message": "Rechercher dans un dossier"
+    "message": "Rechercher dans le dossier"
   },
   "searchFavorites": {
     "message": "Rechercher parmi les favoris"
@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Activez une couche de sécurité supplémentaire en exigeant la validation de la phrase d'empreinte du compte lors de l'établissement d'un lien entre l'application et votre navigateur. Lorsque cette option est activée, cela nécessite une intervention et une vérification de l'utilisateur à chaque fois qu'une connexion est établie."
   },
+  "enableHardwareAcceleration": {
+    "message": "Utiliser l'accélération matérielle"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Ce paramètre est activé par défaut. Désactivez-le uniquement si vous rencontrez des problèmes graphiques. Redémarrage requis."
+  },
   "approve": {
     "message": "Accepter"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Connexion sur"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "auto-hébergé"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Formats communs",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Résolution de problèmes"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Désactiver l'accélération matérielle et redémarrer"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Activer l'accélération matérielle et redémarrer"
   }
 }

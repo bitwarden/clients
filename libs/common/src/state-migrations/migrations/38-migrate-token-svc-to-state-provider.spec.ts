@@ -124,65 +124,107 @@ describe("TokenServiceStateProviderMigrator", () => {
       sut = new TokenServiceStateProviderMigrator(37, 38);
     });
 
-    it("should remove state service data from all accounts that have it", async () => {
-      await sut.migrate(helper);
+    describe("Session storage", () => {
+      it("should remove state service data from all accounts that have it", async () => {
+        await sut.migrate(helper);
 
-      expect(helper.set).toHaveBeenCalledWith("user1", {
-        tokens: {
-          otherStuff: "overStuff2",
-        },
-        profile: {
-          email: "user1Email",
-          otherStuff: "overStuff3",
-        },
-        keys: {
-          otherStuff: "overStuff4",
-        },
-        otherStuff: "otherStuff5",
+        expect(helper.set).toHaveBeenCalledWith("user1", {
+          tokens: {
+            otherStuff: "overStuff2",
+          },
+          profile: {
+            email: "user1Email",
+            otherStuff: "overStuff3",
+          },
+          keys: {
+            otherStuff: "overStuff4",
+          },
+          otherStuff: "otherStuff5",
+        });
+
+        expect(helper.set).toHaveBeenCalledTimes(2);
+        expect(helper.set).not.toHaveBeenCalledWith("user2", any());
+        expect(helper.set).not.toHaveBeenCalledWith("user3", any());
       });
 
-      expect(helper.set).toHaveBeenCalledTimes(2);
-      expect(helper.set).not.toHaveBeenCalledWith("user2", any());
-      expect(helper.set).not.toHaveBeenCalledWith("user3", any());
+      it("should migrate data to state providers for defined accounts that have the data", async () => {
+        await sut.migrate(helper);
+
+        // Two factor Token Migration
+        expect(helper.setToGlobal).toHaveBeenLastCalledWith(
+          EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL,
+          {
+            user1Email: "twoFactorToken",
+            user2Email: "twoFactorToken",
+          },
+        );
+        expect(helper.setToGlobal).toHaveBeenCalledTimes(1);
+
+        expect(helper.setToUser).toHaveBeenCalledWith("user1", ACCESS_TOKEN_DISK, "accessToken");
+        expect(helper.setToUser).toHaveBeenCalledWith("user1", REFRESH_TOKEN_DISK, "refreshToken");
+        expect(helper.setToUser).toHaveBeenCalledWith(
+          "user1",
+          API_KEY_CLIENT_ID_DISK,
+          "apiKeyClientId",
+        );
+        expect(helper.setToUser).toHaveBeenCalledWith(
+          "user1",
+          API_KEY_CLIENT_SECRET_DISK,
+          "apiKeyClientSecret",
+        );
+
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user2", ACCESS_TOKEN_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user2", REFRESH_TOKEN_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user2", API_KEY_CLIENT_ID_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith(
+          "user2",
+          API_KEY_CLIENT_SECRET_DISK,
+          any(),
+        );
+
+        // Expect that we didn't migrate anything to user 3
+
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user3", ACCESS_TOKEN_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user3", REFRESH_TOKEN_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith("user3", API_KEY_CLIENT_ID_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalledWith(
+          "user3",
+          API_KEY_CLIENT_SECRET_DISK,
+          any(),
+        );
+      });
     });
+    describe("Local storage", () => {
+      beforeEach(() => {
+        helper = mockMigrationHelper(preMigrationJson(), 37, "web-disk-local");
+      });
+      it("should remove state service data from all accounts that have it", async () => {
+        await sut.migrate(helper);
 
-    it("should migrate data to state providers for defined accounts that have the data", async () => {
-      await sut.migrate(helper);
+        expect(helper.set).toHaveBeenCalledWith("user1", {
+          tokens: {
+            otherStuff: "overStuff2",
+          },
+          profile: {
+            email: "user1Email",
+            otherStuff: "overStuff3",
+          },
+          keys: {
+            otherStuff: "overStuff4",
+          },
+          otherStuff: "otherStuff5",
+        });
 
-      // Two factor Token Migration
-      expect(helper.setToGlobal).toHaveBeenLastCalledWith(
-        EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL,
-        {
-          user1Email: "twoFactorToken",
-          user2Email: "twoFactorToken",
-        },
-      );
-      expect(helper.setToGlobal).toHaveBeenCalledTimes(1);
+        expect(helper.set).toHaveBeenCalledTimes(2);
+        expect(helper.set).not.toHaveBeenCalledWith("user2", any());
+        expect(helper.set).not.toHaveBeenCalledWith("user3", any());
+      });
 
-      expect(helper.setToUser).toHaveBeenCalledWith("user1", ACCESS_TOKEN_DISK, "accessToken");
-      expect(helper.setToUser).toHaveBeenCalledWith("user1", REFRESH_TOKEN_DISK, "refreshToken");
-      expect(helper.setToUser).toHaveBeenCalledWith(
-        "user1",
-        API_KEY_CLIENT_ID_DISK,
-        "apiKeyClientId",
-      );
-      expect(helper.setToUser).toHaveBeenCalledWith(
-        "user1",
-        API_KEY_CLIENT_SECRET_DISK,
-        "apiKeyClientSecret",
-      );
+      it("should not migrate any data to local storage", async () => {
+        await sut.migrate(helper);
 
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user2", ACCESS_TOKEN_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user2", REFRESH_TOKEN_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user2", API_KEY_CLIENT_ID_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user2", API_KEY_CLIENT_SECRET_DISK, any());
-
-      // Expect that we didn't migrate anything to user 3
-
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user3", ACCESS_TOKEN_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user3", REFRESH_TOKEN_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user3", API_KEY_CLIENT_ID_DISK, any());
-      expect(helper.setToUser).not.toHaveBeenCalledWith("user3", API_KEY_CLIENT_SECRET_DISK, any());
+        expect(helper.setToUser).not.toHaveBeenCalled();
+      });
     });
   });
 

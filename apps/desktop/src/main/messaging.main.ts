@@ -6,6 +6,7 @@ import { app, ipcMain } from "electron";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { Main } from "../main";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -17,19 +18,16 @@ export class MessagingMain {
   constructor(
     private main: Main,
     private stateService: StateService,
+    private desktopSettingsService: DesktopSettingsService,
   ) {}
 
-  init() {
+  async init() {
     this.scheduleNextSync();
     if (process.platform === "linux") {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.stateService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+      await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
     } else {
       const loginSettings = app.getLoginItemSettings();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.stateService.setOpenAtLogin(loginSettings.openAtLogin);
+      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
     }
     ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
   }
@@ -79,14 +77,10 @@ export class MessagingMain {
         break;
       case "enableBrowserIntegration":
         this.main.nativeMessagingMain.generateManifests();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.nativeMessagingMain.listen();
         break;
       case "enableDuckDuckGoBrowserIntegration":
         this.main.nativeMessagingMain.generateDdgManifests();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.nativeMessagingMain.listen();
         break;
       case "disableBrowserIntegration":

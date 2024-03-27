@@ -1644,6 +1644,12 @@
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Paranna tietoturvaa vaatimalla työpöytäsovelluksen ja selainlaajennuksen kytköksen todennus tunnistelausekkeella. Tämä vaatii aina yhteyden muodostuessa vahvistuksen käyttäjältä."
   },
+  "enableHardwareAcceleration": {
+    "message": "Käytä laitteistokiihdytystä"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Asetus on oletusarvoisesti käytössä. Poista käytöstä vain, jos havaitset graafisia ongelmia. Muutos vaatii sovelluksen uudelleenkäynnistyksen."
+  },
   "approve": {
     "message": "Salli"
   },
@@ -2340,12 +2346,6 @@
   "loggingInOn": {
     "message": "Kirjaudutaan sijaintiin"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "itse ylläpidetty"
   },
@@ -2687,5 +2687,14 @@
   "commonImportFormats": {
     "message": "Yleiset muodot",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disable hardware acceleration and restart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Enable hardware acceleration and restart"
   }
 }

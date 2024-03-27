@@ -2,9 +2,9 @@
   <div class="content">
     <div class="inner-content" *ngIf="cipher">
       <div class="box">
-        <app-callout type="info" *ngIf="allowOwnershipOptions() && !allowPersonal">
+        <bit-callout type="info" *ngIf="allowOwnershipOptions() && !allowPersonal">
           {{ "personalOwnershipPolicyInEffect" | i18n }}
-        </app-callout>
+        </bit-callout>
         <h2 class="box-header">
           {{ title }}
         </h2>

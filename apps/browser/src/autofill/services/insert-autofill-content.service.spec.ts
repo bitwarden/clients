@@ -553,16 +553,29 @@ describe("InsertAutofillContentService", () => {
         insertAutofillContentService as any,
         "simulateUserMouseClickAndFocusEventInteractions",
       );
+      jest.spyOn(targetInput, "blur");
 
       insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
       ).toBeCalledWith("__0");
+      expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
       ).toHaveBeenCalledWith(targetInput, true);
       expect(elementEventCount).toEqual(expectedElementEventCount);
+    });
+
+    it("blurs the element if it is currently the active element before simulating click and focus events", () => {
+      const targetInput = document.querySelector('input[type="text"]') as FormElementWithAttribute;
+      targetInput.opid = "__0";
+      targetInput.focus();
+      jest.spyOn(targetInput, "blur");
+
+      insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
+
+      expect(targetInput.blur).toHaveBeenCalled();
     });
   });
 
@@ -710,7 +723,7 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("triggerPostInsertEventsOnElement", () => {
-    it("triggers simulated event interactions and blurs the element after", () => {
+    it("triggers simulated event interactions", () => {
       const elementValue = "test";
       document.body.innerHTML = `<input type="text" id="username" value="${elementValue}"/>`;
       const element = document.getElementById("username") as FillableFormFieldElement;
@@ -726,7 +739,6 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["simulateInputElementChangedEvent"]).toHaveBeenCalledWith(
         element,
       );
-      expect(element.blur).toHaveBeenCalled();
       expect(element.value).toBe(elementValue);
     });
   });

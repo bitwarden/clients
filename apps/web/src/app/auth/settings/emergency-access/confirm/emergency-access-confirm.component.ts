@@ -3,9 +3,9 @@ import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 
@@ -36,7 +36,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
     private formBuilder: FormBuilder,
     private apiService: ApiService,
     private cryptoService: CryptoService,
-    private stateService: StateService,
+    protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessConfirmDialogResult>,
   ) {}
@@ -63,7 +63,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
     }
 
     if (this.confirmForm.get("dontAskAgain").value) {
-      await this.stateService.setAutoConfirmFingerprints(true);
+      await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
 
     try {

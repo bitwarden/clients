@@ -23,7 +23,7 @@ const DefaultOptions: PasswordGeneratorOptions = {
   lowercase: true,
   minLowercase: 0,
   special: false,
-  minSpecial: 1,
+  minSpecial: 0,
   type: "password",
   numWords: 3,
   wordSeparator: "-",

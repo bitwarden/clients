@@ -1,7 +1,8 @@
-import { shell, MenuItemConstructorOptions } from "electron";
+import { shell, MenuItemConstructorOptions, app } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { isMacAppStore, isWindowsStore } from "../../utils";
 
 import { AboutMenu } from "./menu.about";
@@ -26,23 +27,23 @@ export class HelpMenu implements IMenubarMenu {
       this.separator,
       this.getMobileApp,
       this.getBrowserExtension,
+      this.separator,
+      this.troubleshooting,
     ];
 
-    if (this._aboutMenu != null) {
-      items.push(...this._aboutMenu.items);
+    if (this.aboutMenu != null) {
+      items.push(...this.aboutMenu.items);
     }
     return items;
   }
 
-  private readonly _i18nService: I18nService;
-  private readonly _webVaultUrl: string;
-  private readonly _aboutMenu: AboutMenu;
-
-  constructor(i18nService: I18nService, webVaultUrl: string, aboutMenu: AboutMenu) {
-    this._i18nService = i18nService;
-    this._webVaultUrl = webVaultUrl;
-    this._aboutMenu = aboutMenu;
-  }
+  constructor(
+    private i18nService: I18nService,
+    private desktopSettingsService: DesktopSettingsService,
+    private webVaultUrl: string,
+    private hardwareAccelerationEnabled: boolean,
+    private aboutMenu: AboutMenu,
+  ) {}
 
   private get helpAndFeedback(): MenuItemConstructorOptions {
     return {
@@ -130,7 +131,7 @@ export class HelpMenu implements IMenubarMenu {
     return {
       id: "goToWebVault",
       label: this.localize("goToWebVault"),
-      click: () => shell.openExternal(this._webVaultUrl),
+      click: () => shell.openExternal(this.webVaultUrl),
     };
   }
 
@@ -148,25 +149,19 @@ export class HelpMenu implements IMenubarMenu {
       {
         id: "iOS",
         label: "iOS",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://itunes.apple.com/app/" + "bitwarden-free-password-manager/id1137397744?mt=8",
-          );
-        },
+          ),
       },
       {
         id: "android",
         label: "Android",
         visible: !isMacAppStore(), // Apple Guideline 2.3.10 - Accurate Metadata
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://play.google.com/store/apps/" + "details?id=com.x8bit.bitwarden",
-          );
-        },
+          ),
       },
     ];
   }
@@ -185,62 +180,78 @@ export class HelpMenu implements IMenubarMenu {
       {
         id: "chrome",
         label: "Chrome",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://chromewebstore.google.com/detail/" +
               "bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb",
-          );
-        },
+          ),
       },
       {
         id: "firefox",
         label: "Firefox",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://addons.mozilla.org/firefox/addon/" + "bitwarden-password-manager/",
-          );
-        },
+          ),
       },
       {
         id: "firefox",
         label: "Opera",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://addons.opera.com/extensions/details/" + "bitwarden-free-password-manager/",
-          );
-        },
+          ),
       },
       {
         id: "firefox",
         label: "Edge",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        click: () =>
           shell.openExternal(
             "https://microsoftedge.microsoft.com/addons/" +
               "detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
-          );
-        },
+          ),
       },
       {
         id: "safari",
         label: "Safari",
-        click: () => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          shell.openExternal("https://bitwarden.com/download/");
+        click: () => shell.openExternal("https://bitwarden.com/download/"),
+      },
+    ];
+  }
+
+  private get troubleshooting(): MenuItemConstructorOptions {
+    return {
+      id: "troubleshooting",
+      label: this.localize("troubleshooting"),
+      submenu: this.troubleshootingSubmenu,
+    };
+  }
+
+  private get troubleshootingSubmenu(): MenuItemConstructorOptions[] {
+    return [
+      {
+        id: "hardwareAcceleration",
+        label: this.localize(
+          this.hardwareAccelerationEnabled
+            ? "disableHardwareAccelerationRestart"
+            : "enableHardwareAccelerationRestart",
+        ),
+        click: async () => {
+          await this.desktopSettingsService.setHardwareAcceleration(
+            !this.hardwareAccelerationEnabled,
+          );
+          // `app.relaunch` crashes the app on Mac Store builds. Disabling it for now.
+          // https://github.com/electron/electron/issues/41690
+          if (!isMacAppStore()) {
+            app.relaunch();
+          }
+          app.exit();
         },
       },
     ];
   }
 
   private localize(s: string) {
-    return this._i18nService.t(s);
+    return this.i18nService.t(s);
   }
 }

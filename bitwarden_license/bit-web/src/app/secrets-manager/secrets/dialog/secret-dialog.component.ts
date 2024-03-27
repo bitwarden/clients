@@ -87,7 +87,7 @@ export class SecretDialogComponent implements OnInit {
       this.formGroup.get("project").setValue(this.data.projectId);
     }
 
-    if (this.organizationService.get(this.data.organizationId)?.isAdmin) {
+    if ((await this.organizationService.get(this.data.organizationId))?.isAdmin) {
       this.formGroup.get("project").removeValidators(Validators.required);
       this.formGroup.get("project").updateValueAndValidity();
     }
