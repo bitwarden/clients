@@ -23,6 +23,8 @@
       route="settings"
       *ngIf="showSettingsTab"
     ></bit-nav-item>
+
+    <app-toggle-width></app-toggle-width>
   </nav>
   <app-payment-method-warnings
     *ngIf="showPaymentMethodWarningBanners$ | async"

@@ -17,6 +17,7 @@ import { IconModule, LayoutComponent, NavigationModule } from "@bitwarden/compon
 import { PaymentMethodWarningsModule } from "../billing/shared";
 
 import { PasswordManagerLogo } from "./password-manager-logo";
+import { ToggleWidthComponent } from "./toggle-width.component";
 
 const BroadcasterSubscriptionId = "UserLayoutComponent";
 
@@ -32,6 +33,7 @@ const BroadcasterSubscriptionId = "UserLayoutComponent";
     IconModule,
     NavigationModule,
     PaymentMethodWarningsModule,
+    ToggleWidthComponent,
   ],
 })
 export class UserLayoutComponent implements OnInit, OnDestroy {

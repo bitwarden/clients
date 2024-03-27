@@ -23,6 +23,7 @@ import { BannerModule, IconModule, LayoutComponent, NavigationModule } from "@bi
 
 import { PaymentMethodWarningsModule } from "../../../billing/shared";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
+import { ToggleWidthComponent } from "../../../layouts/toggle-width.component";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 
 @Component({
@@ -39,6 +40,7 @@ import { AdminConsoleLogo } from "../../icons/admin-console-logo";
     OrgSwitcherComponent,
     BannerModule,
     PaymentMethodWarningsModule,
+    ToggleWidthComponent,
   ],
 })
 export class OrganizationLayoutComponent implements OnInit, OnDestroy {

@@ -105,6 +105,8 @@
         *ngIf="organization.canManageScim"
       ></bit-nav-item>
     </bit-nav-group>
+
+    <app-toggle-width></app-toggle-width>
   </nav>
 
   <ng-container *ngIf="organization$ | async as organization">
