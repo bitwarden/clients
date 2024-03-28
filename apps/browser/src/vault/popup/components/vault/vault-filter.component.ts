@@ -20,7 +20,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { BrowserGroupingsComponentState } from "../../../../models/browserGroupingsComponentState";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
-import { BrowserStateService } from "../../../../platform/services/abstractions/browser-state.service";
+import { VaultBrowserStateService } from "../../../services/vault-browser-state.service";
 import { VaultFilterService } from "../../../services/vault-filter.service";
 
 const ComponentId = "VaultComponent";
@@ -84,8 +84,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private searchService: SearchService,
     private location: Location,
-    private browserStateService: BrowserStateService,
     private vaultFilterService: VaultFilterService,
+    private vaultBrowserStateService: VaultBrowserStateService,
   ) {
     this.noFolderListSize = 100;
   }
@@ -95,7 +95,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.showLeftHeader = !(
       BrowserPopupUtils.inSidebar(window) && this.platformUtilsService.isFirefox()
     );
-    await this.browserStateService.setBrowserVaultItemsComponentState(null);
+    await this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null);
 
     this.broadcasterService.subscribe(ComponentId, (message: any) => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -120,7 +120,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const restoredScopeState = await this.restoreState();
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
-      this.state = await this.browserStateService.getBrowserGroupingComponentState();
+      this.state = await this.vaultBrowserStateService.getBrowserGroupingsComponentState();
       if (this.state?.searchText) {
         this.searchText = this.state.searchText;
       } else if (params.searchText) {
@@ -413,11 +413,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       collections: this.collections,
       deletedCount: this.deletedCount,
     });
-    await this.browserStateService.setBrowserGroupingComponentState(this.state);
+    await this.vaultBrowserStateService.setBrowserGroupingsComponentState(this.state);
   }
 
   private async restoreState(): Promise<boolean> {
-    this.state = await this.browserStateService.getBrowserGroupingComponentState();
+    this.state = await this.vaultBrowserStateService.getBrowserGroupingsComponentState();
     if (this.state == null) {
       return false;
     }
