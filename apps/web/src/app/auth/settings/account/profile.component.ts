@@ -1,7 +1,6 @@
-import { ViewChild, ViewContainerRef, Component, OnDestroy, OnInit } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { lastValueFrom } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
@@ -9,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService } from "@bitwarden/components";
 
 import { ChangeAvatarComponent } from "./change-avatar.component";
 
@@ -16,15 +16,12 @@ import { ChangeAvatarComponent } from "./change-avatar.component";
   selector: "app-profile",
   templateUrl: "profile.component.html",
 })
-export class ProfileComponent implements OnInit, OnDestroy {
+export class ProfileComponent implements OnInit {
   loading = true;
   profile: ProfileResponse;
   fingerprintMaterial: string;
 
   formPromise: Promise<any>;
-  @ViewChild("avatarModalTemplate", { read: ViewContainerRef, static: true })
-  avatarModalRef: ViewContainerRef;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private apiService: ApiService,
@@ -32,7 +29,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private stateService: StateService,
-    private modalService: ModalService,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -41,22 +38,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.fingerprintMaterial = await this.stateService.getUserId();
   }
 
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   async openChangeAvatar() {
-    const modalOpened = await this.modalService.openViewRef(
-      ChangeAvatarComponent,
-      this.avatarModalRef,
-      (modal) => {
-        modal.profile = this.profile;
-        modal.changeColor.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modalOpened[0].close();
-        });
-      },
-    );
+    const dialogRef = ChangeAvatarComponent.openChangeAvatarDialog(this.dialogService, {
+      data: { profile: this.profile },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    return result;
   }
 
   async submit() {

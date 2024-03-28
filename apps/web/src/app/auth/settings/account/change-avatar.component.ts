@@ -1,11 +1,10 @@
+import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
+  Inject,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
@@ -14,9 +13,18 @@ import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } fro
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
+
+interface ChangeAvatarDialogData {
+  profile: ProfileResponse;
+}
+
+enum ChangeAvatarDialogResult {
+  ColorChange = "changeColor",
+  Saved = "saved",
+}
 
 @Component({
   selector: "app-change-avatar",
@@ -24,10 +32,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
   encapsulation: ViewEncapsulation.None,
 })
 export class ChangeAvatarComponent implements OnInit, OnDestroy {
-  @Input() profile: ProfileResponse;
-
-  @Output() changeColor: EventEmitter<string | null> = new EventEmitter();
-  @Output() onSaved = new EventEmitter();
+  profile: ProfileResponse;
 
   @ViewChild("colorPicker") colorPickerElement: ElementRef<HTMLElement>;
 
@@ -52,11 +57,14 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
+    @Inject(DIALOG_DATA) protected data: ChangeAvatarDialogData,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private logService: LogService,
     private avatarService: AvatarService,
-  ) {}
+    private dialogRef: DialogRef,
+  ) {
+    this.profile = data.profile;
+  }
 
   async ngOnInit() {
     //localize the default colors
@@ -88,20 +96,15 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
     Utils.stringToColor(this.profile.name.toString());
   }
 
-  async submit() {
-    try {
-      if (Utils.validateHexColor(this.currentSelection) || this.currentSelection == null) {
-        await this.avatarService.setAvatarColor(this.currentSelection);
-        this.changeColor.emit(this.currentSelection);
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("avatarUpdated"));
-      } else {
-        this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
-      }
-    } catch (e) {
-      this.logService.error(e);
+  submit = async () => {
+    if (Utils.validateHexColor(this.currentSelection) || this.currentSelection == null) {
+      await this.avatarService.setAvatarColor(this.currentSelection);
+      this.dialogRef.close(ChangeAvatarDialogResult.ColorChange);
+      this.platformUtilsService.showToast("success", null, this.i18nService.t("avatarUpdated"));
+    } else {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }
-  }
+  };
 
   async ngOnDestroy() {
     this.destroy$.next();
@@ -130,6 +133,13 @@ export class ChangeAvatarComponent implements OnInit, OnDestroy {
         this.customColor$.next(color);
       }
     }
+  }
+
+  static openChangeAvatarDialog(
+    dialogService: DialogService,
+    config: DialogConfig<ChangeAvatarDialogData>,
+  ) {
+    return dialogService.open<ChangeAvatarDialogResult>(ChangeAvatarComponent, config);
   }
 }
 
