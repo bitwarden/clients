@@ -230,6 +230,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return (
       this.sub.planType === PlanType.EnterpriseAnnually ||
       this.sub.planType === PlanType.EnterpriseMonthly ||
+      this.sub.planType === PlanType.EnterpriseAnnually2023 ||
+      this.sub.planType === PlanType.EnterpriseMonthly2023 ||
       this.sub.planType === PlanType.EnterpriseAnnually2020 ||
       this.sub.planType === PlanType.EnterpriseMonthly2020 ||
       this.sub.planType === PlanType.EnterpriseAnnually2019 ||
@@ -243,6 +245,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     } else if (
       this.sub.planType === PlanType.FamiliesAnnually ||
       this.sub.planType === PlanType.FamiliesAnnually2019 ||
+      this.sub.planType === PlanType.TeamsStarter2023 ||
       this.sub.planType === PlanType.TeamsStarter
     ) {
       if (this.isSponsoredSubscription) {

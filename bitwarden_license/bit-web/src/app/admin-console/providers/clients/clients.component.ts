@@ -27,6 +27,7 @@ const DisallowedPlanTypes = [
   PlanType.Free,
   PlanType.FamiliesAnnually2019,
   PlanType.FamiliesAnnually,
+  PlanType.TeamsStarter2023,
   PlanType.TeamsStarter,
 ];
 
