@@ -4,7 +4,7 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { AddCreditComponent } from "./add-credit.component";
-import { AdjustPaymentComponent } from "./adjust-payment.component";
+import { AdjustPaymentDialogComponent } from "./adjust-payment-dialog.component";
 import { AdjustStorageComponent } from "./adjust-storage.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
@@ -18,7 +18,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
   imports: [SharedModule, PaymentComponent, TaxInfoComponent, HeaderModule],
   declarations: [
     AddCreditComponent,
-    AdjustPaymentComponent,
+    AdjustPaymentDialogComponent,
     AdjustStorageComponent,
     BillingHistoryComponent,
     PaymentMethodComponent,

@@ -15,7 +15,7 @@
 
 <bit-container>
   <div class="tabbed-header" *ngIf="!organizationId">
-    <!-- TODO: Organization and individual should use different "page" components -->
+    <!--TODO: Organization and individual should use different "page" components -->
     <h1>{{ "paymentMethod" | i18n }}</h1>
   </div>
 
@@ -102,23 +102,9 @@
         {{ paymentSource.description }}
       </p>
     </ng-container>
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      (click)="changePayment()"
-      *ngIf="!showAdjustPayment"
-    >
+    <button type="button" bitButton buttonType="secondary" [bitAction]="changePayment">
       {{ (paymentSource ? "changePaymentMethod" : "addPaymentMethod") | i18n }}
     </button>
-    <app-adjust-payment
-      [organizationId]="organizationId"
-      [currentType]="paymentSource != null ? paymentSource.type : null"
-      (onAdjusted)="closePayment(true)"
-      (onCanceled)="closePayment(false)"
-      *ngIf="showAdjustPayment"
-    >
-    </app-adjust-payment>
     <p *ngIf="isUnpaid">{{ "paymentChargedWithUnpaidSubscription" | i18n }}</p>
     <ng-container *ngIf="forOrganization">
       <h2 class="spaced-header">{{ "taxInformation" | i18n }}</h2>
