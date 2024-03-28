@@ -65,7 +65,7 @@ export class ServiceAccountEventsComponent extends BaseEventsComponent implement
 
   protected getUserName() {
     return {
-      name: this.i18nService.t("serviceAccount") + " " + this.serviceAccountId,
+      name: this.i18nService.t("machineAccount") + " " + this.serviceAccountId,
       email: "",
     };
   }

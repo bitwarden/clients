@@ -43,14 +43,14 @@ export class ServiceAccountDeleteDialogComponent {
 
   get title() {
     return this.data.serviceAccounts.length === 1
-      ? this.i18nService.t("deleteServiceAccount")
-      : this.i18nService.t("deleteServiceAccounts");
+      ? this.i18nService.t("deleteMachineAccount")
+      : this.i18nService.t("deleteMachineAccounts");
   }
 
   get dialogContent() {
     return this.data.serviceAccounts.length === 1
-      ? this.i18nService.t("deleteServiceAccountDialogMessage", this.data.serviceAccounts[0].name)
-      : this.i18nService.t("deleteServiceAccountsDialogMessage");
+      ? this.i18nService.t("deleteMachineAccountDialogMessage", this.data.serviceAccounts[0].name)
+      : this.i18nService.t("deleteMachineAccountsDialogMessage");
   }
 
   get dialogConfirmationLabel() {
@@ -79,17 +79,17 @@ export class ServiceAccountDeleteDialogComponent {
 
     const message =
       this.data.serviceAccounts.length === 1
-        ? "deleteServiceAccountToast"
-        : "deleteServiceAccountsToast";
+        ? "deleteMachineAccountToast"
+        : "deleteMachineAccountsToast";
     this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
   }
 
   openBulkStatusDialog(bulkStatusResults: BulkOperationStatus[]) {
     this.dialogService.open<unknown, BulkStatusDetails>(BulkStatusDialogComponent, {
       data: {
-        title: "deleteServiceAccounts",
-        subTitle: "serviceAccounts",
-        columnTitle: "serviceAccountName",
+        title: "deleteMachineAccounts",
+        subTitle: "machineAccounts",
+        columnTitle: "machineAccountName",
         message: "bulkDeleteProjectsErrorMessage",
         details: bulkStatusResults,
       },
@@ -100,7 +100,7 @@ export class ServiceAccountDeleteDialogComponent {
     return this.data.serviceAccounts?.length === 1
       ? this.i18nService.t("deleteProjectConfirmMessage", this.data.serviceAccounts[0].name)
       : this.i18nService.t(
-          "deleteServiceAccountsConfirmMessage",
+          "deleteMachineAccountsConfirmMessage",
           this.data.serviceAccounts?.length.toString(),
         );
   }

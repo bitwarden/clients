@@ -39,7 +39,7 @@ const Template: Story = (args) => ({
   template: `
     <app-onboarding title="Get started">
       <app-onboarding-task
-        [title]="'createServiceAccount' | i18n"
+        [title]="'createMachineAccount' | i18n"
         icon="bwi-cli"
         [completed]="createServiceAccount"
       >

@@ -20,10 +20,10 @@
         <ng-template #unlimitedProjects>
           <li>{{ "unlimitedProjects" | i18n }}</li>
         </ng-template>
-        <li>{{ "serviceAccountsIncluded" | i18n: serviceAccountsIncluded }}</li>
+        <li>{{ "machineAccountsIncluded" | i18n: serviceAccountsIncluded }}</li>
         <li *ngIf="product != productTypes.Free">
           {{
-            "additionalServiceAccountCost" | i18n: (monthlyCostPerServiceAccount | currency: "$")
+            "additionalMachineAccountCost" | i18n: (monthlyCostPerServiceAccount | currency: "$")
           }}
         </li>
       </ul>
@@ -54,12 +54,12 @@
       </div>
       <div *ngIf="selectedPlan.SecretsManager.hasAdditionalServiceAccountOption" class="tw-w-1/2">
         <bit-form-field>
-          <bit-label>{{ "additionalServiceAccounts" | i18n }}</bit-label>
+          <bit-label>{{ "additionalMachineAccounts" | i18n }}</bit-label>
           <input bitInput formControlName="additionalServiceAccounts" type="number" />
           <bit-hint>
-            {{ "includedServiceAccounts" | i18n: serviceAccountsIncluded }}
+            {{ "includedMachineAccounts" | i18n: serviceAccountsIncluded }}
             {{
-              "addAdditionalServiceAccounts" | i18n: (monthlyCostPerServiceAccount | currency: "$")
+              "addAdditionalMachineAccounts" | i18n: (monthlyCostPerServiceAccount | currency: "$")
             }}
           </bit-hint>
         </bit-form-field>

@@ -33,7 +33,7 @@
     </bit-hint>
   </bit-form-field>
   <bit-form-field class="tw-w-2/3">
-    <bit-label>{{ "additionalServiceAccounts" | i18n }}</bit-label>
+    <bit-label>{{ "additionalMachineAccounts" | i18n }}</bit-label>
     <input
       bitInput
       id="additionalServiceAccountCount"
@@ -44,8 +44,8 @@
     />
     <bit-hint>
       <div>
-        {{ "includedServiceAccounts" | i18n: options.baseServiceAccountCount }}
-        {{ "addAdditionalServiceAccounts" | i18n: (monthlyServiceAccountPrice | currency: "$") }}
+        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
+        {{ "addAdditionalMachineAccounts" | i18n: (monthlyServiceAccountPrice | currency: "$") }}
       </div>
       <div>
         <strong>{{ "total" | i18n }}:</strong>
@@ -56,7 +56,7 @@
     </bit-hint>
   </bit-form-field>
   <bit-form-control>
-    <bit-label>{{ "limitServiceAccounts" | i18n }}</bit-label>
+    <bit-label>{{ "limitMachineAccounts" | i18n }}</bit-label>
     <input
       type="checkbox"
       bitCheckbox
@@ -64,11 +64,11 @@
       formControlName="limitServiceAccounts"
     />
     <bit-hint>
-      {{ "limitServiceAccountsDesc" | i18n }}
+      {{ "limitMachineAccountsDesc" | i18n }}
     </bit-hint>
   </bit-form-control>
   <bit-form-field class="tw-w-2/3" *ngIf="formGroup.value.limitServiceAccounts">
-    <bit-label>{{ "serviceAccountLimit" | i18n }}</bit-label>
+    <bit-label>{{ "machineAccountLimit" | i18n }}</bit-label>
     <input
       bitInput
       id="additionalServiceAccountLimit"
@@ -79,9 +79,9 @@
     />
     <bit-hint>
       <div>
-        {{ "includedServiceAccounts" | i18n: options.baseServiceAccountCount }}
+        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
       </div>
-      <strong>{{ "maxServiceAccountCost" | i18n }}:</strong>
+      <strong>{{ "maxMachineAccountCost" | i18n }}:</strong>
       {{ maxAdditionalServiceAccounts }} &times;
       {{ options.additionalServiceAccountPrice | currency: "$" }} =
       {{ maxServiceAccountTotalCost | currency: "$" }} / {{ options.interval | i18n }}

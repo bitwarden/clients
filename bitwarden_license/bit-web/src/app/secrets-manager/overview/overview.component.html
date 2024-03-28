@@ -5,7 +5,7 @@
 <div *ngIf="!loading && view$ | async as view; else spinner">
   <app-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
     <app-onboarding-task
-      [title]="'createServiceAccount' | i18n"
+      [title]="'createMachineAccount' | i18n"
       (click)="openServiceAccountDialog()"
       icon="bwi-cli"
       [completed]="view.tasks.createServiceAccount"

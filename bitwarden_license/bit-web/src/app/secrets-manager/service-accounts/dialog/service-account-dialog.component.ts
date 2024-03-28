@@ -69,7 +69,7 @@ export class ServiceAccountDialogComponent {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("serviceAccountsCannotCreate"),
+        this.i18nService.t("machineAccountsCannotCreate"),
       );
       return;
     }
@@ -85,14 +85,14 @@ export class ServiceAccountDialogComponent {
 
     if (this.data.operation == OperationType.Add) {
       await this.serviceAccountService.create(this.data.organizationId, serviceAccountView);
-      serviceAccountMessage = this.i18nService.t("serviceAccountCreated");
+      serviceAccountMessage = this.i18nService.t("machineAccountCreated");
     } else {
       await this.serviceAccountService.update(
         this.data.serviceAccountId,
         this.data.organizationId,
         serviceAccountView,
       );
-      serviceAccountMessage = this.i18nService.t("serviceAccountUpdated");
+      serviceAccountMessage = this.i18nService.t("machineAccountUpdated");
     }
 
     this.platformUtilsService.showToast("success", null, serviceAccountMessage);
@@ -107,6 +107,6 @@ export class ServiceAccountDialogComponent {
   }
 
   get title() {
-    return this.data.operation === OperationType.Add ? "newServiceAccount" : "editServiceAccount";
+    return this.data.operation === OperationType.Add ? "newMachineAccount" : "editMachineAccount";
   }
 }

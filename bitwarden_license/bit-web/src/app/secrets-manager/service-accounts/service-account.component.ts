@@ -49,7 +49,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
         this.platformUtilsService.showToast(
           "error",
           null,
-          this.i18nService.t("notFound", this.i18nService.t("serviceAccount")),
+          this.i18nService.t("notFound", this.i18nService.t("machineAccount")),
         );
       });
       return EMPTY;
