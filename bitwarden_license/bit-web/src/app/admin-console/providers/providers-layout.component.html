@@ -4,7 +4,11 @@
       <bit-icon [icon]="logo"></bit-icon>
     </a>
 
-    <bit-nav-item icon="bwi-bank" [text]="'clients' | i18n" route="clients"></bit-nav-item>
+    <bit-nav-item
+      icon="bwi-bank"
+      [text]="'clients' | i18n"
+      [route]="(enableConsolidatedBilling$ | async) ? 'manage-client-organizations' : 'clients'"
+    ></bit-nav-item>
     <bit-nav-group icon="bwi-sliders" [text]="'manage' | i18n" route="manage" *ngIf="showManageTab">
       <bit-nav-item
         [text]="'people' | i18n"

@@ -9,6 +9,7 @@ import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layou
 
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
+import { ManageClientOrganizationsComponent } from "./clients/manage-client-organizations.component";
 import { ProviderPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
@@ -64,6 +65,11 @@ const routes: Routes = [
           { path: "", pathMatch: "full", redirectTo: "clients" },
           { path: "clients/create", component: CreateOrganizationComponent },
           { path: "clients", component: ClientsComponent, data: { titleId: "clients" } },
+          {
+            path: "manage-client-organizations",
+            component: ManageClientOrganizationsComponent,
+            data: { titleId: "manage-client-organizations" },
+          },
           {
             path: "manage",
             children: [

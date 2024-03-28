@@ -37,6 +37,11 @@ export class ProvidersLayoutComponent {
     false,
   );
 
+  protected enableConsolidatedBilling$ = this.configService.getFeatureFlag$(
+    FeatureFlag.EnableConsolidatedBilling,
+    false,
+  );
+
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,

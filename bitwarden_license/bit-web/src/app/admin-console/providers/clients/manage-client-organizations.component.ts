@@ -1,48 +1,39 @@
+import { SelectionModel } from "@angular/cdk/collections";
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
-import { PlanType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, TableDataSource } from "@bitwarden/components";
 
 import { WebProviderService } from "../services/web-provider.service";
 
-import { AddOrganizationComponent } from "./add-organization.component";
-
-const DisallowedPlanTypes = [
-  PlanType.Free,
-  PlanType.FamiliesAnnually2019,
-  PlanType.FamiliesAnnually,
-  PlanType.TeamsStarter,
-];
+import { ManageClientOrganizationSubscriptionComponent } from "./manage-client-organization-subscription.component";
 
 @Component({
-  templateUrl: "clients.component.html",
+  templateUrl: "manage-client-organizations.component.html",
 })
+
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ClientsComponent implements OnInit {
+export class ManageClientOrganizationsComponent implements OnInit {
   providerId: string;
-  searchText: string;
-  addableOrganizations: Organization[];
+  assignedSeats: number;
+  unassignedSeats: number;
   loading = true;
   manageOrganizations = false;
-  showAddExisting = false;
+
+  set searchText(search: string) {
+    this.selection.clear();
+    this.dataSource.filter = search;
+  }
 
   clients: ProviderOrganizationOrganizationDetailsResponse[];
   pagedClients: ProviderOrganizationOrganizationDetailsResponse[];
@@ -51,15 +42,11 @@ export class ClientsComponent implements OnInit {
   protected pageSize = 100;
   protected actionPromise: Promise<unknown>;
   private pagedClientsCount = 0;
-
-  protected enableConsolidatedBilling$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableConsolidatedBilling,
-    false,
-  );
+  selection = new SelectionModel<string>(true, []);
+  protected dataSource = new TableDataSource<ProviderOrganizationOrganizationDetailsResponse>();
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private providerService: ProviderService,
     private apiService: ApiService,
     private searchService: SearchService,
@@ -67,53 +54,47 @@ export class ClientsComponent implements OnInit {
     private i18nService: I18nService,
     private validationService: ValidationService,
     private webProviderService: WebProviderService,
-    private logService: LogService,
-    private modalService: ModalService,
-    private organizationService: OrganizationService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
+    this.route.parent.params.subscribe(async (params) => {
+      this.providerId = params.providerId;
 
-    const enableConsolidatedBilling = await firstValueFrom(this.enableConsolidatedBilling$);
+      await this.load();
 
-    if (enableConsolidatedBilling) {
-      await this.router.navigate(["../manage-client-organizations"], { relativeTo: this.route });
-    } else {
-      // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-      this.route.parent.params.subscribe(async (params) => {
-        this.providerId = params.providerId;
-
-        await this.load();
-
-        /* eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe, rxjs/no-nested-subscribe */
-        this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-          this.searchText = qParams.search;
-        });
+      /* eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe, rxjs/no-nested-subscribe */
+      this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
+        this.searchText = qParams.search;
       });
-    }
+    });
   }
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
     this.clients = response.data != null && response.data.length > 0 ? response.data : [];
+    this.dataSource.data = this.clients;
     this.manageOrganizations =
       (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
-    const candidateOrgs = (await this.organizationService.getAll()).filter(
-      (o) => o.isOwner && o.providerId == null,
-    );
-    const allowedOrgsIds = await Promise.all(
-      candidateOrgs.map((o) => this.organizationApiService.get(o.id)),
-    ).then((orgs) =>
-      orgs.filter((o) => !DisallowedPlanTypes.includes(o.planType)).map((o) => o.id),
-    );
-    this.addableOrganizations = candidateOrgs.filter((o) => allowedOrgsIds.includes(o.id));
 
-    this.showAddExisting = this.addableOrganizations.length !== 0;
     this.loading = false;
+  }
+
+  getProviderAssignedSeats(clients: ProviderOrganizationOrganizationDetailsResponse[]) {
+    this.assignedSeats = clients.reduce(
+      (total: number, client: ProviderOrganizationOrganizationDetailsResponse) =>
+        total + client.seats,
+      0,
+    );
+  }
+
+  getProviderUnassignedSeats(clients: ProviderOrganizationOrganizationDetailsResponse[]) {
+    this.unassignedSeats = clients.reduce(
+      (total: number, client: ProviderOrganizationOrganizationDetailsResponse) =>
+        total + client.userCount,
+      0,
+    );
   }
 
   isPaging() {
@@ -153,15 +134,23 @@ export class ClientsComponent implements OnInit {
     this.didScroll = this.pagedClients.length > this.pageSize;
   }
 
-  async addExistingOrganization() {
-    const dialogRef = AddOrganizationComponent.open(this.dialogService, {
-      providerId: this.providerId,
-      organizations: this.addableOrganizations,
+  async manageSubscription(organization: ProviderOrganizationOrganizationDetailsResponse) {
+    if (organization == null) {
+      return;
+    }
+
+    this.getProviderAssignedSeats(this.clients);
+    this.getProviderUnassignedSeats(this.clients);
+    const dialogRef = ManageClientOrganizationSubscriptionComponent.open(this.dialogService, {
+      organizationId: organization.id,
+      providerId: organization.providerId,
+      clientName: organization.organizationName,
+      assignedSeats: this.assignedSeats,
+      unassignedSeats: this.assignedSeats - this.unassignedSeats,
     });
 
-    if (await firstValueFrom(dialogRef.closed)) {
-      await this.load();
-    }
+    await firstValueFrom(dialogRef.closed);
+    await this.load();
   }
 
   async remove(organization: ProviderOrganizationOrganizationDetailsResponse) {

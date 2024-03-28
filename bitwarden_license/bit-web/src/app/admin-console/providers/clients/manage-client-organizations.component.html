@@ -1,0 +1,90 @@
+<app-header>
+  <bit-search [placeholder]="'search' | i18n" [(ngModel)]="searchText"></bit-search>
+  <a bitButton routerLink="create" *ngIf="manageOrganizations" buttonType="primary">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "addNewOrganization" | i18n }}
+  </a>
+</app-header>
+
+<ng-container *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+
+<ng-container
+  *ngIf="!loading && (clients | search: searchText : 'organizationName' : 'id') as searchedClients"
+>
+  <p *ngIf="!searchedClients.length">{{ "noClientsInList" | i18n }}</p>
+  <ng-container *ngIf="searchedClients.length">
+    <bit-table
+      *ngIf="searchedClients?.length >= 1"
+      [dataSource]="dataSource"
+      class="table table-hover table-list"
+      infiniteScroll
+      [infiniteScrollDistance]="1"
+      [infiniteScrollDisabled]="!isPaging()"
+      (scrolled)="loadMore()"
+    >
+      <ng-container header>
+        <tr>
+          <th colspan="2" bitCell bitSortable="organizationName" default>{{ "client" | i18n }}</th>
+          <th bitCell bitSortable="seats">{{ "assigned" | i18n }}</th>
+          <th bitCell bitSortable="userCount">{{ "used" | i18n }}</th>
+          <th bitCell bitSortable="userCount">{{ "remaining" | i18n }}</th>
+          <th bitCell bitSortable="plan">{{ "billingPlan" | i18n }}</th>
+          <th></th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let client of rows$ | async">
+          <td bitCell width="30">
+            <bit-avatar [text]="client.organizationName" [id]="client.id" size="small"></bit-avatar>
+          </td>
+          <td bitCell>
+            <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
+              <a bitLink [routerLink]="['/organizations', client.organizationId]">{{
+                client.organizationName
+              }}</a>
+            </div>
+          </td>
+          <td bitCell class="tw-whitespace-nowrap">
+            <span>{{ client.seats }}</span>
+          </td>
+          <td bitCell class="tw-whitespace-nowrap">
+            <span>{{ client.userCount }}</span>
+          </td>
+          <td bitCell class="tw-whitespace-nowrap">
+            <span>{{ client.seats - client.userCount }}</span>
+          </td>
+          <td>
+            <span>{{ client.plan }}</span>
+          </td>
+          <td bitCell>
+            <button
+              [bitMenuTriggerFor]="rowMenu"
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              appA11yTitle="{{ 'options' | i18n }}"
+            ></button>
+            <bit-menu #rowMenu>
+              <button type="button" bitMenuItem (click)="manageSubscription(client)">
+                <i aria-hidden="true" class="bwi bwi-question-circle"></i>
+                {{ "manageSubscription" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="remove(client)">
+                <span class="tw-text-danger">
+                  <i aria-hidden="true" class="bwi bwi-close"></i> {{ "unlinkOrganization" | i18n }}
+                </span>
+              </button>
+            </bit-menu>
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </ng-container>
+</ng-container>
