@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { program } from "commander";
-import * as jsdom from "jsdom";
+import { JSDOM } from "jsdom";
 
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -144,7 +144,18 @@ import { SendProgram } from "./tools/send/send.program";
 import { VaultProgram } from "./vault.program";
 
 // Polyfills
-global.DOMParser = new jsdom.JSDOM().window.DOMParser;
+let jsdom: JSDOM;
+Object.defineProperty(global, "DOMParser", {
+  get() {
+    if (!jsdom) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires -- If import() is used here, the getter would become async
+      const { JSDOM } = require("jsdom");
+      jsdom = new JSDOM();
+    }
+
+    return jsdom.window.DOMParser;
+  },
+});
 
 // eslint-disable-next-line
 const packageJson = require("../package.json");
