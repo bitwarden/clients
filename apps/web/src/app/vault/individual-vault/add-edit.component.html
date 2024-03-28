@@ -192,11 +192,11 @@
             </div>
           </div>
           <ng-container *ngIf="cipher.login.hasFido2Credentials">
-            <div class="row">
-              <div class="col-6 form-group">
+            <div class="tw-flex tw-flex-row">
+              <div class="tw-mb-4 tw-w-1/2">
                 <label for="loginFido2credential">{{ "typePasskey" | i18n }}</label>
                 <div
-                  class="input-group"
+                  class="tw-flex tw-flex-row"
                   tabindex="0"
                   attr.aria-label="{{ 'typePasskey' | i18n }} {{
                     fido2CredentialCreationDateValue
@@ -212,6 +212,15 @@
                     disabled
                     readonly
                   />
+                  <button
+                    type="button"
+                    class="tw-items-center tw-border-none tw-bg-transparent tw-text-danger tw-ml-3"
+                    appA11yTitle="{{ 'removePasskey' | i18n }}"
+                    (click)="removePasskey()"
+                    *ngIf="!cipher.isDeleted && !viewOnly"
+                  >
+                    <i class="bwi bwi-lg bwi-minus-circle"></i>
+                  </button>
                 </div>
               </div>
             </div>

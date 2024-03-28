@@ -2696,5 +2696,11 @@
   },
   "enableHardwareAccelerationRestart": {
     "message": "Enable hardware acceleration and restart"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
   }
 }

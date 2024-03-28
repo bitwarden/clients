@@ -138,10 +138,20 @@
             attr.aria-label="{{ 'typePasskey' | i18n }} {{ fido2CredentialCreationDateValue }}"
           >
             <div class="box-content">
-              <div class="box-content-row text-muted">
-                <span class="row-label">{{ "typePasskey" | i18n }}</span>
-                {{ "dateCreated" | i18n }}
-                {{ cipher.login.fido2Credentials[0].creationDate | date: "short" }}
+              <div class="box-content-row box-content-row-multi text-muted" appBoxRow>
+                <button
+                  type="button"
+                  appStopClick
+                  (click)="removePasskey()"
+                  appA11yTitle="{{ 'removePasskey' | i18n }}"
+                >
+                  <i class="bwi bwi-fw bwi-minus-circle bwi-lg" aria-hidden="true"></i>
+                </button>
+                <div class="row-main">
+                  <span class="row-label">{{ "typePasskey" | i18n }}</span>
+                  {{ "dateCreated" | i18n }}
+                  {{ cipher.login.fido2Credentials[0].creationDate | date: "short" }}
+                </div>
               </div>
             </div>
           </div>

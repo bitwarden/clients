@@ -402,6 +402,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
   }
 
+  removePasskey() {
+    if (this.cipher.type !== CipherType.Login || this.cipher.login.fido2Credentials == null) {
+      return;
+    }
+
+    this.cipher.login.fido2Credentials = null;
+  }
+
   onCardNumberChange(): void {
     this.cipher.card.brand = CardView.getCardBrandByPatterns(this.cipher.card.number);
   }

@@ -116,14 +116,25 @@
             </div>
             <!--Passkey-->
             <div
-              class="box-content-row text-muted"
+              class="box-content-row box-content-row-multi text-muted"
               *ngIf="cipher.login.hasFido2Credentials && !cloneMode"
               appBoxRow
               tabindex="0"
               attr.aria-label="{{ 'typePasskey' | i18n }} {{ fido2CredentialCreationDateValue }}"
             >
-              <span class="row-label">{{ "typePasskey" | i18n }}</span>
-              {{ fido2CredentialCreationDateValue }}
+              <button
+                type="button"
+                appStopClick
+                (click)="removePasskey()"
+                appA11yTitle="{{ 'removePasskey' | i18n }}"
+                [disabled]="!cipher.edit && editMode"
+              >
+                <i class="bwi bwi-fw bwi-minus-circle bwi-lg" aria-hidden="true"></i>
+              </button>
+              <div class="row-main">
+                <span class="row-label">{{ "typePasskey" | i18n }}</span>
+                {{ fido2CredentialCreationDateValue }}
+              </div>
             </div>
 
             <div class="box-content-row" appBoxRow>
