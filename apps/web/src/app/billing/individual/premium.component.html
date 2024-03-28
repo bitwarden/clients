@@ -1,129 +1,143 @@
-<div *ngIf="selfHosted" class="page-header">
-  <h1>{{ "subscription" | i18n }}</h1>
-</div>
-<div *ngIf="!selfHosted" class="tabbed-header">
-  <h1>{{ "goPremium" | i18n }}</h1>
-</div>
-<bit-callout
-  type="info"
-  *ngIf="canAccessPremium$ | async"
-  title="{{ 'youHavePremiumAccess' | i18n }}"
-  icon="bwi bwi-star-f"
->
-  {{ "alreadyPremiumFromOrg" | i18n }}
-</bit-callout>
-<bit-callout type="success">
-  <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
-  <ul class="bwi-ul">
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpStorage" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpTwoStepOptions" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpEmergency" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpReports" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpTotp" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpSupport" | i18n }}
-    </li>
-    <li>
-      <i class="bwi bwi-check text-success bwi-li" aria-hidden="true"></i>
-      {{ "premiumSignUpFuture" | i18n }}
-    </li>
-  </ul>
-  <p class="text-lg" [ngClass]="{ 'mb-0': !selfHosted }">
-    {{
-      "premiumPriceWithFamilyPlan" | i18n: (premiumPrice | currency: "$") : familyPlanMaxUserCount
-    }}
-    <a routerLink="/create-organization" [queryParams]="{ plan: 'families' }">{{
-      "bitwardenFamiliesPlan" | i18n
-    }}</a>
-  </p>
-  <a
-    bitButton
-    href="{{ this.cloudWebVaultUrl }}/#/settings/subscription/premium"
-    target="_blank"
-    rel="noreferrer"
-    buttonType="secondary"
-    *ngIf="selfHosted"
+<bit-section>
+  <h2 *ngIf="!selfHosted" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
+  <bit-callout
+    type="info"
+    *ngIf="canAccessPremium$ | async"
+    title="{{ 'youHavePremiumAccess' | i18n }}"
+    icon="bwi bwi-star-f"
   >
-    {{ "purchasePremium" | i18n }}
-  </a>
-</bit-callout>
-<ng-container *ngIf="selfHosted">
-  <p>{{ "uploadLicenseFilePremium" | i18n }}</p>
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-    <div class="form-group">
-      <label for="file">{{ "licenseFile" | i18n }}</label>
-      <input type="file" id="file" class="form-control-file" name="file" required />
-      <small class="form-text text-muted">{{
-        "licenseFileDesc" | i18n: "bitwarden_premium_license.json"
-      }}</small>
-    </div>
-    <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
+    {{ "alreadyPremiumFromOrg" | i18n }}
+  </bit-callout>
+  <bit-callout type="success">
+    <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
+    <ul class="bwi-ul">
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpStorage" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpTwoStepOptions" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpEmergency" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpReports" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpTotp" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpSupport" | i18n }}
+      </li>
+      <li>
+        <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+        {{ "premiumSignUpFuture" | i18n }}
+      </li>
+    </ul>
+    <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !selfHosted }">
+      {{
+        "premiumPriceWithFamilyPlan" | i18n: (premiumPrice | currency: "$") : familyPlanMaxUserCount
+      }}
+      <a
+        bitLink
+        linkType="primary"
+        routerLink="/create-organization"
+        [queryParams]="{ plan: 'families' }"
+        >{{ "bitwardenFamiliesPlan" | i18n }}</a
+      >
+    </p>
+    <a
+      bitButton
+      href="{{ this.cloudWebVaultUrl }}/#/settings/subscription/premium"
+      target="_blank"
+      rel="noreferrer"
+      buttonType="secondary"
+      *ngIf="selfHosted"
+    >
+      {{ "purchasePremium" | i18n }}
+    </a>
+  </bit-callout>
+</bit-section>
+<bit-section *ngIf="selfHosted">
+  <p bitTypography="body1">{{ "uploadLicenseFilePremium" | i18n }}</p>
+  <form [formGroup]="licenseForm" [bitSubmit]="submit">
+    <bit-form-field>
+      <bit-label>{{ "licenseFile" | i18n }}</bit-label>
+      <div>
+        <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+          {{ "chooseFile" | i18n }}
+        </button>
+        {{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}
+      </div>
+      <input
+        bitInput
+        #fileSelector
+        type="file"
+        formControlName="file"
+        (change)="setSelectedFile($event)"
+        hidden
+      />
+      <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
+    </bit-form-field>
+    <button type="submit" buttonType="primary" bitButton bitFormButton>
       {{ "submit" | i18n }}
     </button>
   </form>
-</ng-container>
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate *ngIf="!selfHosted">
-  <h2 class="mt-5">{{ "addons" | i18n }}</h2>
-  <div class="row">
-    <div class="form-group col-6">
-      <label for="additionalStorage">{{ "additionalStorageGb" | i18n }}</label>
-      <input
-        id="additionalStorage"
-        class="form-control"
-        type="number"
-        name="AdditionalStorageGb"
-        [(ngModel)]="additionalStorage"
-        min="0"
-        max="99"
-        step="1"
-        placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
-      />
-      <small class="text-muted form-text">{{
-        "additionalStorageIntervalDesc"
-          | i18n: "1 GB" : (storageGbPrice | currency: "$") : ("year" | i18n)
-      }}</small>
+</bit-section>
+<form [formGroup]="addonForm" [bitSubmit]="submit" *ngIf="!selfHosted">
+  <bit-section>
+    <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+      <bit-form-field class="tw-col-span-6">
+        <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
+        <input
+          bitInput
+          formControlName="additionalStorage"
+          type="number"
+          step="1"
+          placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
+        />
+        <bit-hint>{{
+          "additionalStorageIntervalDesc"
+            | i18n: "1 GB" : (storageGbPrice | currency: "$") : ("year" | i18n)
+        }}</bit-hint>
+      </bit-form-field>
     </div>
-  </div>
-  <h2 class="spaced-header">{{ "summary" | i18n }}</h2>
-  {{ "premiumMembership" | i18n }}: {{ premiumPrice | currency: "$" }} <br />
-  {{ "additionalStorageGb" | i18n }}: {{ additionalStorage || 0 }} GB &times;
-  {{ storageGbPrice | currency: "$" }} =
-  {{ additionalStorageTotal | currency: "$" }}
-  <hr class="my-3" />
-  <h2 class="spaced-header mb-4">{{ "paymentInformation" | i18n }}</h2>
-  <app-payment [hideBank]="true"></app-payment>
-  <app-tax-info></app-tax-info>
-  <div id="price" class="my-4">
-    <div class="text-muted text-sm">
-      {{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}
-      <br />
-      <ng-container>
-        {{ "estimatedTax" | i18n }}: {{ taxCharges | currency: "USD $" }}
-      </ng-container>
+  </bit-section>
+  <bit-section>
+    <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
+    {{ "premiumMembership" | i18n }}: {{ premiumPrice | currency: "$" }} <br />
+    {{ "additionalStorageGb" | i18n }}: {{ additionalStorage || 0 }} GB &times;
+    {{ storageGbPrice | currency: "$" }} =
+    {{ additionalStorageTotal | currency: "$" }}
+    <hr class="tw-my-3" />
+  </bit-section>
+  <bit-section>
+    <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
+    <app-payment [hideBank]="true"></app-payment>
+    <app-tax-info></app-tax-info>
+    <div id="price" class="tw-my-4">
+      <div class="tw-text-muted tw-text-sm">
+        {{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}
+        <br />
+        <ng-container>
+          {{ "estimatedTax" | i18n }}: {{ taxCharges | currency: "USD $" }}
+        </ng-container>
+      </div>
+      <hr class="tw-my-1 tw-w-1/4 tw-ml-0" />
+      <p bitTypography="body1">
+        <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
+      </p>
     </div>
-    <hr class="my-1 col-3 ml-0" />
-    <p class="text-lg">
-      <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
-    </p>
-  </div>
-  <small class="text-muted font-italic">{{ "paymentChargedAnnually" | i18n }}</small>
-  <button type="submit" bitButton [loading]="form.loading">
-    {{ "submit" | i18n }}
-  </button>
+    <p bitTypography="body2">{{ "paymentChargedAnnually" | i18n }}</p>
+    <button type="submit" bitButton bitFormButton>
+      {{ "submit" | i18n }}
+    </button>
+  </bit-section>
 </form>

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable } from "rxjs";
 
@@ -7,7 +8,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -26,11 +26,16 @@ export class PremiumComponent implements OnInit {
   premiumPrice = 10;
   familyPlanMaxUserCount = 6;
   storageGbPrice = 4;
-  additionalStorage = 0;
   cloudWebVaultUrl: string;
+  licenseFile: File = null;
 
   formPromise: Promise<any>;
-
+  protected licenseForm = new FormGroup({
+    file: new FormControl(null, [Validators.required]),
+  });
+  protected addonForm = new FormGroup({
+    additionalStorage: new FormControl(0, [Validators.max(99), Validators.min(0)]),
+  });
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -39,14 +44,17 @@ export class PremiumComponent implements OnInit {
     private router: Router,
     private messagingService: MessagingService,
     private syncService: SyncService,
-    private logService: LogService,
     private environmentService: EnvironmentService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
     this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
   }
-
+  protected setSelectedFile(event: Event) {
+    const fileInputEl = <HTMLInputElement>event.target;
+    const file: File = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+    this.licenseFile = file;
+  }
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
     if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
@@ -56,13 +64,11 @@ export class PremiumComponent implements OnInit {
       return;
     }
   }
-
-  async submit() {
-    let files: FileList = null;
+  submit = async () => {
+    this.licenseForm.markAllAsTouched();
+    this.addonForm.markAllAsTouched();
     if (this.selfHosted) {
-      const fileEl = document.getElementById("file") as HTMLInputElement;
-      files = fileEl.files;
-      if (files == null || files.length === 0) {
+      if (this.licenseFile == null) {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
@@ -72,53 +78,48 @@ export class PremiumComponent implements OnInit {
       }
     }
 
-    try {
-      if (this.selfHosted) {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        if (!this.tokenService.getEmailVerified()) {
-          this.platformUtilsService.showToast(
-            "error",
-            this.i18nService.t("errorOccurred"),
-            this.i18nService.t("verifyEmailFirst"),
-          );
-          return;
-        }
-
-        const fd = new FormData();
-        fd.append("license", files[0]);
-        this.formPromise = this.apiService.postAccountLicense(fd).then(() => {
-          return this.finalizePremium();
-        });
-      } else {
-        this.formPromise = this.paymentComponent
-          .createPaymentToken()
-          .then((result) => {
-            const fd = new FormData();
-            fd.append("paymentMethodType", result[1].toString());
-            if (result[0] != null) {
-              fd.append("paymentToken", result[0]);
-            }
-            fd.append("additionalStorageGb", (this.additionalStorage || 0).toString());
-            fd.append("country", this.taxInfoComponent.taxInfo.country);
-            fd.append("postalCode", this.taxInfoComponent.taxInfo.postalCode);
-            return this.apiService.postPremium(fd);
-          })
-          .then((paymentResponse) => {
-            if (!paymentResponse.success && paymentResponse.paymentIntentClientSecret != null) {
-              return this.paymentComponent.handleStripeCardPayment(
-                paymentResponse.paymentIntentClientSecret,
-                () => this.finalizePremium(),
-              );
-            } else {
-              return this.finalizePremium();
-            }
-          });
+    if (this.selfHosted) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      if (!this.tokenService.getEmailVerified()) {
+        this.platformUtilsService.showToast(
+          "error",
+          this.i18nService.t("errorOccurred"),
+          this.i18nService.t("verifyEmailFirst"),
+        );
+        return;
       }
-      await this.formPromise;
-    } catch (e) {
-      this.logService.error(e);
+
+      const fd = new FormData();
+      fd.append("license", this.licenseFile);
+      await this.apiService.postAccountLicense(fd).then(() => {
+        return this.finalizePremium();
+      });
+    } else {
+      await this.paymentComponent
+        .createPaymentToken()
+        .then((result) => {
+          const fd = new FormData();
+          fd.append("paymentMethodType", result[1].toString());
+          if (result[0] != null) {
+            fd.append("paymentToken", result[0]);
+          }
+          fd.append("additionalStorageGb", (this.additionalStorage || 0).toString());
+          fd.append("country", this.taxInfoComponent.taxInfo.country);
+          fd.append("postalCode", this.taxInfoComponent.taxInfo.postalCode);
+          return this.apiService.postPremium(fd);
+        })
+        .then((paymentResponse) => {
+          if (!paymentResponse.success && paymentResponse.paymentIntentClientSecret != null) {
+            return this.paymentComponent.handleStripeCardPayment(
+              paymentResponse.paymentIntentClientSecret,
+              () => this.finalizePremium(),
+            );
+          } else {
+            return this.finalizePremium();
+          }
+        });
     }
-  }
+  };
 
   async finalizePremium() {
     await this.apiService.refreshIdentityToken();
@@ -130,6 +131,9 @@ export class PremiumComponent implements OnInit {
     this.router.navigate(["/settings/subscription/user-subscription"]);
   }
 
+  get additionalStorage(): number {
+    return this.addonForm.get("additionalStorage").value;
+  }
   get additionalStorageTotal(): number {
     return this.storageGbPrice * Math.abs(this.additionalStorage || 0);
   }
