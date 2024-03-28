@@ -102,7 +102,6 @@ export class AccountData {
 export class AccountKeys {
   masterKey?: MasterKey;
   masterKeyEncryptedUserKey?: string;
-  deviceKey?: ReturnType<SymmetricCryptoKey["toJSON"]>;
   publicKey?: Uint8Array;
 
   /** @deprecated July 2023, left for migration purposes*/
@@ -132,7 +131,6 @@ export class AccountKeys {
     }
     return Object.assign(new AccountKeys(), obj, {
       masterKey: SymmetricCryptoKey.fromJSON(obj?.masterKey),
-      deviceKey: obj?.deviceKey,
       cryptoMasterKey: SymmetricCryptoKey.fromJSON(obj?.cryptoMasterKey),
       cryptoSymmetricKey: EncryptionPair.fromJSON(
         obj?.cryptoSymmetricKey,
@@ -197,7 +195,6 @@ export class AccountSettings {
   vaultTimeoutAction?: string = "lock";
   approveLoginRequests?: boolean;
   avatarColor?: string;
-  trustDeviceChoiceForDecryption?: boolean;
 
   /** @deprecated July 2023, left for migration purposes*/
   pinProtected?: EncryptionPair<string, EncString> = new EncryptionPair<string, EncString>();

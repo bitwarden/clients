@@ -39,9 +39,13 @@ import {
   platformUtilsServiceFactory,
 } from "../../../platform/background/service-factories/platform-utils-service.factory";
 import {
-  StateServiceInitOptions,
-  stateServiceFactory,
-} from "../../../platform/background/service-factories/state-service.factory";
+  StateProviderInitOptions,
+  stateProviderFactory,
+} from "../../../platform/background/service-factories/state-provider.factory";
+import {
+  SecureStorageServiceInitOptions,
+  secureStorageServiceFactory,
+} from "../../../platform/background/service-factories/storage-service.factory";
 
 import {
   UserDecryptionOptionsServiceInitOptions,
@@ -55,11 +59,12 @@ export type DeviceTrustCryptoServiceInitOptions = DeviceTrustCryptoServiceFactor
   CryptoFunctionServiceInitOptions &
   CryptoServiceInitOptions &
   EncryptServiceInitOptions &
-  StateServiceInitOptions &
   AppIdServiceInitOptions &
   DevicesApiServiceInitOptions &
   I18nServiceInitOptions &
   PlatformUtilsServiceInitOptions &
+  StateProviderInitOptions &
+  SecureStorageServiceInitOptions &
   UserDecryptionOptionsServiceInitOptions;
 
 export function deviceTrustCryptoServiceFactory(
@@ -76,11 +81,12 @@ export function deviceTrustCryptoServiceFactory(
         await cryptoFunctionServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
         await appIdServiceFactory(cache, opts),
         await devicesApiServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
         await platformUtilsServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
+        await secureStorageServiceFactory(cache, opts),
         await userDecryptionOptionsServiceFactory(cache, opts),
       ),
   );

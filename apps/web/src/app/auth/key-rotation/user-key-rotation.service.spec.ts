@@ -6,10 +6,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -41,6 +44,9 @@ describe("KeyRotationService", () => {
   let mockStateService: MockProxy<StateService>;
   let mockConfigService: MockProxy<ConfigService>;
 
+  const mockUserId = Utils.newGuid() as UserId;
+  const mockAccountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+
   beforeAll(() => {
     mockApiService = mock<UserKeyRotationApiService>();
     mockCipherService = mock<CipherService>();
@@ -65,6 +71,7 @@ describe("KeyRotationService", () => {
       mockCryptoService,
       mockEncryptService,
       mockStateService,
+      mockAccountService,
       mockConfigService,
     );
   });

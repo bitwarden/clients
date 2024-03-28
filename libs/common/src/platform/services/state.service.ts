@@ -14,7 +14,7 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
-import { DeviceKey, MasterKey } from "../../types/key";
+import { MasterKey } from "../../types/key";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
@@ -703,39 +703,6 @@ export class StateService<
       : await this.secureStorageService.save(DDG_SHARED_KEY, value, options);
   }
 
-  async getDeviceKey(options?: StorageOptions): Promise<DeviceKey | null> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-
-    if (options?.userId == null) {
-      return null;
-    }
-
-    const account = await this.getAccount(options);
-
-    const existingDeviceKey = account?.keys?.deviceKey;
-
-    // Must manually instantiate the SymmetricCryptoKey class from the JSON object
-    if (existingDeviceKey != null) {
-      return SymmetricCryptoKey.fromJSON(existingDeviceKey) as DeviceKey;
-    } else {
-      return null;
-    }
-  }
-
-  async setDeviceKey(value: DeviceKey | null, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-
-    if (options?.userId == null) {
-      return;
-    }
-
-    const account = await this.getAccount(options);
-
-    account.keys.deviceKey = value?.toJSON() ?? null;
-
-    await this.saveAccount(account, options);
-  }
-
   async getAdminAuthRequest(options?: StorageOptions): Promise<AdminAuthRequestStorable | null> {
     options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
 
@@ -763,31 +730,6 @@ export class StateService<
     const account = await this.getAccount(options);
 
     account.adminAuthRequest = adminAuthRequest?.toJSON();
-
-    await this.saveAccount(account, options);
-  }
-
-  async getShouldTrustDevice(options?: StorageOptions): Promise<boolean | null> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-
-    if (options?.userId == null) {
-      return null;
-    }
-
-    const account = await this.getAccount(options);
-
-    return account?.settings?.trustDeviceChoiceForDecryption ?? null;
-  }
-
-  async setShouldTrustDevice(value: boolean, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-    if (options?.userId == null) {
-      return;
-    }
-
-    const account = await this.getAccount(options);
-
-    account.settings.trustDeviceChoiceForDecryption = value;
 
     await this.saveAccount(account, options);
   }
@@ -1737,7 +1679,6 @@ export class StateService<
   protected resetAccount(account: TAccount) {
     const persistentAccountInformation = {
       settings: account.settings,
-      keys: { deviceKey: account.keys.deviceKey },
       adminAuthRequest: account.adminAuthRequest,
     };
     return Object.assign(this.createAccount(), persistentAccountInformation);

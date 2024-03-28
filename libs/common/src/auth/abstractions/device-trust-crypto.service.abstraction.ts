@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { EncString } from "../../platform/models/domain/enc-string";
+import { UserId } from "../../types/guid";
 import { DeviceKey, UserKey } from "../../types/key";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 
@@ -10,17 +11,24 @@ export abstract class DeviceTrustCryptoServiceAbstraction {
    * @description Retrieves the users choice to trust the device which can only happen after decryption
    * Note: this value should only be used once and then reset
    */
-  getShouldTrustDevice: () => Promise<boolean | null>;
-  setShouldTrustDevice: (value: boolean) => Promise<void>;
+  getShouldTrustDevice: (userId: UserId) => Promise<boolean | null>;
+  setShouldTrustDevice: (userId: UserId, value: boolean) => Promise<void>;
 
-  trustDeviceIfRequired: () => Promise<void>;
+  trustDeviceIfRequired: (userId: UserId) => Promise<void>;
 
-  trustDevice: () => Promise<DeviceResponse>;
-  getDeviceKey: () => Promise<DeviceKey>;
+  trustDevice: (userId: UserId) => Promise<DeviceResponse>;
+
+  /** Retrieves the device key if it exists from state or secure storage if supported for the active user. */
+  getDeviceKey: (userId: UserId) => Promise<DeviceKey | null>;
   decryptUserKeyWithDeviceKey: (
+    userId: UserId,
     encryptedDevicePrivateKey: EncString,
     encryptedUserKey: EncString,
-    deviceKey?: DeviceKey,
+    deviceKey: DeviceKey,
   ) => Promise<UserKey | null>;
-  rotateDevicesTrust: (newUserKey: UserKey, masterPasswordHash: string) => Promise<void>;
+  rotateDevicesTrust: (
+    userId: UserId,
+    newUserKey: UserKey,
+    masterPasswordHash: string,
+  ) => Promise<void>;
 }

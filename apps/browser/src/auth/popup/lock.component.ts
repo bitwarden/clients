@@ -9,6 +9,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -62,6 +63,7 @@ export class LockComponent extends BaseLockComponent {
     pinCryptoService: PinCryptoServiceAbstraction,
     private routerService: BrowserRouterService,
     biometricStateService: BiometricStateService,
+    accountService: AccountService,
   ) {
     super(
       router,
@@ -84,6 +86,7 @@ export class LockComponent extends BaseLockComponent {
       userVerificationService,
       pinCryptoService,
       biometricStateService,
+      accountService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;

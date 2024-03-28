@@ -8,6 +8,7 @@ import {
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -52,6 +53,7 @@ export class LoginViaAuthRequestComponent
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     authRequestService: AuthRequestServiceAbstraction,
     loginStrategyService: LoginStrategyServiceAbstraction,
+    accountService: AccountService,
     private location: Location,
   ) {
     super(
@@ -73,6 +75,7 @@ export class LoginViaAuthRequestComponent
       deviceTrustCryptoService,
       authRequestService,
       loginStrategyService,
+      accountService,
     );
     super.onSuccessfulLogin = async () => {
       await syncService.fullSync(true);

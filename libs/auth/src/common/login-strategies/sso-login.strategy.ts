@@ -20,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -284,7 +285,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       if (await this.cryptoService.hasUserKey()) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
-        await this.deviceTrustCryptoService.trustDeviceIfRequired();
+        const userId = (await this.stateService.getUserId()) as UserId;
+        await this.deviceTrustCryptoService.trustDeviceIfRequired(userId);
 
         // if we successfully decrypted the user key, we can delete the admin auth request out of state
         // TODO: eventually we post and clean up DB as well once consumed on client
@@ -298,7 +300,9 @@ export class SsoLoginStrategy extends LoginStrategy {
   private async trySetUserKeyWithDeviceKey(tokenResponse: IdentityTokenResponse): Promise<void> {
     const trustedDeviceOption = tokenResponse.userDecryptionOptions?.trustedDeviceOption;
 
-    const deviceKey = await this.deviceTrustCryptoService.getDeviceKey();
+    const userId = (await this.stateService.getUserId()) as UserId;
+
+    const deviceKey = await this.deviceTrustCryptoService.getDeviceKey(userId);
     const encDevicePrivateKey = trustedDeviceOption?.encryptedPrivateKey;
     const encUserKey = trustedDeviceOption?.encryptedUserKey;
 
@@ -307,6 +311,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     const userKey = await this.deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
+      userId,
       encDevicePrivateKey,
       encUserKey,
       deviceKey,

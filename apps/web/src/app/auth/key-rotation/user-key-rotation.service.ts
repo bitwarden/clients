@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,6 +35,7 @@ export class UserKeyRotationService {
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
     private stateService: StateService,
+    private accountService: AccountService,
     private configService: ConfigService,
   ) {}
 
@@ -90,7 +92,12 @@ export class UserKeyRotationService {
       await this.rotateUserKeyAndEncryptedDataLegacy(request);
     }
 
-    await this.deviceTrustCryptoService.rotateDevicesTrust(newUserKey, masterPasswordHash);
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    await this.deviceTrustCryptoService.rotateDevicesTrust(
+      activeAccount.id,
+      newUserKey,
+      masterPasswordHash,
+    );
   }
 
   private async encryptPrivateKey(newUserKey: UserKey): Promise<EncryptedString | null> {
