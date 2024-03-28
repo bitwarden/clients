@@ -111,9 +111,18 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     let credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
     if (params.pubKeyCredParams?.length > 0) {
       // Filter out all unsupported algorithms
-      credTypesAndPubKeyAlgs = params.pubKeyCredParams.filter(
-        (kp) => kp.alg === -7 && kp.type === "public-key",
-      );
+      credTypesAndPubKeyAlgs = params.pubKeyCredParams.filter((kp) => {
+        if (typeof kp.alg == "string") {
+          const val = Number(kp.alg);
+          if (isNaN(val)) {
+            return false;
+          }
+
+          kp.alg = val;
+        }
+
+        return kp.alg === -7 && kp.type === "public-key";
+      });
     } else {
       // Assign default algorithms
       credTypesAndPubKeyAlgs = [
