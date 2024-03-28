@@ -1,7 +1,9 @@
 import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { lastValueFrom } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
 
@@ -17,13 +19,12 @@ export class AccountComponent {
   deauthModalRef: ViewContainerRef;
   @ViewChild("purgeVaultTemplate", { read: ViewContainerRef, static: true })
   purgeModalRef: ViewContainerRef;
-  @ViewChild("deleteAccountTemplate", { read: ViewContainerRef, static: true })
-  deleteModalRef: ViewContainerRef;
 
   showChangeEmail = true;
 
   constructor(
     private modalService: ModalService,
+    private dialogService: DialogService,
     private userVerificationService: UserVerificationService,
   ) {}
 
@@ -39,7 +40,8 @@ export class AccountComponent {
     await this.modalService.openViewRef(PurgeVaultComponent, this.purgeModalRef);
   }
 
-  async deleteAccount() {
-    await this.modalService.openViewRef(DeleteAccountComponent, this.deleteModalRef);
-  }
+  deleteAccount = async () => {
+    const dialogRef = DeleteAccountComponent.openDeleteAccountDialog(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
+  };
 }
