@@ -34,6 +34,7 @@ export abstract class AccountService {
   activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
   accountLock$: Observable<UserId>;
   accountLogout$: Observable<UserId>;
+  accountActivity$: Observable<Record<UserId, Date>>;
   /**
    * Updates the `accounts$` observable with the new account data.
    * @param userId
@@ -81,6 +82,12 @@ export abstract class AccountService {
    * @param userId
    */
   abstract switchAccount(userId: UserId): Promise<void>;
+  /**
+   * Updates the given user's last activity time.
+   * @param userId
+   * @param lastActivity
+   */
+  abstract setAccountActivity(userId: UserId, lastActivity: Date): Promise<void>;
 }
 
 export abstract class InternalAccountService extends AccountService {

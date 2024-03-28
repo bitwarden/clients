@@ -13,6 +13,7 @@ import { AuthenticationStatus } from "../enums/authentication-status";
 import {
   ACCOUNT_ACCOUNTS,
   ACCOUNT_ACTIVE_ACCOUNT_ID,
+  ACCOUNT_ACTIVITY,
   AccountServiceImplementation,
 } from "./account.service";
 
@@ -204,6 +205,15 @@ describe("accountService", () => {
 
       expect(emissions).toEqual([userId]);
     });
+
+    it("should remove the account activity if the status is logged out", async () => {
+      await sut.setAccountActivity(userId, new Date());
+      await sut.setAccountStatus(userId, AuthenticationStatus.LoggedOut);
+      const currentState = await firstValueFrom(sut.accountActivity$);
+
+      expect(currentState).toEqual({});
+    });
+
     it("should remove account info when the status is logged out", async () => {
       await sut.setAccountStatus(userId, AuthenticationStatus.LoggedOut);
       const currentState = await firstValueFrom(accountsState.state$);
@@ -264,6 +274,32 @@ describe("accountService", () => {
       expect(currentState).toEqual({
         [userId]: userInfo(AuthenticationStatus.LoggedOut),
       });
+    });
+  });
+
+  describe("setAccountActivity", () => {
+    it("should update the account activity", async () => {
+      await sut.setAccountActivity(userId, new Date());
+      const state = globalStateProvider.getFake(ACCOUNT_ACTIVITY);
+
+      expect(state.nextMock).toHaveBeenCalledWith({ [userId]: expect.any(Date) });
+    });
+
+    it("should not update if the activity is the same", async () => {
+      const date = new Date();
+      const state = globalStateProvider.getFake(ACCOUNT_ACTIVITY);
+      state.stateSubject.next({ [userId]: date });
+
+      await sut.setAccountActivity(userId, date);
+
+      expect(state.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("should update accountActivity$ with the new activity", async () => {
+      await sut.setAccountActivity(userId, new Date());
+      const currentState = await firstValueFrom(sut.accountActivity$);
+
+      expect(currentState[userId]).toBeInstanceOf(Date);
     });
   });
 });
