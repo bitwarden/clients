@@ -36,11 +36,9 @@ import {
 })
 export class EnvironmentSelectorComponent {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
-  isOpen = false;
-  showingModal = false;
-  selectedEnvironment: Region;
-  ServerEnvironmentType = Region;
-  overlayPosition: ConnectedPosition[] = [
+  protected isOpen = false;
+  protected ServerEnvironmentType = Region;
+  protected overlayPosition: ConnectedPosition[] = [
     {
       originX: "start",
       originY: "bottom",
