@@ -55,6 +55,7 @@
             bitIconButton="bwi-close"
             buttonType="main"
             size="default"
+            [disabled]="disabled"
             [attr.title]="'remove' | i18n"
             [attr.aria-label]="'remove' | i18n"
             (click)="selectionList.deselectItem(item.id); handleBlur()"
@@ -77,6 +78,8 @@
     <bit-multi-select
       class="tw-w-full"
       formControlName="multiSelect"
+      [loading]="loading"
+      [disabled]="disabled"
       [baseItems]="selectionList.deselectedItems"
       (blur)="handleBlur()"
     ></bit-multi-select>
@@ -84,7 +87,14 @@
   </bit-form-field>
 
   <div class="tw-ml-3 tw-mt-7 tw-shrink-0">
-    <button type="button" bitButton buttonType="secondary" (click)="addButton()">
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [loading]="loading"
+      [disabled]="disabled"
+      (click)="addButton()"
+    >
       {{ "add" | i18n }}
     </button>
   </div>

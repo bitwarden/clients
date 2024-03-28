@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
+<form [formGroup]="formGroup" [bitSubmit]="submit" *ngIf="!loading; else spinner">
   <div class="tw-w-2/5">
     <p class="tw-mt-8" *ngIf="!loading">
       {{ "projectPeopleDescription" | i18n }}
@@ -19,3 +19,9 @@
     </button>
   </div>
 </form>
+
+<ng-template #spinner>
+  <div class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+  </div>
+</ng-template>
