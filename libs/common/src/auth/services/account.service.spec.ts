@@ -204,6 +204,19 @@ describe("accountService", () => {
 
       expect(emissions).toEqual([userId]);
     });
+    it("should remove account info when the status is logged out", async () => {
+      await sut.setAccountStatus(userId, AuthenticationStatus.LoggedOut);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: {
+          status: AuthenticationStatus.LoggedOut,
+          email: "",
+          emailVerified: false,
+          name: undefined,
+        },
+      });
+    });
 
     it("should emit lock if the status is locked", async () => {
       const emissions = trackEmissions(sut.accountLock$);

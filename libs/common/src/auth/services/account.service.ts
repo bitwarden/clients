@@ -27,6 +27,12 @@ export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
 export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_DISK, "activeAccountId", {
   deserializer: (id: UserId) => id,
 });
+const loggedOutInfo: AccountInfo = {
+  status: AuthenticationStatus.LoggedOut,
+  email: "",
+  emailVerified: false,
+  name: undefined,
+};
 
 export class AccountServiceImplementation implements InternalAccountService {
   private lock = new Subject<UserId>();
@@ -79,7 +85,8 @@ export class AccountServiceImplementation implements InternalAccountService {
   }
 
   async setAccountStatus(userId: UserId, status: AuthenticationStatus): Promise<void> {
-    await this.setAccountInfo(userId, { status });
+    const newInfo = status === AuthenticationStatus.LoggedOut ? loggedOutInfo : { status };
+    await this.setAccountInfo(userId, newInfo);
 
     if (status === AuthenticationStatus.LoggedOut) {
       this.logout.next(userId);
