@@ -5,6 +5,7 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { CryptoService } from "../abstractions/crypto.service";
 import { MessagingService } from "../abstractions/messaging.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { StateService } from "../abstractions/state.service";
@@ -18,6 +19,7 @@ export class SystemService implements SystemServiceAbstraction {
   private clearClipboardTimeoutFunction: () => Promise<any> = null;
 
   constructor(
+    private cryptoService: CryptoService,
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
@@ -46,7 +48,7 @@ export class SystemService implements SystemServiceAbstraction {
     }
 
     // User has set a PIN, with ask for master password on restart, to protect their vault
-    const ephemeralPin = await this.stateService.getPinKeyEncryptedUserKeyEphemeral();
+    const ephemeralPin = await this.cryptoService.getPinKeyEncryptedUserKeyEphemeral();
     if (ephemeralPin != null) {
       return;
     }

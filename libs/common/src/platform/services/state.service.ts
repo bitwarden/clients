@@ -442,45 +442,6 @@ export class StateService<
     await this.saveSecureStorageKey(partialKeys.userBiometricKey, value, options);
   }
 
-  async getPinKeyEncryptedUserKey(options?: StorageOptions): Promise<EncString> {
-    return EncString.fromJSON(
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.pinKeyEncryptedUserKey,
-    );
-  }
-
-  async setPinKeyEncryptedUserKey(value: EncString, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.pinKeyEncryptedUserKey = value?.encryptedString;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getPinKeyEncryptedUserKeyEphemeral(options?: StorageOptions): Promise<EncString> {
-    return EncString.fromJSON(
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions())))
-        ?.settings?.pinKeyEncryptedUserKeyEphemeral,
-    );
-  }
-
-  async setPinKeyEncryptedUserKeyEphemeral(
-    value: EncString,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.settings.pinKeyEncryptedUserKeyEphemeral = value?.encryptedString;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
   /**
    * @deprecated Use UserKeyAuto instead
    */

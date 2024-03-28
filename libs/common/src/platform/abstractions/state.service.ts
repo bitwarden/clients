@@ -91,26 +91,6 @@ export abstract class StateService<T extends Account = Account> {
    */
   setUserKeyBiometric: (value: BiometricKey, options?: StorageOptions) => Promise<void>;
   /**
-   * Gets the user key encrypted by the Pin key.
-   * Used when Lock with MP on Restart is disabled
-   */
-  getPinKeyEncryptedUserKey: (options?: StorageOptions) => Promise<EncString>;
-  /**
-   * Sets the user key encrypted by the Pin key.
-   * Used when Lock with MP on Restart is disabled
-   */
-  setPinKeyEncryptedUserKey: (value: EncString, options?: StorageOptions) => Promise<void>;
-  /**
-   * Gets the ephemeral version of the user key encrypted by the Pin key.
-   * Used when Lock with MP on Restart is enabled
-   */
-  getPinKeyEncryptedUserKeyEphemeral: (options?: StorageOptions) => Promise<EncString>;
-  /**
-   * Sets the ephemeral version of the user key encrypted by the Pin key.
-   * Used when Lock with MP on Restart is enabled
-   */
-  setPinKeyEncryptedUserKeyEphemeral: (value: EncString, options?: StorageOptions) => Promise<void>;
-  /**
    * @deprecated For migration purposes only, use getUserKeyMasterKey instead
    */
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;

@@ -2,7 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
-import { PinCryptoServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin-crypto.service.abstraction";
+import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -38,7 +38,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private i18nService: I18nService,
     private userVerificationApiService: UserVerificationApiServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private pinCryptoService: PinCryptoServiceAbstraction,
+    private pinService: PinServiceAbstraction,
     private logService: LogService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
@@ -186,7 +186,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   private async verifyUserByPIN(verification: PinVerification): Promise<boolean> {
-    const userKey = await this.pinCryptoService.decryptUserKeyWithPin(verification.secret);
+    const userKey = await this.pinService.decryptUserKeyWithPin(verification.secret);
 
     return userKey != null;
   }

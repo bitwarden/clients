@@ -3,8 +3,8 @@ import { LOCALE_ID, NgModule } from "@angular/core";
 import {
   AuthRequestServiceAbstraction,
   AuthRequestService,
-  PinCryptoServiceAbstraction,
-  PinCryptoService,
+  PinServiceAbstraction,
+  PinService,
   LoginStrategyServiceAbstraction,
   LoginStrategyService,
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -784,7 +784,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       UserVerificationApiServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
-      PinCryptoServiceAbstraction,
+      PinServiceAbstraction,
       LogService,
       VaultTimeoutSettingsServiceAbstraction,
       PlatformUtilsServiceAbstraction,
@@ -929,8 +929,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: PinCryptoServiceAbstraction,
-    useClass: PinCryptoService,
+    provide: PinServiceAbstraction,
+    useClass: PinService,
     deps: [
       StateServiceAbstraction,
       CryptoServiceAbstraction,

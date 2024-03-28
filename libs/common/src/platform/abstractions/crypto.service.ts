@@ -14,6 +14,26 @@ import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 export abstract class CryptoService {
   abstract activeUserKey$: Observable<UserKey>;
   /**
+   * Gets the user key encrypted by the PIN key.
+   * Used when Lock with MP on Restart is disabled
+   */
+  getPinKeyEncryptedUserKey: (userId?: string) => Promise<EncString>;
+  /**
+   * Sets the user key encrypted by the PIN key.
+   * Used when Lock with MP on Restart is disabled
+   */
+  setPinKeyEncryptedUserKey: (value: EncString, userId?: string) => Promise<void>;
+  /**
+   * Gets the ephemeral version of the user key encrypted by the PIN key.
+   * Used when Lock with MP on Restart is enabled
+   */
+  getPinKeyEncryptedUserKeyEphemeral: (userId?: string) => Promise<EncString>;
+  /**
+   * Sets the ephemeral version of the user key encrypted by the PIN key.
+   * Used when Lock with MP on Restart is enabled
+   */
+  setPinKeyEncryptedUserKeyEphemeral: (value: EncString, userId?: string) => Promise<void>;
+  /**
    * Sets the provided user key and stores
    * any other necessary versions (such as auto, biometrics,
    * or pin)

@@ -12,9 +12,9 @@ import {
 } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { UserKey } from "@bitwarden/common/types/key";
 
-import { PinCryptoService } from "./pin-crypto.service.implementation";
-describe("PinCryptoService", () => {
-  let pinCryptoService: PinCryptoService;
+import { PinService } from "./pin.service.implementation";
+describe("PinService", () => {
+  let pinService: PinService;
 
   const stateService = mock<StateService>();
   const cryptoService = mock<CryptoService>();
@@ -24,7 +24,7 @@ describe("PinCryptoService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    pinCryptoService = new PinCryptoService(
+    pinService = new PinService(
       stateService,
       cryptoService,
       vaultTimeoutSettingsService,
@@ -33,7 +33,7 @@ describe("PinCryptoService", () => {
   });
 
   it("instantiates", () => {
-    expect(pinCryptoService).not.toBeFalsy();
+    expect(pinService).not.toBeFalsy();
   });
 
   describe("decryptUserKeyWithPin(...)", () => {
@@ -134,7 +134,7 @@ describe("PinCryptoService", () => {
           setupDecryptUserKeyWithPinMocks(pinLockType, migrationStatus);
 
           // Act
-          const result = await pinCryptoService.decryptUserKeyWithPin(mockPin);
+          const result = await pinService.decryptUserKeyWithPin(mockPin);
 
           // Assert
           expect(result).toEqual(mockUserKey);
@@ -147,7 +147,7 @@ describe("PinCryptoService", () => {
           cryptoService.decryptUserKeyWithPin.mockResolvedValue(null);
 
           // Act
-          const result = await pinCryptoService.decryptUserKeyWithPin(mockPin);
+          const result = await pinService.decryptUserKeyWithPin(mockPin);
 
           // Assert
           expect(result).toBeNull();
@@ -162,7 +162,7 @@ describe("PinCryptoService", () => {
           cryptoService.decryptToUtf8.mockResolvedValue("9999");
 
           // Act
-          const result = await pinCryptoService.decryptUserKeyWithPin(mockPin);
+          const result = await pinService.decryptUserKeyWithPin(mockPin);
 
           // Assert
           expect(result).toBeNull();
@@ -175,7 +175,7 @@ describe("PinCryptoService", () => {
       setupDecryptUserKeyWithPinMocks("DISABLED");
 
       // Act
-      const result = await pinCryptoService.decryptUserKeyWithPin(mockPin);
+      const result = await pinService.decryptUserKeyWithPin(mockPin);
 
       // Assert
       expect(result).toBeNull();

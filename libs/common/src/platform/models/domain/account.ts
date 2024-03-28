@@ -19,7 +19,7 @@ import { AddEditCipherInfo } from "../../../vault/types/add-edit-cipher-info";
 import { KdfType } from "../../enums";
 import { Utils } from "../../misc/utils";
 
-import { EncryptedString, EncString } from "./enc-string";
+import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 export class EncryptionPair<TEncrypted, TDecrypted> {
@@ -190,8 +190,6 @@ export class AccountSettings {
   passwordGenerationOptions?: PasswordGeneratorOptions;
   usernameGenerationOptions?: UsernameGeneratorOptions;
   generatorOptions?: GeneratorOptions;
-  pinKeyEncryptedUserKey?: EncryptedString;
-  pinKeyEncryptedUserKeyEphemeral?: EncryptedString;
   protectedPin?: string;
   vaultTimeout?: number;
   vaultTimeoutAction?: string = "lock";

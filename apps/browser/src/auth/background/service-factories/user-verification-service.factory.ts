@@ -31,7 +31,7 @@ import {
   stateServiceFactory,
 } from "../../../platform/background/service-factories/state-service.factory";
 
-import { PinCryptoServiceInitOptions, pinCryptoServiceFactory } from "./pin-crypto-service.factory";
+import { PinServiceInitOptions, pinServiceFactory } from "./pin-service.factory";
 import {
   userDecryptionOptionsServiceFactory,
   UserDecryptionOptionsServiceInitOptions,
@@ -49,7 +49,7 @@ export type UserVerificationServiceInitOptions = UserVerificationServiceFactoryO
   I18nServiceInitOptions &
   UserVerificationApiServiceInitOptions &
   UserDecryptionOptionsServiceInitOptions &
-  PinCryptoServiceInitOptions &
+  PinServiceInitOptions &
   LogServiceInitOptions &
   VaultTimeoutSettingsServiceInitOptions &
   PlatformUtilsServiceInitOptions;
@@ -69,7 +69,7 @@ export function userVerificationServiceFactory(
         await i18nServiceFactory(cache, opts),
         await userVerificationApiServiceFactory(cache, opts),
         await userDecryptionOptionsServiceFactory(cache, opts),
-        await pinCryptoServiceFactory(cache, opts),
+        await pinServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
         await vaultTimeoutSettingsServiceFactory(cache, opts),
         await platformUtilsServiceFactory(cache, opts),

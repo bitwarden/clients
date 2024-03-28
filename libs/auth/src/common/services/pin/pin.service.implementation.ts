@@ -8,9 +8,9 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { PinLockType } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { UserKey } from "@bitwarden/common/types/key";
 
-import { PinCryptoServiceAbstraction } from "../../abstractions/pin-crypto.service.abstraction";
+import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
 
-export class PinCryptoService implements PinCryptoServiceAbstraction {
+export class PinService implements PinServiceAbstraction {
   constructor(
     private stateService: StateService,
     private cryptoService: CryptoService,
@@ -71,7 +71,7 @@ export class PinCryptoService implements PinCryptoServiceAbstraction {
   ): Promise<{ pinKeyEncryptedUserKey: EncString; oldPinKeyEncryptedMasterKey?: EncString }> {
     switch (pinLockType) {
       case "PERSISTANT": {
-        const pinKeyEncryptedUserKey = await this.stateService.getPinKeyEncryptedUserKey();
+        const pinKeyEncryptedUserKey = await this.cryptoService.getPinKeyEncryptedUserKey();
         const oldPinKeyEncryptedMasterKey = await this.stateService.getEncryptedPinProtected();
         return {
           pinKeyEncryptedUserKey,
@@ -81,7 +81,8 @@ export class PinCryptoService implements PinCryptoServiceAbstraction {
         };
       }
       case "TRANSIENT": {
-        const pinKeyEncryptedUserKey = await this.stateService.getPinKeyEncryptedUserKeyEphemeral();
+        const pinKeyEncryptedUserKey =
+          await this.cryptoService.getPinKeyEncryptedUserKeyEphemeral();
         const oldPinKeyEncryptedMasterKey = await this.stateService.getDecryptedPinProtected();
         return { pinKeyEncryptedUserKey, oldPinKeyEncryptedMasterKey };
       }

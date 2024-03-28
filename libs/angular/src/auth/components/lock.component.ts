@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { firstValueFrom, Subject } from "rxjs";
 import { concatMap, take, takeUntil } from "rxjs/operators";
 
-import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -73,7 +73,7 @@ export class LockComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     protected deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     protected userVerificationService: UserVerificationService,
-    protected pinCryptoService: PinCryptoServiceAbstraction,
+    protected pinService: PinServiceAbstraction,
     protected biometricStateService: BiometricStateService,
   ) {}
 
@@ -156,7 +156,7 @@ export class LockComponent implements OnInit, OnDestroy {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      const userKey = await this.pinCryptoService.decryptUserKeyWithPin(this.pin);
+      const userKey = await this.pinService.decryptUserKeyWithPin(this.pin);
 
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
@@ -333,7 +333,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     this.pinStatus = await this.vaultTimeoutSettingsService.isPinLockSet();
 
-    let ephemeralPinSet = await this.stateService.getPinKeyEncryptedUserKeyEphemeral();
+    let ephemeralPinSet = await this.cryptoService.getPinKeyEncryptedUserKeyEphemeral();
     ephemeralPinSet ||= await this.stateService.getDecryptedPinProtected();
     this.pinEnabled =
       (this.pinStatus === "TRANSIENT" && !!ephemeralPinSet) || this.pinStatus === "PERSISTANT";

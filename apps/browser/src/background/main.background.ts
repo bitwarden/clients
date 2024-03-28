@@ -1,8 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
 import {
-  PinCryptoServiceAbstraction,
-  PinCryptoService,
+  PinServiceAbstraction,
+  PinService,
   LoginStrategyServiceAbstraction,
   LoginStrategyService,
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -302,7 +302,7 @@ export default class MainBackground {
   authRequestService: AuthRequestServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
-  pinCryptoService: PinCryptoServiceAbstraction;
+  pinService: PinServiceAbstraction;
   singleUserStateProvider: SingleUserStateProvider;
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
@@ -649,7 +649,7 @@ export default class MainBackground {
       this.biometricStateService,
     );
 
-    this.pinCryptoService = new PinCryptoService(
+    this.pinService = new PinService(
       this.stateService,
       this.cryptoService,
       this.vaultTimeoutSettingsService,
@@ -662,7 +662,7 @@ export default class MainBackground {
       this.i18nService,
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
-      this.pinCryptoService,
+      this.pinService,
       this.logService,
       this.vaultTimeoutSettingsService,
       this.platformUtilsService,
@@ -834,6 +834,7 @@ export default class MainBackground {
     };
 
     this.systemService = new SystemService(
+      this.cryptoService,
       this.messagingService,
       this.platformUtilsService,
       systemUtilsServiceReloadCallback,

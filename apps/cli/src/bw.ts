@@ -9,8 +9,8 @@ import {
   AuthRequestService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
-  PinCryptoService,
-  PinCryptoServiceAbstraction,
+  PinService,
+  PinServiceAbstraction,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -198,7 +198,7 @@ export class Main {
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
   userVerificationService: UserVerificationService;
-  pinCryptoService: PinCryptoServiceAbstraction;
+  pinService: PinServiceAbstraction;
   stateService: StateService;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
   domainSettingsService: DomainSettingsService;
@@ -551,7 +551,7 @@ export class Main {
       this.biometricStateService,
     );
 
-    this.pinCryptoService = new PinCryptoService(
+    this.pinService = new PinService(
       this.stateService,
       this.cryptoService,
       this.vaultTimeoutSettingsService,
@@ -564,7 +564,7 @@ export class Main {
       this.i18nService,
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
-      this.pinCryptoService,
+      this.pinService,
       this.logService,
       this.vaultTimeoutSettingsService,
       this.platformUtilsService,
