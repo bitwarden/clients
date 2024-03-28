@@ -1,44 +1,39 @@
-<nav>
-  <a routerLink="." class="tw-m-5 tw-mt-7 tw-block">
-    <bit-icon [icon]="logo"></bit-icon>
-  </a>
-
-  <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
+<bit-nav-logo [openIcon]="logo" route="." [ariaLabel]="'secretsManager' | i18n"></bit-nav-logo>
+<org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
+<bit-nav-item
+  icon="bwi-collection"
+  [text]="'projects' | i18n"
+  route="projects"
+  [relativeTo]="route.parent"
+></bit-nav-item>
+<bit-nav-item
+  icon="bwi-key"
+  [text]="'secrets' | i18n"
+  route="secrets"
+  [relativeTo]="route.parent"
+></bit-nav-item>
+<bit-nav-item
+  icon="bwi-wrench"
+  [text]="'serviceAccounts' | i18n"
+  route="service-accounts"
+  [relativeTo]="route.parent"
+></bit-nav-item>
+<bit-nav-item
+  icon="bwi-trash"
+  [text]="'trash' | i18n"
+  route="trash"
+  [relativeTo]="route.parent"
+  *ngIf="isAdmin$ | async"
+></bit-nav-item>
+<bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" *ngIf="isAdmin$ | async">
   <bit-nav-item
-    icon="bwi-collection"
-    [text]="'projects' | i18n"
-    route="projects"
+    [text]="'importData' | i18n"
+    route="settings/import"
     [relativeTo]="route.parent"
   ></bit-nav-item>
   <bit-nav-item
-    icon="bwi-key"
-    [text]="'secrets' | i18n"
-    route="secrets"
+    [text]="'exportData' | i18n"
+    route="settings/export"
     [relativeTo]="route.parent"
   ></bit-nav-item>
-  <bit-nav-item
-    icon="bwi-wrench"
-    [text]="'serviceAccounts' | i18n"
-    route="service-accounts"
-    [relativeTo]="route.parent"
-  ></bit-nav-item>
-  <bit-nav-item
-    icon="bwi-trash"
-    [text]="'trash' | i18n"
-    route="trash"
-    [relativeTo]="route.parent"
-    *ngIf="isAdmin$ | async"
-  ></bit-nav-item>
-  <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" *ngIf="isAdmin$ | async">
-    <bit-nav-item
-      [text]="'importData' | i18n"
-      route="settings/import"
-      [relativeTo]="route.parent"
-    ></bit-nav-item>
-    <bit-nav-item
-      [text]="'exportData' | i18n"
-      route="settings/export"
-      [relativeTo]="route.parent"
-    ></bit-nav-item>
-  </bit-nav-group>
-</nav>
+</bit-nav-group>

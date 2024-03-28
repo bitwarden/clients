@@ -3,6 +3,7 @@ import { BehaviorSubject, map } from "rxjs";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupComponent } from "./nav-group.component";
+import { SideNavService } from "./side-nav.service";
 
 @Component({
   selector: "bit-nav-item",
@@ -46,7 +47,10 @@ export class NavItemComponent extends NavBaseComponent {
     this.focusVisibleWithin$.next(false);
   }
 
-  constructor(@Optional() private parentNavGroup: NavGroupComponent) {
+  constructor(
+    protected sideNavService: SideNavService,
+    @Optional() private parentNavGroup: NavGroupComponent,
+  ) {
     super();
   }
 }

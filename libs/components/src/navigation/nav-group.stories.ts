@@ -4,8 +4,10 @@ import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
@@ -20,8 +22,17 @@ export default {
   title: "Component Library/Nav/Nav Group",
   component: NavGroupComponent,
   decorators: [
+    positionFixedWrapperDecorator(
+      (story) => `<bit-layout><bit-side-nav>${story}</bit-side-nav></bit-layout>`,
+    ),
     moduleMetadata({
-      imports: [SharedModule, RouterModule, NavigationModule, DummyContentComponent],
+      imports: [
+        SharedModule,
+        RouterModule,
+        NavigationModule,
+        DummyContentComponent,
+        LayoutComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -29,6 +40,8 @@ export default {
             return new I18nMockService({
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
+              toggleSideNavigation: "Toggle side navigation",
+              skipToContent: "Skip to content",
             });
           },
         },
@@ -53,6 +66,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=4687%3A86642",
     },
+    chromatic: { viewports: [640, 1280] },
   },
 } as Meta;
 

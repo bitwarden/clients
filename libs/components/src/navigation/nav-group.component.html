@@ -6,9 +6,8 @@
   [relativeTo]="relativeTo"
   [routerLinkActiveOptions]="routerLinkActiveOptions"
   [variant]="variant"
-  (mainContentClicked)="toggle()"
   [treeDepth]="treeDepth"
-  (mainContentClicked)="mainContentClicked.emit()"
+  (mainContentClicked)="handleMainContentClicked()"
   [ariaLabel]="ariaLabel"
   [hideActiveStyles]="parentHideActiveStyles"
 >
@@ -43,11 +42,13 @@
 </bit-nav-item>
 
 <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
-<div
-  *ngIf="open"
-  [attr.id]="contentId"
-  [attr.aria-label]="[text, 'submenu' | i18n].join(' ')"
-  role="group"
->
-  <ng-content></ng-content>
-</div>
+<ng-container *ngIf="sideNavService.open$ | async">
+  <div
+    *ngIf="open"
+    [attr.id]="contentId"
+    [attr.aria-label]="[text, 'submenu' | i18n].join(' ')"
+    role="group"
+  >
+    <ng-content></ng-content>
+  </div>
+</ng-container>

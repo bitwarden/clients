@@ -1,8 +1,6 @@
-<bit-layout variant="secondary">
-  <nav slot="sidebar" *ngIf="organization$ | async as organization">
-    <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'adminConsole' | i18n">
-      <bit-icon [icon]="logo"></bit-icon>
-    </a>
+<bit-layout>
+  <bit-side-nav variant="secondary" *ngIf="organization$ | async as organization">
+    <bit-nav-logo [openIcon]="logo" route="." [ariaLabel]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter"></org-switcher>
 
     <bit-nav-item
@@ -105,7 +103,7 @@
         *ngIf="organization.canManageScim"
       ></bit-nav-item>
     </bit-nav-group>
-  </nav>
+  </bit-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
     <bit-banner
