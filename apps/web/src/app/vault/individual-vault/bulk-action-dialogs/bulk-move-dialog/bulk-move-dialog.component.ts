@@ -41,7 +41,7 @@ export class BulkMoveDialogComponent implements OnInit {
   cipherIds: string[] = [];
 
   formGroup = this.formBuilder.group({
-    folderId: ["", [Validators.required]],
+    folderId: ["", [Validators.nullValidator]],
   });
   folders$: Observable<FolderView[]>;
 
