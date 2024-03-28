@@ -1,163 +1,113 @@
-<div class="mb-4 text-lg" *ngIf="showOptions && showMethods">
-  <div class="form-check form-check-inline mr-4">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="Method"
-      id="method-card"
-      [value]="paymentMethodType.Card"
-      [(ngModel)]="method"
-      (change)="changeMethod()"
-    />
-    <label class="form-check-label" for="method-card">
-      <i class="bwi bwi-fw bwi-credit-card" aria-hidden="true"></i> {{ "creditCard" | i18n }}</label
-    >
-  </div>
-  <div class="form-check form-check-inline mr-4" *ngIf="!hideBank">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="Method"
-      id="method-bank"
-      [value]="paymentMethodType.BankAccount"
-      [(ngModel)]="method"
-      (change)="changeMethod()"
-    />
-    <label class="form-check-label" for="method-bank">
-      <i class="bwi bwi-fw bwi-bank" aria-hidden="true"></i> {{ "bankAccount" | i18n }}</label
-    >
-  </div>
-  <div class="form-check form-check-inline" *ngIf="!hidePaypal">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="Method"
-      id="method-paypal"
-      [value]="paymentMethodType.PayPal"
-      [(ngModel)]="method"
-      (change)="changeMethod()"
-    />
-    <label class="form-check-label" for="method-paypal">
-      <i class="bwi bwi-fw bwi-paypal" aria-hidden="true"></i> PayPal</label
-    >
-  </div>
-  <div class="form-check form-check-inline" *ngIf="!hideCredit">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="Method"
-      id="method-credit"
-      [value]="paymentMethodType.Credit"
-      [(ngModel)]="method"
-      (change)="changeMethod()"
-    />
-    <label class="form-check-label" for="method-credit">
-      <i class="bwi bwi-fw bwi-dollar" aria-hidden="true"></i> {{ "accountCredit" | i18n }}</label
-    >
-  </div>
-</div>
-<ng-container *ngIf="showMethods && method === paymentMethodType.Card">
-  <div class="row">
-    <div [ngClass]="trialFlow ? 'col-5' : 'col-4'" class="form-group">
-      <label for="stripe-card-number-element">{{ "number" | i18n }}</label>
-      <div id="stripe-card-number-element" class="form-control stripe-form-control"></div>
-    </div>
-    <div *ngIf="!trialFlow" class="form-group col-8 d-flex align-items-end">
-      <img
-        src="../../images/cards.png"
-        alt="Visa, MasterCard, Discover, AmEx, JCB, Diners Club, UnionPay"
-        width="323"
-        height="32"
-      />
-    </div>
-    <div [ngClass]="trialFlow ? 'col-3' : 'col-4'" class="form-group">
-      <label for="stripe-card-expiry-element">{{ "expiration" | i18n }}</label>
-      <div id="stripe-card-expiry-element" class="form-control stripe-form-control"></div>
-    </div>
-    <div class="form-group col-4">
-      <div class="d-flex">
-        <label for="stripe-card-cvc-element">
-          {{ "securityCode" | i18n }}
-        </label>
-        <a
-          href="https://www.cvvnumber.com/cvv.html"
-          tabindex="-1"
-          target="_blank"
-          rel="noreferrer"
-          class="ml-auto"
-          appA11yTitle="{{ 'learnMore' | i18n }}"
+<div [formGroup]="paymentForm">
+  <div class="tw-mb-4 tw-text-lg" *ngIf="showOptions && showMethods">
+    <bit-radio-group formControlName="method">
+      <bit-radio-button id="method-card" [value]="paymentMethodType.Card">
+        <bit-label>
+          <i class="bwi bwi-fw bwi-credit-card" aria-hidden="true"></i>
+          {{ "creditCard" | i18n }}</bit-label
         >
-          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-        </a>
+      </bit-radio-button>
+      <bit-radio-button id="method-bank" [value]="paymentMethodType.BankAccount" *ngIf="!hideBank">
+        <bit-label>
+          <i class="bwi bwi-fw bwi-bank" aria-hidden="true"></i>
+          {{ "bankAccount" | i18n }}</bit-label
+        >
+      </bit-radio-button>
+      <bit-radio-button id="method-paypal" [value]="paymentMethodType.PayPal" *ngIf="!hidePaypal">
+        <bit-label> <i class="bwi bwi-fw bwi-paypal" aria-hidden="true"></i> PayPal</bit-label>
+      </bit-radio-button>
+      <bit-radio-button id="method-credit" [value]="paymentMethodType.Credit" *ngIf="!hideCredit">
+        <bit-label>
+          <i class="bwi bwi-fw bwi-dollar" aria-hidden="true"></i>
+          {{ "accountCredit" | i18n }}</bit-label
+        >
+      </bit-radio-button>
+    </bit-radio-group>
+  </div>
+  <ng-container *ngIf="showMethods && method === paymentMethodType.Card">
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4 tw-mb-4">
+      <div [ngClass]="trialFlow ? 'tw-col-span-5' : 'tw-col-span-4'">
+        <label for="stripe-card-number-element">{{ "number" | i18n }}</label>
+        <div id="stripe-card-number-element" class="form-control stripe-form-control"></div>
       </div>
-      <div id="stripe-card-cvc-element" class="form-control stripe-form-control"></div>
+      <div *ngIf="!trialFlow" class="tw-col-span-8 tw-flex tw-items-end">
+        <img
+          src="../../images/cards.png"
+          alt="Visa, MasterCard, Discover, AmEx, JCB, Diners Club, UnionPay"
+          width="323"
+          height="32"
+        />
+      </div>
+      <div [ngClass]="trialFlow ? 'tw-col-span-3' : 'tw-col-span-4'">
+        <label for="stripe-card-expiry-element">{{ "expiration" | i18n }}</label>
+        <div id="stripe-card-expiry-element" class="form-control stripe-form-control"></div>
+      </div>
+      <div class="tw-col-span-4">
+        <div class="tw-flex">
+          <label for="stripe-card-cvc-element">
+            {{ "securityCode" | i18n }}
+          </label>
+          <a
+            href="https://www.cvvnumber.com/cvv.html"
+            tabindex="-1"
+            target="_blank"
+            rel="noreferrer"
+            class="ml-auto"
+            appA11yTitle="{{ 'learnMore' | i18n }}"
+          >
+            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div id="stripe-card-cvc-element" class="form-control stripe-form-control"></div>
+      </div>
     </div>
-  </div>
-</ng-container>
-<ng-container *ngIf="showMethods && method === paymentMethodType.BankAccount">
-  <app-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-    {{ "verifyBankAccountInitialDesc" | i18n }} {{ "verifyBankAccountFailureWarning" | i18n }}
-  </app-callout>
-  <div class="row">
-    <div class="form-group col-6">
-      <label for="routing_number">{{ "routingNumber" | i18n }}</label>
-      <input
-        id="routing_number"
-        class="form-control"
-        type="text"
-        name="routing_number"
-        [(ngModel)]="bank.routing_number"
-        required
-        appInputVerbatim
-      />
+  </ng-container>
+  <ng-container *ngIf="showMethods && method === paymentMethodType.BankAccount">
+    <app-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
+      {{ "verifyBankAccountInitialDesc" | i18n }} {{ "verifyBankAccountFailureWarning" | i18n }}
+    </app-callout>
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4" formGroupName="bank">
+      <bit-form-field class="tw-col-span-6">
+        <bit-label>{{ "routingNumber" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="routing_number" required appInputVerbatim />
+      </bit-form-field>
+      <bit-form-field class="tw-col-span-6">
+        <bit-label>{{ "accountNumber" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="account_number" required appInputVerbatim />
+      </bit-form-field>
+      <bit-form-field class="tw-col-span-6">
+        <bit-label>{{ "accountHolderName" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="account_holder_name"
+          required
+          appInputVerbatim
+        />
+      </bit-form-field>
+
+      <bit-form-field class="tw-col-span-6">
+        <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
+        <bit-select formControlName="account_holder_type" required>
+          <bit-option value="" label="-- {{ 'select' | i18n }} --"></bit-option>
+          <bit-option value="company" label="{{ 'bankAccountTypeCompany' | i18n }}"></bit-option>
+          <bit-option
+            value="individual"
+            label="{{ 'bankAccountTypeIndividual' | i18n }}"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
     </div>
-    <div class="form-group col-6">
-      <label for="account_number">{{ "accountNumber" | i18n }}</label>
-      <input
-        id="account_number"
-        class="form-control"
-        type="text"
-        name="account_number"
-        [(ngModel)]="bank.account_number"
-        required
-        appInputVerbatim
-      />
+  </ng-container>
+  <ng-container *ngIf="showMethods && method === paymentMethodType.PayPal">
+    <div class="tw-mb-3">
+      <div id="bt-dropin-container" class="tw-mb-1"></div>
+      <small class="tw-text-muted">{{ "paypalClickSubmit" | i18n }}</small>
     </div>
-    <div class="form-group col-6">
-      <label for="account_holder_name">{{ "accountHolderName" | i18n }}</label>
-      <input
-        id="account_holder_name"
-        class="form-control"
-        type="text"
-        name="account_holder_name"
-        [(ngModel)]="bank.account_holder_name"
-        required
-      />
-    </div>
-    <div class="form-group col-6">
-      <label for="account_holder_type">{{ "bankAccountType" | i18n }}</label>
-      <select
-        id="account_holder_type"
-        class="form-control"
-        name="account_holder_type"
-        [(ngModel)]="bank.account_holder_type"
-        required
-      >
-        <option value="">-- {{ "select" | i18n }} --</option>
-        <option value="company">{{ "bankAccountTypeCompany" | i18n }}</option>
-        <option value="individual">{{ "bankAccountTypeIndividual" | i18n }}</option>
-      </select>
-    </div>
-  </div>
-</ng-container>
-<ng-container *ngIf="showMethods && method === paymentMethodType.PayPal">
-  <div class="mb-3">
-    <div id="bt-dropin-container" class="mb-1"></div>
-    <small class="text-muted">{{ "paypalClickSubmit" | i18n }}</small>
-  </div>
-</ng-container>
-<ng-container *ngIf="showMethods && method === paymentMethodType.Credit">
-  <app-callout type="note">
-    {{ "makeSureEnoughCredit" | i18n }}
-  </app-callout>
-</ng-container>
+  </ng-container>
+  <ng-container *ngIf="showMethods && method === paymentMethodType.Credit">
+    <app-callout type="note">
+      {{ "makeSureEnoughCredit" | i18n }}
+    </app-callout>
+  </ng-container>
+</div>
