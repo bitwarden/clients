@@ -95,6 +95,10 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
 export const EVENT_COLLECTION_DISK = new StateDefinition("eventCollection", "disk");
+export const SEND_DISK = new StateDefinition("send", "disk", {
+  web: "memory",
+});
+export const SEND_MEMORY = new StateDefinition("send", "memory");
 
 // Vault
 

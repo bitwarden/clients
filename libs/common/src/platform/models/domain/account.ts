@@ -9,8 +9,6 @@ import {
   PasswordGeneratorOptions,
 } from "../../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../../tools/generator/username/username-generation-options";
-import { SendData } from "../../../tools/send/models/data/send.data";
-import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { MasterKey } from "../../../types/key";
 import { CipherData } from "../../../vault/models/data/cipher.data";
@@ -78,7 +76,6 @@ export class AccountData {
     CipherView
   >();
   localData?: any;
-  sends?: DataEncryptionPair<SendData, SendView> = new DataEncryptionPair<SendData, SendView>();
   passwordGenerationHistory?: EncryptionPair<
     GeneratedPasswordHistory[],
     GeneratedPasswordHistory[]
