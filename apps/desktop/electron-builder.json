@@ -20,9 +20,9 @@
     "**/node_modules/@bitwarden/desktop-native/desktop_native.${platform}-${arch}*.node",
 
     "!**/node_modules/argon2/**/*",
-    "**/node_modules/argon2/argon2.js",
+    "**/node_modules/argon2/argon2.cjs",
     "**/node_modules/argon2/package.json",
-    "**/node_modules/argon2/lib/binding/napi-v3/argon2.node"
+    "**/node_modules/argon2/build/Release/argon2.node"
   ],
   "electronVersion": "28.2.8",
   "generateUpdatesFilesForAllChannels": true,

@@ -162,7 +162,7 @@
     "@microsoft/signalr": "8.0.0",
     "@microsoft/signalr-protocol-msgpack": "8.0.0",
     "@ng-select/ng-select": "11.2.0",
-    "argon2": "0.31.0",
+    "argon2": "0.40.1",
     "argon2-browser": "1.18.0",
     "big-integer": "1.6.51",
     "bootstrap": "4.6.0",
