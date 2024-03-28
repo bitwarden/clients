@@ -24,6 +24,7 @@ describe("AutofillInit", () => {
       },
     });
     autofillInit = new AutofillInit(autofillOverlayContentService);
+    window.IntersectionObserver = jest.fn(() => mock<IntersectionObserver>());
   });
 
   afterEach(() => {

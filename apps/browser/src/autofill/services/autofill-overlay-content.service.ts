@@ -86,7 +86,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (this.isIgnoredField(autofillFieldData)) {
+    if (this.isIgnoredField(autofillFieldData) || this.formFieldElements.has(formFieldElement)) {
       return;
     }
 
