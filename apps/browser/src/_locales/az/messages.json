@@ -20,7 +20,7 @@
     "message": "Giriş et"
   },
   "enterpriseSingleSignOn": {
-    "message": "Müəssisə üçün tək daxil olma"
+    "message": "Müəssisə üçün tək daxil olma" // test
   },
   "cancel": {
     "message": "İmtina"
