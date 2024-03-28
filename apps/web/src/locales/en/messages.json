@@ -6880,8 +6880,8 @@
   "updateLowKdfIterationsDesc": {
     "message": "Update your encryption settings to meet new security recommendations and improve account protection."
   },
-  "changeKdfLoggedOutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
+  "kdfSettingsChangeLogoutWarning": {
+    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
   "secretsManager": {
     "message": "Secrets Manager"
