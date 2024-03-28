@@ -139,7 +139,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     });
   });
 
-  window.addEventListener("resize", adjustHeight);
+  globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
 }
 
@@ -384,7 +384,7 @@ function setupLogoLink(i18n: Record<string, string>) {
 function setNotificationBarTheme() {
   let theme = notificationBarIframeInitData.theme;
   if (theme === ThemeType.System) {
-    theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+    theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
       ? ThemeType.Dark
       : ThemeType.Light;
   }
@@ -393,5 +393,5 @@ function setNotificationBarTheme() {
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {
-  window.parent.postMessage(message, windowMessageOrigin || "*");
+  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
 }

@@ -211,7 +211,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     let borderColor: string;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeType.System) {
-      verifiedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
         ? ThemeType.Dark
         : ThemeType.Light;
     }

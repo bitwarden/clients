@@ -33,7 +33,7 @@ if (BrowserApi.isManifestVersion(3)) {
     },
   );
 } else {
-  const bitwardenMain = ((window as any).bitwardenMain = new MainBackground());
+  const bitwardenMain = ((self as any).bitwardenMain = new MainBackground());
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   bitwardenMain.bootstrap().then(() => {

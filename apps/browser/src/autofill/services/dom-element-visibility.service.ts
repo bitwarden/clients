@@ -66,7 +66,7 @@ class DomElementVisibilityService implements domElementVisibilityServiceInterfac
    */
   private getElementStyle(element: HTMLElement, styleProperty: string): string {
     if (!this.cachedComputedStyle) {
-      this.cachedComputedStyle = (element.ownerDocument.defaultView || window).getComputedStyle(
+      this.cachedComputedStyle = (element.ownerDocument.defaultView || globalThis).getComputedStyle(
         element,
       );
     }

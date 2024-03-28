@@ -5,8 +5,8 @@ import { FileDownloadRequest } from "@bitwarden/common/platform/abstractions/fil
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { SafariApp } from "../../browser/safariApp";
-import { BrowserApi } from "../browser/browser-api";
+import { SafariApp } from "../../../browser/safariApp";
+import { BrowserApi } from "../../browser/browser-api";
 
 @Injectable()
 export class BrowserFileDownloadService implements FileDownloadService {

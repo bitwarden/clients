@@ -42,7 +42,7 @@ import {
 
 export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
-  private openPasswordRepromptPopoutDebounce: NodeJS.Timeout;
+  private openPasswordRepromptPopoutDebounce: number | NodeJS.Timeout;
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);

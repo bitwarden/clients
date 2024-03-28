@@ -19,7 +19,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private ciphers: OverlayCipherData[] = [];
   private ciphersList: HTMLUListElement;
   private cipherListScrollIsDebounced = false;
-  private cipherListScrollDebounceTimeout: NodeJS.Timeout;
+  private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {

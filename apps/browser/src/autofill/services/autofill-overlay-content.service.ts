@@ -712,7 +712,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private async getBoundingClientRectFromIntersectionObserver(
     formFieldElement: ElementWithOpId<FormFieldElement>,
   ): Promise<DOMRectReadOnly | null> {
-    if (!("IntersectionObserver" in window) && !("IntersectionObserverEntry" in window)) {
+    if (!("IntersectionObserver" in globalThis) && !("IntersectionObserverEntry" in globalThis)) {
       return null;
     }
 
@@ -901,7 +901,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     if (
       this.focusedFieldData.focusedFieldRects?.top > 0 &&
-      this.focusedFieldData.focusedFieldRects?.top < window.innerHeight
+      this.focusedFieldData.focusedFieldRects?.top < globalThis.innerHeight
     ) {
       return;
     }

@@ -10,7 +10,7 @@ function loadAutofiller() {
   let pageHref: string = null;
   let filledThisHref = false;
   let delayFillTimeout: number;
-  let doFillInterval: NodeJS.Timeout;
+  let doFillInterval: number | NodeJS.Timeout;
   const handleExtensionDisconnect = () => {
     clearDoFillInterval();
     clearDelayFillTimeout();
