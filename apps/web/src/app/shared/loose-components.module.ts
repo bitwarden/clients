@@ -57,6 +57,7 @@ import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
+import { VerifyRecoverDeleteOrgComponent } from "../auth/verify-recover-delete-org.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { PaymentMethodWarningsModule } from "../billing/shared";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
@@ -184,6 +185,7 @@ import { SharedModule } from "./shared.module";
     VerifyEmailComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
+    VerifyRecoverDeleteOrgComponent,
     LowKdfComponent,
   ],
   exports: [
@@ -261,6 +263,7 @@ import { SharedModule } from "./shared.module";
     VerifyEmailComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
+    VerifyRecoverDeleteOrgComponent,
     LowKdfComponent,
     HeaderModule,
     DangerZoneComponent,

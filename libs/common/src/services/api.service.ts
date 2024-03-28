@@ -102,6 +102,7 @@ import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { OrganizationImportRequest } from "../models/request/organization-import.request";
+import { OrganizationVerifyDeleteRecoverRequest } from "../models/request/organization-verify-delete-recover.request";
 import { PreloginRequest } from "../models/request/prelogin.request";
 import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
@@ -1578,6 +1579,19 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return new OrganizationExportResponse(r);
+  }
+
+  postOrganizationRecoverDeleteToken(
+    organizationId: string,
+    request: OrganizationVerifyDeleteRecoverRequest,
+  ): Promise<any> {
+    return this.send(
+      "POST",
+      "/organizations/" + organizationId + "/delete-recover-token",
+      request,
+      false,
+      false,
+    );
   }
 
   // Helpers
