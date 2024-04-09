@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -34,6 +35,7 @@ import { SetupComponent } from "./setup/setup.component";
     FormsModule,
     OssModule,
     JslibModule,
+    ScrollingModule,
     ProvidersRoutingModule,
     OrganizationPlansComponent,
     SearchModule,

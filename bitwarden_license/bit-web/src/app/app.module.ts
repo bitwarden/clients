@@ -4,7 +4,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CoreModule } from "@bitwarden/web-vault/app/core";
@@ -34,7 +33,6 @@ import { AppComponent } from "./app.component";
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
-    InfiniteScrollModule,
     DragDropModule,
     AppRoutingModule,
     OssRoutingModule,

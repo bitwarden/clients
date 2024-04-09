@@ -48,7 +48,6 @@
         "html-webpack-injector",
         "html-webpack-plugin",
         "mini-css-extract-plugin",
-        "ngx-infinite-scroll",
         "postcss",
         "postcss-loader",
         "process",

@@ -84,12 +84,8 @@ export class GroupsComponent implements OnInit, OnDestroy {
   organizationId: string;
   groups: GroupDetailsRow[];
 
-  protected didScroll = false;
-  protected pageSize = 100;
   protected ModalTabType = GroupAddEditTabType;
 
-  private pagedGroupsCount = 0;
-  private pagedGroups: GroupDetailsRow[];
   private searchedGroups: GroupDetailsRow[];
   private _searchText: string;
   private destroy$ = new Subject<void>();
@@ -106,14 +102,11 @@ export class GroupsComponent implements OnInit, OnDestroy {
 
   /**
    * The list of groups that should be visible in the table.
-   * This is needed as there are two modes (paging/searching) and
+   * This is needed as there are one mode (searching) and
    * we need a reference to the currently visible groups for
    * the Select All checkbox
    */
   get visibleGroups(): GroupDetailsRow[] {
-    if (this.isPaging()) {
-      return this.pagedGroups;
-    }
     if (this.isSearching()) {
       return this.searchedGroups;
     }
@@ -166,7 +159,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
       )
       .subscribe((groups) => {
         this.groups = groups;
-        this.resetPaging();
         this.updateSearchedGroups();
         this.loading = false;
       });
@@ -185,24 +177,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  loadMore() {
-    if (!this.groups || this.groups.length <= this.pageSize) {
-      return;
-    }
-    const pagedLength = this.pagedGroups.length;
-    let pagedSize = this.pageSize;
-    if (pagedLength === 0 && this.pagedGroupsCount > this.pageSize) {
-      pagedSize = this.pagedGroupsCount;
-    }
-    if (this.groups.length > pagedLength) {
-      this.pagedGroups = this.pagedGroups.concat(
-        this.groups.slice(pagedLength, pagedLength + pagedSize),
-      );
-    }
-    this.pagedGroupsCount = this.pagedGroups.length;
-    this.didScroll = this.pagedGroups.length > this.pageSize;
   }
 
   async edit(
@@ -292,11 +266,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetPaging() {
-    this.pagedGroups = [];
-    this.loadMore();
-  }
-
   isSearching() {
     return this.searchService.isSearchable(this.searchText);
   }
@@ -309,19 +278,10 @@ export class GroupsComponent implements OnInit, OnDestroy {
     this.visibleGroups.forEach((g) => (g.checked = (event.target as HTMLInputElement).checked));
   }
 
-  isPaging() {
-    const searching = this.isSearching();
-    if (searching && this.didScroll) {
-      this.resetPaging();
-    }
-    return !searching && this.groups && this.groups.length > this.pageSize;
-  }
-
   private removeGroup(id: string) {
     const index = this.groups.findIndex((g) => g.details.id === id);
     if (index > -1) {
       this.groups.splice(index, 1);
-      this.resetPaging();
       this.updateSearchedGroups();
     }
   }

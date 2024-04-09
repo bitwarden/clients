@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
 import { LooseComponentsModule } from "../../shared";
@@ -12,6 +13,7 @@ import { AccessSelectorModule } from "./shared/components/access-selector";
 @NgModule({
   imports: [
     SharedOrganizationModule,
+    ScrollingModule,
     AccessSelectorModule,
     CoreOrganizationModule,
     OrganizationsRoutingModule,
