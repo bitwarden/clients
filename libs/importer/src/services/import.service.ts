@@ -154,9 +154,13 @@ export class ImportService implements ImportServiceAbstraction {
         throw new Error(this.i18nService.t("importUnassignedItemsError"));
       }
     }
-
     try {
       await this.setImportTarget(importResult, organizationId, selectedImportTarget);
+    } catch (error) {
+      throw new Error("Unexpected error importing into collection or folder: " + error.message);
+    }
+
+    try {
       if (organizationId != null) {
         await this.handleOrganizationalImport(importResult, organizationId);
       } else {
@@ -329,42 +333,51 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async handleIndividualImport(importResult: ImportResult) {
     const request = new ImportCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i]);
-      request.ciphers.push(new CipherRequest(c));
-    }
-    if (importResult.folders != null) {
-      for (let i = 0; i < importResult.folders.length; i++) {
-        const f = await this.folderService.encrypt(importResult.folders[i]);
-        request.folders.push(new FolderWithIdRequest(f));
+    try {
+      const cipherTasks = (importResult.ciphers ?? []).map((c) => this.cipherService.encrypt(c));
+
+      for (const c of await Promise.all(cipherTasks)) {
+        request.ciphers.push(new CipherRequest(c));
       }
-    }
-    if (importResult.folderRelationships != null) {
-      importResult.folderRelationships.forEach((r) =>
-        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
-      );
+
+      const folderTasks = (importResult.folders ?? []).map((f) => this.folderService.encrypt(f));
+
+      for (const folder of await Promise.all(folderTasks)) {
+        request.folders.push(new FolderWithIdRequest(folder));
+      }
+
+      for (const [key, value] of importResult.folderRelationships ?? []) {
+        request.folderRelationships.push(new KvpRequest(key, value));
+      }
+    } catch (error) {
+      throw new Error("Unexpected error building import data: " + error.message);
     }
     return await this.importApiService.postImportCiphers(request);
   }
 
   private async handleOrganizationalImport(importResult: ImportResult, organizationId: string) {
     const request = new ImportOrganizationCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i]);
-      request.ciphers.push(new CipherRequest(c));
-    }
-    if (importResult.collections != null) {
-      for (let i = 0; i < importResult.collections.length; i++) {
-        importResult.collections[i].organizationId = organizationId;
-        const c = await this.collectionService.encrypt(importResult.collections[i]);
-        request.collections.push(new CollectionWithIdRequest(c));
+    try {
+      const cipherTasks = (importResult.ciphers ?? []).map((c) => this.cipherService.encrypt(c));
+
+      for (const c of await Promise.all(cipherTasks)) {
+        request.ciphers.push(new CipherRequest(c));
       }
-    }
-    if (importResult.collectionRelationships != null) {
-      importResult.collectionRelationships.forEach((r) =>
-        request.collectionRelationships.push(new KvpRequest(r[0], r[1])),
-      );
+
+      const collectionTasks = (importResult.collections ?? []).map((c) => {
+        c.organizationId = organizationId;
+        return this.collectionService.encrypt(c);
+      });
+
+      for (const collection of await Promise.all(collectionTasks)) {
+        request.collections.push(new CollectionWithIdRequest(collection));
+      }
+
+      for (const [key, value] of importResult.collectionRelationships ?? []) {
+        request.collectionRelationships.push(new KvpRequest(key, value));
+      }
+    } catch (error) {
+      throw new Error("Unexpected error building import data: " + error.message);
     }
     return await this.importApiService.postImportOrganizationCiphers(organizationId, request);
   }
