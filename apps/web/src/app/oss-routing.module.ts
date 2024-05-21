@@ -17,6 +17,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./admin-console/providers/
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { SponsoredFamiliesComponent } from "./admin-console/settings/sponsored-families.component";
 import { AcceptOrganizationComponent } from "./auth/accept-organization.component";
+import { AnonLayoutWrapperComponent } from "./auth/anon-layout-wrapper.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
 import { LockComponent } from "./auth/lock.component";
@@ -33,6 +34,8 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
+import { FinishSignUpComponent } from "./auth/trial-initiation/finish-sign-up/finish-sign-up.component";
+import { freeTrialTextResolver } from "./auth/trial-initiation/finish-sign-up/resolver/free-trial-text.resolver";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
@@ -294,6 +297,19 @@ const routes: Routes = [
     path: "organizations",
     loadChildren: () =>
       import("./admin-console/organizations/organization.module").then((m) => m.OrganizationModule),
+  },
+  {
+    path: "",
+    component: AnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "finish-signup",
+        component: FinishSignUpComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+      },
+    ],
   },
 ];
 

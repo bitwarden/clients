@@ -8193,6 +8193,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Start your 7-Day free trial of Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Enter your Teams organization information"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Enter your Families organization information"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Enter your Enterprise organization information"
+  },
   "viewInfo": {
     "message": "View info"
   },

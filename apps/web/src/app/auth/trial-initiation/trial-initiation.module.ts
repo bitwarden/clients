@@ -35,6 +35,7 @@ import { TeamsContentComponent } from "./content/teams-content.component";
 import { Teams1ContentComponent } from "./content/teams1-content.component";
 import { Teams2ContentComponent } from "./content/teams2-content.component";
 import { Teams3ContentComponent } from "./content/teams3-content.component";
+import { FinishSignUpComponent } from "./finish-sign-up/finish-sign-up.component";
 import { TrialInitiationComponent } from "./trial-initiation.component";
 import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.module";
 
@@ -53,6 +54,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
   ],
   declarations: [
     TrialInitiationComponent,
+    FinishSignUpComponent,
     EnterpriseContentComponent,
     TeamsContentComponent,
     ConfirmationDetailsComponent,
@@ -80,7 +82,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     SecretsManagerTrialFreeStepperComponent,
     SecretsManagerTrialPaidStepperComponent,
   ],
-  exports: [TrialInitiationComponent],
+  exports: [TrialInitiationComponent, FinishSignUpComponent],
   providers: [TitleCasePipe],
 })
 export class TrialInitiationModule {}
