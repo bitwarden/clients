@@ -1,6 +1,9 @@
 import { firstValueFrom, map, Observable, share, skipWhile, switchMap } from "rxjs";
 import { SemVer } from "semver";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
+
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
@@ -101,6 +104,7 @@ export class CipherService implements CipherServiceAbstraction {
     private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
+    private bulkEncryptService: BulkEncryptService,
     private cipherFileUploadService: CipherFileUploadService,
     private configService: ConfigService,
     private stateProvider: StateProvider,
@@ -397,9 +401,19 @@ export class CipherService implements CipherServiceAbstraction {
 
     const decCiphers = (
       await Promise.all(
-        Object.entries(grouped).map(([orgId, groupedCiphers]) =>
-          this.encryptService.decryptItems(groupedCiphers, orgKeys[orgId] ?? userKey),
-        ),
+        Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
+          if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
+            return await this.bulkEncryptService.decryptItems(
+              groupedCiphers,
+              orgKeys[orgId] ?? userKey,
+            );
+          } else {
+            return await this.encryptService.decryptItems(
+              groupedCiphers,
+              orgKeys[orgId] ?? userKey,
+            );
+          }
+        }),
       )
     )
       .flat()
@@ -512,7 +526,12 @@ export class CipherService implements CipherServiceAbstraction {
 
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
     const key = await this.cryptoService.getOrgKey(organizationId);
-    const decCiphers = await this.encryptService.decryptItems(ciphers, key);
+    let decCiphers: CipherView[] = [];
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
+      decCiphers = await this.bulkEncryptService.decryptItems(ciphers, key);
+    } else {
+      decCiphers = await this.encryptService.decryptItems(ciphers, key);
+    }
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;

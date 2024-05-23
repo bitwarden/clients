@@ -72,6 +72,7 @@ import {
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -108,7 +109,9 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { FallbackBulkEncryptService } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -242,7 +245,6 @@ import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
-
 export default class MainBackground {
   messagingService: MessageSender;
   storageService: BrowserLocalStorageService;
@@ -301,6 +303,7 @@ export default class MainBackground {
   vaultFilterService: VaultFilterService;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
+  bulkEncryptService: FallbackBulkEncryptService;
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
@@ -485,6 +488,7 @@ export default class MainBackground {
             true,
           )
         : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -721,6 +725,7 @@ export default class MainBackground {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
+      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
@@ -1170,6 +1175,15 @@ export default class MainBackground {
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.startListening();
+
+    if (
+      (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) &&
+      BrowserApi.isManifestVersion(2)
+    ) {
+      await this.bulkEncryptService.setFeatureFlagEncryptService(
+        new BulkEncryptServiceImplementation(this.cryptoFunctionService, this.logService),
+      );
+    }
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {

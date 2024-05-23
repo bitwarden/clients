@@ -8,6 +8,9 @@ import {
   KdfConfig,
   PBKDF2KdfConfig,
 } from "@bitwarden/common/auth/models/domain/kdf-config";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,8 +44,10 @@ export class EmergencyAccessService {
     private apiService: ApiService,
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
+    private bulkEncryptService: BulkEncryptService,
     private cipherService: CipherService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -221,10 +226,18 @@ export class EmergencyAccessService {
     );
     const grantorUserKey = new SymmetricCryptoKey(grantorKeyBuffer) as UserKey;
 
-    const ciphers = await this.encryptService.decryptItems(
-      response.ciphers.map((c) => new Cipher(c)),
-      grantorUserKey,
-    );
+    let ciphers: CipherView[] = [];
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
+      ciphers = await this.bulkEncryptService.decryptItems(
+        response.ciphers.map((c) => new Cipher(c)),
+        grantorUserKey,
+      );
+    } else {
+      ciphers = await this.encryptService.decryptItems(
+        response.ciphers.map((c) => new Cipher(c)),
+        grantorUserKey,
+      );
+    }
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 

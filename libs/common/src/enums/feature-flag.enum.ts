@@ -17,6 +17,7 @@ export enum FeatureFlag {
   EnableDeleteProvider = "AC-1218-delete-provider",
   ExtensionRefresh = "extension-refresh",
   RestrictProviderAccess = "restrict-provider-access",
+  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -44,6 +45,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableDeleteProvider]: FALSE,
   [FeatureFlag.ExtensionRefresh]: FALSE,
   [FeatureFlag.RestrictProviderAccess]: FALSE,
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

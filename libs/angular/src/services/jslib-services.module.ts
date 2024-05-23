@@ -119,6 +119,7 @@ import { OrganizationBillingService } from "@bitwarden/common/billing/services/o
 import { PaymentMethodWarningsService } from "@bitwarden/common/billing/services/payment-method-warnings.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -150,7 +151,9 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
+import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { FallbackBulkEncryptService } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -416,6 +419,7 @@ const safeProviders: SafeProvider[] = [
       stateService: StateServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
+      bulkEncryptService: BulkEncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
       configService: ConfigService,
       stateProvider: StateProvider,
@@ -429,6 +433,7 @@ const safeProviders: SafeProvider[] = [
         stateService,
         autofillSettingsService,
         encryptService,
+        bulkEncryptService,
         fileUploadService,
         configService,
         stateProvider,
@@ -442,6 +447,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
+      BulkEncryptService,
       CipherFileUploadServiceAbstraction,
       ConfigService,
       StateProvider,
@@ -789,6 +795,11 @@ const safeProviders: SafeProvider[] = [
     provide: EncryptService,
     useFactory: encryptServiceFactory,
     deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
+  }),
+  safeProvider({
+    provide: BulkEncryptService,
+    useFactory: bulkEncryptServiceFactory,
+    deps: [CryptoFunctionServiceAbstraction, EncryptService, LogService],
   }),
   safeProvider({
     provide: EventUploadServiceAbstraction,
@@ -1190,6 +1201,9 @@ const safeProviders: SafeProvider[] = [
   }),
 ];
 
+/**
+ * @deprecated
+ */
 function encryptServiceFactory(
   cryptoFunctionservice: CryptoFunctionServiceAbstraction,
   logService: LogService,
@@ -1198,6 +1212,19 @@ function encryptServiceFactory(
   return flagEnabled("multithreadDecryption")
     ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)
     : new EncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures);
+}
+
+/**
+ * @deprecated
+ */
+function bulkEncryptServiceFactory(
+  cryptoFunctionservice: CryptoFunctionServiceAbstraction,
+  encryptService: EncryptService,
+  logService: LogService,
+): BulkEncryptService {
+  return flagEnabled("multithreadDecryption")
+    ? new BulkEncryptServiceImplementation(cryptoFunctionservice, logService)
+    : new FallbackBulkEncryptService(encryptService);
 }
 
 @NgModule({

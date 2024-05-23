@@ -185,6 +185,9 @@ export class EncryptServiceImplementation implements EncryptService {
     return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);
   }
 
+  /**
+   * @deprecated Replaced by BulkEncryptService (PM-4154)
+   */
   async decryptItems<T extends InitializerMetadata>(
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,

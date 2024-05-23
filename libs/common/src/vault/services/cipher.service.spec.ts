@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
+
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { makeStaticByteArray } from "../../../spec/utils";
@@ -114,6 +116,7 @@ describe("Cipher Service", () => {
   const i18nService = mock<I18nService>();
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
+  const bulkEncryptService = mock<BulkEncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
   const stateProvider = new FakeStateProvider(accountService);
@@ -136,6 +139,7 @@ describe("Cipher Service", () => {
       stateService,
       autofillSettingsService,
       encryptService,
+      bulkEncryptService,
       cipherFileUploadService,
       configService,
       stateProvider,

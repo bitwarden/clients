@@ -4,6 +4,8 @@ import mock from "jest-mock-extended/lib/Mock";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,15 +32,18 @@ describe("EmergencyAccessService", () => {
   let apiService: MockProxy<ApiService>;
   let cryptoService: MockProxy<CryptoService>;
   let encryptService: MockProxy<EncryptService>;
+  let bulkEncryptService: MockProxy<BulkEncryptService>;
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
+  let configService: ConfigService;
 
   beforeAll(() => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
     apiService = mock<ApiService>();
     cryptoService = mock<CryptoService>();
     encryptService = mock<EncryptService>();
+    bulkEncryptService = mock<BulkEncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
 
@@ -47,8 +52,10 @@ describe("EmergencyAccessService", () => {
       apiService,
       cryptoService,
       encryptService,
+      bulkEncryptService,
       cipherService,
       logService,
+      configService,
     );
   });
 

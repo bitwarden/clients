@@ -12,6 +12,9 @@ import { getClassInitializer } from "./get-class-initializer";
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
 const workerTTL = 3 * 60000; // 3 minutes
 
+/**
+ * @deprecated Replaced by BulkEncryptionService (PM-4154)
+ */
 export class MultithreadEncryptServiceImplementation extends EncryptServiceImplementation {
   private worker: Worker;
   private timeout: any;
