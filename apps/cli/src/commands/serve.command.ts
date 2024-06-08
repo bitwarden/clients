@@ -32,6 +32,7 @@ import { GetCommand } from "./get.command";
 import { ListCommand } from "./list.command";
 import { RestoreCommand } from "./restore.command";
 import { StatusCommand } from "./status.command";
+import { readFileSync, existsSync } from "fs";
 
 export class ServeCommand {
   private listCommand: ListCommand;
@@ -187,6 +188,29 @@ export class ServeCommand {
     process.env.BW_SERVE = "true";
     process.env.BW_NOINTERACTION = "true";
 
+    const authTokenEnabled = !options.disableAuth;
+
+    var useToken = null;
+    if(options.authToken != null && options.authToken.length > 0) {
+      useToken = options.authToken;
+    }
+    if(options.authTokenFile != null && options.authTokenFile.length > 0) {
+      if(!existsSync(options.authTokenFile)) {
+        this.main.logService.error("Auth token file does not exist.");
+        return;
+      }
+      useToken = readFileSync(options.authTokenFile, 'utf8').trim();
+    }
+    if(options.authTokenEnv != null && options.authTokenEnv.length > 0) {
+      useToken = process.env[options.authTokenEnv];
+    }
+
+    const authToken = useToken || process.env.BW_SERVE_AUTH_TOKEN;
+    if(authTokenEnabled && (authToken == null || authToken.length == 0)) {
+      this.main.logService.error("No auth token provided. Please deactivate auth explicitly or provide an auth token using --auth-token, --auth-token-file, --auth-token-env or BW_SERVE_AUTH_TOKEN environment variable.");
+      return;
+    }
+
     server
       .use(async (ctx, next) => {
         if (protectOrigin && ctx.headers.origin != undefined) {
@@ -197,6 +221,21 @@ export class ServeCommand {
                 ? "(Origin header value missing)"
                 : ctx.headers.origin
             }"`,
+          );
+          return;
+        }
+        await next();
+      })
+      .use(async (ctx, next) => {
+        if(!authTokenEnabled) {
+          await next();
+          return;
+        }
+
+        if (ctx.request.headers.authorization == null || ctx.request.headers.authorization.indexOf("Bearer " + authToken) != 0) {
+          ctx.status = 403;
+          this.main.logService.warning(
+            `Blocking request from as token is invalid or missing.`,
           );
           return;
         }

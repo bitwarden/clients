@@ -493,6 +493,10 @@ export class Program extends BaseProgram {
       .description("Start a RESTful API webserver.")
       .option("--hostname <hostname>", "The hostname to bind your API webserver to.")
       .option("--port <port>", "The port to run your API webserver on.")
+      .option("--auth-token-env <authTokenEnv>", "The environment variable to use for the auth token. Defaults to BW_SERVE_AUTH_TOKEN if not set.")
+      .option("--auth-token-file <authTokenFile>", "The file to use for the auth token.")
+      .option("--auth-token <authToken>", "The auth token to use for authentication.")
+      .option("--disable-auth", "If set, disables authentication.")
       .option(
         "--disable-origin-protection",
         "If set, allows requests with origin header. Warning, this option exists for backwards compatibility reasons and exposes your environment to known CSRF attacks.",
