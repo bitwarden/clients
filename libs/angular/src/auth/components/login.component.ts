@@ -9,6 +9,7 @@ import {
   LoginEmailServiceAbstraction,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
@@ -42,6 +43,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   onSuccessfulLoginTwoFactorNavigate: () => Promise<any>;
   onSuccessfulLoginForceResetNavigate: () => Promise<any>;
   showLoginWithDevice: boolean;
+  showSSO: boolean;
   validatedEmail = false;
   paramEmailSet = false;
 
@@ -83,6 +85,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     protected loginEmailService: LoginEmailServiceAbstraction,
     protected ssoLoginService: SsoLoginServiceAbstraction,
     protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
+    protected orgDomainApiService: OrgDomainApiServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
   }
@@ -352,6 +355,12 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
         email,
         deviceIdentifier,
       );
+
+      const ssoResponse = await this.orgDomainApiService.getClaimedOrgDomainByEmail(email);
+      this.showSSO = ssoResponse?.ssoAvailable;
+      if (ssoResponse?.ssoAvailable) {
+        await this.ssoLoginService.setOrganizationSsoIdentifier(ssoResponse.organizationIdentifier);
+      }
     } catch (e) {
       this.showLoginWithDevice = false;
     }

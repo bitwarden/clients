@@ -10,6 +10,7 @@ import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
@@ -68,6 +69,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
+    orgDomainApiService: OrgDomainApiServiceAbstraction,
   ) {
     super(
       devicesApiService,
@@ -88,6 +90,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
       loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
+      orgDomainApiService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
     this.showPasswordless = flagEnabled("showPasswordless");

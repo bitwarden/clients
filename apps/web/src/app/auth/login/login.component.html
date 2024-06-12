@@ -128,7 +128,7 @@
             </button>
           </div>
 
-          <div class="tw-mb-3">
+          <div class="tw-mb-3" *ngIf="showSSO">
             <a
               routerLink="/sso"
               [queryParams]="{ email: formGroup.value.email }"

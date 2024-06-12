@@ -9,7 +9,6 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -86,32 +85,18 @@ export class SsoComponent extends BaseSsoComponent {
       } else {
         // Note: this flow is written for web but both browser and desktop
         // redirect here on SSO button click.
+        this.loggingIn = true;
 
-        // Check if email matches any claimed domains
-        if (qParams.email) {
-          // show loading spinner
-          this.loggingIn = true;
-          try {
-            const response: OrganizationDomainSsoDetailsResponse =
-              await this.orgDomainApiService.getClaimedOrgDomainByEmail(qParams.email);
-
-            if (response?.ssoAvailable) {
-              this.identifier = response.organizationIdentifier;
-              await this.submit();
-              return;
-            }
-          } catch (error) {
-            this.handleGetClaimedDomainByEmailError(error);
-          }
-
-          this.loggingIn = false;
-        }
-
-        // Fallback to state svc if domain is unclaimed
         const storedIdentifier = await this.ssoLoginService.getOrganizationSsoIdentifier();
         if (storedIdentifier != null) {
           this.identifier = storedIdentifier;
         }
+
+        if (qParams.email && this.identifier != null) {
+          await this.submit();
+          return;
+        }
+        this.loggingIn = false;
       }
     });
   }
