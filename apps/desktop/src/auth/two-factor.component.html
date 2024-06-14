@@ -80,10 +80,68 @@
         </ng-container>
 
         <!-- WebAuthn -->
-        <ng-container *ngIf="selectedProviderType === providerType.WebAuthn">
-          <div class="tw-flex tw-justify-center">
-            <div id="web-authn-frame">
-              <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+        <ng-container
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.TouchRequired
+          "
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>
+                <label for="touch">{{ "fido2Touch" | i18n }}</label>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.PinRequired
+          "
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>
+                <label for="pin">{{ "fido2Pin" | i18n }}</label>
+                <input
+                  id="pin"
+                  type="password"
+                  name="Pin"
+                  [(ngModel)]="pin"
+                  required
+                  appAutofocus
+                  appInputVerbatim
+                />
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.DeviceRequired
+          "
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>
+                <label>{{ "fido2NoDevice" | i18n }}</label>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.Processing
+          "
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>
+                <label>{{ "fido2Processing" | i18n }}</label>
+              </div>
             </div>
           </div>
         </ng-container>

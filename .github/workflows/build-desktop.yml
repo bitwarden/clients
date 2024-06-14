@@ -129,7 +129,9 @@ jobs:
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
     # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
     # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
-    runs-on: ubuntu-20.04
+    # Needs 24.04 to use supported openssl version
+    # todo: verify that this does not break bulids
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -152,7 +154,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm musl-dev musl-tools
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm musl-dev musl-tools libssl-dev libdbus-1-dev libpcsclite-dev libudev-dev libusb-1.0-0-dev
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
@@ -467,6 +469,10 @@ jobs:
       - name: Rust
         shell: pwsh
         run: rustup target install aarch64-apple-darwin
+
+      - name: Set up Dependencies
+        run: |
+          brew install openssl@3
 
       - name: Print environment
         run: |

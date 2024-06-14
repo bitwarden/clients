@@ -35,6 +35,7 @@ import { WindowMain } from "./main/window.main";
 import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
+import { WebauthnListener } from "./platform/main/webauthn-listener";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -51,6 +52,7 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  webauthnListener: WebauthnListener;
   desktopSettingsService: DesktopSettingsService;
   migrationRunner: MigrationRunner;
 
@@ -204,6 +206,8 @@ export class Main {
       this.logService,
     );
 
+    this.webauthnListener = new WebauthnListener(this.logService, this.messagingService);
+
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
       this.windowMain,
@@ -215,10 +219,12 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+    this.logService.info("Clipboard service initialized");
   }
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
+    this.webauthnListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

@@ -1,6 +1,6 @@
 import { Component, Inject, NgZone, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -24,6 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { TwoFactorOptionsComponent } from "./two-factor-options.component";
@@ -39,8 +40,13 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
 
+  private destroyed$: Subject<void> = new Subject();
+  readonly TwoFactorWebauthnState = TwoFactorWebauthnState;
+
   showingModal = false;
   duoCallbackSubscriptionEnabled: boolean = false;
+  webauthnState: TwoFactorWebauthnState = TwoFactorWebauthnState.Processing;
+  pin?: string;
 
   constructor(
     loginStrategyService: LoginStrategyServiceAbstraction,
@@ -64,6 +70,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     configService: ConfigService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
+    private messageListener: MessageListener,
     @Inject(WINDOW) protected win: Window,
   ) {
     super(
@@ -97,6 +104,27 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
+
+    this.messageListener
+      .messages$(new CommandDefinition("webauthn.touch-required"))
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.webauthnState = TwoFactorWebauthnState.TouchRequired;
+      });
+    this.messageListener
+      .messages$(new CommandDefinition("webauthn.device-required"))
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.webauthnState = TwoFactorWebauthnState.DeviceRequired;
+      });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const isNativeWebauthnSupported = await ipc.platform.webauthn.supportsNative();
+    if (isNativeWebauthnSupported) {
+      this.useIframeWebAuthn = false;
+    }
+    await super.ngOnInit();
   }
 
   async anotherMethod() {
@@ -127,6 +155,14 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   }
 
   async submit() {
+    if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && !this.useIframeWebAuthn) {
+      await this.authWebAuthn();
+    } else {
+      await this.submit_final();
+    }
+  }
+
+  async submit_final() {
     await super.submit();
     if (this.captchaSiteKey) {
       const content = document.getElementById("content") as HTMLDivElement;
@@ -168,10 +204,44 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     this.platformUtilsService.launchUri(launchUrl);
   }
 
+  override async authWebAuthn() {
+    const providerData = await this.twoFactorService.getProviders().then((providers) => {
+      return providers.get(this.selectedProviderType);
+    });
+    const providerDataString = JSON.stringify(providerData);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    if (this.pin === "") {
+      this.pin = undefined;
+    }
+    this.webauthnState = TwoFactorWebauthnState.Processing;
+    const authenticatorResponse = await ipc.platform.webauthn.authenticate(
+      providerDataString,
+      env.getWebVaultUrl(),
+      this.pin,
+    );
+    // returns "pin-required" instead if the user needs to enter a pin
+    if (authenticatorResponse === "pin-required") {
+      this.webauthnState = TwoFactorWebauthnState.PinRequired;
+      return;
+    }
+    this.webauthnState = TwoFactorWebauthnState.Processing;
+    this.token = authenticatorResponse;
+    await this.submit_final();
+  }
+
   ngOnDestroy(): void {
     if (this.duoCallbackSubscriptionEnabled) {
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
       this.duoCallbackSubscriptionEnabled = false;
     }
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
+}
+
+enum TwoFactorWebauthnState {
+  DeviceRequired,
+  TouchRequired,
+  PinRequired,
+  Processing,
 }

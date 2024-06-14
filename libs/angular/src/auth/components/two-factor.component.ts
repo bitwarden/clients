@@ -46,6 +46,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   providerType = TwoFactorProviderType;
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   webAuthnSupported = false;
+  useIframeWebAuthn = true;
   webAuthn: WebAuthnIFrame = null;
   title = "";
   twoFactorEmail: string = null;
@@ -120,29 +121,35 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
 
     if (this.win != null && this.webAuthnSupported) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-      this.webAuthn = new WebAuthnIFrame(
-        this.win,
-        webVaultUrl,
-        this.webAuthnNewTab,
-        this.platformUtilsService,
-        this.i18nService,
-        (token: string) => {
-          this.token = token;
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.submit();
-        },
-        (error: string) => {
-          this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), error);
-        },
-        (info: string) => {
-          if (info === "ready") {
-            this.webAuthnReady = true;
-          }
-        },
-      );
+      if (this.useIframeWebAuthn) {
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const webVaultUrl = env.getWebVaultUrl();
+        this.webAuthn = new WebAuthnIFrame(
+          this.win,
+          webVaultUrl,
+          this.webAuthnNewTab,
+          this.platformUtilsService,
+          this.i18nService,
+          (token: string) => {
+            this.token = token;
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.submit();
+          },
+          (error: string) => {
+            this.platformUtilsService.showToast(
+              "error",
+              this.i18nService.t("errorOccurred"),
+              error,
+            );
+          },
+          (info: string) => {
+            if (info === "ready") {
+              this.webAuthnReady = true;
+            }
+          },
+        );
+      }
     }
 
     this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
@@ -240,7 +247,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
       if (this.webAuthn != null) {
         this.webAuthn.stop();
-      } else {
+      } else if (this.useIframeWebAuthn) {
         return;
       }
     } else if (

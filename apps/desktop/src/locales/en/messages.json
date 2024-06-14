@@ -1452,6 +1452,18 @@
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
     "message": "Too many invalid PIN entry attempts. Logging out."
   },
+  "fido2Pin": {
+    "message": "Enter the pin for your fido2 authenticator."
+  },
+  "fido2Touch": {
+    "message": "Please touch your fido2 authenticator."
+  },
+  "fido2NoDevice": {
+    "message": "No fido2 authenticator detected, please insert your fido2 authenticator."
+  },
+  "fido2Processing": {
+    "message": "Communicating with your fido2 authenticator."
+  },
   "unlockWithWindowsHello": {
     "message": "Unlock with Windows Hello"
   },

@@ -6,7 +6,7 @@ mod clipboard;
 mod crypto;
 mod error;
 mod password;
-
+mod passkeyclient;
 #[napi]
 pub mod passwords {
     /// Fetch the stored password from the keychain.
@@ -119,6 +119,25 @@ pub mod clipboards {
     #[napi]
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         super::clipboard::write(&text, password)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
+pub mod passkeyclients {
+    use napi::threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction};
+
+    #[napi]
+    pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>, no_devices_callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<String> {
+        super::passkeyclient::authenticate(challenge, origin, pin, touch_required_callback, no_devices_callback)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn supports_native_webauthn() -> napi::Result<bool> {
+        super::passkeyclient::supports_native_webauthn()
+            .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }

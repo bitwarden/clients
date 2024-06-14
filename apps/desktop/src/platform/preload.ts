@@ -59,6 +59,13 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const webauthn = {
+  authenticate: (challenge: string, origin: string, pin?: string): Promise<string> => {
+    return ipcRenderer.invoke("webauthn.authenticate", { challenge, origin, pin });
+  },
+  supportsNative: (): Promise<boolean> => ipcRenderer.invoke("webauthn.supports-native"),
+};
+
 const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
@@ -148,6 +155,8 @@ export default {
   passwords,
   biometric,
   clipboard,
+  webauthn,
+
   nativeMessaging,
   crypto,
 };
