@@ -1,7 +1,6 @@
 // required to avoid linting errors when there are no flags
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SharedFlags = {
-  multithreadDecryption: boolean;
   showPasswordless?: boolean;
   enableCipherKeyEncryption?: boolean;
 };

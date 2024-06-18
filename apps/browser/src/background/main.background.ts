@@ -209,7 +209,6 @@ import AutofillService from "../autofill/services/autofill.service";
 import { SafariApp } from "../browser/safariApp";
 import { Account } from "../models/account";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -485,14 +484,13 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.encryptService =
-      flagEnabled("multithreadDecryption") && BrowserApi.isManifestVersion(2)
-        ? new MultithreadEncryptServiceImplementation(
-            this.cryptoFunctionService,
-            this.logService,
-            true,
-          )
-        : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService = BrowserApi.isManifestVersion(2)
+      ? new MultithreadEncryptServiceImplementation(
+          this.cryptoFunctionService,
+          this.logService,
+          true,
+        )
+      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,

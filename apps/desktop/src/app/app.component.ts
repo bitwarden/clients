@@ -423,12 +423,13 @@ export class AppComponent implements OnInit, OnDestroy {
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
-              await this.syncService.fullSync(true);
+              await this.syncService.fullSync(false);
               this.loading = false;
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.router.navigate(["vault"]);
             }
+            this.messagingService.send("finishSwitchAccount");
             break;
           }
           case "systemSuspended":
