@@ -1,8 +1,6 @@
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
-import { UnauthGuard as BaseUnauthGuardService } from "@bitwarden/angular/auth/guards";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -90,7 +88,6 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { UnauthGuardService } from "../../auth/popup/services";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import MainBackground from "../../background/main.background";
@@ -169,11 +166,6 @@ const safeProviders: SafeProvider[] = [
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
     multi: true,
-  }),
-  safeProvider({
-    provide: BaseUnauthGuardService,
-    useClass: UnauthGuardService,
-    deps: [AuthService, Router],
   }),
   safeProvider({
     provide: SsoLoginServiceAbstraction,

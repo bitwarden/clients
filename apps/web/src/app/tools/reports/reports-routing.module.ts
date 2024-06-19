@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
 
 import { hasPremiumGuard } from "../../core/guards/has-premium.guard";
 
@@ -18,7 +18,7 @@ const routes: Routes = [
   {
     path: "",
     component: ReportsLayoutComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
     children: [
       {
         path: "",

@@ -2,11 +2,10 @@ import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
 import {
-  AuthGuard,
+  authGuard,
   lockGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
-  UnauthGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
@@ -98,7 +97,7 @@ const routes: Routes = [
       {
         path: "register",
         component: TrialInitiationComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "createAccount" } satisfies DataProperties,
       },
       {
@@ -114,7 +113,7 @@ const routes: Routes = [
       {
         path: "hint",
         component: HintComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "passwordHint" } satisfies DataProperties,
       },
       {
@@ -139,19 +138,19 @@ const routes: Routes = [
       {
         path: "verify-recover-delete",
         component: VerifyRecoverDeleteComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "deleteAccount" } satisfies DataProperties,
       },
       {
         path: "verify-recover-delete-org",
         component: VerifyRecoverDeleteOrgComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "deleteOrganization" },
       },
       {
         path: "verify-recover-delete-provider",
         component: VerifyRecoverDeleteProviderComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "deleteAccount" } satisfies DataProperties,
       },
       {
@@ -162,13 +161,13 @@ const routes: Routes = [
       {
         path: "update-temp-password",
         component: UpdateTempPasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { titleId: "updateTempPassword" } satisfies DataProperties,
       },
       {
         path: "update-password",
         component: UpdatePasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { titleId: "updatePassword" } satisfies DataProperties,
       },
       {
@@ -333,7 +332,7 @@ const routes: Routes = [
       {
         path: "remove-password",
         component: RemovePasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: {
           pageTitle: "removeMasterPassword",
           titleId: "removeMasterPassword",
@@ -344,7 +343,7 @@ const routes: Routes = [
   {
     path: "",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), AuthGuard],
+    canActivate: [deepLinkGuard(), authGuard],
     children: [
       {
         path: "vault",
@@ -414,7 +413,7 @@ const routes: Routes = [
       },
       {
         path: "tools",
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
           {

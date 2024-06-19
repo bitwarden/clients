@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import {
-  AuthGuard,
+  authGuard,
   lockGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
@@ -71,7 +71,7 @@ const routes: Routes = [
   {
     path: "vault",
     component: VaultComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   { path: "accessibility-cookie", component: AccessibilityCookieComponent },
   { path: "hint", component: HintComponent },
@@ -80,17 +80,17 @@ const routes: Routes = [
   {
     path: "send",
     component: SendComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: "remove-password",
     component: RemovePasswordComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
     data: { titleId: "removeMasterPassword" },
   },
   {

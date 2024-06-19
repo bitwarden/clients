@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
 } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard as authGuardFn } from "@bitwarden/angular/auth/guards";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -22,7 +22,7 @@ export const canActivateSM: CanActivateFn = async (
   const syncService = inject(SyncService);
   const authService = inject(AuthService);
   const orgService = inject(OrganizationService);
-  const authGuard = inject(AuthGuard);
+  const authGuard = inject(authGuardFn);
 
   /** Workaround to avoid service initialization race condition. */
   if ((await syncService.getLastSync()) == null) {

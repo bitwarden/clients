@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
 import {
   canAccessOrgAdmin,
   canAccessGroupsTab,
@@ -23,7 +23,7 @@ const routes: Routes = [
   {
     path: ":organizationId",
     component: OrganizationLayoutComponent,
-    canActivate: [deepLinkGuard(), AuthGuard, OrganizationPermissionsGuard],
+    canActivate: [deepLinkGuard(), authGuard, OrganizationPermissionsGuard],
     data: {
       organizationPermissions: canAccessOrgAdmin,
     },
