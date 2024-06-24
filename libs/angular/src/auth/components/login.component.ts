@@ -116,17 +116,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     });
 
     if (!this.paramEmailSet) {
-      const storedEmail = await firstValueFrom(this.loginEmailService.storedEmail$);
-      this.formGroup.controls.email.setValue(storedEmail ?? "");
+      await this.loadEmailSettings();
     }
-
-    let rememberEmail = this.loginEmailService.getRememberEmail();
-
-    if (!rememberEmail) {
-      rememberEmail = (await firstValueFrom(this.loginEmailService.storedEmail$)) != null;
-    }
-
-    this.formGroup.controls.rememberEmail.setValue(rememberEmail);
   }
 
   ngOnDestroy() {
@@ -164,8 +155,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const response = await this.formPromise;
 
-      this.setLoginEmailValues();
-      await this.loginEmailService.saveEmailSettings();
+      await this.saveEmailSettings();
 
       if (this.handleCaptchaRequired(response)) {
         return;
@@ -187,6 +177,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginForceResetNavigate();
         } else {
+          this.loginEmailService.clearValues();
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.forcePasswordResetRoute]);
@@ -202,6 +193,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginNavigate();
         } else {
+          this.loginEmailService.clearValues();
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.successRoute]);
@@ -231,12 +223,14 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
       return;
     }
 
-    this.setLoginEmailValues();
+    await this.saveEmailSettings();
     await this.router.navigate(["/login-with-device"]);
   }
 
   async launchSsoBrowser(clientId: string, ssoRedirectUri: string) {
-    await this.saveEmailSettings();
+    // Save off email for SSO
+    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+
     // Generate necessary sso params
     const passwordOptions: any = {
       type: "password",
@@ -307,17 +301,28 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     }
   }
 
-  setLoginEmailValues() {
-    this.loginEmailService.setEmail(this.formGroup.value.email);
-    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
+  private async loadEmailSettings() {
+    // Try to load from memory first
+    const email = this.loginEmailService.getEmail();
+    const rememberEmail = this.loginEmailService.getRememberEmail();
+    if (email) {
+      this.formGroup.controls.email.setValue(email);
+      this.formGroup.controls.rememberEmail.setValue(rememberEmail);
+    } else {
+      // If not in memory, check email on disk
+      const storedEmail = await firstValueFrom(this.loginEmailService.storedEmail$);
+      if (storedEmail) {
+        // If we have a stored email, rememberEmail should default to true
+        this.formGroup.controls.email.setValue(storedEmail);
+        this.formGroup.controls.rememberEmail.setValue(true);
+      }
+    }
   }
 
-  async saveEmailSettings() {
-    this.setLoginEmailValues();
+  protected async saveEmailSettings() {
+    this.loginEmailService.setEmail(this.formGroup.value.email);
+    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
     await this.loginEmailService.saveEmailSettings();
-
-    // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
   }
 
   // Legacy accounts used the master key to encrypt data. Migration is required

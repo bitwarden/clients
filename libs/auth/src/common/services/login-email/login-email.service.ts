@@ -73,6 +73,9 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
     this.rememberEmail = value ?? false;
   }
 
+  // Note: only clear values on successful login or you are sure they are not needed.
+  // Browser uses these values to maintain the email between login and 2fa components so
+  // we do not want to clear them too early.
   clearValues() {
     this.email = null;
     this.rememberEmail = false;
@@ -89,12 +92,11 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
         return storedEmail;
       }
 
-      // Logging in with rememberEmail set to false will clear the stored email
+      // Saving with rememberEmail set to false will clear the stored email
       if (this.rememberEmail) {
         return this.email;
       }
       return null;
     });
-    this.clearValues();
   }
 }

@@ -160,7 +160,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   }
 
   async goToHint() {
-    this.setLoginEmailValues();
+    await this.saveEmailSettings();
     await this.router.navigateByUrl("/hint");
   }
 
