@@ -4,6 +4,10 @@
       (token)="token = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
+    <app-two-factor-auth-yubikey
+      (token)="token = $event"
+      *ngIf="selectedProviderType === providerType.Yubikey"
+    />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />

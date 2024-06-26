@@ -1,0 +1,18 @@
+<p bitTypography="body1" class="tw-text-center">{{ "insertYubiKey" | i18n }}</p>
+<picture>
+  <source srcset="../../images/yubikey.avif" type="image/avif" />
+  <source srcset="../../images/yubikey.webp" type="image/webp" />
+  <img src="../../images/yubikey.jpg" class="tw-rounded img-fluid tw-mb-3" alt="" />
+</picture>
+<bit-form-field>
+  <bit-label class="tw-sr-only">{{ "verificationCode" | i18n }}</bit-label>
+  <input
+    type="password"
+    bitInput
+    appAutofocus
+    appInputVerbatim
+    autocomplete="new-password"
+    [(ngModel)]="tokenValue"
+    (input)="token.emit(tokenValue)"
+  />
+</bit-form-field>
