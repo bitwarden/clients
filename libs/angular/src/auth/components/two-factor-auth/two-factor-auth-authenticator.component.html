@@ -1,0 +1,16 @@
+<ng-container>
+  <p bitTypography="body1">
+    {{ "enterVerificationCodeApp" | i18n }}
+  </p>
+  <bit-form-field>
+    <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      appAutofocus
+      appInputVerbatim
+      [(ngModel)]="tokenValue"
+      (input)="token.emit(tokenValue)"
+    />
+  </bit-form-field>
+</ng-container>

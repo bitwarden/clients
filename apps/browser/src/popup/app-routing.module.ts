@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
+import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
@@ -33,6 +34,7 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponent } from "../auth/popup/sso.component";
+import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
@@ -136,12 +138,26 @@ const routes: Routes = [
     canActivate: [lockGuard()],
     data: { state: "lock", doNotSaveUrl: true },
   },
-  {
-    path: "2fa",
-    component: TwoFactorComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { state: "2fa" },
-  },
+  ...twofactorRefactorSwap(
+    TwoFactorComponent,
+    AnonLayoutWrapperComponent,
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: { state: "2fa" },
+    },
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: { state: "2fa" },
+      children: [
+        {
+          path: "",
+          component: TwoFactorAuthComponent,
+        },
+      ],
+    },
+  ),
   {
     path: "2fa-options",
     component: TwoFactorOptionsComponent,

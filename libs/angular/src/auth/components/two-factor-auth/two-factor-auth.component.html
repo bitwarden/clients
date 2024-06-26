@@ -1,0 +1,40 @@
+<form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
+  <div class="tw-min-w-96">
+    <app-two-factor-auth-authenticator
+      (token)="token = $event"
+      *ngIf="selectedProviderType === providerType.Authenticator"
+    />
+    <bit-form-control *ngIf="selectedProviderType != null">
+      <bit-label>{{ "rememberMe" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="remember" />
+    </bit-form-control>
+    <ng-container *ngIf="selectedProviderType == null">
+      <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p>
+      <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p>
+    </ng-container>
+    <hr />
+    <div [hidden]="!showCaptcha()">
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+    <!-- <!-- Buttons -->
+    <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3">
+      <button
+        type="submit"
+        buttonType="primary"
+        bitButton
+        bitFormButton
+        *ngIf="selectedProviderType != null"
+      >
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
+      </button>
+      <a routerLink="/login" bitButton buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </a>
+    </div>
+    <div class="text-center">
+      <a bitLink href="#" appStopClick (click)="selectOtherTwofactorMethod()">{{
+        "useAnotherTwoStepMethod" | i18n
+      }}</a>
+    </div>
+  </div>
+</form>
