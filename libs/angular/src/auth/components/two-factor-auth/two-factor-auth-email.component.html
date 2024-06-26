@@ -1,0 +1,19 @@
+<p bitTypography="body1">
+  {{ "enterVerificationCodeEmail" | i18n: twoFactorEmail }}
+</p>
+<bit-form-field>
+  <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+  <input
+    bitInput
+    type="text"
+    appAutofocus
+    appInputVerbatim
+    [(ngModel)]="tokenValue"
+    (input)="token.emit(tokenValue)"
+  />
+  <bit-hint>
+    <a bitLink href="#" appStopClick (click)="sendEmail(true)">
+      {{ "sendVerificationCodeEmailAgain" | i18n }}
+    </a></bit-hint
+  >
+</bit-form-field>

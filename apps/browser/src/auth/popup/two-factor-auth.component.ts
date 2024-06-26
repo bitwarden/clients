@@ -41,6 +41,8 @@ import {
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
+import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
+
 @Component({
   standalone: true,
   templateUrl:
@@ -59,6 +61,7 @@ import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
     RouterLink,
     CheckboxModule,
     TwoFactorOptionsComponent,
+    TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
   ],

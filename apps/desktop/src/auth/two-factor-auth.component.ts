@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 
 import { TwoFactorAuthAuthenticatorComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-authenticator.component";
+import { TwoFactorAuthEmailComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-email.component";
 import { TwoFactorAuthYubikeyComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-yubikey.component";
 import { TwoFactorAuthComponent as BaseTwoFactorAuthComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth.component";
 import { TwoFactorOptionsComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-options.component";
@@ -35,6 +36,7 @@ import { TypographyModule } from "../../../../libs/components/src/typography";
     RouterLink,
     CheckboxModule,
     TwoFactorOptionsComponent,
+    TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
   ],

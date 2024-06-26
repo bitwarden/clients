@@ -1,5 +1,9 @@
 <form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
   <div class="tw-min-w-96">
+    <app-two-factor-auth-email
+      (token)="token = $event"
+      *ngIf="selectedProviderType === providerType.Email"
+    />
     <app-two-factor-auth-authenticator
       (token)="token = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
