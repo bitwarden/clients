@@ -1,0 +1,11 @@
+<div id="web-authn-frame" class="tw-mb-3" *ngIf="!webAuthnNewTab">
+  <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+</div>
+<ng-container *ngIf="webAuthnNewTab">
+  <div class="content text-center" *ngIf="webAuthnNewTab">
+    <p class="text-center">{{ "webAuthnNewTab" | i18n }}</p>
+    <button type="button" class="btn primary block" (click)="authWebAuthn()" appStopClick>
+      {{ "webAuthnNewTabOpen" | i18n }}
+    </button>
+  </div>
+</ng-container>

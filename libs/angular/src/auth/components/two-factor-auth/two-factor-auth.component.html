@@ -12,6 +12,10 @@
       (token)="token = $event"
       *ngIf="selectedProviderType === providerType.Yubikey"
     />
+    <app-two-factor-auth-webauthn
+      (token)="token = $event; submitForm()"
+      *ngIf="selectedProviderType === providerType.WebAuthn"
+    />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />
@@ -31,7 +35,7 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        *ngIf="selectedProviderType != null"
+        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
       >
         <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
       </button>

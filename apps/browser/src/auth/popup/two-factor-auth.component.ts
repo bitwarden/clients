@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 
 import { TwoFactorAuthAuthenticatorComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-authenticator.component";
+import { TwoFactorAuthWebAuthnComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-webauthn.component";
 import { TwoFactorAuthYubikeyComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-yubikey.component";
 import { TwoFactorAuthComponent as BaseTwoFactorAuthComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth.component";
 import { TwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-options.component";
@@ -64,6 +65,7 @@ import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
     TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],
 })
