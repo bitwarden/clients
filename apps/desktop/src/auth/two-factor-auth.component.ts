@@ -19,6 +19,8 @@ import { LinkModule } from "../../../../libs/components/src/link";
 import { I18nPipe } from "../../../../libs/components/src/shared/i18n.pipe";
 import { TypographyModule } from "../../../../libs/components/src/typography";
 
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
+
 @Component({
   standalone: true,
   templateUrl:
@@ -40,6 +42,7 @@ import { TypographyModule } from "../../../../libs/components/src/typography";
     TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthDuoComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],

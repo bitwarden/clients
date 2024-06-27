@@ -34,6 +34,8 @@ import { AsyncActionsModule } from "../../../../../libs/components/src/async-act
 import { ButtonModule } from "../../../../../libs/components/src/button";
 import { FormFieldModule } from "../../../../../libs/components/src/form-field";
 
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
+
 @Component({
   standalone: true,
   templateUrl:
@@ -55,6 +57,7 @@ import { FormFieldModule } from "../../../../../libs/components/src/form-field";
     TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthDuoComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router, RouterLink } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom, first, firstValueFrom } from "rxjs";
@@ -39,6 +39,7 @@ import {
 import { CaptchaProtectedComponent } from "../captcha-protected.component";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "./two-factor-auth-webauthn.component";
 import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.component";
@@ -63,6 +64,7 @@ import {
     TwoFactorOptionsComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
+    TwoFactorAuthDuoComponent,
     TwoFactorAuthYubikeyComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
@@ -78,6 +80,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   providerData: any;
 
+  @ViewChild("duoComponent") duoComponent!: TwoFactorAuthDuoComponent;
   formGroup = this.formBuilder.group({
     token: [
       "",
@@ -217,6 +220,12 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
       this.providerData = providerData;
       this.selectedProviderType = response.type;
       await this.updateUIToProviderData();
+    }
+  }
+
+  async launchDuo() {
+    if (this.duoComponent != null) {
+      await this.duoComponent.launchDuoFrameless();
     }
   }
 

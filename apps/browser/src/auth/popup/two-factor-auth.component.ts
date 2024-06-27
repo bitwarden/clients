@@ -42,6 +42,7 @@ import {
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
 
 @Component({
@@ -65,6 +66,7 @@ import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
     TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthDuoComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],

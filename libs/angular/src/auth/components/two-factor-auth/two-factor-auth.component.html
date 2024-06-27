@@ -16,6 +16,15 @@
       (token)="token = $event; submitForm()"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
+    <app-two-factor-auth-duo
+      (token)="token = $event; submitForm()"
+      [providerData]="providerData"
+      *ngIf="
+        selectedProviderType === providerType.OrganizationDuo ||
+        selectedProviderType === providerType.Duo
+      "
+      #duoComponent
+    />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />
@@ -35,10 +44,28 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
+        *ngIf="
+          selectedProviderType != null &&
+          selectedProviderType !== providerType.WebAuthn &&
+          selectedProviderType !== providerType.Duo &&
+          selectedProviderType !== providerType.OrganizationDuo
+        "
       >
         <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
       </button>
+      <button
+        type="button"
+        buttonType="primary"
+        bitButton
+        (click)="launchDuo()"
+        *ngIf="
+          selectedProviderType === providerType.Duo ||
+          selectedProviderType === providerType.OrganizationDuo
+        "
+      >
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "launchDuo" | i18n }}</span>
+      </button>
+
       <a routerLink="/login" bitButton buttonType="secondary">
         {{ "cancel" | i18n }}
       </a>
