@@ -1,0 +1,11 @@
+<bit-section [formGroup]="cardDetailsForm">
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ "cardDetails" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "cardholderName" | i18n }}</bit-label>
+      <input bitInput formControlName="cardholderName" />
+    </bit-form-field>
+  </bit-card>
+</bit-section>

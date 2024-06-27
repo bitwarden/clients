@@ -1,5 +1,6 @@
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { CardDetailsSectionComponent } from "./components/card-details-section/card-details-section.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 
 /**
@@ -8,6 +9,7 @@ import { ItemDetailsSectionComponent } from "./components/item-details/item-deta
  */
 export type CipherForm = {
   itemDetails?: ItemDetailsSectionComponent["itemDetailsForm"];
+  cardDetails?: CardDetailsSectionComponent["cardDetailsForm"];
 };
 
 /**
