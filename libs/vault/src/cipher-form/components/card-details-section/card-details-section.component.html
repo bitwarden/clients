@@ -7,5 +7,10 @@
       <bit-label>{{ "cardholderName" | i18n }}</bit-label>
       <input bitInput formControlName="cardholderName" />
     </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "number" | i18n }}</bit-label>
+      <input bitInput formControlName="number" type="text" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
   </bit-card>
 </bit-section>
