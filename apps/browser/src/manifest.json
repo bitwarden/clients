@@ -59,6 +59,7 @@
     "clipboardRead",
     "clipboardWrite",
     "idle",
+    "alarms",
     "webRequest",
     "webRequestBlocking",
     "webNavigation"

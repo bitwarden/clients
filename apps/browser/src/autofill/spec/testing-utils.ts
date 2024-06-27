@@ -1,21 +1,21 @@
 import { mock } from "jest-mock-extended";
 
-function triggerTestFailure() {
+export function triggerTestFailure() {
   expect(true).toBe("Test has failed.");
 }
 
 const scheduler = typeof setImmediate === "function" ? setImmediate : setTimeout;
-function flushPromises() {
+export function flushPromises() {
   return new Promise(function (resolve) {
     scheduler(resolve);
   });
 }
 
-function postWindowMessage(data: any, origin = "https://localhost/", source = window) {
+export function postWindowMessage(data: any, origin = "https://localhost/", source = window) {
   globalThis.dispatchEvent(new MessageEvent("message", { data, origin, source }));
 }
 
-function sendMockExtensionMessage(
+export function sendMockExtensionMessage(
   message: any,
   sender?: chrome.runtime.MessageSender,
   sendResponse?: CallableFunction,
@@ -32,7 +32,7 @@ function sendMockExtensionMessage(
   );
 }
 
-function triggerRuntimeOnConnectEvent(port: chrome.runtime.Port) {
+export function triggerRuntimeOnConnectEvent(port: chrome.runtime.Port) {
   (chrome.runtime.onConnect.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];
@@ -41,21 +41,21 @@ function triggerRuntimeOnConnectEvent(port: chrome.runtime.Port) {
   );
 }
 
-function sendPortMessage(port: chrome.runtime.Port, message: any) {
+export function sendPortMessage(port: chrome.runtime.Port, message: any) {
   (port.onMessage.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
     const callback = call[0];
     callback(message || {}, port);
   });
 }
 
-function triggerPortOnDisconnectEvent(port: chrome.runtime.Port) {
+export function triggerPortOnDisconnectEvent(port: chrome.runtime.Port) {
   (port.onDisconnect.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
     const callback = call[0];
     callback(port);
   });
 }
 
-function triggerWindowOnFocusedChangedEvent(windowId: number) {
+export function triggerWindowOnFocusedChangedEvent(windowId: number) {
   (chrome.windows.onFocusChanged.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];
@@ -64,7 +64,7 @@ function triggerWindowOnFocusedChangedEvent(windowId: number) {
   );
 }
 
-function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.TabActiveInfo) {
+export function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.TabActiveInfo) {
   (chrome.tabs.onActivated.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];
@@ -73,14 +73,14 @@ function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.TabActiveInfo) {
   );
 }
 
-function triggerTabOnReplacedEvent(addedTabId: number, removedTabId: number) {
+export function triggerTabOnReplacedEvent(addedTabId: number, removedTabId: number) {
   (chrome.tabs.onReplaced.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
     const callback = call[0];
     callback(addedTabId, removedTabId);
   });
 }
 
-function triggerTabOnUpdatedEvent(
+export function triggerTabOnUpdatedEvent(
   tabId: number,
   changeInfo: chrome.tabs.TabChangeInfo,
   tab: chrome.tabs.Tab,
@@ -91,14 +91,21 @@ function triggerTabOnUpdatedEvent(
   });
 }
 
-function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) {
+export function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) {
   (chrome.tabs.onRemoved.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
     const callback = call[0];
     callback(tabId, removeInfo);
   });
 }
 
-function mockQuerySelectorAllDefinedCall() {
+export function triggerOnAlarmEvent(alarm: chrome.alarms.Alarm) {
+  (chrome.alarms.onAlarm.addListener as unknown as jest.SpyInstance).mock.calls.forEach((call) => {
+    const callback = call[0];
+    callback(alarm);
+  });
+}
+
+export function mockQuerySelectorAllDefinedCall() {
   const originalDocumentQuerySelectorAll = document.querySelectorAll;
   document.querySelectorAll = function (selector: string) {
     return originalDocumentQuerySelectorAll.call(
@@ -125,19 +132,3 @@ function mockQuerySelectorAllDefinedCall() {
     },
   };
 }
-
-export {
-  triggerTestFailure,
-  flushPromises,
-  postWindowMessage,
-  sendMockExtensionMessage,
-  triggerRuntimeOnConnectEvent,
-  sendPortMessage,
-  triggerPortOnDisconnectEvent,
-  triggerWindowOnFocusedChangedEvent,
-  triggerTabOnActivatedEvent,
-  triggerTabOnReplacedEvent,
-  triggerTabOnUpdatedEvent,
-  triggerTabOnRemovedEvent,
-  mockQuerySelectorAllDefinedCall,
-};

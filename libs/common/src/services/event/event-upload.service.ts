@@ -7,6 +7,8 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { EventData } from "../../models/data/event.data";
 import { EventRequest } from "../../models/request/event.request";
 import { LogService } from "../../platform/abstractions/log.service";
+import { ScheduledTaskNames } from "../../platform/scheduling/scheduled-task-name.enum";
+import { TaskSchedulerService } from "../../platform/scheduling/task-scheduler.service";
 import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 
@@ -19,7 +21,12 @@ export class EventUploadService implements EventUploadServiceAbstraction {
     private stateProvider: StateProvider,
     private logService: LogService,
     private authService: AuthService,
-  ) {}
+    private taskSchedulerService: TaskSchedulerService,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.eventUploadsInterval, () =>
+      this.uploadEvents(),
+    );
+  }
 
   init(checkOnInterval: boolean) {
     if (this.inited) {
@@ -28,10 +35,11 @@ export class EventUploadService implements EventUploadServiceAbstraction {
 
     this.inited = true;
     if (checkOnInterval) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.uploadEvents();
-      setInterval(() => this.uploadEvents(), 60 * 1000); // check every 60 seconds
+      void this.uploadEvents();
+      void this.taskSchedulerService.setInterval(
+        ScheduledTaskNames.eventUploadsInterval,
+        60 * 1000, // check every 60 seconds
+      );
     }
   }
 

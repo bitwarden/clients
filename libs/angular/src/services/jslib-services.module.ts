@@ -152,6 +152,10 @@ import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/inter
 import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import {
+  TaskSchedulerService,
+  DefaultTaskSchedulerService,
+} from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -405,6 +409,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       VaultTimeoutSettingsServiceAbstraction,
       KdfConfigServiceAbstraction,
+      TaskSchedulerService,
     ],
   }),
   safeProvider({
@@ -710,6 +715,7 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       VaultTimeoutSettingsServiceAbstraction,
       StateEventRunnerService,
+      TaskSchedulerService,
       LOCKED_CALLBACK,
       LOGOUT_CALLBACK,
     ],
@@ -804,6 +810,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AuthServiceAbstraction,
       MessagingServiceAbstraction,
+      TaskSchedulerService,
     ],
   }),
   safeProvider({
@@ -819,7 +826,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EventUploadServiceAbstraction,
     useClass: EventUploadService,
-    deps: [ApiServiceAbstraction, StateProvider, LogService, AuthServiceAbstraction],
+    deps: [
+      ApiServiceAbstraction,
+      StateProvider,
+      LogService,
+      AuthServiceAbstraction,
+      TaskSchedulerService,
+    ],
   }),
   safeProvider({
     provide: EventCollectionServiceAbstraction,
@@ -1200,6 +1213,11 @@ const safeProviders: SafeProvider[] = [
     useFactory: (subject: Subject<Message<Record<string, unknown>>>) =>
       new SubjectMessageSender(subject),
     deps: [INTRAPROCESS_MESSAGING_SUBJECT],
+  }),
+  safeProvider({
+    provide: TaskSchedulerService,
+    useClass: DefaultTaskSchedulerService,
+    deps: [LogService],
   }),
   safeProvider({
     provide: ProviderApiServiceAbstraction,

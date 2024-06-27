@@ -1,4 +1,4 @@
-import { firstValueFrom, map, timeout } from "rxjs";
+import { firstValueFrom, map, Subscription, timeout } from "rxjs";
 
 import { PinServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
@@ -14,10 +14,12 @@ import { StateService } from "../abstractions/state.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
 import { BiometricStateService } from "../biometrics/biometric-state.service";
 import { Utils } from "../misc/utils";
+import { ScheduledTaskNames } from "../scheduling/scheduled-task-name.enum";
+import { TaskSchedulerService } from "../scheduling/task-scheduler.service";
 
 export class SystemService implements SystemServiceAbstraction {
   private reloadInterval: any = null;
-  private clearClipboardTimeout: any = null;
+  private clearClipboardTimeoutSubscription: Subscription;
   private clearClipboardTimeoutFunction: () => Promise<any> = null;
 
   constructor(
@@ -30,7 +32,13 @@ export class SystemService implements SystemServiceAbstraction {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
-  ) {}
+    private taskSchedulerService: TaskSchedulerService,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.systemClearClipboardTimeout,
+      () => this.clearPendingClipboard(),
+    );
+  }
 
   async startProcessReload(authService: AuthService): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
@@ -115,25 +123,22 @@ export class SystemService implements SystemServiceAbstraction {
   }
 
   async clearClipboard(clipboardValue: string, timeoutMs: number = null): Promise<void> {
-    if (this.clearClipboardTimeout != null) {
-      clearTimeout(this.clearClipboardTimeout);
-      this.clearClipboardTimeout = null;
-    }
+    this.clearClipboardTimeoutSubscription?.unsubscribe();
 
     if (Utils.isNullOrWhitespace(clipboardValue)) {
       return;
     }
 
-    const clearClipboardDelay = await firstValueFrom(
-      this.autofillSettingsService.clearClipboardDelay$,
-    );
-
-    if (clearClipboardDelay == null) {
-      return;
+    let taskTimeoutInMs = timeoutMs;
+    if (!taskTimeoutInMs) {
+      const clearClipboardDelayInSeconds = await firstValueFrom(
+        this.autofillSettingsService.clearClipboardDelay$,
+      );
+      taskTimeoutInMs = clearClipboardDelayInSeconds ? clearClipboardDelayInSeconds * 1000 : null;
     }
 
-    if (timeoutMs == null) {
-      timeoutMs = clearClipboardDelay * 1000;
+    if (!taskTimeoutInMs) {
+      return;
     }
 
     this.clearClipboardTimeoutFunction = async () => {
@@ -143,9 +148,10 @@ export class SystemService implements SystemServiceAbstraction {
       }
     };
 
-    this.clearClipboardTimeout = setTimeout(async () => {
-      await this.clearPendingClipboard();
-    }, timeoutMs);
+    this.clearClipboardTimeoutSubscription = this.taskSchedulerService.setTimeout(
+      ScheduledTaskNames.systemClearClipboardTimeout,
+      taskTimeoutInMs,
+    );
   }
 
   async clearPendingClipboard() {

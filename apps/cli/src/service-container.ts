@@ -65,6 +65,10 @@ import { StateFactory } from "@bitwarden/common/platform/factories/state-factory
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import {
+  TaskSchedulerService,
+  DefaultTaskSchedulerService,
+} from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -237,6 +241,7 @@ export class ServiceContainer {
   providerApiService: ProviderApiServiceAbstraction;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigServiceAbstraction;
+  taskSchedulerService: TaskSchedulerService;
 
   constructor() {
     let p = null;
@@ -541,6 +546,7 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
+    this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -566,6 +572,7 @@ export class ServiceContainer {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
+      this.taskSchedulerService,
     );
 
     this.authService = new AuthService(
@@ -639,6 +646,7 @@ export class ServiceContainer {
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
+      this.taskSchedulerService,
       lockedCallback,
       null,
     );
@@ -721,6 +729,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       this.authService,
+      this.taskSchedulerService,
     );
 
     this.eventCollectionService = new EventCollectionService(

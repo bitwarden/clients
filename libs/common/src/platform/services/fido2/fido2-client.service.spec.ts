@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { Utils } from "../../../platform/misc/utils";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
@@ -17,7 +18,7 @@ import {
   CreateCredentialParams,
   FallbackRequestedError,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
-import { Utils } from "../../misc/utils";
+import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
 import * as DomainUtils from "./domain-utils";
 import { Fido2AuthenticatorService } from "./fido2-authenticator.service";
@@ -35,6 +36,7 @@ describe("FidoAuthenticatorService", () => {
   let authService!: MockProxy<AuthService>;
   let vaultSettingsService: MockProxy<VaultSettingsService>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let client!: Fido2ClientService;
   let tab!: chrome.tabs.Tab;
   let isValidRpId!: jest.SpyInstance;
@@ -45,6 +47,7 @@ describe("FidoAuthenticatorService", () => {
     authService = mock<AuthService>();
     vaultSettingsService = mock<VaultSettingsService>();
     domainSettingsService = mock<DomainSettingsService>();
+    taskSchedulerService = mock<TaskSchedulerService>();
 
     isValidRpId = jest.spyOn(DomainUtils, "isValidRpId");
 
@@ -54,6 +57,7 @@ describe("FidoAuthenticatorService", () => {
       authService,
       vaultSettingsService,
       domainSettingsService,
+      taskSchedulerService,
     );
     configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
     vaultSettingsService.enablePasskeys$ = of(true);
