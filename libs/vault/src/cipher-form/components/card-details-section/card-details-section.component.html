@@ -12,5 +12,15 @@
       <input bitInput formControlName="number" type="text" />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "brand" | i18n }}</bit-label>
+      <bit-select formControlName="brand">
+        <bit-option
+          *ngFor="let brand of cardBrands"
+          [value]="brand.value"
+          [label]="brand.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
   </bit-card>
 </bit-section>

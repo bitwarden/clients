@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -58,14 +59,30 @@ export class CardDetailsSectionComponent implements OnInit {
     code: null,
   });
 
+  readonly cardBrands = [
+    { name: " ", value: null },
+    { name: "Visa", value: "Visa" },
+    { name: "Mastercard", value: "Mastercard" },
+    { name: "American Express", value: "Amex" },
+    { name: "Discover", value: "Discover" },
+    { name: "Diners Club", value: "Diners Club" },
+    { name: "JCB", value: "JCB" },
+    { name: "Maestro", value: "Maestro" },
+    { name: "UnionPay", value: "UnionPay" },
+    { name: "RuPay", value: "RuPay" },
+    { name: this.i18nService.t("other"), value: "Other" },
+  ];
+
   /** Local CardView, either created empty or set to the existing card instance  */
   private cardView: CardView;
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
+    private i18nService: I18nService,
   ) {
     this.cipherFormContainer.registerChildForm("cardDetails", this.cardDetailsForm);
+
     this.cardDetailsForm.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(({ cardholderName, number, brand, expMonth, expYear, code }) => {
@@ -81,6 +98,16 @@ export class CardDetailsSectionComponent implements OnInit {
         this.cipherFormContainer.patchCipher({
           card: patchedCard,
         });
+      });
+
+    this.cardDetailsForm.controls.number.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((number) => {
+        const brand = CardView.getCardBrandByPatterns(number);
+
+        if (brand) {
+          this.cardDetailsForm.controls.brand.setValue(brand);
+        }
       });
   }
 

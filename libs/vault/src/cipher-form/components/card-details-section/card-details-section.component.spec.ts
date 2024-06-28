@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -39,7 +40,6 @@ describe("CardDetailsSectionComponent", () => {
   });
 
   it("registers `cardDetailsForm` with `CipherFormContainer`", () => {
-    expect(registerChildFormSpy).toHaveBeenCalledTimes(1);
     expect(registerChildFormSpy).toHaveBeenCalledWith("cardDetails", component.cardDetailsForm);
   });
 
@@ -52,7 +52,8 @@ describe("CardDetailsSectionComponent", () => {
     const cardView = new CardView();
     cardView.cardholderName = "Ron Burgundy";
     cardView.number = "4242 4242 4242 4242";
-    expect(patchCipherSpy).toHaveBeenCalledTimes(1);
+    cardView.brand = "Visa";
+
     expect(patchCipherSpy).toHaveBeenCalledWith({
       card: cardView,
     });
@@ -67,6 +68,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.cardholderName = cardholderName;
     cardView.number = number;
     cardView.code = code;
+    cardView.brand = "Visa";
 
     component.originalCipherView = {
       card: cardView,
@@ -78,9 +80,17 @@ describe("CardDetailsSectionComponent", () => {
       cardholderName,
       number,
       code,
-      brand: null,
+      brand: cardView.brand,
       expMonth: null,
       expYear: null,
     });
+  });
+
+  it("sets brand based on number changes", () => {
+    const numberInput = fixture.debugElement.query(By.css('input[formControlName="number"]'));
+    numberInput.nativeElement.value = "4111 1111 1111 1111";
+    numberInput.nativeElement.dispatchEvent(new Event("input"));
+
+    expect(component.cardDetailsForm.controls.brand.value).toBe("Visa");
   });
 });

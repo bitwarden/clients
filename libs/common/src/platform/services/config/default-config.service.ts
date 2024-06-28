@@ -104,6 +104,7 @@ export class DefaultConfigService implements ConfigService {
           return DefaultFeatureFlagValue[key];
         }
 
+        serverConfig.featureStates[FeatureFlag.ExtensionRefresh] = true;
         return serverConfig.featureStates[key] as FeatureFlagValueType<Flag>;
       }),
     );
