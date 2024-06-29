@@ -143,8 +143,10 @@ export class Fido2Component implements OnInit, OnDestroy {
             this.ciphers = (await this.cipherService.getAllDecrypted()).filter(
               (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
             );
-            this.displayedCiphers = this.ciphers.filter((cipher) =>
-              cipher.login.matchesUri(this.url, equivalentDomains),
+            this.displayedCiphers = this.ciphers.filter(
+              (cipher) =>
+                cipher.login.matchesUri(this.url, equivalentDomains) &&
+                this.hasNoOtherPasskeys(cipher, message.userHandle),
             );
 
             if (this.displayedCiphers.length > 0) {
@@ -400,6 +402,20 @@ export class Fido2Component implements OnInit, OnDestroy {
     BrowserFido2UserInterfaceSession.sendMessage({
       sessionId: this.sessionId,
       ...msg,
+    });
+  }
+
+  /**
+   * This methods returns true if a cipher either has no passkeys, or has a passkey matching with userHandle
+   * @param userHandle
+   */
+  private hasNoOtherPasskeys(cipher: CipherView, userHandle: string): boolean {
+    if (cipher.login.fido2Credentials == null || cipher.login.fido2Credentials.length === 0) {
+      return true;
+    }
+
+    return cipher.login.fido2Credentials.some((passkey) => {
+      passkey.userHandle === userHandle;
     });
   }
 }

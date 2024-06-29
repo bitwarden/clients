@@ -215,6 +215,7 @@ describe("FidoAuthenticatorService", () => {
           expect(userInterfaceSession.confirmNewCredential).toHaveBeenCalledWith({
             credentialName: params.rpEntity.name,
             userName: params.userEntity.displayName,
+            userHandle: Fido2Utils.bufferToString(params.userEntity.id),
             userVerification,
             rpId: params.rpEntity.id,
           } as NewCredentialParams);

@@ -112,6 +112,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.displayName,
+        userHandle: Fido2Utils.bufferToString(params.userEntity.id),
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });

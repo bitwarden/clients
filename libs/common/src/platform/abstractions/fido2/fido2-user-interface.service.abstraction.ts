@@ -13,6 +13,11 @@ export interface NewCredentialParams {
   userName: string;
 
   /**
+   * The userhandle (userid) of the user.
+   */
+  userHandle: string;
+
+  /**
    * Whether or not the user must be verified before completing the operation.
    */
   userVerification: boolean;
