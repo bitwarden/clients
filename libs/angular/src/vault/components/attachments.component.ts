@@ -20,6 +20,7 @@ import { DialogService } from "@bitwarden/components";
 @Directive()
 export class AttachmentsComponent implements OnInit {
   @Input() cipherId: string;
+  @Input() viewOnly: boolean;
   @Output() onUploadedAttachment = new EventEmitter();
   @Output() onDeletedAttachment = new EventEmitter();
   @Output() onReuploadedAttachment = new EventEmitter();

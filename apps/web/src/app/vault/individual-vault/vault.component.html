@@ -50,8 +50,10 @@
       [showBulkTrashOptions]="filter.type === 'trash'"
       [useEvents]="false"
       [showAdminActions]="false"
+      [showBulkAddToCollections]="vaultBulkManagementActionEnabled$ | async"
       (onEvent)="onVaultItemsEvent($event)"
       [flexibleCollectionsV1Enabled]="flexibleCollectionsV1Enabled$ | async"
+      [vaultBulkManagementActionEnabled]="vaultBulkManagementActionEnabled$ | async"
     >
     </app-vault-items>
     <div

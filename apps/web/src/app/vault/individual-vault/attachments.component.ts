@@ -18,7 +18,6 @@ import { DialogService } from "@bitwarden/components";
   templateUrl: "attachments.component.html",
 })
 export class AttachmentsComponent extends BaseAttachmentsComponent {
-  viewOnly = false;
   protected override componentName = "app-vault-attachments";
 
   constructor(

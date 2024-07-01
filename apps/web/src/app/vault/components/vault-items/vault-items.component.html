@@ -27,8 +27,9 @@
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
           <button
-            [disabled]="disabled || isEmpty"
+            [disabled]="disabled || isEmpty || disableMenu"
             [bitMenuTriggerFor]="headerMenu"
+            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
@@ -37,7 +38,7 @@
           <bit-menu #headerMenu>
             <button *ngIf="bulkMoveAllowed" type="button" bitMenuItem (click)="bulkMoveToFolder()">
               <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-              {{ "moveSelected" | i18n }}
+              {{ (vaultBulkManagementActionEnabled ? "addToFolder" : "moveSelected") | i18n }}
             </button>
             <button
               *ngIf="showAdminActions && showBulkEditCollectionAccess"
@@ -49,7 +50,9 @@
               {{ "access" | i18n }}
             </button>
             <button
-              *ngIf="showAdminActions && bulkAssignToCollectionsAllowed"
+              *ngIf="
+                (showAdminActions || showAssignToCollections()) && bulkAssignToCollectionsAllowed
+              "
               type="button"
               bitMenuItem
               (click)="assignToCollections()"
@@ -58,7 +61,7 @@
               {{ "assignToCollections" | i18n }}
             </button>
             <button
-              *ngIf="bulkMoveAllowed"
+              *ngIf="bulkMoveAllowed && !vaultBulkManagementActionEnabled"
               type="button"
               bitMenuItem
               (click)="bulkMoveToOrganization()"
@@ -70,10 +73,22 @@
               <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
               {{ "restoreSelected" | i18n }}
             </button>
-            <button type="button" bitMenuItem (click)="bulkDelete()">
+            <button
+              *ngIf="deleteAllowed || showBulkTrashOptions"
+              type="button"
+              bitMenuItem
+              (click)="bulkDelete()"
+            >
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "deleteSelected") | i18n }}
+                {{
+                  (showBulkTrashOptions
+                    ? "permanentlyDeleteSelected"
+                    : vaultBulkManagementActionEnabled
+                      ? "delete"
+                      : "deleteSelected"
+                  ) | i18n
+                }}
               </span>
             </button>
           </bit-menu>
@@ -125,6 +140,8 @@
           [organizations]="allOrganizations"
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
+          [canEditCipher]="canEditCipher(item.cipher) && vaultBulkManagementActionEnabled"
+          [vaultBulkManagementActionEnabled]="vaultBulkManagementActionEnabled"
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

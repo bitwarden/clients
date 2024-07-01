@@ -1,0 +1,35 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ "assignToCollections" | i18n }}
+    <span class="tw-text-sm tw-normal-case tw-text-muted">
+      {{ editableItemCount | pluralize: ("item" | i18n) : ("items" | i18n) }}
+    </span>
+  </span>
+
+  <div bitDialogContent>
+    <assign-collections
+      [params]="params"
+      (formDisabled)="disabled = $event"
+      (formLoading)="loading = $event"
+      (onCollectionAssign)="onCollectionAssign($event)"
+      (editableItemCountChange)="editableItemCount = $event"
+    ></assign-collections>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      [disabled]="disabled"
+      [loading]="loading"
+      form="assign_collections_form"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "assign" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

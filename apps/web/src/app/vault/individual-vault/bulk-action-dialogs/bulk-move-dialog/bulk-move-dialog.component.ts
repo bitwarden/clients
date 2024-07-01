@@ -3,6 +3,8 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, Observable } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,6 +47,10 @@ export class BulkMoveDialogComponent implements OnInit {
   });
   folders$: Observable<FolderView[]>;
 
+  protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultBulkManagementAction,
+  );
+
   constructor(
     @Inject(DIALOG_DATA) params: BulkMoveDialogParams,
     private dialogRef: DialogRef<BulkMoveDialogResult>,
@@ -53,6 +59,7 @@ export class BulkMoveDialogComponent implements OnInit {
     private i18nService: I18nService,
     private folderService: FolderService,
     private formBuilder: FormBuilder,
+    private configService: ConfigService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
   }

@@ -59,12 +59,13 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
 
 import { GroupService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
 import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -90,10 +91,6 @@ import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
-import {
-  BulkCollectionAssignmentDialogComponent,
-  BulkCollectionAssignmentDialogResult,
-} from "./bulk-collection-assignment-dialog";
 import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
@@ -1327,7 +1324,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       ).filter((c) => c.id != Unassigned);
     }
 
-    const dialog = BulkCollectionAssignmentDialogComponent.open(this.dialogService, {
+    const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
       data: {
         ciphers: items,
         organizationId: this.organization?.id as OrganizationId,
@@ -1337,7 +1334,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     const result = await lastValueFrom(dialog.closed);
-    if (result === BulkCollectionAssignmentDialogResult.Saved) {
+    if (result === CollectionAssignmentResult.Saved) {
       this.refresh();
     }
   }

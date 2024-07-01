@@ -46,6 +46,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -57,8 +58,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
 
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -139,6 +141,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.FlexibleCollectionsV1,
+  );
+  protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultBulkManagementAction,
   );
 
   private searchText$ = new Subject<string>();
@@ -379,9 +384,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             (o) => o.canCreateNewCollections && !o.isProviderUser,
           );
 
-          this.showBulkMove =
-            filter.type !== "trash" &&
-            (filter.organizationId === undefined || filter.organizationId === Unassigned);
+          this.showBulkMove = filter.type !== "trash";
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
 
           this.performingInitialLoad = false;
@@ -428,6 +431,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         await this.editCollection(event.item, CollectionDialogTabType.Info);
       } else if (event.type === "viewCollectionAccess") {
         await this.editCollection(event.item, CollectionDialogTabType.Access);
+      } else if (event.type === "assignToCollections") {
+        await this.bulkAssignToCollections(event.items);
       }
     } finally {
       this.processingEvent = false;
@@ -492,12 +497,18 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
+    const canEditAttachments = await this.canEditAttachments(cipher);
+    const vaultBulkManagementActionEnabled = await firstValueFrom(
+      this.vaultBulkManagementActionEnabled$,
+    );
+
     let madeAttachmentChanges = false;
     const [modal] = await this.modalService.openViewRef(
       AttachmentsComponent,
       this.attachmentsModalRef,
       (comp) => {
         comp.cipherId = cipher.id;
+        comp.viewOnly = !canEditAttachments && vaultBulkManagementActionEnabled;
         comp.onUploadedAttachment
           .pipe(takeUntil(this.destroy$))
           .subscribe(() => (madeAttachmentChanges = true));
@@ -704,6 +715,50 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.refresh();
     } catch (e) {
       this.logService.error(e);
+    }
+  }
+
+  async bulkAssignToCollections(ciphers: CipherView[]) {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    if (ciphers.length === 0) {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("nothingSelected"),
+      );
+      return;
+    }
+
+    let availableCollections: CollectionView[] = [];
+    const orgId =
+      this.activeFilter.organizationId ||
+      ciphers.find((c) => c.organizationId !== null)?.organizationId;
+
+    if (orgId && orgId !== "MyVault") {
+      const organization = this.allOrganizations.find((o) => o.id === orgId);
+      const flexibleCollectionsV1Enabled = await this.flexibleCollectionsV1Enabled();
+      availableCollections = this.allCollections.filter(
+        (c) =>
+          c.organizationId === organization.id &&
+          c.canEditItems(organization, flexibleCollectionsV1Enabled, false),
+      );
+    }
+
+    const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
+      data: {
+        ciphers,
+        organizationId: orgId as OrganizationId,
+        availableCollections,
+        activeCollection: this.activeFilter?.selectedCollectionNode?.node,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+    if (result === CollectionAssignmentResult.Saved) {
+      this.refresh();
     }
   }
 
@@ -982,6 +1037,17 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
+  }
+
+  private async canEditAttachments(cipher: CipherView) {
+    if (cipher.organizationId == null || cipher.edit) {
+      return true;
+    }
+
+    const flexibleCollectionsV1Enabled = await this.flexibleCollectionsV1Enabled();
+
+    const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    return organization.canEditAllCiphers(flexibleCollectionsV1Enabled, false);
   }
 
   private go(queryParams: any = null) {

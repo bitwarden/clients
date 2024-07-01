@@ -69,8 +69,9 @@
 <td bitCell [ngClass]="RowHeightClass" *ngIf="viewingOrgVault"></td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
-    [disabled]="disabled"
+    [disabled]="disabled || disableMenu"
     [bitMenuTriggerFor]="cipherOptions"
+    [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
@@ -78,7 +79,7 @@
     appStopProp
   ></button>
   <bit-menu #cipherOptions>
-    <ng-container *ngIf="cipher.type === CipherType.Login && !cipher.isDeleted">
+    <ng-container *ngIf="isNotDeletedLoginCipher">
       <button bitMenuItem type="button" (click)="copy('username')">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyUsername" | i18n }}
@@ -104,33 +105,49 @@
       </a>
     </ng-container>
 
-    <button bitMenuItem type="button" (click)="attachments()">
+    <button
+      bitMenuItem
+      *ngIf="showAttachments || !vaultBulkManagementActionEnabled"
+      type="button"
+      (click)="attachments()"
+    >
       <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
       {{ "attachments" | i18n }}
     </button>
-    <button bitMenuItem *ngIf="cloneable && !cipher.isDeleted" type="button" (click)="clone()">
+    <button bitMenuItem *ngIf="showClone" type="button" (click)="clone()">
       <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
       {{ "clone" | i18n }}
     </button>
+    <!-- This option will be phased out in future releases -->
     <button
       bitMenuItem
-      *ngIf="!cipher.organizationId && !cipher.isDeleted"
+      *ngIf="!cipher.organizationId && !cipher.isDeleted && !vaultBulkManagementActionEnabled"
       type="button"
       (click)="moveToOrganization()"
     >
       <i class="bwi bwi-fw bwi-arrow-circle-right" aria-hidden="true"></i>
       {{ "moveToOrganization" | i18n }}
     </button>
+    <!-- This option will be phased out in future releases -->
     <button
       bitMenuItem
-      *ngIf="cipher.organizationId && !cipher.isDeleted"
+      *ngIf="cipher.organizationId && !cipher.isDeleted && !vaultBulkManagementActionEnabled"
       type="button"
       (click)="editCollections()"
     >
       <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
       {{ "collections" | i18n }}
     </button>
-    <button bitMenuItem *ngIf="cipher.organizationId && useEvents" type="button" (click)="events()">
+    <button
+      bitMenuItem
+      *ngIf="showAssignToCollections"
+      type="button"
+      (click)="assignToCollections()"
+    >
+      <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+      {{ "assignToCollections" | i18n }}
+    </button>
+    <button bitMenuItem *ngIf="showEventLogs" type="button" (click)="events()">
       <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
       {{ "eventLogs" | i18n }}
     </button>
@@ -138,7 +155,12 @@
       <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
       {{ "restore" | i18n }}
     </button>
-    <button bitMenuItem (click)="deleteCipher()" type="button">
+    <button
+      bitMenuItem
+      *ngIf="canEditCipher || !vaultBulkManagementActionEnabled"
+      (click)="deleteCipher()"
+      type="button"
+    >
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}

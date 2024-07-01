@@ -1,15 +1,16 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="small">
     <span bitDialogTitle>
-      {{ "moveSelected" | i18n }}
+      {{ ((vaultBulkManagementActionEnabled$ | async) ? "addToFolder" : "moveSelected") | i18n }}
     </span>
     <span bitDialogContent>
       <p>{{ "moveSelectedItemsDesc" | i18n: cipherIds.length }}</p>
       <bit-form-field>
-        <bit-label for="folder">{{ "folder" | i18n }}</bit-label>
-        <select bitInput formControlName="folderId">
-          <option *ngFor="let f of folders$ | async" [ngValue]="f.id">{{ f.name }}</option>
-        </select>
+        <bit-label for="folder">{{ "selectFolder" | i18n }}</bit-label>
+        <bit-select formControlName="folderId">
+          <bit-option *ngFor="let f of folders$ | async" [value]="f.id" [label]="f.name">
+          </bit-option>
+        </bit-select>
       </bit-form-field>
     </span>
     <ng-container bitDialogFooter>

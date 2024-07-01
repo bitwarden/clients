@@ -1,0 +1,42 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" id="assign_collections_form">
+  <p>{{ "bulkCollectionAssignmentDialogDescription" | i18n }}</p>
+
+  <ul class="tw-list-disc tw-pl-5 tw-space-y-2">
+    <li *ngIf="readonlyItemCount > 0">
+      <p>
+        {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
+      </p>
+    </li>
+    <li *ngIf="personalItemsCount > 0">
+      <p>
+        {{ transferWarningText(orgName, personalItemsCount) }}
+      </p>
+    </li>
+  </ul>
+
+  <div class="tw-flex" *ngIf="showOrgSelector">
+    <bit-form-field class="tw-grow">
+      <bit-label>{{ "moveToOrganization" | i18n }}</bit-label>
+      <bit-select formControlName="selectedOrg">
+        <bit-option
+          *ngFor="let org of organizations$ | async"
+          icon="bwi-business"
+          [value]="org.id"
+          [label]="org.name"
+        >
+        </bit-option>
+      </bit-select>
+    </bit-form-field>
+  </div>
+
+  <div class="tw-flex">
+    <bit-form-field class="tw-grow">
+      <bit-label>{{ "selectCollectionsToAssign" | i18n }}</bit-label>
+      <bit-multi-select
+        class="tw-w-full"
+        formControlName="collections"
+        [baseItems]="availableCollections"
+      ></bit-multi-select>
+    </bit-form-field>
+  </div>
+</form>
