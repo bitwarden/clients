@@ -61,8 +61,9 @@ export class CardDetailsSectionComponent implements OnInit, AfterViewInit {
     code: null,
   });
 
+  /** Available Card Brands */
   readonly cardBrands = [
-    { name: " ", value: null },
+    { name: "-- " + this.i18nService.t("select") + " --", value: null },
     { name: "Visa", value: "Visa" },
     { name: "Mastercard", value: "Mastercard" },
     { name: "American Express", value: "Amex" },
@@ -75,24 +76,21 @@ export class CardDetailsSectionComponent implements OnInit, AfterViewInit {
     { name: this.i18nService.t("other"), value: "Other" },
   ];
 
-  /**
-   * Available expiration months
-   * NOTE: `name` is an i18n key
-   */
+  /** Available expiration months */
   readonly expirationMonths = [
-    { name: " ", value: null },
-    { name: "january", value: "1" },
-    { name: "february", value: "2" },
-    { name: "march", value: "3" },
-    { name: "april", value: "4" },
-    { name: "may", value: "5" },
-    { name: "june", value: "6" },
-    { name: "july", value: "7" },
-    { name: "august", value: "8" },
-    { name: "september", value: "9" },
-    { name: "october", value: "10" },
-    { name: "november", value: "11" },
-    { name: "december", value: "12" },
+    { name: "-- " + this.i18nService.t("select") + " --", value: null },
+    { name: "01 - " + this.i18nService.t("january"), value: "1" },
+    { name: "02 - " + this.i18nService.t("february"), value: "2" },
+    { name: "03 - " + this.i18nService.t("march"), value: "3" },
+    { name: "04 - " + this.i18nService.t("april"), value: "4" },
+    { name: "05 - " + this.i18nService.t("may"), value: "5" },
+    { name: "06 - " + this.i18nService.t("june"), value: "6" },
+    { name: "07 - " + this.i18nService.t("july"), value: "7" },
+    { name: "08 - " + this.i18nService.t("august"), value: "8" },
+    { name: "09 - " + this.i18nService.t("september"), value: "9" },
+    { name: "10 - " + this.i18nService.t("october"), value: "10" },
+    { name: "11 - " + this.i18nService.t("november"), value: "11" },
+    { name: "12 - " + this.i18nService.t("december"), value: "12" },
   ];
 
   /** Local CardView, either created empty or set to the existing card instance  */
