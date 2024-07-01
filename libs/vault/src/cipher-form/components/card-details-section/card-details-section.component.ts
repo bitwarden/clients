@@ -24,7 +24,7 @@ type CardDetailsForm = {
   number: string;
   brand: string;
   expMonth: string;
-  expYear: string;
+  expYear: string | number;
   code: string;
 };
 
@@ -106,12 +106,16 @@ export class CardDetailsSectionComponent implements OnInit {
     this.cardDetailsForm.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(({ cardholderName, number, brand, expMonth, expYear, code }) => {
+        // The input[type="number"] is returning a number, convert it to a string
+        // An empty field returns null, avoid casting `"null"` to a string
+        const expirationYear = expYear !== null ? `${expYear}` : null;
+
         const patchedCard = Object.assign(this.cardView, {
           cardholderName,
           number,
           brand,
           expMonth,
-          expYear,
+          expYear: expirationYear,
           code,
         });
 

@@ -36,6 +36,14 @@ describe("CardDetailsSectionComponent", () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(CardDetailsSectionComponent);
     component = fixture.componentInstance;
+    component.cardDetailsForm.reset({
+      cardholderName: null,
+      number: null,
+      brand: null,
+      expMonth: null,
+      expYear: null,
+      code: null,
+    });
     fixture.detectChanges();
   });
 
@@ -53,6 +61,19 @@ describe("CardDetailsSectionComponent", () => {
     cardView.cardholderName = "Ron Burgundy";
     cardView.number = "4242 4242 4242 4242";
     cardView.brand = "Visa";
+
+    expect(patchCipherSpy).toHaveBeenCalledWith({
+      card: cardView,
+    });
+  });
+
+  it("it converts the year integer to a string", () => {
+    component.cardDetailsForm.patchValue({
+      expYear: 2022,
+    });
+
+    const cardView = new CardView();
+    cardView.expYear = "2022";
 
     expect(patchCipherSpy).toHaveBeenCalledWith({
       card: cardView,
