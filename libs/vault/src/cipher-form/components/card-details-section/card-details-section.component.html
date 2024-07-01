@@ -1,6 +1,13 @@
 <bit-section [formGroup]="cardDetailsForm">
   <bit-section-header>
-    <h2 bitTypography="h5">{{ "cardDetails" | i18n }}</h2>
+    <h2 bitTypography="h5">
+      <ng-container *ngIf="cardDetailsForm.value.brand; else defaultHeading">
+        {{ "cardBrandDetails" | i18n: cardDetailsForm.value.brand }}
+      </ng-container>
+      <ng-template #defaultHeading>
+        {{ "cardDetails" | i18n }}
+      </ng-template>
+    </h2>
   </bit-section-header>
   <bit-card>
     <bit-form-field>
