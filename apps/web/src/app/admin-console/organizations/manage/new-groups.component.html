@@ -1,0 +1,109 @@
+<app-header>
+  <bit-search
+    [placeholder]="'searchGroups' | i18n"
+    [formControl]="searchControl"
+    class="tw-w-80"
+  ></bit-search>
+  <button bitButton type="button" buttonType="primary" (click)="add()">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "newGroup" | i18n }}
+  </button>
+</app-header>
+
+<ng-container *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <p *ngIf="!dataSource.filteredData.length">{{ "noGroupsInList" | i18n }}</p>
+  <!-- The padding on the bottom of the cdk-virtual-scroll-viewport element is required to prevent table row content
+  from overflowing the <main> element. -->
+  <cdk-virtual-scroll-viewport scrollWindow [itemSize]="rowHeight" class="tw-pb-8">
+    <bit-table *ngIf="dataSource.filteredData.length" [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell class="tw-w-20">
+            <input
+              type="checkbox"
+              bitCheckbox
+              class="tw-mr-2"
+              (change)="toggleAllVisible($event)"
+              id="selectAll"
+            />
+            <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="selectAll">{{
+              "all" | i18n
+            }}</label>
+          </th>
+          <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+          <th bitCell>{{ "collections" | i18n }}</th>
+          <th bitCell class="tw-w-10">
+            <button
+              [bitMenuTriggerFor]="headerMenu"
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              appA11yTitle="{{ 'options' | i18n }}"
+            ></button>
+
+            <bit-menu #headerMenu>
+              <button type="button" bitMenuItem (click)="deleteAllSelected()">
+                <span class="tw-text-danger"
+                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
+                >
+              </button>
+            </bit-menu>
+          </th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *cdkVirtualFor="let g of rows$" [ngClass]="rowHeightClass">
+          <td bitCell (click)="check(g)" class="tw-cursor-pointer">
+            <input type="checkbox" bitCheckbox [(ngModel)]="g.checked" />
+          </td>
+          <td bitCell class="tw-cursor-pointer tw-font-bold" (click)="edit(g)">
+            <button type="button" bitLink>
+              {{ g.details.name }}
+            </button>
+          </td>
+          <td bitCell (click)="edit(g, ModalTabType.Collections)" class="tw-cursor-pointer">
+            <bit-badge-list
+              [items]="g.collectionNames"
+              [maxItems]="3"
+              variant="secondary"
+            ></bit-badge-list>
+          </td>
+          <td bitCell>
+            <button
+              [bitMenuTriggerFor]="rowMenu"
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              appA11yTitle="{{ 'options' | i18n }}"
+            ></button>
+
+            <bit-menu #rowMenu>
+              <button type="button" bitMenuItem (click)="edit(g)">
+                <i aria-hidden="true" class="bwi bwi-pencil-square"></i> {{ "editInfo" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="edit(g, ModalTabType.Members)">
+                <i aria-hidden="true" class="bwi bwi-user"></i> {{ "members" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="edit(g, ModalTabType.Collections)">
+                <i aria-hidden="true" class="bwi bwi-collection"></i> {{ "collections" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="delete(g)">
+                <span class="tw-text-danger"
+                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
+                >
+              </button>
+            </bit-menu>
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </cdk-virtual-scroll-viewport>
+</ng-container>

@@ -20,6 +20,7 @@ export enum FeatureFlag {
   EmailVerification = "email-verification",
   InlineMenuFieldQualification = "inline-menu-field-qualification",
   MemberAccessReport = "ac-2059-member-access-report",
+  GroupsComponentRefactor = "groups-component-refactor",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -50,6 +51,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EmailVerification]: FALSE,
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.MemberAccessReport]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

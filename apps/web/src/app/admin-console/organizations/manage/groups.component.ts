@@ -71,6 +71,11 @@ type GroupDetailsRow = {
   collectionNames?: string[];
 };
 
+/**
+ * @deprecated To be replaced with NewGroupsComponent which significantly refactors this component.
+ * The GroupsComponentRefactor flag switches between the old and new components; this component will be removed when
+ * the feature flag is removed.
+ */
 @Component({
   selector: "app-org-groups",
   templateUrl: "groups.component.html",
