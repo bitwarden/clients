@@ -7,6 +7,7 @@
     ></vault-item-details-section>
 
     <vault-card-details-section
+      *ngIf="config.cipherType === CipherType.Card"
       [originalCipherView]="originalCipherView"
     ></vault-card-details-section>
 
