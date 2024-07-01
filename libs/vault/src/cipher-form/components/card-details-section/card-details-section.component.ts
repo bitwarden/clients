@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
@@ -45,9 +45,11 @@ type CardDetailsForm = {
     CommonModule,
   ],
 })
-export class CardDetailsSectionComponent implements OnInit {
+export class CardDetailsSectionComponent implements OnInit, AfterViewInit {
   /** The original cipher */
   @Input() originalCipherView: CipherView;
+
+  @ViewChild("yearInput") yearInput: ElementRef<HTMLInputElement>;
 
   /** All form fields associated with the card details */
   cardDetailsForm = this.formBuilder.group<CardDetailsForm>({
@@ -71,6 +73,26 @@ export class CardDetailsSectionComponent implements OnInit {
     { name: "UnionPay", value: "UnionPay" },
     { name: "RuPay", value: "RuPay" },
     { name: this.i18nService.t("other"), value: "Other" },
+  ];
+
+  /**
+   * Available expiration months
+   * NOTE: `name` is an i18n key
+   */
+  readonly expirationMonths = [
+    { name: " ", value: null },
+    { name: "january", value: "1" },
+    { name: "february", value: "2" },
+    { name: "march", value: "3" },
+    { name: "april", value: "4" },
+    { name: "may", value: "5" },
+    { name: "june", value: "6" },
+    { name: "july", value: "7" },
+    { name: "august", value: "8" },
+    { name: "september", value: "9" },
+    { name: "october", value: "10" },
+    { name: "november", value: "11" },
+    { name: "december", value: "12" },
   ];
 
   /** Local CardView, either created empty or set to the existing card instance  */
@@ -118,6 +140,12 @@ export class CardDetailsSectionComponent implements OnInit {
     if (this.originalCipherView?.card) {
       this.setInitialValues();
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Force the year input to have the same height as the month select adjacent to it
+    // The bitInput directive overrides classes
+    this.yearInput.nativeElement.style.lineHeight = "1.6";
   }
 
   /** Set form initial form values from the current cipher */

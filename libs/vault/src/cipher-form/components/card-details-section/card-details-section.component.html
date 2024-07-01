@@ -7,11 +7,13 @@
       <bit-label>{{ "cardholderName" | i18n }}</bit-label>
       <input bitInput formControlName="cardholderName" />
     </bit-form-field>
+
     <bit-form-field>
       <bit-label>{{ "number" | i18n }}</bit-label>
       <input bitInput formControlName="number" type="text" />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
+
     <bit-form-field>
       <bit-label>{{ "brand" | i18n }}</bit-label>
       <bit-select formControlName="brand">
@@ -22,5 +24,23 @@
         ></bit-option>
       </bit-select>
     </bit-form-field>
+
+    <div class="tw-flex tw-flex-wrap tw-gap-1">
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "expirationMonth" | i18n }}</bit-label>
+        <bit-select formControlName="expMonth">
+          <bit-option
+            *ngFor="let month of expirationMonths"
+            [value]="month.value"
+            [label]="month.name | i18n"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "expirationYear" | i18n }}</bit-label>
+        <input #yearInput bitInput formControlName="expYear" type="text" />
+      </bit-form-field>
+    </div>
   </bit-card>
 </bit-section>
