@@ -28,9 +28,14 @@
       <a routerLink="" bitMenuItem (click)="clone()">
         {{ "clone" | i18n }}
       </a>
-      <button type="button" bitMenuItem>
+      <a
+        routerLink="/assign-collections"
+        [queryParams]="{ cipherId: this.cipher.id }"
+        type="button"
+        bitMenuItem
+      >
         {{ "assignCollections" | i18n }}
-      </button>
+      </a>
     </ng-container>
   </bit-menu>
 </bit-item-action>
