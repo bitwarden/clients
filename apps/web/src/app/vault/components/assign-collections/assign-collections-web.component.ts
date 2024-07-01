@@ -17,8 +17,6 @@ import { SharedModule } from "../../../shared";
   standalone: true,
 })
 export class AssignCollectionsWebComponent {
-  protected loading = false;
-  protected disabled = false;
   protected editableItemCount: number;
 
   constructor(

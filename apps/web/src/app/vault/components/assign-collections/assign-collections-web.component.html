@@ -9,8 +9,7 @@
   <div bitDialogContent>
     <assign-collections
       [params]="params"
-      (formDisabled)="disabled = $event"
-      (formLoading)="loading = $event"
+      [submitBtn]="assignSubmitButton"
       (onCollectionAssign)="onCollectionAssign($event)"
       (editableItemCountChange)="editableItemCount = $event"
     ></assign-collections>
@@ -18,8 +17,7 @@
 
   <ng-container bitDialogFooter>
     <button
-      [disabled]="disabled"
-      [loading]="loading"
+      #assignSubmitButton
       form="assign_collections_form"
       type="submit"
       bitButton

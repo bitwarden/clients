@@ -9,20 +9,18 @@
     <assign-collections
       *ngIf="params"
       [params]="params"
-      (formDisabled)="disabled = $event"
-      (formLoading)="loading = $event"
+      [submitBtn]="assignSubmitButton"
       (onCollectionAssign)="navigateBack()"
     ></assign-collections>
   </bit-card>
 
   <popup-footer slot="footer">
     <button
+      #assignSubmitButton
       bitButton
       form="assign_collections_form"
       buttonType="primary"
       type="submit"
-      [disabled]="disabled"
-      [loading]="loading"
     >
       {{ "assign" | i18n }}
     </button>

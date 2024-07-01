@@ -45,10 +45,6 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
   ],
 })
 export class AssignCollections {
-  /** Loading state of the collections form */
-  protected loading = false;
-  /** Disabled state of the collections form */
-  protected disabled = false;
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;
 

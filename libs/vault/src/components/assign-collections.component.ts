@@ -28,6 +28,7 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import {
   AsyncActionsModule,
   BitSubmitDirective,
+  ButtonComponent,
   ButtonModule,
   DialogModule,
   FormFieldModule,
@@ -84,11 +85,10 @@ export class AssignCollectionsComponent implements OnInit {
 
   @Input() params: CollectionAssignmentParams;
 
-  @Output()
-  formLoading = new EventEmitter<boolean>();
-
-  @Output()
-  formDisabled = new EventEmitter<boolean>();
+  /**
+   * Submit button instance that will be disabled or marked as loading when the form is submitting.
+   */
+  @Input() submitBtn?: ButtonComponent;
 
   @Output()
   editableItemCountChange = new EventEmitter<number>();
@@ -173,11 +173,19 @@ export class AssignCollectionsComponent implements OnInit {
 
   ngAfterViewInit(): void {
     this.bitSubmit.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-      this.formLoading.emit(loading);
+      if (!this.submitBtn) {
+        return;
+      }
+
+      this.submitBtn.loading = loading;
     });
 
     this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-      this.formDisabled.emit(disabled);
+      if (!this.submitBtn) {
+        return;
+      }
+
+      this.submitBtn.disabled = disabled;
     });
   }
 
