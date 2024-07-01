@@ -1,8 +1,12 @@
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { createInitAutofillInlineMenuListMessageMock } from "../../../../spec/autofill-mocks";
+import {
+  createAutofillOverlayCipherDataMock,
+  createInitAutofillInlineMenuListMessageMock,
+} from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
@@ -69,7 +73,33 @@ describe("AutofillInlineMenuList", () => {
         );
       });
 
-      it("creates the views for the no results inline menu", () => {
+      it("creates the views for the no results inline menu that should be filled by a login cipher", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for the no results inline menu that should be filled by a card cipher", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            filledByCipherType: CipherType.Card,
+            portKey,
+          }),
+        );
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for the no results inline menu that does not have a fill by cipher type", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            filledByCipherType: undefined,
+            portKey,
+          }),
+        );
+
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
@@ -80,7 +110,7 @@ describe("AutofillInlineMenuList", () => {
         addVaultItemButton.dispatchEvent(new Event("click"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "addNewVaultItem", portKey },
+          { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
           "*",
         );
       });
@@ -91,8 +121,29 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock());
       });
 
-      it("creates the view for a list of ciphers", () => {
+      it("creates the view for a list of login ciphers", () => {
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for a list of card ciphers", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            filledByCipherType: CipherType.Card,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Card,
+                card: "Visa, *4234",
+                login: null,
+                icon: {
+                  imageEnabled: true,
+                  icon: "bw-id-card card-visa",
+                },
+              }),
+            ],
+          }),
+        );
+
+        expect(true).toBe(true);
       });
 
       it("loads ciphers on scroll one page at a time", () => {

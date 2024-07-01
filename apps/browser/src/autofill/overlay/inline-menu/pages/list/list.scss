@@ -263,7 +263,7 @@ body {
   }
 
   .cipher-name,
-  .cipher-user-login {
+  .cipher-subtitle {
     display: block;
     width: 100%;
     line-height: 1.5;
@@ -283,7 +283,7 @@ body {
     }
   }
 
-  .cipher-user-login {
+  .cipher-subtitle {
     font-size: 1.4rem;
 
     @include themify($themes) {

@@ -19,7 +19,7 @@ export type SubFrameDataFromWindowMessage = SubFrameOffsetData & {
 export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
-  addNewVaultItemFromOverlay: () => void;
+  addNewVaultItemFromOverlay: ({ message }: AutofillExtensionMessageParam) => void;
   blurMostRecentlyFocusedField: () => void;
   unsetMostRecentlyFocusedField: () => void;
   checkIsMostRecentlyFocusedFieldWithinViewport: () => Promise<boolean>;

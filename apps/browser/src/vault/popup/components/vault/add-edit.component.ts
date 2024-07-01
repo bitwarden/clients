@@ -141,6 +141,7 @@ export class AddEditComponent extends BaseAddEditComponent {
         }
         if (
           params.uri &&
+          this.cipher.login.uris[0] &&
           (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
         ) {
           this.cipher.login.uris[0].uri = params.uri;

@@ -34,6 +34,7 @@ export type WebsiteIconData = {
 export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
+  filledByCipherType?: CipherType;
   tabId?: number;
   frameId?: number;
 };
@@ -50,13 +51,26 @@ export type InlineMenuPosition = {
   list?: InlineMenuElementPosition;
 };
 
+export type NewLoginCipherData = {
+  uri?: string;
+  hostname: string;
+  username: string;
+  password: string;
+};
+
+export type NewCardCipherData = {
+  cardholderName: string;
+  number: string;
+  expirationMonth: string;
+  expirationYear: string;
+  expirationDate?: string;
+  cvv: string;
+};
+
 export type OverlayAddNewItemMessage = {
-  login?: {
-    uri?: string;
-    hostname: string;
-    username: string;
-    password: string;
-  };
+  addNewCipherType?: CipherType;
+  login?: NewLoginCipherData;
+  card?: NewCardCipherData;
 };
 
 export type CloseInlineMenuMessage = {
@@ -91,6 +105,7 @@ export type OverlayPortMessage = {
   command: string;
   direction?: string;
   inlineMenuCipherId?: string;
+  addNewCipherType?: CipherType;
 };
 
 export type InlineMenuCipherData = {
@@ -178,7 +193,7 @@ export type InlineMenuListPortMessageHandlers = {
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillAutofillInlineMenuCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  addNewVaultItem: ({ port }: PortConnectionParam) => void;
+  addNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
@@ -187,5 +202,5 @@ export type InlineMenuListPortMessageHandlers = {
 export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
-  updateOverlayCiphers(): Promise<void>;
+  updateOverlayCiphers(updateAllCipherTypes?: boolean): Promise<void>;
 }

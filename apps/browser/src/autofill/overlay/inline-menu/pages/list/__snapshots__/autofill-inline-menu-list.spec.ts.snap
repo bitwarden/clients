@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with an empty list of ciphers creates the views for the no results inline menu 1`] = `
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with an empty list of ciphers creates the views for the no results inline menu that does not have a fill by cipher type 1`] = `
 <div
   class="inline-menu-list-container theme_light"
 >
@@ -13,7 +13,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
     class="inline-menu-list-button-container"
   >
     <button
-      aria-label="addNewVaultItem, opensInANewWindow"
+      aria-label=", opensInANewWindow"
       class="add-new-item-button inline-menu-list-button"
       id="new-item-button"
       tabindex="-1"
@@ -45,13 +45,112 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
           </clippath>
         </defs>
       </svg>
-      newItem
     </button>
   </div>
 </div>
 `;
 
-exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user creates the view for a list of ciphers 1`] = `
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with an empty list of ciphers creates the views for the no results inline menu that should be filled by a card cipher 1`] = `
+<div
+  class="inline-menu-list-container theme_light"
+>
+  <div
+    class="no-items inline-menu-list-message"
+  >
+    noItemsToShow
+  </div>
+  <div
+    class="inline-menu-list-button-container"
+  >
+    <button
+      aria-label=", opensInANewWindow"
+      class="add-new-item-button inline-menu-list-button"
+      id="new-item-button"
+      tabindex="-1"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="17"
+        viewBox="0 0 16 17"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          clip-path="url(#a)"
+        >
+          <path
+            d="M15.222 7.914H8.963a.471.471 0 0 1-.34-.147.512.512 0 0 1-.142-.353V.99c0-.133-.05-.26-.14-.354a.471.471 0 0 0-.68 0 .51.51 0 0 0-.142.354v6.424c0 .132-.051.26-.142.353a.474.474 0 0 1-.34.147H.777a.47.47 0 0 0-.34.146.5.5 0 0 0-.14.354.522.522 0 0 0 .14.353.48.48 0 0 0 .34.147h6.26c.128 0 .25.052.34.146.09.094.142.221.142.354v6.576c0 .132.05.26.14.353a.471.471 0 0 0 .68 0 .512.512 0 0 0 .142-.353V9.414c0-.133.051-.26.142-.354a.474.474 0 0 1 .34-.146h6.26c.127 0 .25-.053.34-.147a.511.511 0 0 0 0-.707.472.472 0 0 0-.34-.146Z"
+            fill="#175DDC"
+          />
+        </g>
+        <defs>
+          <clippath
+            id="a"
+          >
+            <path
+              d="M0 .49h16v16H0z"
+              fill="#fff"
+            />
+          </clippath>
+        </defs>
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with an empty list of ciphers creates the views for the no results inline menu that should be filled by a login cipher 1`] = `
+<div
+  class="inline-menu-list-container theme_light"
+>
+  <div
+    class="no-items inline-menu-list-message"
+  >
+    noItemsToShow
+  </div>
+  <div
+    class="inline-menu-list-button-container"
+  >
+    <button
+      aria-label=", opensInANewWindow"
+      class="add-new-item-button inline-menu-list-button"
+      id="new-item-button"
+      tabindex="-1"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="17"
+        viewBox="0 0 16 17"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          clip-path="url(#a)"
+        >
+          <path
+            d="M15.222 7.914H8.963a.471.471 0 0 1-.34-.147.512.512 0 0 1-.142-.353V.99c0-.133-.05-.26-.14-.354a.471.471 0 0 0-.68 0 .51.51 0 0 0-.142.354v6.424c0 .132-.051.26-.142.353a.474.474 0 0 1-.34.147H.777a.47.47 0 0 0-.34.146.5.5 0 0 0-.14.354.522.522 0 0 0 .14.353.48.48 0 0 0 .34.147h6.26c.128 0 .25.052.34.146.09.094.142.221.142.354v6.576c0 .132.05.26.14.353a.471.471 0 0 0 .68 0 .512.512 0 0 0 .142-.353V9.414c0-.133.051-.26.142-.354a.474.474 0 0 1 .34-.146h6.26c.127 0 .25-.053.34-.147a.511.511 0 0 0 0-.707.472.472 0 0 0-.34-.146Z"
+            fill="#175DDC"
+          />
+        </g>
+        <defs>
+          <clippath
+            id="a"
+          >
+            <path
+              d="M0 .49h16v16H0z"
+              fill="#fff"
+            />
+          </clippath>
+        </defs>
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user creates the view for a list of login ciphers 1`] = `
 <div
   class="inline-menu-list-container theme_light"
 >
@@ -87,7 +186,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 1
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username1"
             >
               username1
@@ -156,7 +255,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 2
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username2"
             >
               username2
@@ -297,7 +396,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 4
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username4"
             >
               username4
@@ -367,7 +466,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 5
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username5"
             >
               username5
@@ -437,7 +536,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 6
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username6"
             >
               username6

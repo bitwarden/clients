@@ -2911,6 +2911,10 @@
     "message": "Unlock your account to view matching logins",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Unlock your account to view autofill suggestions",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Unlock account",
     "description": "Button text to display in overlay when the account is locked."
@@ -2934,6 +2938,22 @@
   "addNewVaultItem": {
     "message": "Add new vault item",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "New login",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItem": {
+    "message": "Add new vault login item",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "New card",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItem": {
+    "message": "Add new vault card item",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
@@ -3536,5 +3556,9 @@
   },
   "filters": {
     "message": "Filters"
+  },
+  "cardNumberEndsWith": {
+    "message": "card number ends with",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   }
 }
