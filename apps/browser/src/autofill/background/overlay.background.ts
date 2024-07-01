@@ -52,6 +52,7 @@ import {
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
   CloseInlineMenuMessage,
+  InlineMenuPosition,
   ToggleInlineMenuHiddenMessage,
 } from "./abstractions/overlay.background";
 
@@ -67,6 +68,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuListPort: chrome.runtime.Port;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
+  private inlineMenuPosition: InlineMenuPosition = {};
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
@@ -99,6 +101,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
+    getAutofillInlineMenuPosition: () => this.getInlineMenuPosition(),
     updateAutofillInlineMenuElementIsVisibleStatus: ({ message, sender }) =>
       this.updateInlineMenuElementIsVisibleStatus(message, sender),
     checkIsAutofillInlineMenuButtonVisible: () => this.checkIsInlineMenuButtonVisible(),
@@ -752,6 +755,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Returns the position of the currently open inline menu.
+   */
+  private getInlineMenuPosition(): InlineMenuPosition {
+    return this.inlineMenuPosition;
+  }
+
+  /**
    * Handles updating the opacity of both the inline menu button and list.
    * This is used to simultaneously fade in the inline menu elements.
    */
@@ -807,11 +817,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
         : subFrameLeftOffset + left + width - height + elementOffset / 2;
 
+    this.inlineMenuPosition.button = {
+      top: Math.round(elementTopPosition),
+      left: Math.round(elementLeftPosition),
+      height: Math.round(elementHeight),
+      width: Math.round(elementHeight),
+    };
+
     return {
-      top: `${Math.round(elementTopPosition)}px`,
-      left: `${Math.round(elementLeftPosition)}px`,
-      height: `${Math.round(elementHeight)}px`,
-      width: `${Math.round(elementHeight)}px`,
+      top: `${this.inlineMenuPosition.button.top}px`,
+      left: `${this.inlineMenuPosition.button.left}px`,
+      height: `${this.inlineMenuPosition.button.height}px`,
+      width: `${this.inlineMenuPosition.button.width}px`,
     };
   }
 
@@ -824,10 +841,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameLeftOffset = subFrameOffsets?.left || 0;
 
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
+
+    this.inlineMenuPosition.list = {
+      top: Math.round(top + height + subFrameTopOffset),
+      left: Math.round(left + subFrameLeftOffset),
+      height: 0,
+      width: Math.round(width),
+    };
+
     return {
-      width: `${Math.round(width)}px`,
-      top: `${Math.round(top + height + subFrameTopOffset)}px`,
-      left: `${Math.round(left + subFrameLeftOffset)}px`,
+      width: `${this.inlineMenuPosition.list.width}px`,
+      top: `${this.inlineMenuPosition.list.top}px`,
+      left: `${this.inlineMenuPosition.list.left}px`,
     };
   }
 
@@ -1205,6 +1230,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param message - Contains the dimensions of the inline menu list
    */
   private updateInlineMenuListHeight(message: OverlayBackgroundExtensionMessage) {
+    const parsedHeight = parseInt(message.styles?.height);
+    if (this.inlineMenuPosition.list && parsedHeight > 0) {
+      this.inlineMenuPosition.list.height = parsedHeight;
+    }
+
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuPosition",
       styles: message.styles,
@@ -1532,11 +1562,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (port.name === AutofillOverlayPort.List) {
       this.inlineMenuListPort = null;
       this.isInlineMenuListVisible = false;
+      this.inlineMenuPosition.list = null;
     }
 
     if (port.name === AutofillOverlayPort.Button) {
       this.inlineMenuButtonPort = null;
       this.isInlineMenuButtonVisible = false;
+      this.inlineMenuPosition.button = null;
     }
   };
 }

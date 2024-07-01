@@ -1402,6 +1402,25 @@ describe("OverlayBackground", () => {
         });
       });
 
+      describe("getAutofillInlineMenuPosition", () => {
+        it("returns the current inline menu position", async () => {
+          overlayBackground["inlineMenuPosition"] = {
+            button: { left: 1, top: 2, width: 3, height: 4 },
+          };
+
+          sendMockExtensionMessage(
+            { command: "getAutofillInlineMenuPosition" },
+            mock<chrome.runtime.MessageSender>(),
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith({
+            button: { left: 1, top: 2, width: 3, height: 4 },
+          });
+        });
+      });
+
       it("triggers a debounced reposition of the inline menu if the sender frame has a `null` sub frame offsets value", async () => {
         jest.useFakeTimers();
         const focusedFieldData = createFocusedFieldDataMock();
@@ -2093,6 +2112,22 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuPosition",
           styles: { height: "100px" },
+        });
+      });
+
+      it("updates the inline menu position property's list height value", () => {
+        overlayBackground["inlineMenuPosition"] = {
+          list: { height: 50, top: 1, left: 2, width: 3 },
+        };
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "updateAutofillInlineMenuListHeight",
+          styles: { height: "100px" },
+          portKey,
+        });
+
+        expect(overlayBackground["inlineMenuPosition"]).toStrictEqual({
+          list: { height: 100, top: 1, left: 2, width: 3 },
         });
       });
     });

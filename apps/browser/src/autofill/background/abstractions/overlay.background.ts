@@ -38,6 +38,18 @@ export type FocusedFieldData = {
   frameId?: number;
 };
 
+export type InlineMenuElementPosition = {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+};
+
+export type InlineMenuPosition = {
+  button?: InlineMenuElementPosition;
+  list?: InlineMenuElementPosition;
+};
+
 export type OverlayAddNewItemMessage = {
   login?: {
     uri?: string;
@@ -120,6 +132,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  getAutofillInlineMenuPosition: () => InlineMenuPosition;
   updateAutofillInlineMenuElementIsVisibleStatus: ({
     message,
     sender,

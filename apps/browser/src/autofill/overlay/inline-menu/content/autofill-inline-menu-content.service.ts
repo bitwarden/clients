@@ -1,3 +1,7 @@
+import {
+  InlineMenuElementPosition,
+  InlineMenuPosition,
+} from "../../../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../../../content/abstractions/autofill-init";
 import {
   AutofillOverlayElement,
@@ -7,6 +11,7 @@ import {
   sendExtensionMessage,
   generateRandomCustomElementName,
   setElementStyles,
+  requestIdleCallbackPolyfill,
 } from "../../../utils";
 import {
   InlineMenuExtensionMessageHandlers,
@@ -28,6 +33,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private bodyElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
+  private lastElementOverrides: WeakMap<Element, number> = new WeakMap();
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -375,14 +381,36 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
+    requestIdleCallbackPolyfill(this.processBodyElementMutation, { timeout: 500 });
+  };
+
+  /**
+   * Processes the mutation of the body element. Will trigger when an
+   * idle moment in the execution of the main thread is detected.
+   */
+  private processBodyElementMutation = async () => {
     const lastChild = globalThis.document.body.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
     const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
     const secondToLastChildIsInlineMenuButton = secondToLastChild === this.buttonElement;
 
+    if (!lastChild) {
+      return;
+    }
+
+    const lastChildEncounterCount = this.lastElementOverrides.get(lastChild) || 0;
+    if (!lastChildIsInlineMenuList && !lastChildIsInlineMenuButton && lastChildEncounterCount < 3) {
+      this.lastElementOverrides.set(lastChild, lastChildEncounterCount + 1);
+    }
+
+    if (this.lastElementOverrides.get(lastChild) >= 3) {
+      await this.handlePersistentLastChildOverride(lastChild);
+
+      return;
+    }
+
     if (
-      !lastChild ||
       (lastChildIsInlineMenuList && secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && !(await this.isInlineMenuListVisible()))
     ) {
@@ -399,6 +427,46 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     globalThis.document.body.insertBefore(lastChild, this.buttonElement);
   };
+
+  /**
+   * Verifies if the last child of the body element is overlaying the inline menu elements.
+   * This is triggered when the last child of the body is being forced by some script to
+   * be an element other than the inline menu elements.
+   *
+   * @param lastChild - The last child of the body element.
+   */
+  private async handlePersistentLastChildOverride(lastChild: Element) {
+    const lastChildZIndex = parseInt((lastChild as HTMLElement).style.zIndex);
+    if (lastChildZIndex >= 2147483647) {
+      (lastChild as HTMLElement).style.zIndex = "2147483646";
+    }
+
+    const inlineMenuPosition: InlineMenuPosition = await this.sendExtensionMessage(
+      "getAutofillInlineMenuPosition",
+    );
+    const { button, list } = inlineMenuPosition;
+
+    if (!!button && this.elementAtCenterOfInlineMenuPosition(button) === lastChild) {
+      this.closeInlineMenu();
+      return;
+    }
+
+    if (!!list && this.elementAtCenterOfInlineMenuPosition(list) === lastChild) {
+      this.closeInlineMenu();
+    }
+  }
+
+  /**
+   * Returns the element present at the center of the inline menu position.
+   *
+   * @param position - The position of the inline menu element.
+   */
+  private elementAtCenterOfInlineMenuPosition(position: InlineMenuElementPosition): Element | null {
+    return globalThis.document.elementFromPoint(
+      position.left + position.width / 2,
+      position.top + position.height / 2,
+    );
+  }
 
   /**
    * Identifies if the mutation observer is triggering excessive iterations.

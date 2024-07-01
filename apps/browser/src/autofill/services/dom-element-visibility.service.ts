@@ -1,9 +1,9 @@
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
-import { DomElementVisibilityService as domElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";
+import { DomElementVisibilityService as DomElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";
 
-class DomElementVisibilityService implements domElementVisibilityServiceInterface {
+class DomElementVisibilityService implements DomElementVisibilityServiceInterface {
   private cachedComputedStyle: CSSStyleDeclaration | null = null;
 
   constructor(private inlineMenuElements?: AutofillInlineMenuContentService) {}
