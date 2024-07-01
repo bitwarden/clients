@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
@@ -45,7 +45,7 @@ type CardDetailsForm = {
     CommonModule,
   ],
 })
-export class CardDetailsSectionComponent implements OnInit, AfterViewInit {
+export class CardDetailsSectionComponent implements OnInit {
   /** The original cipher */
   @Input() originalCipherView: CipherView;
 
@@ -138,12 +138,6 @@ export class CardDetailsSectionComponent implements OnInit, AfterViewInit {
     if (this.originalCipherView?.card) {
       this.setInitialValues();
     }
-  }
-
-  ngAfterViewInit(): void {
-    // Force the year input to have the same height as the month select adjacent to it
-    // The bitInput directive overrides classes
-    this.yearInput.nativeElement.style.lineHeight = "1.6";
   }
 
   /** Set form initial form values from the current cipher */

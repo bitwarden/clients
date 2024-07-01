@@ -39,7 +39,14 @@
 
       <bit-form-field class="tw-flex-1">
         <bit-label>{{ "expirationYear" | i18n }}</bit-label>
-        <input id="cardExpYear" #yearInput bitInput formControlName="expYear" type="number" />
+        <!-- `ngStyle` to force the number input to be the same height as the expiration month select. -->
+        <input
+          id="cardExpYear"
+          bitInput
+          formControlName="expYear"
+          type="number"
+          [ngStyle]="{ height: '35px' }"
+        />
       </bit-form-field>
     </div>
 
