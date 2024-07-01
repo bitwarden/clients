@@ -48,6 +48,7 @@ import {
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -342,6 +343,7 @@ const safeProviders: SafeProvider[] = [
       ScriptInjectorService,
       AccountServiceAbstraction,
       AuthService,
+      ConfigService,
       MessageListener,
     ],
   }),

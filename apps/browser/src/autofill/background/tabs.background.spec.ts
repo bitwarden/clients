@@ -146,6 +146,7 @@ describe("TabsBackground", () => {
 
       beforeEach(() => {
         mainBackground.onUpdatedRan = false;
+        mainBackground.configService.getFeatureFlag = jest.fn().mockResolvedValue(true);
         tabsBackground["focusedWindowId"] = focusedWindowId;
         tab = mock<chrome.tabs.Tab>({
           windowId: focusedWindowId,

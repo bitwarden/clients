@@ -12,10 +12,12 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -67,6 +69,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
     private authService: AuthService,
+    private configService: ConfigService,
     private messageListener: MessageListener,
   ) {}
 
@@ -167,9 +170,16 @@ export default class AutofillService implements AutofillServiceInterface {
       inlineMenuVisibility = await this.getInlineMenuVisibility();
     }
 
-    const mainAutofillScript = inlineMenuVisibility
-      ? "bootstrap-autofill-overlay.js"
-      : "bootstrap-autofill.js";
+    let mainAutofillScript = "bootstrap-autofill.js";
+
+    if (inlineMenuVisibility) {
+      const inlineMenuPositioningImprovements = await this.configService.getFeatureFlag(
+        FeatureFlag.InlineMenuPositioningImprovements,
+      );
+      mainAutofillScript = inlineMenuPositioningImprovements
+        ? "bootstrap-autofill-overlay.js"
+        : "bootstrap-legacy-autofill-overlay.js";
+    }
 
     const injectedScripts = [mainAutofillScript];
 

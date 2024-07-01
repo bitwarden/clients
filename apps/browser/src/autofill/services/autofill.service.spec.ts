@@ -14,6 +14,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -86,6 +87,7 @@ describe("AutofillService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
+  let configService: MockProxy<ConfigService>;
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
@@ -96,6 +98,7 @@ describe("AutofillService", () => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
+    configService = mock<ConfigService>();
     messageListener = mock<MessageListener>();
     autofillService = new AutofillService(
       cipherService,
@@ -109,6 +112,7 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
+      configService,
       messageListener,
     );
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
@@ -351,6 +355,7 @@ describe("AutofillService", () => {
     let sender: chrome.runtime.MessageSender;
 
     beforeEach(() => {
+      configService.getFeatureFlag.mockResolvedValue(true);
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();

@@ -73,6 +73,7 @@ import {
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -194,6 +195,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -202,6 +204,7 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
+import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
@@ -348,7 +351,7 @@ export default class MainBackground {
   private contextMenusBackground: ContextMenusBackground;
   private idleBackground: IdleBackground;
   private notificationBackground: NotificationBackground;
-  private overlayBackground: OverlayBackground;
+  private overlayBackground: OverlayBackgroundInterface;
   private filelessImporterBackground: FilelessImporterBackground;
   private runtimeBackground: RuntimeBackground;
   private tabsBackground: TabsBackground;
@@ -889,6 +892,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.accountService,
       this.authService,
+      this.configService,
       messageListener,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
@@ -1039,18 +1043,7 @@ export default class MainBackground {
         themeStateService,
         this.configService,
       );
-      this.overlayBackground = new OverlayBackground(
-        this.logService,
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        themeStateService,
-      );
+
       this.filelessImporterBackground = new FilelessImporterBackground(
         this.configService,
         this.authService,
@@ -1059,11 +1052,6 @@ export default class MainBackground {
         this.importService,
         this.syncService,
         this.scriptInjectorService,
-      );
-      this.tabsBackground = new TabsBackground(
-        this,
-        this.notificationBackground,
-        this.overlayBackground,
       );
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1145,6 +1133,47 @@ export default class MainBackground {
     }
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.cryptoService);
+
+    this.configService
+      .getFeatureFlag(FeatureFlag.InlineMenuPositioningImprovements)
+      .then(async (enabled) => {
+        if (!enabled) {
+          this.overlayBackground = new LegacyOverlayBackground(
+            this.cipherService,
+            this.autofillService,
+            this.authService,
+            this.environmentService,
+            this.domainSettingsService,
+            this.autofillSettingsService,
+            this.i18nService,
+            this.platformUtilsService,
+            themeStateService,
+          );
+        } else {
+          this.overlayBackground = new OverlayBackground(
+            this.logService,
+            this.cipherService,
+            this.autofillService,
+            this.authService,
+            this.environmentService,
+            this.domainSettingsService,
+            this.autofillSettingsService,
+            this.i18nService,
+            this.platformUtilsService,
+            themeStateService,
+          );
+        }
+
+        this.tabsBackground = new TabsBackground(
+          this,
+          this.notificationBackground,
+          this.overlayBackground,
+        );
+
+        await this.overlayBackground.init();
+        await this.tabsBackground.init();
+      })
+      .catch((error) => this.logService.error(`Error initializing OverlayBackground: ${error}`));
   }
 
   async bootstrap() {
@@ -1181,8 +1210,6 @@ export default class MainBackground {
     await this.notificationBackground.init();
     this.filelessImporterBackground.init();
     await this.commandsBackground.init();
-    await this.overlayBackground.init();
-    await this.tabsBackground.init();
     this.contextMenusBackground?.init();
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
