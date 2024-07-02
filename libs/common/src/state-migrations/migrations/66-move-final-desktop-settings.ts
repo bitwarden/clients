@@ -46,7 +46,7 @@ export class MoveFinalDesktopSettingsMigrator extends Migrator<65, 66> {
       updatedGlobal = true;
     }
 
-    if (enableBrowserIntegrationValue != null) {
+    if (enableBrowserIntegrationFingerprintValue != null) {
       await helper.setToGlobal(
         BROWSER_INTEGRATION_FINGERPRINT_ENABLED,
         enableBrowserIntegrationFingerprintValue,
