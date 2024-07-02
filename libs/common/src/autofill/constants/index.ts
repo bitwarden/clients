@@ -13,13 +13,16 @@ export const EVENTS = {
   BLUR: "blur",
   CLICK: "click",
   FOCUS: "focus",
+  FOCUSIN: "focusin",
+  FOCUSOUT: "focusout",
   SCROLL: "scroll",
   RESIZE: "resize",
   DOMCONTENTLOADED: "DOMContentLoaded",
   LOAD: "load",
   MESSAGE: "message",
   VISIBILITYCHANGE: "visibilitychange",
-  FOCUSOUT: "focusout",
+  MOUSEENTER: "mouseenter",
+  MOUSELEAVE: "mouseleave",
 } as const;
 
 export const ClearClipboardDelay = {
@@ -50,6 +53,8 @@ export const ROOT_ID = "root";
 export const SEPARATOR_ID = "separator";
 
 export const NOTIFICATION_BAR_LIFESPAN_MS = 150000; // 150 seconds
+
+export const AUTOFILL_OVERLAY_HANDLE_REPOSITION = "autofill-overlay-handle-reposition-event";
 
 export const AutofillOverlayVisibility = {
   Off: 0,

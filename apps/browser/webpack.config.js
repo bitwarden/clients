@@ -106,14 +106,19 @@ const plugins = [
     chunks: ["notification/bar"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/pages/button/button.html",
+    template: "./src/autofill/overlay/inline-menu/pages/button/button.html",
     filename: "overlay/button.html",
     chunks: ["overlay/button"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/pages/list/list.html",
+    template: "./src/autofill/overlay/inline-menu/pages/list/list.html",
     filename: "overlay/list.html",
     chunks: ["overlay/list"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
+    filename: "overlay/menu.html",
+    chunks: ["overlay/menu"],
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -168,8 +173,12 @@ const mainConfig = {
     "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
     "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
-    "overlay/button": "./src/autofill/overlay/pages/button/bootstrap-autofill-overlay-button.ts",
-    "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
+    "overlay/button":
+      "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
+    "overlay/list":
+      "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
+    "overlay/menu":
+      "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",

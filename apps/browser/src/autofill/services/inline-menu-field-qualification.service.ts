@@ -2,11 +2,11 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { sendExtensionMessage } from "../utils";
 
-import { InlineMenuFieldQualificationsService as InlineMenuFieldQualificationsServiceInterface } from "./abstractions/inline-menu-field-qualifications.service";
+import { InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 
 export class InlineMenuFieldQualificationService
-  implements InlineMenuFieldQualificationsServiceInterface
+  implements InlineMenuFieldQualificationServiceInterface
 {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);

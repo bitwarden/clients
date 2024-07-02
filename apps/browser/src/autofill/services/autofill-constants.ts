@@ -66,7 +66,7 @@ export class AutoFillConstants {
     ...AutoFillConstants.ExcludedAutofillLoginTypes,
   ];
 
-  static readonly ExcludedOverlayTypes: string[] = [
+  static readonly ExcludedInlineMenuTypes: string[] = [
     "textarea",
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];

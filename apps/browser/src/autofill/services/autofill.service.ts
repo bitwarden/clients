@@ -29,7 +29,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -160,14 +160,14 @@ export default class AutofillService implements AutofillServiceInterface {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
-    let overlayVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
+    let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
     let autoFillOnPageLoadIsEnabled = false;
 
     if (activeAccount) {
-      overlayVisibility = await this.getOverlayVisibility();
+      inlineMenuVisibility = await this.getInlineMenuVisibility();
     }
 
-    const mainAutofillScript = overlayVisibility
+    const mainAutofillScript = inlineMenuVisibility
       ? "bootstrap-autofill-overlay.js"
       : "bootstrap-autofill.js";
 
@@ -274,7 +274,7 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Gets the overlay's visibility setting from the autofill settings service.
    */
-  async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+  async getInlineMenuVisibility(): Promise<InlineMenuVisibilitySetting> {
     return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 
@@ -2162,8 +2162,8 @@ export default class AutofillService implements AutofillServiceInterface {
     if (!inlineMenuPreviouslyDisabled && !inlineMenuCurrentlyDisabled) {
       const tabs = await BrowserApi.tabsQuery({});
       tabs.forEach((tab) =>
-        BrowserApi.tabSendMessageData(tab, "updateAutofillOverlayVisibility", {
-          autofillOverlayVisibility: currentSetting,
+        BrowserApi.tabSendMessageData(tab, "updateAutofillInlineMenuVisibility", {
+          inlineMenuVisibility: currentSetting,
         }),
       );
       return;

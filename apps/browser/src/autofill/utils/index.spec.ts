@@ -1,4 +1,4 @@
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import { triggerPortOnDisconnectEvent } from "../spec/testing-utils";
 
 import { logoIcon, logoLockedIcon } from "./svg-icons";
@@ -38,9 +38,7 @@ describe("generateRandomCustomElementName", () => {
 
 describe("sendExtensionMessage", () => {
   it("sends a message to the extension", async () => {
-    const extensionMessagePromise = sendExtensionMessage("updateAutofillOverlayHidden", {
-      display: "none",
-    });
+    const extensionMessagePromise = sendExtensionMessage("some-extension-message");
 
     // Jest doesn't give anyway to select the typed overload of "sendMessage",
     // a cast is needed to get the correct spy type.

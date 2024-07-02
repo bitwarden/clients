@@ -196,7 +196,7 @@ import {
 
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
-import OverlayBackground from "../autofill/background/overlay.background";
+import { OverlayBackground } from "../autofill/background/overlay.background";
 import TabsBackground from "../autofill/background/tabs.background";
 import WebRequestBackground from "../autofill/background/web-request.background";
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
@@ -1040,12 +1040,12 @@ export default class MainBackground {
         this.configService,
       );
       this.overlayBackground = new OverlayBackground(
+        this.logService,
         this.cipherService,
         this.autofillService,
         this.authService,
         this.environmentService,
         this.domainSettingsService,
-        this.stateService,
         this.autofillSettingsService,
         this.i18nService,
         this.platformUtilsService,

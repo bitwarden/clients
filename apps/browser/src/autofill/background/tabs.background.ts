@@ -1,7 +1,7 @@
 import MainBackground from "../../background/main.background";
 
+import { OverlayBackground } from "./abstractions/overlay.background";
 import NotificationBackground from "./notification.background";
-import OverlayBackground from "./overlay.background";
 
 export default class TabsBackground {
   constructor(
@@ -86,11 +86,6 @@ export default class TabsBackground {
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ) => {
-    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (removePageDetailsStatus.has(changeInfo.status)) {
-      this.overlayBackground.removePageDetails(tabId);
-    }
-
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }

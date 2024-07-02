@@ -1,46 +1,40 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { AutofillOverlayElementType } from "../../enums/autofill-overlay.enum";
 import AutofillScript from "../../models/autofill-script";
 
-type AutofillExtensionMessage = {
+export type AutofillExtensionMessage = {
   command: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
   fillScript?: AutofillScript;
   url?: string;
+  subFrameUrl?: string;
+  subFrameId?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
+  isInlineMenuHidden?: boolean;
+  overlayElement?: AutofillOverlayElementType;
+  isFocusingFieldElement?: boolean;
+  authStatus?: AuthenticationStatus;
+  isOpeningFullInlineMenu?: boolean;
   data?: {
-    authStatus?: AuthenticationStatus;
-    isFocusingFieldElement?: boolean;
-    isOverlayCiphersPopulated?: boolean;
-    direction?: "previous" | "next";
-    isOpeningFullOverlay?: boolean;
-    forceCloseOverlay?: boolean;
-    autofillOverlayVisibility?: number;
+    direction?: "previous" | "next" | "current";
+    forceCloseInlineMenu?: boolean;
+    inlineMenuVisibility?: number;
   };
 };
 
-type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
+export type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
 
-type AutofillExtensionMessageHandlers = {
+export type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
-  openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
-  closeAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
-  addNewVaultItemFromOverlay: () => void;
-  redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
-  updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
-  bgUnlockPopoutOpened: () => void;
-  bgVaultItemRepromptPopoutOpened: () => void;
-  updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
-interface AutofillInit {
+export interface AutofillInit {
   init(): void;
   destroy(): void;
 }
-
-export { AutofillExtensionMessage, AutofillExtensionMessageHandlers, AutofillInit };

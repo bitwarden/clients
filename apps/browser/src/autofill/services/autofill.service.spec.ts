@@ -5,7 +5,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
-import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
   DomainSettingsService,
@@ -40,7 +40,7 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -72,7 +72,7 @@ describe("AutofillService", () => {
   let autofillService: AutofillService;
   const cipherService = mock<CipherService>();
   let inlineMenuVisibilityMock$!: BehaviorSubject<InlineMenuVisibilitySetting>;
-  let autofillSettingsService: MockProxy<AutofillSettingsService>;
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
@@ -91,8 +91,8 @@ describe("AutofillService", () => {
   beforeEach(() => {
     scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
-    autofillSettingsService = mock<AutofillSettingsService>();
-    (autofillSettingsService as any).inlineMenuVisibility$ = inlineMenuVisibilityMock$;
+    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
+    autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
@@ -213,7 +213,7 @@ describe("AutofillService", () => {
         .spyOn(BrowserApi, "getAllFrameDetails")
         .mockResolvedValue([mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 0 })]);
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
     });
@@ -275,13 +275,13 @@ describe("AutofillService", () => {
 
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab1,
-            "updateAutofillOverlayVisibility",
-            { autofillOverlayVisibility: AutofillOverlayVisibility.OnButtonClick },
+            "updateAutofillInlineMenuVisibility",
+            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
           );
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab2,
-            "updateAutofillOverlayVisibility",
-            { autofillOverlayVisibility: AutofillOverlayVisibility.OnButtonClick },
+            "updateAutofillInlineMenuVisibility",
+            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
           );
         });
 
@@ -292,13 +292,13 @@ describe("AutofillService", () => {
 
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab1,
-            "updateAutofillOverlayVisibility",
-            { autofillOverlayVisibility: AutofillOverlayVisibility.OnFieldFocus },
+            "updateAutofillInlineMenuVisibility",
+            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
           );
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab2,
-            "updateAutofillOverlayVisibility",
-            { autofillOverlayVisibility: AutofillOverlayVisibility.OnFieldFocus },
+            "updateAutofillInlineMenuVisibility",
+            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
           );
         });
       });
@@ -355,7 +355,7 @@ describe("AutofillService", () => {
       sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
     });
@@ -413,7 +413,7 @@ describe("AutofillService", () => {
 
     it("will inject the bootstrap-autofill script if the user does not have the autofill overlay enabled", async () => {
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.Off);
 
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId);

@@ -1,36 +1,48 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
+import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
-type OpenAutofillOverlayOptions = {
+export type OpenAutofillInlineMenuOptions = {
   isFocusingFieldElement?: boolean;
-  isOpeningFullOverlay?: boolean;
+  isOpeningFullInlineMenu?: boolean;
   authStatus?: AuthenticationStatus;
 };
 
-interface AutofillOverlayContentService {
-  isFieldCurrentlyFocused: boolean;
-  isCurrentlyFilling: boolean;
-  isOverlayCiphersPopulated: boolean;
+export type SubFrameDataFromWindowMessage = SubFrameOffsetData & {
+  subFrameDepth: number;
+};
+
+export type AutofillOverlayContentExtensionMessageHandlers = {
+  [key: string]: CallableFunction;
+  openAutofillInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
+  addNewVaultItemFromOverlay: () => void;
+  blurMostRecentlyFocusedField: () => void;
+  unsetMostRecentlyFocusedField: () => void;
+  checkIsMostRecentlyFocusedFieldWithinViewport: () => Promise<boolean>;
+  bgUnlockPopoutOpened: () => void;
+  bgVaultItemRepromptPopoutOpened: () => void;
+  redirectAutofillInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
+  updateAutofillInlineMenuVisibility: ({ message }: AutofillExtensionMessageParam) => void;
+  getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
+  getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
+  checkMostRecentlyFocusedFieldHasValue: () => boolean;
+  setupRebuildSubFrameOffsetsListeners: () => void;
+  destroyAutofillInlineMenuListeners: () => void;
+};
+
+export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
-  autofillOverlayVisibility: number;
+  messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
-  setupAutofillOverlayListenerOnField(
+  setupInlineMenu(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): Promise<void>;
-  openAutofillOverlay(options: OpenAutofillOverlayOptions): void;
-  removeAutofillOverlay(): void;
-  removeAutofillOverlayButton(): void;
-  removeAutofillOverlayList(): void;
-  addNewVaultItem(): void;
-  redirectOverlayFocusOut(direction: "previous" | "next"): void;
-  focusMostRecentOverlayField(): void;
-  blurMostRecentOverlayField(): void;
+  blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   destroy(): void;
 }
-
-export { OpenAutofillOverlayOptions, AutofillOverlayContentService };
