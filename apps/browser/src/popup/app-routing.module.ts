@@ -323,12 +323,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { state: "appearance" },
   },
-  {
+  ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
     path: "clone-cipher",
-    component: AddEditComponent,
     canActivate: [AuthGuard],
     data: { state: "clone-cipher" },
-  },
+  }),
   {
     path: "send-type",
     component: SendTypeComponent,

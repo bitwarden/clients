@@ -1,0 +1,61 @@
+<bit-section [formGroup]="itemDetailsForm">
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ "itemDetails" | i18n }}</h2>
+    <button
+      slot="end"
+      type="button"
+      size="small"
+      [bitIconButton]="favoriteIcon"
+      role="checkbox"
+      [attr.aria-checked]="itemDetailsForm.value.favorite"
+      [appA11yTitle]="'favorite' | i18n"
+      (click)="toggleFavorite()"
+    ></button>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "itemName" | i18n }}</bit-label>
+      <input bitInput formControlName="name" />
+    </bit-form-field>
+    <div class="tw-flex tw-flex-wrap tw-gap-1">
+      <bit-form-field class="tw-flex-1" *ngIf="showOwnership">
+        <bit-label>{{ "owner" | i18n }}</bit-label>
+        <bit-select formControlName="organizationId">
+          <bit-option
+            *ngIf="allowPersonalOwnership"
+            [value]="null"
+            [label]="'selfOwnershipLabel' | i18n"
+          ></bit-option>
+          <bit-option
+            *ngFor="let org of config.organizations"
+            [value]="org.id"
+            [label]="org.name"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "folder" | i18n }}</bit-label>
+        <bit-select formControlName="folderId">
+          <bit-option
+            *ngFor="let folder of config.folders"
+            [value]="folder.id"
+            [label]="folder.name"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+    </div>
+    <ng-container *ngIf="showCollectionsControl">
+      <bit-form-field class="tw-w-full">
+        <bit-label>{{ "collections" | i18n }}</bit-label>
+        <bit-multi-select
+          class="tw-w-full"
+          formControlName="collectionIds"
+          [baseItems]="collectionOptions"
+        ></bit-multi-select>
+        <bit-hint *ngIf="readOnlyCollections.length > 0" data-testid="view-only-hint">
+          {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollections.join(", ") }}
+        </bit-hint>
+      </bit-form-field>
+    </ng-container>
+  </bit-card>
+</bit-section>

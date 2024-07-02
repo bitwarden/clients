@@ -1,10 +1,21 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="headerText" showBackButton> </popup-header>
 
-  <app-open-attachments *ngIf="isEdit" [cipherId]="cipherId"></app-open-attachments>
+  <vault-cipher-form
+    *ngIf="!loading"
+    formId="cipherForm"
+    [config]="config"
+    (cipherSaved)="onCipherSaved($event)"
+    [submitBtn]="submitBtn"
+  >
+    <app-open-attachments
+      slot="attachment-button"
+      [cipherId]="originalCipherId"
+    ></app-open-attachments>
+  </vault-cipher-form>
 
   <popup-footer slot="footer">
-    <button bitButton type="button" buttonType="primary">
+    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
   </popup-footer>

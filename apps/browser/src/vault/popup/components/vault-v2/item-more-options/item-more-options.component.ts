@@ -19,6 +19,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
   standalone: true,
@@ -145,9 +146,10 @@ export class ItemMoreOptionsComponent {
 
     await this.router.navigate(["/clone-cipher"], {
       queryParams: {
-        cloneMode: true,
+        clone: true.toString(),
         cipherId: this.cipher.id,
-      },
+        type: this.cipher.type.toString(),
+      } as AddEditQueryParams,
     });
   }
 }

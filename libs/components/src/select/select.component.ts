@@ -56,7 +56,11 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   @HostBinding("class") protected classes = ["tw-block", "tw-w-full"];
 
-  @HostBinding()
+  // Usings a separate getter for the HostBinding to get around an unexplained angular error
+  @HostBinding("attr.disabled")
+  get disabledAttr() {
+    return this.disabled || null;
+  }
   @Input()
   get disabled() {
     return this._disabled ?? this.ngControl?.disabled ?? false;

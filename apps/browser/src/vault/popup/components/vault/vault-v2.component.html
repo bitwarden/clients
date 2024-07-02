@@ -1,7 +1,7 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
-      <app-new-item-dropdown></app-new-item-dropdown>
+      <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
 
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>
@@ -15,7 +15,10 @@
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
       <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
-      <app-new-item-dropdown slot="button"></app-new-item-dropdown>
+      <app-new-item-dropdown
+        slot="button"
+        [initialValues]="newItemItemValues$ | async"
+      ></app-new-item-dropdown>
     </bit-no-items>
   </div>
 
