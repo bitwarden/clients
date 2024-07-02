@@ -163,10 +163,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   @Input() loading = false;
   @Input() disabled = false;
 
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
-  }
-
   getFocusTarget() {
     return this.elementRef.nativeElement;
   }

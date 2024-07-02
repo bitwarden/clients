@@ -54,7 +54,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
   }
 
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full"];
+  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
 
   @HostBinding()
   @Input()

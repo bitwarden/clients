@@ -1,26 +1,30 @@
 import { Directive, HostBinding, Input, Optional } from "@angular/core";
 
-import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
+import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
-import { PrefixButtonClasses, PrefixClasses, PrefixStaticContentClasses } from "./prefix.directive";
+import { BitFormFieldComponent } from "./form-field.component";
 
 @Directive({
   selector: "[bitSuffix]",
 })
 export class BitSuffixDirective {
-  constructor(@Optional() private buttonComponent: ButtonLikeAbstraction) {}
-
   @HostBinding("class") @Input() get classList() {
-    return PrefixClasses.concat([
-      "tw-border-l-0",
-      "last:tw-rounded-r",
-
-      "focus-visible:tw-border-l",
-      "focus-visible:tw-ml-[-1px]",
-    ]).concat(this.buttonComponent != undefined ? PrefixButtonClasses : PrefixStaticContentClasses);
+    return ["tw-text-muted"];
   }
 
-  ngOnInit(): void {
-    this.buttonComponent?.setButtonType("unstyled");
+  @HostBinding("attr.aria-describedby")
+  get ariaDescribedBy() {
+    return this.parentFormField?.label?.id || null;
+  }
+
+  constructor(
+    @Optional() private parentFormField: BitFormFieldComponent,
+    @Optional() private iconButtonComponent: BitIconButtonComponent,
+  ) {}
+
+  ngOnInit() {
+    if (this.iconButtonComponent) {
+      this.iconButtonComponent.size = "small";
+    }
   }
 }

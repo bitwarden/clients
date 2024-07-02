@@ -43,7 +43,7 @@ type Story = StoryObj<BitPasswordInputToggleDirective>;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <form>
         <bit-form-field>
           <bit-label>Password</bit-label>
@@ -58,7 +58,7 @@ export const Default: Story = {
 export const Binding: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <form>
         <bit-form-field>
           <bit-label>Password</bit-label>

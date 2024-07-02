@@ -94,8 +94,4 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @Input() loading = false;
 
   @Input() disabled = false;
-
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
-  }
 }

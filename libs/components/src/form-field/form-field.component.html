@@ -1,14 +1,63 @@
-<label class="tw-mb-1 tw-block tw-font-semibold tw-text-main" [attr.for]="input.labelForId">
-  <ng-content select="bit-label"></ng-content>
-  <span *ngIf="input.required" class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
-</label>
-<div class="tw-flex">
-  <div *ngIf="prefixChildren.length" class="tw-flex">
-    <ng-content select="[bitPrefix]"></ng-content>
+<div class="tw-w-full tw-relative tw-group/input tw-min-h-11">
+  <div class="tw-absolute tw-w-full tw-h-full">
+    <label
+      class="tw-text-sm tw-text-muted tw-absolute -tw-translate-y-2 tw-px-4 tw-mb-0 tw-z-20 tw-flex tw-gap-1 tw-max-w-full"
+      [attr.for]="input.labelForId"
+    >
+      <ng-content select="bit-label"></ng-content>
+      <span *ngIf="input.required" class="tw-text-[0.625rem] tw-font-normal">
+        ({{ "required" | i18n }})</span
+      >
+    </label>
+    <div class="tw-w-full tw-h-full tw-flex">
+      <div
+        class="tw-w-3 tw-border-r-0 group-focus-within/input:tw-border-r-0 !tw-rounded-l-lg tw-bg-background"
+        [ngClass]="inputBorderClasses"
+      ></div>
+      <div
+        class="tw-px-1 tw-mt-px tw-bg-background tw-border-x-0 tw-border-t-0 group-focus-within/input:tw-border-x-0 group-focus-within/input:tw-border-t-0"
+        [ngClass]="inputBorderClasses"
+        *ngIf="label"
+      >
+        <div class="tw-opacity-0 tw-flex tw-gap-1" aria-hidden="true">
+          <span class="tw-text-sm" [ngStyle]="labelSpacerDynamicStyle"></span>
+          <span *ngIf="input.required" class="tw-text-[0.625rem] tw-font-normal">
+            ({{ "required" | i18n }})</span
+          >
+        </div>
+      </div>
+      <div
+        class="tw-grow tw-bg-background tw-border-l-0 group-focus-within/input:tw-border-l-0 !tw-rounded-r-lg"
+        [ngClass]="inputBorderClasses"
+      ></div>
+    </div>
   </div>
-  <ng-content></ng-content>
-  <div *ngIf="suffixChildren.length" class="tw-flex">
-    <ng-content select="[bitSuffix]"></ng-content>
+  <div
+    class="tw-flex tw-border tw-border-transparent tw-border-solid tw-min-h-11 [&:not(:has(button:enabled)):has(input:read-only)>*]:tw-bg-secondary-100 [&:not(:has(button:enabled)):has(textarea:read-only)>*]:tw-bg-secondary-100"
+  >
+    <div
+      #prefixSlot
+      [hidden]="prefixSlot.childElementCount === 0"
+      class="tw-z-10 tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2 tw-rounded-l-lg"
+    >
+      <ng-content select="[bitPrefix]"></ng-content>
+    </div>
+    <div
+      class="tw-z-10 tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+      [ngClass]="[
+        prefixSlot.childElementCount === 0 ? 'tw-rounded-l-lg tw-pl-3' : '',
+        suffixSlot.childElementCount === 0 ? 'tw-rounded-r-lg tw-pr-3' : ''
+      ]"
+    >
+      <ng-content></ng-content>
+    </div>
+    <div
+      #suffixSlot
+      [hidden]="suffixSlot.childElementCount === 0"
+      class="tw-z-10 tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2 tw-rounded-r-lg"
+    >
+      <ng-content select="[bitSuffix]"></ng-content>
+    </div>
   </div>
 </div>
 <ng-container [ngSwitch]="input.hasError">

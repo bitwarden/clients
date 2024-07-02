@@ -16,6 +16,7 @@ import { ButtonModule } from "../button";
 import { CheckboxModule } from "../checkbox";
 import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input/input.module";
+import { LinkModule } from "../link";
 import { RadioButtonModule } from "../radio-button";
 import { SelectModule } from "../select";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -39,6 +40,7 @@ export default {
         CheckboxModule,
         RadioButtonModule,
         SelectModule,
+        LinkModule,
       ],
       providers: [
         {
@@ -74,6 +76,7 @@ const defaultFormObj = fb.group({
   email: ["", [Validators.required, Validators.email, forbiddenNameValidator(/bit/i)]],
   terms: [false, [Validators.requiredTrue]],
   updates: ["yes"],
+  file: [""],
 });
 
 // Custom error message, `message` is shown as the error message
@@ -96,10 +99,55 @@ export const Default: Story = {
       submit: submit,
       ...args,
     },
-    template: `
+    template: /*html*/ `
       <form [formGroup]="formObj">
         <bit-form-field>
           <bit-label>Label</bit-label>
+          <input bitInput formControlName="name" />
+          <bit-hint>Optional Hint</bit-hint>
+        </bit-form-field>
+      </form>
+    `,
+  }),
+};
+
+export const LabelWithIcon: Story = {
+  render: (args) => ({
+    props: {
+      formObj: defaultFormObj,
+      submit: submit,
+      ...args,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj">
+        <bit-form-field>
+          <bit-label>
+            Label
+            <a href="#">
+              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+            </a>
+          </bit-label>
+          <input bitInput formControlName="name" />
+          <bit-hint>Optional Hint</bit-hint>
+        </bit-form-field>
+      </form>
+    `,
+  }),
+};
+
+export const LongLabel: Story = {
+  render: (args) => ({
+    props: {
+      formObj: defaultFormObj,
+      submit: submit,
+      ...args,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" style="width: 200px">
+        <bit-form-field>
+          <bit-label>
+            Hello I am a very long label with lots of very cool helpful information
+          </bit-label>
           <input bitInput formControlName="name" />
           <bit-hint>Optional Hint</bit-hint>
         </bit-form-field>
@@ -114,7 +162,7 @@ export const Required: Story = {
       formObj: formObj,
       ...args,
     },
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput required placeholder="Placeholder" />
@@ -134,7 +182,7 @@ export const Hint: Story = {
       formObj: formObj,
       ...args,
     },
-    template: `
+    template: /*html*/ `
       <bit-form-field [formGroup]="formObj">
         <bit-label>FormControl</bit-label>
         <input bitInput formControlName="required" placeholder="Placeholder" />
@@ -147,7 +195,7 @@ export const Hint: Story = {
 export const Disabled: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" disabled />
@@ -160,7 +208,7 @@ export const Disabled: Story = {
 export const Readonly: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Input</bit-label>
         <input bitInput value="Foobar" readonly />
@@ -178,7 +226,7 @@ export const Readonly: Story = {
 export const InputGroup: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" />
@@ -193,13 +241,14 @@ export const InputGroup: Story = {
 export const ButtonInputGroup: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
-        <button bitPrefix bitIconButton="bwi-star"></button>
+        <bit-label>Label</bit-label>
+        <button bitPrefix bitIconButton="bwi-star" aria-label="Favorite"></button>
         <input bitInput placeholder="Placeholder" />
-        <button bitSuffix bitIconButton="bwi-eye"></button>
-        <button bitSuffix bitIconButton="bwi-clone"></button>
-        <button bitSuffix bitButton>
+        <button bitSuffix bitIconButton="bwi-eye" aria-label="Hide"></button>
+        <button bitSuffix bitIconButton="bwi-clone" aria-label="Clone"></button>
+        <button bitSuffix bitLink>
           Apply
         </button>
       </bit-form-field>
@@ -211,14 +260,32 @@ export const ButtonInputGroup: Story = {
 export const DisabledButtonInputGroup: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
-        <button bitPrefix bitIconButton="bwi-star" disabled></button>
+        <button bitPrefix bitIconButton="bwi-star" disabled aria-label="Favorite"></button>
         <input bitInput placeholder="Placeholder" disabled />
-        <button bitSuffix bitIconButton="bwi-eye" disabled></button>
-        <button bitSuffix bitIconButton="bwi-clone" disabled></button>
-        <button bitSuffix bitButton disabled>
+        <button bitSuffix bitIconButton="bwi-eye" disabled aria-label="Hide"></button>
+        <button bitSuffix bitIconButton="bwi-clone" disabled aria-label="Clone"></button>
+        <button bitSuffix bitLink disabled>
+          Apply
+        </button>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};
+
+export const PartiallyDisabledButtonInputGroup: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-form-field>
+        <bit-label>Label</bit-label>
+        <input bitInput placeholder="Placeholder" disabled />
+        <button bitSuffix bitIconButton="bwi-eye" aria-label="Hide"></button>
+        <button bitSuffix bitIconButton="bwi-clone" aria-label="Clone"></button>
+        <button bitSuffix bitLink disabled>
           Apply
         </button>
       </bit-form-field>
@@ -230,7 +297,7 @@ export const DisabledButtonInputGroup: Story = {
 export const Select: Story = {
   render: (args: BitFormFieldComponent) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
         <select bitInput>
@@ -246,7 +313,7 @@ export const Select: Story = {
 export const AdvancedSelect: Story = {
   render: (args: BitFormFieldComponent) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
         <bit-select>
@@ -258,10 +325,40 @@ export const AdvancedSelect: Story = {
   }),
 };
 
+export const FileInput: Story = {
+  render: (args) => ({
+    props: {
+      formObj: defaultFormObj,
+      submit: submit,
+      ...args,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj">
+        <bit-form-field>
+          <bit-label>File</bit-label>
+          <div>
+            <button bitButton type="button" buttonType="secondary">
+              Choose File
+            </button>
+            No file chosen
+          </div>
+          <input
+            bitInput
+            #fileSelector
+            type="file"
+            formControlName="file"
+            hidden
+          />
+        </bit-form-field>
+      </form>
+    `,
+  }),
+};
+
 export const Textarea: Story = {
   render: (args: BitFormFieldComponent) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-form-field>
         <bit-label>Textarea</bit-label>
         <textarea bitInput rows="4"></textarea>
