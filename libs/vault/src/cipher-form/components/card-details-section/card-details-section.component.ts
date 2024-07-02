@@ -24,7 +24,7 @@ type CardDetailsForm = {
   number: CardView["number"];
   brand: CardView["brand"];
   expMonth: CardView["expMonth"];
-  expYear: CardView["expYear"];
+  expYear: CardView["expYear"] | number;
   code: CardView["code"];
 };
 
@@ -48,6 +48,9 @@ type CardDetailsForm = {
 export class CardDetailsSectionComponent implements OnInit {
   /** The original cipher */
   @Input() originalCipherView: CipherView;
+
+  /** True when all fields should be disabled */
+  @Input() disabled: boolean;
 
   /** All form fields associated with the card details */
   cardDetailsForm = this.formBuilder.group<CardDetailsForm>({
