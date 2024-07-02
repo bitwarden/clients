@@ -151,9 +151,6 @@ export class GeneratorComponent implements OnInit, OnDestroy {
       this.usernameOptions.subaddressType = this.usernameOptions.catchallType = "random";
     } else {
       this.usernameOptions.website = this.usernameWebsite;
-      const websiteOption = { name: this.i18nService.t("websiteName"), value: "website-name" };
-      this.subaddressOptions.push(websiteOption);
-      this.catchallOptions.push(websiteOption);
     }
   }
 
@@ -201,6 +198,12 @@ export class GeneratorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       ),
     );
+
+    if (this.usernameWebsite !== null) {
+      const websiteOption = { name: this.i18nService.t("websiteName"), value: "website-name" };
+      this.subaddressOptions.push(websiteOption);
+      this.catchallOptions.push(websiteOption);
+    }
   }
 
   ngOnDestroy() {
