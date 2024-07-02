@@ -126,7 +126,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
     let rememberEmail = this.loginEmailService.getRememberEmail();
 
-    if (rememberEmail == null) {
+    if (!rememberEmail) {
       rememberEmail = (await firstValueFrom(this.loginEmailService.storedEmail$)) != null;
     }
 

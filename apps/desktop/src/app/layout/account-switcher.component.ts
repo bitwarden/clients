@@ -165,13 +165,10 @@ export class AccountSwitcherComponent {
   async addAccount() {
     this.close();
 
-    this.loginEmailService.setRememberEmail(false);
-    await this.loginEmailService.saveEmailSettings();
-
-    await this.router.navigate(["/login"]);
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     await this.stateService.clearDecryptedData(activeAccount?.id as UserId);
     await this.accountService.switchAccount(null);
+    await this.router.navigate(["/login"]);
   }
 
   private async createInactiveAccounts(baseAccounts: {

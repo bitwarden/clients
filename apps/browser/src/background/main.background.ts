@@ -8,7 +8,6 @@ import {
   AuthRequestServiceAbstraction,
   AuthRequestService,
   LoginEmailServiceAbstraction,
-  LoginEmailService,
   LogoutReason,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -708,8 +707,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.loginEmailService = new LoginEmailService(this.stateProvider);
-
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
@@ -1255,9 +1252,6 @@ export default class MainBackground {
       clearCaches();
 
       if (userId == null) {
-        this.loginEmailService.setRememberEmail(false);
-        await this.loginEmailService.saveEmailSettings();
-
         await this.refreshBadge();
         await this.refreshMenu();
         await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
