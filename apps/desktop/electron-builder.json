@@ -85,8 +85,8 @@
         "filter": ["**/*"]
       },
       {
-        "from": "resources/native-messaging.bat",
-        "to": "native-messaging.bat"
+        "from": "desktop_native/target/release/desktop_proxy",
+        "to": "desktop_proxy"
       }
     ]
   },

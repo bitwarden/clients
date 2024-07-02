@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "build": "napi build --release --platform --js false",
-    "build:debug": "napi build --platform --js false",
+    "build": "cargo build --release -p desktop_proxy && napi build --release --platform --js false",
+    "build:debug": "cargo build -p desktop_proxy && napi build --platform --js false",
     "build:cross-platform": "node build.js",
     "test": "cargo test"
   },

@@ -17,11 +17,17 @@ arboard = { version = "=3.4.0", default-features = false, features = [
 ] }
 base64 = "=0.22.1"
 cbc = { version = "=0.1.2", features = ["alloc"] }
+dirs = "5.0.1"
+futures = "0.3.30"
+log = "0.4.21"
+parity-tokio-ipc = "0.9.0"
 rand = "=0.8.5"
 retry = "=2.0.0"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
 thiserror = "=1.0.61"
+tokio = { version = "1.38.0", features = ["io-util", "sync", "macros"] }
+tokio-util = "0.7.11"
 typenum = "=1.17.0"
 
 [target.'cfg(windows)'.dependencies]

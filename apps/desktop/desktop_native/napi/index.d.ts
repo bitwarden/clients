@@ -41,3 +41,23 @@ export namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
 }
+export namespace ipc {
+  export const enum IpcMessageType {
+    Connected = 0,
+    Disconnected = 1,
+    Message = 2
+  }
+  export class IpcMessage {
+    clientId: number
+    kind: IpcMessageType
+    message: string
+  }
+  export class IpcServer {
+    /** Create and start the IPC server. */
+    static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): IpcServer
+    /** Stop the IPC server. */
+    stop(): void
+    /** Send a message over the IPC server. */
+    send(message: string): void
+  }
+}

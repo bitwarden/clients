@@ -142,3 +142,89 @@ pub mod clipboards {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
+
+#[napi]
+pub mod ipc {
+    use desktop_core::ipc::server::{Message, MessageType};
+    use napi::threadsafe_function::{
+        ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    };
+    use tokio_util::sync::PollSender;
+
+    #[napi]
+    pub struct IpcMessage {
+        pub client_id: u32,
+        pub kind: IpcMessageType,
+        pub message: String,
+    }
+
+    impl From<Message> for IpcMessage {
+        fn from(message: Message) -> Self {
+            IpcMessage {
+                client_id: message.client_id,
+                kind: message.kind.into(),
+                message: message.message,
+            }
+        }
+    }
+
+    #[napi]
+    pub enum IpcMessageType {
+        Connected,
+        Disconnected,
+        Message,
+    }
+
+    impl From<MessageType> for IpcMessageType {
+        fn from(message_type: MessageType) -> Self {
+            match message_type {
+                MessageType::Connected => IpcMessageType::Connected,
+                MessageType::Disconnected => IpcMessageType::Disconnected,
+                MessageType::Message => IpcMessageType::Message,
+            }
+        }
+    }
+
+    #[napi]
+    pub struct IpcServer {
+        server: desktop_core::ipc::server::Server,
+    }
+
+    #[napi]
+    impl IpcServer {
+        /// Create and start the IPC server.
+        #[napi(factory)]
+        pub fn listen(
+            name: String,
+            #[napi(ts_arg_type = "(error: null | Error, message: IpcMessage) => void")]
+            callback: ThreadsafeFunction<IpcMessage, ErrorStrategy::CalleeHandled>,
+        ) -> napi::Result<Self> {
+            let (tx, mut rx) = tokio::sync::mpsc::channel::<Message>(32);
+            tokio::spawn(async move {
+                while let Some(message) = rx.recv().await {
+                    callback.call(Ok(message.into()), ThreadsafeFunctionCallMode::NonBlocking);
+                }
+            });
+
+            let server = desktop_core::ipc::server::Server::start(&name, PollSender::new(tx))
+                .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+            Ok(IpcServer { server })
+        }
+
+        /// Stop the IPC server.
+        #[napi]
+        pub fn stop(&self) -> napi::Result<()> {
+            self.server.stop();
+            Ok(())
+        }
+
+        /// Send a message over the IPC server.
+        #[napi]
+        pub fn send(&self, message: String) -> napi::Result<()> {
+            self.server
+                .send(message)
+                .map_err(|e| napi::Error::from_reason(e.to_string()))
+        }
+    }
+}
