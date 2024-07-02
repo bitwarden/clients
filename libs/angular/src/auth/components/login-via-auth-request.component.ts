@@ -386,6 +386,7 @@ export class LoginViaAuthRequestComponent
       await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
         adminAuthReqResponse,
         privateKey,
+        userId,
       );
     } else {
       // Flow 3: masterPasswordHash is null
@@ -393,6 +394,7 @@ export class LoginViaAuthRequestComponent
       await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
         adminAuthReqResponse,
         privateKey,
+        userId,
       );
     }
 

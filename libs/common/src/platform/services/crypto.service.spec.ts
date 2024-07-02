@@ -263,6 +263,12 @@ describe("cryptoService", () => {
       await expect(cryptoService.setUserKey(null, mockUserId)).rejects.toThrow("No key provided.");
     });
 
+    it("throws if userId is null", async () => {
+      await expect(cryptoService.setUserKey(mockUserKey, null)).rejects.toThrow(
+        "No userId provided.",
+      );
+    });
+
     describe("Pin Key refresh", () => {
       const mockPinKeyEncryptedUserKey = new EncString(
         "2.AAAw2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg=",

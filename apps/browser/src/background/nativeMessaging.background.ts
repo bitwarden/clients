@@ -354,7 +354,8 @@ export class NativeMessagingBackground {
               const userKey = new SymmetricCryptoKey(
                 Utils.fromB64ToArray(message.userKeyB64),
               ) as UserKey;
-              await this.cryptoService.setUserKey(userKey);
+              const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+              await this.cryptoService.setUserKey(userKey, userId);
             } else if (message.keyB64) {
               const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
               // Backwards compatibility to support cases in which the user hasn't updated their desktop app
@@ -375,7 +376,7 @@ export class NativeMessagingBackground {
                 encUserKey,
               );
               await this.masterPasswordService.setMasterKey(masterKey, userId);
-              await this.cryptoService.setUserKey(userKey);
+              await this.cryptoService.setUserKey(userKey, userId);
             } else {
               throw new Error("No key received");
             }

@@ -126,17 +126,19 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   async setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: Uint8Array,
+    userId: UserId,
   ) {
     const userKey = await this.decryptPubKeyEncryptedUserKey(
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.cryptoService.setUserKey(userKey);
+    await this.cryptoService.setUserKey(userKey, userId);
   }
 
   async setKeysAfterDecryptingSharedMasterKeyAndHash(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: Uint8Array,
+    userId: UserId,
   ) {
     const { masterKey, masterKeyHash } = await this.decryptPubKeyEncryptedMasterKeyAndHash(
       authReqResponse.key,
@@ -148,11 +150,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
 
     // Set masterKey + masterKeyHash in state after decryption (in case decryption fails)
-    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterKeyHash(masterKeyHash, userId);
 
-    await this.cryptoService.setUserKey(userKey);
+    await this.cryptoService.setUserKey(userKey, userId);
   }
 
   // Decryption helpers
