@@ -66,10 +66,29 @@ libs/billing @bitwarden/team-billing-dev
 bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 
 ## Platform team files ##
+# Browser
+apps/browser/src/popup/* @bitwarden/team-platform-dev
 apps/browser/src/platform @bitwarden/team-platform-dev
+# CLI
+apps/cli/src/* @bitwarden/team-platform-dev
 apps/cli/src/platform @bitwarden/team-platform-dev
+# Desktop
+apps/desktop/src/app/* @bitwarden/team-platform-dev
+apps/desktop/src/app/layout @bitwarden/team-platform-dev
 apps/desktop/src/platform @bitwarden/team-platform-dev
+# Desktop native module ##
+apps/desktop/desktop_native @bitwarden/team-platform-dev
+# Web
+apps/web/src/app/* @bitwarden/team-platform-dev
+apps/web/src/app/layouts @bitwarden/team-platform-dev
 apps/web/src/app/platform @bitwarden/team-platform-dev
+# Web utils used across app and connectors
+apps/web/src/utils/ @bitwarden/team-platform-dev
+# Web core and shared files
+apps/web/src/app/core @bitwarden/team-platform-dev
+apps/web/src/app/shared @bitwarden/team-platform-dev
+apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
+# Platform Libs
 libs/angular/src/platform @bitwarden/team-platform-dev
 libs/common/src/platform @bitwarden/team-platform-dev
 libs/common/spec @bitwarden/team-platform-dev
@@ -77,12 +96,6 @@ libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 # Node-specifc platform files
 libs/node @bitwarden/team-platform-dev
-# Web utils used across app and connectors
-apps/web/src/utils/ @bitwarden/team-platform-dev
-# Web core and shared files
-apps/web/src/app/core @bitwarden/team-platform-dev
-apps/web/src/app/shared @bitwarden/team-platform-dev
-apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
@@ -96,10 +109,6 @@ apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-autofill-d
 ## Component Library ##
 .storybook @bitwarden/team-component-library
 libs/components @bitwarden/team-component-library
-apps/web/src/app/layouts/header
-
-## Desktop native module ##
-apps/desktop/desktop_native @bitwarden/team-platform-dev
 
 ## DevOps team files ##
 /.github/workflows @bitwarden/dept-devops
