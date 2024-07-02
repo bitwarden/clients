@@ -147,6 +147,6 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
-    return items.find((item) => item.value === value);
+    return items.find((item) => JSON.stringify(item.value) === JSON.stringify(value));
   }
 }

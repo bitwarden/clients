@@ -108,7 +108,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
    */
   private findOption(tree: ChipSelectOption<T>, value: T): ChipSelectOption<T> | null {
     let result = null;
-    if (tree.value !== null && tree.value === value) {
+    if (tree.value !== null && JSON.stringify(tree.value) === JSON.stringify(value)) {
       return tree;
     }
 
