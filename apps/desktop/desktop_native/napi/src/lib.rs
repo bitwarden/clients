@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate napi_derive;
-
 #[napi]
 pub mod passwords {
     /// Fetch the stored password from the keychain.
@@ -141,4 +140,27 @@ pub mod clipboards {
         desktop_core::clipboard::write(&text, password)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+}
+
+#[napi]
+pub mod powermonitors {
+    use napi::{threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode}, tokio};
+
+    #[napi]
+    pub async fn on_lock(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
+        desktop_core::powermonitor::on_lock(tx).await.map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        tokio::spawn(async move {
+            while let Some(message) = rx.recv().await {
+                callback.call(Ok(message.into()), ThreadsafeFunctionCallMode::NonBlocking);
+            }
+        });
+        Ok(())
+    }
+
+    #[napi]
+    pub async fn is_lock_monitor_available() -> napi::Result<bool> {
+        Ok(desktop_core::powermonitor::is_lock_monitor_available().await)
+    }
+
 }

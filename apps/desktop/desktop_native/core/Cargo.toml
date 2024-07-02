@@ -22,6 +22,7 @@ retry = "=2.0.0"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
 thiserror = "=1.0.61"
+tokio = { version = "1.38.0", features = ["io-util", "sync", "macros"] }
 typenum = "=1.17.0"
 
 [target.'cfg(windows)'.dependencies]
@@ -49,3 +50,4 @@ security-framework-sys = "=2.11.0"
 [target.'cfg(target_os = "linux")'.dependencies]
 gio = "=0.19.5"
 libsecret = "=0.5.0"
+zbus = "4.3.1"
