@@ -22,3 +22,8 @@ export * from "./registration/registration-start/registration-start.component";
 export * from "./registration/registration-finish/registration-finish.component";
 export * from "./registration/registration-start/registration-start-secondary.component";
 export * from "./registration/registration-env-selector/registration-env-selector.component";
+export * from "./registration/registration-finish/registration-finish.service";
+export * from "./registration/registration-finish/default-registration-finish.service";
+
+// input password
+export * from "./input-password/password-input-result";

@@ -30,7 +30,7 @@
     </form>
     <p class="createAccountLink">
       {{ "newAroundHere" | i18n }}
-      <a [routerLink]="registerRoute" (click)="setLoginEmailValues()">{{
+      <a [routerLink]="registerRoute$ | async" (click)="setLoginEmailValues()">{{
         "createAccount" | i18n
       }}</a>
     </p>

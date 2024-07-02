@@ -29,7 +29,7 @@
     <a
       bitButton
       buttonType="primary"
-      [routerLink]="registerRoute"
+      [routerLink]="registerRoute$ | async"
       [queryParams]="{ email: email }"
       [block]="true"
     >

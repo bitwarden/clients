@@ -1,3 +1,4 @@
+import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { Verification } from "../types/verification";
 
@@ -24,4 +25,15 @@ export abstract class AccountApiService {
   abstract registerSendVerificationEmail(
     request: RegisterSendVerificationEmailRequest,
   ): Promise<null | string>;
+
+  /**
+   * Completes the registration process.
+   *
+   * @param request - The request object containing the user's email verification token,
+   * the email, hashed MP, newly created user key, and new asymmetric user key pair along
+   * with the KDF information used during the process.
+   * @returns A promise that resolves to a string captcha bypass token when the
+   * registration process is successfully completed.
+   */
+  abstract registerFinish(request: RegisterFinishRequest): Promise<string>;
 }

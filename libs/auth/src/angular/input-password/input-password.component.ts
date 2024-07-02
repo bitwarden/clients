@@ -49,6 +49,7 @@ export class InputPasswordComponent implements OnInit {
   @Input({ required: true }) email: string;
   @Input() protected buttonText: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+  @Input() loading: boolean = false;
 
   private minHintLength = 0;
   protected maxHintLength = 50;
@@ -162,6 +163,10 @@ export class InputPasswordComponent implements OnInit {
 
     // Create and hash new master key
     const kdfConfig = DEFAULT_KDF_CONFIG;
+
+    if (this.email == null) {
+      throw new Error("Email is required to create master key.");
+    }
 
     const masterKey = await this.cryptoService.makeMasterKey(
       password,

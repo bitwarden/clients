@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Master password"
+  },
+  "masterPassImportant": {
+    "message": "Your master password cannot be recovered if you forget it!"
+  },
+  "confirmMasterPassword": {
+    "message": "Confirm master password"
+  },
+  "masterPassHintLabel": {
+    "message": "Master password hint"
+  },
   "settings": {
     "message": "Settings"
   },
@@ -1954,6 +1966,9 @@
   },
   "emailVerificationRequired": {
     "message": "Email verification required"
+  },
+  "emailVerifiedV2": {
+    "message": "Email verified"
   },
   "emailVerificationRequiredDesc": {
     "message": "You must verify your email to use this feature."

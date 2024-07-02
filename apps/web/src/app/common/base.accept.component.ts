@@ -3,10 +3,9 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 import { first, switchMap, takeUntil } from "rxjs/operators";
 
+import { RegisterRouteService } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -22,7 +21,7 @@ export abstract class BaseAcceptComponent implements OnInit {
   protected failedMessage = "inviteAcceptFailed";
 
   // TODO: remove when email verification flag is removed
-  registerRoute = "/register";
+  registerRoute$ = this.registerRouteService.registerRoute$();
 
   private destroy$ = new Subject<void>();
 
@@ -32,22 +31,13 @@ export abstract class BaseAcceptComponent implements OnInit {
     protected i18nService: I18nService,
     protected route: ActivatedRoute,
     protected authService: AuthService,
-    private configService: ConfigService,
+    protected registerRouteService: RegisterRouteService,
   ) {}
 
   abstract authedHandler(qParams: Params): Promise<void>;
   abstract unauthedHandler(qParams: Params): Promise<void>;
 
   async ngOnInit() {
-    // TODO: remove when email verification flag is removed
-    const emailVerification = await this.configService.getFeatureFlag(
-      FeatureFlag.EmailVerification,
-    );
-
-    if (emailVerification) {
-      this.registerRoute = "/signup";
-    }
-
     this.route.queryParams
       .pipe(
         first(),

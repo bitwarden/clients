@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { takeUntil } from "rxjs";
+import { firstValueFrom, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
@@ -9,6 +9,7 @@ import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstrac
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
+  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,7 +21,6 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -68,7 +68,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    configService: ConfigService,
+    registerRouteService: RegisterRouteService,
   ) {
     super(
       devicesApiService,
@@ -89,7 +89,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
       loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
-      configService,
+      registerRouteService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
     this.showPasswordless = flagEnabled("showPasswordless");
@@ -165,14 +165,17 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   }
 
   async goToRegister() {
+    // TODO: remove when email verification flag is removed
+    const registerRoute = await firstValueFrom(this.registerRoute$);
+
     if (this.emailFormControl.valid) {
-      await this.router.navigate([this.registerRoute], {
+      await this.router.navigate([registerRoute], {
         queryParams: { email: this.emailFormControl.value },
       });
       return;
     }
 
-    await this.router.navigate([this.registerRoute]);
+    await this.router.navigate([registerRoute]);
   }
 
   protected override async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {

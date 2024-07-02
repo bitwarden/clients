@@ -556,6 +556,18 @@
   "security": {
     "message": "Security"
   },
+  "confirmMasterPassword": {
+    "message": "Confirm master password"
+  },
+  "masterPassword": {
+    "message": "Master password"
+  },
+  "masterPassImportant": {
+    "message": "Your master password cannot be recovered if you forget it!"
+  },
+  "masterPassHintLabel": {
+    "message": "Master password hint"
+  },
   "errorOccurred": {
     "message": "An error has occurred"
   },
@@ -2163,6 +2175,9 @@
   },
   "emailVerificationRequired": {
     "message": "Email verification required"
+  },
+  "emailVerifiedV2": {
+    "message": "Email verified"
   },
   "emailVerificationRequiredDesc": {
     "message": "You must verify your email to use this feature. You can verify your email in the web vault."

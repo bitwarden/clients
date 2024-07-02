@@ -4,9 +4,7 @@ import { Router } from "@angular/router";
 import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,7 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
 
   // TODO: remove when email verification flag is removed
-  registerRoute = "/register";
+  registerRoute$ = this.registerRouteService.registerRoute$();
 
   constructor(
     protected platformUtilsService: PlatformUtilsService,
@@ -39,19 +37,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     private environmentService: EnvironmentService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountSwitcherService: AccountSwitcherService,
-    private configService: ConfigService,
+    private registerRouteService: RegisterRouteService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    // TODO: remove when email verification flag is removed
-    const emailVerification = await this.configService.getFeatureFlag(
-      FeatureFlag.EmailVerification,
-    );
-
-    if (emailVerification) {
-      this.registerRoute = "/signup";
-    }
-
     const email = this.loginEmailService.getEmail();
     const rememberEmail = this.loginEmailService.getRememberEmail();
 

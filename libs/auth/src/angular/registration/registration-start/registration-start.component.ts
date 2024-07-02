@@ -138,7 +138,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     if (typeof result === "string") {
       // we received a token, so the env doesn't support email verification
       // send the user directly to the finish registration page with the token as a query param
-      await this.router.navigate(["/finish-signup"], { queryParams: { token: result } });
+      await this.router.navigate(["/finish-signup"], {
+        queryParams: { token: result, email: this.email.value },
+      });
     }
 
     // Result is null, so email verification is required

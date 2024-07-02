@@ -56,7 +56,7 @@
            clicking on the link. Mousedown fires before onBlur. 
       -->
       <a
-        [routerLink]="registerRoute"
+        [routerLink]="registerRoute$ | async"
         [queryParams]="emailFormControl.valid ? { email: emailFormControl.value } : {}"
         (mousedown)="goToRegister()"
         >{{ "createAccount" | i18n }}</a

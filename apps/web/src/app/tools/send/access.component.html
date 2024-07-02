@@ -75,7 +75,7 @@
           >Bitwarden Send</a
         >
         {{ "sendAccessTaglineOr" | i18n }}
-        <a bitLink [routerLink]="registerRoute" target="_blank" rel="noreferrer">{{
+        <a bitLink [routerLink]="registerRoute$ | async" target="_blank" rel="noreferrer">{{
           "sendAccessTaglineSignUp" | i18n
         }}</a>
         {{ "sendAccessTaglineTryToday" | i18n }}
