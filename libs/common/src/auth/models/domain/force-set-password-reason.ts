@@ -26,4 +26,9 @@ export enum ForceSetPasswordReason {
    * Set post login & decryption client side and by server in sync (to catch logged in users).
    */
   TdeUserWithoutPasswordHasPasswordResetPermission,
+
+  /**
+   * Occurs when TDE is disabled and master password has to be set.
+   */
+  TdeOffboarding,
 }

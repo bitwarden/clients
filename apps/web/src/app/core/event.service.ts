@@ -86,6 +86,9 @@ export class EventService {
       case EventType.User_RequestedDeviceApproval:
         msg = humanReadableMsg = this.i18nService.t("requestedDeviceApproval");
         break;
+      case EventType.User_TdeOffboardingPasswordSet:
+        msg = humanReadableMsg = this.i18nService.t("tdeOffboardingPasswordSet");
+        break;
       // Cipher
       case EventType.Cipher_Created:
         msg = this.i18nService.t("createdItemId", this.formatCipherId(ev, options));

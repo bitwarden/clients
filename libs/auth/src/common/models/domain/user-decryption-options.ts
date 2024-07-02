@@ -54,6 +54,8 @@ export class TrustedDeviceUserDecryptionOption {
   hasLoginApprovingDevice: boolean;
   /** True if the user has manage reset password permission, as these users must be forced to have a master password. */
   hasManageResetPasswordPermission: boolean;
+  /** True if tde is disabled but user has not set a master password yet. */
+  isTdeOffboarding: boolean;
 
   /**
    * Initializes a new instance of the TrustedDeviceUserDecryptionOption from a response object.
@@ -70,6 +72,7 @@ export class TrustedDeviceUserDecryptionOption {
     options.hasAdminApproval = response?.hasAdminApproval ?? false;
     options.hasLoginApprovingDevice = response?.hasLoginApprovingDevice ?? false;
     options.hasManageResetPasswordPermission = response?.hasManageResetPasswordPermission ?? false;
+    options.isTdeOffboarding = response?.isTdeOffboarding ?? false;
     return options;
   }
 

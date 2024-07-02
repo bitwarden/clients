@@ -12,6 +12,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -97,9 +98,13 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   }
 
   get masterPasswordWarningText(): string {
-    return this.reason == ForceSetPasswordReason.WeakMasterPassword
-      ? this.i18nService.t("updateWeakMasterPasswordWarning")
-      : this.i18nService.t("updateMasterPasswordWarning");
+    if (this.reason == ForceSetPasswordReason.WeakMasterPassword) {
+      return this.i18nService.t("weakMasterPasswordWarning");
+    } else if (this.reason == ForceSetPasswordReason.TdeOffboarding) {
+      return this.i18nService.t("tdeDisabledMasterPasswordRequired");
+    } else {
+      return this.i18nService.t("masterPasswordWarning");
+    }
   }
 
   togglePassword(confirmField: boolean) {
@@ -165,6 +170,9 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
         case ForceSetPasswordReason.WeakMasterPassword:
           this.formPromise = this.updatePassword(masterPasswordHash, userKey);
           break;
+        case ForceSetPasswordReason.TdeOffboarding:
+          this.formPromise = this.updateTdeOffboardingPassword(masterPasswordHash, userKey);
+          break;
       }
 
       await this.formPromise;
@@ -210,5 +218,17 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
     request.key = userKey[1].encryptedString;
 
     return this.apiService.postPassword(request);
+  }
+
+  private async updateTdeOffboardingPassword(
+    masterPasswordHash: string,
+    userKey: [UserKey, EncString],
+  ) {
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.key = userKey[1].encryptedString;
+    request.newMasterPasswordHash = masterPasswordHash;
+    request.masterPasswordHint = this.hint;
+
+    return this.apiService.putUpdateTdeOffboardingPassword(request);
   }
 }
