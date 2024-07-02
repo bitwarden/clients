@@ -20,11 +20,10 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
@@ -143,7 +142,7 @@ export class MainContextMenuHandler {
   ];
 
   constructor(
-    private stateService: BrowserStateService,
+    private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private logService: LogService,

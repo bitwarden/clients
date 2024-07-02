@@ -23,7 +23,6 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
@@ -76,7 +75,6 @@ export default class NotificationBackground {
     private authService: AuthService,
     private policyService: PolicyService,
     private folderService: FolderService,
-    private stateService: BrowserStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,

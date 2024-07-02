@@ -403,7 +403,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // Clear sequentialized caches
             clearCaches();
             if (message.userId != null) {
-              await this.stateService.clearDecryptedData(message.userId);
               await this.accountService.switchAccount(message.userId);
             }
             const locked =

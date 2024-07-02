@@ -4,7 +4,6 @@ import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
-  STATE_FACTORY,
   LOCALES_DIRECTORY,
   SYSTEM_LANGUAGE,
   MEMORY_STORAGE,
@@ -25,10 +24,9 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -57,7 +55,7 @@ import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
-import { Account, GlobalState, StateService } from "./state";
+import { StateService as WebStateService } from "./state";
 import { WebFileDownloadService } from "./web-file-download.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
@@ -82,10 +80,6 @@ const safeProviders: SafeProvider[] = [
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
     multi: true,
-  }),
-  safeProvider({
-    provide: STATE_FACTORY,
-    useValue: new StateFactory(GlobalState, Account),
   }),
   safeProvider({
     provide: I18nServiceAbstraction,
@@ -125,10 +119,10 @@ const safeProviders: SafeProvider[] = [
     useClass: ModalService,
     useAngularDecorators: true,
   }),
-  safeProvider(StateService),
+  safeProvider(WebStateService),
   safeProvider({
-    provide: BaseStateServiceAbstraction,
-    useExisting: StateService,
+    provide: StateService,
+    useExisting: WebStateService,
   }),
   safeProvider({
     provide: FileDownloadService,

@@ -11,12 +11,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { Account } from "@bitwarden/common/platform/models/domain/account";
+import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateService as BaseStateService } from "@bitwarden/common/platform/services/state.service";
-
-import { Account } from "./account";
-import { GlobalState } from "./global-state";
 
 @Injectable()
 export class StateService extends BaseStateService<GlobalState, Account> {
@@ -42,12 +41,6 @@ export class StateService extends BaseStateService<GlobalState, Account> {
       tokenService,
       migrationRunner,
     );
-  }
-
-  async addAccount(account: Account) {
-    // Apply web overrides to default account values
-    account = new Account(account);
-    await super.addAccount(account);
   }
 
   override async getLastSync(options?: StorageOptions): Promise<string> {

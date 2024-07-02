@@ -13,12 +13,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
-import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
 @Component({
@@ -37,7 +37,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
-    stateService: BrowserStateService,
+    stateService: StateService,
     messagingService: MessagingService,
     policyService: PolicyService,
     environmentService: EnvironmentService,

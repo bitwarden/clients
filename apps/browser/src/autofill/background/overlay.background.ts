@@ -9,7 +9,6 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -101,7 +100,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private authService: AuthService,
     private environmentService: EnvironmentService,
     private domainSettingsService: DomainSettingsService,
-    private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,

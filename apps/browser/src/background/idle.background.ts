@@ -7,8 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 
-import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
-
 const IdleInterval = 60 * 5; // 5 minutes
 
 export default class IdleBackground {
@@ -18,7 +16,6 @@ export default class IdleBackground {
 
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
-    private stateService: BrowserStateService,
     private notificationsService: NotificationsService,
     private accountService: AccountService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,

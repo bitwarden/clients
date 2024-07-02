@@ -6,16 +6,16 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
-import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 @Injectable()
 export class InitService {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private stateService: StateServiceAbstraction,
+    private stateService: StateService,
     private twoFactorService: TwoFactorService,
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,

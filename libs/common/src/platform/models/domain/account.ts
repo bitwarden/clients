@@ -1,14 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { GeneratorOptions } from "../../../tools/generator/generator-options";
-import {
-  GeneratedPasswordHistory,
-  PasswordGeneratorOptions,
-} from "../../../tools/generator/password";
-import { UsernameGeneratorOptions } from "../../../tools/generator/username/username-generation-options";
 import { DeepJsonify } from "../../../types/deep-jsonify";
-import { KdfType } from "../../enums";
 import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
@@ -48,26 +40,6 @@ export class EncryptionPair<TEncrypted, TDecrypted> {
         : (obj.decrypted as TDecrypted);
     }
     return pair;
-  }
-}
-
-export class DataEncryptionPair<TEncrypted, TDecrypted> {
-  encrypted?: Record<string, TEncrypted>;
-  decrypted?: TDecrypted[];
-}
-
-export class AccountData {
-  passwordGenerationHistory?: EncryptionPair<
-    GeneratedPasswordHistory[],
-    GeneratedPasswordHistory[]
-  > = new EncryptionPair<GeneratedPasswordHistory[], GeneratedPasswordHistory[]>();
-
-  static fromJSON(obj: DeepJsonify<AccountData>): AccountData {
-    if (obj == null) {
-      return null;
-    }
-
-    return Object.assign(new AccountData(), obj);
   }
 }
 
@@ -127,10 +99,6 @@ export class AccountProfile {
   emailVerified?: boolean;
   lastSync?: string;
   userId?: string;
-  kdfIterations?: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
-  kdfType?: KdfType;
 
   static fromJSON(obj: Jsonify<AccountProfile>): AccountProfile {
     if (obj == null) {
@@ -141,33 +109,12 @@ export class AccountProfile {
   }
 }
 
-export class AccountSettings {
-  defaultUriMatch?: UriMatchStrategySetting;
-  passwordGenerationOptions?: PasswordGeneratorOptions;
-  usernameGenerationOptions?: UsernameGeneratorOptions;
-  generatorOptions?: GeneratorOptions;
-
-  static fromJSON(obj: Jsonify<AccountSettings>): AccountSettings {
-    if (obj == null) {
-      return null;
-    }
-
-    return Object.assign(new AccountSettings(), obj);
-  }
-}
-
 export class Account {
-  data?: AccountData = new AccountData();
   keys?: AccountKeys = new AccountKeys();
   profile?: AccountProfile = new AccountProfile();
-  settings?: AccountSettings = new AccountSettings();
 
   constructor(init: Partial<Account>) {
     Object.assign(this, {
-      data: {
-        ...new AccountData(),
-        ...init?.data,
-      },
       keys: {
         ...new AccountKeys(),
         ...init?.keys,
@@ -175,10 +122,6 @@ export class Account {
       profile: {
         ...new AccountProfile(),
         ...init?.profile,
-      },
-      settings: {
-        ...new AccountSettings(),
-        ...init?.settings,
       },
     });
   }
@@ -190,9 +133,7 @@ export class Account {
 
     return Object.assign(new Account({}), json, {
       keys: AccountKeys.fromJSON(json?.keys),
-      data: AccountData.fromJSON(json?.data),
       profile: AccountProfile.fromJSON(json?.profile),
-      settings: AccountSettings.fromJSON(json?.settings),
     });
   }
 }

@@ -6,16 +6,15 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
-
 import { MainContextMenuHandler } from "./main-context-menu-handler";
 
 describe("context-menu", () => {
-  let stateService: MockProxy<BrowserStateService>;
+  let stateService: MockProxy<StateService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;

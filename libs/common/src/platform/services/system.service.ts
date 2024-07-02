@@ -10,7 +10,6 @@ import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { UserId } from "../../types/guid";
 import { MessagingService } from "../abstractions/messaging.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
-import { StateService } from "../abstractions/state.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
 import { BiometricStateService } from "../biometrics/biometric-state.service";
 import { Utils } from "../misc/utils";
@@ -25,7 +24,6 @@ export class SystemService implements SystemServiceAbstraction {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
-    private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
@@ -90,8 +88,6 @@ export class SystemService implements SystemServiceAbstraction {
           const nextUser = await firstValueFrom(
             this.accountService.nextUpAccount$.pipe(map((account) => account?.id ?? null)),
           );
-          // Can be removed once we migrate password generation history to state providers
-          await this.stateService.clearDecryptedData(activeUserId);
           await this.accountService.switchAccount(nextUser);
         }
       }
