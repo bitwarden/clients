@@ -19,8 +19,8 @@ import {
   ProviderPaymentMethodComponent,
   ProviderSelectPaymentMethodDialogComponent,
   ProviderSubscriptionComponent,
+  ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
-import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { ClientsComponent } from "./clients/clients.component";

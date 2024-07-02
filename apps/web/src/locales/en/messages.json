@@ -4159,7 +4159,7 @@
   },
   "ssoHandOff": {
     "message": "You may now close this tab and continue in the extension."
-  },  
+  },
   "youSuccessfullyLoggedIn": {
     "message": "You successfully logged in"
   },
@@ -8492,14 +8492,18 @@
   "downloadCSV": {
     "message": "Download CSV"
   },
-  "billingHistoryDescription": {
-    "message": "Download a CSV to obtain client details for each billing date. Prorated charges are not included in the CSV and may vary from the linked invoice. For the most accurate billing details, refer to your monthly invoices.",
-    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."    
-  },
   "monthlySubscriptionUserSeatsMessage": {
     "message": "Adjustments to your subscription will result in prorated charges to your billing totals on your next billing period. "
   },
   "annualSubscriptionUserSeatsMessage": {
     "message": "Adjustments to your subscription will result in prorated charges on a monthly billing cycle. "
+  },
+  "billingHistoryDescription": {
+    "message": "Download a CSV to obtain client details for each billing date. Prorated charges are not included in the CSV and may vary from the linked invoice. For the most accurate billing details, refer to your monthly invoices.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "There are no invoices to list",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."    
   }
 }

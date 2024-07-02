@@ -17,6 +17,7 @@
             *ngFor="let planCard of planCards"
             [ngClass]="getPlanCardContainerClasses(planCard.selected)"
             (click)="selectPlan(planCard.name)"
+            tabindex="0"
           >
             <div class="tw-relative">
               <div
@@ -25,12 +26,12 @@
               >
                 {{ "selected" | i18n }}
               </div>
-              <div class="tw-p-5" [ngClass]="{ 'tw-pt-12': !planCard.selected }">
+              <div class="tw-pl-5 tw-py-4 tw-pr-4" [ngClass]="{ 'tw-pt-10': !planCard.selected }">
                 <h3 class="tw-text-2xl tw-font-bold tw-uppercase">{{ planCard.name }}</h3>
                 <span class="tw-text-2xl tw-font-semibold">{{
                   planCard.cost | currency: "$"
                 }}</span>
-                <span class="tw-text-sm tw-font-bold">/{{ "monthPerMember" | i18n }}</span>
+                <span class="tw-text-sm tw-font-bold">/ {{ "monthPerMember" | i18n }}</span>
               </div>
             </div>
           </div>

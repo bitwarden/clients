@@ -10,6 +10,8 @@ export class ProviderOrganizationResponse extends BaseResponse {
   revisionDate: string;
   userCount: number;
   seats?: number;
+  occupiedSeats?: number;
+  remainingSeats?: number;
   plan?: string;
 
   constructor(response: any) {
@@ -23,6 +25,8 @@ export class ProviderOrganizationResponse extends BaseResponse {
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.userCount = this.getResponseProperty("UserCount");
     this.seats = this.getResponseProperty("Seats");
+    this.occupiedSeats = this.getResponseProperty("OccupiedSeats");
+    this.remainingSeats = this.getResponseProperty("RemainingSeats");
     this.plan = this.getResponseProperty("Plan");
   }
 }

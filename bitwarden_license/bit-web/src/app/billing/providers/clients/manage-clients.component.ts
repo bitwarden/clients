@@ -99,6 +99,8 @@ export class ManageClientsComponent extends BaseClientsComponent {
     super.ngOnDestroy();
   }
 
+  removeMonthly = (plan: string) => plan.replace(" (Monthly)", "");
+
   async load() {
     this.provider = await firstValueFrom(this.providerService.get$(this.providerId));
 

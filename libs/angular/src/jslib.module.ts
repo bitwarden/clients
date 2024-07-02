@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {
   AddAccountCreditDialogComponent,
   InvoicesComponent,
+  NoInvoicesComponent,
   ManageTaxInformationComponent,
   SelectPaymentMethodComponent,
   VerifyBankAccountComponent,
@@ -78,6 +79,7 @@ import { IconComponent } from "./vault/components/icon.component";
     IconButtonModule,
     IconModule,
     LinkModule,
+    IconModule,
   ],
   declarations: [
     A11yInvalidDirective,
@@ -109,6 +111,7 @@ import { IconComponent } from "./vault/components/icon.component";
     FingerprintPipe,
     AddAccountCreditDialogComponent,
     InvoicesComponent,
+    NoInvoicesComponent,
     ManageTaxInformationComponent,
     SelectPaymentMethodComponent,
     VerifyBankAccountComponent,
@@ -145,6 +148,7 @@ import { IconComponent } from "./vault/components/icon.component";
     FingerprintPipe,
     AddAccountCreditDialogComponent,
     InvoicesComponent,
+    NoInvoicesComponent,
     ManageTaxInformationComponent,
     SelectPaymentMethodComponent,
     VerifyBankAccountComponent,

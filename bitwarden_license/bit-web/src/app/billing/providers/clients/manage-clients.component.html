@@ -28,8 +28,8 @@
       <tr>
         <th colspan="2" bitCell bitSortable="organizationName" default>{{ "client" | i18n }}</th>
         <th bitCell bitSortable="seats">{{ "assigned" | i18n }}</th>
-        <th bitCell bitSortable="userCount">{{ "used" | i18n }}</th>
-        <th bitCell bitSortable="userCount">{{ "remaining" | i18n }}</th>
+        <th bitCell bitSortable="occupiedSeats">{{ "used" | i18n }}</th>
+        <th bitCell bitSortable="remainingSeats">{{ "remaining" | i18n }}</th>
         <th bitCell bitSortable="plan">{{ "billingPlan" | i18n }}</th>
         <th></th>
       </tr>
@@ -47,18 +47,18 @@
           </div>
         </td>
         <td bitCell class="tw-whitespace-nowrap">
-          <span>{{ client.seats }}</span>
+          <span class="tw-text-muted">{{ client.seats }}</span>
         </td>
         <td bitCell class="tw-whitespace-nowrap">
-          <span>{{ client.userCount }}</span>
+          <span class="tw-text-muted">{{ client.assignedSeats }}</span>
         </td>
         <td bitCell class="tw-whitespace-nowrap">
-          <span>{{ client.seats - client.userCount }}</span>
+          <span class="tw-text-muted">{{ client.remainingSeats }}</span>
         </td>
-        <td>
-          <span>{{ client.plan }}</span>
+        <td bitCell class="tw-whitespace-nowrap">
+          <span class="tw-text-muted">{{ removeMonthly(client.plan) }}</span>
         </td>
-        <td bitCell>
+        <td bitCell class="tw-text-right">
           <button
             [bitMenuTriggerFor]="rowMenu"
             type="button"

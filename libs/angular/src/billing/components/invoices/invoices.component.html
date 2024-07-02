@@ -55,3 +55,6 @@
     </tr>
   </ng-template>
 </bit-table>
+<div *ngIf="!invoices || invoices.length === 0" class="tw-mt-10">
+  <app-no-invoices></app-no-invoices>
+</div>
