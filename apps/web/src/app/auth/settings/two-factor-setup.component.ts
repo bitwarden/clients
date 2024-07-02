@@ -148,9 +148,11 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         if (!result) {
           return;
         }
-        const yubiComp = await this.openModal(this.yubikeyModalRef, TwoFactorYubiKeyComponent);
-        yubiComp.auth(result);
-        yubiComp.onUpdated.pipe(takeUntil(this.destroy$)).subscribe((enabled: boolean) => {
+        const yubiComp: DialogRef<boolean, any> = TwoFactorYubiKeyComponent.open(
+          this.dialogService,
+          { data: result },
+        );
+        yubiComp.componentInstance.onChangeStatus.subscribe((enabled: boolean) => {
           this.updateStatus(enabled, TwoFactorProviderType.Yubikey);
         });
         break;
