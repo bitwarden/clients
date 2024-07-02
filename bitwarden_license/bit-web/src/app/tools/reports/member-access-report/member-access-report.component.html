@@ -1,0 +1,50 @@
+<app-header>
+  <bit-search
+    [formControl]="searchControl"
+    [placeholder]="'searchMembers' | i18n"
+    class="tw-grow"
+  ></bit-search>
+
+  <button type="button" bitButton buttonType="primary">
+    <span>{{ "export" | i18n }}</span>
+    <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+  </button>
+</app-header>
+
+<div class="tw-max-w-4xl">
+  <p bitTypography="body1">
+    {{ "memberAccessReportPageDesc" | i18n }}
+  </p>
+</div>
+
+<bit-table [dataSource]="dataSource" class="tw-mt-2">
+  <ng-container header>
+    <tr>
+      <th bitCell bitSortable="name" default>Members</th>
+      <th bitCell bitSortable="groups">Groups</th>
+      <th bitCell bitSortable="collections">Collections</th>
+      <th bitCell bitSortable="items">Items</th>
+    </tr>
+  </ng-container>
+  <ng-template body let-rows$>
+    <tr bitRow *ngFor="let r of rows$ | async">
+      <td bitCell>
+        <div class="tw-flex tw-items-center">
+          <bit-avatar size="small" [text]="r.name" class="tw-mr-3"></bit-avatar>
+          <div class="tw-flex tw-flex-col">
+            <button type="button" bitLink>
+              {{ r.name }}
+            </button>
+
+            <div class="tw-text-sm tw-mt-1 tw-text-muted">
+              {{ r.email }}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.groups }}</td>
+      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.collections }}</td>
+      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.items }}</td>
+    </tr>
+  </ng-template>
+</bit-table>
