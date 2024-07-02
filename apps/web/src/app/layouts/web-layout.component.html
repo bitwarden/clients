@@ -1,0 +1,9 @@
+<bit-layout>
+  <ng-content select="app-side-nav, [slot=side-nav]" slot="side-nav"></ng-content>
+
+  <app-payment-method-warnings
+    *ngIf="showPaymentMethodWarningBanners$ | async"
+  ></app-payment-method-warnings>
+
+  <ng-content></ng-content>
+</bit-layout>

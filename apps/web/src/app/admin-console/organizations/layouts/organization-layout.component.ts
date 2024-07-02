@@ -22,12 +22,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BannerModule, IconModule, LayoutComponent, NavigationModule } from "@bitwarden/components";
+import { BannerModule, IconModule } from "@bitwarden/components";
 
-import { PaymentMethodWarningsModule } from "../../../billing/shared";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
-import { ProductSwitcherModule } from "../../../layouts/product-switcher/product-switcher.module";
-import { ToggleWidthComponent } from "../../../layouts/toggle-width.component";
+import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 
 @Component({
@@ -38,14 +36,10 @@ import { AdminConsoleLogo } from "../../icons/admin-console-logo";
     CommonModule,
     RouterModule,
     JslibModule,
-    LayoutComponent,
+    WebLayoutModule,
     IconModule,
-    NavigationModule,
     OrgSwitcherComponent,
     BannerModule,
-    PaymentMethodWarningsModule,
-    ToggleWidthComponent,
-    ProductSwitcherModule,
   ],
 })
 export class OrganizationLayoutComponent implements OnInit, OnDestroy {
@@ -62,10 +56,6 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
 
   protected consolidatedBillingEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.EnableConsolidatedBilling,
-  );
-
-  protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ShowPaymentMethodWarningBanners,
   );
 
   constructor(

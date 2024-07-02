@@ -1,5 +1,5 @@
-<bit-layout>
-  <bit-side-nav variant="secondary" *ngIf="organization$ | async as organization">
+<app-layout>
+  <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
 
@@ -103,12 +103,7 @@
         *ngIf="organization.canManageScim"
       ></bit-nav-item>
     </bit-nav-group>
-
-    <ng-container slot="footer">
-      <navigation-product-switcher></navigation-product-switcher>
-      <app-toggle-width></app-toggle-width>
-    </ng-container>
-  </bit-side-nav>
+  </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
     <bit-banner
@@ -118,10 +113,7 @@
     >
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
-    <app-payment-method-warnings
-      *ngIf="showPaymentMethodWarningBanners$ | async"
-    ></app-payment-method-warnings>
   </ng-container>
 
   <router-outlet></router-outlet>
-</bit-layout>
+</app-layout>
