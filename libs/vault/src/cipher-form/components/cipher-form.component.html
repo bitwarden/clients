@@ -9,6 +9,7 @@
     <vault-card-details-section
       *ngIf="config.cipherType === CipherType.Card"
       [originalCipherView]="originalCipherView"
+      [disabled]="config.mode === 'partial-edit'"
     ></vault-card-details-section>
 
     <!-- Attachments are only available for existing ciphers -->

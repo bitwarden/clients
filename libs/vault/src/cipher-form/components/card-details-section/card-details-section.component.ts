@@ -143,6 +143,10 @@ export class CardDetailsSectionComponent implements OnInit {
     if (this.originalCipherView?.card) {
       this.setInitialValues();
     }
+
+    if (this.disabled) {
+      this.cardDetailsForm.disable();
+    }
   }
 
   /** Set form initial form values from the current cipher */

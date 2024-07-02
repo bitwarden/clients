@@ -80,6 +80,14 @@ describe("CardDetailsSectionComponent", () => {
     });
   });
 
+  it('disables `cardDetailsForm` when "disabled" is true', () => {
+    component.disabled = true;
+
+    component.ngOnInit();
+
+    expect(component.cardDetailsForm.disabled).toBe(true);
+  });
+
   it("initializes `cardDetailsForm` with current values", () => {
     const cardholderName = "Ron Burgundy";
     const number = "4242 4242 4242 4242";
