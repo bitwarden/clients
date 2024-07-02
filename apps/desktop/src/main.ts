@@ -201,6 +201,7 @@ export class Main {
       this.messagingService,
       process.platform,
       biometricStateService,
+      this.mainCryptoFunctionService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(

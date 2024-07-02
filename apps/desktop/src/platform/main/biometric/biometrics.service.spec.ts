@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -26,6 +27,7 @@ describe("biometrics tests", function () {
   const logService = mock<LogService>();
   const messagingService = mock<MessagingService>();
   const biometricStateService = mock<BiometricStateService>();
+  const cryptoFunctionService = mock<CryptoFunctionService>();
 
   it("Should call the platformspecific methods", async () => {
     const userId = "userId-1" as UserId;
@@ -36,6 +38,7 @@ describe("biometrics tests", function () {
       messagingService,
       process.platform,
       biometricStateService,
+      cryptoFunctionService,
     );
 
     const mockService = mock<OsBiometricService>();
@@ -60,6 +63,7 @@ describe("biometrics tests", function () {
         messagingService,
         "win32",
         biometricStateService,
+        cryptoFunctionService,
       );
 
       const internalService = (sut as any).platformSpecificService;
@@ -75,6 +79,7 @@ describe("biometrics tests", function () {
         messagingService,
         "darwin",
         biometricStateService,
+        cryptoFunctionService,
       );
       const internalService = (sut as any).platformSpecificService;
       expect(internalService).not.toBeNull();
@@ -95,6 +100,7 @@ describe("biometrics tests", function () {
         messagingService,
         process.platform,
         biometricStateService,
+        cryptoFunctionService,
       );
 
       innerService = mock();

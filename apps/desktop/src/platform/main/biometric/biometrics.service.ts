@@ -1,3 +1,4 @@
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -19,6 +20,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     private messagingService: MessagingService,
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {
     this.loadPlatformSpecificService(this.platform);
   }
@@ -28,6 +30,8 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       this.loadWindowsHelloService();
     } else if (platform === "darwin") {
       this.loadMacOSService();
+    } else if (platform === "linux") {
+      this.loadUnixService();
     } else {
       this.loadNoopBiometricsService();
     }
@@ -49,6 +53,16 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     this.platformSpecificService = new BiometricDarwinMain(this.i18nService);
   }
 
+  private loadUnixService() {
+    // eslint-disable-next-line
+    const BiometricUnixMain = require("./biometric.unix.main").default;
+    this.platformSpecificService = new BiometricUnixMain(
+      this.i18nService,
+      this.windowMain,
+      this.cryptoFunctionService,
+    );
+  }
+
   private loadNoopBiometricsService() {
     // eslint-disable-next-line
     const NoopBiometricsService = require("./biometric.noop.main").default;
@@ -57,6 +71,18 @@ export class BiometricsService implements BiometricsServiceAbstraction {
 
   async osSupportsBiometric() {
     return await this.platformSpecificService.osSupportsBiometric();
+  }
+
+  async osBiometricsNeedsSetup() {
+    return await this.platformSpecificService.osBiometricsNeedsSetup();
+  }
+
+  async osBiometricsCanAutoSetup() {
+    return await this.platformSpecificService.osBiometricsCanAutoSetup();
+  }
+
+  async osBiometricsSetup() {
+    await this.platformSpecificService.osBiometricsSetup();
   }
 
   async canAuthBiometric({

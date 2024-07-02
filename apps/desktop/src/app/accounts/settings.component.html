@@ -126,11 +126,14 @@
                     {{ biometricText | i18n }}
                   </label>
                 </div>
-                <small class="help-block" *ngIf="this.form.value.biometric">{{
+                <small class="help-block" *ngIf="this.form.value.biometric && !this.isLinux">{{
                   additionalBiometricSettingsText | i18n
                 }}</small>
               </div>
-              <div class="form-group" *ngIf="supportsBiometric && this.form.value.biometric">
+              <div
+                class="form-group"
+                *ngIf="supportsBiometric && this.form.value.biometric && !this.isLinux"
+              >
                 <div class="checkbox form-group-child">
                   <label for="autoPromptBiometrics">
                     <input
@@ -148,7 +151,8 @@
                 *ngIf="
                   supportsBiometric &&
                   this.form.value.biometric &&
-                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet))
+                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet)) &&
+                  !this.isLinux
                 "
               >
                 <div class="checkbox form-group-child">

@@ -62,6 +62,10 @@ export function isWindowsStore() {
   return windows && windowsStore === true;
 }
 
+export function isFlatpak() {
+  return process.platform === "linux" && process.env.container != null;
+}
+
 export function isWindowsPortable() {
   return isWindows() && process.env.PORTABLE_EXECUTABLE_DIR != null;
 }

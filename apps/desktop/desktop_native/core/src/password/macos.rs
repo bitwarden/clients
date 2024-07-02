@@ -22,6 +22,10 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
     Ok(result)
 }
 
+pub fn is_available() -> Result<bool> {
+    Ok(true)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

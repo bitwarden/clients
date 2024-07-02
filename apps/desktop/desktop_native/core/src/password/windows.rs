@@ -122,6 +122,10 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn is_available() -> Result<bool> {
+    Ok(true)
+}
+
 fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
 }

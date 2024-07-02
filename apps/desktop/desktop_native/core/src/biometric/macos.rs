@@ -6,11 +6,11 @@ use crate::biometric::{KeyMaterial, OsDerivedKey};
 pub struct Biometric {}
 
 impl super::BiometricTrait for Biometric {
-    fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
+    async fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
         bail!("platform not supported");
     }
 
-    fn available() -> Result<bool> {
+    async fn available() -> Result<bool> {
         bail!("platform not supported");
     }
 

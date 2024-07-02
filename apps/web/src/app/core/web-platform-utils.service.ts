@@ -194,6 +194,12 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  biometricsNeedsSetup: () => Promise<boolean>;
+  biometricsSupportsAutoSetup(): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  biometricsSetup: () => Promise<void>;
+
   supportsSecureStorage() {
     return false;
   }
