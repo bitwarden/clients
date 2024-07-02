@@ -20,12 +20,12 @@ import {
 import { CipherFormContainer } from "../../cipher-form-container";
 
 type CardDetailsForm = {
-  cardholderName: string;
-  number: string;
-  brand: string;
-  expMonth: string;
-  expYear: string | number;
-  code: string;
+  cardholderName: CardView["cardholderName"];
+  number: CardView["number"];
+  brand: CardView["brand"];
+  expMonth: CardView["expMonth"];
+  expYear: CardView["expYear"];
+  code: CardView["code"];
 };
 
 @Component({
