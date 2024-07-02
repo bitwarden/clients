@@ -57,7 +57,7 @@
     "@storybook/jest": "0.2.3",
     "@storybook/testing-library": "0.2.2",
     "@types/argon2-browser": "1.18.4",
-    "@types/chrome": "0.0.262",
+    "@types/chrome": "0.0.268",
     "@types/firefox-webext-browser": "111.0.5",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.12",
