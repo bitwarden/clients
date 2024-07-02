@@ -1,0 +1,39 @@
+<app-header></app-header>
+
+<bit-container>
+  <form [formGroup]="requestAccessForm" [bitSubmit]="submit">
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+      <div class="tw-col-span-9">
+        <p bitTypography="body1">{{ "youNeedApprovalFromYourAdminToTrySecretsManager" | i18n }}</p>
+        <bit-form-field>
+          <bit-label>{{ "addANote" | i18n }}</bit-label>
+          <textarea
+            rows="20"
+            id="request_access_textarea"
+            bitInput
+            formControlName="requestAccessEmailContents"
+          ></textarea>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "organization" | i18n }}</bit-label>
+          <bit-select formControlName="selectedOrganization">
+            <bit-option
+              *ngFor="let org of organizations"
+              [value]="org"
+              [label]="org.name"
+              required
+            ></bit-option>
+          </bit-select>
+        </bit-form-field>
+        <div class="tw-flex tw-gap-x-4 tw-mt-4">
+          <button bitButton bitFormButton type="submit" buttonType="primary">
+            {{ "sendRequest" | i18n }}
+          </button>
+          <button type="button" bitButton buttonType="secondary" [routerLink]="'/sm-landing'">
+            {{ "cancel" | i18n }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</bit-container>

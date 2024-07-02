@@ -80,7 +80,10 @@ describe("NavigationProductSwitcherComponent", () => {
             isActive: false,
             name: "Other Product",
             icon: "bwi-lock",
-            marketingRoute: "https://www.example.com/",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
           },
         ],
       });
@@ -100,7 +103,10 @@ describe("NavigationProductSwitcherComponent", () => {
             isActive: false,
             name: "Other Product",
             icon: "bwi-lock",
-            marketingRoute: "https://www.example.com/",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
             otherProductOverrides: { name: "Alternate name" },
           },
         ],
@@ -117,7 +123,10 @@ describe("NavigationProductSwitcherComponent", () => {
             isActive: false,
             name: "Other Product",
             icon: "bwi-lock",
-            marketingRoute: "https://www.example.com/",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
             otherProductOverrides: { name: "Alternate name", supportingText: "Supporting Text" },
           },
         ],
@@ -134,9 +143,27 @@ describe("NavigationProductSwitcherComponent", () => {
       mockProducts$.next({
         bento: [],
         other: [
-          { name: "AA Product", icon: "bwi-lock", marketingRoute: "https://www.example.com/" },
-          { name: "Test Product", icon: "bwi-lock", marketingRoute: "https://www.example.com/" },
-          { name: "Organizations", icon: "bwi-lock", marketingRoute: "https://www.example.com/" },
+          {
+            name: "AA Product",
+            icon: "bwi-lock",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
+          },
+          {
+            name: "Test Product",
+            icon: "bwi-lock",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
+          },
+          {
+            name: "Organizations",
+            icon: "bwi-lock",
+            marketingRoute: { route: "https://www.example.com/", external: true },
+          },
         ],
       });
 
@@ -157,7 +184,10 @@ describe("NavigationProductSwitcherComponent", () => {
           {
             name: "Organizations",
             icon: "bwi-lock",
-            marketingRoute: "https://www.example.com/",
+            marketingRoute: {
+              route: "https://www.example.com/",
+              external: true,
+            },
             isActive: true,
           },
         ],

@@ -34,17 +34,30 @@
       class="tw-mt-4 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-t-text-muted tw-p-2 tw-pb-0"
     >
       <span class="tw-mb-1 tw-text-xs tw-text-muted">{{ "moreFromBitwarden" | i18n }}</span>
-      <a
-        *ngFor="let product of products.other"
-        bitLink
-        [href]="product.marketingRoute"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <span class="tw-flex tw-items-center tw-font-normal">
-          <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
-        </span>
-      </a>
+      <span *ngFor="let product of products.other">
+        <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
+        <a
+          *ngIf="!product.marketingRoute.external"
+          bitLink
+          [routerLink]="product.marketingRoute.route"
+        >
+          <span class="tw-flex tw-items-center tw-font-normal">
+            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
+          </span>
+        </a>
+        <!-- <a> for when the marketing route is external -->
+        <a
+          *ngIf="product.marketingRoute.external"
+          bitLink
+          [href]="product.marketingRoute.route"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span class="tw-flex tw-items-center tw-font-normal">
+            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
+          </span>
+        </a>
+      </span>
     </section>
   </div>
 </bit-menu>

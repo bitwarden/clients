@@ -30,7 +30,13 @@ export type ProductSwitcherItem = {
   /**
    * Route for items in the `otherProducts$` section
    */
-  marketingRoute?: string | any[];
+  marketingRoute?: {
+    route: string | any[];
+    external: boolean;
+  };
+  /**
+   * Route definition for external/internal routes for items in the `otherProducts$` section
+   */
 
   /**
    * Used to apply css styles to show when a button is selected
@@ -136,7 +142,10 @@ export class ProductSwitcherService {
           name: "Password Manager",
           icon: "bwi-lock",
           appRoute: "/vault",
-          marketingRoute: "https://bitwarden.com/products/personal/",
+          marketingRoute: {
+            route: "https://bitwarden.com/products/personal/",
+            external: true,
+          },
           isActive:
             !this.router.url.includes("/sm/") &&
             !this.router.url.includes("/organizations/") &&
@@ -146,7 +155,10 @@ export class ProductSwitcherService {
           name: "Secrets Manager",
           icon: "bwi-cli",
           appRoute: ["/sm", smOrg?.id],
-          marketingRoute: "https://bitwarden.com/products/secrets-manager/",
+          marketingRoute: {
+            route: "/sm-landing",
+            external: false,
+          },
           isActive: this.router.url.includes("/sm/"),
           otherProductOverrides: {
             supportingText: this.i18n.transform("secureYourInfrastructure"),
@@ -156,7 +168,10 @@ export class ProductSwitcherService {
           name: "Admin Console",
           icon: "bwi-business",
           appRoute: ["/organizations", acOrg?.id],
-          marketingRoute: "https://bitwarden.com/products/business/",
+          marketingRoute: {
+            route: "https://bitwarden.com/products/business/",
+            external: true,
+          },
           isActive: this.router.url.includes("/organizations/"),
         },
         provider: {
@@ -168,7 +183,10 @@ export class ProductSwitcherService {
         orgs: {
           name: "Organizations",
           icon: "bwi-business",
-          marketingRoute: "https://bitwarden.com/products/business/",
+          marketingRoute: {
+            route: "https://bitwarden.com/products/business/",
+            external: true,
+          },
           otherProductOverrides: {
             name: "Share your passwords",
             supportingText: this.i18n.transform("protectYourFamilyOrBusiness"),

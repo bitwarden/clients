@@ -1,0 +1,42 @@
+<app-header></app-header>
+
+<div class="tw-grid tw-grid-cols-12 tw-gap-4">
+  <div class="tw-col-span-6">
+    <img src="../images/sm.webp" class="tw-max-w-full" alt="Bitwarden" aria-hidden="true" />
+  </div>
+  <div class="tw-col-span-6">
+    <h1 bitTypography="h1">{{ "bitwardenSecretsManager" | i18n }}</h1>
+    <p bitTypography="body1">
+      {{ "developmentDevOpsAndITTeamsChooseBWSecret" | i18n }}
+    </p>
+    <ul class="tw-list-outside">
+      <li bitTypography="body1">
+        <b>{{ "centralizeSecretsManagement" | i18n }}</b>
+        {{ "centralizeSecretsManagementDescription" | i18n }}
+      </li>
+      <li bitTypography="body1">
+        <b>{{ "preventSecretLeaks" | i18n }}</b> {{ "preventSecretLeaksDescription" | i18n }}
+      </li>
+      <li bitTypography="body1">
+        <b>{{ "enhanceDeveloperProductivity" | i18n }}</b>
+        {{ "enhanceDeveloperProductivityDescription" | i18n }}
+      </li>
+      <li bitTypography="body1">
+        <b>{{ "strengthenBusinessSecurity" | i18n }}</b>
+        {{ "strengthenBusinessSecurityDescription" | i18n }}
+      </li>
+    </ul>
+    <button type="button" bitButton buttonType="primary" [routerLink]="this.tryItNowUrl">
+      {{ "tryItNow" | i18n }}
+    </button>
+    <a
+      bitLink
+      linkType="primary"
+      href="https://bitwarden.com/help/secrets-manager-overview/"
+      target="_blank"
+      class="tw-m-5"
+    >
+      {{ "learnMore" | i18n }}
+    </a>
+  </div>
+</div>
