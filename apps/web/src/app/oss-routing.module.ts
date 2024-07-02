@@ -17,6 +17,7 @@ import {
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
+  LockIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -110,11 +111,6 @@ const routes: Routes = [
         path: "set-password",
         component: SetPasswordComponent,
         data: { titleId: "setMasterPassword" } satisfies DataProperties,
-      },
-      {
-        path: "lock",
-        component: LockComponent,
-        canActivate: [deepLinkGuard(), lockGuard()],
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
@@ -243,6 +239,21 @@ const routes: Routes = [
         data: {
           pageTitle: "logIn",
         },
+      },
+      {
+        path: "lock",
+        canActivate: [deepLinkGuard(), lockGuard()],
+        children: [
+          {
+            path: "",
+            component: LockComponent,
+          },
+        ],
+        data: {
+          pageTitle: "yourVaultIsLocked",
+          pageIcon: LockIcon,
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "2fa",

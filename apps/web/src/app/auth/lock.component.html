@@ -1,66 +1,27 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" class="container" ngNativeValidate>
-  <div class="row justify-content-md-center mt-5">
-    <div class="col-5">
-      <p class="text-center mb-4">
-        <i class="bwi bwi-lock bwi-4x text-muted" aria-hidden="true"></i>
-      </p>
-      <p class="lead text-center mx-4 mb-4">{{ "yourVaultIsLocked" | i18n }}</p>
-      <div class="card d-block">
-        <div class="card-body">
-          <div class="form-group">
-            <label for="masterPassword">{{ "masterPass" | i18n }}</label>
-            <div class="d-flex">
-              <input
-                id="masterPassword"
-                type="{{ showPassword ? 'text' : 'password' }}"
-                name="MasterPassword"
-                class="text-monospace form-control"
-                [(ngModel)]="masterPassword"
-                required
-                appAutofocus
-                appInputVerbatim
-              />
-              <button
-                type="button"
-                class="ml-1 btn btn-link"
-                appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="togglePassword()"
-              >
-                <i
-                  class="bwi bwi-lg"
-                  aria-hidden="true"
-                  [ngClass]="{ 'bwi-eye': !showPassword, 'bwi-eye-slash': showPassword }"
-                ></i>
-              </button>
-            </div>
-            <small class="text-muted form-text">
-              {{ "loggedInAsEmailOn" | i18n: email : webVaultHostname }}
-            </small>
-          </div>
-          <hr />
-          <div class="d-flex">
-            <button
-              type="submit"
-              class="btn btn-primary btn-block btn-submit"
-              [disabled]="form.loading"
-            >
-              <span> <i class="bwi bwi-unlock" aria-hidden="true"></i> {{ "unlock" | i18n }} </span>
-              <i
-                class="bwi bwi-spinner bwi-spin"
-                title="{{ 'loading' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-block ml-2 mt-0"
-              (click)="logOut()"
-            >
-              {{ "logOut" | i18n }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+<form [bitSubmit]="submit" [formGroup]="formGroup">
+  <bit-form-field>
+    <bit-label>{{ "masterPass" | i18n }}</bit-label>
+    <input
+      type="password"
+      formControlName="masterPassword"
+      bitInput
+      appAutofocus
+      name="masterPassword"
+      required
+    />
+    <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    <bit-hint>{{ "loggedInAsEmailOn" | i18n: email : webVaultHostname }}</bit-hint>
+  </bit-form-field>
+
+  <hr />
+
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="primary" block>
+      <i class="bwi bwi-unlock" aria-hidden="true"></i>
+      {{ "unlock" | i18n }}
+    </button>
+    <button type="button" bitButton bitFormButton block (click)="logOut()">
+      {{ "logOut" | i18n }}
+    </button>
   </div>
 </form>
