@@ -1,0 +1,76 @@
+<bit-section>
+  <bit-section-header>
+    <h6 bitTypography="h6">{{ "customFields" | i18n }}</h6>
+  </bit-section-header>
+  <bit-card>
+    <div
+      class="tw-mb-4 tw-border-secondary-300 tw-bg-background"
+      *ngFor="let field of fields; let last = last"
+      [ngClass]="{ 'tw-border-0 tw-border-b tw-border-solid tw-pb-2 tw-mb-4': !last }"
+    >
+      <ng-container *ngIf="field.type === fieldType.Text">
+        <label class="tw-text-xs tw-text-muted tw-select-none">
+          {{ field.name }}
+        </label>
+        <div class="tw-flex tw-justify-between">
+          <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
+          <button
+            bitIconButton="bwi-clone"
+            size="small"
+            type="button"
+            [appCopyClick]="field.value"
+            showToast
+            [appA11yTitle]="'copyValue' | i18n"
+          ></button>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="field.type === fieldType.Hidden">
+        <label class="tw-text-xs tw-text-muted tw-select-none">
+          {{ field.name }}
+        </label>
+        <bit-form-field>
+          <input readonly bitInput type="password" [value]="field.value" aria-readonly="true" />
+          <button type="button" bitIconButton bitPasswordInputToggle></button>
+          <button
+            bitIconButton="bwi-clone"
+            size="small"
+            type="button"
+            [appCopyClick]="field.value"
+            showToast
+            [appA11yTitle]="'copyValue' | i18n"
+          ></button>
+        </bit-form-field>
+      </ng-container>
+      <ng-container *ngIf="field.type === fieldType.Boolean">
+        <div class="tw-flex tw-my-2">
+          <input type="checkbox" [value]="field.value" readonly aria-readonly="true" />
+          <h5 class="tw-ml-3">
+            {{ field.name }}
+          </h5>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="field.type === fieldType.Linked">
+        <label class="tw-text-xs tw-text-muted tw-select-none">
+          {{ "linked" | i18n }}: {{ field.name }}
+        </label>
+        <div class="tw-flex tw-justify-between">
+          <input
+            readonly
+            bitInput
+            type="text"
+            [value]="getLinkedType(field.linkedId)"
+            aria-readonly="true"
+          />
+          <button
+            bitIconButton="bwi-clone"
+            size="small"
+            type="button"
+            [appCopyClick]="field.name"
+            showToast
+            [appA11yTitle]="'copyValue' | i18n"
+          ></button>
+        </div>
+      </ng-container>
+    </div>
+  </bit-card>
+</bit-section>

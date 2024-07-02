@@ -1,9 +1,12 @@
 <footer
   class="tw-p-3 tw-border-0 tw-border-solid tw-border-t tw-border-secondary-300 tw-bg-background"
 >
-  <div class="tw-max-w-screen-sm tw-mx-auto">
+  <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
     <div class="tw-flex tw-justify-start tw-gap-2">
       <ng-content></ng-content>
+    </div>
+    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+      <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
 </footer>

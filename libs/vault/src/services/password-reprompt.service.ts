@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptComponent } from "../components/password-reprompt.component";
@@ -19,6 +21,14 @@ export class PasswordRepromptService {
 
   protectedFields() {
     return ["TOTP", "Password", "H_Field", "Card Number", "Security Code"];
+  }
+
+  async promptPasswordCheck(cipher: CipherView, passwordReprompted: boolean) {
+    if (cipher.reprompt === CipherRepromptType.None || passwordReprompted) {
+      return true;
+    }
+
+    return await this.showPasswordPrompt();
   }
 
   async showPasswordPrompt() {

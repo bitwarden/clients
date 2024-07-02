@@ -1,0 +1,28 @@
+<ng-container *ngIf="!!cipher">
+  <!-- ITEM DETAILS -->
+  <app-item-details-v2
+    [cipher]="cipher"
+    [organization]="organization$ | async"
+    [collections]="collections$ | async"
+    [folder]="folder$ | async"
+  >
+  </app-item-details-v2>
+
+  <!-- ADDITIONAL INFORMATION -->
+  <ng-container *ngIf="cipher.notes">
+    <app-additional-information [notes]="cipher.notes"> </app-additional-information>
+  </ng-container>
+
+  <!-- CUSTOM FIELDS -->
+  <ng-container *ngIf="cipher.fields">
+    <app-custom-fields-v2 [fields]="cipher.fields"> </app-custom-fields-v2>
+  </ng-container>
+
+  <!-- ATTACHMENTS SECTION -->
+  <ng-container *ngIf="cipher.attachments">
+    <app-attachments-v2 [cipher]="cipher"> </app-attachments-v2>
+  </ng-container>
+
+  <!-- ITEM HISTORY SECTION -->
+  <app-item-history-v2 [cipher]="cipher"> </app-item-history-v2>
+</ng-container>

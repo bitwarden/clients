@@ -1,0 +1,20 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="headerText" showBackButton> </popup-header>
+
+  <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
+
+  <popup-footer slot="footer">
+    <a bitButton type="button" buttonType="primary" (click)="editCipher()">
+      {{ "edit" | i18n }}
+    </a>
+    <button
+      slot="end"
+      *ngIf="cipher && cipher.edit"
+      (click)="delete()"
+      type="button"
+      buttonType="danger"
+      bitIconButton="bwi-trash"
+      [appA11yTitle]="'delete' | i18n"
+    ></button>
+  </popup-footer>
+</popup-page>

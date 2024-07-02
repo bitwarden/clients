@@ -1,4 +1,4 @@
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
 
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -59,6 +59,13 @@ export class FolderService implements InternalFolderServiceAbstraction {
     const folders = await firstValueFrom(this.folders$);
 
     return folders.find((folder) => folder.id === id);
+  }
+
+  getDecrypted$(id: string): Observable<FolderView | undefined> {
+    return this.folderViews$.pipe(
+      map((folders) => folders.find((folder) => folder.id === id)),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
   }
 
   async getAllFromState(): Promise<Folder[]> {

@@ -1,0 +1,32 @@
+<bit-section>
+  <bit-section-header>
+    <h6 bitTypography="h6">{{ "attachments" | i18n }}</h6>
+  </bit-section-header>
+  <bit-item-group>
+    <bit-item *ngFor="let attachment of cipher.attachments">
+      <div slot="start" class="tw-py-4 tw-px-3">
+        <h3>
+          {{ attachment.fileName }}
+        </h3>
+        <div class="tw-mb-1 tw-text-xs tw-text-muted tw-select-none">
+          {{ attachment.sizeName }}
+        </div>
+      </div>
+      <div class="tw-flex tw-items-center" (click)="downloadAttachment(attachment)" slot="end">
+        <button
+          type="button"
+          bitIconButton="bwi-download"
+          size="small"
+          [appA11yTitle]="'downloadAttachment' | i18n: attachment.fileName"
+          *ngIf="!$any(attachment).downloading"
+        ></button>
+        <button
+          type="button"
+          bitIconButton="bwi-spinner bwi-spin"
+          size="small"
+          *ngIf="$any(attachment).downloading"
+        ></button>
+      </div>
+    </bit-item>
+  </bit-item-group>
+</bit-section>

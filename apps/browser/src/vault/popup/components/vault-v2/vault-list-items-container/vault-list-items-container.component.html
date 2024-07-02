@@ -21,7 +21,7 @@
       <a
         bit-item-content
         [routerLink]="['/view-cipher']"
-        [queryParams]="{ cipherId: cipher.id }"
+        [queryParams]="{ cipherId: cipher.id, type: cipher.type }"
         [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
       >
         <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>

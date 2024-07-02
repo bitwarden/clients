@@ -266,6 +266,7 @@ class MockSettingsPageComponent {}
       <popup-footer slot="footer">
         <button bitButton buttonType="primary">Save</button>
         <button bitButton buttonType="secondary">Cancel</button>
+        <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
       </popup-footer>
     </popup-page>
   `,
@@ -279,6 +280,7 @@ class MockSettingsPageComponent {}
     MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
+    IconButtonModule,
   ],
 })
 class MockVaultSubpageComponent {}
