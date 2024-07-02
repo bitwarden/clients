@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
@@ -48,8 +48,6 @@ type CardDetailsForm = {
 export class CardDetailsSectionComponent implements OnInit {
   /** The original cipher */
   @Input() originalCipherView: CipherView;
-
-  @ViewChild("yearInput") yearInput: ElementRef<HTMLInputElement>;
 
   /** All form fields associated with the card details */
   cardDetailsForm = this.formBuilder.group<CardDetailsForm>({
