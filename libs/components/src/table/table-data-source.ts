@@ -2,6 +2,8 @@ import { _isNumberValue } from "@angular/cdk/coercion";
 import { DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, combineLatest, map, Observable, Subscription } from "rxjs";
 
+import { SelectionState } from "./selection-state";
+
 export type SortDirection = "asc" | "desc";
 export type SortFn = (a: any, b: any) => number;
 export type Sort = {
@@ -29,6 +31,8 @@ export class TableDataSource<T> extends DataSource<T> {
    */
   filteredData: T[];
 
+  selection = new SelectionState();
+
   constructor() {
     super();
     this._data = new BehaviorSubject([]);
@@ -41,6 +45,10 @@ export class TableDataSource<T> extends DataSource<T> {
 
   set data(data: T[]) {
     data = Array.isArray(data) ? data : [];
+
+    // Must be done before updating state so that controls are populated before the table re-renders
+    this.selection.data = data;
+
     this._data.next(data);
     // Normally the `filteredData` is updated by the re-render
     // subscription, but that won't happen if it's inactive.
