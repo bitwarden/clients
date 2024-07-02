@@ -129,22 +129,39 @@ export class LockComponent extends BaseLockComponent {
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {
-        await this.unlockBiometric();
+        await this.unlockBiometric(true);
       }
     }, 100);
   }
 
-  override async unlockBiometric(): Promise<boolean> {
+  override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
     if (!this.biometricLock) {
       return;
     }
 
-    this.pendingBiometric = true;
     this.biometricError = null;
 
     let success;
     try {
-      success = await super.unlockBiometric();
+      const available = await super.isBiometricUnlockAvailable();
+      this.logService.info("Biometric unlock available: " + available);
+      if (!available) {
+        this.logService.info(
+          "Biometric unlock not available, automatic prompt: " + automaticPrompt,
+        );
+        if (!automaticPrompt) {
+          await this.dialogService.openSimpleDialog({
+            type: "warning",
+            title: { key: "biometricsNotAvailableTitle" },
+            content: { key: "biometricsNotAvailableDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+          });
+        }
+      } else {
+        this.pendingBiometric = true;
+        success = await super.unlockBiometric();
+      }
     } catch (e) {
       const error = BiometricErrors[e?.message as BiometricErrorTypes];
 

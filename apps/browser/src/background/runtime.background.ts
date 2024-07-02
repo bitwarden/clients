@@ -68,6 +68,7 @@ export default class RuntimeBackground {
     ) => {
       const messagesWithResponse = [
         "biometricUnlock",
+        "biometricUnlockAvailable",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];
@@ -180,6 +181,10 @@ export default class RuntimeBackground {
         break;
       case "biometricUnlock": {
         const result = await this.main.biometricUnlock();
+        return result;
+      }
+      case "biometricUnlockAvailable": {
+        const result = await this.platformUtilsService.isBiometricUnlockAvailable();
         return result;
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {

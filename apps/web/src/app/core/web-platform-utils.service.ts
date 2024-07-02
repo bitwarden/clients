@@ -190,6 +190,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  isBiometricUnlockAvailable(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
   authenticateBiometric() {
     return Promise.resolve(false);
   }

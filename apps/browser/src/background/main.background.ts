@@ -412,6 +412,7 @@ export default class MainBackground {
       this.messagingService,
       (clipboardValue, clearMs) => this.clearClipboard(clipboardValue, clearMs),
       async () => this.biometricUnlock(),
+      async () => this.biometricUnlockAvailable(),
       self,
       this.offscreenDocumentService,
     );
@@ -1456,6 +1457,17 @@ export default class MainBackground {
     await this.nativeMessagingBackground.send({ command: "biometricUnlock" });
     const response = await responsePromise;
     return response.response === "unlocked";
+  }
+
+  async biometricUnlockAvailable(): Promise<boolean> {
+    if (this.nativeMessagingBackground == null) {
+      return false;
+    }
+
+    const responsePromise = this.nativeMessagingBackground.getResponse();
+    await this.nativeMessagingBackground.send({ command: "biometricUnlockAvailable" });
+    const response = await responsePromise;
+    return response.response === "available";
   }
 
   private async fullSync(override = false) {

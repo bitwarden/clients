@@ -1892,6 +1892,12 @@
   "biometricsNotUnlockedDesc": {
     "message": "Please unlock this user in the desktop application and try again."
   },
+  "biometricsNotAvailableTitle": {
+    "message": "Biometric unlock unavailable"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "Biometric unlock is currently unavailable. Please try again later."
+  },
   "biometricsFailedTitle": {
     "message": "Biometrics failed"
   },

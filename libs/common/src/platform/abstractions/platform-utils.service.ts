@@ -44,6 +44,7 @@ export abstract class PlatformUtilsService {
   abstract copyToClipboard(text: string, options?: ClipboardOptions): void | boolean;
   abstract readFromClipboard(): Promise<string>;
   abstract supportsBiometric(): Promise<boolean>;
+  abstract isBiometricUnlockAvailable(): Promise<boolean>;
   abstract authenticateBiometric(): Promise<boolean>;
   abstract supportsSecureStorage(): boolean;
   abstract getAutofillKeyboardShortcut(): Promise<string>;

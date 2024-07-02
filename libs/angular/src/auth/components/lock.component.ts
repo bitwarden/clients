@@ -145,6 +145,13 @@ export class LockComponent implements OnInit, OnDestroy {
     return !!userKey;
   }
 
+  async isBiometricUnlockAvailable(): Promise<boolean> {
+    if (!(await this.platformUtilsService.supportsBiometric())) {
+      return false;
+    }
+    return this.platformUtilsService.isBiometricUnlockAvailable();
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
     const input = document.getElementById(this.pinEnabled ? "pin" : "masterPassword");
