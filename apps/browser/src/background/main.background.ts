@@ -1429,16 +1429,7 @@ export default class MainBackground {
       return;
     }
 
-    const storage = await this.storageService.getAll();
-    await this.storageService.clear();
-
-    for (const key in storage) {
-      // eslint-disable-next-line
-      if (!storage.hasOwnProperty(key)) {
-        continue;
-      }
-      await this.storageService.save(key, storage[key]);
-    }
+    await this.storageService.reseed();
   }
 
   async clearClipboard(clipboardValue: string, clearMs: number) {
