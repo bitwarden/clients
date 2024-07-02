@@ -27,6 +27,7 @@ describe("AuthRequestService", () => {
   const apiService = mock<ApiService>();
 
   let mockPrivateKey: Uint8Array;
+  let mockPublicKey: Uint8Array;
   const mockUserId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
@@ -44,6 +45,7 @@ describe("AuthRequestService", () => {
     );
 
     mockPrivateKey = new Uint8Array(64);
+    mockPublicKey = new Uint8Array(64);
   });
 
   describe("authRequestPushNotification$", () => {
@@ -252,6 +254,16 @@ describe("AuthRequestService", () => {
       );
       expect(result.masterKey).toEqual(mockDecryptedMasterKey);
       expect(result.masterKeyHash).toEqual(mockDecryptedMasterKeyHash);
+    });
+  });
+
+  describe("getFingerprintPhrase", () => {
+    it("returns the same fingerprint regardless of email casing", () => {
+      const email = "test@email.com";
+      const emailUpperCase = email.toUpperCase();
+      const phrase = sut.getFingerprintPhrase(email, mockPublicKey);
+      const phraseUpperCase = sut.getFingerprintPhrase(emailUpperCase, mockPublicKey);
+      expect(phrase).toEqual(phraseUpperCase);
     });
   });
 });

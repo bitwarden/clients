@@ -77,9 +77,10 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       this.email = await await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
       );
-      this.fingerprintPhrase = (
-        await this.cryptoService.getFingerprint(this.email, publicKey)
-      ).join("-");
+      this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+        this.email,
+        publicKey,
+      );
       this.updateTimeText();
 
       this.interval = setInterval(() => {

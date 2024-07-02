@@ -92,4 +92,12 @@ export abstract class AuthRequestServiceAbstraction {
    * @remark We should only be receiving approved push notifications to prevent enumeration.
    */
   abstract sendAuthRequestPushNotification: (notification: AuthRequestPushNotification) => void;
+
+  /**
+   * Creates a dash-delimited fingerprint for use in confirming the `AuthRequest` between the requesting and approving device.
+   * @param email The email address of the user.
+   * @param publicKey The public key for the user.
+   * @returns The dash-delimited fingerprint phrase.
+   */
+  abstract getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string>;
 }

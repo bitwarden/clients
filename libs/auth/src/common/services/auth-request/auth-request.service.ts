@@ -197,4 +197,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       this.authRequestPushNotificationSubject.next(notification.id);
     }
   }
+
+  async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
+    return (await this.cryptoService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+  }
 }
