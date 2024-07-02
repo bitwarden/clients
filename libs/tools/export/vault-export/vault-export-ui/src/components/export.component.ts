@@ -12,7 +12,7 @@ import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/fo
 import { map, merge, Observable, startWith, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PasswordStrengthComponent } from "@bitwarden/angular/tools/password-strength/password-strength.component";
+import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -58,6 +58,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     RadioButtonModule,
     ExportScopeCalloutComponent,
     UserVerificationDialogComponent,
+    PasswordStrengthV2Component,
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy {
@@ -110,7 +111,7 @@ export class ExportComponent implements OnInit, OnDestroy {
   @Output()
   onSuccessfulExport = new EventEmitter<string>();
 
-  @ViewChild(PasswordStrengthComponent) passwordStrengthComponent: PasswordStrengthComponent;
+  @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 
   encryptedExportType = EncryptedExportType;
   protected showFilePassword: boolean;

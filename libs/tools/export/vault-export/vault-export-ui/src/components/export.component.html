@@ -76,7 +76,8 @@
           ></button>
           <bit-hint>{{ "exportPasswordDescription" | i18n }}</bit-hint>
         </bit-form-field>
-        <app-password-strength [password]="filePassword" [showText]="true"> </app-password-strength>
+        <tools-password-strength [password]="filePassword" [showText]="true">
+        </tools-password-strength>
       </div>
       <bit-form-field>
         <bit-label>{{ "confirmFilePassword" | i18n }}</bit-label>

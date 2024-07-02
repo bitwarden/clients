@@ -1,21 +1,26 @@
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { ProgressModule } from "@bitwarden/components";
 
 export interface PasswordColorText {
   color: string;
   text: string;
 }
+type SizeTypes = "small" | "default" | "large";
+type BackgroundTypes = "danger" | "primary" | "success" | "warning";
 
-/**
- * @deprecated July 2024: Use new PasswordStrengthV2Component instead
- */
 @Component({
-  selector: "app-password-strength",
-  templateUrl: "password-strength.component.html",
+  selector: "tools-password-strength",
+  templateUrl: "password-strength-v2.component.html",
+  standalone: true,
+  imports: [CommonModule, JslibModule, ProgressModule],
 })
-export class PasswordStrengthComponent implements OnChanges {
+export class PasswordStrengthV2Component implements OnChanges {
+  @Input() size: SizeTypes = "default";
   @Input() showText = false;
   @Input() email: string;
   @Input() name: string;
@@ -25,40 +30,12 @@ export class PasswordStrengthComponent implements OnChanges {
   @Output() passwordStrengthResult = new EventEmitter<any>();
   @Output() passwordScoreColor = new EventEmitter<PasswordColorText>();
 
-  masterPasswordScore: number;
+  passwordScore: number;
   scoreWidth = 0;
-  color = "bg-danger";
+  color: BackgroundTypes = "danger";
   text: string;
 
-  private masterPasswordStrengthTimeout: any;
-
-  //used by desktop and browser to display strength text color
-  get masterPasswordScoreColor() {
-    switch (this.masterPasswordScore) {
-      case 4:
-        return "success";
-      case 3:
-        return "primary";
-      case 2:
-        return "warning";
-      default:
-        return "danger";
-    }
-  }
-
-  //used by desktop and browser to display strength text
-  get masterPasswordScoreText() {
-    switch (this.masterPasswordScore) {
-      case 4:
-        return this.i18nService.t("strong");
-      case 3:
-        return this.i18nService.t("good");
-      case 2:
-        return this.i18nService.t("weak");
-      default:
-        return this.masterPasswordScore != null ? this.i18nService.t("weak") : null;
-    }
-  }
+  private passwordStrengthTimeout: any;
 
   constructor(
     private i18nService: I18nService,
@@ -66,25 +43,25 @@ export class PasswordStrengthComponent implements OnChanges {
   ) {}
 
   ngOnChanges(): void {
-    this.masterPasswordStrengthTimeout = setTimeout(() => {
-      this.scoreWidth = this.masterPasswordScore == null ? 0 : (this.masterPasswordScore + 1) * 20;
+    this.passwordStrengthTimeout = setTimeout(() => {
+      this.scoreWidth = this.passwordScore == null ? 0 : (this.passwordScore + 1) * 20;
 
-      switch (this.masterPasswordScore) {
+      switch (this.passwordScore) {
         case 4:
-          this.color = "bg-success";
+          this.color = "success";
           this.text = this.i18nService.t("strong");
           break;
         case 3:
-          this.color = "bg-primary";
+          this.color = "primary";
           this.text = this.i18nService.t("good");
           break;
         case 2:
-          this.color = "bg-warning";
+          this.color = "warning";
           this.text = this.i18nService.t("weak");
           break;
         default:
-          this.color = "bg-danger";
-          this.text = this.masterPasswordScore != null ? this.i18nService.t("weak") : null;
+          this.color = "danger";
+          this.text = this.passwordScore != null ? this.i18nService.t("weak") : null;
           break;
       }
 
@@ -95,8 +72,8 @@ export class PasswordStrengthComponent implements OnChanges {
   updatePasswordStrength(password: string) {
     const masterPassword = password;
 
-    if (this.masterPasswordStrengthTimeout != null) {
-      clearTimeout(this.masterPasswordStrengthTimeout);
+    if (this.passwordStrengthTimeout != null) {
+      clearTimeout(this.passwordStrengthTimeout);
     }
 
     const strengthResult = this.passwordStrengthService.getPasswordStrength(
@@ -105,7 +82,7 @@ export class PasswordStrengthComponent implements OnChanges {
       this.name?.trim().toLowerCase().split(" "),
     );
     this.passwordStrengthResult.emit(strengthResult);
-    this.masterPasswordScore = strengthResult == null ? null : strengthResult.score;
+    this.passwordScore = strengthResult == null ? null : strengthResult.score;
   }
 
   setPasswordScoreText(color: string, text: string) {
