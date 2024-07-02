@@ -32,7 +32,11 @@ export class MigrationRunner {
 
     const migrationBuilder = this.migrationBuilderService.build();
 
-    await migrationBuilder.migrate(migrationHelper);
+    try {
+      await migrationBuilder.migrate(migrationHelper);
+    } catch (error) {
+      this.logService.error("Critical migration failure due to an exception: ", error);
+    }
   }
 
   async waitForCompletion(): Promise<void> {
