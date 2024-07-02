@@ -1,49 +1,44 @@
 @import "./reset.css";
 
-/** 
-  Note that the value of the *-600 colors is currently equivalent to the value 
-  of the *-500 variant of that color. This is a temporary change to make BW-42
-  updates easier. 
-
-  TODO remove comment when the color palette portion of BW-42 is completed.
-*/
-
 :root {
   --color-transparent-hover: rgb(0 0 0 / 0.03);
 
   --color-background: 255 255 255;
-  --color-background-alt: 251 251 251;
+  --color-background-alt: 246 247 249;
   --color-background-alt2: 23 92 219;
   --color-background-alt3: 18 82 163;
   --color-background-alt4: 13 60 119;
 
-  /* Can only be used behind the extension refresh flag */
   --color-primary-100: 200 217 249;
-  --color-primary-300: 103 149 232;
-  /* Can only be used behind the extension refresh flag */
+  --color-primary-300: 107 154 240;
   --color-primary-500: 23 93 220;
-  --color-primary-600: 23 93 220;
-  --color-primary-700: 18 82 163;
+  --color-primary-600: 20 82 193;
+  --color-primary-700: 14 55 129;
 
-  --color-secondary-100: 240 240 240;
-  --color-secondary-300: 206 212 220;
-  --color-secondary-600: 137 146 159;
-  --color-secondary-700: 33 37 41;
+  --color-secondary-100: 230 233 239;
+  --color-secondary-300: 168 179 200;
+  --color-secondary-500: 96 114 150;
+  --color-secondary-600: 83 99 131;
+  --color-secondary-700: 63 75 99;
 
-  --color-success-600: 1 126 69;
-  --color-success-700: 0 85 46;
+  --color-info-100: 182 244 247;
+  --color-info-600: 16 148 157;
+  --color-info-700: 12 105 111;
 
-  --color-danger-600: 200 53 34;
-  --color-danger-700: 152 41 27;
+  --color-warning-100: 255 229 190;
+  --color-warning-600: 214 129 0;
+  --color-warning-700: 138 82 0;
 
-  --color-warning-600: 139 102 9;
-  --color-warning-700: 105 77 5;
+  --color-danger-100: 255 226 229;
+  --color-danger-600: 184 0 23;
+  --color-danger-700: 133 0 17;
 
-  --color-info-600: 85 85 85;
-  --color-info-700: 59 58 58;
+  --color-success-100: 186 248 192;
+  --color-success-600: 12 130 24;
+  --color-success-700: 8 84 15;
 
-  --color-text-main: 33 37 41;
-  --color-text-muted: 109 117 126;
+  --color-text-main: 27 32 41;
+  --color-text-muted: 96 114 150;
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
@@ -59,38 +54,43 @@
 .theme_dark {
   --color-transparent-hover: rgb(255 255 255 / 0.12);
 
-  --color-background: 31 36 46;
-  --color-background-alt: 22 28 38;
+  --color-background: 32 39 51;
+  --color-background-alt: 18 26 39;
   --color-background-alt2: 47 52 61;
   --color-background-alt3: 47 52 61;
   --color-background-alt4: 16 18 21;
 
   --color-primary-100: 8 31 73;
-  --color-primary-300: 23 93 220;
+  --color-primary-300: 19 71 165;
   --color-primary-500: 54 117 232;
-  --color-primary-600: 106 153 240;
-  --color-primary-700: 180 204 249;
+  --color-primary-600: 99 148 237;
+  --color-primary-700: 145 180 242;
 
-  --color-secondary-100: 47 52 61;
-  --color-secondary-300: 110 118 137;
-  --color-secondary-600: 186 192 206;
-  --color-secondary-700: 255 255 255;
+  --color-secondary-100: 48 57 70;
+  --color-secondary-300: 82 91 106;
+  --color-secondary-500: 121 128 142;
+  --color-secondary-600: 143 152 166;
+  --color-secondary-700: 158 167 181;
 
-  --color-success-600: 82 224 124;
-  --color-success-700: 168 239 190;
+  --color-success-100: 7 64 13;
+  --color-success-600: 107 241 120;
+  --color-success-700: 152 245 161;
 
-  --color-danger-600: 255 141 133;
-  --color-danger-700: 255 191 187;
+  --color-danger-100: 82 0 10;
+  --color-danger-600: 255 82 103;
+  --color-danger-700: 255 133 148;
 
-  --color-warning-600: 255 235 102;
-  --color-warning-700: 255 245 179;
+  --color-warning-100: 87 52 0;
+  --color-warning-600: 255 187 87;
+  --color-warning-700: 255 207 138;
 
-  --color-info-600: 164 176 198;
-  --color-info-700: 209 215 226;
+  --color-info-100: 7 61 65;
+  --color-info-600: 89 228 238;
+  --color-info-700: 135 236 242;
 
-  --color-text-main: 255 255 255;
-  --color-text-muted: 186 192 206;
-  --color-text-contrast: 25 30 38;
+  --color-text-main: 226 227 228;
+  --color-text-muted: 143 152 166;
+  --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
   --color-text-code: 240 141 199;
   --color-text-headers: 226 227 228;
