@@ -48,9 +48,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
           case "login": {
             const loginContent = item.data.content as ProtonPassLoginItemContent;
             cipher.login.uris = this.makeUriArray(loginContent.urls);
-            cipher.login.username = this.getValueOrDefault(loginContent.username);
+            cipher.login.username = this.getValueOrDefault(loginContent.itemEmail);
             cipher.login.password = this.getValueOrDefault(loginContent.password);
             cipher.login.totp = this.getValueOrDefault(loginContent.totpUri);
+            this.processKvp(cipher, "itemUsername", loginContent.itemUsername);
             for (const extraField of item.data.extraFields) {
               this.processKvp(
                 cipher,

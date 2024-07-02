@@ -49,11 +49,12 @@ export const testData: ProtonPassJsonFile = {
             ],
             type: "login",
             content: {
-              username: "Username",
+              itemEmail: "Username",
               password: "Password",
               urls: ["https://example.com/", "https://example2.com/"],
               totpUri:
                 "otpauth://totp/Test%20Login%20-%20Personal%20Vault:Username?issuer=Test%20Login%20-%20Personal%20Vault&secret=TOTPCODE&algorithm=SHA1&digits=6&period=30",
+              itemUsername: "someOtherUsername",
             },
           },
           state: 1,
@@ -156,10 +157,11 @@ export const testData: ProtonPassJsonFile = {
             extraFields: [],
             type: "login",
             content: {
-              username: "other vault username",
+              itemEmail: "other vault username",
               password: "other vault password",
               urls: [],
               totpUri: "JBSWY3DPEHPK3PXP",
+              itemUsername: "",
             },
           },
           state: 1,
