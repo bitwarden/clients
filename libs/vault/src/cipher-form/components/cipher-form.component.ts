@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
@@ -34,6 +35,7 @@ import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
 
+import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 
 @Component({
@@ -56,6 +58,7 @@ import { ItemDetailsSectionComponent } from "./item-details/item-details-section
     ReactiveFormsModule,
     SelectModule,
     ItemDetailsSectionComponent,
+    CardDetailsSectionComponent,
     NgIf,
   ],
 })
@@ -105,6 +108,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   protected updatedCipherView: CipherView | null;
   protected loading: boolean = true;
+
+  CipherType = CipherType;
 
   ngAfterViewInit(): void {
     if (this.submitBtn) {

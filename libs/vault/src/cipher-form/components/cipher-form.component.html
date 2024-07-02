@@ -6,6 +6,12 @@
       [originalCipherView]="originalCipherView"
     ></vault-item-details-section>
 
+    <vault-card-details-section
+      *ngIf="config.cipherType === CipherType.Card"
+      [originalCipherView]="originalCipherView"
+      [disabled]="config.mode === 'partial-edit'"
+    ></vault-card-details-section>
+
     <!-- Attachments are only available for existing ciphers -->
     <ng-container *ngIf="config.mode == 'edit'">
       <ng-content select="[slot=attachment-button]"></ng-content>
