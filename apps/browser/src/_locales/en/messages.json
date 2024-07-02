@@ -3054,6 +3054,12 @@
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
   },
+  "learnAboutCollections": {
+    "message": "Learn about collections"
+  },
+  "learnAboutFolders": {
+    "message": "Learn about folders"
+  },
   "selectImportFolder": {
     "message": "Select a folder"
   },
