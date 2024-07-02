@@ -23,11 +23,23 @@ const routes: Routes = [
         canActivate: [organizationRedirectGuard(getSettingsRoute)],
         children: [], // This is required to make the auto redirect work,
       },
-      { path: "account", component: AccountComponent, data: { titleId: "organizationInfo" } },
+      {
+        path: "account",
+        component: AccountComponent,
+        canActivate: [OrganizationPermissionsGuard],
+        data: {
+          organizationPermissions: (org: Organization) => org.isOwner,
+          titleId: "organizationInfo",
+        },
+      },
       {
         path: "two-factor",
         component: TwoFactorSetupComponent,
-        data: { titleId: "twoStepLogin" },
+        canActivate: [OrganizationPermissionsGuard],
+        data: {
+          organizationPermissions: (org: Organization) => org.use2fa && org.isOwner,
+          titleId: "twoStepLogin",
+        },
       },
       {
         path: "policies",
