@@ -19,6 +19,11 @@ on:
         required: true
         default: '10'
         type: string
+      winget_publish:
+        description: 'Publish to WinGet'
+        required: true
+        default: true
+        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -202,7 +207,7 @@ jobs:
           name: Desktop v${{ env.PKG_VERSION }}
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
-          draft: true
+          draft: false
 
       - name: Update deployment status to Success
         if: ${{ github.event.inputs.release_type != 'Dry Run' && success() }}
@@ -343,3 +348,18 @@ jobs:
         shell: pwsh
         run: choco push --source=https://push.chocolatey.org/
         working-directory: apps/desktop/dist
+
+  winget:
+    name: Deploy WinGet
+    runs-on: windows-latest
+    needs: [setup]
+    if: ${{ inputs.winget_publish && github.event.inputs.release_type != 'Dry Run' }}
+    steps:
+      - uses: vedantmgoyal2009/winget-releaser@9a8aae9dbbb928faeb232122730efcf4fce593a1
+        with:
+          identifier: Bitwarden.Bitwarden
+          version: ${{ needs.setup.outputs.release-version }}
+          installer-regex: Bitwarden-Installer.*.exe$
+          release-tag: desktop-v${{ needs.setup.outputs.release-version }}
+          token: ${{ secrets.WINGET_TOKEN }}
+          
