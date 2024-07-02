@@ -1,5 +1,5 @@
 import { DatePipe, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Injector, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -18,6 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import { cacheFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -27,8 +28,10 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
+  private injector = inject(Injector);
+
   // Options header
-  showOptions = false;
+  showOptions: boolean;
   // File visibility
   isFirefox = false;
   inPopout = false;
@@ -97,6 +100,12 @@ export class SendAddEditComponent extends BaseAddEditComponent {
         this.type = type;
       }
       await super.ngOnInit();
+
+      cacheFormGroup({
+        key: "my-form",
+        control: this.formGroup,
+        injector: this.injector,
+      });
     });
 
     window.setTimeout(() => {

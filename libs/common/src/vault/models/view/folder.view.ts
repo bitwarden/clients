@@ -19,7 +19,11 @@ export class FolderView implements View, ITreeNodeObject {
   }
 
   static fromJSON(obj: Jsonify<FolderView>) {
-    const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
+    if (obj == null) {
+      return null;
+    }
+
+    const revisionDate = obj?.revisionDate == null ? null : new Date(obj.revisionDate);
     return Object.assign(new FolderView(), obj, { revisionDate });
   }
 }
