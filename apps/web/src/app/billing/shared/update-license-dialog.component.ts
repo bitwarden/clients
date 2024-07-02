@@ -1,3 +1,4 @@
+import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
@@ -18,6 +19,7 @@ export enum UpdateLicenseDialogResult {
 })
 export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   constructor(
+    private dialogRef: DialogRef,
     apiService: ApiService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -31,6 +33,12 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   }
   submitLicenseDialog = async () => {
     await this.submitLicense();
+    this.dialogRef.close(UpdateLicenseDialogResult.Updated);
+  };
+
+  cancel = async () => {
+    await this.cancel();
+    this.dialogRef.close(UpdateLicenseDialogResult.Cancelled);
   };
   static open(dialogService: DialogService) {
     return dialogService.open<UpdateLicenseDialogResult>(UpdateLicenseDialogComponent);
