@@ -5,11 +5,12 @@ import { firstValueFrom } from "rxjs";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { IconModule, Icon } from "../../../../components/src/icon";
 import { SharedModule } from "../../../../components/src/shared";
 import { TypographyModule } from "../../../../components/src/typography";
-import { BitwardenLogo } from "../icons/bitwarden-logo.icon";
+import { BitwardenLogoPrimary, BitwardenLogoWhite } from "../icons/bitwarden-logo.icon";
 
 @Component({
   standalone: true,
@@ -23,18 +24,20 @@ export class AnonLayoutComponent {
   @Input() icon: Icon;
   @Input() showReadonlyHostname: boolean;
 
-  protected logo = BitwardenLogo;
+  protected logo: Icon;
 
   protected year = "2024";
   protected clientType: ClientType;
   protected hostname: string;
   protected version: string;
+  protected theme: string;
 
   protected showYearAndVersion = true;
 
   constructor(
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private themeStateService: ThemeStateService,
   ) {
     this.year = new Date().getFullYear().toString();
     this.clientType = this.platformUtilsService.getClientType();
@@ -44,5 +47,12 @@ export class AnonLayoutComponent {
   async ngOnInit() {
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
+    this.theme = await firstValueFrom(this.themeStateService.selectedTheme$);
+
+    if (this.theme === "dark") {
+      this.logo = BitwardenLogoWhite;
+    } else {
+      this.logo = BitwardenLogoPrimary;
+    }
   }
 }
