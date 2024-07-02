@@ -1,8 +1,8 @@
 <div class="tw-mb-2">
   <bit-search
     [placeholder]="'search' | i18n"
-    [(ngModel)]="searchText"
-    (ngModelChange)="onSearchTextChanged()"
+    [ngModel]="searchText()"
+    (ngModelChange)="searchText.set($event)"
   >
   </bit-search>
 </div>

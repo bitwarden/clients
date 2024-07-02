@@ -1,12 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime, filter } from "rxjs";
+import { Subscription, debounceTime, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
 
+import { cacheSignal } from "../../../../../platform/popup/view-cache/popup-view-cache.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 
 const SearchTextDebounceInterval = 200;
@@ -18,17 +19,16 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText: string;
+  protected searchText = cacheSignal({
+    key: "popup-vault-search-cache",
+    initialValue: "",
+  });
 
-  private searchText$ = new Subject<string>();
+  private searchText$ = toObservable(this.searchText);
 
   constructor(private vaultPopupItemsService: VaultPopupItemsService) {
     this.subscribeToLatestSearchText();
     this.subscribeToApplyFilter();
-  }
-
-  onSearchTextChanged() {
-    this.searchText$.next(this.searchText);
   }
 
   subscribeToLatestSearchText(): Subscription {
@@ -38,7 +38,7 @@ export class VaultV2SearchComponent {
         filter((data) => !!data),
       )
       .subscribe((text) => {
-        this.searchText = text;
+        this.searchText.set(text);
       });
   }
 
