@@ -105,7 +105,9 @@ export class KnownAccountsMigrator extends Migrator<59, 60> {
 
   private async migrateActiveAccountId(helper: MigrationHelper) {
     const activeAccountId = await helper.get<string>("activeUserId");
-    await helper.setToGlobal(ACCOUNT_ACTIVE_ACCOUNT_ID, activeAccountId);
-    await helper.remove("activeUserId");
+    if (activeAccountId != null) {
+      await helper.setToGlobal(ACCOUNT_ACTIVE_ACCOUNT_ID, activeAccountId);
+      await helper.remove("activeUserId");
+    }
   }
 }

@@ -143,8 +143,10 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
     await helper.setToGlobal(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL, emailTwoFactorTokenRecord);
 
     // Delete global data
-    delete globalData?.twoFactorToken;
-    await helper.set("global", globalData);
+    if (globalData != null) {
+      delete globalData?.twoFactorToken;
+      await helper.set("global", globalData);
+    }
   }
 
   async rollback(helper: MigrationHelper): Promise<void> {

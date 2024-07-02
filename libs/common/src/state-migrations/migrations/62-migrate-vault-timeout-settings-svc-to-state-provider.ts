@@ -122,10 +122,12 @@ export class VaultTimeoutSettingsServiceStateProviderMigrator extends Migrator<6
 
     await Promise.all([...accounts.map(({ userId, account }) => migrateAccount(userId, account))]);
 
-    // Delete global data (works for browser extension and web; CLI doesn't have these as global settings).
-    delete globalData?.vaultTimeout;
-    delete globalData?.vaultTimeoutAction;
-    await helper.set("global", globalData);
+    if (globalData != null) {
+      // Delete global data (works for browser extension and web; CLI doesn't have these as global settings).
+      delete globalData?.vaultTimeout;
+      delete globalData?.vaultTimeoutAction;
+      await helper.set("global", globalData);
+    }
 
     // Remove desktop only settings. These aren't found by the above global key removal b/c of
     // the different storage key format. This removal does not cause any issues on migrating for other clients.

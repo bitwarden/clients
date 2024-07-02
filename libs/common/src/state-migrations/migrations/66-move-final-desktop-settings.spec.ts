@@ -93,6 +93,45 @@ describe("MoveDesktopSettings", () => {
       },
     },
     {
+      it: "migrates browser integration without fingerprint enabled",
+      preMigration: {
+        global_account_accounts: {
+          user1: {},
+          otherUser: {},
+        },
+        user1: {
+          settings: {
+            minimizeOnCopyToClipboard: false,
+          },
+        },
+        otherUser: {
+          settings: {
+            random: "stuff",
+          },
+        },
+        global: {
+          enableBrowserIntegration: true,
+        },
+      },
+      postMigration: {
+        global_account_accounts: {
+          user1: {},
+          otherUser: {},
+        },
+        global: {},
+        user1: {
+          settings: {},
+        },
+        otherUser: {
+          settings: {
+            random: "stuff",
+          },
+        },
+        global_desktopSettings_browserIntegrationEnabled: true,
+        user_user1_desktopSettings_minimizeOnCopy: false,
+      },
+    },
+    {
       it: "does not move non-existant values",
       preMigration: {
         global_account_accounts: {
