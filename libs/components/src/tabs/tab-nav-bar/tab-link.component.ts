@@ -1,5 +1,13 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { AfterViewInit, Component, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
+  ViewChild,
+} from "@angular/core";
 import { IsActiveMatchOptions, RouterLinkActive } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -16,6 +24,7 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
 
   @ViewChild(TabListItemDirective) tabItem: TabListItemDirective;
   @ViewChild("rla") routerLinkActive: RouterLinkActive;
+  @ViewChild("endSlot") endSlot: ElementRef<HTMLElement>;
 
   readonly routerLinkMatchOptions: IsActiveMatchOptions = {
     queryParams: "ignored",
@@ -35,6 +44,10 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
 
   get active() {
     return this.routerLinkActive?.isActive ?? false;
+  }
+
+  get haveEndSlot() {
+    return this.endSlot?.nativeElement?.childElementCount !== 0;
   }
 
   constructor(private _tabNavBar: TabNavBarComponent) {}

@@ -9,6 +9,10 @@
   [attr.aria-disabled]="disabled"
   ariaCurrentWhenActive="page"
   role="link"
+  [class]="'tw-flex' + (haveEndSlot ? ' hover:tw-no-underline' : '')"
 >
-  <ng-content></ng-content>
+  <div [class]="'tw-inline-flex' + (haveEndSlot ? ' hover:tw-underline' : '')">
+    <ng-content></ng-content>
+  </div>
+  <ng-content #endSlot select="[slot=end]"></ng-content>
 </a>
