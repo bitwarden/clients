@@ -19,6 +19,8 @@ $border-radius: 6px;
 $line-height-base: 1.42857143;
 $icon-hover-color: lighten($text-color, 50%);
 
+$mfaTypes: 0, 2, 3, 4, 6;
+
 $gray: #555;
 $gray-light: #777;
 $text-muted: $gray-light;
@@ -111,6 +113,7 @@ $themes: (
     infoColor: $brand-info,
     warningColor: $brand-warning,
     logoSuffix: "dark",
+    mfaLogoSuffix: ".png",
     passwordNumberColor: #007fde,
     passwordSpecialColor: #c40800,
     passwordCountText: #212529,
@@ -174,6 +177,7 @@ $themes: (
     infoColor: #a4b0c6,
     warningColor: #ffeb66,
     logoSuffix: "white",
+    mfaLogoSuffix: "-w.png",
     passwordNumberColor: #6f9df1,
     passwordSpecialColor: #ff8d85,
     passwordCountText: #ffffff,
@@ -236,6 +240,7 @@ $themes: (
     infoColor: $nord9,
     warningColor: $nord12,
     logoSuffix: "white",
+    mfaLogoSuffix: "-w.png",
     passwordNumberColor: $nord8,
     passwordSpecialColor: $nord12,
     passwordCountText: $nord5,
@@ -298,6 +303,7 @@ $themes: (
     infoColor: $solarizedDarkGreen,
     warningColor: $solarizedDarkYellow,
     logoSuffix: "white",
+    mfaLogoSuffix: "-w.png",
     passwordNumberColor: $solarizedDarkCyan,
     passwordSpecialColor: $solarizedDarkYellow,
     passwordCountText: $solarizedDarkBase2,
