@@ -2955,6 +2955,14 @@
     "message": "Add new vault card item",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
+  "newIdentity": {
+    "message": "New identity",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItem": {
+    "message": "Add new vault identity item",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
+  },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
     "description": "Screen reader text for announcing when the overlay opens on the page"

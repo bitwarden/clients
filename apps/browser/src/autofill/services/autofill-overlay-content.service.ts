@@ -12,6 +12,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import {
   FocusedFieldData,
+  NewCardCipherData,
+  NewIdentityCipherData,
+  NewLoginCipherData,
   SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
@@ -204,7 +207,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const command = "autofillOverlayAddNewVaultItem";
 
     if (addNewCipherType === CipherType.Login) {
-      const login = {
+      const login: NewLoginCipherData = {
         username: this.userFilledFields["username"]?.value || "",
         password: this.userFilledFields["password"]?.value || "",
         uri: globalThis.document.URL,
@@ -217,7 +220,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (addNewCipherType === CipherType.Card) {
-      const card = {
+      const card: NewCardCipherData = {
         cardholderName: this.userFilledFields["cardholderName"]?.value || "",
         number: this.userFilledFields["cardNumber"]?.value || "",
         expirationMonth: this.userFilledFields["cardExpirationMonth"]?.value || "",
@@ -227,7 +230,34 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       };
 
       void this.sendExtensionMessage(command, { addNewCipherType, card });
+
+      return;
     }
+
+    if (addNewCipherType !== CipherType.Identity) {
+      return;
+    }
+
+    const identity: NewIdentityCipherData = {
+      title: this.userFilledFields["identityTitle"]?.value || "",
+      firstName: this.userFilledFields["identityFirstName"]?.value || "",
+      middleName: this.userFilledFields["identityMiddleName"]?.value || "",
+      lastName: this.userFilledFields["identityLastName"]?.value || "",
+      fullName: this.userFilledFields["identityFullName"]?.value || "",
+      address1: this.userFilledFields["identityAddress1"]?.value || "",
+      address2: this.userFilledFields["identityAddress2"]?.value || "",
+      address3: this.userFilledFields["identityAddress3"]?.value || "",
+      city: this.userFilledFields["identityCity"]?.value || "",
+      state: this.userFilledFields["identityState"]?.value || "",
+      postalCode: this.userFilledFields["identityPostalCode"]?.value || "",
+      country: this.userFilledFields["identityCountry"]?.value || "",
+      company: this.userFilledFields["identityCompany"]?.value || "",
+      phone: this.userFilledFields["identityPhone"]?.value || "",
+      email: this.userFilledFields["identityEmail"]?.value || "",
+      username: this.userFilledFields["identityUsername"]?.value || "",
+    };
+
+    void this.sendExtensionMessage(command, { addNewCipherType, identity });
   }
 
   /**
@@ -466,6 +496,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (autofillFieldData.filledByCipherType === CipherType.Card) {
       this.storeUserFilledCardField(formFieldElement, autofillFieldData);
     }
+
+    if (autofillFieldData.filledByCipherType === CipherType.Identity) {
+      this.storeUserFilledIdentityField(formFieldElement, autofillFieldData);
+    }
   }
 
   /**
@@ -519,6 +553,93 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardCvv(autofillFieldData)) {
       this.userFilledFields.cardCvv = formFieldElement;
+    }
+  }
+
+  private storeUserFilledIdentityField(
+    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
+    autofillFieldData: AutofillField,
+  ) {
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityTitle(autofillFieldData)) {
+      this.userFilledFields.identityTitle = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityFirstName(autofillFieldData)) {
+      this.userFilledFields.identityFirstName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityMiddleName(autofillFieldData)) {
+      this.userFilledFields.identityMiddleName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityLastName(autofillFieldData)) {
+      this.userFilledFields.identityLastName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityFullName(autofillFieldData)) {
+      this.userFilledFields.identityFullName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress1(autofillFieldData)) {
+      this.userFilledFields.identityAddress1 = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress2(autofillFieldData)) {
+      this.userFilledFields.identityAddress2 = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress3(autofillFieldData)) {
+      this.userFilledFields.identityAddress3 = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCity(autofillFieldData)) {
+      this.userFilledFields.identityCity = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityState(autofillFieldData)) {
+      this.userFilledFields.identityState = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityPostalCode(autofillFieldData)) {
+      this.userFilledFields.identityPostalCode = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCountry(autofillFieldData)) {
+      this.userFilledFields.identityCountry = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCompany(autofillFieldData)) {
+      this.userFilledFields.identityCompany = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityPhone(autofillFieldData)) {
+      this.userFilledFields.identityPhone = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityEmail(autofillFieldData)) {
+      this.userFilledFields.username = formFieldElement;
+      this.userFilledFields.identityEmail = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityUsername(autofillFieldData)) {
+      this.userFilledFields.username = formFieldElement;
+      this.userFilledFields.identityUsername = formFieldElement;
+      return;
     }
   }
 
@@ -665,10 +786,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    let accountCreationFieldType = null;
+    if (
+      (autofillFieldData?.showInlineMenuAccountCreation ||
+        autofillFieldData?.filledByCipherType === CipherType.Login) &&
+      this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
+    ) {
+      accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
+        autofillFieldData,
+      )
+        ? "email"
+        : autofillFieldData.type;
+    }
+
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
+      showLoginAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
+      accountCreationFieldType,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
@@ -760,6 +896,27 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.filledByCipherType = CipherType.Card;
+      return false;
+    }
+
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForAccountCreationForm(
+        autofillFieldData,
+        pageDetails,
+      )
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Identity;
+      autofillFieldData.showInlineMenuAccountCreation = true;
+      return false;
+    }
+
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
+        autofillFieldData,
+        pageDetails,
+      )
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Identity;
       return false;
     }
 

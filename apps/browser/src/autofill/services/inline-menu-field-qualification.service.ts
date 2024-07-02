@@ -6,7 +6,11 @@ import {
   AutofillKeywordsMap,
   InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface,
 } from "./abstractions/inline-menu-field-qualifications.service";
-import { AutoFillConstants, CreditCardAutoFillConstants } from "./autofill-constants";
+import {
+  AutoFillConstants,
+  CreditCardAutoFillConstants,
+  IdentityAutoFillConstants,
+} from "./autofill-constants";
 
 export class InlineMenuFieldQualificationService
   implements InlineMenuFieldQualificationServiceInterface
@@ -14,7 +18,12 @@ export class InlineMenuFieldQualificationService
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
-  private usernameAutocompleteValues = new Set(["username", "email"]);
+  private usernameAutocompleteValue = "username";
+  private emailAutocompleteValue = "email";
+  private loginUsernameAutocompleteValues = new Set([
+    this.usernameAutocompleteValue,
+    this.emailAutocompleteValue,
+  ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private currentPasswordAutocompleteValue = "current-password";
@@ -26,22 +35,20 @@ export class InlineMenuFieldQualificationService
   private autofillFieldKeywordsMap: AutofillKeywordsMap = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
-  private accountCreationFieldKeywords = new Set([
-    "register",
-    "registration",
-    "create",
-    "confirm",
-    ...this.newFieldKeywords,
-  ]);
-  private creditCardFieldKeywords = new Set([
-    ...CreditCardAutoFillConstants.CardHolderFieldNames,
-    ...CreditCardAutoFillConstants.CardNumberFieldNames,
-    ...CreditCardAutoFillConstants.CardExpiryFieldNames,
-    ...CreditCardAutoFillConstants.ExpiryMonthFieldNames,
-    ...CreditCardAutoFillConstants.ExpiryYearFieldNames,
-    ...CreditCardAutoFillConstants.CVVFieldNames,
-    ...CreditCardAutoFillConstants.CardBrandFieldNames,
-  ]);
+  private accountCreationFieldKeywords = [
+    ...new Set(["register", "registration", "create", "confirm", ...this.newFieldKeywords]),
+  ];
+  private creditCardFieldKeywords = [
+    ...new Set([
+      ...CreditCardAutoFillConstants.CardHolderFieldNames,
+      ...CreditCardAutoFillConstants.CardNumberFieldNames,
+      ...CreditCardAutoFillConstants.CardExpiryFieldNames,
+      ...CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+      ...CreditCardAutoFillConstants.ExpiryYearFieldNames,
+      ...CreditCardAutoFillConstants.CVVFieldNames,
+      ...CreditCardAutoFillConstants.CardBrandFieldNames,
+    ]),
+  ];
   private creditCardNameAutocompleteValues = new Set([
     "cc-name",
     "cc-given-name,",
@@ -63,6 +70,79 @@ export class InlineMenuFieldQualificationService
     this.creditCardCvvAutocompleteValue,
     this.creditCardTypeAutocompleteValue,
   ]);
+  private identityHonorificPrefixAutocompleteValue = "honorific-prefix";
+  private identityFullNameAutocompleteValue = "name";
+  private identityFirstNameAutocompleteValue = "given-name";
+  private identityMiddleNameAutocompleteValue = "additional-name";
+  private identityLastNameAutocompleteValue = "family-name";
+  private identityNameAutocompleteValues = new Set([
+    this.identityFullNameAutocompleteValue,
+    this.identityHonorificPrefixAutocompleteValue,
+    this.identityFirstNameAutocompleteValue,
+    this.identityMiddleNameAutocompleteValue,
+    this.identityLastNameAutocompleteValue,
+    "honorific-suffix",
+    "nickname",
+  ]);
+  private identityCompanyAutocompleteValue = "organization";
+  private identityStreetAddressAutocompleteValue = "street-address";
+  private identityAddressLine1AutocompleteValue = "address-line1";
+  private identityAddressLine2AutocompleteValue = "address-line2";
+  private identityAddressLine3AutocompleteValue = "address-line3";
+  private identityAddressCityAutocompleteValue = "address-level2";
+  private identityAddressStateAutocompleteValue = "address-level1";
+  private identityAddressAutoCompleteValues = new Set([
+    this.identityStreetAddressAutocompleteValue,
+    this.identityAddressLine1AutocompleteValue,
+    this.identityAddressLine2AutocompleteValue,
+    this.identityAddressLine3AutocompleteValue,
+    this.identityAddressCityAutocompleteValue,
+    this.identityAddressStateAutocompleteValue,
+    "shipping",
+    "billing",
+    "address-level4",
+    "address-level3",
+  ]);
+  private identityCountryAutocompleteValues = new Set(["country", "country-name"]);
+  private identityPostalCodeAutocompleteValue = "postal-code";
+  private identityPhoneAutocompleteValue = "tel";
+  private identityPhoneNumberAutocompleteValues = new Set([
+    this.identityPhoneAutocompleteValue,
+    "tel-country-code",
+    "tel-area-code",
+    "tel-local",
+    "tel-extension",
+  ]);
+  private identityAutocompleteValues = new Set([
+    ...this.identityNameAutocompleteValues,
+    ...this.loginUsernameAutocompleteValues,
+    ...this.identityCompanyAutocompleteValue,
+    ...this.identityAddressAutoCompleteValues,
+    ...this.identityCountryAutocompleteValues,
+    ...this.identityPhoneNumberAutocompleteValues,
+    this.identityPostalCodeAutocompleteValue,
+  ]);
+  private identityFieldKeywords = [
+    ...new Set([
+      ...IdentityAutoFillConstants.TitleFieldNames,
+      ...IdentityAutoFillConstants.FullNameFieldNames,
+      ...IdentityAutoFillConstants.FirstnameFieldNames,
+      ...IdentityAutoFillConstants.MiddlenameFieldNames,
+      ...IdentityAutoFillConstants.LastnameFieldNames,
+      ...IdentityAutoFillConstants.AddressFieldNames,
+      ...IdentityAutoFillConstants.Address1FieldNames,
+      ...IdentityAutoFillConstants.Address2FieldNames,
+      ...IdentityAutoFillConstants.Address3FieldNames,
+      ...IdentityAutoFillConstants.PostalCodeFieldNames,
+      ...IdentityAutoFillConstants.CityFieldNames,
+      ...IdentityAutoFillConstants.StateFieldNames,
+      ...IdentityAutoFillConstants.CountryFieldNames,
+      ...IdentityAutoFillConstants.CompanyFieldNames,
+      ...IdentityAutoFillConstants.PhoneFieldNames,
+      ...IdentityAutoFillConstants.EmailFieldNames,
+      ...IdentityAutoFillConstants.UserNameFieldNames,
+    ]),
+  ];
   private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
@@ -135,7 +215,7 @@ export class InlineMenuFieldQualificationService
 
       return (
         !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-        this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
+        this.keywordsFoundInFieldData(field, this.creditCardFieldKeywords)
       );
     }
 
@@ -159,6 +239,48 @@ export class InlineMenuFieldQualificationService
     return (
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
+    );
+  }
+
+  isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (!this.isUsernameField(field) && !this.isPasswordField(field)) {
+      return false;
+    }
+
+    const parentForm = pageDetails.forms[field.form];
+
+    if (!parentForm) {
+      const newPasswordFields = pageDetails.fields.filter(this.isNewPasswordField);
+      if (newPasswordFields.length >= 1) {
+        return true;
+      }
+
+      return (
+        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+        this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
+      );
+    }
+
+    const fieldsFromSameForm = pageDetails.fields.filter((f) => f.form === field.form);
+    const newPasswordFields = fieldsFromSameForm.filter(this.isNewPasswordField);
+    if (newPasswordFields.length >= 1) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
+    );
+  }
+
+  isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, this.identityFieldKeywords)
     );
   }
 
@@ -245,7 +367,7 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
-    if (this.fieldContainsAutocompleteValues(field, this.usernameAutocompleteValues)) {
+    if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
       return newPasswordFieldsInPageDetails.length === 0;
     }
@@ -430,12 +552,193 @@ export class InlineMenuFieldQualificationService
     );
   };
 
+  isFieldForIdentityTitle = (field: AutofillField): boolean => {
+    if (
+      this.fieldContainsAutocompleteValues(field, this.identityHonorificPrefixAutocompleteValue)
+    ) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityFirstName = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityFirstNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FirstnameFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityMiddleName = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityMiddleNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.MiddlenameFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityLastName = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityLastNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.LastnameFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityFullName = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityFullNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FullNameFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityAddress1 = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine1AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address1FieldNames, false)
+    );
+  };
+
+  isFieldForIdentityAddress2 = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine2AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address2FieldNames, false)
+    );
+  };
+
+  isFieldForIdentityAddress3 = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine3AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address3FieldNames, false)
+    );
+  };
+
+  isFieldForIdentityCity = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressCityAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityState = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressStateAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.AddressFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityPostalCode = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityPostalCodeAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PostalCodeFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityCountry = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityCountryAutocompleteValues)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityCompany = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityCompanyAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityPhone = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityPhoneAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityEmail = (field: AutofillField): boolean => {
+    if (
+      this.fieldContainsAutocompleteValues(field, this.emailAutocompleteValue) ||
+      field.type === "email"
+    ) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false)
+    );
+  };
+
+  isFieldForIdentityUsername = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.usernameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.UserNameFieldNames, false)
+    );
+  };
+
   /**
    * Validates the provided field as a username field.
    *
    * @param field - The field to validate
    */
-  private isUsernameField = (field: AutofillField): boolean => {
+  isUsernameField = (field: AutofillField): boolean => {
     if (
       !this.usernameFieldTypes.has(field.type) ||
       this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)
@@ -446,6 +749,17 @@ export class InlineMenuFieldQualificationService
     return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
   };
 
+  isEmailField = (field: AutofillField): boolean => {
+    if (field.type === "email") {
+      return true;
+    }
+
+    return (
+      !this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet) &&
+      this.keywordsFoundInFieldData(field, AutoFillConstants.EmailFieldNames)
+    );
+  };
+
   /**
    * Validates the provided field as a current password field.
    *
@@ -454,7 +768,7 @@ export class InlineMenuFieldQualificationService
   private isCurrentPasswordField = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue) ||
-      this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
     ) {
       return false;
     }
@@ -474,7 +788,7 @@ export class InlineMenuFieldQualificationService
 
     return (
       this.isPasswordField(field) &&
-      this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
     );
   };
 

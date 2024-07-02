@@ -766,7 +766,10 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [CipherType.Card]);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+        CipherType.Card,
+        CipherType.Identity,
+      ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -803,7 +806,10 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers(false);
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [CipherType.Card]);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+        CipherType.Card,
+        CipherType.Identity,
+      ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -827,6 +833,7 @@ describe("OverlayBackground", () => {
         ciphers: [
           {
             card: null,
+            identity: null,
             favorite: cipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",

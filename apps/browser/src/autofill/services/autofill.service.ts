@@ -1236,7 +1236,10 @@ export default class AutofillService implements AutofillServiceInterface {
     const fillFields: { [id: string]: AutofillField } = {};
 
     pageDetails.fields.forEach((f) => {
-      if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes)) {
+      if (
+        AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes) ||
+        ["current-password", "new-password"].includes(f.autoCompleteType)
+      ) {
         return;
       }
 

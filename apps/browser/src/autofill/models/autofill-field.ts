@@ -110,4 +110,6 @@ export default class AutofillField {
   checked?: boolean;
 
   filledByCipherType?: CipherType;
+
+  showInlineMenuAccountCreation?: boolean;
 }

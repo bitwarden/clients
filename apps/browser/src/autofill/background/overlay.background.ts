@@ -21,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
@@ -40,23 +41,24 @@ import { generateRandomChars } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
+  CloseInlineMenuMessage,
   FocusedFieldData,
+  InlineMenuButtonPortMessageHandlers,
+  InlineMenuCipherData,
+  InlineMenuListPortMessageHandlers,
+  InlineMenuPosition,
+  NewCardCipherData,
+  NewIdentityCipherData,
+  NewLoginCipherData,
   OverlayAddNewItemMessage,
   OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
-  InlineMenuButtonPortMessageHandlers,
-  InlineMenuCipherData,
-  InlineMenuListPortMessageHandlers,
   OverlayPortMessage,
   PageDetailsForTab,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
-  CloseInlineMenuMessage,
-  InlineMenuPosition,
   ToggleInlineMenuHiddenMessage,
-  NewLoginCipherData,
-  NewCardCipherData,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -249,6 +251,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
+      showLoginAccountCreation: this.showLoginAccountCreation(),
     });
   }
 
@@ -285,11 +288,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url, [
+        CipherType.Card,
+        CipherType.Identity,
+      ])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
       const cipherView = cipherViews[cipherIndex];
-      if (cipherView.type === CipherType.Card && !this.cardAndIdentityCiphers.has(cipherView)) {
+      if (
+        !this.cardAndIdentityCiphers.has(cipherView) &&
+        [CipherType.Card, CipherType.Identity].includes(cipherView.type)
+      ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
     }
@@ -306,9 +315,28 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
+    const showLoginAccountCreation =
+      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
+
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (this.focusedFieldData?.filledByCipherType !== cipher.type) {
+      if (!showLoginAccountCreation && this.focusedFieldData?.filledByCipherType !== cipher.type) {
+        continue;
+      }
+
+      if (
+        showLoginAccountCreation &&
+        (cipher.type !== CipherType.Identity || !this.focusedFieldData?.accountCreationFieldType)
+      ) {
+        continue;
+      }
+
+      const identity =
+        cipher.type === CipherType.Identity
+          ? this.getIdentityCipherData(cipher, showLoginAccountCreation)
+          : null;
+
+      if (showLoginAccountCreation && !identity?.username) {
         continue;
       }
 
@@ -319,13 +347,53 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         reprompt: cipher.reprompt,
         favorite: cipher.favorite,
         icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+        accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
+        identity,
       });
     }
 
     this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
     return inlineMenuCipherData;
+  }
+
+  private getIdentityCipherData(
+    cipher: CipherView,
+    showLoginAccountCreation: boolean,
+  ): { fullName: string; username?: string } {
+    const fullName = `${cipher.identity.firstName} ${cipher.identity.lastName}`;
+
+    if (
+      !showLoginAccountCreation ||
+      this.focusedFieldData?.accountCreationFieldType === "password"
+    ) {
+      return { fullName };
+    }
+
+    return {
+      fullName,
+      username:
+        this.focusedFieldData?.accountCreationFieldType === "email"
+          ? cipher.identity.email
+          : cipher.identity.username,
+    };
+  }
+
+  private showLoginAccountCreation(): boolean {
+    if (typeof this.focusedFieldData?.showLoginAccountCreation !== "undefined") {
+      return this.focusedFieldData?.showLoginAccountCreation;
+    }
+
+    if (this.focusedFieldData?.filledByCipherType !== CipherType.Login) {
+      return false;
+    }
+
+    if (this.cardAndIdentityCiphers) {
+      return this.inlineMenuCiphers.size === this.cardAndIdentityCiphers.size;
+    }
+
+    return this.inlineMenuCiphers.size === 0;
   }
 
   /**
@@ -926,7 +994,37 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
+    const previousFocusedFieldData = this.focusedFieldData;
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
+
+    void this.updateIdentityCiphersOnLoginField(previousFocusedFieldData);
+  }
+
+  private async updateIdentityCiphersOnLoginField(previousFocusedFieldData: FocusedFieldData) {
+    if (
+      !previousFocusedFieldData ||
+      !this.isInlineMenuButtonVisible ||
+      (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked
+    ) {
+      return;
+    }
+
+    const command = "updateAutofillInlineMenuListCiphers";
+    const showLoginAccountCreation =
+      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
+
+    if (showLoginAccountCreation && !this.focusedFieldData?.accountCreationFieldType) {
+      this.inlineMenuListPort?.postMessage({ command, ciphers: [], showLoginAccountCreation });
+      return;
+    }
+
+    if (
+      this.focusedFieldData?.accountCreationFieldType ||
+      (previousFocusedFieldData.showLoginAccountCreation && !showLoginAccountCreation)
+    ) {
+      const ciphers = await this.getInlineMenuCipherData();
+      this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
+    }
   }
 
   /**
@@ -1126,6 +1224,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         addNewLoginItem: this.i18nService.translate("addNewLoginItem"),
         newCard: this.i18nService.translate("newCard"),
         addNewCardItem: this.i18nService.translate("addNewCardItem"),
+        newIdentity: this.i18nService.translate("newIdentity"),
+        addNewIdentityItem: this.i18nService.translate("addNewIdentityItem"),
         cardNumberEndsWith: this.i18nService.translate("cardNumberEndsWith"),
       };
     }
@@ -1184,10 +1284,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
    * @param card - The card data captured from the extension message
+   * @param identity - The identity data captured from the extension message
    * @param sender - The sender of the extension message
    */
   private async addNewVaultItem(
-    { addNewCipherType, login, card }: OverlayAddNewItemMessage,
+    { addNewCipherType, login, card, identity }: OverlayAddNewItemMessage,
     sender: chrome.runtime.MessageSender,
   ) {
     if (!addNewCipherType) {
@@ -1198,6 +1299,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       addNewCipherType,
       login,
       card,
+      identity,
     });
 
     if (cipherView) {
@@ -1218,14 +1320,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
    * @param card - The card data captured from the extension message
+   * @param identity - The identity data captured from the extension message
    */
-  private buildNewVaultItemCipherView({ addNewCipherType, login, card }: OverlayAddNewItemMessage) {
+  private buildNewVaultItemCipherView({
+    addNewCipherType,
+    login,
+    card,
+    identity,
+  }: OverlayAddNewItemMessage) {
     if (login && addNewCipherType === CipherType.Login) {
       return this.buildLoginCipherView(login);
     }
 
     if (card && addNewCipherType === CipherType.Card) {
       return this.buildCardCipherView(card);
+    }
+
+    if (identity && addNewCipherType === CipherType.Identity) {
+      return this.buildIdentityCipherView(identity);
     }
   }
 
@@ -1271,6 +1383,51 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     cipherView.folderId = null;
     cipherView.type = CipherType.Card;
     cipherView.card = cardView;
+
+    return cipherView;
+  }
+
+  private buildIdentityCipherView(identity: NewIdentityCipherData) {
+    const identityView = new IdentityView();
+    identityView.title = identity.title || "";
+    identityView.firstName = identity.firstName || "";
+    identityView.middleName = identity.middleName || "";
+    identityView.lastName = identity.lastName || "";
+    identityView.address1 = identity.address1 || "";
+    identityView.address2 = identity.address2 || "";
+    identityView.address3 = identity.address3 || "";
+    identityView.city = identity.city || "";
+    identityView.state = identity.state || "";
+    identityView.postalCode = identity.postalCode || "";
+    identityView.country = identity.country || "";
+    identityView.company = identity.company || "";
+    identityView.phone = identity.phone || "";
+    identityView.email = identity.email || "";
+    identityView.username = identity.username || "";
+
+    if (identity.fullName && !identityView.firstName && !identityView.lastName) {
+      const fullNameParts = identity.fullName.split(" ");
+      if (fullNameParts.length === 3) {
+        identityView.firstName = fullNameParts[0] || "";
+        identityView.middleName = fullNameParts[1] || "";
+        identityView.lastName = fullNameParts[2] || "";
+      }
+
+      if (fullNameParts.length === 2) {
+        identityView.firstName = fullNameParts[0] || "";
+        identityView.lastName = fullNameParts[1] || "";
+      }
+
+      if (fullNameParts.length === 1) {
+        identityView.firstName = fullNameParts[0] || "";
+      }
+    }
+
+    const cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = null;
+    cipherView.type = CipherType.Identity;
+    cipherView.identity = identityView;
 
     return cipherView;
   }
@@ -1598,6 +1755,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
+      showLoginAccountCreation: this.showLoginAccountCreation(),
     });
     void this.updateInlineMenuPosition(
       {
