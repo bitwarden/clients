@@ -13,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 export class UpdateLicenseComponent {
   @Input() organizationId: string;
   @Input() showCancel = true;
+  @Input() showAutomaticSyncAndManualUpload: boolean;
   @Output() onUpdated = new EventEmitter();
   @Output() onCanceled = new EventEmitter();
 

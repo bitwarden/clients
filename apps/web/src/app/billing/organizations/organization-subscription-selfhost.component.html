@@ -74,6 +74,7 @@
           [value]="licenseOptions.SYNC"
           [disabled]="disableLicenseSyncControl"
           class="tw-block"
+          *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label
             >{{ "automaticSync" | i18n }}
@@ -114,6 +115,7 @@
           id="manual-upload"
           [value]="licenseOptions.UPLOAD"
           class="tw-mt-6 tw-block"
+          *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label>{{ "manualUpload" | i18n }}</bit-label>
           <bit-hint>
@@ -121,8 +123,14 @@
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.UPLOAD">
-          <h3 class="tw-font-semibold">{{ "uploadLicense" | i18n }}</h3>
+          <bit-label class="tw-mb-6 tw-block" *ngIf="!showAutomaticSyncAndManualUpload">
+            {{ "licenseAndBillingManagementDesc" | i18n }}
+          </bit-label>
+          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold">
+            {{ "uploadLicense" | i18n }}
+          </h3>
           <app-update-license
+            [showAutomaticSyncAndManualUpload]="showAutomaticSyncAndManualUpload"
             [organizationId]="organizationId"
             [showCancel]="false"
             (onUpdated)="licenseUploaded()"

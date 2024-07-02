@@ -8501,5 +8501,8 @@
   },
   "annualSubscriptionUserSeatsMessage": {
     "message": "Adjustments to your subscription will result in prorated charges on a monthly billing cycle. "
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   }
 }

@@ -2401,7 +2401,7 @@
     "message": "Licence file"
   },
   "licenseFileDesc": {
-    "message": "Your licence file will be named something like $FILE_NAME$",
+    "message": "Your license file will be named something like $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
