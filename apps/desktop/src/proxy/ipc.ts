@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import { createHash } from "crypto";
 import { existsSync, mkdirSync } from "fs";
-import { homedir } from "os";
-import { join as path_join } from "path";
+import { homedir, tmpdir } from "os";
 
 import * as ipc from "node-ipc";
 
@@ -11,7 +10,7 @@ export function getIpcSocketRoot(): string | null {
 
   switch (process.platform) {
     case "darwin": {
-      const ipcSocketRootDir = path_join(homedir(), "tmp");
+      const ipcSocketRootDir = tmpdir();
       if (!existsSync(ipcSocketRootDir)) {
         mkdirSync(ipcSocketRootDir);
       }
