@@ -27,7 +27,7 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 import { NativeMessageHandlerService } from "./native-message-handler.service";
 
 const MessageValidTimeout = 10 * 1000;
-const EncryptionAlgorithm = "sha1";
+const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 @Injectable()
 export class NativeMessagingService {
@@ -227,7 +227,7 @@ export class NativeMessagingService {
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
       secret,
       remotePublicKey,
-      EncryptionAlgorithm,
+      HashAlgorithmForAsymmetricEncryption,
     );
     ipc.platform.nativeMessaging.sendMessage({
       appId: appId,
