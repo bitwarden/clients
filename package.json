@@ -176,7 +176,7 @@
     "commander": "11.1.0",
     "core-js": "3.36.1",
     "form-data": "4.0.0",
-    "https-proxy-agent": "7.0.2",
+    "https-proxy-agent": "7.0.5",
     "inquirer": "8.2.6",
     "jquery": "3.7.1",
     "jsdom": "23.0.1",
