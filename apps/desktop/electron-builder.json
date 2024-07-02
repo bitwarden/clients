@@ -12,6 +12,7 @@
     "app": "build"
   },
   "afterSign": "scripts/after-sign.js",
+  "afterPack": "scripts/after-pack.js",
   "asarUnpack": ["**/*.node"],
   "files": [
     "**/*",

@@ -53,11 +53,9 @@ export class WindowMain {
       this.win.setBackgroundColor(await this.getBackgroundColor());
 
       // By default some linux distro collect core dumps on crashes which gets written to disk.
-      if (!isLinux()) {
-        const crashEvent = once(this.win.webContents, "render-process-gone");
-        this.win.webContents.forcefullyCrashRenderer();
-        await crashEvent;
-      }
+      const crashEvent = once(this.win.webContents, "render-process-gone");
+      this.win.webContents.forcefullyCrashRenderer();
+      await crashEvent;
 
       this.win.webContents.reloadIgnoringCache();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
