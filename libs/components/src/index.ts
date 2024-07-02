@@ -14,6 +14,7 @@ export * from "./color-password";
 export * from "./container";
 export * from "./dialog";
 export * from "./form-field";
+export * from "./i18n";
 export * from "./icon-button";
 export * from "./icon";
 export * from "./input";
