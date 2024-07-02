@@ -3401,6 +3401,15 @@
   "joinOrganizationDesc": {
     "message": "You've been invited to join the organization listed above. To accept the invitation, you need to log in or create a new Bitwarden account."
   },
+  "finishJoiningOrgBySettingMasterPassword": {
+    "message": "Finish joining $ORGANIZATION$ by setting a master password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Example Org"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Invitation accepted"
   },

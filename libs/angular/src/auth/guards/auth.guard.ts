@@ -8,6 +8,8 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 @Injectable()
@@ -19,6 +21,7 @@ export class AuthGuard implements CanActivate {
     private keyConnectorService: KeyConnectorService,
     private accountService: AccountService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot, routerState: RouterStateSnapshot) {
@@ -48,11 +51,19 @@ export class AuthGuard implements CanActivate {
       this.masterPasswordService.forceSetPasswordReason$(userId),
     );
 
+    const emailVerification = await this.configService.getFeatureFlag(
+      FeatureFlag.EmailVerification,
+    );
+
     if (
       forceSetPasswordReason ===
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-      !routerState.url.includes("set-password")
+      !routerState.url.includes("set-password") &&
+      !routerState.url.includes("set-password-v2")
     ) {
+      if (emailVerification) {
+        return this.router.createUrlTree(["/set-password-v2"]);
+      }
       return this.router.createUrlTree(["/set-password"]);
     }
 

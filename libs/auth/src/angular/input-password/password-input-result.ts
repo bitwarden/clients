@@ -4,6 +4,7 @@ import { MasterKey } from "@bitwarden/common/types/key";
 export interface PasswordInputResult {
   masterKey: MasterKey;
   masterKeyHash: string;
+  localMasterKeyHash: string;
   kdfConfig: PBKDF2KdfConfig;
   hint: string;
 }
