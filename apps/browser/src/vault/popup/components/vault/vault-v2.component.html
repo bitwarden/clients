@@ -19,10 +19,13 @@
     </bit-no-items>
   </div>
 
-  <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+  <!-- Show search & filters outside of the scroll area of the page -->
+  <div slot="above-scroll-area" class="tw-p-3" *ngIf="vaultState !== VaultStateEnum.Empty">
     <app-vault-v2-search> </app-vault-v2-search>
-
     <app-vault-list-filters></app-vault-list-filters>
+  </div>
+
+  <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
     <div
       *ngIf="vaultState === VaultStateEnum.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"

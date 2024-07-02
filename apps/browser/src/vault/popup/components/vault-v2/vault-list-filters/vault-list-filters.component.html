@@ -1,5 +1,5 @@
 <div role="toolbar" [ariaLabel]="'filters' | i18n">
-  <form [formGroup]="filterForm" class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-6 tw-mt-2">
+  <form [formGroup]="filterForm" class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-2">
     <ng-container *ngIf="organizations$ | async as organizations">
       <bit-chip-select
         *ngIf="organizations.length"

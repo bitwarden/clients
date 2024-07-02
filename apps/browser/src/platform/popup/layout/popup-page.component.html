@@ -1,6 +1,21 @@
 <ng-content select="[slot=header]"></ng-content>
-<main class="tw-bg-background-alt tw-flex-1 tw-overflow-y-auto tw-h-full">
+<main class="tw-bg-background-alt tw-flex-1 tw-h-full">
+  <div #nonScrollable>
+    <ng-content select="[slot=above-scroll-area]"></ng-content>
+  </div>
   <div class="tw-max-w-screen-sm tw-mx-auto tw-p-3 tw-overflow-y-auto tw-h-full">
+    <!-- Only shown when the `slot=above-scroll-area` is populated -->
+    <!-- The first div will "stick" and show a bottom border when content is scrolled -->
+    <!-- The second div is displayed on top of the first to hide it until the content is scrolled -->
+    <ng-container *ngIf="nonScrollable.children.length">
+      <div
+        class="tw-sticky tw-h-[1px] tw-bg-secondary-300 -tw-top-[0.7857rem] -tw-mx-3 tw-px-3"
+      ></div>
+      <div
+        class="tw-relative tw-z-10 tw-h-[2px] tw-bg-background-alt -tw-mt-[2px] -tw-mx-3 tw-px-3"
+      ></div>
+    </ng-container>
+
     <ng-content></ng-content>
   </div>
 </main>

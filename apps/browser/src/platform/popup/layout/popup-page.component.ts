@@ -1,3 +1,4 @@
+import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 
 @Component({
@@ -7,5 +8,6 @@ import { Component } from "@angular/core";
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-flex-1 tw-overflow-y-auto",
   },
+  imports: [NgIf],
 })
 export class PopupPageComponent {}
