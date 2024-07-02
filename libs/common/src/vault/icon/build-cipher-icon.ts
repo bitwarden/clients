@@ -43,6 +43,12 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
           isWebsite = hostnameUri.indexOf("http") === 0 && hostnameUri.indexOf(".") > -1;
         }
 
+        if (isWebsite && (hostnameUri.endsWith(".onion") || hostnameUri.endsWith(".i2p"))) {
+          image = null;
+          fallbackImage = "images/bwi-globe.png";
+          break;
+        }
+
         if (showFavicon && isWebsite) {
           try {
             image = `${iconsServerUrl}/${Utils.getHostname(hostnameUri)}/icon.png`;
