@@ -14,7 +14,6 @@ import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstracti
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -103,6 +102,12 @@ import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+// eslint-disable-next-line no-restricted-imports -- Needed for service construction
+import {
+  DefaultNotificationsService,
+  SignalRConnectionBuilder,
+} from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -143,7 +148,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
@@ -213,6 +217,7 @@ import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
+import { ForegroundNotificationsService } from "../platform/notifications/foreground-notifications.service";
 import { OffscreenDocumentService } from "../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
@@ -279,7 +284,7 @@ export default class MainBackground {
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
-  notificationsService: NotificationsServiceAbstraction;
+  notificationsService: NotificationsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -360,11 +365,6 @@ export default class MainBackground {
   constructor(public popupOnlyContext: boolean = false) {
     // Services
     const lockedCallback = async (userId?: string) => {
-      if (this.notificationsService != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.notificationsService.updateConnection(false);
-      }
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
@@ -926,17 +926,19 @@ export default class MainBackground {
       this.organizationVaultExportService,
     );
 
-    this.notificationsService = new NotificationsService(
-      this.logService,
-      this.syncService,
-      this.appIdService,
-      this.apiService,
-      this.environmentService,
-      logoutCallback,
-      this.stateService,
-      this.authService,
-      this.messagingService,
-    );
+    this.notificationsService = this.popupOnlyContext
+      ? new ForegroundNotificationsService()
+      : new DefaultNotificationsService(
+          this.logService,
+          this.syncService,
+          this.appIdService,
+          this.environmentService,
+          logoutCallback,
+          this.authService,
+          this.messagingService,
+          this.accountService,
+          new SignalRConnectionBuilder(this.logService, this.apiService),
+        );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
@@ -990,7 +992,7 @@ export default class MainBackground {
         this,
         this.autofillService,
         this.platformUtilsService as BrowserPlatformUtilsService,
-        this.notificationsService,
+        this.syncService,
         this.autofillSettingsService,
         this.systemService,
         this.environmentService,
@@ -1100,7 +1102,6 @@ export default class MainBackground {
 
     this.idleBackground = new IdleBackground(
       this.vaultTimeoutService,
-      this.stateService,
       this.notificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
@@ -1184,12 +1185,12 @@ export default class MainBackground {
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
+    this.notificationsService.start();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(true);
-        setTimeout(() => this.notificationsService.init(), 2500);
         resolve();
       }, 500);
     });
@@ -1265,7 +1266,6 @@ export default class MainBackground {
         ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
-      await this.notificationsService.updateConnection(false);
 
       if (nextAccountStatus === AuthenticationStatus.LoggedOut) {
         this.messagingService.send("goHome");
@@ -1369,7 +1369,6 @@ export default class MainBackground {
     }
     await this.refreshBadge();
     await this.mainContextMenuHandler?.noAccess();
-    await this.notificationsService.updateConnection(false);
     await this.systemService.clearPendingClipboard();
     await this.systemService.startProcessReload(this.authService);
   }

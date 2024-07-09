@@ -1,6 +1,5 @@
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -11,6 +10,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { MessageListener, isExternalMessage } from "../../../../libs/common/src/platform/messaging";
@@ -38,7 +38,7 @@ export default class RuntimeBackground {
     private main: MainBackground,
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
-    private notificationsService: NotificationsService,
+    private syncService: SyncService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private systemService: SystemService,
     private environmentService: BrowserEnvironmentService,
@@ -209,7 +209,9 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
+        if (msg.command === "loggedIn") {
+          await this.syncService.fullSync(false);
+        }
         this.systemService.cancelProcessReload();
 
         if (item) {
