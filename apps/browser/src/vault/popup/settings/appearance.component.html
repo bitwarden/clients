@@ -64,4 +64,17 @@
       {{ accountSwitcherEnabled ? ("faviconDescAlt" | i18n) : ("faviconDesc" | i18n) }}
     </div>
   </div>
+  <div class="box">
+    <div class="box-content">
+      <div class="box-content-row box-content-row-checkbox" appBoxRow>
+        <label for="routing">{{ "enableAnimations" | i18n }}</label>
+        <input
+          id="routing"
+          type="checkbox"
+          (change)="updateRoutingAnimation()"
+          [(ngModel)]="enableRoutingAnimation"
+        />
+      </div>
+    </div>
+  </div>
 </main>

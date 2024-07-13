@@ -42,6 +42,10 @@ import {
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import {
+  AnimationControlService,
+  DefaultAnimationControlService,
+} from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -515,6 +519,11 @@ const safeProviders: SafeProvider[] = [
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
     deps: [PasswordRepromptService, UserVerificationService, DialogService],
+  }),
+  safeProvider({
+    provide: AnimationControlService,
+    useClass: DefaultAnimationControlService,
+    deps: [GlobalStateProvider],
   }),
 ];
 

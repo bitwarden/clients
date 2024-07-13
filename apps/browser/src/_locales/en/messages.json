@@ -3622,5 +3622,8 @@
         "example": "Visa"
       }
     }
+  },
+  "enableAnimations": {
+    "message": "Enable animations"
   }
 }
