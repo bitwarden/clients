@@ -11,6 +11,7 @@
     "output": "dist",
     "app": "build"
   },
+  "afterPack": "scripts/after-pack.js",
   "afterSign": "scripts/after-sign.js",
   "asarUnpack": ["**/*.node"],
   "files": [
