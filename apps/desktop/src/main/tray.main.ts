@@ -1,6 +1,14 @@
 import * as path from "path";
 
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  MenuItemConstructorOptions,
+  nativeImage,
+  Tray,
+} from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -59,6 +67,10 @@ export class TrayMain {
     if (await firstValueFrom(this.desktopSettingsService.trayEnabled$)) {
       this.showTray();
     }
+
+    ipcMain.handle("tray.isTrayAvailable", async (event) => {
+      return this.isTrayAvailable();
+    });
   }
 
   setupWindowListeners(win: BrowserWindow) {
@@ -194,5 +206,9 @@ export class TrayMain {
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
     }
+  }
+
+  private isTrayAvailable() {
+    return this.tray != null;
   }
 }

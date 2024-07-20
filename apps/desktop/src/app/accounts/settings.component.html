@@ -266,70 +266,72 @@
               </button>
             </h2>
             <ng-container *ngIf="showAppPreferences">
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="enableTray">
-                    <input
-                      id="enableTray"
-                      type="checkbox"
-                      aria-describedby="enableTrayHelp"
-                      formControlName="enableTray"
-                      (change)="saveTray()"
-                    />
-                    {{ enableTrayText }}
-                  </label>
+              <ng-container *ngIf="isTrayAvailable">
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label for="enableTray">
+                      <input
+                        id="enableTray"
+                        type="checkbox"
+                        aria-describedby="enableTrayHelp"
+                        formControlName="enableTray"
+                        (change)="saveTray()"
+                      />
+                      {{ enableTrayText }}
+                    </label>
+                  </div>
+                  <small id="enableTrayHelp" class="help-block">{{ enableTrayDescText }}</small>
                 </div>
-                <small id="enableTrayHelp" class="help-block">{{ enableTrayDescText }}</small>
-              </div>
-              <div class="form-group" *ngIf="showMinToTray">
-                <div class="checkbox">
-                  <label for="enableMinToTray">
-                    <input
-                      id="enableMinToTray"
-                      type="checkbox"
-                      aria-describedby="enableMinToTrayHelp"
-                      formControlName="enableMinToTray"
-                      (change)="saveMinToTray()"
-                    />
-                    {{ enableMinToTrayText }}
-                  </label>
+                <div class="form-group" *ngIf="showMinToTray">
+                  <div class="checkbox">
+                    <label for="enableMinToTray">
+                      <input
+                        id="enableMinToTray"
+                        type="checkbox"
+                        aria-describedby="enableMinToTrayHelp"
+                        formControlName="enableMinToTray"
+                        (change)="saveMinToTray()"
+                      />
+                      {{ enableMinToTrayText }}
+                    </label>
+                  </div>
+                  <small id="enableMinToTrayHelp" class="help-block">{{
+                    enableMinToTrayDescText
+                  }}</small>
                 </div>
-                <small id="enableMinToTrayHelp" class="help-block">{{
-                  enableMinToTrayDescText
-                }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="enableCloseToTray">
-                    <input
-                      id="enableCloseToTray"
-                      type="checkbox"
-                      aria-describedby="enableCloseToTrayHelp"
-                      formControlName="enableCloseToTray"
-                      (change)="saveCloseToTray()"
-                    />
-                    {{ enableCloseToTrayText }}
-                  </label>
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label for="enableCloseToTray">
+                      <input
+                        id="enableCloseToTray"
+                        type="checkbox"
+                        aria-describedby="enableCloseToTrayHelp"
+                        formControlName="enableCloseToTray"
+                        (change)="saveCloseToTray()"
+                      />
+                      {{ enableCloseToTrayText }}
+                    </label>
+                  </div>
+                  <small id="enableCloseToTrayHelp" class="help-block">{{
+                    enableCloseToTrayDescText
+                  }}</small>
                 </div>
-                <small id="enableCloseToTrayHelp" class="help-block">{{
-                  enableCloseToTrayDescText
-                }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="startToTray">
-                    <input
-                      id="startToTray"
-                      type="checkbox"
-                      aria-describedby="startToTrayHelp"
-                      formControlName="startToTray"
-                      (change)="saveStartToTray()"
-                    />
-                    {{ startToTrayText }}
-                  </label>
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label for="startToTray">
+                      <input
+                        id="startToTray"
+                        type="checkbox"
+                        aria-describedby="startToTrayHelp"
+                        formControlName="startToTray"
+                        (change)="saveStartToTray()"
+                      />
+                      {{ startToTrayText }}
+                    </label>
+                  </div>
+                  <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
                 </div>
-                <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
-              </div>
+              </ng-container>
               <div class="form-group">
                 <div class="checkbox">
                   <label for="openAtLogin">

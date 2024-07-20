@@ -45,6 +45,7 @@ export class SettingsComponent implements OnInit {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
+  isTrayAvailable = true;
   showMinToTray = false;
   vaultTimeoutOptions: VaultTimeoutOption[];
   localeOptions: any[];
@@ -215,6 +216,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.isTrayAvailable = await ipc.platform.tray.isTrayAvailable();
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = (await this.platformUtilsService.getDevice()) === DeviceType.WindowsDesktop;
