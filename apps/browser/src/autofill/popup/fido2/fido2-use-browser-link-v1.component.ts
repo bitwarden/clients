@@ -13,8 +13,8 @@ import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
 
 @Component({
-  selector: "app-fido2-use-browser-link",
-  templateUrl: "fido2-use-browser-link.component.html",
+  selector: "app-fido2-use-browser-link-v1",
+  templateUrl: "fido2-use-browser-link-v1.component.html",
   animations: [
     trigger("transformPanel", [
       state(
@@ -36,7 +36,7 @@ import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-f
     ]),
   ],
 })
-export class Fido2UseBrowserLinkComponent {
+export class Fido2UseBrowserLinkV1Component {
   showOverlay = false;
   isOpen = false;
   overlayPosition: ConnectedPosition[] = [

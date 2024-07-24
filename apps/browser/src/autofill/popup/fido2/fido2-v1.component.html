@@ -49,14 +49,14 @@
           <ng-container *ngIf="displayedCiphers.length > 0">
             <div class="box list">
               <div class="box-content">
-                <app-fido2-cipher-row
+                <app-fido2-cipher-row-v1
                   *ngFor="let cipherItem of displayedCiphers"
                   [cipher]="cipherItem"
                   [isSearching]="searchPending"
                   title="{{ 'passkeyItem' | i18n }}"
                   (onSelected)="selectedPasskey($event)"
                   [isSelected]="cipher === cipherItem"
-                ></app-fido2-cipher-row>
+                ></app-fido2-cipher-row-v1>
               </div>
             </div>
 
@@ -105,13 +105,13 @@
           <p class="subtitle">{{ "passkeyAlreadyExists" | i18n }}</p>
           <div class="box list">
             <div class="box-content">
-              <app-fido2-cipher-row
+              <app-fido2-cipher-row-v1
                 *ngFor="let cipherItem of displayedCiphers"
                 [cipher]="cipherItem"
                 title="{{ 'passkeyItem' | i18n }}"
                 (onSelected)="selectedPasskey($event)"
                 [isSelected]="cipher === cipherItem"
-              ></app-fido2-cipher-row>
+              ></app-fido2-cipher-row-v1>
             </div>
           </div>
           <button type="button" class="btn primary block" (click)="viewPasskey()">
@@ -131,6 +131,6 @@
       </ng-container>
     </ng-container>
 
-    <app-fido2-use-browser-link></app-fido2-use-browser-link>
+    <app-fido2-use-browser-link-v1></app-fido2-use-browser-link-v1>
   </div>
 </ng-container>

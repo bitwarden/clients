@@ -3,11 +3,11 @@ import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Component({
-  selector: "app-fido2-cipher-row",
-  templateUrl: "fido2-cipher-row.component.html",
+  selector: "app-fido2-cipher-row-v1",
+  templateUrl: "fido2-cipher-row-v1.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2CipherRowComponent {
+export class Fido2CipherRowV1Component {
   @Output() onSelected = new EventEmitter<CipherView>();
   @Input() cipher: CipherView;
   @Input() last: boolean;

@@ -35,9 +35,9 @@ import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
-import { Fido2CipherRowComponent } from "../autofill/popup/fido2/fido2-cipher-row.component";
-import { Fido2UseBrowserLinkComponent } from "../autofill/popup/fido2/fido2-use-browser-link.component";
-import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
+import { Fido2CipherRowV1Component } from "../autofill/popup/fido2/fido2-cipher-row-v1.component";
+import { Fido2UseBrowserLinkV1Component } from "../autofill/popup/fido2/fido2-use-browser-link-v1.component";
+import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
@@ -140,8 +140,8 @@ import "../platform/popup/locales";
     CurrentTabComponent,
     EnvironmentComponent,
     ExcludedDomainsV1Component,
-    Fido2CipherRowComponent,
-    Fido2UseBrowserLinkComponent,
+    Fido2CipherRowV1Component,
+    Fido2UseBrowserLinkV1Component,
     FolderAddEditComponent,
     FoldersComponent,
     VaultFilterComponent,
@@ -180,7 +180,7 @@ import "../platform/popup/locales";
     ViewCustomFieldsComponent,
     RemovePasswordComponent,
     VaultSelectComponent,
-    Fido2Component,
+    Fido2V1Component,
     AutofillV1Component,
     EnvironmentSelectorComponent,
   ],

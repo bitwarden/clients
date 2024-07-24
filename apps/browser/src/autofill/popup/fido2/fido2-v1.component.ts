@@ -43,11 +43,11 @@ interface ViewData {
 }
 
 @Component({
-  selector: "app-fido2",
-  templateUrl: "fido2.component.html",
+  selector: "app-fido2-v1",
+  templateUrl: "fido2-v1.component.html",
   styleUrls: [],
 })
-export class Fido2Component implements OnInit, OnDestroy {
+export class Fido2V1Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private hasSearched = false;
 

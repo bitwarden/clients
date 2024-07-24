@@ -39,7 +39,7 @@ import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component"
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
-import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
+import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
@@ -121,7 +121,7 @@ const routes: Routes = [
   },
   {
     path: "fido2",
-    component: Fido2Component,
+    component: Fido2V1Component,
     canActivate: [fido2AuthGuard],
     data: { state: "fido2" },
   },
