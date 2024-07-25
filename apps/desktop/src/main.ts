@@ -214,6 +214,7 @@ export class Main {
       this.windowMain,
       app.getPath("userData"),
       app.getPath("exe"),
+      app.getAppPath(),
     );
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
@@ -262,7 +263,7 @@ export class Main {
             this.nativeMessagingMain.generateDdgManifests().catch(this.logService.error);
           }
 
-          this.nativeMessagingMain.listen();
+          this.nativeMessagingMain.listen().catch(this.logService.error);
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");

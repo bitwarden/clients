@@ -41,3 +41,31 @@ export namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
 }
+export namespace ipc {
+  export const enum IpcMessageType {
+    Connected = 0,
+    Disconnected = 1,
+    Message = 2
+  }
+  export class IpcMessage {
+    clientId: number
+    kind: IpcMessageType
+    message: string
+  }
+  export class IpcServer {
+    /**
+     * Create and start the IPC server without blocking.
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
+     * @param callback This function will be called whenever a message is received from a client.
+     */
+    static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
+    /** Stop the IPC server. */
+    stop(): void
+    /**
+     * Send a message over the IPC server to all the connected clients
+     * @return The number of clients that the message was sent to. Note that the number of messages
+     * actually received may be less, as some clients could disconnect before receiving the message.
+     */
+    send(message: string): number
+  }
+}

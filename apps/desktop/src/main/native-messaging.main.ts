@@ -1,34 +1,34 @@
 import { existsSync, promises as fs } from "fs";
-import { Socket } from "net";
 import { homedir, userInfo } from "os";
 import * as path from "path";
 import * as util from "util";
 
 import { ipcMain } from "electron";
-import * as ipc from "node-ipc";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ipc } from "@bitwarden/desktop-napi";
 
-import { getIpcSocketRoot } from "../proxy/ipc";
+import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
-  private connected: Socket[] = [];
-  private socket: any;
+  private ipcServer: ipc.IpcServer | null;
+  private connected: number[] = [];
 
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
     private userPath: string,
     private exePath: string,
+    private appPath: string,
   ) {
     ipcMain.handle(
       "nativeMessaging.manifests",
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
-          this.listen();
           try {
+            await this.listen();
             await this.generateManifests();
           } catch (e) {
             this.logService.error("Error generating manifests: " + e);
@@ -51,8 +51,8 @@ export class NativeMessagingMain {
       "nativeMessaging.ddgManifests",
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
-          this.listen();
           try {
+            await this.listen();
             await this.generateDdgManifests();
           } catch (e) {
             this.logService.error("Error generating duckduckgo manifests: " + e);
@@ -72,56 +72,46 @@ export class NativeMessagingMain {
     );
   }
 
-  listen() {
-    ipc.config.id = "bitwarden";
-    ipc.config.retry = 1500;
-    const ipcSocketRoot = getIpcSocketRoot();
-    if (ipcSocketRoot != null) {
-      ipc.config.socketRoot = ipcSocketRoot;
+  async listen() {
+    if (this.ipcServer) {
+      this.ipcServer.stop();
     }
 
-    ipc.serve(() => {
-      ipc.server.on("message", (data: any, socket: any) => {
-        this.socket = socket;
-        this.windowMain.win.webContents.send("nativeMessaging", data);
-      });
-
-      ipcMain.on("nativeMessagingReply", (event, msg) => {
-        if (this.socket != null && msg != null) {
-          this.send(msg, this.socket);
+    this.ipcServer = await ipc.IpcServer.listen("bitwarden", (error, msg) => {
+      switch (msg.kind) {
+        case ipc.IpcMessageType.Connected: {
+          this.connected.push(msg.clientId);
+          this.logService.info("Native messaging client " + msg.clientId + " has connected");
+          break;
         }
-      });
+        case ipc.IpcMessageType.Disconnected: {
+          const index = this.connected.indexOf(msg.clientId);
+          if (index > -1) {
+            this.connected.splice(index, 1);
+          }
 
-      ipc.server.on("connect", (socket: Socket) => {
-        this.connected.push(socket);
-      });
-
-      ipc.server.on("socket.disconnected", (socket, destroyedSocketID) => {
-        const index = this.connected.indexOf(socket);
-        if (index > -1) {
-          this.connected.splice(index, 1);
+          this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
+          break;
         }
-
-        this.socket = null;
-        ipc.log("client " + destroyedSocketID + " has disconnected!");
-      });
+        case ipc.IpcMessageType.Message:
+          this.windowMain.win.webContents.send("nativeMessaging", JSON.parse(msg.message));
+          break;
+      }
     });
 
-    ipc.server.start();
-  }
-
-  stop() {
-    ipc.server.stop();
-    // Kill all existing connections
-    this.connected.forEach((socket) => {
-      if (!socket.destroyed) {
-        socket.destroy();
+    ipcMain.on("nativeMessagingReply", (event, msg) => {
+      if (msg != null) {
+        this.send(msg);
       }
     });
   }
 
-  send(message: object, socket: any) {
-    ipc.server.emit(socket, "message", message);
+  stop() {
+    this.ipcServer?.stop();
+  }
+
+  send(message: object) {
+    this.ipcServer?.send(JSON.stringify(message));
   }
 
   async generateManifests() {
@@ -331,11 +321,21 @@ export class NativeMessagingMain {
   }
 
   private binaryPath() {
-    if (process.platform === "win32") {
-      return path.join(path.dirname(this.exePath), "resources", "native-messaging.bat");
+    if (isDev()) {
+      return path.join(this.appPath, "..", "desktop_native", "target", "debug", "desktop_proxy");
     }
 
-    return this.exePath;
+    switch (process.platform) {
+      case "darwin": {
+        // exePath is <path-to-app>/Bitwarden.app/Contents/MacOS/Bitwarden"
+        return path.join(path.dirname(this.exePath), "..", "Resources", "desktop_proxy");
+      }
+      case "win32": {
+        return path.join(path.dirname(this.exePath), "desktop_proxy.exe");
+      }
+      default:
+        return path.join(path.dirname(this.exePath), "desktop_proxy");
+    }
   }
 
   private getRegeditInstance() {

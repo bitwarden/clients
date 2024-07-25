@@ -1,5 +1,9 @@
+#[cfg(feature = "sys")]
 pub mod biometric;
+#[cfg(feature = "sys")]
 pub mod clipboard;
 pub mod crypto;
 pub mod error;
+pub mod ipc;
+#[cfg(feature = "sys")]
 pub mod password;

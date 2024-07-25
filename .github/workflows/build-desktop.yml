@@ -174,20 +174,21 @@ jobs:
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
             ${{ env.RUNNER_TEMP }}/.cargo/registry
             ${{ env.RUNNER_TEMP }}/.cargo/git
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
+        working-directory: apps/desktop/desktop_native
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         run: |
           rustup target add x86_64-unknown-linux-musl
-          npm run build:cross-platform
+          node build.js cross-platform
 
       - name: Build application
         run: npm run dist:lin
@@ -301,13 +302,15 @@ jobs:
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         id: cache
         with:
-          path: apps/desktop/desktop_native/napi/*.node
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
-        run: npm run build:cross-platform
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
 
       - name: Build & Sign (dev)
         env:
@@ -584,13 +587,15 @@ jobs:
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         id: cache
         with:
-          path: apps/desktop/desktop_native/napi/*.node
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
-        run: npm run build:cross-platform
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
 
       - name: Build application (dev)
         run: npm run build
@@ -748,13 +753,15 @@ jobs:
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         id: cache
         with:
-          path: apps/desktop/desktop_native/napi/*.node
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
-        run: npm run build:cross-platform
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -957,13 +964,15 @@ jobs:
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         id: cache
         with:
-          path: apps/desktop/desktop_native/napi/*.node
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
-        run: npm run build:cross-platform
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1152,13 +1161,15 @@ jobs:
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         id: cache
         with:
-          path: apps/desktop/desktop_native/napi/*.node
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native/napi
-        run: npm run build:cross-platform
+        working-directory: apps/desktop/desktop_native
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'

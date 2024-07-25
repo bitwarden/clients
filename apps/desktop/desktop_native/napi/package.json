@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "build": "napi build --release --platform --js false",
-    "build:debug": "napi build --platform --js false",
-    "build:cross-platform": "node build.js",
+    "build": "napi build --platform --js false",
     "test": "cargo test"
   },
   "author": "",
