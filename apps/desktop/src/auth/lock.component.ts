@@ -40,6 +40,7 @@ export class LockComponent extends BaseLockComponent {
   protected biometricReady = false;
   private biometricAsked = false;
   private autoPromptBiometric = false;
+  private timerId: any;
 
   constructor(
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -135,11 +136,18 @@ export class LockComponent extends BaseLockComponent {
       });
     });
     this.messagingService.send("getWindowIsFocused");
+
+    // start background listener until destroyed on interval
+    this.timerId = setInterval(async () => {
+      this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
+      this.biometricReady = await this.canUseBiometric();
+    }, 1000);
   }
 
   ngOnDestroy() {
     super.ngOnDestroy();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    clearInterval(this.timerId);
   }
 
   onWindowHidden() {

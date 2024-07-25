@@ -149,6 +149,12 @@ export default {
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),
 
+  setEphemeralValue: (key: string, value: string): Promise<void> =>
+    ipcRenderer.invoke("setEphemeralValue", { key, value }),
+  getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
+  removeEphemeralValue: (key: string): Promise<void> =>
+    ipcRenderer.invoke("deleteEphemeralValue", key),
+
   storage,
   passwords,
   biometric,

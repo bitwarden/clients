@@ -31,6 +31,9 @@ type Message = {
 
   // Used for sharing secret
   publicKey?: string;
+
+  // Used for biometric unlock
+  userKeyB64?: string;
 };
 
 type OuterMessage = {
