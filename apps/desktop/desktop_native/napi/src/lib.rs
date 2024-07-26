@@ -142,3 +142,35 @@ pub mod clipboards {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
+
+#[napi]
+pub mod sshagent {
+    use std::sync::Arc;
+
+    use anyhow::Error;
+    use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
+    use tokio::{self, sync::Mutex};
+
+    #[napi]
+    pub async fn serve(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
+        let (tx1, mut rx1) = tokio::sync::mpsc::channel::<bool>(32);
+        tokio::spawn(async move {
+            while let Some(message) = rx.recv().await {
+                println!("sign req callback channel mesg {:?} |", message);
+                let test: Result<Promise<bool>, napi::Error> = callback.call_async(Ok(())).await;
+                let res = test.unwrap();
+                let res1 = res.await.unwrap();
+                println!("sign req callback channel {:?}", res1);
+                tx1.send(res1).await;
+            }
+        });
+        desktop_core::ssh_agent::start_server(tx, Arc::new(Mutex::new(rx1))).await;
+        Ok(())
+    }
+    #[napi]
+    pub async fn set_keys(new_keys: Vec<String>) -> napi::Result<()> {
+        desktop_core::ssh_agent::set_keys(new_keys).await;
+        Ok(())
+    }
+}
