@@ -63,6 +63,7 @@ import { ExportDesktopComponent } from "./tools/export/export-desktop.component"
 import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
+import { SSHAgentService } from "../platform/services/sshagent.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -150,6 +151,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private stateEventRunnerService: StateEventRunnerService,
     private providerService: ProviderService,
     private accountService: AccountService,
+    private sshAgentService: SSHAgentService,
   ) {}
 
   ngOnInit() {

@@ -59,6 +59,13 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const sshagent = {
+  setKeys: (keys: string[]): Promise<void> => ipcRenderer.invoke("sshagent.setkeys", keys),
+  signRequestResponse: async (id: string, accepted: boolean) => {
+    await ipcRenderer.invoke("sshagent.signrequestresponse", { id: id, accepted: accepted });
+  },
+};
+
 const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
@@ -148,6 +155,7 @@ export default {
   passwords,
   biometric,
   clipboard,
+  sshagent,
   nativeMessaging,
   crypto,
 };

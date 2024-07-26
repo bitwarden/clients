@@ -42,6 +42,7 @@ import { ElectronStorageService } from "./platform/services/electron-storage.ser
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
+import { SSHAgent } from "./platform/main/ssh-agent.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -220,6 +221,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    const sshAgent = new SSHAgent(this.logService, this.messagingService);
+    sshAgent.init();
   }
 
   bootstrap() {

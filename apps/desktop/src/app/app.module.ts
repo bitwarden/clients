@@ -50,6 +50,7 @@ import { GeneratorComponent } from "./tools/generator.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
 import { SendComponent } from "./tools/send/send.component";
+import { SSHAgentService } from "../platform/services/sshagent.service";
 
 @NgModule({
   imports: [
@@ -100,6 +101,7 @@ import { SendComponent } from "./tools/send/send.component";
     ViewComponent,
     ViewCustomFieldsComponent,
   ],
+  providers: [SSHAgentService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
