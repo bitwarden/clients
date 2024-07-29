@@ -16,6 +16,15 @@ export class SSHAgent {
     this.logService.info("ts: Starting ssh agent");
 
     sshagent
+      .generateEd25519()
+      .then((key) => {
+        this.logService.info("ts: SSH agent generated key", key);
+      })
+      .catch((e) => {
+        this.logService.error("ts: SSH agent error", e);
+      });
+
+    sshagent
       .serve(async (err: Error, uuid: string) => {
         this.logService.info("ts: SSH agent callback");
         this.messagingService.send("sshagent.signrequest", { data: uuid });

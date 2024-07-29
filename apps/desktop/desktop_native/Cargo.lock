@@ -657,6 +657,7 @@ dependencies = [
  "napi-build",
  "napi-derive",
  "russh-cryptovec",
+ "russh-keys",
  "tokio",
  "tokio-stream",
 ]

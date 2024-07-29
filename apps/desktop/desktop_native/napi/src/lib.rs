@@ -148,6 +148,7 @@ pub mod sshagent {
     use std::sync::Arc;
 
     use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
+    use russh_keys::pkcs8::encode_pkcs8;
     use tokio::{self, sync::Mutex};
 
     #[napi(object)]
@@ -178,5 +179,29 @@ pub mod sshagent {
     pub async fn set_keys(new_keys: Vec<PrivateKey>) -> napi::Result<()> {
         desktop_core::ssh_agent::set_keys(new_keys.iter().map(|k|  (k.private_key.clone(), k.name.clone(), k.uuid.clone())).collect()).await;
         Ok(())
+    }
+
+    #[napi]
+    pub async fn generate_ed25519() -> napi::Result<String> {
+        let key = russh_keys::key::KeyPair::generate_ed25519();
+        match key {
+            Some(k) => {
+                let mut buffer = Vec::new();
+                let private_key = russh_keys::encode_pkcs8_pem(&k, &mut buffer);
+                let buffer_string = String::from_utf8(buffer).unwrap();
+                match private_key {
+                    Ok(pk) => {
+                        println!("Generated keypair {:?}", buffer_string);
+                        Ok(buffer_string.to_string())
+                    },
+                    Err(e) => {
+                        Err(napi::Error::from_reason(e.to_string()))
+                    }
+                }
+            },
+            None => {
+                Err(napi::Error::from_reason("Failed to generate key".to_string()))
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ desktop_core = { path = "../core" }
 napi = { version = "=2.16.6", features = ["async"] }
 napi-derive = "=2.16.5"
 russh-cryptovec = "0.7.3"
+russh-keys = "0.44.0"
 tokio = "1.39.1"
 tokio-stream = "0.1.15"
 
