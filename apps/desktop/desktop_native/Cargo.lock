@@ -130,9 +130,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.99"
+version = "1.0.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96c51067fd44124faa7f870b4b1c969379ad32b2ba805aa959430ceaa384f695"
+checksum = "74b6a57f98764a267ff415d50a25e6e166f3831a5071af4995296ea97d210490"
 
 [[package]]
 name = "cfg-expr"
@@ -304,6 +304,7 @@ dependencies = [
  "base64",
  "cbc",
  "core-foundation",
+ "desktop_objc",
  "gio",
  "keytar",
  "libsecret",
@@ -328,6 +329,17 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+]
+
+[[package]]
+name = "desktop_objc"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "cc",
+ "core-foundation",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -595,12 +607,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "hermit-abi"
-version = "0.3.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
-
-[[package]]
 name = "home"
 version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -822,16 +828,6 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
-]
-
-[[package]]
-name = "num_cpus"
-version = "1.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
-dependencies = [
- "hermit-abi",
- "libc",
 ]
 
 [[package]]
@@ -1322,12 +1318,11 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.38.0"
+version = "1.39.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba4f4a02a7a80d6f274636f0aa95c7e383b912d41fe721a31f29e29698585a4a"
+checksum = "d040ac2b29ab03b09d4129c2f5bbd012a3ac2f79d38ff506a4bf8dd34b0eac8a"
 dependencies = [
  "backtrace",
- "num_cpus",
  "pin-project-lite",
 ]
 

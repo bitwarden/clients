@@ -63,6 +63,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { PinServiceAbstraction } from "../../../../../libs/auth/src/common/abstractions";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { Account } from "../../models/account";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
@@ -279,6 +280,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutofillSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: DesktopAutofillService,
+    deps: [LogService, CipherServiceAbstraction],
   }),
   safeProvider({
     provide: NativeMessagingManifestService,

@@ -32,6 +32,7 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -65,6 +66,7 @@ export class Main {
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
 
   constructor() {
@@ -220,6 +222,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.nativeAutofillMain = new NativeAutofillMain(this.logService);
+    void this.nativeAutofillMain.init();
   }
 
   bootstrap() {

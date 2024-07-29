@@ -43,6 +43,7 @@ keytar = "=0.1.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "=0.9.4"
+desktop_objc = { path = "../objc" }
 security-framework = "=2.11.0"
 security-framework-sys = "=2.11.0"
 
