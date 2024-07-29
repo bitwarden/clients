@@ -23,7 +23,7 @@ use crate::ssh_agent::msg;
 
 #[derive(Clone)]
 #[allow(clippy::type_complexity)]
-pub struct KeyStore(pub Arc<RwLock<HashMap<Vec<u8>, (Arc<key::KeyPair>, Vec<Constraint>)>>>);
+pub struct KeyStore(pub Arc<RwLock<HashMap<Vec<u8>, (Arc<(key::KeyPair, String)>, Vec<Constraint>)>>>);
 
 #[allow(missing_docs)]
 #[derive(Debug)]
@@ -46,7 +46,7 @@ pub enum MessageType {
 pub trait Agent: Clone + Send + 'static {
     fn confirm(
         self,
-        _pk: Arc<key::KeyPair>,
+        _pk: Arc<(key::KeyPair, String)>,
     ) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
         Box::new(futures::future::ready((self, true)))
     }
@@ -81,7 +81,7 @@ where
 impl Agent for () {
     fn confirm(
         self,
-        _: Arc<key::KeyPair>,
+        _: Arc<(key::KeyPair, String)>,
     ) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
         Box::new(futures::future::ready((self, true)))
     }
@@ -127,9 +127,9 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
                 if let Ok(keys) = self.keys.0.read() {
                     writebuf.push(msg::IDENTITIES_ANSWER);
                     writebuf.push_u32_be(keys.len() as u32);
-                    for (k, _) in keys.iter() {
+                    for (k, n) in keys.iter() {
                         writebuf.extend_ssh_string(k);
-                        writebuf.extend_ssh_string(b"");
+                        writebuf.extend_ssh_string(n.0.1.as_bytes());
                     }
                 } else {
                     writebuf.push(msg::FAILURE)
@@ -213,15 +213,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
     }
 
     fn remove_identity(&self, mut r: Position) -> Result<bool, Error> {
-        if let Ok(mut keys) = self.keys.0.write() {
-            if keys.remove(r.read_string()?).is_some() {
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        } else {
-            Ok(false)
-        }
+        Ok(false)
     }
 
     async fn add_key(
@@ -230,55 +222,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
         constrained: bool,
         writebuf: &mut CryptoVec,
     ) -> Result<bool, Error> {
-        let (blob, key_pair) = {
-            use ssh_encoding::{Decode, Encode};
-
-            let private_key = ssh_key::private::PrivateKey::new(
-                ssh_key::private::KeypairData::decode(&mut r)?,
-                "",
-            )?;
-            let _comment = r.read_string()?;
-            let key_pair = key::KeyPair::try_from(&private_key)?;
-
-            let mut blob = Vec::new();
-            private_key.public_key().key_data().encode(&mut blob)?;
-
-            (blob, key_pair)
-        };
-        writebuf.push(msg::SUCCESS);
-        let mut w = self.keys.0.write().or(Err(Error::AgentFailure))?;
-        if constrained {
-            let mut c = Vec::new();
-            while let Ok(t) = r.read_byte() {
-                if t == msg::CONSTRAIN_LIFETIME {
-                    let seconds = r.read_u32()?;
-                    c.push(Constraint::KeyLifetime { seconds });
-                    let blob = blob.clone();
-                    let keys = self.keys.clone();
-                    tokio::spawn(async move {
-                        sleep(Duration::from_secs(seconds as u64)).await;
-                        if let Ok(mut keys) = keys.0.write() {
-                            let delete = if let Some(&(_, _)) = keys.get(&blob) {
-                                true
-                            } else {
-                                false
-                            };
-                            if delete {
-                                keys.remove(&blob);
-                            }
-                        }
-                    });
-                } else if t == msg::CONSTRAIN_CONFIRM {
-                    c.push(Constraint::Confirm)
-                } else {
-                    return Ok(false);
-                }
-            }
-            w.insert(blob, (Arc::new(key_pair), c));
-        } else {
-            w.insert(blob, (Arc::new(key_pair), Vec::new()));
-        }
-        Ok(true)
+        Ok(false)
     }
 
     async fn try_sign(
@@ -313,7 +257,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
         let data = r.read_string()?;
         // todo parse whether this is a git sign request or ssh sign request
 
-        key.add_signature(writebuf, data)?;
+        key.0.add_signature(writebuf, data)?;
         let len = writebuf.len();
         BigEndian::write_u32(writebuf, (len - 4) as u32);
 

@@ -36,14 +36,16 @@ export class SSHAgentService {
     setInterval(async () => {
       const ciphers = await this.cipherService.getAllDecrypted();
       if (ciphers == null) {
-        return;
+        await ipc.platform.sshagent.setKeys([]);
       }
 
       const noteCiphers = ciphers.filter((cipher) => cipher.type == CipherType.SecureNote);
-      for (const cipher of noteCiphers) {
-        this.logService.info("ssh key", cipher.name);
-      }
-      const keys = noteCiphers.map((cipher) => cipher.notes);
+      const keys = noteCiphers.map((cipher) => {
+        return {
+          name: cipher.name,
+          privateKey: cipher.notes,
+        };
+      });
       await ipc.platform.sshagent.setKeys(keys);
     }, 5000);
   }

@@ -19,19 +19,18 @@ export class SSHAgent {
       .serve(async () => {
         this.logService.info("ts: SSH agent callback");
         this.messagingService.send("sshagent.signrequest", null);
-        // interval until we get a response
         const start = Date.now();
         while (this.requestResponses.size === 0) {
           await new Promise((res) => setTimeout(res, 1000));
           this.logService.info("ts: SSH agent waiting for response");
           if (Date.now() - start > 60000) {
+            this.logService.error("ts: SSH agent timeout");
             return false;
           }
         }
 
         const [id, accepted] = Array.from(this.requestResponses.entries())[0];
         this.logService.info("id, accepted", id, accepted);
-        // clear map
         this.requestResponses.clear();
 
         return accepted;
@@ -43,9 +42,12 @@ export class SSHAgent {
         this.logService.error("ts: SSH agent error", e);
       });
 
-    ipcMain.handle("sshagent.setkeys", async (event: any, keys: string[]) => {
-      await sshagent.setKeys(keys);
-    });
+    ipcMain.handle(
+      "sshagent.setkeys",
+      async (event: any, keys: { name: string; privateKey: string }[]) => {
+        await sshagent.setKeys(keys);
+      },
+    );
     ipcMain.handle(
       "sshagent.signrequestresponse",
       async (event: any, { id, accepted }: { id: string; accepted: boolean }) => {

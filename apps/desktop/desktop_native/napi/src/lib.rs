@@ -151,6 +151,12 @@ pub mod sshagent {
     use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
     use tokio::{self, sync::Mutex};
 
+    #[napi(object)]
+    pub struct PrivateKey {
+        pub private_key: String,
+        pub name: String
+    }
+
     #[napi]
     pub async fn serve(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
         let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
@@ -169,8 +175,8 @@ pub mod sshagent {
         Ok(())
     }
     #[napi]
-    pub async fn set_keys(new_keys: Vec<String>) -> napi::Result<()> {
-        desktop_core::ssh_agent::set_keys(new_keys).await;
+    pub async fn set_keys(new_keys: Vec<PrivateKey>) -> napi::Result<()> {
+        desktop_core::ssh_agent::set_keys(new_keys.iter().map(|k|  (k.private_key.clone(), k.name.clone())).collect()).await;
         Ok(())
     }
 }

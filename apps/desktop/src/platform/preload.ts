@@ -60,7 +60,8 @@ const clipboard = {
 };
 
 const sshagent = {
-  setKeys: (keys: string[]): Promise<void> => ipcRenderer.invoke("sshagent.setkeys", keys),
+  setKeys: (keys: { name: string; privateKey: string }[]): Promise<void> =>
+    ipcRenderer.invoke("sshagent.setkeys", keys),
   signRequestResponse: async (id: string, accepted: boolean) => {
     await ipcRenderer.invoke("sshagent.signrequestresponse", { id: id, accepted: accepted });
   },

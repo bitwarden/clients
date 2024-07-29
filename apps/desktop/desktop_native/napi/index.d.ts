@@ -42,6 +42,10 @@ export namespace clipboards {
   export function write(text: string, password: boolean): Promise<void>
 }
 export namespace sshagent {
+  export interface PrivateKey {
+    privateKey: string
+    name: string
+  }
   export function serve(callback: (err: Error | null, ) => any): Promise<void>
-  export function setKeys(newKeys: Array<string>): Promise<void>
+  export function setKeys(newKeys: Array<PrivateKey>): Promise<void>
 }

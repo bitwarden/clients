@@ -14,7 +14,6 @@ use ssh_encoding::Encode;
 pub mod ssh_agent;
 pub mod msg;
 
-const SOCKNAME: &str = "/Users/quexten/bitwarden-agent";
 static KEYSTORE: std::sync::LazyLock<ssh_agent::KeyStore> = std::sync::LazyLock::new(|| ssh_agent::KeyStore(Arc::new(RwLock::new(HashMap::new()))));
 
 #[derive(Clone)]
@@ -25,7 +24,7 @@ struct SecureAgent {
 
 #[async_trait]
 impl ssh_agent::Agent for SecureAgent {
-    fn confirm(self, _pk: Arc<KeyPair>) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
+    fn confirm(self, _pk: Arc<(KeyPair, String)>) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
         Box::new(futures::future::ready((self, true)))
     }
 
@@ -45,6 +44,7 @@ impl ssh_agent::Agent for SecureAgent {
 }
 
 pub async fn start_server(tx: tokio::sync::mpsc::Sender<()>, rx: Arc<Mutex<tokio::sync::mpsc::Receiver<bool>>>) {
+    const SOCKNAME: &str = std::env::home_dir().unwrap().join(".bitwarden-ssh-agent.sock")
     std::fs::remove_file(SOCKNAME).unwrap_or_default();
     match UnixListener::bind(SOCKNAME) {
         Ok(listener) => {
@@ -66,8 +66,8 @@ pub async fn start_server(tx: tokio::sync::mpsc::Sender<()>, rx: Arc<Mutex<tokio
     }
 }
 
-pub async fn set_keys(new_keys:  Vec<String>) {
-    for key in new_keys.iter() {
+pub async fn set_keys(new_keys:  Vec<(String, String)>) {
+    for (key, name) in new_keys.iter() {
         let private_key = ssh_key::private::PrivateKey::from_openssh(key).unwrap();
         let key_pair = key::KeyPair::try_from(&private_key).unwrap();
 
@@ -75,6 +75,6 @@ pub async fn set_keys(new_keys:  Vec<String>) {
         private_key.public_key().key_data().encode(&mut blob).unwrap();
 
         let keys = &KEYSTORE;
-        keys.0.write().unwrap().insert(blob, (Arc::new(key_pair), Vec::new()));
+        keys.0.write().unwrap().insert(blob, (Arc::new((key_pair, name.clone())), Vec::new()));
     }
 }
