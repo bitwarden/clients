@@ -147,24 +147,24 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
-    use anyhow::Error;
     use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
     use tokio::{self, sync::Mutex};
 
     #[napi(object)]
     pub struct PrivateKey {
         pub private_key: String,
-        pub name: String
+        pub name: String,
+        pub uuid: String
     }
 
     #[napi]
-    pub async fn serve(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
-        let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
+    pub async fn serve(callback: ThreadsafeFunction<String, CalleeHandled>) -> napi::Result<()> {
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(32);
         let (tx1, mut rx1) = tokio::sync::mpsc::channel::<bool>(32);
         tokio::spawn(async move {
             while let Some(message) = rx.recv().await {
                 println!("sign req callback channel mesg {:?} |", message);
-                let test: Result<Promise<bool>, napi::Error> = callback.call_async(Ok(())).await;
+                let test: Result<Promise<bool>, napi::Error> = callback.call_async(Ok(message)).await;
                 let res = test.unwrap();
                 let res1 = res.await.unwrap();
                 println!("sign req callback channel {:?}", res1);
@@ -176,7 +176,7 @@ pub mod sshagent {
     }
     #[napi]
     pub async fn set_keys(new_keys: Vec<PrivateKey>) -> napi::Result<()> {
-        desktop_core::ssh_agent::set_keys(new_keys.iter().map(|k|  (k.private_key.clone(), k.name.clone())).collect()).await;
+        desktop_core::ssh_agent::set_keys(new_keys.iter().map(|k|  (k.private_key.clone(), k.name.clone(), k.uuid.clone())).collect()).await;
         Ok(())
     }
 }

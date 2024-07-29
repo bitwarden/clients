@@ -16,9 +16,9 @@ export class SSHAgent {
     this.logService.info("ts: Starting ssh agent");
 
     sshagent
-      .serve(async () => {
+      .serve(async (err: Error, uuid: string) => {
         this.logService.info("ts: SSH agent callback");
-        this.messagingService.send("sshagent.signrequest", null);
+        this.messagingService.send("sshagent.signrequest", { data: uuid });
         const start = Date.now();
         while (this.requestResponses.size === 0) {
           await new Promise((res) => setTimeout(res, 1000));
@@ -44,7 +44,7 @@ export class SSHAgent {
 
     ipcMain.handle(
       "sshagent.setkeys",
-      async (event: any, keys: { name: string; privateKey: string }[]) => {
+      async (event: any, keys: { name: string; privateKey: string; uuid: string }[]) => {
         await sshagent.setKeys(keys);
       },
     );

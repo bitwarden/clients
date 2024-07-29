@@ -16,27 +16,31 @@ export class SSHAgentService {
     private dialogService: DialogService,
     private messageListener: MessageListener,
   ) {
-    this.messageListener.messages$(new CommandDefinition("sshagent.signrequest")).subscribe(() => {
-      (async () => {
-        const result = await this.dialogService.openSimpleDialog({
-          title: "SSH Agent",
-          content: "Allow SSH Agent to sign the request?",
-          acceptButtonText: "Allow",
-          cancelButtonText: "Deny",
-          type: "primary",
-        });
-        this.logService.info("ssh agent dialog res", result);
-        await ipc.platform.sshagent.signRequestResponse("", result);
-        this.logService.info("ssh agent dialog res sent");
-      })()
-        .then(() => {})
-        .catch(() => {});
-    });
+    this.messageListener
+      .messages$(new CommandDefinition("sshagent.signrequest"))
+      .subscribe((message: any) => {
+        const uuid = message.data;
+        (async () => {
+          const result = await this.dialogService.openSimpleDialog({
+            title: "SSH Agent",
+            content: "Allow SSH Agent to sign the request? uuid: " + uuid,
+            acceptButtonText: "Allow",
+            cancelButtonText: "Deny",
+            type: "primary",
+          });
+          this.logService.info("ssh agent dialog res", result);
+          await ipc.platform.sshagent.signRequestResponse("", result);
+          this.logService.info("ssh agent dialog res sent");
+        })()
+          .then(() => {})
+          .catch(() => {});
+      });
 
     setInterval(async () => {
       const ciphers = await this.cipherService.getAllDecrypted();
       if (ciphers == null) {
         await ipc.platform.sshagent.setKeys([]);
+        return;
       }
 
       const noteCiphers = ciphers.filter((cipher) => cipher.type == CipherType.SecureNote);
@@ -44,9 +48,10 @@ export class SSHAgentService {
         return {
           name: cipher.name,
           privateKey: cipher.notes,
+          uuid: cipher.id,
         };
       });
       await ipc.platform.sshagent.setKeys(keys);
-    }, 5000);
+    }, 2000);
   }
 }

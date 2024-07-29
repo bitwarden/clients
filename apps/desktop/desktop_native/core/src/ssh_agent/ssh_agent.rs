@@ -1,10 +1,8 @@
 // based on: https://github.com/Eugeny/russh/blob/main/russh-keys/src/agent/server.rs
 
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::marker::Sync;
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
 
 use async_trait::async_trait;
 use byteorder::{BigEndian, ByteOrder};
@@ -13,8 +11,6 @@ use futures::stream::{Stream, StreamExt};
 use russh_cryptovec::CryptoVec;
 use russh_keys::encoding::{Encoding, Reader};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
-use tokio::time::sleep;
-use {std, tokio};
 
 use russh_keys::agent::Constraint;
 use russh_keys::encoding::Position;
@@ -23,7 +19,7 @@ use crate::ssh_agent::msg;
 
 #[derive(Clone)]
 #[allow(clippy::type_complexity)]
-pub struct KeyStore(pub Arc<RwLock<HashMap<Vec<u8>, (Arc<(key::KeyPair, String)>, Vec<Constraint>)>>>);
+pub struct KeyStore(pub Arc<RwLock<HashMap<Vec<u8>, (Arc<(key::KeyPair, String, String)>, Vec<Constraint>)>>>);
 
 #[allow(missing_docs)]
 #[derive(Debug)]
@@ -44,11 +40,11 @@ pub enum MessageType {
 
 #[async_trait]
 pub trait Agent: Clone + Send + 'static {
-    fn confirm(
-        self,
-        _pk: Arc<(key::KeyPair, String)>,
-    ) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
-        Box::new(futures::future::ready((self, true)))
+    async fn confirm(
+        &self,
+        _pk: Arc<(key::KeyPair, String, String)>,
+    ) -> bool{
+        true
     }
 
     async fn confirm_request(&self, _msg: MessageType) -> bool {
@@ -76,15 +72,6 @@ where
         );
     }
     Ok(())
-}
-
-impl Agent for () {
-    fn confirm(
-        self,
-        _: Arc<(key::KeyPair, String)>,
-    ) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
-        Box::new(futures::future::ready((self, true)))
-    }
 }
 
 struct Connection<S: AsyncRead + AsyncWrite + Send + 'static, A: Agent> {
@@ -231,7 +218,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
         mut r: Position<'_>,
         writebuf: &mut CryptoVec,
     ) -> Result<(A, bool), Error> {
-        let mut needs_confirm = false;
+        let mut needs_confirm = true;
         let key = {
             let blob = r.read_string()?;
             let k = self.keys.0.read().or(Err(Error::AgentFailure))?;
@@ -245,7 +232,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Unpin + 'static, A: Agent + Send + Sync 
             }
         };
         let agent = if needs_confirm {
-            let (agent, ok) = agent.confirm(key.clone()).await;
+            let ok = agent.confirm(key.clone()).await;
             if !ok {
                 return Ok((agent, false));
             }

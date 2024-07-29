@@ -45,7 +45,8 @@ export namespace sshagent {
   export interface PrivateKey {
     privateKey: string
     name: string
+    uuid: string
   }
-  export function serve(callback: (err: Error | null, ) => any): Promise<void>
+  export function serve(callback: (err: Error | null, arg: string) => any): Promise<void>
   export function setKeys(newKeys: Array<PrivateKey>): Promise<void>
 }
