@@ -610,7 +610,6 @@ dependencies = [
  "base64 0.22.1",
  "byteorder",
  "cbc",
- "chrono",
  "core-foundation",
  "futures",
  "gio",

@@ -19,7 +19,6 @@ async-trait = "0.1.81"
 base64 = "=0.22.1"
 byteorder = "1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
-chrono = "0.4.38"
 futures = "0.3.30"
 homedir = "0.3.3"
 myhome = "0.1.1"
