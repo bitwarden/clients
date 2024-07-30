@@ -21,7 +21,6 @@ byteorder = "1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 futures = "0.3.30"
 homedir = "0.3.3"
-myhome = "0.1.1"
 rand = "=0.8.5"
 retry = "=2.0.0"
 russh-cryptovec = "0.7.3"
