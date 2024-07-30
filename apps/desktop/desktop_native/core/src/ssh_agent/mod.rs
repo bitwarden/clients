@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
 use russh_keys::key::KeyPair;
-use futures::future::Future;
-use async_trait::async_trait;
 use tokio::{net::UnixListener, sync::Mutex};
 use std::sync::RwLock;
 use std::collections::HashMap;
@@ -23,22 +21,17 @@ struct SecureAgent {
     rx: Arc<Mutex<tokio::sync::mpsc::Receiver<bool>>>
 }
 
-#[async_trait]
 impl ssh_agent::Agent for SecureAgent {
     async fn confirm(&self, _pk: Arc<(KeyPair, String, String)>) -> bool {
-        let keyPair = _pk.0.clone();
+        let key_pair = _pk.0.clone();
         let name = _pk.1.clone();
         let uuid = _pk.2.clone();
-        println!("Sign request for keypair {:?} with name {:?} and uuid {:?}", keyPair, name, uuid);
+        println!("Sign request for keypair {:?} with name {:?} and uuid {:?}", key_pair, name, uuid);
 
         self.tx.send(uuid.clone()).await.unwrap();
         let res = self.rx.lock().await.recv().await.unwrap();
         println!("confirm rx recv {:?}", res);
         res
-    }
-
-    async fn confirm_request(&self, _msg: ssh_agent::MessageType) -> bool {
-        true
     }
 }
 

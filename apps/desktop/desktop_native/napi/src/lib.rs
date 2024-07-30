@@ -148,7 +148,6 @@ pub mod sshagent {
     use std::sync::Arc;
 
     use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
-    use russh_keys::pkcs8::encode_pkcs8;
     use tokio::{self, sync::Mutex};
 
     #[napi(object)]
@@ -161,7 +160,7 @@ pub mod sshagent {
     #[napi]
     pub async fn serve(callback: ThreadsafeFunction<String, CalleeHandled>) -> napi::Result<()> {
         let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(32);
-        let (tx1, mut rx1) = tokio::sync::mpsc::channel::<bool>(32);
+        let (tx1, rx1) = tokio::sync::mpsc::channel::<bool>(32);
         tokio::spawn(async move {
             while let Some(message) = rx.recv().await {
                 println!("sign req callback channel mesg {:?} |", message);
@@ -169,7 +168,7 @@ pub mod sshagent {
                 let res = test.unwrap();
                 let res1 = res.await.unwrap();
                 println!("sign req callback channel {:?}", res1);
-                tx1.send(res1).await;
+                let _ = tx1.send(res1).await;
             }
         });
         desktop_core::ssh_agent::start_server(tx, Arc::new(Mutex::new(rx1))).await;
@@ -190,7 +189,7 @@ pub mod sshagent {
                 let private_key = russh_keys::encode_pkcs8_pem(&k, &mut buffer);
                 let buffer_string = String::from_utf8(buffer).unwrap();
                 match private_key {
-                    Ok(pk) => {
+                    Ok(_pk) => {
                         println!("Generated keypair {:?}", buffer_string);
                         Ok(buffer_string.to_string())
                     },
