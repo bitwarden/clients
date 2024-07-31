@@ -31,6 +31,9 @@ type Message = {
 
   // Used for sharing secret
   publicKey?: string;
+
+  // Used for biometric unlock
+  userKeyB64?: string;
 };
 
 type OuterMessage = {
@@ -305,7 +308,7 @@ export class NativeMessagingBackground {
             content: { key: "biometricsNotEnabledDesc" },
             acceptButtonText: { key: "ok" },
             cancelButtonText: null,
-            type: "danger",
+            type: "warning",
           });
           break;
         } else if (message.response === "not supported") {
@@ -314,7 +317,34 @@ export class NativeMessagingBackground {
             content: { key: "biometricsNotSupportedDesc" },
             acceptButtonText: { key: "ok" },
             cancelButtonText: null,
-            type: "danger",
+            type: "warning",
+          });
+          break;
+        } else if (message.response === "no userid") {
+          this.messagingService.send("showDialog", {
+            title: { key: "biometricsNoUserIdTitle" },
+            content: { key: "biometricsNoUserIdDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+            type: "warning",
+          });
+          break;
+        } else if (message.response === "no user") {
+          this.messagingService.send("showDialog", {
+            title: { key: "biometricsNoUserTitle" },
+            content: { key: "biometricsNoUserDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+            type: "warning",
+          });
+          break;
+        } else if (message.response === "no clientKeyHalf") {
+          this.messagingService.send("showDialog", {
+            title: { key: "biometricsNoClientKeyHalfTitle" },
+            content: { key: "biometricsNoClientKeyHalfDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+            type: "warning",
           });
           break;
         } else if (message.response === "not unlocked") {
@@ -323,7 +353,7 @@ export class NativeMessagingBackground {
             content: { key: "biometricsNotUnlockedDesc" },
             acceptButtonText: { key: "ok" },
             cancelButtonText: null,
-            type: "danger",
+            type: "warning",
           });
           break;
         } else if (message.response === "canceled") {
@@ -394,6 +424,13 @@ export class NativeMessagingBackground {
       }
       default:
         this.logService.error("NativeMessage, got unknown command: " + message.command);
+        this.messagingService.send("showDialog", {
+          title: { key: "biometricsBrokenIPCMessage" },
+          content: { key: "biometricsBrokenIPCMessageDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "danger",
+        });
         break;
     }
 

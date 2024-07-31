@@ -5,4 +5,5 @@ export type LegacyMessage = {
   timestamp?: number;
 
   publicKey?: string;
+  userKeyB64?: string;
 };

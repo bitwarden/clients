@@ -418,4 +418,6 @@ export abstract class CryptoService {
    * @throws If an invalid user id is passed in.
    */
   abstract userPublicKey$(userId: UserId): Observable<UserPublicKey>;
+
+  abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
 }

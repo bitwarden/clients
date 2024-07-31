@@ -1947,6 +1947,30 @@
   "biometricsNotUnlockedDesc": {
     "message": "Please unlock this user in the desktop application and try again."
   },
+  "biometricsNoUserIdTitle": {
+    "message": "Account not provided"
+  },
+  "biometricsNoUserIdDesc": {
+    "message": "Account not provided in communication to the desktop app. Please report this as a bug."
+  },  
+  "biometricsNoUserTitle": {
+    "message": "Account not found in desktop app"
+  },
+  "biometricsNoUserDesc": {
+    "message": "The account you are unlocking is not signed in on the desktop app. Please sign in to the desktop app and try again."
+  },
+  "biometricsNoClientKeyHalfTitle": {
+    "message": "Password or PIN required"
+  },
+  "biometricsNoClientKeyHalfDesc": {
+    "message": "Unlock with biometrics is unavailable until you unlock your account with another method."
+  },
+  "biometricsBrokenIPCMessage": {
+    "message": "Communication failed"
+  },
+  "biometricsBrokenIPCMessageDesc": {
+    "message": "Unexpected error while communicating with the desktop app. Ensure your desktop app is up to date."
+  },
   "biometricsFailedTitle": {
     "message": "Biometrics failed"
   },

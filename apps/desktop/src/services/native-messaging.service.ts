@@ -5,15 +5,19 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { CsprngString } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 
 import { BrowserSyncVerificationDialogComponent } from "../app/components/browser-sync-verification-dialog.component";
@@ -42,6 +46,8 @@ export class NativeMessagingService {
     private accountService: AccountService,
     private authService: AuthService,
     private ngZone: NgZone,
+    private encryptService: EncryptService,
+    private stateService: StateService,
   ) {}
 
   init() {
@@ -133,15 +139,30 @@ export class NativeMessagingService {
     switch (message.command) {
       case "biometricUnlock": {
         if (!(await this.platformUtilService.supportsBiometric())) {
-          return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
+          await this.send({ command: "biometricUnlock", response: "not supported" }, appId);
+          return;
         }
 
-        const userId =
-          (message.userId as UserId) ??
-          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-
+        const userId = message.userId as UserId;
         if (userId == null) {
-          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
+          await this.send({ command: "biometricUnlock", response: "no userid" }, appId);
+          return;
+        }
+
+        const hasUser = await firstValueFrom(
+          this.accountService.accounts$.pipe(
+            map((accounts) => Object.keys(accounts).includes(userId)),
+          ),
+        );
+        if (!hasUser) {
+          await this.send({ command: "biometricUnlock", response: "no user" }, appId);
+          return;
+        }
+
+        // todo improve this detection, depends on https://github.com/bitwarden/clients/pull/9851
+        if (!(await ipc.platform.biometric.enabled(userId))) {
+          await this.send({ command: "biometricUnlock", response: "no clientKeyHalf" }, appId);
+          return;
         }
 
         const biometricUnlockPromise =
@@ -187,10 +208,48 @@ export class NativeMessagingService {
 
         break;
       }
+      case "browserProvidedUserKey": {
+        const userId = message.userId as UserId;
+        const userKey = SymmetricCryptoKey.fromString(message.userKeyB64) as UserKey;
+        if (await this.cryptoService.validateUserKey(userKey, userId)) {
+          const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
+          await this.stateService.setUserKeyBiometric(
+            { key: userKey.keyB64, clientEncKeyHalf },
+            { userId: userId },
+          );
+          await ipc.platform.reloadProcess();
+        }
+        break;
+      }
       default:
         this.logService.error("NativeMessage, got unknown command.");
         break;
     }
+  }
+
+  private async getBiometricEncryptionClientKeyHalf(
+    userKey: UserKey,
+    userId: UserId,
+  ): Promise<CsprngString | null> {
+    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
+    if (!requireClientKeyHalf) {
+      return null;
+    }
+
+    // Retrieve existing key half if it exists
+    let biometricKey = await this.biometricStateService
+      .getEncryptedClientKeyHalf(userId)
+      .then((result) => result?.decrypt(null /* user encrypted */, userKey))
+      .then((result) => result as CsprngString);
+    if (biometricKey == null && userKey != null) {
+      // Set a key half if it doesn't exist
+      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
+      biometricKey = Utils.fromBufferToUtf8(keyBytes) as CsprngString;
+      const encKey = await this.encryptService.encrypt(biometricKey, userKey);
+      await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
+    }
+
+    return biometricKey;
   }
 
   private async send(message: any, appId: string) {

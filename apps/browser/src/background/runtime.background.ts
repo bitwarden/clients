@@ -227,6 +227,7 @@ export default class RuntimeBackground {
         // `getAllDecryptedForUrl` and is anticipated to be refactored
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
+        await this.main.sendUserKeyToDesktop();
 
         break;
       }
