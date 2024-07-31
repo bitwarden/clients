@@ -5276,6 +5276,18 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
+  "automaticAppLogin": {
+    "message": "Automatically log in users for allowed applications"
+  },
+  "automaticAppLoginDesc": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider."
+  },
+  "automaticAppLoginIdpHostLabel": {
+    "message": "Identity provider host"
+  },
+  "automaticAppLoginIdpHostDesc": {
+    "message": "Enter your identity provider host URL. Enter multiple URLs by separating with a comma."
+  },
   "maximumVaultTimeout": {
     "message": "Vault timeout"
   },

@@ -11,4 +11,5 @@ export enum PolicyType {
   MaximumVaultTimeout = 9, // Sets the maximum allowed vault timeout
   DisablePersonalVaultExport = 10, // Disable personal vault export
   ActivateAutofill = 11, // Activates autofill with page load on the browser extension
+  AutomaticAppLogIn = 12, // Enables automatic log in of apps from configured identity provider
 }
