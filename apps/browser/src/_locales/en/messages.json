@@ -439,7 +439,7 @@
     "message": "Item added to favorites"
   },
   "itemRemovedFromFavorites": {
-      "message": "Item removed from favorites"
+    "message": "Item removed from favorites"
   },
   "notes": {
     "message": "Notes"
@@ -1561,7 +1561,10 @@
   "typeIdentity": {
     "message": "Identity"
   },
-  "newItemHeader":{
+  "typeSSHKey": {
+    "message": "SSH Key"
+  },
+  "newItemHeader": {
     "message": "New $TYPE$",
     "placeholders": {
       "type": {
@@ -3562,7 +3565,7 @@
     "message": "Auto-fill suggestions"
   },
   "autofillSuggestionsTip": {
-      "message": "Save a login item for this site to auto-fill"
+    "message": "Save a login item for this site to auto-fill"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -3923,7 +3926,7 @@
       }
     }
   },
-  "reorderFieldUp":{
+  "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
       "label": {

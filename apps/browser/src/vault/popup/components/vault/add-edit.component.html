@@ -529,6 +529,9 @@
             />
           </div>
         </div>
+
+        <!-- SSHKey -->
+        <div *ngIf="cipher.type === cipherType.SSHKey">SSH Key Placeholder</div>
       </div>
     </div>
     <div class="box" *ngIf="cipher.type === cipherType.Login">

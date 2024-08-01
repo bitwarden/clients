@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Secure note"
   },
+  "typeSSHKey": {
+    "message": "SSH key"
+  },
   "folders": {
     "message": "Folders"
   },
