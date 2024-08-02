@@ -110,12 +110,15 @@ export class ItemDetailsSectionComponent implements OnInit {
         map(() => this.itemDetailsForm.getRawValue()),
       )
       .subscribe((value) => {
-        this.cipherFormContainer.patchCipher({
-          name: value.name,
-          organizationId: value.organizationId,
-          folderId: value.folderId,
-          collectionIds: value.collectionIds?.map((c) => c.id) || [],
-          favorite: value.favorite,
+        this.cipherFormContainer.patchCipher((cipher) => {
+          Object.assign(cipher, {
+            name: value.name,
+            organizationId: value.organizationId,
+            folderId: value.folderId,
+            collectionIds: value.collectionIds?.map((c) => c.id) || [],
+            favorite: value.favorite,
+          } as CipherView);
+          return cipher;
         });
       });
   }
@@ -162,7 +165,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       await this.initFromExistingCipher();
     } else {
       this.itemDetailsForm.setValue({
-        name: "",
+        name: this.initialValues?.name || "",
         organizationId: this.initialValues?.organizationId || this.defaultOwner,
         folderId: this.initialValues?.folderId || null,
         collectionIds: [],
@@ -212,7 +215,6 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.itemDetailsForm.controls.favorite.enable();
       this.itemDetailsForm.controls.folderId.enable();
     } else if (this.config.mode === "edit") {
-      //
       this.readOnlyCollections = this.collections
         .filter(
           (c) => c.readOnly && this.originalCipherView.collectionIds.includes(c.id as CollectionId),

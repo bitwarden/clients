@@ -1,4 +1,5 @@
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
@@ -13,6 +14,7 @@ export class DefaultSingleUserStateProvider implements SingleUserStateProvider {
   constructor(
     private readonly storageServiceProvider: StorageServiceProvider,
     private readonly stateEventRegistrarService: StateEventRegistrarService,
+    private readonly logService: LogService,
   ) {}
 
   get<T>(userId: UserId, keyDefinition: UserKeyDefinition<T>): SingleUserState<T> {
@@ -33,6 +35,7 @@ export class DefaultSingleUserStateProvider implements SingleUserStateProvider {
       keyDefinition,
       storageService,
       this.stateEventRegistrarService,
+      this.logService,
     );
     this.cache[cacheKey] = newUserState;
     return newUserState;

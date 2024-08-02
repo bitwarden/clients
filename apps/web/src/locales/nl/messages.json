@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Items verplaatst naar $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item verplaatst naar $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Item verwijderen"
   },
@@ -628,16 +646,16 @@
     "message": "Je inlogsessie is verlopen."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Registratie herstarten"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Verlopen link"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Herstart de registratie of probeer in te loggen."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Je hebt al een account"
   },
   "logOutConfirmation": {
     "message": "Weet je zeker dat je wilt uitloggen?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Fout bij het decoderen van het geëxporteerde bestand. Je encryptiesleutel komt niet overeen met de gebruikte sleutel waarmee de gegevens zijn geëxporteerd."
   },
-  "importDestination": {
-    "message": "Importbestemming"
+  "destination": {
+    "message": "Bestemming"
   },
   "learnAboutImportOptions": {
     "message": "Leer meer over je importopties"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Toegangsbeheer"
   },
-  "groupAccessAllItems": {
-    "message": "Deze groep kan alle items inzien en bewerken."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Deze groep heeft alleen toegang tot de geselecteerde verzamelingen."
-  },
   "readOnly": {
     "message": "Alleen-lezen"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Het account van deze gebruiker is beschermd met tweestapsaanmelding."
-  },
-  "userAccessAllItems": {
-    "message": "Deze gebruiker kan alle items inzien en bewerken."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Deze gebruiker heeft alleen toegang tot de geselecteerde verzamelingen."
   },
   "search": {
     "message": "Zoeken"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Je bent uitgenodigd om lid te worden van bovenstaande organisatie. Om de uitnodiging te accepteren, moet je inloggen of een nieuw Bitwarden-account aanmaken."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Voltooi je lidmaatschap aan deze organisatie door een hoofdwachtwoord in te stellen."
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -3811,7 +3820,7 @@
     "message": "Je hebt niets geselecteerd."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
   },
   "unsubscribe": {
     "message": "Afmelden"
@@ -4377,6 +4386,9 @@
     "message": "Send-koppeling",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Link kopiëren"
+  },
   "copySendLink": {
     "message": "Send-koppeling kopiëren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "of",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Ontwikkeling-, DevOps- en IT-teams kiezen voor Bitwarden Secrets Manager om hun infrastructuur en secrets veilig te beheren en te implementeren."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Beheer van secrets centraliseren."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Secrets veilig opslaan en beheren op één locatie om te voorkomen dat secrets overal in je organisatie rondslingeren."
+  },
+  "preventSecretLeaks": {
+    "message": "Lekken van secrets voorkomen."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Secrets beveiligen met end-to-end versleuteling. Nooit meer secrets hardcoderen of delen via .env-bestanden."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Ontwikkelaarsproductiviteit verbeteren."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatisch ophalen en implementeren van secrets tijdens runtime zodat ontwikkelaars zich kunnen richten op wat het belangrijkst is, zoals het verbeteren van de kwaliteit van de code."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Bedrijfsveiligheid versterken."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Houd strakke controle over de toegang van machines en mensen tot secrets met SSO-integraties, gebeurtenislogboeken en het roteren van toegang."
+  },
+  "tryItNow": {
+    "message": "Probeer het nu"
+  },
+  "sendRequest": {
+    "message": "Verzoek versturen"
+  },
+  "addANote": {
+    "message": "Notitie toevoegen"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Meer producten van Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Toegang tot Secrets Manager aanvragen"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Je hebt toestemming van je beheerder nodig om Secrets Manager te proberen."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Toegangsverzoek voor secrets manager via e-mail verzonden naar beheerders."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hallo,\n\nIk vraag hierbij om een abonnement op Bitwarden Secrets Manager voor ons team. Jouw steun zou heel wat betekenen!\n\nBitwarden Secrets Manager is een end-to-end versleutelingsoplossing voor secrets management voor het veilig opslaan, delen en implementeren van inloggegevens zoals API-sleutels, database-wachtwoorden en authenticatiecertificaten.\n\nSecrets Manager zal ons helpen met:\n\n- Veiligheid verbeteren\n- Operatie stroomlijnen\n- Kostbare lekken van secrets voorkomen\n\nNeem contact op met Bitwarden voor het aanvragen van een gratis proefperiode voor ons team.\n\nBedankt voor je hulp!"
+  },
+  "giveMembersAccess": {
+    "message": "Toegang geven aan leden:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "bekijk en selecteer de leden die je toegang tot Secrets Manager wilt geven."
+  },
+  "openYourOrganizations": {
+    "message": "Open je organisatie's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Via het menu, selecteer"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "om toegang te geven aan geselecteerde leden."
   },
   "sendVaultCardTryItNow": {
     "message": "probeer het nu",
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Aan deze collecties toewijzen"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
   },
   "selectCollectionsToAssign": {
     "message": "Collecties voor toewijzen selecteren"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Map selecteren"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ wordt permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van deze items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van dit item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van deze items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Gegevens"
   },
   "purchasedSeatsRemoved": {
     "message": "gekochte plaatsen verwijderd"

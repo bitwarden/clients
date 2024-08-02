@@ -51,3 +51,7 @@ export namespace sshagent {
   export function setKeys(newKeys: Array<PrivateKey>): Promise<void>
   export function generateEd25519(): Promise<string>
 }
+export namespace powermonitors {
+  export function onLock(callback: (err: Error | null, ) => any): Promise<void>
+  export function isLockMonitorAvailable(): Promise<boolean>
+}

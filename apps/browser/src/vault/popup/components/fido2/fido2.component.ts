@@ -18,7 +18,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -311,6 +311,7 @@ export class Fido2Component implements OnInit, OnDestroy {
       queryParams: {
         name: data.credentialName || data.rpId,
         uri: this.url,
+        type: CipherType.Login.toString(),
         uilocation: "popout",
         username: data.userName,
         senderTabId: this.senderTabId,

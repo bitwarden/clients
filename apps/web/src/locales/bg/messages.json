@@ -43,10 +43,10 @@
     "message": "Име на притежателя на картата"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Данни за вписване"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Ключ за удостоверяване"
   },
   "number": {
     "message": "Номер"
@@ -145,13 +145,13 @@
     "message": "Удостоверителен ключ (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Направете 2-стъпковото удостоверяване безпроблемно и незабележимо"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Битуорден може да съхранява и попълва кодовете за 2-стъпково потвърждаване. Копирайте ключа в това поле."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Битуорден може да съхранява и попълва кодовете за 2-стъпково потвърждаване. Изберете иконката с камера, за да направите екранна снимка на QR-кода от този уеб сайт или копирайте ключа в това поле."
   },
   "folder": {
     "message": "Папка"
@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Елементите са преместени в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Елементът е преместен в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Изтриване на елемента"
   },
@@ -628,16 +646,16 @@
     "message": "Сесията ви изтече."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Рестартиране на регистрацията"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Връзка с изтекла давност"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Рестартирайте регистрацията или опитайте да се впишете."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Може вече да имате регистрация"
   },
   "logOutConfirmation": {
     "message": "Сигурни ли сте, че искате да се отпишете?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Грешка при дешифрирането на изнесения файл. Ключът за шифриране не отговаря на този, който е използван за изнасянето на данните."
   },
-  "importDestination": {
-    "message": "Място на внасяне"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Научете повече относно възможностите за внасяне"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Управление на достъпа"
   },
-  "groupAccessAllItems": {
-    "message": "Тази група има достъп до всички записи."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Тази група има достъп само до избраните колекции."
-  },
   "readOnly": {
     "message": "Само за четене"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Този потребител използва двустепенна защита за достъп."
-  },
-  "userAccessAllItems": {
-    "message": "Този потребител има достъп до всички записи и може да ги редактира."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Този потребител има достъп само до избраната колекция."
   },
   "search": {
     "message": "Търсене"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Поканени сте да се присъедините към посочената по-горе организация. За да приемете, ще трябва да се впишете в абонамента си към Битуорден. Ако нямате такъв, ще трябва да създадете безплатен абонамент и след това да се впишете в него."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завършете присъединяването си към тази организация като зададете главна парола."
+  },
   "inviteAccepted": {
     "message": "Поканата е приета"
   },
@@ -3811,7 +3820,7 @@
     "message": "Не сте избрали нищо."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
   },
   "unsubscribe": {
     "message": "Отписване"
@@ -4377,6 +4386,9 @@
     "message": "Изпращане на връзката",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Копиране на връзката"
+  },
   "copySendLink": {
     "message": "Копиране на връзката към изпратеното",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "или",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Екипите по разработка, софтуерни операции и инфраструктура избират Управлението на тайни на Битуорден, за да управляват и внедряват по сигурен начин своите тайни данни свързани с инфраструктурата и конкретни машини."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Централизирайте управлението на тайни."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Съхранявайте и управлявайте сигурно тайните си данни на едно място, за да предотвратите разгласяването им из организацията."
+  },
+  "preventSecretLeaks": {
+    "message": "Предотвратете изтичането на тайни данни."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Защитете тайните си данни с шифроване от край до край. Без повече тайни в кода или споделяне чрез файлове „.env“."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Подобрете производителността на разработчиците."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Изтегляйте и внедрявайте тайни в процеса на изпълнение на приложенията, така че разработчиците да могат да се концентрират върху това, в което са най-добри – да подобряват качеството на кода."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Подсилете сигурността на бизнеса си."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Упражнявайте стриктен контрол върху достъпа на машини и хора до тайните данни с внедряване на еднократно удостоверяване, журнали на събитията и завъртане на достъпа."
+  },
+  "tryItNow": {
+    "message": "Изпробвайте сега"
+  },
+  "sendRequest": {
+    "message": "Изпращане на зайвка"
+  },
+  "addANote": {
+    "message": "Добавете бележка"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Управление на тайни от Битуорден"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Още продукти от Битуорден"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Заявете достъп до Управлението на тайни"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Необходимо е одобрение от администратор, за да изпробвате Управлението на тайни."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Заявката за достъп до Управлението на данни е изпратена по е-поща до администраторите."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Здравейте!\n\nИмам нужда от абонамент за Управлението на тайни на Битуорден за нашия екип. Подкрепата Ви ще означава много за нас!\n\nУправлението на тайни на Битуорден е решение за управлението на тайни данни с шифроване от край до край, чрез което могат да се съхраняват, споделят и внедряват данни за удостоверяване на различни машини, като ключове за ППИ, пароли за бази данни и сертификати.\n\nУправлението на тайни ще ни помогне да:\n – подобрим сигурността си;\n – уеднаквим операционните си процеси;\n – предотвратим потенциални изтичания на тайни данни.\n\nМоля, свържете се с Битуорден, за да направите заявка за безплатен пробен период.\n\nБлагодаря предварително за помощта!"
+  },
+  "giveMembersAccess": {
+    "message": "Даване на достъп за членовете:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "прегледайте и изберете членовете, на които искате да дадете достъп до Управлението на тайни."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Използвайки менюто, изберете"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": ", за да дадете достъп на избраните членове."
   },
   "sendVaultCardTryItNow": {
     "message": "пробвайте още сега",
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Свързване с тези колекции"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
   },
   "selectCollectionsToAssign": {
     "message": "Изберете колекции за свързване"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Изберете папка"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ ще бъдат преместени завинаги в $ORG$. Вече няма да притежавате тези елементи.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в $ORG$. Вече няма да притежавате този елемент.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в $ORG$. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Данни"
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"

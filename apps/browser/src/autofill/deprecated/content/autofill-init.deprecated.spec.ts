@@ -61,13 +61,10 @@ describe("AutofillInit", () => {
       autofillInit.init();
       jest.advanceTimersByTime(250);
 
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-        {
-          command: "bgCollectPageDetails",
-          sender: "autofillInit",
-        },
-        expect.any(Function),
-      );
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+        command: "bgCollectPageDetails",
+        sender: "autofillInit",
+      });
     });
 
     it("registers a window load listener to collect the page details if the document is not in a `complete` ready state", () => {

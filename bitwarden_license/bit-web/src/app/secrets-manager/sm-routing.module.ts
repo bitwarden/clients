@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
 
 import { organizationEnabledGuard } from "./guards/sm-org-enabled.guard";
 import { canActivateSM } from "./guards/sm.guard";
@@ -22,14 +22,14 @@ const routes: Routes = [
     children: [
       {
         path: "",
-        canActivate: [canActivateSM],
+        canActivate: [authGuard, canActivateSM],
         pathMatch: "full",
         children: [],
       },
       {
         path: ":organizationId",
         component: LayoutComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         children: [
           {
             path: "",

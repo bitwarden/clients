@@ -1,4 +1,7 @@
 export { CryptoServiceRandomizer } from "./crypto-service-randomizer";
+export { ForwarderConfiguration, AccountRequest } from "./forwarder-configuration";
+export { ForwarderContext } from "./forwarder-context";
+export * from "./settings";
 export { EmailRandomizer } from "./email-randomizer";
 export { EmailCalculator } from "./email-calculator";
 export { PasswordRandomizer } from "./password-randomizer";

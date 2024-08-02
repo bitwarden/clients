@@ -17,7 +17,6 @@ import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe"
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { AvatarModule, ButtonModule, ToastModule } from "@bitwarden/components";
 
-import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
@@ -123,6 +122,7 @@ import "../platform/popup/locales";
     PopupTabNavigationComponent,
     PopupFooterComponent,
     PopupHeaderComponent,
+    HeaderComponent,
     UserVerificationDialogComponent,
     CurrentAccountComponent,
   ],
@@ -145,7 +145,6 @@ import "../platform/popup/locales";
     FolderAddEditComponent,
     FoldersComponent,
     VaultFilterComponent,
-    HeaderComponent,
     HintComponent,
     HomeComponent,
     LockComponent,
@@ -184,8 +183,8 @@ import "../platform/popup/locales";
     Fido2Component,
     AutofillV1Component,
     EnvironmentSelectorComponent,
-    AccountSwitcherComponent,
   ],
+  exports: [],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

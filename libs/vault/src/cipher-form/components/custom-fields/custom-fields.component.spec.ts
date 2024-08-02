@@ -270,7 +270,11 @@ describe("CustomFieldsComponent", () => {
       fieldView.value = "new text value";
       fieldView.type = FieldType.Text;
 
-      expect(patchCipher).toHaveBeenCalledWith({ fields: [fieldView] });
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
+
+      const updatedCipher = patchFn(new CipherView());
+      expect(updatedCipher.fields).toEqual([fieldView]);
     });
 
     it("updates the label", () => {
@@ -281,7 +285,11 @@ describe("CustomFieldsComponent", () => {
       fieldView.value = "text value";
       fieldView.type = FieldType.Text;
 
-      expect(patchCipher).toHaveBeenCalledWith({ fields: [fieldView] });
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
+
+      const updatedCipher = patchFn(new CipherView());
+      expect(updatedCipher.fields).toEqual([fieldView]);
     });
   });
 
@@ -295,7 +303,11 @@ describe("CustomFieldsComponent", () => {
     it("removes the field", () => {
       component.removeField(0);
 
-      expect(patchCipher).toHaveBeenCalledWith({ fields: [] });
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
+
+      const updatedCipher = patchFn(new CipherView());
+      expect(updatedCipher.fields).toEqual([]);
     });
   });
 
@@ -325,9 +337,12 @@ describe("CustomFieldsComponent", () => {
       // Move second field to first
       component.drop({ previousIndex: 0, currentIndex: 1 } as CdkDragDrop<HTMLDivElement>);
 
-      const latestCallParams = patchCipher.mock.lastCall[0];
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
 
-      expect(latestCallParams.fields.map((f: FieldView) => f.name)).toEqual([
+      const updatedCipher = patchFn(new CipherView());
+
+      expect(updatedCipher.fields.map((f: FieldView) => f.name)).toEqual([
         "hidden label",
         "text label",
         "boolean label",
@@ -342,9 +357,12 @@ describe("CustomFieldsComponent", () => {
         preventDefault: jest.fn(),
       });
 
-      const latestCallParams = patchCipher.mock.lastCall[0];
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
 
-      expect(latestCallParams.fields.map((f: FieldView) => f.name)).toEqual([
+      const updatedCipher = patchFn(new CipherView());
+
+      expect(updatedCipher.fields.map((f: FieldView) => f.name)).toEqual([
         "text label",
         "hidden label",
         "linked label",
@@ -356,9 +374,12 @@ describe("CustomFieldsComponent", () => {
       // Move 2nd item (hidden label) up to 1st
       toggleItems[1].triggerEventHandler("keydown", { key: "ArrowUp", preventDefault: jest.fn() });
 
-      const latestCallParams = patchCipher.mock.lastCall[0];
+      expect(patchCipher).toHaveBeenCalled();
+      const patchFn = patchCipher.mock.lastCall[0];
 
-      expect(latestCallParams.fields.map((f: FieldView) => f.name)).toEqual([
+      const updatedCipher = patchFn(new CipherView());
+
+      expect(updatedCipher.fields.map((f: FieldView) => f.name)).toEqual([
         "hidden label",
         "text label",
         "boolean label",

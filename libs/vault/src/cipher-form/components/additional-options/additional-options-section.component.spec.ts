@@ -4,6 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
@@ -73,10 +74,16 @@ describe("AdditionalOptionsSectionComponent", () => {
       reprompt: true,
     });
 
-    expect(cipherFormProvider.patchCipher).toHaveBeenCalledWith({
-      notes: "new notes",
-      reprompt: 1,
-    });
+    const expectedCipher = new CipherView();
+    expectedCipher.notes = "new notes";
+    expectedCipher.reprompt = CipherRepromptType.Password;
+
+    expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
+    const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+
+    const updated = patchFn(new CipherView());
+
+    expect(updated).toEqual(expectedCipher);
   });
 
   it("disables 'additionalOptionsForm' when in partial-edit mode", () => {

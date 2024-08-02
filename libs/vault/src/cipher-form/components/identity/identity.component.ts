@@ -9,11 +9,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import {
   ButtonModule,
-  SectionComponent,
-  SectionHeaderComponent,
   CardComponent,
   FormFieldModule,
   IconButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -98,8 +98,9 @@ export class IdentitySectionComponent implements OnInit {
       data.postalCode = value.postalCode;
       data.country = value.country;
 
-      this.cipherFormContainer.patchCipher({
-        identity: data,
+      this.cipherFormContainer.patchCipher((cipher) => {
+        cipher.identity = data;
+        return cipher;
       });
     });
   }
@@ -112,6 +113,10 @@ export class IdentitySectionComponent implements OnInit {
 
     if (this.originalCipherView && this.originalCipherView.id) {
       this.populateFormData();
+    } else {
+      this.identityForm.patchValue({
+        username: this.cipherFormContainer.config.initialValues?.username || "",
+      });
     }
   }
 

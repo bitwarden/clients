@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Master password hint"
   },
+  "joinOrganization": {
+    "message": "Join organization"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
+  },
   "settings": {
     "message": "設定"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "您的登入會話已過期。"
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "您確定要登出嗎？"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
   },
-  "receiveMarketingEmails": {
-    "message": "Get emails from Bitwarden for announcements, advice, and research opportunities."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
+  },
+  "inviteAccepted": {
+    "message": "Invitation accepted"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動註冊"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "檔案密碼無效，請使用您當初匯出檔案時輸入的密碼。"
   },
-  "importDestination": {
-    "message": "匯入目的地"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "瞭解更多匯入選項"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   }
 }

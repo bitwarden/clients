@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Jāpiesakās vai jāizveido jauns konts, lai piekļūtu drošajai glabātavai."
   },
+  "inviteAccepted": {
+    "message": "Uzaicinājums apstiprināts"
+  },
   "createAccount": {
     "message": "Izveidot kontu"
   },
@@ -67,6 +70,12 @@
   },
   "masterPassHint": {
     "message": "Galvenās paroles norāde (nav nepieciešama)"
+  },
+  "joinOrganization": {
+    "message": "Pievienoties apvienībai"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Pabeigt pievienošanos šai apvienībai ar galvenās paroles iestatīšanu."
   },
   "tab": {
     "message": "Cilne"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "Jauns URI"
   },
+  "addDomain": {
+    "message": "Pievienot domēna vārdu",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "Vienums pievienots"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "Vaicāt, lai pievienotu pieteikšanās vienumu"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "Saglabāt glabātavas iespējās"
+  },
   "addLoginNotificationDesc": {
     "message": "Vaicāt pievienot vienumu, ja tāds nav atrodams glabātavā."
   },
   "addLoginNotificationDescAlt": {
     "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem pieslēgtajiem kontiem."
   },
+  "showCardsInVaultView": {
+    "message": "Show cards as Autofill suggestions on Vault view"
+  },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
   },
   "showCardsCurrentTabDesc": {
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
+  },
+  "showIdentitiesInVaultView": {
+    "message": "Show identifies as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"
@@ -1220,8 +1242,17 @@
     "message": "Rādīt automātiskās aizpildes izvēlni veidlapu laukos",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
-    "message": "Attiecas uz visiem pieslēgtajiem kontiem."
+  "autofillSuggestionsSectionTitle": {
+    "message": "Autofill suggestions"
+  },
+  "showInlineMenuLabel": {
+    "message": "Show autofill suggestions on form fields"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "Display suggestions when icon is selected"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
+    "message": "Applies to all logged in accounts."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Jāizslēdz sava pārlūka iebūvētā paroļu pārvaldnieka iestatījumi, lai izvairītos no nesaderībām."
@@ -1241,14 +1272,33 @@
     "message": "Kad tiek atlasīta automātiskās aizpildes ikona",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "Autofill on page load"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ja tiek noteikta pieteikšanās veidne, tā tiks aizpildīta lapas ielādes brīdī."
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "Learn more about risks"
   },
   "learnMoreAboutAutofill": {
     "message": "Uzzināt vairāk par automātisko aizpildi"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "Patiesuma vērtība"
+  },
+  "cfTypeCheckbox": {
+    "message": "Izvēles rūtiņa"
   },
   "cfTypeLinked": {
     "message": "Saistīts",
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Apvienības nosacījums neļauj ievietot ārējos vienumus savā personīgajā glabātavā."
   },
+  "domainsTitle": {
+    "message": "Domēna vārdi",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem visiem pieslēgtajiem kontiem. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
   },
+  "websiteItemLabel": {
+    "message": "Tīmekļvietne $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ nav derīgs domēns",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "Saglabātas vērā neņemto domēna vārdu izmaiņas"
   },
   "send": {
     "message": "Send",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "Aizsargāts ar paroli"
+  },
+  "copyLink": {
+    "message": "Ievietot saiti starpliktuvē"
   },
   "copySendLink": {
     "message": "Ievietot Send saiti starpliktuvē",
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "Automātiskās aizpildes iestatījumi"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "Autofill shortcut"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "Change shortcut"
+  },
   "autofillShortcut": {
     "message": "Automātiskās aizpildes īsinājumtaustiņi"
   },
@@ -2970,9 +3048,17 @@
     "message": "Jāatslēdz savs konts, lai apskatītu atbilstošus pieteikšanās vienumus",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Jāatslēdz savs konts, lai apskatītu automātiskās aizpildes ieteikumus",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Atslēgt kontu",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Atslēgt savu kontu, tiks atvērts jaunā logā",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "Aizpildīt pieteikšanās datus",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "Pievienot jaunu glabātavas vienumu",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "Jauns pieteikšanās vienums",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Pievienot jaunu glabātavas pieteikšanās vienumu, tiks atvērts jaunā logā",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "Jauna karte",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Pievienot jaunu glabātavas kartes vienumu, tiks atvērts jaunā logā",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "Jauna identitāte",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Pievienot jaunu glabātavas identitātes vienumu, tiks atvērts jaunā logā",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Ir pieejama Bitwarden automātiskās aizpildes izvēlne. Jānospiež poga ar bultu uz leju, lai atlasītu.",
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "Nederīga datnes parole, lūgums izmantot to paroli, kas tika ievadīta izgūšanas datnes izveidošanas brīdī."
   },
-  "importDestination": {
-    "message": "Ievietošanas galamērķis"
+  "destination": {
+    "message": "Galamērķis"
   },
   "learnAboutImportOptions": {
     "message": "Uzzināt par ievietošanas iespējām"
@@ -3343,13 +3453,37 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
   "commonImportFormats": {
     "message": "Izplatīti veidoli",
     "description": "Label indicating the most common import formats"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "Continue to browser settings?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "Continue to Help Center?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "Change your browser's autofill and password management settings.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "Change your browser's autofill and password management settings.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Padarīt Bitwarden par noklusējuma paroļu pārvaldnieku?",
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "Nav vērtību, ko ievietot starpliktuvē"
   },
-  "assignCollections": {
-    "message": "Piešķirt krājumus"
+  "assignToCollections": {
+    "message": "Assign to collections"
   },
   "copyEmail": {
     "message": "Ievietot starpliktuvē e-pasta adresi"
@@ -3643,6 +3777,10 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "kartes numurs beidzas ar",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
     "message": "Login credentials"
   },
@@ -3667,11 +3805,17 @@
   "loading": {
     "message": "Ielādē"
   },
+  "data": {
+    "message": "Dati"
+  },
   "assign": {
     "message": "Assign"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vienumu varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
@@ -3771,21 +3915,33 @@
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3801,6 +3957,24 @@
   },
   "movedItemsToOrg": {
     "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "Vienuma atrašanās vieta"
   }
 }

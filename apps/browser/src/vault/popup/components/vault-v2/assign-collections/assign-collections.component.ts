@@ -66,10 +66,21 @@ export class AssignCollections {
     combineLatest([$cipher, this.collectionService.decryptedCollections$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
+        let availableCollections = collections.filter((c) => !c.readOnly);
+        const organizationId = (cipherView?.organizationId as OrganizationId) ?? null;
+
+        // If the cipher is already a part of an organization,
+        // only show collections that belong to that organization
+        if (organizationId) {
+          availableCollections = availableCollections.filter(
+            (c) => c.organizationId === organizationId,
+          );
+        }
+
         this.params = {
           ciphers: [cipherView],
-          organizationId: (cipherView?.organizationId as OrganizationId) ?? null,
-          availableCollections: collections.filter((c) => !c.readOnly),
+          organizationId,
+          availableCollections,
         };
       });
   }

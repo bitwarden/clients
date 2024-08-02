@@ -52,7 +52,7 @@ export class PaymentMethodWarningsService implements PaymentMethodWarningsServic
     );
     if (!warning || warning.savedAt < this.getOneWeekAgo()) {
       const { organizationName, risksSubscriptionFailure } =
-        await this.billingApiService.getBillingStatus(organizationId);
+        await this.billingApiService.getOrganizationBillingStatus(organizationId);
       await this.paymentMethodWarningsState.update((state) => {
         state ??= {};
         state[organizationId] = {

@@ -37,6 +37,11 @@ export const DEVICE_KEY = new UserKeyDefinition<DeviceKey | null>(
     deserializer: (deviceKey) =>
       deviceKey ? (SymmetricCryptoKey.fromJSON(deviceKey) as DeviceKey) : null,
     clearOn: [], // Device key is needed to log back into device, so we can't clear it automatically during lock or logout
+    cleanupDelayMs: 0,
+    debug: {
+      enableRetrievalLogging: true,
+      enableUpdateLogging: true,
+    },
   },
 );
 

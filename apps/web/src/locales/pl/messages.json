@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Elementy przeniesione do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Element przeniesiony do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Usuń element"
   },
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Wystąpił błąd podczas odszyfrowywania pliku. Klucz szyfrowania nie pasuje do klucza użytego podczas eksportowania danych."
   },
-  "importDestination": {
-    "message": "Miejsce docelowe importu"
+  "destination": {
+    "message": "Miejsce docelowe"
   },
   "learnAboutImportOptions": {
     "message": "Dowiedz się o opcjach importu"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Kontrola dostępu"
   },
-  "groupAccessAllItems": {
-    "message": "Ta grupa może otwierać i modyfikować wszystkie elementy."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Ta grupa posiada dostęp wyłącznie do wybranych kolekcji."
-  },
   "readOnly": {
     "message": "Tylko do odczytu"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Ten użytkownik korzysta z logowania dwustopniowego, aby chronić swoje konto."
-  },
-  "userAccessAllItems": {
-    "message": "Ten użytkownik może otwierać i modyfikować wszystkie elementy."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Ten użytkownik posiada dostęp wyłącznie do wybranych kolekcji."
   },
   "search": {
     "message": "Szukaj"
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "Zostałeś zaproszony do dołączenia do poniższej organizacji. Aby zaakceptować zaproszenie, musisz zalogować się lub utworzyć nowe konto Bitwarden."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Zakończ dołączanie do tej organizacji przez ustawienie hasła głównego."
   },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
@@ -4377,6 +4386,9 @@
     "message": "Link wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Kopiuj link"
+  },
   "copySendLink": {
     "message": "Kopiuj link wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "lub",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralizuj zarządzanie sekretami."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+  },
+  "preventSecretLeaks": {
+    "message": "Zapobiegaj wyciekom sekretów."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Chroń sekrety szyfrowaniem end-to-end. Nigdy więcej wpisanych na sztywno sekretów ani udostępniania ich za pośrednictwem plików .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Zwiększ wydajność programistów."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programowo pobieraj i wdrażaj sekrety w czasie pracy, aby programiści mogli skupić się na tym, co ma największe znaczenie, jak poprawa jakości kodu."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Wzmocnienie bezpieczeństwa przedsiębiorstwa."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Zachowaj ścisłą kontrolę nad maszynami i dostępem ludzi do sekretów z integracją SSO, dziennikami wydarzeń i rotacją dostępu."
+  },
+  "tryItNow": {
+    "message": "Wypróbuj teraz"
+  },
+  "sendRequest": {
+    "message": "Wyślij zgłoszenie"
+  },
+  "addANote": {
+    "message": "Dodaj notatkę"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Menedżer sekretów Bitwarden"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Więcej produktów od Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Poproś o dostęp do menedżera sekretów"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Potrzebujesz zgody swojego administratora, aby wypróbować menedżera sekretów."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "E-mail z prośbą o dostęp do menedżera sekretów wiadomości został wysłany do administratorów."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Daj użytkownikom dostęp do:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "zobacz i wybierz członków, którym chcesz dać dostęp do menedżera sekretów."
+  },
+  "openYourOrganizations": {
+    "message": "Otwórz swoją organizację"
+  },
+  "usingTheMenuSelect": {
+    "message": "Używając menu, wybierz"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "aby przyznać dostęp wybranym członkom."
   },
   "sendVaultCardTryItNow": {
     "message": "wypróbuj teraz",
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Przypisz do tych kolekcji"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć ten element."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć te elementy."
   },
   "selectCollectionsToAssign": {
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Wybierz folder"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ zostanie trwale przeniesiony do wybranej organizacji. Nie będziesz już posiadać tych elementów.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 element zostanie trwale przeniesiony do wybranej organizacji. Nie będziesz już posiadać tego elementu."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ elementów zostanie trwale przeniesionych do wybranej organizacji. Nie będziesz już posiadać tych elementów.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ zostanie trwale przeniesiony do $ORG$. Nie będziesz już właścicielem tych elementów.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 przedmiot zostanie trwale przeniesiony do $ORG$. Nie będziesz już posiadać tego przedmiotu.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ elementy zostaną trwale przeniesione do $ORG$. Nie będziesz już posiadać tych elementów.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Dane"
   },
   "purchasedSeatsRemoved": {
     "message": "zakupione miejsca usunięte"

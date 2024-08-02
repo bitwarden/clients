@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Master password hint"
   },
+  "joinOrganization": {
+    "message": "Join organization"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
+  },
   "settings": {
     "message": "Nustatymai"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "Sesijos laikas baigėsi."
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Ar tikrai norite atsijungti?"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Jūsų naujasis pagrindinis slaptažodis neatitinka politikos reikalavimų."
   },
-  "receiveMarketingEmails": {
-    "message": "Get emails from Bitwarden for announcements, advice, and research opportunities."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Jūsų saugyklos skirtasis laikas viršija jūsų organizacijos nustatytus apribojimus."
+  },
+  "inviteAccepted": {
+    "message": "Invitation accepted"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatinis įtraukimas"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "Netinkamas failo slaptažodis, prašome naudoti tą slaptažodį, kurį įvedėte kurdami eksportuojamą failą."
   },
-  "importDestination": {
-    "message": "Importavimo vieta"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Sužinoti apie importavimo pasirinkimus"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   }
 }

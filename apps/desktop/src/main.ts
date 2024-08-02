@@ -36,13 +36,14 @@ import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { SSHAgent } from "./platform/main/ssh-agent.service";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
+import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
-import { SSHAgent } from "./platform/main/ssh-agent.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -110,7 +111,10 @@ export class Main {
       this.storageService,
       this.memoryStorageForStateProviders,
     );
-    const globalStateProvider = new DefaultGlobalStateProvider(storageServiceProvider);
+    const globalStateProvider = new DefaultGlobalStateProvider(
+      storageServiceProvider,
+      this.logService,
+    );
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
@@ -131,6 +135,7 @@ export class Main {
     const singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      this.logService,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(
@@ -185,7 +190,7 @@ export class Main {
       });
     });
 
-    this.powerMonitorMain = new PowerMonitorMain(this.messagingService);
+    this.powerMonitorMain = new PowerMonitorMain(this.messagingService, this.logService);
     this.menuMain = new MenuMain(
       this.i18nService,
       this.messagingService,
@@ -224,6 +229,8 @@ export class Main {
 
     const sshAgent = new SSHAgent(this.logService, this.messagingService);
     sshAgent.init();
+
+    new EphemeralValueStorageService();
   }
 
   bootstrap() {

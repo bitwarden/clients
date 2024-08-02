@@ -7,6 +7,7 @@ import { map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   AsyncActionsModule,
@@ -58,16 +59,21 @@ export class LoginDetailsSectionComponent implements OnInit {
 
   private datePipe = inject(DatePipe);
 
-  private loginView: LoginView;
+  /**
+   * A local reference to the Fido2 credentials for an existing login being edited.
+   * These cannot be created in the form and thus have no form control.
+   * @private
+   */
+  private existingFido2Credentials?: Fido2CredentialView[];
 
   get hasPasskey(): boolean {
-    return this.loginView?.hasFido2Credentials;
+    return this.existingFido2Credentials != null && this.existingFido2Credentials.length > 0;
   }
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
-      this.loginView?.fido2Credentials?.[0]?.creationDate,
+      this.existingFido2Credentials?.[0]?.creationDate,
       "short",
     );
     return `${dateCreated} ${creationDate}`;
@@ -98,20 +104,19 @@ export class LoginDetailsSectionComponent implements OnInit {
         map(() => this.loginDetailsForm.getRawValue()),
       )
       .subscribe((value) => {
-        Object.assign(this.loginView, {
-          username: value.username,
-          password: value.password,
-          totp: value.totp,
-        } as LoginView);
+        this.cipherFormContainer.patchCipher((cipher) => {
+          Object.assign(cipher.login, {
+            username: value.username,
+            password: value.password,
+            totp: value.totp,
+          } as LoginView);
 
-        this.cipherFormContainer.patchCipher({
-          login: this.loginView,
+          return cipher;
         });
       });
   }
 
   async ngOnInit() {
-    this.loginView = new LoginView();
     if (this.cipherFormContainer.originalCipherView?.login) {
       this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
     } else {
@@ -124,14 +129,13 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
-    // Note: this.loginView will still contain references to the existing login's Uri and Fido2Credential arrays.
-    // We may need to deep clone these in the future.
-    Object.assign(this.loginView, existingLogin);
     this.loginDetailsForm.patchValue({
-      username: this.loginView.username,
-      password: this.loginView.password,
-      totp: this.loginView.totp,
+      username: existingLogin.username,
+      password: existingLogin.password,
+      totp: existingLogin.totp,
     });
+
+    this.existingFido2Credentials = existingLogin.fido2Credentials;
 
     if (!this.viewHiddenFields) {
       this.loginDetailsForm.controls.password.disable();
@@ -140,9 +144,10 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private async initNewCipher() {
-    this.loginDetailsForm.controls.password.patchValue(
-      await this.generationService.generateInitialPassword(),
-    );
+    this.loginDetailsForm.patchValue({
+      username: this.cipherFormContainer.config.initialValues?.username || "",
+      password: await this.generationService.generateInitialPassword(),
+    });
   }
 
   captureTotp = async () => {
@@ -170,9 +175,10 @@ export class LoginDetailsSectionComponent implements OnInit {
 
   removePasskey = async () => {
     // Fido2Credentials do not have a form control, so update directly
-    this.loginView.fido2Credentials = null;
-    this.cipherFormContainer.patchCipher({
-      login: this.loginView,
+    this.existingFido2Credentials = null;
+    this.cipherFormContainer.patchCipher((cipher) => {
+      cipher.login.fido2Credentials = null;
+      return cipher;
     });
   };
 

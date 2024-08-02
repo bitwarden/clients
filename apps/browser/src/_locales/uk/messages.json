@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Для доступу до сховища увійдіть в обліковий запис, або створіть новий."
   },
+  "inviteAccepted": {
+    "message": "Запрошення прийнято"
+  },
   "createAccount": {
     "message": "Створити обліковий запис"
   },
@@ -67,6 +70,12 @@
   },
   "masterPassHint": {
     "message": "Підказка для головного пароля (необов'язково)"
+  },
+  "joinOrganization": {
+    "message": "Приєднатися до організації"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
   },
   "tab": {
     "message": "Вкладка"
@@ -612,7 +621,7 @@
     "message": "Потрібний код підтвердження."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
   },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
@@ -640,13 +649,13 @@
     "message": "Скануйте QR-код програмою автентифікації"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Спростіть двоетапну перевірку"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Скопіюйте і вставте ключ у це поле."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Відкрийте камеру, щоб сканувати QR-код на цьому вебсайті, або скопіюйте і вставте ключ у це поле."
   },
   "copyTOTP": {
     "message": "Скопіюйте ключ автентифікації (TOTP)"
@@ -661,19 +670,19 @@
     "message": "Тривалість вашого сеансу завершилась."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Увійти"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Перезапустити реєстрацію"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Протерміноване посилання"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Перезапустіть реєстрацію або спробуйте ввійти."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Можливо, ви вже зареєстровані"
   },
   "logOutConfirmation": {
     "message": "Ви дійсно хочете вийти?"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "Новий URI"
   },
+  "addDomain": {
+    "message": "Додати домен",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "Запис додано"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "Запитувати про додавання запису"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "Параметри збереження до сховища"
+  },
   "addLoginNotificationDesc": {
     "message": "Запитувати про додавання запису, якщо його немає у вашому сховищі."
   },
   "addLoginNotificationDescAlt": {
     "message": "Запитувати про додавання запису, якщо такого не знайдено у вашому сховищі. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
+  "showCardsInVaultView": {
+    "message": "Показувати картки як пропозиції автозаповнення в режимі перегляду сховища"
+  },
   "showCardsCurrentTab": {
     "message": "Показувати картки на вкладці"
   },
   "showCardsCurrentTabDesc": {
     "message": "Показувати список карток на сторінці вкладки для легкого автозаповнення."
+  },
+  "showIdentitiesInVaultView": {
+    "message": "Показувати особисті дані як пропозиції автозаповнення в режимі перегляду сховища"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показувати посвідчення на вкладці"
@@ -1220,7 +1242,16 @@
     "message": "Меню автозаповнення на полях форм",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
+  "autofillSuggestionsSectionTitle": {
+    "message": "Пропозиції автозаповнення"
+  },
+  "showInlineMenuLabel": {
+    "message": "Пропозиції автозаповнення на полях форм"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "Показувати пропозиції, якщо вибрано піктограму"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
@@ -1241,17 +1272,36 @@
     "message": "Якщо вибрано піктограму автозаповнення",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "Автозаповнення на сторінці"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Автозаповнення на сторінці"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Якщо виявлено форму входу, автоматично заповнювати її під час завантаження вебсторінки."
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$Обережно!$CLOSETAG$ Скомпрометовані або ненадійні вебсайти можуть використати функцію автозаповнення під час завантаження сторінки для завдання шкоди.",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
     "message": "Скомпрометовані або ненадійні вебсайти можуть використати функцію автозаповнення під час завантаження сторінки для завдання шкоди."
   },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "Докладніше про ризики"
+  },
   "learnMoreAboutAutofill": {
-    "message": "Дізнатися більше про автозаповнення"
+    "message": "Докладніше про автозаповнення"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Типове налаштування автозаповнення для записів входу"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "Логічне значення"
+  },
+  "cfTypeCheckbox": {
+    "message": "Прапорець"
   },
   "cfTypeLinked": {
     "message": "Пов'язано",
@@ -1848,7 +1901,7 @@
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Політика організації заблокувала імпортування елементів до вашого особистого сховища."
   },
+  "domainsTitle": {
+    "message": "Домени",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "Виключені домени"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
   },
+  "websiteItemLabel": {
+    "message": "Вебсайт $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ не є дійсним доменом",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "Виняток для домену збережено"
   },
   "send": {
     "message": "Відправлення",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "Захищено паролем"
+  },
+  "copyLink": {
+    "message": "Копіювати посилання"
   },
   "copySendLink": {
     "message": "Копіювати посилання відправлення",
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "Налаштування автозаповнення"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "Комбінація клавіш автозаповнення"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "Змінити комбінацію клавіш"
+  },
   "autofillShortcut": {
     "message": "Комбінації клавіш автозаповнення"
   },
@@ -2790,11 +2868,11 @@
     "message": "Довірений пристрій"
   },
   "sendsNoItemsTitle": {
-    "message": "No active Sends",
+    "message": "Немає активних відправлень",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+    "message": "Використовуйте відправлення, щоб безпечно надавати доступ іншим до зашифрованої інформації.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -2970,9 +3048,17 @@
     "message": "Розблокуйте обліковий запис, щоб побачити відповідні записи",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Розблокуйте обліковий запис, щоб переглянути пропозиції автозаповнення",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Розблокувати обліковий запис",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Розблокування облікового запису – відкриється нове вікно",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "Заповнити облікові дані для",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "Додати новий запис сховища",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "Новий запис",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Додавання нового запису для входу – відкриється нове вікно",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "Нова картка",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Додавання нової картки – відкриється нове вікно",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "Особисті дані",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Додавання нового запису для особистих даних – відкриється нове вікно",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Доступне меню автозаповнення Bitwarden. Натисніть клавішу стрілки для вибору.",
@@ -3081,7 +3191,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Запустіть Duo і виконайте дії для завершення входу."
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "Неправильний пароль файлу. Використайте пароль, який ви вводили під час створення експортованого файлу."
   },
-  "importDestination": {
-    "message": "Призначення імпорту"
+  "destination": {
+    "message": "Призначення"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -3343,7 +3453,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
@@ -3351,12 +3461,36 @@
     "message": "Поширені формати",
     "description": "Label indicating the most common import formats"
   },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "Відкрити налаштування браузера?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "Відкрити довідковий центр?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "Змінити параметри автозаповнення та керування паролями браузера.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "Ви можете переглядати й керувати комбінаціями клавіш для розширень у налаштуваннях браузера.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "Змінити параметри автозаповнення та керування паролями браузера.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "Ви можете переглядати й керувати комбінаціями клавіш для розширень у налаштуваннях браузера.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
+  },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Зробити Bitwarden типовим менеджером паролів?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
-    "message": "Якщо ігнорувати цей параметр, можуть виникнути конфлікти автозаповнення між Bitwarden і браузером.",
+    "message": "Якщо ігнорувати цей параметр, можуть виникнути конфлікти пропозицій автозаповнення між Bitwarden і браузером.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "Немає значень для копіювання"
   },
-  "assignCollections": {
-    "message": "Призначити збірки"
+  "assignToCollections": {
+    "message": "Призначити до збірок"
   },
   "copyEmail": {
     "message": "Копіювати е-пошту"
@@ -3626,13 +3760,13 @@
     "message": "Фільтри"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Особисті дані"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Ідентифікація"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Контактні дані"
   },
   "downloadAttachment": {
     "message": "Завантажити – $ITEMNAME$",
@@ -3643,11 +3777,15 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "номер картки закінчується на",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Облікові дані для входу"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Ключ автентифікації"
   },
   "cardDetails": {
     "message": "Подробиці картки"
@@ -3662,19 +3800,25 @@
     }
   },
   "addAccount": {
-    "message": "Add account"
+    "message": "Додати обліковий запис"
   },
   "loading": {
-    "message": "Loading"
+    "message": "Завантаження"
+  },
+  "data": {
+    "message": "Дані"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Призначити"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3686,37 +3830,37 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Додати поле"
   },
   "add": {
-    "message": "Add"
+    "message": "Додати"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Тип поля"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Мітка поля"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Використовуйте текстові поля для даних, як-от секретні запитання"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Використовуйте приховані поля для конфіденційних даних, як-от пароль"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to auto-fill a form's checkbox, like a remember email"
+    "message": "Використовуйте прапорці, якщо хочете автоматично заповнювати поля, як-от адресу е-пошти"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing auto-fill issues for a specific website."
+    "message": "Використовуйте пов'язане поле у разі виникнення проблем з автозаповненням для певного вебсайту."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Введіть html-ідентифікатор поля, назву, мітку або заповнювач."
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Редагувати поле"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Редагувати $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3725,7 +3869,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Видалити $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3734,7 +3878,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "$LABEL$ додано",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3743,7 +3887,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Перевпорядкувати $LABEL$. Використовуйте клавіші зі стрілками для переміщення.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3752,7 +3896,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ переміщено вгору, позиція $INDEX$ з $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3769,23 +3913,35 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Оберіть збірки для призначення"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 елемент буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього елемента."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 елемент буде остаточно перенесено до $ORG$. Ви більше не будете власником цього елемента.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3794,13 +3950,31 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Збірки успішно призначено"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Ви нічого не вибрали."
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Вибрані записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "Елементи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Елемент переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3809,7 +3983,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ переміщено вниз, позиція $INDEX$ з $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "Розташування елемента"
   }
 }

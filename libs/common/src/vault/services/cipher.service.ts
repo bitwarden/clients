@@ -50,6 +50,7 @@ import { LoginUri } from "../models/domain/login-uri";
 import { Password } from "../models/domain/password";
 import { SecureNote } from "../models/domain/secure-note";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
+import { SSHKey } from "../models/domain/ssh-key";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
@@ -1490,6 +1491,19 @@ export class CipherService implements CipherServiceAbstraction {
             username: null,
             passportNumber: null,
             licenseNumber: null,
+          },
+          key,
+        );
+        return;
+      case CipherType.SSHKey:
+        cipher.sshKey = new SSHKey();
+        await this.encryptObjProperty(
+          model.sshKey,
+          cipher.sshKey,
+          {
+            privateKey: null,
+            publicKey: null,
+            keyAlgorithm: null,
           },
           key,
         );

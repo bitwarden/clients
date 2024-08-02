@@ -43,10 +43,10 @@
     "message": "Ім'я власника картки"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Облікові дані для входу"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Ключ автентифікації"
   },
   "number": {
     "message": "Номер"
@@ -145,13 +145,13 @@
     "message": "Ключ автентифікації (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Спростіть двоетапну перевірку"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Скопіюйте і вставте ключ у це поле."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Відкрийте камеру, щоб сканувати QR-код на цьому вебсайті, або скопіюйте і вставте ключ у це поле."
   },
   "folder": {
     "message": "Тека"
@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Елементи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Елемент переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Видалити запис"
   },
@@ -628,16 +646,16 @@
     "message": "Тривалість вашого сеансу завершилась."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Перезапустити реєстрацію"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Протерміноване посилання"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Перезапустіть реєстрацію або спробуйте ввійти."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Можливо, ви вже зареєстровані"
   },
   "logOutConfirmation": {
     "message": "Ви дійсно хочете вийти?"
@@ -882,7 +900,7 @@
     "message": "Адреса е-пошти"
   },
   "yourVaultIsLockedV2": {
-    "message": "Ваше сховище заблоковано."
+    "message": "Ваше сховище заблоковано"
   },
   "uuid": {
     "message": "UUID"
@@ -1087,7 +1105,7 @@
     "message": "Ви дійсно хочете продовжити?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Оберіть теку, в яку ви бажаєте додати $COUNT$ вибраних записів.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
   },
-  "importDestination": {
-    "message": "Призначення імпорту"
+  "destination": {
+    "message": "Призначення"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Контроль доступу"
   },
-  "groupAccessAllItems": {
-    "message": "Ця грума має доступ і дозвіл редагування записів."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Ця група має доступ лише до окремих збірок."
-  },
   "readOnly": {
     "message": "Лише читання"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Цей користувач використовує двоетапну перевірку для захисту свого облікового запису."
-  },
-  "userAccessAllItems": {
-    "message": "Цей користувач має доступ і можливість змінювати всі записи."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Цей користувач має доступ лише до обраних збірок."
   },
   "search": {
     "message": "Пошук"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Вас було запрошено приєднатися до зазначеної вгорі організації. Щоб підтвердити запрошення, вам необхідно увійти в обліковий запис Bitwarden, або створити його."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
+  },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
   },
@@ -3811,7 +3820,7 @@
     "message": "Ви нічого не обрали."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -4377,6 +4386,9 @@
     "message": "Посилання на відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Копіювати посилання"
+  },
   "copySendLink": {
     "message": "Копіювати посилання відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "або",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Команди розробників, DevOps та IT-спеціалісти обирають Менеджер секретів Bitwarden для безпечного керування і розгортання інфраструктурних і машинних секретів."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Централізуйте керування секретами."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Безпечно зберігайте та керуйте секретами в одному місці, щоб запобігти неналежному розповсюдженню в організації."
+  },
+  "preventSecretLeaks": {
+    "message": "Запобігайте витоку секретів."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Захистіть секрети за допомогою наскрізного шифрування. Більше не потрібно кодувати секрети чи ділитися ними за допомогою файлів .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Підвищте продуктивність розробників."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Програмовано отримуйте та розгортайте секрети, щоб розробники могли зосередитися на найважливішому, як-от вдосконалення якості коду."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Посильте безпеку бізнесу."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Надійно контролюйте доступ машин і людей до секретів за допомогою інтеграції SSO, журналів подій та оновлення дозволів на доступ."
+  },
+  "tryItNow": {
+    "message": "Спробувати зараз"
+  },
+  "sendRequest": {
+    "message": "Надіслати запит"
+  },
+  "addANote": {
+    "message": "Додати нотатку"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Менеджер секретів Bitwarden"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Інші продукти від Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Запитати доступ до менеджера секретів"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Щоб спробувати менеджер секретів, необхідне схвалення вашого адміністратора."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Електронний лист із запитом на доступ до менеджера секретів надіслано адміністраторам."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Вітаю!\n\nПрошу надати передплату на Менеджер секретів Bitwarden для нашої команди. Ваша підтримка дуже важлива для нас!\n\nМенеджер секретів Bitwarden – це рішення з наскрізним шифруванням для керування секретами, яке дає змогу надійно зберігати, ділитися та розгортати машинні облікові дані, як-от ключі API, паролі баз даних і сертифікати автентифікації.\n\nЗа допомогою менеджера секретів ми зможемо:\n\n- Вдосконалити безпеку\n- Підвищити продуктивність операцій\n- Запобігти витоку секретів\n\nЩоб надіслати запит на безплатний пробний період для нашої команди, зверніться до Bitwarden.\n\nДякую за допомогу!"
+  },
+  "giveMembersAccess": {
+    "message": "Надати доступ учасникам:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "перегляньте й виберіть учасників, яким ви хочете надати доступ до менеджера секретів."
+  },
+  "openYourOrganizations": {
+    "message": "Відкрийте"
+  },
+  "usingTheMenuSelect": {
+    "message": "За допомогою меню виберіть"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "вашої організації, щоб надати доступ вибраним учасникам."
   },
   "sendVaultCardTryItNow": {
     "message": "спробуйте",
@@ -5547,7 +5628,7 @@
     "message": "Потрібний код підтвердження."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
   },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
@@ -6241,7 +6322,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Запустіть Duo і виконайте дії для завершення входу."
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Призначити до цих збірок"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
   },
   "selectCollectionsToAssign": {
     "message": "Оберіть збірки для призначення"
@@ -8562,29 +8646,41 @@
     "message": "Спонсоровано"
   },
   "licenseAndBillingManagementDesc": {
-    "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
+    "message": "Після оновлень на сервері Bitwarden вивантажте свій файл ліцензії, щоб застосувати останні зміни."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Додати теку"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Вибрати теку"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 елемент буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього елемента."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 елемент буде остаточно перенесено до $ORG$. Ви більше не будете власником цього елемента.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -8592,7 +8688,10 @@
       }
     }
   },
+  "data": {
+    "message": "Дані"
+  },
   "purchasedSeatsRemoved": {
-    "message": "purchased seats removed"
+    "message": "куплених місць вилучено"
   }
 }

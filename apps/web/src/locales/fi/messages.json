@@ -43,10 +43,10 @@
     "message": "Kortinhaltijan nimi"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Kirjautumistiedot"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Todennusavain"
   },
   "number": {
     "message": "Numero"
@@ -145,13 +145,13 @@
     "message": "Todennusavain (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Tee kaksivaiheisesta kirjautumisesta saumatonta"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kopioi ja liitä todennusavain tähän kenttään."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kamerakuvakkeella voit kaapata todennusavaimen avoimen sivun QR-koodista automaattisesti, tai voit kopioida ja liittää sen tähän kenttään manuaalisesti."
   },
   "folder": {
     "message": "Kansio"
@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Kohteet siirrettiin organisaatioon $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Kohde siirrettiin organisaatioon $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Poista kohde"
   },
@@ -628,16 +646,16 @@
     "message": "Kirjautumisistuntosi on erääntynyt."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Aloita rekisteröityminen alusta"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Vanhentunut linkki"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Aloita rekisteröityminen alusta tai yritä kirjautua sisään uudelleen."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Sinulla saattaa olla jo tili"
   },
   "logOutConfirmation": {
     "message": "Haluatko varmasti kirjautua ulos?"
@@ -673,7 +691,7 @@
     "message": "Pidä tämä ikkuna avoinna ja seuraa selaimesi opasteita."
   },
   "useADifferentLogInMethod": {
-    "message": "Käytä eri kirjautumistapaa"
+    "message": "Käytä vaihtoehtoista kirjautumistapaa"
   },
   "loginWithPasskey": {
     "message": "Kirjaudu suojausavaimella"
@@ -979,7 +997,7 @@
     "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
   },
   "useAnotherTwoStepMethod": {
-    "message": "Käytä eri todennusmenetelmää"
+    "message": "Käytä vaihtoehtoista todennustapaa"
   },
   "insertYubiKey": {
     "message": "Kytke YubiKey-todennuslaitteesi tietokoneen USB-porttiin ja paina sen painiketta."
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Virhe purettaessa viedyn tiedoston salausta. Salausavaimesi ei vastaa viennissä käytettyä salausavainta."
   },
-  "importDestination": {
-    "message": "Tuontikohde"
+  "destination": {
+    "message": "Kohde"
   },
   "learnAboutImportOptions": {
     "message": "Lue lisää tuontivaihtoehdoista"
@@ -1713,10 +1731,10 @@
     "message": "Avataanko bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden Authenticatorin avulla voit säilyttää todennusavaimet ja luoda TOTP-koodeja kaksivaiheista tunnistautumista varten. Lue lisää bitwarden.com-sivustolta."
+    "message": "Bitwarden Authenticatorin avulla voit säilyttää todennusavaimet ja luoda TOTP-koodeja kaksivaiheista kirjautumista varten. Lue lisää bitwarden.com-sivustolta."
   },
   "twoStepAuthenticatorScanCodeV2": {
-    "message": "Skannaa alla oleva QR-koodi todennussovelluksellasi tai syötä avain."
+    "message": "Skannaa alla oleva QR-koodi todennussovelluksellasi tai syötä avain itse."
   },
   "twoStepAuthenticatorQRCanvasError": {
     "message": "QR-koodin lataus ei onnistunut. Yritä uudelleen tai käytä alla olevaa avainta."
@@ -1899,7 +1917,7 @@
     "message": "Suojaamattomat sivustot"
   },
   "unsecuredWebsitesReportDesc": {
-    "message": "URL-osoitteet, jotka alkavat http://, eivät hyödynnä parasta mahdollista salausta. Vaihda tällaiset kirjatumisosoitteet https://-muotoisiksi turvallisempaa selausta varten."
+    "message": "URL-osoitteet, jotka alkavat http://, eivät hyödynnä parasta mahdollista salausta. Vaihda tällaiset kirjautumisosoitteet https://-muotoisiksi turvallisempaa selausta varten."
   },
   "unsecuredWebsitesFound": {
     "message": "Suojaamattomia verkkosivustoja löytyi"
@@ -1930,7 +1948,7 @@
     "message": "Löytyi kirjautumistietoja, joille ei ole määritetty kaksivaiheista kirjautumista"
   },
   "inactive2faFoundReportDesc": {
-    "message": "Löysimme holv(e)istasi $COUNT$ sivustoa, joita ei ehkä ole määritetty käyttämään kaksivaiheista tunnistautumista (2fa.directory-sivuston mukaan). Nämä tilit tulisi suojata paremmin määrittämällä niille kaksivaiheinen tunnistautuminen.",
+    "message": "Löysimme holv(e)istasi $COUNT$ sivustoa, joita ei ehkä ole määritetty käyttämään kaksivaiheista kirjautumista (2fa.directory-sivuston mukaan). Nämä tilit tulisi suojata paremmin määrittämällä niille kaksivaiheinen tunnistautuminen.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Käyttöoikeuksien laajuus"
   },
-  "groupAccessAllItems": {
-    "message": "Tällä ryhmällä on käyttö- ja muokkausoikeudet kaikkiin kohteisiin."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Ryhmällä on käyttöoikeudet vain valittuihin kokoelmiin."
-  },
   "readOnly": {
     "message": "Vain luku"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Käyttäjä on suojannut tilinsä kaksivaiheisella kirjautumisella."
-  },
-  "userAccessAllItems": {
-    "message": "Käyttäjällä on käyttö- ja muokkausoikeus kaikkiin kohteisiin."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Käyttäjällä on käyttöoikeudet vain valittuihin kokoelmiin."
   },
   "search": {
     "message": "Etsi"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Sinut on kutsuttu liittymään yllä mainittuun organisaatioon. Hyväksyäksesi kutsun, sinun tulee kirjautua tilillesi tai luoda uusi Bitwarden-tili."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Viimeistele organisaatioon liittyminen asettamalla pääsalasana."
+  },
   "inviteAccepted": {
     "message": "Kutsu hyväksyttiin"
   },
@@ -3811,7 +3820,7 @@
     "message": "Et ole valinnut mitään."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Vastaanota Bitwardenilta postilaatikkoosi vinkkejä, uutisia ja tutkimusmahdollisuuksia."
   },
   "unsubscribe": {
     "message": "Lopeta tilaus"
@@ -3985,7 +3994,7 @@
     "message": "API-avain"
   },
   "apiKeyDesc": {
-    "message": "API-avainta voidaan käyttää tunnistautumiseen Bitwardenin julkisen rajapinnan välityksellä (CLI)."
+    "message": "API-avainta voidaan käyttää tunnistautumiseen Bitwardenin julkista rajapintaa vasten."
   },
   "apiKeyRotateDesc": {
     "message": "API-avaimen uudistus mitätöi edellisen avaimen. Voit uudistaa API-avaimen, jos uskot, ettei nykyisen avaimen käyttö ole enää turvallista."
@@ -4174,7 +4183,7 @@
     }
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua todennuksen Internet-yhteyden välityksellä. Haluatko varmasti käyttää tätä asetusta?"
+    "message": "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua tunnistautumisen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Aikakatkaisutoiminnon vahvistus"
@@ -4376,6 +4385,9 @@
   "sendLink": {
     "message": "Send-linkki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copyLink": {
+    "message": "Kopioi linkki"
   },
   "copySendLink": {
     "message": "Kopioi Send-linkki",
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "tai",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Keskitä salaisuuksien hallinta."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Säilytä ja hallitse salaisuuksia turvallisesti yhdessä paikassa ja estä salaisuuksien leviäminen organisaatiossasi."
+  },
+  "preventSecretLeaks": {
+    "message": "Estä salaisuuksien vuodot."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Paranna kehittäjien tuottavuutta."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Paranna yrityksen turvallisuutta."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+  },
+  "tryItNow": {
+    "message": "Kokeile sitä nyt"
+  },
+  "sendRequest": {
+    "message": "Lähetä pyyntö"
+  },
+  "addANote": {
+    "message": "Lisää muistiinpano"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Salaisuushallinta"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Lisää tuotteita Bitwardenilta"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Pyydä Salaisuushallinnan käyttöoikeutta"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Tarvitset ylläpitäjän hyväksynnän kokeillaksesi Salaisuushallintaa."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Pääsypyyntö Salaisuushallintaan lähetettiin sähköpostitse ylläpitäjille."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Anna jäsenille pääsy:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "tarkastele ja valitse jäseniä, joille haluat antaa pääsyn Salaisuushallintaan."
+  },
+  "openYourOrganizations": {
+    "message": "Avaa organisaatiosi"
+  },
+  "usingTheMenuSelect": {
+    "message": "Valitse valikkoa käyttäen"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "myöntääksesi pääsyn valituille jäsenille."
   },
   "sendVaultCardTryItNow": {
     "message": "kokeile sitä nyt",
@@ -5547,7 +5628,7 @@
     "message": "Todennuskoodi vaaditaan."
   },
   "webauthnCancelOrTimeout": {
-    "message": "Todennus peruutettiin tai siinä kesti liian kauan. Yritä uudelleen."
+    "message": "Tunnistautuminen peruttiin tai se kesti liian kauan. Yritä uudelleen."
   },
   "invalidVerificationCode": {
     "message": "Virheellinen todennuskoodi"
@@ -6241,7 +6322,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Virhe yhdistettäessä Duo-palveluun. Käytä toista kaksivaiheista kirjautumismenetelmää tai ota yhteyttä Duoon saadaksesi apua."
+    "message": "Virhe yhdistettäessä Duo-palveluun. Käytä vaihtoehtoista todennustapaa tai ole yhteydessä Duon asiakaspalveluun saadaksesi apua."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
@@ -7179,7 +7260,7 @@
     "message": "Päivitä salausasetuksesi uusien suojaussuositusten mukaisiksi ja vahvista tilisi suojausta."
   },
   "kdfSettingsChangeLogoutWarning": {
-    "message": "Jos jatkat, kaikki aktiiviset istunnot kirjataan ulos. Sinun on kirjauduttava sisään uudelleen ja suoritettava kaksivaiheisen todennuksen määritys. Tietojesi säilyvyyden varmistamiseksi suosittelemme, että viet holvisi sisällön, ennen kuin muutat salausasetuksiasi."
+    "message": "Jos jatkat, kirjataan kaikki aktiiviset istunnot ulos, jonka jälkeen sinun on kirjauduttava sisään uudelleen ja suoritettava mahdollisesti määritetty kaksivaiheinen tunnistautuminen. Tietojesi säilyvyyden varmistamiseksi suosittelemme, että viet holvisi sisällön ennen salausasetustesi muuttamista."
   },
   "secretsManager": {
     "message": "Salaisuushallinta"
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Määritä seuraaviin kokoelmiin"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vain näiden kokoelmien käyttöoikeuden omaavat organisaation jäsenet voivat nähdä kohteen."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Vain näiden kokoelmien käyttöoikeuden omaavat organisaation jäsenet voivat nähdä kohteet."
   },
   "selectCollectionsToAssign": {
@@ -8374,10 +8458,10 @@
     "message": "Et ole valinnut yhtään kokoelmaa."
   },
   "updateName": {
-    "message": "Vaihda nimi"
+    "message": "Muuta nimi"
   },
   "updatedOrganizationName": {
-    "message": "Organisaation nimi vaihdettiin"
+    "message": "Organisaation nimi muutettiin"
   },
   "providerPlan": {
     "message": "Hallintapalvelun toimittaja"
@@ -8425,7 +8509,7 @@
     "message": "Bitcoin"
   },
   "updatedTaxInformation": {
-    "message": "Verotiedot vaihdettiin"
+    "message": "Verotiedot muutettiin"
   },
   "unverified": {
     "message": "Vahvistamaton"
@@ -8543,7 +8627,7 @@
     "message": "Tilausmuutoksista aiheutuvat laskutussumman muutokset huomioidaan suhteutetusti kuukausilaskutuksen seuraavassa veloituksessa."
   },
   "billingHistoryDescription": {
-    "message": "Lataa CSV-tiedosto nähdäksesi jokaisen laskutuspäivän asiakastiedot. Korjattuja veloituksia ei sisällytetä CSV-teidostoon ja ne saattavat poiketa liitetystä laskusta. Tarkimmat laskutustiedot näet kuukausilaskuistasi.",
+    "message": "Lataa CSV-tiedosto nähdäksesi jokaisen laskutuspäivän asiakastiedot. Korjattuja veloituksia ei sisällytetä CSV-tiedostoon ja ne saattavat poiketa liitetystä laskusta. Tarkimmat laskutustiedot näet kuukausilaskuistasi.",
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "noInvoicesToList": {
@@ -8570,21 +8654,33 @@
   "selectFolder": {
     "message": "Valitse kansio"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ siirretään pysyvästi valittulle organisaatiolle, etkä enää omista näitä kohteita.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 kohde siirretään pysyvästi valitulle organisaatiolle, jonka jälkeen et enää omista sitä."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kohdetta siirretään pysyvästi valitulle organisaatiolle, jonka jälkeen et enää omista niitä.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ siirretään pysyvästi organisaatiolle $ORG$, etkä enää omista näitä kohteita.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 kohde siirretään pysyvästi organisaatiolle $ORG$, jonka jälkeen et enää omista sitä.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kohdetta siirretään pysyvästi organisaatiolle $ORG$, jonka jälkeen et enää omista niitä.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -8592,7 +8688,10 @@
       }
     }
   },
+  "data": {
+    "message": "Tiedot"
+  },
   "purchasedSeatsRemoved": {
-    "message": "purchased seats removed"
+    "message": "ostetut käyttäpaikat poistettiin"
   }
 }

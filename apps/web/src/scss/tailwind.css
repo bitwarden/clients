@@ -3,3 +3,25 @@
 @tailwind utilities;
 
 @import "../../../../libs/components/src/tw-theme.css";
+
+/*
+ * Duplicated styling from Angular components.
+ *
+ * For use in non Angular pages like the 404 and connectors.
+ */
+@layer components {
+  .tw-h1 {
+    @apply tw-text-3xl tw-font-semibold;
+  }
+
+  .tw-btn {
+    @apply tw-font-semibold tw-py-1.5 tw-px-3 tw-rounded tw-transition tw-border tw-border-solid tw-text-center tw-no-underline hover:tw-no-underline focus:tw-outline-none;
+  }
+
+  .tw-btn-secondary {
+    @apply tw-btn;
+
+    @apply tw-bg-transparent tw-border-text-muted hover:tw-bg-text-muted hover:tw-border-text-muted hover:!tw-text-contrast disabled:tw-bg-transparent disabled:tw-border-text-muted/60 disabled:!tw-text-muted/60 disabled:tw-cursor-not-allowed;
+    @apply tw-text-muted !important;
+  }
+}

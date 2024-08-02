@@ -33,7 +33,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -45,6 +47,10 @@ import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "../../../billing/organizations/change-plan-dialog.component";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
 import { GroupService } from "../core";
@@ -86,6 +92,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   protected canUseSecretsManager$: Observable<boolean>;
 
+  protected EnableUpgradePasswordManagerSub$ = this.configService.getFeatureFlag$(
+    FeatureFlag.EnableUpgradePasswordManagerSub,
+  );
+
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 62;
   protected rowHeightClass = `tw-h-[62px]`;
@@ -112,6 +122,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     private modalService: ModalService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -375,6 +386,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       case ProductTierType.TeamsStarter:
         product = "teamsStarterPlan";
         break;
+      case ProductTierType.Families:
+        product = "familiesPlan";
+        break;
       default:
         throw new Error(`Unsupported product type: ${productType}`);
     }
@@ -395,7 +409,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (productType !== ProductTierType.Free && productType !== ProductTierType.TeamsStarter) {
+    if (isNotSelfUpgradable(productType)) {
       throw new Error(`Unsupported product type: ${productType}`);
     }
 
@@ -409,7 +423,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (productType !== ProductTierType.Free && productType !== ProductTierType.TeamsStarter) {
+    if (isNotSelfUpgradable(productType)) {
       throw new Error(`Unsupported product type: ${this.organization.productTierType}`);
     }
 
@@ -459,11 +473,32 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       !user &&
       this.dataSource.data.length === this.organization.seats &&
       (this.organization.productTierType === ProductTierType.Free ||
-        this.organization.productTierType === ProductTierType.TeamsStarter)
+        this.organization.productTierType === ProductTierType.TeamsStarter ||
+        this.organization.productTierType === ProductTierType.Families)
     ) {
-      // Show org upgrade modal
-      await this.showSeatLimitReachedDialog();
-      return;
+      const EnableUpgradePasswordManagerSub = await firstValueFrom(
+        this.EnableUpgradePasswordManagerSub$,
+      );
+      if (EnableUpgradePasswordManagerSub) {
+        const reference = openChangePlanDialog(this.dialogService, {
+          data: {
+            organizationId: this.organization.id,
+            subscription: null,
+            productTierType: this.organization.productTierType,
+          },
+        });
+
+        const result = await lastValueFrom(reference.closed);
+
+        if (result === ChangePlanDialogResultType.Submitted) {
+          await this.load();
+        }
+        return;
+      } else {
+        // Show org upgrade modal
+        await this.showSeatLimitReachedDialog();
+        return;
+      }
     }
 
     const dialog = openUserAddEditDialog(this.dialogService, {

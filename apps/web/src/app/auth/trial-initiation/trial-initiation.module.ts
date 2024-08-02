@@ -2,6 +2,7 @@ import { CdkStepperModule } from "@angular/cdk/stepper";
 import { TitleCasePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 
+import { InputPasswordComponent } from "@bitwarden/auth/angular";
 import { FormFieldModule } from "@bitwarden/components";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
@@ -14,6 +15,7 @@ import { TrialBillingStepComponent } from "../../billing/accounts/trial-initiati
 import { EnvironmentSelectorModule } from "../../components/environment-selector/environment-selector.module";
 import { SharedModule } from "../../shared";
 
+import { CompleteTrialInitiationComponent } from "./complete-trial-initiation/complete-trial-initiation.component";
 import { ConfirmationDetailsComponent } from "./confirmation-details.component";
 import { AbmEnterpriseContentComponent } from "./content/abm-enterprise-content.component";
 import { AbmTeamsContentComponent } from "./content/abm-teams-content.component";
@@ -51,9 +53,11 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     PaymentComponent,
     TaxInfoComponent,
     TrialBillingStepComponent,
+    InputPasswordComponent,
   ],
   declarations: [
     TrialInitiationComponent,
+    CompleteTrialInitiationComponent,
     EnterpriseContentComponent,
     TeamsContentComponent,
     ConfirmationDetailsComponent,
@@ -82,7 +86,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     SecretsManagerTrialFreeStepperComponent,
     SecretsManagerTrialPaidStepperComponent,
   ],
-  exports: [TrialInitiationComponent],
+  exports: [TrialInitiationComponent, CompleteTrialInitiationComponent],
   providers: [TitleCasePipe],
 })
 export class TrialInitiationModule {}

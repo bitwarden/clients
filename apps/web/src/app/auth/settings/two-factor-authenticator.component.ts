@@ -7,9 +7,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,6 +46,7 @@ export class TwoFactorAuthenticatorComponent
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;
+  private userVerificationToken: string;
 
   override componentName = "app-two-factor-authenticator";
   qrScriptError = false;
@@ -63,6 +67,7 @@ export class TwoFactorAuthenticatorComponent
     logService: LogService,
     private accountService: AccountService,
     dialogService: DialogService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -112,16 +117,46 @@ export class TwoFactorAuthenticatorComponent
     const request = await this.buildRequestModel(UpdateTwoFactorAuthenticatorRequest);
     request.token = this.formGroup.value.token;
     request.key = this.key;
+    request.userVerificationToken = this.userVerificationToken;
 
     const response = await this.apiService.putTwoFactorAuthenticator(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }
 
+  protected override async disableMethod() {
+    const twoFactorAuthenticatorTokenFeatureFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.AuthenticatorTwoFactorToken,
+    );
+    if (twoFactorAuthenticatorTokenFeatureFlag === false) {
+      return super.disableMethod();
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const request = await this.buildRequestModel(DisableTwoFactorAuthenticatorRequest);
+    request.type = this.type;
+    request.key = this.key;
+    request.userVerificationToken = this.userVerificationToken;
+    await this.apiService.deleteTwoFactorAuthenticator(request);
+    this.enabled = false;
+    this.platformUtilsService.showToast("success", null, this.i18nService.t("twoStepDisabled"));
+    this.onUpdated.emit(false);
+  }
+
   private async processResponse(response: TwoFactorAuthenticatorResponse) {
     this.formGroup.get("token").setValue(null);
     this.enabled = response.enabled;
     this.key = response.key;
+    this.userVerificationToken = response.userVerificationToken;
 
     await this.waitForQRiousToLoadOrError().catch((error) => {
       this.logService.error(error);

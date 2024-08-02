@@ -2,11 +2,10 @@ import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
 import {
-  AuthGuard,
+  authGuard,
   lockGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
-  UnauthGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
@@ -17,6 +16,7 @@ import {
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
+  SetPasswordJitComponent,
   LockIcon,
   RegistrationLinkExpiredComponent,
 } from "@bitwarden/auth/angular";
@@ -47,6 +47,8 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
+import { CompleteTrialInitiationComponent } from "./auth/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
+import { freeTrialTextResolver } from "./auth/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
 import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
@@ -59,6 +61,8 @@ import { EnvironmentSelectorComponent } from "./components/environment-selector/
 import { DataProperties } from "./core";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
+import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
+import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { GeneratorComponent } from "./tools/generator.component";
@@ -102,7 +106,7 @@ const routes: Routes = [
       {
         path: "register",
         component: TrialInitiationComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "createAccount" } satisfies DataProperties,
       },
       {
@@ -132,13 +136,13 @@ const routes: Routes = [
       {
         path: "verify-recover-delete-org",
         component: VerifyRecoverDeleteOrgComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "deleteOrganization" },
       },
       {
         path: "verify-recover-delete-provider",
         component: VerifyRecoverDeleteProviderComponent,
-        canActivate: [UnauthGuard],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "deleteAccount" } satisfies DataProperties,
       },
       {
@@ -149,13 +153,13 @@ const routes: Routes = [
       {
         path: "update-temp-password",
         component: UpdateTempPasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { titleId: "updateTempPassword" } satisfies DataProperties,
       },
       {
         path: "update-password",
         component: UpdatePasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { titleId: "updatePassword" } satisfies DataProperties,
       },
       {
@@ -205,6 +209,15 @@ const routes: Routes = [
             component: RegistrationFinishComponent,
           },
         ],
+      },
+      {
+        path: "set-password-jit",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
+        component: SetPasswordJitComponent,
+        data: {
+          pageTitle: "joinOrganization",
+          pageSubtitle: "finishJoiningThisOrganizationBySettingAMasterPassword",
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "signup-link-expired",
@@ -383,18 +396,40 @@ const routes: Routes = [
       {
         path: "remove-password",
         component: RemovePasswordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: {
           pageTitle: "removeMasterPassword",
           titleId: "removeMasterPassword",
         } satisfies DataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "trial-initiation",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "secrets-manager-trial-initiation",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+        } satisfies AnonLayoutWrapperData,
       },
     ],
   },
   {
     path: "",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), AuthGuard],
+    canActivate: [deepLinkGuard(), authGuard],
     children: [
       {
         path: "vault",
@@ -404,6 +439,16 @@ const routes: Routes = [
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies DataProperties,
+      },
+      {
+        path: "sm-landing",
+        component: SMLandingComponent,
+        data: { titleId: "moreProductsFromBitwarden" },
+      },
+      {
+        path: "request-sm-access",
+        component: RequestSMAccessComponent,
+        data: { titleId: "requestAccessToSecretsManager" },
       },
       {
         path: "create-organization",
@@ -464,7 +509,7 @@ const routes: Routes = [
       },
       {
         path: "tools",
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
           {

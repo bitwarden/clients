@@ -71,7 +71,7 @@ export class WebProviderService {
     request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
     request.collectionName = encryptedCollectionName.encryptedString;
 
-    await this.billingApiService.createClientOrganization(providerId, request);
+    await this.billingApiService.createProviderClientOrganization(providerId, request);
 
     await this.apiService.refreshIdentityToken();
 

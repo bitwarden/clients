@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Podpowiedź do hasła głównego"
   },
+  "joinOrganization": {
+    "message": "Dołącz do organizacji"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Zakończ dołączanie do tej organizacji przez ustawienie hasła głównego."
+  },
   "settings": {
     "message": "Ustawienia"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "Twoja sesja wygasła."
+  },
+  "restartRegistration": {
+    "message": "Zrestartuj rejestrację"
+  },
+  "expiredLink": {
+    "message": "Link wygasł"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Zrestartuj rejestrację lub spróbuj się zalogować."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Możesz mieć już konto"
   },
   "logOutConfirmation": {
     "message": "Czy na pewno chcesz się wylogować?"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Nowe hasło główne nie spełnia wymaganych zasad."
   },
-  "receiveMarketingEmails": {
-    "message": "Otrzymuj e-maile od Bitwarden z ogłoszeniami, poradami i badaniami."
+  "receiveMarketingEmailsV2": {
+    "message": "Uzyskaj poradę, ogłoszenia i możliwości badawcze od Bitwarden w swojej skrzynce odbiorczej."
   },
   "unsubscribe": {
     "message": "Anuluj subskrypcję"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Czas blokowania sejfu przekracza limit określony przez organizację."
+  },
+  "inviteAccepted": {
+    "message": "Zaproszenie zostało zaakceptowane"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatyczne rejestrowanie użytkowników"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "Hasło do pliku jest nieprawidłowe. Użyj hasła które podano przy tworzeniu pliku eksportu."
   },
-  "importDestination": {
-    "message": "Miejsce docelowe importu"
+  "destination": {
+    "message": "Miejsce docelowe"
   },
   "learnAboutImportOptions": {
     "message": "Dowiedz się więcej o opcjach importu"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Dane"
   }
 }

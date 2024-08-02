@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Galvenās paroles norāde"
   },
+  "joinOrganization": {
+    "message": "Pievienoties apvienībai"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Pabeigt pievienošanos šai apvienībai ar galvenās paroles iestatīšanu."
+  },
   "settings": {
     "message": "Iestatījumi"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "Pieteikšanās sesija ir beigusies."
+  },
+  "restartRegistration": {
+    "message": "Sākt reģistrēšanos no jauna"
+  },
+  "expiredLink": {
+    "message": "Saitei beidzies derīgums"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Tev jau varētu būt konts"
   },
   "logOutConfirmation": {
     "message": "Vai tiešām atteikties?"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Jaunā galvenā parole neatbilst nosacījumu prasībām."
   },
-  "receiveMarketingEmails": {
-    "message": "Saņemt e-pasta ziņojumus no Bitwarden par paziņojumiem, padomiem un izpētes iespējām."
+  "receiveMarketingEmailsV2": {
+    "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
+  },
+  "inviteAccepted": {
+    "message": "Uzaicinājums apstiprināts"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "Nederīga datnes parole, lūgums izmantot to paroli, kas tika ievadīta izgūšanas datnes izveidošanas brīdī."
   },
-  "importDestination": {
-    "message": "Ievietošanas galamērķis"
+  "destination": {
+    "message": "Galamērķis"
   },
   "learnAboutImportOptions": {
     "message": "Uzzināt par ievietošanas iespējām"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Dati"
   }
 }

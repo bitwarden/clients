@@ -6,11 +6,14 @@ import { AnonLayoutComponent } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Icon } from "@bitwarden/components";
 
+import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
+
 export interface AnonLayoutWrapperData {
   pageTitle?: string;
   pageSubtitle?: string;
   pageIcon?: Icon;
   showReadonlyHostname?: boolean;
+  maxWidth?: "md" | "3xl";
 }
 
 @Component({
@@ -25,18 +28,24 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected pageSubtitle: string;
   protected pageIcon: Icon;
   protected showReadonlyHostname: boolean;
+  protected maxWidth: "md" | "3xl";
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private i18nService: I18nService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   ngOnInit(): void {
     // Set the initial page data on load
-    this.setAnonLayoutWrapperData(this.route.snapshot.firstChild?.data);
-
+    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data);
     // Listen for page changes and update the page data appropriately
+    this.listenForPageDataChanges();
+    this.listenForServiceDataChanges();
+  }
+
+  private listenForPageDataChanges() {
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -46,11 +55,11 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((firstChildRouteData: Data | null) => {
-        this.setAnonLayoutWrapperData(firstChildRouteData);
+        this.setAnonLayoutWrapperDataFromRouteData(firstChildRouteData);
       });
   }
 
-  private setAnonLayoutWrapperData(firstChildRouteData: Data | null) {
+  private setAnonLayoutWrapperDataFromRouteData(firstChildRouteData: Data | null) {
     if (!firstChildRouteData) {
       return;
     }
@@ -63,8 +72,43 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageSubtitle = this.i18nService.t(firstChildRouteData["pageSubtitle"]);
     }
 
-    this.pageIcon = firstChildRouteData["pageIcon"];
-    this.showReadonlyHostname = firstChildRouteData["showReadonlyHostname"];
+    if (firstChildRouteData["pageIcon"] !== undefined) {
+      this.pageIcon = firstChildRouteData["pageIcon"];
+    }
+
+    this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
+    this.maxWidth = firstChildRouteData["maxWidth"];
+  }
+
+  private listenForServiceDataChanges() {
+    this.anonLayoutWrapperDataService
+      .anonLayoutWrapperData$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data: AnonLayoutWrapperData) => {
+        this.setAnonLayoutWrapperData(data);
+      });
+  }
+
+  private setAnonLayoutWrapperData(data: AnonLayoutWrapperData) {
+    if (!data) {
+      return;
+    }
+
+    if (data.pageTitle) {
+      this.pageTitle = this.i18nService.t(data.pageTitle);
+    }
+
+    if (data.pageSubtitle) {
+      this.pageSubtitle = this.i18nService.t(data.pageSubtitle);
+    }
+
+    if (data.pageIcon) {
+      this.pageIcon = data.pageIcon;
+    }
+
+    if (data.showReadonlyHostname) {
+      this.showReadonlyHostname = data.showReadonlyHostname;
+    }
   }
 
   private resetPageData() {

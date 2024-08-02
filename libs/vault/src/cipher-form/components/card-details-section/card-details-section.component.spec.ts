@@ -62,9 +62,11 @@ describe("CardDetailsSectionComponent", () => {
     cardView.number = "4242 4242 4242 4242";
     cardView.brand = "Visa";
 
-    expect(patchCipherSpy).toHaveBeenCalledWith({
-      card: cardView,
-    });
+    expect(patchCipherSpy).toHaveBeenCalled();
+    const patchFn = patchCipherSpy.mock.lastCall[0];
+
+    const updateCipher = patchFn(new CipherView());
+    expect(updateCipher.card).toEqual(cardView);
   });
 
   it("it converts the year integer to a string", () => {
@@ -75,9 +77,11 @@ describe("CardDetailsSectionComponent", () => {
     const cardView = new CardView();
     cardView.expYear = "2022";
 
-    expect(patchCipherSpy).toHaveBeenCalledWith({
-      card: cardView,
-    });
+    expect(patchCipherSpy).toHaveBeenCalled();
+    const patchFn = patchCipherSpy.mock.lastCall[0];
+
+    const updatedCipher = patchFn(new CipherView());
+    expect(updatedCipher.card).toEqual(cardView);
   });
 
   it('disables `cardDetailsForm` when "disabled" is true', () => {

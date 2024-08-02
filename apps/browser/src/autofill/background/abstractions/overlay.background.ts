@@ -34,8 +34,11 @@ export type WebsiteIconData = {
 export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
+  filledByCipherType?: CipherType;
   tabId?: number;
   frameId?: number;
+  accountCreationFieldType?: string;
+  showInlineMenuAccountCreation?: boolean;
 };
 
 export type InlineMenuElementPosition = {
@@ -50,13 +53,46 @@ export type InlineMenuPosition = {
   list?: InlineMenuElementPosition;
 };
 
+export type NewLoginCipherData = {
+  uri?: string;
+  hostname: string;
+  username: string;
+  password: string;
+};
+
+export type NewCardCipherData = {
+  cardholderName: string;
+  number: string;
+  expirationMonth: string;
+  expirationYear: string;
+  expirationDate?: string;
+  cvv: string;
+};
+
+export type NewIdentityCipherData = {
+  title: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  fullName: string;
+  address1: string;
+  address2: string;
+  address3: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  company: string;
+  phone: string;
+  email: string;
+  username: string;
+};
+
 export type OverlayAddNewItemMessage = {
-  login?: {
-    uri?: string;
-    hostname: string;
-    username: string;
-    password: string;
-  };
+  addNewCipherType?: CipherType;
+  login?: NewLoginCipherData;
+  card?: NewCardCipherData;
+  identity?: NewIdentityCipherData;
 };
 
 export type CloseInlineMenuMessage = {
@@ -91,6 +127,7 @@ export type OverlayPortMessage = {
   command: string;
   direction?: string;
   inlineMenuCipherId?: string;
+  addNewCipherType?: CipherType;
 };
 
 export type InlineMenuCipherData = {
@@ -100,8 +137,13 @@ export type InlineMenuCipherData = {
   reprompt: CipherRepromptType;
   favorite: boolean;
   icon: WebsiteIconData;
+  accountCreationFieldType?: string;
   login?: { username: string };
   card?: string;
+  identity?: {
+    fullName: string;
+    username?: string;
+  };
 };
 
 export type BackgroundMessageParam = {
@@ -165,7 +207,7 @@ export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
-  triggerDelayedAutofillInlineMenuClosure: ({ port }: PortConnectionParam) => void;
+  triggerDelayedAutofillInlineMenuClosure: () => void;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
@@ -178,7 +220,7 @@ export type InlineMenuListPortMessageHandlers = {
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillAutofillInlineMenuCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  addNewVaultItem: ({ port }: PortConnectionParam) => void;
+  addNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
@@ -187,5 +229,5 @@ export type InlineMenuListPortMessageHandlers = {
 export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
-  updateOverlayCiphers(): Promise<void>;
+  updateOverlayCiphers(updateAllCipherTypes?: boolean): Promise<void>;
 }

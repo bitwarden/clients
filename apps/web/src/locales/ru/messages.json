@@ -46,7 +46,7 @@
     "message": "Данные для авторизации"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Ключ аутентификатора"
   },
   "number": {
     "message": "Номер"
@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Элементы перемещены в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Элемент перемещен в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Удалить элемент"
   },
@@ -628,16 +646,16 @@
     "message": "Истек срок действия вашей сессии."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Перезапустить регистрацию"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Истекшая ссылка"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Пожалуйста, перезапустите регистрацию или попробуйте авторизоваться."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Возможно, у вас уже есть аккаунт"
   },
   "logOutConfirmation": {
     "message": "Вы действительно хотите выйти?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Ошибка при расшифровке экспортированного файла. Ваш ключ шифрования не совпадает с ключом шифрования, использованным при экспорте данных."
   },
-  "importDestination": {
-    "message": "Цель импорта"
+  "destination": {
+    "message": "Назначение"
   },
   "learnAboutImportOptions": {
     "message": "Узнайте о возможностях импорта"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Контроль доступа"
   },
-  "groupAccessAllItems": {
-    "message": "Эта группа может иметь доступ и изменять все элементы."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Эта группа может иметь доступ только к выбранным коллекциям."
-  },
   "readOnly": {
     "message": "Только чтение"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Этот пользователь использует двухэтапную аутентификацию для защиты своего аккаунта."
-  },
-  "userAccessAllItems": {
-    "message": "Эта пользователь может иметь доступ и изменять все элементы."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Этот пользователь может иметь доступ только к выбранным коллекциям."
   },
   "search": {
     "message": "Поиск"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Вас пригласили присоединиться к организации, указанной выше. Чтобы принять приглашение, вам необходимо войти или создать новую учетную запись Bitwarden."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершите присоединение к этой организации, установив мастер-пароль."
+  },
   "inviteAccepted": {
     "message": "Приглашение принято"
   },
@@ -3811,7 +3820,7 @@
     "message": "Вы ничего не выбрали."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -4377,6 +4386,9 @@
     "message": "Ссылка на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Скопировать ссылку"
+  },
   "copySendLink": {
     "message": "Скопировать ссылку на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "или",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Команды разработчиков, DevOps и ИТ-специалистов выбирают Bitwarden Secrets Manager для защищенного управления и развертывания своих инфраструктурных и машинных секретов."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Централизуйте управление секретами."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Защищенное хранение и управление секретами в одном месте, чтобы предотвратить распространение секретов по всей организации."
+  },
+  "preventSecretLeaks": {
+    "message": "Предотвратите утечку секретов."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Защитите секреты с помощью сквозного шифрования. Больше не нужно кодировать секреты или делиться ими через файлы .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Повысьте производительность разработчиков."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Программное извлечение и развертывание секретов, чтобы разработчики могли сосредоточиться на том, что больше всего важнее, например, улучшение качества кода."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Укрепление безопасности бизнеса."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Обеспечение жесткого контроля над доступом машин и людей к секретам с помощью интеграции SSO, журналов событий и ротации доступа."
+  },
+  "tryItNow": {
+    "message": "Попробуйте сейчас"
+  },
+  "sendRequest": {
+    "message": "Отправить запрос"
+  },
+  "addANote": {
+    "message": "Добавить заметку"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Менеджер секретов Bitwarden"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Другие продукты от Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Запросить доступ к менеджеру секретов"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Чтобы попробовать Менеджер секретов, необходимо получить разрешение администратора."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Запрос доступа к Менеджеру секретов отправлен администраторам по email."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Привет,\n\nЯ запрашиваю подписку на Менеджер секретов Bitwarden для нашей команды. Ваша поддержка будет иметь большое значение!\n\nМенеджер секретов Bitwarden — это комплексное решение для управления секретами с шифрованием, предназначенное для защищенного хранения, совместного использования и развертывания машинных учетных данных, таких как ключи API, пароли баз данных и сертификаты аутентификации.\n\nМенеджер секретов поможет нам:\n\n- улучшить защищенность\n- отимизировать операции\n- предотвратить дорогостоящие утечки секретной информации\n\nЧтобы запросить бесплатную пробную версию для нашей команды, обратитесь в Bitwarden.\n\nСпасибо за помощь!"
+  },
+  "giveMembersAccess": {
+    "message": "Предоставить участникам доступ:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "просмотрите и выберите участников, которым вы хотите предоставить доступ к Менеджеру секретов."
+  },
+  "openYourOrganizations": {
+    "message": "Открыть вашу организацию"
+  },
+  "usingTheMenuSelect": {
+    "message": "С помощью меню выберите"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "чтобы предоставить доступ отмеченным пользователям."
   },
   "sendVaultCardTryItNow": {
     "message": "попробуйте прямо сейчас",
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Назначить этим коллекциям"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
   },
   "selectCollectionsToAssign": {
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Выбрать папку"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ будут навсегда переданы $ORG$. Вы больше не будете владельцем этих элементов.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан $ORG$. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы $ORG$. Вы больше не будете владельцем этих элементов.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Данные"
   },
   "purchasedSeatsRemoved": {
     "message": "купленные места удалены"

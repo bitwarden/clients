@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Izdzēst vienumu"
   },
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Kļūda izguves datnes atšifrēšanā. Izmantotā atslēga neatbilst tai, kas tika izmantota satura izgūšanai."
   },
-  "importDestination": {
-    "message": "Ievietošanas galamērķis"
+  "destination": {
+    "message": "Galamērķis"
   },
   "learnAboutImportOptions": {
     "message": "Uzzināt par ievietošanas iespējām"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Piekļuves pārraudzība"
   },
-  "groupAccessAllItems": {
-    "message": "Šī kopa var piekļūt visiem vienumiem un mainīt tos."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Šī kopa var piekļūt tikai izvēlētajiem krājumiem."
-  },
   "readOnly": {
     "message": "Tikai lasāms"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Šis lietotājs izmanto divpakāpju pieteikšanos, lai aizsargātu savu kontu."
-  },
-  "userAccessAllItems": {
-    "message": "Šis lietotājs var piekļūt visiem vienumiem un mainīt tos."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Šis lietotājs var piekļūt tikai pie atlasītajiem krājumiem."
   },
   "search": {
     "message": "Meklēt"
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "Tu esi uzaicināts pievienoties augstāk norādītajai apvienībai. Lai to pieņemtu, jāpiesakās vai jāizveido jauns Bitwarden konts."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Pabeigt pievienošanos šai apvienībai ar galvenās paroles iestatīšanu."
   },
   "inviteAccepted": {
     "message": "Uzaicinājums pieņemts"
@@ -4377,6 +4386,9 @@
     "message": "Send saite",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Ievietot saiti starpliktuvē"
+  },
   "copySendLink": {
     "message": "Ievietot Send saiti starpliktuvē",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "vai",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Izstrādes, DevOps un IT komandas izvēlas Bitwarden noslēpumu pārvaldnieku, lai droši pārvaldītu un izvietotu savus infrastruktūras un mašīnu noslēpumus."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Noslēpumu pārvaldības centralizēšana."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Noslēpumu droša uzglabāšana un pārvaldīšana vienā vietā, lai apvienībā novērstu noslēpumu izkliedētību."
+  },
+  "preventSecretLeaks": {
+    "message": "Noslēpumu noplūdes novēršana."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Noslēpumu aizsargāšana ar pilnīgu šifrēšanu. Vairs nekādu noslēpumu kodā vai kopīgošana ar .env datnēm."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Izstrādātāju produktivitātes uzlabošana."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Noslēpumu programmatiska izgūšana un izvietošana izpildlaikā, tādējādi izstrādātāji var pievērsties svarīgākajam, piemēram, koda kvalitātes uzlabošanai."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Uzņēmējdarbības drošības stiprināšana."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Ciešas pārraudzības pār mašīnu un cilvēku piekļuvi noslēpumiem uzturēšana ar SSO integrācijām, notikumu žurnāliem un piekļuves maiņa."
+  },
+  "tryItNow": {
+    "message": "Izmēģināt tagad"
+  },
+  "sendRequest": {
+    "message": "Nosūtīt pieprasījumu"
+  },
+  "addANote": {
+    "message": "Pievienot piezīmi"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden noslēpumu pārvaldnieks"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Vairāk izstrādājumu no Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Pieprasīt piekļuvi Noslēpumu pārvaldniekam"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Ir nepieciešams apstiprinājums no pārvaldītāja, lai izmēģinātu Noslēpumu pārvaldnieku."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Piekļuves pieprasījuma Noslēpumu pārvaldniekam e-pasta ziņojumus ir nosūtīts pārvaldītājiem."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Sveiki!\n\nEs lūdzu Bitwarden noslēpumu pārvaldnieka abonementu mūsu komandai. Jūsu atbalsts būs ļoti nozīmīgs.\n\nBitwarden noslēpumu pārvaldnieks ir pilnībā šifrēts noslēpumu pārvaldības risinājumus tādu mašīnu piekļuves datu kā API atslēgu, datubāžu paroļu un autentifikācijas sertifikātu drošai uzglabāšanai, kopīgošanai un izvietošanai.\n\nNoslēpumu pārvaldnieks palīdzēs mums:\n\n- uzlabot drošību;\n- pilnveidot darbības;\n- novērst dārgas noslēpumu noplūdes.\n\nLai pieprasītu bezmaksas izmēģinājumu mūsu komandai, lūgums vērsties pie Bitwarden.\n\nPaldies par palīdzību!"
+  },
+  "giveMembersAccess": {
+    "message": "Piešķirt dalībniekiem piekļuvi:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "skatīt un atlasīt dalībniekus, kuriem piešķirt piekļuvi Noslēpumu pārvaldniekam."
+  },
+  "openYourOrganizations": {
+    "message": "Jāatver savas apvienības"
+  },
+  "usingTheMenuSelect": {
+    "message": "Izvēlnē jāatlasa"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": ", lai piešķirtu piekļuvi atlasītajiem dalībniekiem."
   },
   "sendVaultCardTryItNow": {
     "message": "izmēģināt tagad",
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Piešķirt šiem krājumiem"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vienumu varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
   },
   "selectCollectionsToAssign": {
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Atlasīt mapi"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti atlasītajai apvienībai. Šie vienumi Tev vairs nepiederēs.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti $ORG$. Šie vienumi Tev vairs nepiederēs.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Dati"
   },
   "purchasedSeatsRemoved": {
     "message": "iegādātās vietas noņemtas"

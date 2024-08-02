@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "安全なデータ保管庫へアクセスするためにログインまたはアカウントを作成してください。"
   },
+  "inviteAccepted": {
+    "message": "招待が承認されました"
+  },
   "createAccount": {
     "message": "アカウントの作成"
   },
@@ -67,6 +70,12 @@
   },
   "masterPassHint": {
     "message": "マスターパスワードのヒント (省略可能)"
+  },
+  "joinOrganization": {
+    "message": "組織に参加"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "マスターパスワードを設定して、この組織への参加を完了します。"
   },
   "tab": {
     "message": "タブ"
@@ -640,13 +649,13 @@
     "message": "現在のウェブページから認証 QR コードをスキャンする"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "2段階認証をシームレスにする"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden は2段階認証コードを保存・入力できます。この欄にキーをコピーして貼り付けてください。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden は2段階認証コードを保存・入力できます。 カメラアイコンを選択して、このウェブサイトの認証 QR コードのスクリーンショットを撮るか、キーをコピーしてこのフィールドに貼り付けてください。"
   },
   "copyTOTP": {
     "message": "認証キーのコピー (TOTP)"
@@ -661,19 +670,19 @@
     "message": "ログインセッションの有効期限が切れています。"
   },
   "logIn": {
-    "message": "Log in"
+    "message": "ログイン"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "登録を再度始める"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "期限切れのリンク"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "登録を再度始めるか、ログインしてください。"
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "すでにアカウントを持っている可能性があります"
   },
   "logOutConfirmation": {
     "message": "ログアウトしてもよろしいですか？"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "新しい URI"
   },
+  "addDomain": {
+    "message": "ドメインの追加",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "追加されたアイテム"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "ログイン情報の追加を尋ねる"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "保管庫のオプションに保存"
+  },
   "addLoginNotificationDesc": {
     "message": "初めてログインしたとき保管庫にログイン情報を保存するよう「ログイン情報を追加」通知を自動的に表示します。"
   },
   "addLoginNotificationDescAlt": {
     "message": "保管庫にアイテムが見つからない場合は、アイテムを追加するよう要求します。ログインしているすべてのアカウントに適用されます。"
   },
+  "showCardsInVaultView": {
+    "message": "保管庫ビューに自動入力の候補としてカードを表示する"
+  },
   "showCardsCurrentTab": {
     "message": "タブページにカードを表示"
   },
   "showCardsCurrentTabDesc": {
     "message": "自動入力を簡単にするために、タブページにカードアイテムを表示します"
+  },
+  "showIdentitiesInVaultView": {
+    "message": "保管庫ビューに自動入力の候補として ID を表示する"
   },
   "showIdentitiesCurrentTab": {
     "message": "タブページに ID を表示"
@@ -1220,7 +1242,16 @@
     "message": "フォーム項目に自動入力メニューを表示",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
+  "autofillSuggestionsSectionTitle": {
+    "message": "自動入力の候補"
+  },
+  "showInlineMenuLabel": {
+    "message": "フォームフィールドに自動入力の候補を表示する"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "アイコンが選択されているときに候補を表示する"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
     "message": "ログインしているすべてのアカウントに適用されます。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
@@ -1241,14 +1272,33 @@
     "message": "自動入力アイコンを選択しているとき",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "ページ読み込み時に自動入力する"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "ページ読み込み時の自動入力を有効化"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "ページ読み込み時にログインフォームを検出したとき、ログイン情報を自動入力します。"
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$警告:$CLOSETAG$ 侵害された、または信頼できないウェブサイトは、ページ読み込み時の自動入力を悪用する可能性があります。",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
     "message": "ウイルス感染したり信頼できないウェブサイトは、ページの読み込み時の自動入力を悪用できてしまいます。"
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "リスクについての詳細"
   },
   "learnMoreAboutAutofill": {
     "message": "自動入力についての詳細"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "真偽値"
+  },
+  "cfTypeCheckbox": {
+    "message": "チェックボックス"
   },
   "cfTypeLinked": {
     "message": "リンク済",
@@ -1848,7 +1901,7 @@
     "message": "新しいマスターパスワードは最低要件を満たしていません。"
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Bitwarden からメールでアドバイスやお知らせ、リサーチの機会を受け取りましょう。"
   },
   "unsubscribe": {
     "message": "配信停止"
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "組織のポリシーにより、個々の保管庫へのアイテムのインポートがブロックされました。"
   },
+  "domainsTitle": {
+    "message": "ドメイン",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "除外するドメイン"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden はログインしているすべてのアカウントで、これらのドメインのログイン情報を保存するよう要求しません。 変更を有効にするにはページを更新する必要があります。"
   },
+  "websiteItemLabel": {
+    "message": "ウェブサイト $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ は有効なドメインではありません",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "除外ドメインの変更を保存しました"
   },
   "send": {
     "message": "Send",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "パスワード保護あり"
+  },
+  "copyLink": {
+    "message": "リンクをコピー"
   },
   "copySendLink": {
     "message": "Send リンクをコピー",
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "自動入力の設定"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "自動入力のショートカット"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "ショートカットの変更"
+  },
   "autofillShortcut": {
     "message": "自動入力キーボードショートカット"
   },
@@ -2970,9 +3048,17 @@
     "message": "一致するログイン情報を表示するには、アカウントのロックを解除してください",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "自動入力候補を表示するにはアカウントのロックを解除してください",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "アカウントのロックを解除",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "アカウントのロックを解除し、新しいウィンドウで開く",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "資格情報を入力：",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "新しい保管庫アイテムを追加",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "新規ログイン",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "新しい保管庫のログインアイテムを追加し、新しいウィンドウで開く",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "新しいカード",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "新しい保管庫のカードアイテムを追加し、新しいウィンドウで開く",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "新しい ID",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "新しい保管庫 ID アイテムを追加し、新しいウィンドウで開く",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwarden 自動入力メニューがあります。下矢印キーを押すと選択できます。",
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "無効なファイルパスワードです。エクスポートファイルを作成したときに入力したパスワードを使用してください。"
   },
-  "importDestination": {
-    "message": "インポート先"
+  "destination": {
+    "message": "保存先"
   },
   "learnAboutImportOptions": {
     "message": "インポートオプションの詳細"
@@ -3343,13 +3453,37 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
   "commonImportFormats": {
     "message": "一般的な形式",
     "description": "Label indicating the most common import formats"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "ブラウザの設定に進みますか？",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "ヘルプセンターに進みますか?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "ブラウザの自動入力とパスワード管理設定を変更します。",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "拡張機能のショートカットはブラウザの設定で表示および設定できます。",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "ブラウザの自動入力とパスワード管理設定を変更します。",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "拡張機能のショートカットはブラウザの設定で表示および設定できます。",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Bitwarden をデフォルトのパスワードマネージャーにしますか？",
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "コピーする値がありません"
   },
-  "assignCollections": {
-    "message": "コレクションを割り当て"
+  "assignToCollections": {
+    "message": "コレクションに割り当て"
   },
   "copyEmail": {
     "message": "メールアドレスをコピー"
@@ -3643,11 +3777,15 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "カード番号の末尾",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "ログイン情報"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "認証キー"
   },
   "cardDetails": {
     "message": "カード情報"
@@ -3667,14 +3805,20 @@
   "loading": {
     "message": "読み込み中"
   },
-  "assign": {
-    "message": "Assign"
+  "data": {
+    "message": "データ"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "assign": {
+    "message": "割り当て"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "$TOTAL_COUNT$ アイテムを選択しました。編集権限がないため、$READONLY_COUNT$ アイテムを更新できません。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3769,23 +3913,35 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "割り当てるコレクションを選択"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1個のアイテムは選択した組織に恒久的に移行されます。このアイテムはあなたの所有ではなくなります。"
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 個のアイテムは選択した組織に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1個のアイテムは $ORG$ に恒久的に移行されます。このアイテムはあなたの所有ではなくなります。",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 個のアイテムは $ORG$ に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3794,13 +3950,31 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "コレクションの割り当てに成功しました"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "何も選択されていません。"
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "選択したアイテムを $ORGNAME$ に移動しました",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "アイテムを $ORGNAME$ に移動しました",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "アイテムを $ORGNAME$ に移動しました",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "アイテムの場所"
   }
 }

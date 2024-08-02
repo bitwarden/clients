@@ -1,7 +1,8 @@
 import { DatePipe } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { map, Subject, takeUntil } from "rxjs";
+import { map } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { InvoiceResponse } from "@bitwarden/common/billing/models/response/invoices.response";
@@ -9,16 +10,23 @@ import { InvoiceResponse } from "@bitwarden/common/billing/models/response/invoi
 @Component({
   templateUrl: "./provider-billing-history.component.html",
 })
-export class ProviderBillingHistoryComponent implements OnInit, OnDestroy {
+export class ProviderBillingHistoryComponent {
   private providerId: string;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private billingApiService: BillingApiServiceAbstraction,
     private datePipe: DatePipe,
-  ) {}
+  ) {
+    this.activatedRoute.params
+      .pipe(
+        map(({ providerId }) => {
+          this.providerId = providerId;
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
 
   getClientInvoiceReport = (invoiceId: string) =>
     this.billingApiService.getProviderClientInvoiceReport(this.providerId, invoiceId);
@@ -29,20 +37,4 @@ export class ProviderBillingHistoryComponent implements OnInit, OnDestroy {
   };
 
   getInvoices = async () => await this.billingApiService.getProviderInvoices(this.providerId);
-
-  ngOnInit() {
-    this.activatedRoute.params
-      .pipe(
-        map(({ providerId }) => {
-          this.providerId = providerId;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

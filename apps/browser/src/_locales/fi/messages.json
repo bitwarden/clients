@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
   },
+  "inviteAccepted": {
+    "message": "Kutsu hyväksyttiin"
+  },
   "createAccount": {
     "message": "Luo tili"
   },
@@ -68,6 +71,12 @@
   "masterPassHint": {
     "message": "Pääsalasanan vihje (valinnainen)"
   },
+  "joinOrganization": {
+    "message": "Liity organisaatioon"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Viimeistele liittyminen organisaatioon asettamalla pääsalasana."
+  },
   "tab": {
     "message": "Välilehti"
   },
@@ -117,7 +126,7 @@
     "message": "Automaattitäytä kortti"
   },
   "autoFillIdentity": {
-    "message": "Automaattitäytä identiteetti"
+    "message": "Automaattitäytä henkilöllisyys"
   },
   "generatePasswordCopied": {
     "message": "Luo salasana (leikepöydälle)"
@@ -141,7 +150,7 @@
     "message": "Lisää kortti"
   },
   "addIdentityMenu": {
-    "message": "Lisää identiteetti"
+    "message": "Lisää henkilöllisyys"
   },
   "unlockVaultMenu": {
     "message": "Avaa holvisi"
@@ -242,7 +251,7 @@
     "message": "Bitwarden Authenticator"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticatorin avulla voit säilyttää todennusavaimet ja luoda TOTP-koodeja kaksivaiheista tunnistautumista varten. Lue lisää bitwarden.com-sivustolta."
+    "message": "Bitwarden Authenticatorin avulla voit säilyttää todennusavaimet ja luoda TOTP-koodeja kaksivaiheista kirjautumista varten. Lue lisää bitwarden.com-sivustolta."
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Salaisuushallinta"
@@ -478,7 +487,7 @@
     "message": "Selaimesi ei tue helppoa leikepöydälle kopiointia. Kopioi kohde manuaalisesti."
   },
   "verifyIdentity": {
-    "message": "Vahvista henkilöllisyys"
+    "message": "Vahvista henkilöllisyytesi"
   },
   "yourVaultIsLocked": {
     "message": "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi."
@@ -612,7 +621,7 @@
     "message": "Todennuskoodi vaaditaan."
   },
   "webauthnCancelOrTimeout": {
-    "message": "Todennus peruutettiin tai siinä kesti liian kauan. Yritä uudelleen."
+    "message": "Tunnistautuminen peruttiin tai se kesti liian kauan. Yritä uudelleen."
   },
   "invalidVerificationCode": {
     "message": "Virheellinen todennuskoodi"
@@ -640,13 +649,13 @@
     "message": "Skannaa todennusavaimen QR-koodi nykyiseltä verkkosivulta"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Tee kaksivaiheisesta kirjautumisesta saumatonta"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kopioi ja liitä todennusavain tähän kenttään."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kamerakuvakkeella voit kaapata todennusavaimen avoimen sivun QR-koodista automaattisesti, tai voit kopioida ja liittää sen tähän kenttään manuaalisesti."
   },
   "copyTOTP": {
     "message": "Kopioi todennusavain (TOTP)"
@@ -661,19 +670,19 @@
     "message": "Kirjautumisistuntosi on erääntynyt."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Kirjaudu"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Aloita rekisteröityminen alusta"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Vanhentunut linkki"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Aloita rekisteröityminen alusta tai yritä kirjautua sisään uudelleen."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Sinulla saattaa olla jo tili"
   },
   "logOutConfirmation": {
     "message": "Haluatko varmasti kirjautua ulos?"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "Uusi URI"
   },
+  "addDomain": {
+    "message": "Lisää verkkotunnus",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "Kohde lisättiin"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "Kysy lisätäänkö kirjautumistieto"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "Holvitallennuksen valinnat"
+  },
   "addLoginNotificationDesc": {
     "message": "Kysy lisätäänkö uusi kohde, jos holvissa ei vielä ole sopivaa kohdetta."
   },
   "addLoginNotificationDescAlt": {
     "message": "Ehdota kohteen tallennusta, jos holvistasi ei vielä löydy vastaavaa kohdetta. Koskee kaikkia kirjautuneita tilejä."
   },
+  "showCardsInVaultView": {
+    "message": "Näytä kortit automaattitäytön ehdotuksina Holvi-näkymässä"
+  },
   "showCardsCurrentTab": {
     "message": "Näytä kortit välilehtiosiossa"
   },
   "showCardsCurrentTabDesc": {
     "message": "Kortit näytetään laajennuksen välilehtisivulla niiden automaattisen täytön helpottamiseksi."
+  },
+  "showIdentitiesInVaultView": {
+    "message": "Näytä henkilöllisyydet automaattitäytön ehdotuksina Holvi-näkymässä"
   },
   "showIdentitiesCurrentTab": {
     "message": "Näytä henkilöllisyydet välilehtiosiossa"
@@ -1067,7 +1089,7 @@
     "message": "Kopioi TOTP-koodi automaattisesti"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennuksen avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
+    "message": "Jos kirjautumistieto sisältää kaksivaiheisen kirjautumisen todennusavaimen, kopioidaan TOTP-koodi leikepöydälle kohteen automaattisen täytön yhteydessä."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
@@ -1106,7 +1128,7 @@
     "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
   },
   "useAnotherTwoStepMethod": {
-    "message": "Käytä toista kaksivaiheisen kirjautumisen todentajaa"
+    "message": "Käytä vaihtoehtoista todennustapaa"
   },
   "insertYubiKey": {
     "message": "Kytke YubiKey-todennuslaitteesi tietokoneen USB-porttiin ja paina sen painiketta."
@@ -1115,7 +1137,7 @@
     "message": "Kytke todennuslaitteesi tietokoneen USB-porttiin. Jos laitteessa on painike, paina sitä."
   },
   "webAuthnNewTab": {
-    "message": "Aloittaaksesi kaksivaiheisen WebAuthn-todennuksen, seuraa alla olevasta painikkeesta uuteen välilehteen avautuvia ohjeita."
+    "message": "Aloittaaksesi kaksivaiheisen WebAuthn-tunnistautumisen, seuraa alla olevasta painikkeesta uuteen välilehteen avautuvia ohjeita."
   },
   "webAuthnNewTabOpen": {
     "message": "Avaa uusi välilehti"
@@ -1220,11 +1242,20 @@
     "message": "Näytä automaattitäytön valikko lomakekentissä",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
+  "autofillSuggestionsSectionTitle": {
+    "message": "Automaattitäytön ehdotukset"
+  },
+  "showInlineMenuLabel": {
+    "message": "Näytä automaattitäytön ehdotukset lomakekentissä"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "Näytä ehdotukset kun kuvaketta painetaan"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Koskee kaikkia kirjautuneita tilejä."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Poista selaimesi sisäänrakennettu salasanahallinta käytöstä sen asetuksista ristiriitojen välttämiseksi."
+    "message": "Poista käytöstä selaimesi asetuksista sen sisäänrakennettu salasanahallinta ristiriitojen välttämiseksi."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Muokkaa selaimen asetuksia"
@@ -1241,14 +1272,33 @@
     "message": "Kun automaattitäytön kuvaketta painetaan",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "Automaattitäyttö sivun avautuessa"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Automaattitäyttö sivun avautuessa"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Automaattinen täyttö suoritetaan sivun avautuessa, jos sivulla havaitaan kirjautumislomake."
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$Varoitus:$CLOSETAG$ Vaarantuneet tai epäluotettavat sivustot voivat hyväksikäyttää sivun avautuessa suoritettavaa automaattista täyttöä.",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
-    "message": "Vaarantuneet tai epäluotettavat sivustot voivat väärinkäyttää sivun avautuessa suoritettavaa automaattista täyttöä."
+    "message": "Vaarantuneet tai epäluotettavat sivustot voivat hyväksikäyttää sivun avautuessa suoritettavaa automaattista täyttöä."
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "Lisätietoja riskeistä"
   },
   "learnMoreAboutAutofill": {
     "message": "Lisätietoja automaattitäytöstä"
@@ -1257,7 +1307,7 @@
     "message": "Kirjautumistietojen automaattitäytön oletusasetus"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Automaattinen täyttö on mahdollista ottaa käyttöön tai poistaa käytöstä kirjautumistietokohtaisesti kirjautumistetoa muokkaamalla."
+    "message": "Automaattinen täyttö voidaan ottaa käyttöön tai poistaa käytöstä kohdekohtaisesti muokkaamalla yksittäisiä kirjautumistietoja."
   },
   "itemAutoFillOnPageLoad": {
     "message": "Automaattitäyttö sivun avautuessa (jos määritetty asetuksista)"
@@ -1266,10 +1316,10 @@
     "message": "Käytä oletusasetusta"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Automaattitäyttö sivun avautuessa"
+    "message": "Automaattitäytä sivun avautuessa"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Ei automaattitäyttöä sivun avautuessa"
+    "message": "Älä automaattitäytä sivun avautuessa"
   },
   "commandOpenPopup": {
     "message": "Avaa holvin ponnahdusikkuna"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "Totuusarvo"
+  },
+  "cfTypeCheckbox": {
+    "message": "Valintaruutu"
   },
   "cfTypeLinked": {
     "message": "Linkitetty",
@@ -1502,7 +1555,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Muokkaa kohdetta $TYPE$",
+    "message": "Muokkaa: $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1758,7 +1811,7 @@
     "message": "Onko sinulla jo tili?"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua todennuksen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?"
+    "message": "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua tunnistautumisen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Aikakatkaisutoiminnon vahvistus"
@@ -1848,7 +1901,7 @@
     "message": "Uusi pääsalasanasi ei täytä käytännön määrittämiä vaatimuksia."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Vastaanota Bitwardenilta postilaatikkoosi vinkkejä, uutisia ja tutkimusmahdollisuuksia."
   },
   "unsubscribe": {
     "message": "Lopeta tilaus"
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Organisaatiokäytäntö estää kohteiden tuonnin yksityiseen holviisi."
   },
+  "domainsTitle": {
+    "message": "Verkkotunnukset",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "Ohitettavat verkkotunnukset"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
   },
+  "websiteItemLabel": {
+    "message": "Verkkotunnus $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ ei ole kelvollinen verkkotunnus",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "Rajoitettujen verkkotunnusten muutokset tallennettiin"
   },
   "send": {
     "message": "Send",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "Salasanasuojattu"
+  },
+  "copyLink": {
+    "message": "Kopioi linkki"
   },
   "copySendLink": {
     "message": "Kopioi Send-linkki",
@@ -2612,7 +2684,7 @@
     "message": "Tunnistelauseke"
   },
   "fingerprintMatchInfo": {
-    "message": "Varmista, että holvisi on avattu ja tunnistelauseke täsmää toisella laitteella."
+    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen."
   },
   "resendNotification": {
     "message": "Lähetä ilmoitus uudelleen"
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "Automaattitäytön asetukset"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "Automaattitäytön pikanäppäin"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "Muuta pikanäppäintä"
+  },
   "autofillShortcut": {
     "message": "Automaattitäytön pikanäppäin"
   },
@@ -2687,7 +2765,7 @@
     "message": "Automaattisen täytön pikanäppäintä ei ole määritetty. Määritä se selaimen asetuksista."
   },
   "autofillShortcutText": {
-    "message": "Automaattisen täytön pikanäppäin on $COMMAND$. Vaihda se selaimen asetuksista.",
+    "message": "Automaattisen täytön pikanäppäin on $COMMAND$. Muuta sitä selaimen asetuksista.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2970,9 +3048,17 @@
     "message": "Näytä sopivat kirjautumistiedot avaamalla tilisi lukitus",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Näytä automaattitäytön ehdotukset avaamalla tilisi lukitus",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Avaa tili",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Avaa tilisi lukitus. Avautuu uudessa ikkunassa.",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "Täytä kirjautumistiedot kohteesta",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "Lisää holviin uusi kohde",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "Uusi kirjautumistieto",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Lisää holviin uusi kirjautumistieto. Avautuu uudessa ikkunassa.",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "Uusi kortti",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Lisää holviin uusi korttitieto. Avautuu uudessa ikkunassa.",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "Uusi henkilöllisyys",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Lisää holviin uusi henkilöllisyys. Avautuu uudessa ikkunassa.",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwardenin automaattisen täytön valikko on käytettävissä. Valitse painamalla alas-nuolinäppäintä.",
@@ -3081,7 +3191,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Virhe yhdistettäessä Duo-palveluun. Käytä toista kaksivaiheista kirjautumismenetelmää tai ota yhteyttä Duoon saadaksesi apua."
+    "message": "Virhe yhdistettäessä Duo-palveluun. Käytä vaihtoehtoista todennustapaa tai ole yhteydessä Duon asiakaspalveluun saadaksesi apua."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "Tiedoston salasana on virheellinen. Käytä vientitiedoston luonnin yhteydessä syötettyä salasanaa."
   },
-  "importDestination": {
-    "message": "Tuontikohde"
+  "destination": {
+    "message": "Kohde"
   },
   "learnAboutImportOptions": {
     "message": "Lue lisää tuontivaihtoehdoista"
@@ -3343,13 +3453,37 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
   "commonImportFormats": {
     "message": "Yleiset muodot",
     "description": "Label indicating the most common import formats"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "Avataanko selaimen asetukset?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "Avataanko tukikeskus?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "Muuta selaimesi automaattisen täytön ja salasanojen hallinnan asetuksia.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "Voit tarkastella ja asettaa laajennusten pikavalintoja selaimesi asetuksissa.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "Muuta selaimesi automaattisen täytön ja salasanojen hallinnan asetuksia.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "Voit tarkastella ja asettaa laajennusten pikavalintoja selaimesi asetuksissa.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Määritetäänkö Bitwarden oletusarvoiseksi salasanahallinnaksi?",
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "Ei kopioitavia arvoja"
   },
-  "assignCollections": {
-    "message": "Määritä kokoelmat"
+  "assignToCollections": {
+    "message": "Määritä kokoelmiin"
   },
   "copyEmail": {
     "message": "Kopioi sähköpostiosoite"
@@ -3569,10 +3703,10 @@
     "message": "Käytöstä poistettujen organisaatioiden kohteet eivät ole käytettävissä. Ole yhteydessä organisaation omistajaan saadaksesi apua."
   },
   "additionalInformation": {
-    "message": "Lisätietoja"
+    "message": "Lisätiedot"
   },
   "itemHistory": {
-    "message": "Kohdehistoria"
+    "message": "Kohteen historia"
   },
   "lastEdited": {
     "message": "Viimeksi muokattu"
@@ -3643,11 +3777,15 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "kortin numero päättyy",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Kirjautumistiedot"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Todennusavain"
   },
   "cardDetails": {
     "message": "Kortin tiedot"
@@ -3667,14 +3805,20 @@
   "loading": {
     "message": "Ladataan"
   },
-  "assign": {
-    "message": "Assign"
+  "data": {
+    "message": "Tiedot"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "assign": {
+    "message": "Määritä"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vain näiden kokoelmien käyttöoikeuden omaavat organisaation jäsenet voivat nähdä kohteen."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Vain näiden kokoelmien käyttöoikeuden omaavat organisaation jäsenet voivat nähdä kohteet."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Olet valinnut $TOTAL_COUNT$ kohdetta. Näistä $READONLY_COUNT$ et voi muuttaa, koska käyttöoikeutesi eivät salli muokkausta.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3695,28 +3839,28 @@
     "message": "Kentän tyyppi"
   },
   "fieldLabel": {
-    "message": "Kentän otsikko"
+    "message": "Kentän nimi"
   },
   "textHelpText": {
-    "message": "Käytä tekstikenttiä tiedoille, kuten turvakysymyksille"
+    "message": "Käytä tekstikenttiä esimerkiksi turvakysymysten kaltaisille tiedoille."
   },
   "hiddenHelpText": {
-    "message": "Käytä piilotettuja kenttiä arkaluonteisille tiedoille, kuten salasanoille"
+    "message": "Käytä piilotettuja kenttiä esimerkiksi salasanojen kaltaisille arkaluonteisille tiedoille."
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to auto-fill a form's checkbox, like a remember email"
+    "message": "Käytä valintaruutuja esimerkiksi sähköpostiosoitteen muistamisen kaltaisten valintaruutujen automaattiseen merkintään."
   },
   "linkedHelpText": {
-    "message": "Käytä linkitettyä kenttää, kun sinulla on automaattitäyttämiseen liittyviä ongelmia tietyllä verkkosivustolla."
+    "message": "Käytä linkitettyjä kenttiä kohdatessasi sivustokohtaisia automaattitäytön ongelmia."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Syötä kentän HTML-koodista löytyvä id-, name-, aria-label- tai placeholder-arvo."
   },
   "editField": {
     "message": "Muokkaa kenttää"
   },
   "editFieldLabel": {
-    "message": "Muokkaa $LABEL$",
+    "message": "Muokkaa kohdetta $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3743,7 +3887,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Siirrä $LABEL$. Liikuta kohdetta ylös- tai alaspäin nuolinäppäimillä.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3752,7 +3896,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ siirrettiin ylös, sijainti: $INDEX$ / $LENGTH$",
+    "message": "$LABEL$ siirrettiin ylemmäs, sijainti: $INDEX$/$LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3769,23 +3913,35 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Valitse määritettävät kokoelmat"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 kohde siirretään pysyvästi valitulle organisaatiolle, jonka jälkeen et enää omista sitä."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kohdetta siirretään pysyvästi valitulle organisaatiolle, jonka jälkeen et enää omista niitä.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 kohde siirretään pysyvästi organisaatiolle $ORG$, jonka jälkeen et enää omista sitä.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kohdetta siirretään pysyvästi organisaatiolle $ORG$, jonka jälkeen et enää omista niitä.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3794,13 +3950,31 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Kokoelmat määritettiin"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Et ole valinnut mitään."
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Valitut kohteet siirrettiin organisaatiolle $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "Kohteet siirrettiin organisaatioon $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Kohde siirrettiin organisaatioon $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3809,7 +3983,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ siirrettiin alas, sijainti: $INDEX$ / $LENGTH$",
+    "message": "$LABEL$ siirrettiin alemmas, sijainti: $INDEX$/$LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "Kohteen sijainti"
   }
 }

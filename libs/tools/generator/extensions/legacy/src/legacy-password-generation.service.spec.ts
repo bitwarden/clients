@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { IntegrationId } from "@bitwarden/common/tools/integration";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   GeneratorService,
@@ -185,7 +186,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator({
         type: "passphrase",
         username: "word",
-        forwarder: "simplelogin",
+        forwarder: "simplelogin" as IntegrationId,
       });
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
@@ -496,7 +497,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator({
         type: "password",
         username: "forwarded",
-        forwarder: "firefoxrelay",
+        forwarder: "firefoxrelay" as IntegrationId,
       });
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(

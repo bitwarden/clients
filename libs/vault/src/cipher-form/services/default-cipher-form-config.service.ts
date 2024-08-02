@@ -48,7 +48,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
 
     return {
       mode,
-      cipherType,
+      cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: false,
       allowPersonalOwnership,
       originalCipher: cipher,

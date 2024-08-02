@@ -394,7 +394,7 @@ export class TaxInfoComponent {
     });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
+    this.route.parent?.parent?.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
       if (this.organizationId) {
         try {

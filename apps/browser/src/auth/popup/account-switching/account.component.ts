@@ -5,7 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AvatarModule } from "@bitwarden/components";
+import { AvatarModule, ItemModule } from "@bitwarden/components";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
@@ -13,10 +13,11 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
   standalone: true,
   selector: "auth-account",
   templateUrl: "account.component.html",
-  imports: [CommonModule, JslibModule, AvatarModule],
+  imports: [CommonModule, JslibModule, AvatarModule, ItemModule],
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
+  @Input() extensionRefreshFlag: boolean = false;
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(

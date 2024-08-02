@@ -1,34 +1,37 @@
 <main
-  class="tw-flex tw-min-h-screen tw-w-full tw-mx-auto tw-flex-col tw-gap-9 tw-bg-background-alt tw-px-4 tw-pb-4 tw-pt-14 tw-text-main"
+  class="tw-flex tw-min-h-screen tw-w-full tw-mx-auto tw-flex-col tw-gap-7 tw-bg-background-alt tw-px-8 tw-pb-4 tw-pt-8 tw-text-main"
 >
+  <bit-icon *ngIf="!hideLogo" [icon]="logo" class="tw-max-w-36"></bit-icon>
+
   <div class="tw-text-center">
-    <div class="tw-px-8">
-      <div *ngIf="icon" class="tw-mb-8">
-        <bit-icon [icon]="icon"></bit-icon>
-      </div>
-      <bit-icon [icon]="logo" class="tw-mx-auto tw-block tw-max-w-72 sm:tw-max-w-xs"></bit-icon>
+    <div class="tw-mx-auto tw-max-w-28 sm:tw-max-w-32">
+      <bit-icon [icon]="icon"></bit-icon>
     </div>
-    <h1 *ngIf="title" bitTypography="h3" class="tw-mt-8 sm:tw-text-2xl">
+
+    <h1 *ngIf="title" bitTypography="h3" class="tw-mt-2 sm:tw-text-2xl">
       {{ title }}
     </h1>
-    <p *ngIf="subtitle" bitTypography="body1">{{ subtitle }}</p>
+    <div *ngIf="subtitle" class="tw-text-sm sm:tw-text-base">{{ subtitle }}</div>
   </div>
+
   <div
     class="tw-mb-auto tw-w-full tw-max-w-md tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
+    [ngClass]="{ 'tw-max-w-md': maxWidth === 'md', 'tw-max-w-3xl': maxWidth === '3xl' }"
   >
     <div
-      class="tw-rounded-xl tw-mb-9 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      class="tw-rounded-2xl tw-mb-9 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
     >
       <ng-content></ng-content>
     </div>
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
-  <footer class="tw-text-center">
+
+  <footer *ngIf="!hideFooter" class="tw-text-center">
     <div *ngIf="showReadonlyHostname">{{ "accessing" | i18n }} {{ hostname }}</div>
     <ng-container *ngIf="!showReadonlyHostname">
       <ng-content select="[slot=environment-selector]"></ng-content>
     </ng-container>
-    <ng-container *ngIf="showYearAndVersion">
+    <ng-container *ngIf="!hideYearAndVersion">
       <div>&copy; {{ year }} Bitwarden Inc.</div>
       <div>{{ version }}</div>
     </ng-container>

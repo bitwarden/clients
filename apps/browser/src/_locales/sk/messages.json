@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Prihláste sa, alebo vytvorte nový účet pre prístup k vášmu bezpečnému trezoru."
   },
+  "inviteAccepted": {
+    "message": "Pozvánka prijatá"
+  },
   "createAccount": {
     "message": "Vytvoriť účet"
   },
@@ -67,6 +70,12 @@
   },
   "masterPassHint": {
     "message": "Nápoveda k hlavnému heslu (voliteľné)"
+  },
+  "joinOrganization": {
+    "message": "Pripojte sa k organizácii"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Dokončite pripojenie k tejto organizácii nastavením hlavného hesla."
   },
   "tab": {
     "message": "Karta"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "Nové URI"
   },
+  "addDomain": {
+    "message": "Pridať doménu",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "Pridaná položka"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "Požiadať o pridanie prihlásenia"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "Uložiť do nastavení trezora"
+  },
   "addLoginNotificationDesc": {
     "message": "Opýtať sa na pridanie prihlasovacích údajov ak ich ešte nemáte v trezore."
   },
   "addLoginNotificationDescAlt": {
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
+  "showCardsInVaultView": {
+    "message": "Zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
+  },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
   },
   "showCardsCurrentTabDesc": {
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
+  },
+  "showIdentitiesInVaultView": {
+    "message": "Zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""
@@ -1220,7 +1242,16 @@
     "message": "Zobraziť ponuku automatického vypĺňania na poliach formulára",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
+  "autofillSuggestionsSectionTitle": {
+    "message": "Návrhy automatického vypĺňania"
+  },
+  "showInlineMenuLabel": {
+    "message": "Zobraziť návrhy automatického vypĺňania v poliach formulára"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "Zobraziť návrhy, keď je vybratá ikona"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Platí pre všetky prihlásené účty."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
@@ -1241,14 +1272,33 @@
     "message": "Keď je vybratá ikona automatického vypĺňania",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "Povoliť automatické vypĺňanie pri načítaní stránky"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Povoliť automatické vypĺňanie pri načítaní stránky"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ak je detekovaný prihlasovací formulár, automaticky vykonať vypĺňanie pri načítaní stránky."
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$Upozornenie:$CLOSETAG$ Kompromitované alebo nedôveryhodné webové stránky môžu využívať automatické vypĺňanie pri načítaní stránky.",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
     "message": "Skompromitované alebo nedôveryhodné stránky môžu pri svojom načítaní zneužiť automatické dopĺňanie."
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "Viac informácií o rizikách"
   },
   "learnMoreAboutAutofill": {
     "message": "Dozvedieť sa viac o automatickom dopĺňaní"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "Boolean"
+  },
+  "cfTypeCheckbox": {
+    "message": "Začiarkavacie políčko"
   },
   "cfTypeLinked": {
     "message": "Prepojené",
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Zásady organizácie zablokovali importovanie položiek do vášho osobného trezoru."
   },
+  "domainsTitle": {
+    "message": "Domény",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "Vylúčené domény"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden nebude požadovať ukladanie prihlasovacích údajov pre tieto domény pre všetky prihlásené účty. Aby sa zmeny prejavili, musíte stránku obnoviť."
   },
+  "websiteItemLabel": {
+    "message": "Webstránka $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ nie je platná doména",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "Uložené zmeny vylúčenej domény"
   },
   "send": {
     "message": "Send",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "Chránené heslom"
+  },
+  "copyLink": {
+    "message": "Kopírovať odkaz"
   },
   "copySendLink": {
     "message": "Kopírovať odkaz na Send",
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "Nastavenia automatického vypĺňania"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "Skratka automatického vypĺňania"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "Zmeniť skratku"
+  },
   "autofillShortcut": {
     "message": "Klávesová skratka automatického vypĺňania"
   },
@@ -2970,9 +3048,17 @@
     "message": "Odomknite svoj účet na zobrazenie zodpovedajúcich prihlasovacích údajov",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Odomknite svoj účet na zobrazenie návrhov automatického vypĺňania",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Odomknúť účet",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Odomknúť konto v novom okne",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "Vyplňte prihlasovacie údaje pre",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "Pridať novú položku trezoru",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "Nové prihlasovacie údaje",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Pridať do trezora nové prihlásenie. Otvorí sa v novom okne",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "Nová karta",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Pridať do trezora novú kartu. Otvorí sa v novom okne",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "Nová identita",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Pridať do trezora novú identitu. Otvorí sa v novom okne",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "K dispozícii je ponuka automatického vyplňovania Bitwardenu. Stlačte tlačidlo so šípkou nadol a vyberte.",
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "Neplatné heslo súboru, použite heslo, ktoré ste zadali pri vytváraní exportného súboru."
   },
-  "importDestination": {
-    "message": "Cieľ importu"
+  "destination": {
+    "message": "Cieľ"
   },
   "learnAboutImportOptions": {
     "message": "Zistiť viac o možnostiach importu"
@@ -3343,13 +3453,37 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
   "commonImportFormats": {
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "Pokračovať do nastavení prehliadača?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "Pokračovať v centre pomoci?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "Zmeňte nastavenia automatického vypĺňania a správy hesiel vo svojom prehliadači.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "Skratky rozšírenia môžete zobraziť a nastaviť v nastaveniach prehliadača.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "Zmeňte nastavenia automatického vypĺňania a správy hesiel vo svojom prehliadači.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "Skratky rozšírenia môžete zobraziť a nastaviť v nastaveniach prehliadača.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Nastaviť Bitwarden ako predvoleného správcu hesiel?",
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "Nie je čo kopírovať"
   },
-  "assignCollections": {
-    "message": "Prideliť zbierky"
+  "assignToCollections": {
+    "message": "Prideliť k zbierkam"
   },
   "copyEmail": {
     "message": "Skopírovať e-mail"
@@ -3643,6 +3777,10 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "karta končí číslom",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
     "message": "Prihlasovacie údaje"
   },
@@ -3667,10 +3805,16 @@
   "loading": {
     "message": "Načíta sa"
   },
+  "data": {
+    "message": "Údaje"
+  },
   "assign": {
     "message": "Priradiť"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Položku si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
   "bulkCollectionAssignmentWarning": {
@@ -3771,21 +3915,33 @@
   "selectCollectionsToAssign": {
     "message": "Vyberte zbierky na priradenie"
   },
-  "personalItemsTransferWarning": {
+  "personalItemTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
+  },
+  "personalItemsTransferWarningPlural": {
     "message": "Do vybranej organizácie sa natrvalo presunú $PERSONAL_ITEMS_COUNT$. Tieto položky už nebudete vlastniť.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "Do $ORG$ sa natrvalo presunú $PERSONAL_ITEMS_COUNT$. Tieto položky už nebudete vlastniť.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "Do $ORG$ sa natrvalo presunie jedna položka. Položku už nebudete vlastniť.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "Do $ORG$ sa natrvalo presunú $PERSONAL_ITEMS_COUNT$ položky. Tieto položky už nebudete vlastniť.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3801,6 +3957,24 @@
   },
   "movedItemsToOrg": {
     "message": "Vybraté položky boli presunuté do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "Položky presunuté do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Položka presunutá do $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "Umiestnenie položky"
   }
 }

@@ -67,6 +67,11 @@ const sshagent = {
   },
 };
 
+const powermonitor = {
+  isLockMonitorAvailable: (): Promise<boolean> =>
+    ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
+};
+
 const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
@@ -100,6 +105,14 @@ const crypto = {
     parallelism: number,
   ): Promise<Uint8Array> =>
     ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
+};
+
+const ephemeralStore = {
+  setEphemeralValue: (key: string, value: string): Promise<void> =>
+    ipcRenderer.invoke("setEphemeralValue", { key, value }),
+  getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
+  removeEphemeralValue: (key: string): Promise<void> =>
+    ipcRenderer.invoke("deleteEphemeralValue", key),
 };
 
 export default {
@@ -157,8 +170,10 @@ export default {
   biometric,
   clipboard,
   sshagent,
+  powermonitor,
   nativeMessaging,
   crypto,
+  ephemeralStore,
 };
 
 function deviceType(): DeviceType {

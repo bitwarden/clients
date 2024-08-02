@@ -9,6 +9,7 @@
 
 html {
   font-size: 10px;
+  overflow: hidden;
 }
 
 body {
@@ -42,12 +43,12 @@ body {
 .inline-menu-list-button-container {
   width: 100%;
   padding: 0.2rem;
-  background: transparent;
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
 
   @include themify($themes) {
+    background: themed("backgroundColor");
     border-top-color: themed("borderColor");
   }
 
@@ -110,7 +111,7 @@ body {
 
 .add-new-item-button {
   svg {
-    top: 0.2rem;
+    top: 0.25rem;
     width: 1.7rem;
     height: 1.7rem;
   }
@@ -119,6 +120,56 @@ body {
 .inline-menu-list-actions {
   padding: 0;
   margin: 0;
+  max-height: 18rem;
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+
+  &--scrollbar {
+    overflow-y: scroll;
+  }
+
+  @include themify($themes) {
+    scrollbar-color: themed("inputBorderColor") darken(themed("backgroundColor"), 1%);
+    border-right-color: themed("borderColor");
+  }
+}
+
+.inline-menu-list-actions::-webkit-scrollbar {
+  width: 0.5rem;
+  background-color: transparent;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-button {
+  display: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 1rem;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+
+  @include themify($themes) {
+    background-color: themed("borderColor");
+  }
+}
+
+.inline-menu-list-container--with-new-item-button {
+  .inline-menu-list-actions {
+    max-height: 13.8rem;
+  }
 }
 
 .inline-menu-list-actions-item {
@@ -220,7 +271,7 @@ body {
     background-repeat: no-repeat;
 
     @include themify($themes) {
-      color: themed("mutedTextColor");
+      color: themed("buttonPrimaryColor");
     }
 
     svg {
@@ -263,7 +314,7 @@ body {
   }
 
   .cipher-name,
-  .cipher-user-login {
+  .cipher-subtitle {
     display: block;
     width: 100%;
     line-height: 1.5;
@@ -283,7 +334,7 @@ body {
     }
   }
 
-  .cipher-user-login {
+  .cipher-subtitle {
     font-size: 1.4rem;
 
     @include themify($themes) {

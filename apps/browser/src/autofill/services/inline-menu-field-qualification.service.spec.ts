@@ -16,8 +16,10 @@ describe("InlineMenuFieldQualificationService", () => {
       forms: {},
       fields: [],
     });
+    chrome.runtime.sendMessage = jest.fn().mockImplementation((message) => ({
+      result: message.command === "getInlineMenuFieldQualificationFeatureFlag",
+    }));
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-    inlineMenuFieldQualificationService["inlineMenuFieldQualificationFlagSet"] = true;
   });
 
   describe("isFieldForLoginForm", () => {
@@ -711,6 +713,226 @@ describe("InlineMenuFieldQualificationService", () => {
           });
         });
       });
+    });
+  });
+
+  describe("isFieldForCreditCardForm", () => {
+    describe("an invalid credit card field", () => {
+      it("has reference to a `new field` keyword", () => {
+        const field = mock<AutofillField>({
+          placeholder: "new credit card",
+        });
+
+        expect(
+          inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+        ).toBe(false);
+      });
+
+      describe("does not have a parent form", () => {
+        it("has no credit card number fields in the page details", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+          });
+          const secondField = mock<AutofillField>({
+            placeholder: "card cvv",
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, secondField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("has no credit card cvv fields in the page details", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+          });
+          const secondField = mock<AutofillField>({
+            placeholder: "card number",
+            autoCompleteType: "cc-number",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, secondField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+      });
+
+      describe("has a parent form", () => {
+        let form: MockProxy<AutofillForm>;
+
+        beforeEach(() => {
+          form = mock<AutofillForm>({ opid: "validFormId" });
+          pageDetails.forms = {
+            validFormId: form,
+          };
+        });
+
+        it("does not have a credit card number field within the same form", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            placeholder: "card cvv",
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("does not contain a cvv field within the same form", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            placeholder: "card number",
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+
+          pageDetails.fields = [field, cardNumberField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+      });
+    });
+
+    describe("a valid credit card field", () => {
+      describe("does not have a parent form", () => {
+        it("is structured on a page with a single credit card number field and a single cvv field", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+          });
+          const cardNumberField = mock<AutofillField>({
+            placeholder: "card number",
+            autoCompleteType: "cc-number",
+          });
+          const cardCvvField = mock<AutofillField>({
+            placeholder: "card cvv",
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+      });
+
+      describe("has a parent form", () => {
+        let form: MockProxy<AutofillForm>;
+
+        beforeEach(() => {
+          form = mock<AutofillForm>({ opid: "validFormId" });
+          pageDetails.forms = {
+            validFormId: form,
+          };
+        });
+
+        it("has a credit card number field and cvv field structured within the same form", () => {
+          const field = mock<AutofillField>({
+            placeholder: "name",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            placeholder: "card number",
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            placeholder: "card cvv",
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+      });
+    });
+  });
+
+  describe("isFieldForAccountCreationForm", () => {
+    it("validates a field for an account creation if the field is formless but at least one new password field exists in the page details", () => {
+      const field = mock<AutofillField>({
+        placeholder: "username",
+        autoCompleteType: "username",
+        type: "text",
+        htmlName: "username",
+        htmlID: "username",
+      });
+      const passwordField = mock<AutofillField>({
+        placeholder: "new password",
+        autoCompleteType: "new-password",
+        type: "password",
+        htmlName: "new-password",
+        htmlID: "new-password",
+      });
+      pageDetails.forms = {};
+      pageDetails.fields = [field, passwordField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForAccountCreationForm(field, pageDetails),
+      ).toBe(true);
+    });
+
+    it("validates a field for an account creation if the field is formless and contains an account creation keyword", () => {
+      const field = mock<AutofillField>({
+        placeholder: "register username",
+        autoCompleteType: "username",
+        type: "text",
+        htmlName: "username",
+        htmlID: "username",
+      });
+      pageDetails.forms = {};
+      pageDetails.fields = [field];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForAccountCreationForm(field, pageDetails),
+      ).toBe(true);
+    });
+  });
+
+  describe("isFieldForIdentityUsername", () => {
+    it("returns true if the field contains a keyword indicating that it is for a username field", () => {
+      const field = mock<AutofillField>({
+        placeholder: "user-name",
+        autoCompleteType: "",
+        type: "text",
+        htmlName: "user-name",
+        htmlID: "user-name",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForIdentityUsername(field)).toBe(true);
+    });
+  });
+
+  describe("isEmailField", () => {
+    it("returns true if the field type is of `email`", () => {
+      const field = mock<AutofillField>({
+        placeholder: "email",
+        autoCompleteType: "",
+        type: "email",
+        htmlName: "email",
+        htmlID: "email",
+      });
+
+      expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(true);
     });
   });
 });

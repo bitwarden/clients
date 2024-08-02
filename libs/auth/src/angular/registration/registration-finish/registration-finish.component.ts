@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
-import { Subject, from, switchMap, takeUntil, tap } from "rxjs";
+import { EMPTY, Subject, from, switchMap, takeUntil, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -76,6 +76,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
             return from(
               this.registerVerificationEmailClicked(this.email, this.emailVerificationToken),
             );
+          } else {
+            // org invite flow
+            this.loading = false;
+            return EMPTY;
           }
         }),
 

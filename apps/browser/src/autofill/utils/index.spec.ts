@@ -38,25 +38,14 @@ describe("generateRandomCustomElementName", () => {
 
 describe("sendExtensionMessage", () => {
   it("sends a message to the extension", async () => {
-    const extensionMessagePromise = sendExtensionMessage("some-extension-message");
+    chrome.runtime.sendMessage = jest.fn().mockResolvedValue("sendMessageResponse");
 
-    // Jest doesn't give anyway to select the typed overload of "sendMessage",
-    // a cast is needed to get the correct spy type.
-    const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage") as unknown as jest.SpyInstance<
-      void,
-      [message: string, responseCallback: (response: string) => void],
-      unknown
-    >;
+    const response = await sendExtensionMessage("some-extension-message", { value: "value" });
 
-    expect(sendMessageSpy).toHaveBeenCalled();
-
-    const [latestCall] = sendMessageSpy.mock.calls;
-    const responseCallback = latestCall[1];
-
-    responseCallback("sendMessageResponse");
-
-    const response = await extensionMessagePromise;
-
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      command: "some-extension-message",
+      value: "value",
+    });
     expect(response).toEqual("sendMessageResponse");
   });
 });

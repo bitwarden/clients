@@ -1,11 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { ObservableTracker } from "@bitwarden/common/spec";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -37,6 +38,7 @@ describe("VaultPopupItemsService", () => {
   const searchService = mock<SearchService>();
   const collectionService = mock<CollectionService>();
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
+  const syncServiceMock = mock<SyncService>();
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -90,6 +92,8 @@ describe("VaultPopupItemsService", () => {
     organizationServiceMock.organizations$ = new BehaviorSubject([mockOrg]);
     collectionService.decryptedCollections$ = new BehaviorSubject(mockCollections);
 
+    syncServiceMock.getLastSync.mockResolvedValue(new Date());
+
     testBed = TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: cipherServiceMock },
@@ -99,6 +103,7 @@ describe("VaultPopupItemsService", () => {
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
+        { provide: SyncService, useValue: syncServiceMock },
       ],
     });
 
@@ -153,6 +158,14 @@ describe("VaultPopupItemsService", () => {
     // Should only emit twice
     expect(tracker.emissions.length).toBe(2);
     await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
+  });
+
+  it("should not emit cipher list if syncService.getLastSync returns null", async () => {
+    syncServiceMock.getLastSync.mockResolvedValue(null);
+
+    const obs$ = service.autoFillCiphers$.pipe(timeout(50));
+
+    await expect(firstValueFrom(obs$)).rejects.toThrow("Timeout has occurred");
   });
 
   describe("autoFillCiphers$", () => {
@@ -386,19 +399,6 @@ describe("VaultPopupItemsService", () => {
       // Restart tracking
       tracked = new ObservableTracker(service.loading$);
       (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
-
-      await trackedCiphers.pauseUntilReceived(2);
-
-      expect(tracked.emissions.length).toBe(3);
-      expect(tracked.emissions[0]).toBe(false);
-      expect(tracked.emissions[1]).toBe(true);
-      expect(tracked.emissions[2]).toBe(false);
-    });
-
-    it("should cycle when filters are applied", async () => {
-      // Restart tracking
-      tracked = new ObservableTracker(service.loading$);
-      service.applyFilter("test");
 
       await trackedCiphers.pauseUntilReceived(2);
 

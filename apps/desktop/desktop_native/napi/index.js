@@ -192,9 +192,10 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`);
 }
 
-const { passwords, biometrics, clipboards, sshagent } = nativeBinding;
+const { passwords, biometrics, clipboards, sshagent, powermonitors } = nativeBinding;
 
 module.exports.passwords = passwords;
 module.exports.biometrics = biometrics;
 module.exports.clipboards = clipboards;
 module.exports.sshagent = sshagent;
+module.exports.powermonitors = powermonitors

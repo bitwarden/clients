@@ -3,10 +3,10 @@
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
-    <div>
-      <label class="tw-block tw-w-full tw-mb-1 tw-text-xs tw-text-muted tw-select-none">
+    <bit-form-field>
+      <bit-label>
         {{ "itemName" | i18n }}
-      </label>
+      </bit-label>
       <input
         readonly
         bitInput
@@ -15,7 +15,7 @@
         aria-readonly="true"
         data-testid="item-name"
       />
-    </div>
+    </bit-form-field>
 
     <ul
       [attr.aria-label]="'itemLocation' | i18n"
@@ -23,20 +23,19 @@
     >
       <li
         *ngIf="cipher.organizationId && organization"
-        class="tw-flex tw-list-none"
+        class="tw-flex tw-items-center tw-list-none"
         [ngClass]="{ 'tw-mb-3': cipher.collectionIds }"
         bitTypography="body2"
         [attr.aria-label]="('owner' | i18n) + organization.name"
         data-testid="owner"
       >
         <i
-          class="tw-pt-1"
           appOrgIcon
           [tierType]="organization.productTierType"
           [size]="'large'"
           [title]="'owner' | i18n"
         ></i>
-        <span aria-hidden="true" class="tw-pl-1 tw-mb-1">
+        <span aria-hidden="true" class="tw-pl-1.5">
           {{ organization.name }}
         </span>
       </li>
@@ -48,17 +47,17 @@
         <ul data-testid="collections">
           <li
             *ngFor="let collection of collections; let last = last"
-            class="tw-flex tw-list-none"
+            class="tw-flex tw-items-center tw-list-none"
             bitTypography="body2"
             [ngClass]="{ 'tw-mb-3': last }"
             [attr.aria-label]="collection.name"
           >
             <i
-              class="bwi bwi-collection bwi-lg tw-pt-1"
+              class="bwi bwi-collection bwi-lg"
               aria-hidden="true"
               [title]="'collection' | i18n"
             ></i>
-            <span aria-hidden="true" class="tw-pl-1 tw-mb-1">
+            <span aria-hidden="true" class="tw-pl-1.5">
               {{ collection.name }}
             </span>
           </li>
@@ -67,12 +66,12 @@
       <li
         *ngIf="cipher.folderId && folder"
         bitTypography="body2"
-        class="tw-flex tw-list-none"
+        class="tw-flex tw-items-center tw-list-none"
         [attr.aria-label]="('folder' | i18n) + folder.name"
         data-testid="folder"
       >
-        <i class="bwi bwi-folder bwi-lg tw-pt-1" aria-hidden="true" [title]="'folder' | i18n"></i>
-        <span aria-hidden="true" class="tw-pl-1 tw-mb-1">{{ folder.name }} </span>
+        <i class="bwi bwi-folder bwi-lg" aria-hidden="true" [title]="'folder' | i18n"></i>
+        <span aria-hidden="true" class="tw-pl-1.5">{{ folder.name }} </span>
       </li>
     </ul>
   </bit-card>

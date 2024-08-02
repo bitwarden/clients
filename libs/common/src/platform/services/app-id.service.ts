@@ -6,6 +6,11 @@ import { APPLICATION_ID_DISK, GlobalStateProvider, KeyDefinition } from "../stat
 
 export const APP_ID_KEY = new KeyDefinition(APPLICATION_ID_DISK, "appId", {
   deserializer: (value: string) => value,
+  cleanupDelayMs: 0,
+  debug: {
+    enableRetrievalLogging: true,
+    enableUpdateLogging: true,
+  },
 });
 export const ANONYMOUS_APP_ID_KEY = new KeyDefinition(APPLICATION_ID_DISK, "anonymousAppId", {
   deserializer: (value: string) => value,

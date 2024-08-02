@@ -66,9 +66,10 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     this.cipherFormContainer.registerChildForm("additionalOptions", this.additionalOptionsForm);
 
     this.additionalOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.cipherFormContainer.patchCipher({
-        notes: value.notes,
-        reprompt: value.reprompt ? CipherRepromptType.Password : CipherRepromptType.None,
+      this.cipherFormContainer.patchCipher((cipher) => {
+        cipher.notes = value.notes;
+        cipher.reprompt = value.reprompt ? CipherRepromptType.Password : CipherRepromptType.None;
+        return cipher;
       });
     });
   }

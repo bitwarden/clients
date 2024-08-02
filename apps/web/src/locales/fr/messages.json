@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Éléments déplacés vers $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Élément déplacé vers $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Supprimer l'élément"
   },
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Erreur lors du déchiffrement du fichier exporté. Votre clé de chiffrement ne correspond pas à la clé de chiffrement utilisée pour exporter les données."
   },
-  "importDestination": {
-    "message": "Destination de l'import"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "En savoir plus sur vos options d'importation"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Contrôle d’accès"
   },
-  "groupAccessAllItems": {
-    "message": "Ce groupe peut voir et modifier tous les éléments."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Ce groupe peut accéder uniquement aux collections sélectionnées."
-  },
   "readOnly": {
     "message": "Lecture seule"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Cet utilisateur utilise l'authentification à deux facteurs pour protéger son compte."
-  },
-  "userAccessAllItems": {
-    "message": "Cet utilisateur peut voir et modifier tous les éléments."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Cet utilisateur peut accéder uniquement aux collections sélectionnées."
   },
   "search": {
     "message": "Rechercher"
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "Vous avez été invité à rejoindre l'organisation ci-dessus. Pour accepter l'invitation, vous devez vous connecter ou créer un nouveau compte Bitwarden."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Terminer de rejoindre cette organisation en définissant un mot de passe principal."
   },
   "inviteAccepted": {
     "message": "Invitation acceptée"
@@ -4377,6 +4386,9 @@
     "message": "Lien du Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Copier le lien"
+  },
   "copySendLink": {
     "message": "Copier le lien du Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "ou",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Les équipes de développement, DevOps et IT choisissent Bitwarden Secrets Manager pour gérer et déployer en toute sécurité leurs infrastructures et leurs secrets de machine."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centraliser la gestion des secrets."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Stockez et gérez les secrets en toute sécurité à un seul endroit pour éviter un étalement secret à travers votre organisation."
+  },
+  "preventSecretLeaks": {
+    "message": "Empêcher les fuites de secrets."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Protégez les secrets avec le chiffrement de bout en bout. Plus de codage dur des secrets ou de partage via des fichiers .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Améliorer la productivité des développeurs."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Récupération et déploiement programmatiques des secrets lors de l'exécution, afin que les développeurs puissent se concentrer sur ce qui compte le plus, comme l'amélioration de la qualité du code."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Renforcer la sécurité de votre entreprise."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Gardez un contrôle rigoureux sur l'accès machine et humain aux secrets grâce aux intégrations SSO, aux journaux d'événements et à la rotation d'accès."
+  },
+  "tryItNow": {
+    "message": "Essayez-le maintenant"
+  },
+  "sendRequest": {
+    "message": "Envoyer la requête"
+  },
+  "addANote": {
+    "message": "Ajouter une note"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Secrets Manager de Bitwarden"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Plus de produits de Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Demander l'accès au Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Vous avez besoin de l'approbation de votre administrateur pour essayer Secrets Manager."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Courriel de demande d'accès au Secrets Manager envoyé aux administrateurs."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Bonjour, \n\nJe demande un abonnement à Secrets Manager de Bitwarden pour mon équipe. Votre support serait très apprécié!\n\nSecrets Manager de Bitwarden est une solution de gestion de chiffrement bout en bout des secrets pour conserver, partager et déployer des identifiants d'appareils comme des clés d'API, des mots de passe de bases de données et des certificats d'authentification de façon sécuritaire.\n\nSecrets Manager nous aidera à :\n\n- Améliorer notre sécurité\n- Accélérer nos opérations\n- Prévenir les fuites coûteuses de nos secrets\n\nPour demander un essai gratuit pour notre équipe, veuillez contacter Bitwarden.\n\nMerci pour votre aide!"
+  },
+  "giveMembersAccess": {
+    "message": "Donner accès aux membres :"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "voir et sélectionner les membres que vous voulez donner accès à Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Ouvrir votre organisation"
+  },
+  "usingTheMenuSelect": {
+    "message": "À l'aide du menu, sélectionnez"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "pour donner accès aux membres sélectionnés."
   },
   "sendVaultCardTryItNow": {
     "message": "essayez-le maintenant",
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Assigner à ces collections"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir l'élément."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir les éléments."
   },
   "selectCollectionsToAssign": {
     "message": "Sélectionnez les collections à assigner"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Sélectionner un dossier"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ seront transférés à l'organisation sélectionnée de façon permanente. Vous ne serez plus propriétaire de ces éléments.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 élément sera transféré définitivement à l'organisation sélectionnée. Vous ne serez plus le propriétaire de cet élément."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "Les éléments $PERSONAL_ITEMS_COUNT$ seront transférés de façon permanente à l'organisation sélectionnée. Vous ne serez plus le propriétaire de ces éléments.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 élément sera transféré définitivement à $ORG$. Vous ne serez plus le propriétaire de cet élément.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ seront transférés à $ORG$ de façon permanente. Vous ne serez plus propriétaire de ces éléments.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Données"
   },
   "purchasedSeatsRemoved": {
     "message": "licenses achetées retirées"

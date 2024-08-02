@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Hovedadgangskodetip"
   },
+  "joinOrganization": {
+    "message": "Bliv medlem af organisation"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Færdiggør tilmeldingen til denne organisation ved at opsætte en hovedadgangskode."
+  },
   "settings": {
     "message": "Indstillinger"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "Loginsessionen er udløbet."
+  },
+  "restartRegistration": {
+    "message": "Genstart registrering"
+  },
+  "expiredLink": {
+    "message": "Udløbet link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Genstart registreringen, eller prøv at logge ind."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Har allerede oprettet en konto?"
   },
   "logOutConfirmation": {
     "message": "Sikker på, at du vil logge ud?"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Din nye hovedadgangskode opfylder ikke politikkravene."
   },
-  "receiveMarketingEmails": {
-    "message": "Get emails from Bitwarden for announcements, advice, and research opportunities."
+  "receiveMarketingEmailsV2": {
+    "message": "Få råd, bekendtgørelser og forskningsmuligheder fra Bitwarden i indbakken."
   },
   "unsubscribe": {
     "message": "Afmeld"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Din boks-timeout overskrider de organisationsbestemte restriktioner."
+  },
+  "inviteAccepted": {
+    "message": "Invitation accepteret"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Auto-indrullering"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "Ugyldig filadgangskode. Brug samme adgangskode som under oprettelsen af eksportfilen."
   },
-  "importDestination": {
-    "message": "Importdestination"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Læs om importmuligheder"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   }
 }

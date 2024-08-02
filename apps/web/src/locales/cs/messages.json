@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Položky přesunuty do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Položka přesunuta do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Smazat položku"
   },
@@ -628,16 +646,16 @@
     "message": "Platnost přihlášení vypršela."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Restartovat registraci"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Platnost odkazu vypršela"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Restartujte registraci nebo se zkuste přihlásit."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Už možná máte účet"
   },
   "logOutConfirmation": {
     "message": "Opravdu se chcete odhlásit?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Chyba při dešifrování exportovaného souboru. Váš šifrovací klíč se neshoduje s klíčem použitým během exportu dat."
   },
-  "importDestination": {
-    "message": "Cíl importu"
+  "destination": {
+    "message": "Cíl"
   },
   "learnAboutImportOptions": {
     "message": "Více o volbách importu"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Správa přístupů"
   },
-  "groupAccessAllItems": {
-    "message": "Tato skupina může vidět a upravovat vše."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Tato skupina může vidět a upravovat jen vybrané kolekce."
-  },
   "readOnly": {
     "message": "Jen ke čtení"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Tento uživatel používá pro ochranu svého účtu dvoufázové přihlášení."
-  },
-  "userAccessAllItems": {
-    "message": "Tento uživatel může vidět a upravovat vše."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Tento uživatel může vidět a upravovat jen vybrané kolekce."
   },
   "search": {
     "message": "Hledat"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Byli jste pozváni do výše uvedené organizace. Chcete-li přijmout pozvánku, musíte se přihlásit nebo vytvořit nový účet na Bitwardenu."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Dokončete připojení k této organizaci nastavením hlavního hesla."
+  },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
@@ -3811,7 +3820,7 @@
     "message": "Nevybrali jste žádné položky."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
   },
   "unsubscribe": {
     "message": "Odhlásit odběr"
@@ -4377,6 +4386,9 @@
     "message": "Odkaz pro Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Kopírovat odkaz"
+  },
   "copySendLink": {
     "message": "Kopírovat odkaz pro Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "nebo",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Vývojáři i IT týmy si vybírají Správce tajných klíčů Bitwardenu pro bezpečnou správu a nasazení do jejich své infrastruktury a tajných klíčů."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralizujte správu tajných klíčů."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Bezpečně ukládejte a spravujte tajné klíče na jednom místě, aby se zabránilo rozšíření tajných klíčů napříč Vaší organizací."
+  },
+  "preventSecretLeaks": {
+    "message": "Zabraňte únikům tajných klíčů."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Chraňte tajné klíče pomocí end-to-end šifrování. Už žádné pevné kódování tajných klíčů ani sdílení pomocí souborů .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Zvyšte produktivitu vývojářů."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programově získávejte a nasazujte tajné klíče za běhu, aby se vývojáři mohli soustředit na to nejdůležitější, například na zlepšování kvality kódu."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Posilte zabezpečení podniku."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Udržujte přísnou kontrolu nad přístupem strojů a lidí ke klíčům pomocí integrace SSO, protokolů událostí a rotace přístupu."
+  },
+  "tryItNow": {
+    "message": "Vyzkoušejte nyní"
+  },
+  "sendRequest": {
+    "message": "Odeslat požadavek"
+  },
+  "addANote": {
+    "message": "Přidat poznámku"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Správce tajných klíčů Bitwardenu"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Více produktů od Bitwardenu"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Požádat o přístup ke správci tajných klíčů"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Potřebujete schválení správce, abyste mohli vyzkoušet správce tajných klíčů."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Žádost o přístup k e-mailu správce tajných klíčů odeslaná administrátorům."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Zdravím,\n\nžádám o předplatné Správce tajných klíčů Bitwardenu pro náš tým. Vaše podpora by pro nás znamenala mnoho!\n\nSprávce tajných klíčů Bitwardenu je end-to-end řešení pro správu šifrovaných tajných klíčů pro bezpečné ukládání, sdílení a nasazení strojových pověření, jako jsou klíče API, databázová hesla a ověřovací certifikáty.\n\nSprávce klíčů nám pomůže:\n\n- zlepšit zabezpečení\n- zjednodušit provoz\n- zabránit nákladným únikům tajných klíčů\n\nChcete-li požádat o bezplatnou zkušební verzi pro náš tým, obraťte se na společnost Bitwarden.\n\nDěkujeme Vám za pomoc!"
+  },
+  "giveMembersAccess": {
+    "message": "Umožnit členům přístup:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "zobrazit a vybrat členy, které chcete povolit přístup do správce tajných klíčů."
+  },
+  "openYourOrganizations": {
+    "message": "Otevřít"
+  },
+  "usingTheMenuSelect": {
+    "message": "V menu vyberte"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "pro udělení přístupu vybraným členům."
   },
   "sendVaultCardTryItNow": {
     "message": "to teď vyzkoušejte",
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Přiřadit k těmto kolekcím"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položku."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
   },
   "selectCollectionsToAssign": {
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Vybrat složku"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ bude trvale převedeno do $ORG$. Tyto položky již nebudete vlastnit.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do $ORG$. Tuto položku již nebudete vlastnit.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do $ORG$. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   },
   "purchasedSeatsRemoved": {
     "message": "zakoupení uživatelé odebráni"

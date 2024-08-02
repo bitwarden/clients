@@ -3,7 +3,7 @@ import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
 
 import { array, record } from "./deserialization-helpers";
-import { KeyDefinitionOptions } from "./key-definition";
+import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
 export type ClearEvent = "lock" | "logout";
@@ -20,6 +20,11 @@ export class UserKeyDefinition<T> {
    * A unique array of events that the state stored at this key should be cleared on.
    */
   readonly clearOn: ClearEvent[];
+
+  /**
+   * Normalized options used for debugging purposes.
+   */
+  readonly debug: Required<DebugOptions>;
 
   constructor(
     readonly stateDefinition: StateDefinition,
@@ -38,6 +43,13 @@ export class UserKeyDefinition<T> {
 
     // Filter out repeat values
     this.clearOn = Array.from(new Set(options.clearOn));
+
+    // Normalize optional debug options
+    const { enableUpdateLogging = false, enableRetrievalLogging = false } = options.debug ?? {};
+    this.debug = {
+      enableUpdateLogging,
+      enableRetrievalLogging,
+    };
   }
 
   /**

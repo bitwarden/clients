@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Elementlər bura daşındı: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Element bura daşındı: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Elementi sil"
   },
@@ -628,16 +646,16 @@
     "message": "Seansın müddəti bitdi."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Qeydiyyatı yenidən başlat"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Vaxtı bitmiş keçid"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lütfən qeydiyyatı yenidən başladın və ya giriş etməyə çalışın."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Artıq bir hesabınız ola bilər"
   },
   "logOutConfirmation": {
     "message": "Çıxış etmək istədiyinizə əminsiniz?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanı xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
-  "importDestination": {
-    "message": "Hədəfi daxilə köçür"
+  "destination": {
+    "message": "Hədəf"
   },
   "learnAboutImportOptions": {
     "message": "Daxilə köçürmə seçimlərinizi öyrənin"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Müraciət nəzarəti"
   },
-  "groupAccessAllItems": {
-    "message": "Bu qrup, bütün elementlərə müraciət edə və onları dəyişdirə bilər."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Bu qrup, yalnız seçilmiş kolleksiyalara müraciət edə bilər."
-  },
   "readOnly": {
     "message": "Yalnız-oxunan"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Bu istifadəçinin hesabını qorumaq üçün iki addımlı giriş istifadə edilir."
-  },
-  "userAccessAllItems": {
-    "message": "Bu istifadəçi bütün elementlərə müraciət edə və onları dəyişdirə bilər."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Bu istifadəçi, yalnız seçilmiş kolleksiyalara müraciət edə bilər."
   },
   "search": {
     "message": "Axtar"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Yuxarıdakı təşkilata qoşulmaq üçün dəvət edildiniz. Dəvəti qəbul etmək üçün Bitwarden hesabına giriş etməli və ya yeni bir hesab yaratmalısınız."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Bu ana parol təyin edərək bu təşkilata qoşulmağı tamamlayın."
+  },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
@@ -3811,7 +3820,7 @@
     "message": "Heç nə seçmədiniz."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -4265,7 +4274,7 @@
     "message": "Bu təşkilat üçün SSO əlaqəsini kəsmək istədiyinizə əminsiniz?"
   },
   "linkSso": {
-    "message": "SSO bağlantısını yarat"
+    "message": "SSO ilə əlaqələndir"
   },
   "singleOrg": {
     "message": "Tək təşkilat"
@@ -4374,11 +4383,14 @@
     "message": "Ləğv edildi"
   },
   "sendLink": {
-    "message": "\"Send\" bağlantısı",
+    "message": "\"Send\" keçidi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Keçidi kopyala"
+  },
   "copySendLink": {
-    "message": "\"Send\" bağlantısını kopyala",
+    "message": "\"Send\" keçidini kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "removePassword": {
@@ -4755,10 +4767,10 @@
     "message": "Göndərmək istədiyiniz fayl."
   },
   "copySendLinkOnSave": {
-    "message": "Saxladıqdan sonra bu \"Send\"in paylaşma bağlantısını lövhəmə kopyala."
+    "message": "Saxladıqdan sonra bu \"Send\"in paylaşma keçidini lövhəmə kopyala."
   },
   "sendLinkLabel": {
-    "message": "\"Send\" bağlantısı",
+    "message": "\"Send\" keçidi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
@@ -4792,6 +4804,75 @@
     "message": "və ya",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Sirlərin idarə edilməsini mərkəzləşdirin."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Sirlərin təşkilatınızda yayılmasını önləmək üçün sirləri güvənli şəkildə saxlayın və idarə edin."
+  },
+  "preventSecretLeaks": {
+    "message": "Sirr sızıntılarını önləyin."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Sirləri ucdan-uca şifrələmə ilə qoruyun. Artıq sabit kodlaşdırma sirlərinə və ya .env faylları üzərindən paylaşmağa ehtiyac yoxdur."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Tərtibatçı məhsuldarlığını artır."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Tərtibatçıların, kod keyfiyyətini yaxşılaşdırmaq kimi vacib mövzulara fokuslana bilməsi üçün \"runtime\"da sirləri proqramlı şəkildə alın və yerləşdirin."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Biznes təhlükəsizliyini gücləndirin."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "SSO inteqrasiyaları, \"event\" jurnalları və \"access rotation\" ilə maşın və insanların sirlərə müraciətinə ciddi nəzarət edin."
+  },
+  "tryItNow": {
+    "message": "İndi sına"
+  },
+  "sendRequest": {
+    "message": "Tələb göndər"
+  },
+  "addANote": {
+    "message": "Not əlavə et"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Sirr Meneceri"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Bitwarden-dən daha çox məhsul"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "\"Sirr Meneceri\"nə müraciət tələb et"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "\"Sirr Meneceri\"ni sınamaq üçün administratorunuzun təsdiqi lazımdır."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Sirr menecerinə müraciət tələbi üçün e-poçt adminlərə göndərildi."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Salam,\n\nBu, komandamız üçün \"Bitwarden Sirr Meneceri\"nə abunə olmaq istəyidir. Dəstəyiniz, bizim üçün böyük məna kəsb edir!\n\nBitwarden Sirr Meneceri, API açarları, databaza parolları və autentifikasiya sertifikatları kimi maşın kimlik məlumatlarını güvənli şəkildə saxlamaq, paylaşmaq və yerləşdirmək üçün ucdan-uca şifrələnmiş sirlərin idarə edilməsi həllidir.\n\nSirr Meneceri, bizə belə kömək edəcək:\n\n- Güvənliyi artırmaq\n- Əməliyyatları asanlaşdırmaq\n- Dəyərli sirr sızıntılarını önləmək\n\nKomandamız üçün ödənişsiz sınağı tələb etmək üçün lütfən Bitwarden ilə əlaqə saxlayın.\n\nKöməyiniz üçün təşəkkürlər!"
+  },
+  "giveMembersAccess": {
+    "message": "Üzvlərə müraciət icazəsi vermə:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "Sirr Menecerinə müraciət icazəsi vermək üçün üzvləri görün və seçin."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Using the menu, select"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "to grant access to selected members."
+  },
   "sendVaultCardTryItNow": {
     "message": "indi sınayın",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, or **try it now**.'"
@@ -4818,7 +4899,7 @@
     }
   },
   "viewSendHiddenEmailWarning": {
-    "message": "Bu \"Send\"i yaradan Bitwarden istifadəçisi e-poçt ünvanını gizlətməyi seçdi. İstifadə etməzdən və ya endirməzdən əvvəl bu bağlantının mənbəyinin etibarlı olduğuna əmin olmalısınız.",
+    "message": "Bu \"Send\"i yaradan Bitwarden istifadəçisi e-poçt ünvanını gizlətməyi seçib. İstifadə etməzdən və ya endirməzdən əvvəl bu keçidin mənbəyinin etibarlı olduğuna əmin olmalısınız.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDateIsInvalid": {
@@ -4894,7 +4975,7 @@
     }
   },
   "eventResetSsoLink": {
-    "message": "$ID$ istifadəçisi üçün SSO bağlantısını sıfırla",
+    "message": "$ID$ istifadəçisi üçün SSO keçidini sıfırla",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5427,7 +5508,7 @@
     "message": "Ailə sirləri üçün paylaşılan kolleksiyalar"
   },
   "badToken": {
-    "message": "Bağlantı artıq etibarlı deyil. Lütfən sponsorun təklifi yenidən göndərməsini təmin edin."
+    "message": "Keçid, artıq etibarlı deyil. Lütfən sponsorun təklifi yenidən göndərməsini təmin edin."
   },
   "reclaimedFreePlan": {
     "message": "Geri alınmış ödənişsiz plan"
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Bu kolleksiyalara təyin et"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementi görə biləcək."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
   },
   "selectCollectionsToAssign": {
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Qovluq seç"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$, $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 element $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ element $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   },
   "purchasedSeatsRemoved": {
     "message": "satın alınmış yerlər silindi"

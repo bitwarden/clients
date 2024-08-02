@@ -1,8 +1,12 @@
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { createInitAutofillInlineMenuListMessageMock } from "../../../../spec/autofill-mocks";
+import {
+  createAutofillOverlayCipherDataMock,
+  createInitAutofillInlineMenuListMessageMock,
+} from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
@@ -69,7 +73,46 @@ describe("AutofillInlineMenuList", () => {
         );
       });
 
-      it("creates the views for the no results inline menu", () => {
+      it("creates the views for the no results inline menu that should be filled by a login cipher", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for the no results inline menu that should be filled by a card cipher", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            filledByCipherType: CipherType.Card,
+            portKey,
+          }),
+        );
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for the no results inline menu that should be filled by an identity cipher", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            filledByCipherType: CipherType.Identity,
+            portKey,
+          }),
+        );
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for the no results inline menu that does not have a fill by cipher type", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            filledByCipherType: undefined,
+            portKey,
+          }),
+        );
+
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
@@ -80,7 +123,7 @@ describe("AutofillInlineMenuList", () => {
         addVaultItemButton.dispatchEvent(new Event("click"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "addNewVaultItem", portKey },
+          { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
           "*",
         );
       });
@@ -91,16 +134,68 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock());
       });
 
-      it("creates the view for a list of ciphers", () => {
+      it("creates the view for a list of login ciphers", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for a list of card ciphers", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            filledByCipherType: CipherType.Card,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Card,
+                card: "Visa, *4234",
+                login: null,
+                icon: {
+                  imageEnabled: true,
+                  icon: "bw-id-card card-visa",
+                },
+              }),
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Card,
+                card: "*2234",
+                login: null,
+                icon: {
+                  imageEnabled: true,
+                  icon: "bw-id-card card-visa",
+                },
+              }),
+            ],
+          }),
+        );
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the views for a list of identity ciphers", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            filledByCipherType: CipherType.Card,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Identity,
+                identity: { fullName: "firstName lastName" },
+                login: null,
+                icon: {
+                  imageEnabled: true,
+                  icon: "bwi-id-card",
+                },
+              }),
+            ],
+          }),
+        );
+
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
       it("loads ciphers on scroll one page at a time", () => {
         jest.useFakeTimers();
+        autofillInlineMenuList["ciphersList"].scrollTop = 10;
         const originalListOfElements =
           autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
 
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.runAllTimers();
 
         const updatedListOfElements =
@@ -112,17 +207,18 @@ describe("AutofillInlineMenuList", () => {
 
       it("debounces the ciphers scroll handler", () => {
         jest.useFakeTimers();
+        autofillInlineMenuList["ciphersList"].scrollTop = 10;
         autofillInlineMenuList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
         const handleDebouncedScrollEventSpy = jest.spyOn(
           autofillInlineMenuList as any,
           "handleDebouncedScrollEvent",
         );
 
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(400);
 
         expect(handleDebouncedScrollEventSpy).toHaveBeenCalledTimes(1);
@@ -159,7 +255,7 @@ describe("AutofillInlineMenuList", () => {
           expect((secondFillCipherElement as HTMLElement).focus).toBeCalled();
         });
 
-        it("directs focus to the first item in the cipher list if no cipher is present after the current one when pressing ArrowDown", () => {
+        it("directs focus to the first item in the cipher list if no cipher is present after the current one when pressing ArrowDown and no new item button exists", () => {
           const fillCipherElements =
             autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
               ".fill-cipher-button",
@@ -171,6 +267,26 @@ describe("AutofillInlineMenuList", () => {
           lastFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
           expect((firstFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("directs focus to the new item button if no cipher is present after the current one when pressing ArrowDown", async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({
+              portKey,
+              showInlineMenuAccountCreation: true,
+            }),
+          );
+          await flushPromises();
+          const fillCipherElements =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
+          const lastFillCipherElement = fillCipherElements[fillCipherElements.length - 1];
+          jest.spyOn(autofillInlineMenuList["newItemButtonElement"], "focus");
+
+          lastFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect(autofillInlineMenuList["newItemButtonElement"].focus).toBeCalled();
         });
 
         it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
@@ -199,6 +315,26 @@ describe("AutofillInlineMenuList", () => {
           firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
           expect((lastFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("directs focus to the new item button if no cipher is present before the current one when pressing ArrowUp", async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({
+              portKey,
+              showInlineMenuAccountCreation: true,
+            }),
+          );
+          await flushPromises();
+          const fillCipherElements =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
+          const firstFillCipherElement = fillCipherElements[0];
+          jest.spyOn(autofillInlineMenuList["newItemButtonElement"], "focus");
+
+          firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+          expect(autofillInlineMenuList["newItemButtonElement"].focus).toBeCalled();
         });
 
         it("allows the user to move keyboard focus to the view cipher button on ArrowRight", () => {
@@ -287,6 +423,85 @@ describe("AutofillInlineMenuList", () => {
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
 
           expect((viewCipherButton as HTMLElement).focus).not.toBeCalled();
+        });
+      });
+
+      describe("account creation elements", () => {
+        let newVaultItemButtonSpy: HTMLButtonElement;
+
+        beforeEach(async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({
+              filledByCipherType: CipherType.Login,
+              showInlineMenuAccountCreation: true,
+              portKey,
+              ciphers: [
+                createAutofillOverlayCipherDataMock(1, {
+                  type: CipherType.Identity,
+                  identity: { username: "username", fullName: "firstName lastName" },
+                  login: null,
+                  icon: {
+                    imageEnabled: true,
+                    icon: "bwi-id-card",
+                  },
+                }),
+              ],
+            }),
+          );
+          await flushPromises();
+          newVaultItemButtonSpy = autofillInlineMenuList["newItemButtonElement"];
+        });
+
+        it("creates the inline menu account creation view", async () => {
+          expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+          expect(newVaultItemButtonSpy).not.toBeUndefined();
+        });
+
+        it("allows for the creation of a new login cipher", () => {
+          newVaultItemButtonSpy.dispatchEvent(new Event("click"));
+
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+            { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
+            "*",
+          );
+        });
+
+        describe("keydown events on the add new vault item button", () => {
+          it("ignores keydown events that are not ArrowDown or ArrowUp", () => {
+            const fillCipherButton =
+              autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+                ".fill-cipher-button",
+              );
+            jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+            newVaultItemButtonSpy.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
+
+            expect((fillCipherButton as HTMLElement).focus).not.toHaveBeenCalled();
+          });
+
+          it("focuses the first element of the cipher list when ArrowDown is pressed on the newItem button", () => {
+            const fillCipherButton =
+              autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+                ".fill-cipher-button",
+              );
+            jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+            newVaultItemButtonSpy.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+            expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
+          });
+
+          it("focuses the last element of the cipher list when ArrowUp is pressed on the newItem button", () => {
+            const fillCipherButton =
+              autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+                ".fill-cipher-button",
+              );
+            jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+            newVaultItemButtonSpy.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+            expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
+          });
         });
       });
     });

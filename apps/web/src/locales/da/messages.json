@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Emner flyttet til $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Emne flyttet til $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Slet emne"
   },
@@ -628,16 +646,16 @@
     "message": "Login-session udløbet."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Genstart registrering"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Udløbet link"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Genstart registreringen eller prøv at logge ind."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Har allerede oprettet en konto?"
   },
   "logOutConfirmation": {
     "message": "Sikker på, at du vil logge ud?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Fejl under dekryptering af den eksporterede fil. Krypteringsnøglen matcher ikke den til dataeksporten anvendte krypteringsnøgle."
   },
-  "importDestination": {
-    "message": "Importér destination"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Læs om importmuligheder"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Adgangskontrol"
   },
-  "groupAccessAllItems": {
-    "message": "Denne gruppe kan få adgang til og ændre alle elementer."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Denne gruppe kan kun få adgang til de valgte samlinger."
-  },
   "readOnly": {
     "message": "Læsetilladelse"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Denne bruger benytter totrins-login for at beskytte kontoen."
-  },
-  "userAccessAllItems": {
-    "message": "Denne bruger kan få adgang til og ændre alle elementer."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Denne bruger kan kun få adgang til de valgte samlinger."
   },
   "search": {
     "message": "Søg"
@@ -3453,6 +3459,9 @@
   "joinOrganizationDesc": {
     "message": "Du er blevet inviteret til at blive medlem af organisationen anført ovenfor. For at acceptere invitationen skal du logge ind eller oprette en ny Bitwarden-konto."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Færdiggør tilmeldingen til denne organisation ved at opsætte en hovedadgangskode."
+  },
   "inviteAccepted": {
     "message": "Invitation accepteret"
   },
@@ -3811,7 +3820,7 @@
     "message": "Du har ikke valgt noget."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Få råd, bekendtgørelser og forskningsmuligheder fra Bitwarden i indbakken."
   },
   "unsubscribe": {
     "message": "Afmeld"
@@ -4377,6 +4386,9 @@
     "message": "Send-link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Kopiér link"
+  },
   "copySendLink": {
     "message": "Kopiér Send-link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "eller",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Udvikling, DevOps og IT-teams vælger Bitwarden Secrets Manager til sikkert at håndtere og implementere deres infrastruktur og maskinhemmeligheder."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralisér hemmelighedshåndtering."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Opbevar og håndtér hemmeligheder sikkert på ét sted for at forhindre hemmeligsudspredning på tværs af organisationen."
+  },
+  "preventSecretLeaks": {
+    "message": "Undgå hemmelighedslækager."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Beskyt hemmeligheder med ende-til-ende kryptering. Ikke flere fast kodede hemmeligheder eller deling via .env-filer."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Forbedr udviklerproduktiviteten."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatisk hentning og implementering af hemmeligheder ved kørsel, så udviklere kan fokusere på det, der betyder mest, såsom forbedring af kodekvaliteten."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Styrk forretningssikkerheden."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Bevar tæt kontrol over maskine og menneskelig adgang til hemmeligheder med SSO-integrationer, begivenhedslogger og adgangsrotation."
+  },
+  "tryItNow": {
+    "message": "Prøv den nu"
+  },
+  "sendRequest": {
+    "message": "Indsend anmodning"
+  },
+  "addANote": {
+    "message": "Tilføj et notat"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Flere produkter fra Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Anmod om adgang til Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Man skal have godkendelse fra sin administrator for at afprøve Secrets Manager."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Adgangsanmodningsmail til Secrets Manager sendt til admins."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Giv medlemmer adgang:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "Vis og vælg de medlemmer, som skal tildeles adgang til Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Åbn organisationens"
+  },
+  "usingTheMenuSelect": {
+    "message": "Fra menuen, vælg"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "for at tildele adgang til valgte medlemmer."
   },
   "sendVaultCardTryItNow": {
     "message": "prøv det nu",
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Tildel til samlinger"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Kun organisationsmedlemmer med adgang til disse samlinger vil kunne se emnet."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Kun organisationsmedlemmer med adgang til disse samlinger vil kunne se emnerne."
   },
   "selectCollectionsToAssign": {
     "message": "Vælg samlinger at tildele"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Vælg mappe"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ overføres permanent til den valgte organisation. Man vil ikke længere eje disse emner.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 emne overføres permanent til den valgte organisation. Man vil ikke længere være ejeren af dette emne."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ emner overføres permanent til den valgte organisation. Man vil ikke længere være ejeren af disse emner.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ overføres permanent til $ORG$. Man vil ikke længere eje disse emner.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 emne overføres permanent til $ORG$. Man vil ikke længere være ejeren af dette emne.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ emner overføres permanent til $ORG$. Man vil ikke længere være ejeren af disse emner.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Data"
   },
   "purchasedSeatsRemoved": {
     "message": "købte pladser fjernet"

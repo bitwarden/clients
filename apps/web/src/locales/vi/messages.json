@@ -43,10 +43,10 @@
     "message": "Tên chủ thẻ"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Thông tin đăng nhập"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Khóa xác thực"
   },
   "number": {
     "message": "Số"
@@ -61,7 +61,7 @@
     "message": "Mã bảo mật (CVV)"
   },
   "identityName": {
-    "message": "Tên định danh"
+    "message": "Tên danh tính"
   },
   "company": {
     "message": "Công ty"
@@ -189,7 +189,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Bạn",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -298,7 +298,7 @@
     "description": "Search Card type"
   },
   "searchIdentity": {
-    "message": "Tìm kiếm danh bạ",
+    "message": "Tìm kiếm danh tính",
     "description": "Search Identity type"
   },
   "searchSecureNote": {
@@ -336,7 +336,7 @@
     "message": "Thẻ"
   },
   "typeIdentity": {
-    "message": "Danh bạ"
+    "message": "Danh tính"
   },
   "typeSecureNote": {
     "message": "Ghi chú"
@@ -348,7 +348,7 @@
     "message": "Thẻ"
   },
   "typeIdentityPlural": {
-    "message": "Danh bạ"
+    "message": "Danh tính"
   },
   "typeSecureNotePlural": {
     "message": "Ghi chú"
@@ -421,10 +421,10 @@
     "message": "Mục"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Chi tiết mục"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Tên mục"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Xóa mục"
   },
@@ -667,7 +685,7 @@
     "message": "Đăng nhập bằng mật khẩu chính"
   },
   "readingPasskeyLoading": {
-    "message": "Đang đọc passkey..."
+    "message": "Đang đọc mã khoá..."
   },
   "readingPasskeyLoadingInfo": {
     "message": "Giữ cửa sổ này mở và làm theo lời nhắc từ trình duyệt của bạn."
@@ -676,40 +694,40 @@
     "message": "Dùng phương thức đăng nhập khác"
   },
   "loginWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Đăng nhập bằng mã khoá"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "PassKey sai. Hãy thử lại."
+    "message": "Mã khoá không hợp lệ. Vui lòng thử lại."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Chưa hỗ trợ 2FA cho PassKey. Cập nhật app để đăng nhập."
+    "message": "Chưa hỗ trợ 2FA cho mã khoá. Cập nhật ứng dụng để đăng nhập."
   },
   "loginWithPasskeyInfo": {
     "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
   },
   "newPasskey": {
-    "message": "New passkey"
+    "message": "Mã khoá mới"
   },
   "learnMoreAboutPasswordless": {
     "message": "Learn more about passwordless"
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "Đang tạo mã khoá..."
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Keep this window open and follow prompts from your browser."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "Lỗi tạo mã khoá"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "Xảy ra lỗi khi đang tạo mã khoá của bạn."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "Tạo mã khoá thành công!"
   },
   "customPasskeyNameInfo": {
-    "message": "Name your passkey to help you identify it."
+    "message": "Đặt tên cho mã khoá của bạn để dễ phân biệt."
   },
   "useForVaultEncryption": {
     "message": "Use for vault encryption"
@@ -718,7 +736,7 @@
     "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
-    "message": "Error reading passkey. Try again or uncheck this option."
+    "message": "Lỗi đọc mã khoá. Hãy thử lại hoặc bỏ tuỳ chọn này."
   },
   "encryptionNotSupported": {
     "message": "Encryption not supported"
@@ -730,10 +748,10 @@
     "message": "Used for encryption"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Log in with passkey turned on"
+    "message": "Đăng nhập bằng mã khoá đã bật"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ đã lưu",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -742,28 +760,28 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Đã xóa mã khoá"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Xóa mã khoá"
   },
   "removePasskeyInfo": {
-    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+    "message": "Khi tất cả các mã khoá bị xóa, bạn phải sử dụng mật khẩu chính để đăng nhập vào thiết bị mới."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Passkey limit reached. Remove a passkey to add another."
+    "message": "Đã đạt giới hạn số lượng mã khoá. Xóa một mã khoá để thêm mã khoá khác."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Thử lại"
   },
   "createAccount": {
     "message": "Tạo tài khoản"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Đặt mật khẩu mạnh"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Hoàn thành việc tạo tài khoản của bạn bằng cách đặt mật khẩu"
   },
   "newAroundHere": {
     "message": "Bạn mới dùng?"
@@ -775,7 +793,7 @@
     "message": "Đăng nhập"
   },
   "verifyIdentity": {
-    "message": "Verify your Identity"
+    "message": "Xác minh danh tính của bạn"
   },
   "logInInitiated": {
     "message": "Log in initiated"
@@ -882,7 +900,7 @@
     "message": "Địa chỉ email"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Kho của bạn đã khóa"
   },
   "uuid": {
     "message": "UUID"
@@ -1009,17 +1027,17 @@
     "message": "Ứng dụng xác thực"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Nhập mã được tạo bởi ứng dụng xác thực như Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP security key"
+    "message": "Khóa bảo mật OTP Yubico"
   },
   "yubiKeyDesc": {
     "message": "Sử dụng YubiKey để truy cập tài khoản của bạn. Hoạt động với YubiKey 4, 5 và các thiết bị NEO."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Nhập mã được tạo bởi Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1033,7 +1051,7 @@
     "message": "Mật khẩu FIDO U2F"
   },
   "webAuthnTitle": {
-    "message": "Passkey"
+    "message": "Mã khoá"
   },
   "webAuthnDesc": {
     "message": "Sử dụng bất kỳ khóa bảo mật tương thích với WebAuthn nào để truy cập vào tài khoản của bạn."
@@ -1209,7 +1227,7 @@
     "message": "Đã xuất dữ liệu kho của bạn"
   },
   "passwordGenerator": {
-    "message": "Tạo mật khẩu"
+    "message": "Trình tạo mật khẩu"
   },
   "minComplexityScore": {
     "message": "Độ phức tạp tối thiểu"
@@ -1480,16 +1498,16 @@
     }
   },
   "importFormatError": {
-    "message": "Dữ liệu không được định dạng đúng cách, vui lòng kiểm tra và thử lại."
+    "message": "Dữ liệu không được định dạng đúng. Vui lòng kiểm tra tập tin nhập và thử lại."
   },
   "importNothingError": {
-    "message": "Chưa nhập gì."
+    "message": "Không có gì được nhập."
   },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },
-  "importDestination": {
-    "message": "Import destination"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
@@ -2160,7 +2178,7 @@
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "Mã xác nhận TOTP (2FA) để đăng nhập vào kho của bạn."
   },
   "premiumSignUpSupport": {
     "message": "Priority customer support."
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Access control"
   },
-  "groupAccessAllItems": {
-    "message": "This group can access and modify all items."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "This group can access only the selected collections."
-  },
   "readOnly": {
     "message": "Read only"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "This user is using two-step login to protect their account."
-  },
-  "userAccessAllItems": {
-    "message": "This user can access and modify all items."
-  },
-  "userAccessSelectedCollections": {
-    "message": "This user can access only the selected collections."
   },
   "search": {
     "message": "Tìm kiếm"
@@ -3373,10 +3379,10 @@
     "message": "User(s) invited"
   },
   "resendInvitation": {
-    "message": "Resend invitation"
+    "message": "Gửi lại lời mời"
   },
   "resendEmail": {
-    "message": "Resend email"
+    "message": "Gửi lại email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ reinvited",
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "You've been invited to join the organization listed above. To accept the invitation, you need to log in or create a new Bitwarden account."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
   },
   "inviteAccepted": {
     "message": "Invitation accepted"
@@ -4043,7 +4052,7 @@
     "message": "Set requirements for password generator."
   },
   "passwordGeneratorPolicyInEffect": {
-    "message": "One or more organization policies are affecting your generator settings."
+    "message": "Các chính sách của tổ chức đang ảnh hưởng đến cài đặt tạo mật khẩu của bạn."
   },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
@@ -4357,7 +4366,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "currentAccessCount": {
-    "message": "Số lượng truy cập hiện tại"
+    "message": "Số lần truy cập hiện tại"
   },
   "sendPasswordDesc": {
     "message": "Optionally require a password for users to access this Send.",
@@ -4374,8 +4383,11 @@
     "message": "Revoked"
   },
   "sendLink": {
-    "message": "Gửi liên kết",
+    "message": "Liên kết Gửi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copyLink": {
+    "message": "Copy link"
   },
   "copySendLink": {
     "message": "Sao chép liên kết mục Gửi",
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "hoặc",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralize secrets management."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+  },
+  "preventSecretLeaks": {
+    "message": "Prevent secret leaks."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Enhance developer productivity."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Strengthen business security."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+  },
+  "tryItNow": {
+    "message": "Try it now"
+  },
+  "sendRequest": {
+    "message": "Send request"
+  },
+  "addANote": {
+    "message": "Add a note"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "More products from Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Request access to Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "You need approval from your administrator to try Secrets Manager."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Access request for secrets manager email sent to admins."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Give members access:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "view and select the members you want to give access to Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Using the menu, select"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "to grant access to selected members."
   },
   "sendVaultCardTryItNow": {
     "message": "thử ngay",
@@ -5882,7 +5963,7 @@
     "message": "Cài đặt tài khoản"
   },
   "generator": {
-    "message": "Generator"
+    "message": "Trình tạo"
   },
   "whatWouldYouLikeToGenerate": {
     "message": "What would you like to generate?"
@@ -5900,7 +5981,7 @@
     "message": "Username type"
   },
   "plusAddressedEmail": {
-    "message": "Plus addressed email",
+    "message": "Địa chỉ email có hậu tố",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
@@ -7736,34 +7817,34 @@
     "message": "Edited collections"
   },
   "baseUrl": {
-    "message": "Server URL"
+    "message": "Địa chỉ máy chủ"
   },
   "aliasDomain": {
-    "message": "Alias domain"
+    "message": "Tên miền thay thế"
   },
   "alreadyHaveAccount": {
-    "message": "Already have an account?"
+    "message": "Bạn đã có tài khoản?"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Ẩn/hiện thanh điều hướng bên"
   },
   "skipToContent": {
-    "message": "Vào nội dung chính"
+    "message": "Chuyển đến nội dung"
   },
   "managePermissionRequired": {
     "message": "At least one member or group must have can manage permission."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Mã khoá"
   },
   "passkeyNotCopied": {
-    "message": "Passkey will not be copied"
+    "message": "Không thể sao chép mã khoá"
   },
   "passkeyNotCopiedAlert": {
-    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+    "message": "Bản sao sẽ không bao gồm mã khoá. Bạn có muốn tiếp tục tạo bản sao mục này?"
   },
   "modifiedCollectionManagement": {
-    "message": "Cài đặt quản lý bộ sưu tập đã sửa đổi $ID$.",
+    "message": "Đã sửa đổi cài đặt quản lý bộ sưu tập $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7788,13 +7869,13 @@
     "message": "Đã xảy ra lỗi khi tải mục Gửi này. Hãy thử lại sau."
   },
   "seatLimitReached": {
-    "message": "Số ghế sử dụng hàng tháng đã đạt đến giới hạn"
+    "message": "Đã đạt giới hạn số lượng người dùng"
   },
   "contactYourProvider": {
-    "message": "Liên hệ nhà cung cấp của bạn để mua thêm ghế."
+    "message": "Liên hệ nhà cung cấp của bạn để mua thêm suất."
   },
   "seatLimitReachedContactYourProvider": {
-    "message": "Số ghế sử dụng hàng tháng đã đạt đến giới hạn. Liên hệ nhà cung cấp để mua thêm."
+    "message": "Đã đạt đến giới hạn số lượng người dùng. Liên hệ nhà cung cấp của bạn để mua thêm suất."
   },
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Assign to these collections"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
   },
   "selectCollectionsToAssign": {
@@ -8520,10 +8604,10 @@
     "description": "A message showing how many unassigned seats are available for a provider."
   },
   "contactYourProviderForAdditionalSeats": {
-    "message": "Contact your provider admin to purchase additional seats."
+    "message": "Liên hệ nhà cung cấp của bạn để mua thêm suất."
   },
   "open": {
-    "message": "Open",
+    "message": "Mở",
     "description": "The status of an invoice."
   },
   "uncollectible": {
@@ -8555,42 +8639,57 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
-    "message": "contact Bitwarden support.",
+    "message": "liên hệ với bộ phận hỗ trợ Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
   "sponsored": {
-    "message": "Sponsored"
+    "message": "Được tài trợ"
   },
   "licenseAndBillingManagementDesc": {
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Thêm vào thư mục"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Chọn thư mục"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Dữ liệu"
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"

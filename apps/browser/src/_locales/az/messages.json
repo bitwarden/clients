@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Güvənli anbarınıza müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın."
   },
+  "inviteAccepted": {
+    "message": "Dəvət qəbul edildi"
+  },
   "createAccount": {
     "message": "Hesab yarat"
   },
@@ -67,6 +70,12 @@
   },
   "masterPassHint": {
     "message": "Ana parol ipucu (ixtiyari)"
+  },
+  "joinOrganization": {
+    "message": "Təşkilata qoşul"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Bu ana parol təyin edərək bu təşkilata qoşulmağı tamamlayın."
   },
   "tab": {
     "message": "Vərəq"
@@ -661,19 +670,19 @@
     "message": "Giriş seansınızın müddəti bitdi."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Giriş et"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Qeydiyyatı yenidən başlat"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Vaxtı bitmiş keçid"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lütfən qeydiyyatı yenidən başladın və ya giriş etməyə çalışın."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Artıq bir hesabınız ola bilər"
   },
   "logOutConfirmation": {
     "message": "Çıxış etmək istədiyinizə əminsiniz?"
@@ -736,6 +745,10 @@
   "newUri": {
     "message": "Yeni URI"
   },
+  "addDomain": {
+    "message": "Domen əlavə et",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
     "message": "Element əlavə edildi"
   },
@@ -776,17 +789,26 @@
   "enableAddLoginNotification": {
     "message": "Giriş əlavə etmək üçün soruş"
   },
+  "vaultSaveOptionsTitle": {
+    "message": "Anbar seçimlərində saxla"
+  },
   "addLoginNotificationDesc": {
     "message": "Anbarınızda tapılmayan bir elementin əlavə edilməsi soruşulsun."
   },
   "addLoginNotificationDescAlt": {
     "message": "Anbarınızda tapılmayan bir elementin əlavə edilməsi soruşulsun. Giriş etmiş bütün hesablara aiddir."
   },
+  "showCardsInVaultView": {
+    "message": "Kartları, Anbar görünüşündə Avto-doldurma təklifləri olaraq göstər"
+  },
   "showCardsCurrentTab": {
     "message": "Kartları Vərəq səhifəsində göstər"
   },
   "showCardsCurrentTabDesc": {
     "message": "Asan avto-doldurma üçün Vərəq səhifəsində kart elementlərini sadalayın."
+  },
+  "showIdentitiesInVaultView": {
+    "message": "Kimlikləri, Anbar görünüşündə Avto-doldurma təklifləri olaraq göstər"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vərəq səhifəsində kimlikləri göstər"
@@ -1220,7 +1242,16 @@
     "message": "Form xanalarında avto-doldurma menyusunu göstər",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
-  "showAutoFillMenuOnFormFieldsDescAlt": {
+  "autofillSuggestionsSectionTitle": {
+    "message": "Avto-doldurma təklifləri"
+  },
+  "showInlineMenuLabel": {
+    "message": "Avto-doldurma təkliflərini form xanalarında göstər"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "İkon seçildikdə təklifləri göstər"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Giriş etmiş bütün hesablara aiddir."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
@@ -1241,14 +1272,33 @@
     "message": "Avto-doldurma ikonu seçiləndə",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "Səhifə yüklənəndə avto-doldur"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurmanı fəallaşdır"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Giriş formu aşkarlananda, səhifə yüklənən zaman formu avto-doldurma icra edilsin."
   },
+  "autofillOnPageLoadWarning": {
+    "message": "$OPENTAG$Xəbərdarlıq:$CLOSETAG$ Təhlükəsizliyi pozulmuş və ya güvənilməyən veb saytlar, səhifə yüklənəndə avto-doldurmanı istifadə edə bilər.",
+    "placeholders": {
+      "openTag": {
+        "content": "$1",
+        "example": "<b>"
+      },
+      "closeTag": {
+        "content": "$2",
+        "example": "</b>"
+      }
+    }
+  },
   "experimentalFeature": {
     "message": "Təhlükəli və ya güvənilməyən veb saytlar, səhifə yüklənərkən avto-doldurmanı istifadə edə bilər."
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "Risklər haqqında daha ətraflı"
   },
   "learnMoreAboutAutofill": {
     "message": "Avto-doldurma haqqında daha ətraflı"
@@ -1309,6 +1359,9 @@
   },
   "cfTypeBoolean": {
     "message": "Boolean"
+  },
+  "cfTypeCheckbox": {
+    "message": "Yoxlanış qutusu"
   },
   "cfTypeLinked": {
     "message": "Əlaqələndirildi",
@@ -1848,7 +1901,7 @@
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -1967,6 +2020,10 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir təşkilat siyasəti, elementlərin fərdi anbarınıza köçürülməsini əngəllədi."
   },
+  "domainsTitle": {
+    "message": "Domenlər",
+    "description": "A category title describing the concept of web domains"
+  },
   "excludedDomains": {
     "message": "İstisna edilən domenlər"
   },
@@ -1976,14 +2033,26 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden, giriş etmiş bütün hesablar üçün bu domenlərin giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
   },
+  "websiteItemLabel": {
+    "message": "Veb sayt $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ yararlı bir domen deyil",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "İstisna domen dəyişikliyi saxlanıldı"
   },
   "send": {
     "message": "Send",
@@ -2019,6 +2088,9 @@
   },
   "passwordProtected": {
     "message": "Parolla qorunan"
+  },
+  "copyLink": {
+    "message": "Keçidi kopyala"
   },
   "copySendLink": {
     "message": "\"Send\" keçidini kopyala",
@@ -2680,6 +2752,12 @@
   "autofillSettings": {
     "message": "Avto-doldurma ayarları"
   },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "Avto-doldurma qısayolu"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "Qısayolu dəyişdir"
+  },
   "autofillShortcut": {
     "message": "Avto-doldurma klaviatura qısayolu"
   },
@@ -2970,9 +3048,17 @@
     "message": "Uyuşan giriş məlumatlarına baxmaq üçün hesabınızın kilidini açın",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Avto-doldurma təkliflərinə baxmaq üçün hesabınızın kilidini açın",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Hesabın kilidini aç",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Hesabınızın kilidini açın, yeni bir pəncərədə açılır",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
     "message": "Kimlik məlumatlarını doldur",
@@ -2993,6 +3079,30 @@
   "addNewVaultItem": {
     "message": "Yeni anbar elementi əlavə et",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "Yeni giriş",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Yeni anbar giriş elementini əlavə et, yeni bir pəncərədə açılır",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "Yeni kart",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Yeni anbar kart elementini əlavə et, yeni bir pəncərədə açılır",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Yeni anbar kimlik elementini əlavə et, yeni bir pəncərədə açılır",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwarden avto-doldurma menyusu mövcuddur. Seçmək üçün aşağı ox düyməsinə basın.",
@@ -3110,8 +3220,8 @@
   "invalidFilePassword": {
     "message": "Yararsız fayl parolu, lütfən xaricə köçürmə faylını yaradarkən daxil etdiyiniz parolu istifadə edin."
   },
-  "importDestination": {
-    "message": "Hədəfi daxilə köçür"
+  "destination": {
+    "message": "Hədəf"
   },
   "learnAboutImportOptions": {
     "message": "Daxilə köçürmə seçimlərinizi öyrənin"
@@ -3343,13 +3453,37 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "google.com"
+        "example": "duckduckgo.com"
       }
     }
   },
   "commonImportFormats": {
     "message": "Ortaq formatlar",
     "description": "Label indicating the most common import formats"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "Brauzer ayarları ilə davam edilsin?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "Kömək Mərkəzi ilə davam edilsin?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "Brauzerinizin avto-doldurma və parol idarəsi ayarlarını dəyişdirin.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "Uzantı qısayollarını brauzerinizin ayarlarında görə və ayarlaya bilərsiniz.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "Brauzerinizin avto-doldurma və parol idarəsi ayarlarını dəyişdirin.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "Uzantı qısayollarını brauzerinizin ayarlarında görə və ayarlaya bilərsiniz.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
     "message": "Bitwarden ilkin parol meneceriniz olaraq təyin edilsin?",
@@ -3474,8 +3608,8 @@
   "noValuesToCopy": {
     "message": "Kopyalanacaq dəyər yoxdur"
   },
-  "assignCollections": {
-    "message": "Kolleksiyaları təyin et"
+  "assignToCollections": {
+    "message": "Kolleksiyalara təyin et"
   },
   "copyEmail": {
     "message": "E-poçtu kopyala"
@@ -3643,6 +3777,10 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "kart nömrəsinin sonu",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
     "message": "Giriş məlumatları"
   },
@@ -3667,10 +3805,16 @@
   "loading": {
     "message": "Yüklənir"
   },
+  "data": {
+    "message": "Data"
+  },
   "assign": {
     "message": "Təyin et"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementi görə biləcək."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
   },
   "bulkCollectionAssignmentWarning": {
@@ -3771,21 +3915,33 @@
   "selectCollectionsToAssign": {
     "message": "Təyin ediləcək kolleksiyaları seçin"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$, $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 element $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ element $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -3801,6 +3957,24 @@
   },
   "movedItemsToOrg": {
     "message": "Seçilən elementlər $ORGNAME$ təşkilatına daşınıldı",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemsMovedToOrg": {
+    "message": "Elementlər bura daşındı: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Element bura daşındı: $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3824,5 +3998,8 @@
         "example": "3"
       }
     }
+  },
+  "itemLocation": {
+    "message": "Element yeri"
   }
 }

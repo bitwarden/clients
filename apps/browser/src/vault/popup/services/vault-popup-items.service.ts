@@ -5,6 +5,7 @@ import {
   concatMap,
   distinctUntilChanged,
   distinctUntilKeyChanged,
+  filter,
   from,
   map,
   merge,
@@ -21,6 +22,7 @@ import {
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
@@ -78,6 +80,8 @@ export class VaultPopupItemsService {
   ).pipe(
     runInsideAngular(inject(NgZone)), // Workaround to ensure cipher$ state provider emissions are run inside Angular
     tap(() => this._ciphersLoading$.next()),
+    switchMap(() => Utils.asyncToObservable(() => this.syncService.getLastSync())),
+    filter((lastSync) => lastSync !== null), // Only attempt to load ciphers if we performed a sync
     switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted())),
     switchMap((ciphers) =>
       combineLatest([
@@ -108,7 +112,6 @@ export class VaultPopupItemsService {
     this._searchText$,
     this.vaultPopupListFiltersService.filterFunction$,
   ]).pipe(
-    tap(() => this._ciphersLoading$.next()),
     map(([ciphers, searchText, filterFunction]): [CipherView[], string] => [
       filterFunction(ciphers),
       searchText,
@@ -236,6 +239,7 @@ export class VaultPopupItemsService {
     private searchService: SearchService,
     private collectionService: CollectionService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
+    private syncService: SyncService,
   ) {}
 
   applyFilter(newSearchText: string) {

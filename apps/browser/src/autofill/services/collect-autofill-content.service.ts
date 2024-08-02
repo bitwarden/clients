@@ -15,7 +15,7 @@ import {
   elementIsTextAreaElement,
   nodeIsFormElement,
   nodeIsInputElement,
-  // sendExtensionMessage,
+  sendExtensionMessage,
   getAttributeBoolean,
   getPropertyOrAttribute,
   requestIdleCallbackPolyfill,
@@ -32,6 +32,7 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 
 class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly autofillOverlayContentService: AutofillOverlayContentService;
   private readonly getAttributeBoolean = getAttributeBoolean;
@@ -1037,6 +1038,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
+      void this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
     this.noFieldsFound = false;
 

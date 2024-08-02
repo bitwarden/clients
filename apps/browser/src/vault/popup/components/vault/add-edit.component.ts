@@ -141,6 +141,7 @@ export class AddEditComponent extends BaseAddEditComponent {
         }
         if (
           params.uri &&
+          this.cipher.login.uris[0] &&
           (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
         ) {
           this.cipher.login.uris[0].uri = params.uri;
@@ -396,6 +397,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   // TODO: Remove and use fido2 user verification service once user verification for passkeys is approved for production.
+  // Be sure to make the same changes to add-edit-v2.component.ts if applicable
   private async handleFido2UserVerification(
     sessionId: string,
     userVerification: boolean,

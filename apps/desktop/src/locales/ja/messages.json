@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "マスターパスワードのヒント"
   },
+  "joinOrganization": {
+    "message": "組織に参加"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "マスターパスワードを設定して、この組織への参加を完了します。"
+  },
   "settings": {
     "message": "設定"
   },
@@ -791,6 +797,18 @@
   },
   "loginExpired": {
     "message": "ログインセッションの有効期限が切れています。"
+  },
+  "restartRegistration": {
+    "message": "登録を再度始める"
+  },
+  "expiredLink": {
+    "message": "期限切れのリンク"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "登録を再度始めるか、ログインしてください。"
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "すでにアカウントを持っている可能性があります"
   },
   "logOutConfirmation": {
     "message": "ログアウトしてもよろしいですか？"
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新しいマスターパスワードは最低要件を満たしていません。"
   },
-  "receiveMarketingEmails": {
-    "message": "Bitwarden からのお知らせ、アドバイス、アンケート調査等のメールを受信します。"
+  "receiveMarketingEmailsV2": {
+    "message": "Bitwarden からメールでアドバイスやお知らせ、リサーチの機会を受け取りましょう。"
   },
   "unsubscribe": {
     "message": "配信停止"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "保管庫のタイムアウトが組織によって設定された制限を超えています。"
+  },
+  "inviteAccepted": {
+    "message": "招待が承認されました"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動登録"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "無効なファイルパスワードです。エクスポートファイルを作成したときに入力したパスワードを使用してください。"
   },
-  "importDestination": {
-    "message": "インポート先"
+  "destination": {
+    "message": "保存先"
   },
   "learnAboutImportOptions": {
     "message": "インポートオプションの詳細"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "データ"
   }
 }

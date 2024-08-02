@@ -1,0 +1,161 @@
+<bit-section *ngIf="showPersonalDetails">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "personalDetails" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field *ngIf="cipher.identity.fullName">
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.fullName" readonly data-testid="name" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyName' | i18n"
+        [appCopyClick]="cipher.identity.fullName"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="cipher.identity.username">
+      <bit-label>{{ "username" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.username" readonly data-testid="username" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyUsername' | i18n"
+        [appCopyClick]="cipher.identity.username"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="cipher.identity.company">
+      <bit-label>{{ "company" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.company" readonly data-testid="company" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyCompany' | i18n"
+        [appCopyClick]="cipher.identity.company"
+        showToast
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>
+
+<bit-section *ngIf="showIdentificationDetails">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "identification" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field *ngIf="cipher.identity.ssn">
+      <bit-label>{{ "ssn" | i18n }}</bit-label>
+      <input bitInput type="password" [value]="cipher.identity.ssn" readonly data-testid="ssn" />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        bitPasswordInputToggle
+        data-testid="ssn-toggle"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copySSN' | i18n"
+        [appCopyClick]="cipher.identity.ssn"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="cipher.identity.passportNumber">
+      <bit-label>{{ "passportNumber" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="password"
+        [value]="cipher.identity.passportNumber"
+        readonly
+        data-testid="passport"
+      />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        bitPasswordInputToggle
+        data-testid="passport-toggle"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyPassportNumber' | i18n"
+        [appCopyClick]="cipher.identity.passportNumber"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="cipher.identity.licenseNumber">
+      <bit-label>{{ "licenseNumber" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.licenseNumber" readonly data-testid="license" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyLicenseNumber' | i18n"
+        [appCopyClick]="cipher.identity.licenseNumber"
+        showToast
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>
+
+<bit-section *ngIf="showContactDetails">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "contactInfo" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field *ngIf="cipher.identity.email">
+      <bit-label>{{ "email" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.email" readonly data-testid="email" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyEmail' | i18n"
+        [appCopyClick]="cipher.identity.email"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="cipher.identity.phone">
+      <bit-label>{{ "phone" | i18n }}</bit-label>
+      <input bitInput [value]="cipher.identity.phone" readonly data-testid="phone" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyPhone' | i18n"
+        [appCopyClick]="cipher.identity.phone"
+        showToast
+      ></button>
+    </bit-form-field>
+    <bit-form-field *ngIf="addressFields">
+      <bit-label>{{ "address" | i18n }}</bit-label>
+      <textarea
+        bitInput
+        class="tw-resize-none"
+        [value]="addressFields"
+        [rows]="addressRows"
+        readonly
+        data-testid="address"
+      ></textarea>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyAddress' | i18n"
+        [appCopyClick]="addressFields"
+        showToast
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

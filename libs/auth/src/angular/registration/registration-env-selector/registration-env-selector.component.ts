@@ -44,6 +44,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
 
   private selectedRegionFromEnv: RegionConfig | Region.SelfHosted;
 
+  hideEnvSelector = false;
   isDesktopOrBrowserExtension = false;
 
   private destroy$ = new Subject<void>();
@@ -59,9 +60,15 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
     const clientType = platformUtilsService.getClientType();
     this.isDesktopOrBrowserExtension =
       clientType === ClientType.Desktop || clientType === ClientType.Browser;
+
+    this.hideEnvSelector = clientType === ClientType.Web && this.platformUtilsService.isSelfHost();
   }
 
   async ngOnInit() {
+    if (this.hideEnvSelector) {
+      return;
+    }
+
     await this.initSelectedRegionAndListenForEnvChanges();
     this.listenForSelectedRegionChanges();
   }

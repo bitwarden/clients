@@ -124,7 +124,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param event - The document keydown event
    */
   private handleDocumentKeyDownEvent = (event: KeyboardEvent) => {
-    const listenedForKeys = new Set(["Tab", "Escape"]);
+    const listenedForKeys = new Set(["Tab", "Escape", "ArrowUp", "ArrowDown"]);
     if (!listenedForKeys.has(event.code)) {
       return;
     }
@@ -139,7 +139,9 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
       return;
     }
 
-    this.sendRedirectFocusOutMessage(RedirectFocusDirection.Current);
+    if (event.code === "Escape") {
+      this.sendRedirectFocusOutMessage(RedirectFocusDirection.Current);
+    }
   };
 
   /**

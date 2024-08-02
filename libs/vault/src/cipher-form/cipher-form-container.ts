@@ -46,5 +46,9 @@ export abstract class CipherFormContainer {
     group: Exclude<CipherForm[K], undefined>,
   ): void;
 
-  abstract patchCipher(cipher: Partial<CipherView>): void;
+  /**
+   * Method to update the cipherView with the new values. This method should be called by the child form components
+   * @param updateFn - A function that takes the current cipherView and returns the updated cipherView
+   */
+  abstract patchCipher(updateFn: (current: CipherView) => CipherView): void;
 }

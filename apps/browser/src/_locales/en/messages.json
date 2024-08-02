@@ -13,6 +13,9 @@
   "loginOrCreateNewAccount": {
     "message": "Log in or create a new account to access your secure vault."
   },
+  "inviteAccepted": {
+    "message": "Invitation accepted"
+  },
   "createAccount": {
     "message": "Create account"
   },
@@ -68,6 +71,12 @@
   "masterPassHint": {
     "message": "Master password hint (optional)"
   },
+  "joinOrganization": {
+    "message": "Join organization"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
+  },
   "tab": {
     "message": "Tab"
   },
@@ -106,6 +115,21 @@
   },
   "copySecurityCode": {
     "message": "Copy security code"
+  },
+  "copyName": {
+    "message": "Copy name"
+  },
+  "copyCompany": {
+    "message": "Copy company"
+  },
+  "copySSN": {
+    "message": "Copy Social Security number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
   },
   "autoFill": {
     "message": "Autofill"
@@ -415,7 +439,7 @@
     "message": "Item added to favorites"
   },
   "itemRemovedFromFavorites": {
-      "message": "Item removed from favorites"
+    "message": "Item removed from favorites"
   },
   "notes": {
     "message": "Notes"
@@ -1537,7 +1561,10 @@
   "typeIdentity": {
     "message": "Identity"
   },
-  "newItemHeader":{
+  "typeSSHKey": {
+    "message": "SSH Key"
+  },
+  "newItemHeader": {
     "message": "New $TYPE$",
     "placeholders": {
       "type": {
@@ -2080,6 +2107,9 @@
   },
   "passwordProtected": {
     "message": "Password protected"
+  },
+  "copyLink": {
+    "message": "Copy link"
   },
   "copySendLink": {
     "message": "Copy Send link",
@@ -2937,6 +2967,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Select --"
   },
@@ -3037,9 +3079,17 @@
     "message": "Unlock your account to view matching logins",
     "description": "Text to display in overlay when the account is locked."
   },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "Unlock your account to view autofill suggestions",
+    "description": "Text to display in overlay when the account is locked."
+  },
   "unlockAccount": {
     "message": "Unlock account",
     "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "Unlock your account, opens in a new window",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor":  {
     "message": "Fill credentials for",
@@ -3060,6 +3110,30 @@
   "addNewVaultItem": {
     "message": "Add new vault item",
     "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "New login",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "Add new vault login item, opens in a new window",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "New card",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "Add new vault card item, opens in a new window",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "New identity",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "Add new vault identity item, opens in a new window",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
     "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
@@ -3491,7 +3565,7 @@
     "message": "Auto-fill suggestions"
   },
   "autofillSuggestionsTip": {
-      "message": "Save a login item for this site to auto-fill"
+    "message": "Save a login item for this site to auto-fill"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -3734,6 +3808,10 @@
       }
     }
   },
+  "cardNumberEndsWith": {
+    "message": "card number ends with",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
   "loginCredentials": {
     "message": "Login credentials"
   },
@@ -3848,7 +3926,7 @@
       }
     }
   },
-  "reorderFieldUp":{
+  "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
       "label": {
@@ -3954,5 +4032,11 @@
   },
   "itemLocation": {
     "message": "Item Location"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden has a new look!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   }
 }

@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Položky presunuté do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Položka presunutá do $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Odstrániť položku"
   },
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Chyba pri dešifrovaní exportovaného súboru. Váš šifrovací kľúč sa nezhoduje so šifrovacím kľúčom použitým pri exporte údajov."
   },
-  "importDestination": {
-    "message": "Cieľ importu"
+  "destination": {
+    "message": "Cieľ"
   },
   "learnAboutImportOptions": {
     "message": "Zistiť viac o možnostiach importu"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Riadenie prístupu"
   },
-  "groupAccessAllItems": {
-    "message": "Táto skupina môže upravovať a pristupovať k všetkým položkám."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Táto skupina môže upravovať a pristupovať len k položkám ktoré sú vo vybraných zbierkach."
-  },
   "readOnly": {
     "message": "Iba na čítanie"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Tento používateľ používa dvojstupňové overovanie aby si zabezpečil konto."
-  },
-  "userAccessAllItems": {
-    "message": "Tento používateľ môže upravovať a pristupovať k všetkým položkám."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Tento používateľ môže upravovať a pristupovať len k položkám ktoré sú vo vybraných zbierkach."
   },
   "search": {
     "message": "Hľadať"
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "Obdržali ste pozvánku do vyššie menovanej Organizácie. Ak chcete pozvánku prijať, musíte sa prihlásiť alebo si vytvoriť nový Bitwarden účet."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Dokončite pripojenie k tejto organizácii nastavením hlavného hesla."
   },
   "inviteAccepted": {
     "message": "Pozvánka prijatá"
@@ -4377,6 +4386,9 @@
     "message": "Odkaz na Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Kopírovať odkaz"
+  },
   "copySendLink": {
     "message": "Kopírovať odkaz na Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "alebo",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Vývojari, DevOps a IT tímy si vyberajú Bitwarden Secrets Manager na bezpečnú správu a nasadenie tajomstiev pre infraštruktúru a zariadenia."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralizujte správu tajomstiev."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Bezpečne ukladajte a spravujte tajomstvá na jednom mieste a zabráňte rozptýleniu tajomstiev v celej organizácii."
+  },
+  "preventSecretLeaks": {
+    "message": "Zabráňte úniku tajomstiev."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Chráňte tajomstvá pomocou end-to-end šifrovania. Už žiadne vkladanie tajomstiev do kódu alebo zdieľanie prostredníctvom súborov .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Zlepšite vývojársku produktivitu."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programovo získavajte a nasadzujte tajomstvá za behu, aby sa vývojári mohli sústrediť na to najdôležitejšie, napríklad na zlepšovanie kvality kódu."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Posilnite bezpečnosť spoločnosti."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Udržujte prísnu kontrolu nad prístupom strojov a ľudí k tajomstvám pomocou integrácie SSO, protokolov udalostí a rotácie prístupu."
+  },
+  "tryItNow": {
+    "message": "Vyskúšať teraz"
+  },
+  "sendRequest": {
+    "message": "Odoslať žiadosť"
+  },
+  "addANote": {
+    "message": "Pridať poznámku"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Viac produktov od spoločnosti Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Požiadať o prístup k Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Aby ste mohli vyskúšať Secrets Manager, potrebujete povolenie od vášho správcu."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Požiadavka na Secrets Manager odoslaná vaším správcom."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Ahoj,\n\nŽiadam o predplatné programu Bitwarden Secrets Manager pre náš tím. Veľmi by sme ocenili Vašu podporu.\n\nBitwarden Secrets Manager je komplexné šifrované riešenie na správu tajomstiev a na bezpečné ukladanie, zdieľanie a nasadzovanie strojových poverení, ako sú kľúče API, heslá do databáz a autentifikačné certifikáty.\n\nSecrets Manager nám pomôže:\n\n- Zlepšiť bezpečnosť\n- Zefektívniť prevádzku\n- Zabrániť nákladným únikom tajomstiev\n\nAk chcete požiadať o bezplatnú skúšobnú verziu pre náš tím, obráťte sa na spoločnosť Bitwarden.\n\nĎakujeme za vašu pomoc!"
+  },
+  "giveMembersAccess": {
+    "message": "Poskytnúť členom prístup k:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "zobrazte a vyberte členov ktorým chcete umožniť prístup k Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Otvorte organizáciu"
+  },
+  "usingTheMenuSelect": {
+    "message": "Pomocou menu vyberte"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "aby ste povolili prístup vybraným členom."
   },
   "sendVaultCardTryItNow": {
     "message": "to skúste teraz",
@@ -7915,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Prideliť k týmto zbierkam"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Položku si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
   "selectCollectionsToAssign": {
     "message": "Vyberte zbierky na pridelenie"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Vybrať zložku"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ sa natrvalo prenesie do vybranej organizácie. Tieto položky už nebudete vlastniť.",
+  "personalItemTransferWarningSingular": {
+    "message": "Do vybranej organizácie sa položka natrvalo presunie. Už ju nebudete vlastniť."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "Do vybranej organizácie sa natrvalo presunú $PERSONAL_ITEMS_COUNT$ položky. Tieto položky už nebudete vlastniť.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ sa natrvalo prenesie do $ORG$. Tieto položky už nebudete vlastniť.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do $ORG$. Už ju nebudete vlastniť.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "Do $ORG$ sa natrvalo presunú $PERSONAL_ITEMS_COUNT$. Tieto položky už nebudete vlastniť.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Údaje"
   },
   "purchasedSeatsRemoved": {
     "message": "zakúpené sedenia boli odstránené"

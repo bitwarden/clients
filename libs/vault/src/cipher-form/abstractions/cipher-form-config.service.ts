@@ -22,6 +22,8 @@ export type OptionalInitialValues = {
   organizationId?: OrganizationId;
   collectionIds?: CollectionId[];
   loginUri?: string;
+  username?: string;
+  name?: string;
 };
 
 /**

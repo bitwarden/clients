@@ -8,11 +8,11 @@ import {
   DestroyRef,
   ElementRef,
   EventEmitter,
+  inject,
   OnInit,
   Output,
   QueryList,
   ViewChildren,
-  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -26,16 +26,16 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  CardComponent,
+  CheckboxModule,
   DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  LinkModule,
   SectionComponent,
   SectionHeaderComponent,
-  FormFieldModule,
-  TypographyModule,
-  CardComponent,
-  IconButtonModule,
-  CheckboxModule,
   SelectModule,
-  LinkModule,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -344,8 +344,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
     this.numberOfFieldsChange.emit(newFields.length);
 
-    this.cipherFormContainer.patchCipher({
-      fields: newFields,
+    this.cipherFormContainer.patchCipher((cipher) => {
+      cipher.fields = newFields;
+      return cipher;
     });
   }
 }

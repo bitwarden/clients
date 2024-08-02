@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
   },
+  "joinOrganization": {
+    "message": "Aderir à organização"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Conclua a adesão a esta organização ao definir uma palavra-passe mestra."
+  },
   "settings": {
     "message": "Definições"
   },
@@ -792,6 +798,18 @@
   "loginExpired": {
     "message": "A sua sessão expirou."
   },
+  "restartRegistration": {
+    "message": "Reiniciar registo"
+  },
+  "expiredLink": {
+    "message": "Link expirado"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Por favor, reinicie o registo ou tente iniciar sessão."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "É possível que já tenha uma conta"
+  },
   "logOutConfirmation": {
     "message": "Tem a certeza de que pretende terminar sessão?"
   },
@@ -861,7 +879,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "Ir para o cofre web"
+    "message": "Ir para o cofre Web"
   },
   "getMobileApp": {
     "message": "Obter a aplicação móvel"
@@ -1044,7 +1062,7 @@
     "message": "Tema"
   },
   "themeDesc": {
-    "message": "Alterar o tema de cores da aplicação."
+    "message": "Altere o tema de cores da aplicação."
   },
   "dark": {
     "message": "Escuro",
@@ -1693,8 +1711,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "A sua nova palavra-passe mestra não cumpre os requisitos da política."
   },
-  "receiveMarketingEmails": {
-    "message": "Receba e-mails do Bitwarden com anúncios, conselhos e oportunidades de investigação."
+  "receiveMarketingEmailsV2": {
+    "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
   },
   "unsubscribe": {
     "message": "Anular subscrição"
@@ -2080,6 +2098,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
+  },
+  "inviteAccepted": {
+    "message": "Convite aceite"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
@@ -2805,8 +2826,8 @@
   "invalidFilePassword": {
     "message": "Palavra-passe de ficheiro inválida, utilize a palavra-passe que introduziu quando criou o ficheiro de exportação."
   },
-  "importDestination": {
-    "message": "Destino da importação"
+  "destination": {
+    "message": "Destino"
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre as suas opções de importação"
@@ -3001,5 +3022,8 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Dados"
   }
 }

@@ -113,3 +113,12 @@ export const WithPolicy: Story = {
     `,
   }),
 };
+
+export const InlineButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+    `,
+  }),
+};

@@ -570,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Itens movidos para $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item movido para $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Eliminar item"
   },
@@ -628,16 +646,16 @@
     "message": "A sua sessão expirou."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reiniciar registo"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Link expirado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Por favor, reinicie o registo ou tente iniciar sessão."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "É possível que já tenha uma conta"
   },
   "logOutConfirmation": {
     "message": "Tem a certeza de que pretende terminar sessão?"
@@ -1488,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Erro ao desencriptar o ficheiro exportado. A sua chave de encriptação não corresponde à chave de encriptação utilizada para exportar os dados."
   },
-  "importDestination": {
-    "message": "Destino da importação"
+  "destination": {
+    "message": "Destino"
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre as suas opções de importação"
@@ -2781,12 +2799,6 @@
   "accessControl": {
     "message": "Controlo de acesso"
   },
-  "groupAccessAllItems": {
-    "message": "Este grupo pode aceder e modificar todos os itens."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Este grupo pode aceder apenas a coleções selecionadas."
-  },
   "readOnly": {
     "message": "Só de leitura"
   },
@@ -2831,12 +2843,6 @@
   },
   "userUsingTwoStep": {
     "message": "Este utilizador está a utilizar a verificação de dois passos para proteger a sua conta."
-  },
-  "userAccessAllItems": {
-    "message": "Este utilizador pode aceder e modificar todos os itens."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Este utilizador pode aceder apenas a coleções selecionadas."
   },
   "search": {
     "message": "Procurar"
@@ -3452,6 +3458,9 @@
   },
   "joinOrganizationDesc": {
     "message": "Foi convidado a juntar-se à organização listada acima. Para aceitar o convite, é necessário iniciar sessão ou criar uma nova conta Bitwarden."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Conclua a adesão a esta organização ao definir uma palavra-passe mestra."
   },
   "inviteAccepted": {
     "message": "Convite aceite"
@@ -4377,6 +4386,9 @@
     "message": "Link do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copyLink": {
+    "message": "Copiar link"
+  },
   "copySendLink": {
     "message": "Copiar link do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4791,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "ou",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "As equipas de desenvolvimento, DevOps e TI escolhem o Bitwarden - Gestor de Segredos para gerir e implementar de forma segura a sua infraestrutura e os segredos das máquinas."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralize a gestão de segredos."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Armazene e gira segredos de forma segura num único local para evitar a dispersão de segredos pela sua organização."
+  },
+  "preventSecretLeaks": {
+    "message": "Previna fugas de segredos."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Proteja os segredos com encriptação ponto a ponto. Acabaram-se os segredos de código rígido ou a partilha através de ficheiros .env."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Melhore a produtividade dos programadores."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Recupere e implante segredos programaticamente em tempo de execução para que os programadores se possam concentrar no que é mais importante, como melhorar a qualidade do código."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Reforce a segurança das empresas."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Mantenha um controlo rigoroso sobre o acesso de máquinas e pessoas a segredos com integrações SSO, registos de eventos e rotatividade de acessos."
+  },
+  "tryItNow": {
+    "message": "Experimente agora"
+  },
+  "sendRequest": {
+    "message": "Enviar pedido"
+  },
+  "addANote": {
+    "message": "Adicionar uma nota"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden - Gestor de Segredos"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Mais produtos do Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Pedir acesso ao Gestor de Segredos"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "É necessária a aprovação do seu administrador para experimentar o Gestor de Segredos."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Pedido de acesso ao e-mail do gestor de segredos enviado aos administradores."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Olá,\n\nEstou a solicitar uma subscrição do Bitwarden - Gestor de Segredos para a nossa equipa. O vosso apoio seria muito importante!\n\nO Bitwarden - Gestor de Segredos é uma solução de gestão de segredos encriptados ponto a ponto para armazenar, partilhar e implementar de forma segura credenciais de máquinas como chaves API, palavras-passe de bases de dados e certificados de autenticação.\n\nO Gestor de Segredos ajudar-nos-á a:\n\n- Melhorar a segurança\n- Simplificar as operações\n- Prevenir fugas de segredos dispendiosas\n\nPara pedirem uma versão experimental gratuita para a nossa equipa, por favor, contactem o Bitwarden.\n\nObrigado pela vossa ajuda!"
+  },
+  "giveMembersAccess": {
+    "message": "Dar acesso aos membros:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "ver e selecionar os membros a quem pretende dar acesso ao Gestor de Segredos."
+  },
+  "openYourOrganizations": {
+    "message": "Abra as suas organizações"
+  },
+  "usingTheMenuSelect": {
+    "message": "Utilizando o menu, selecione"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "para conceder acesso aos membros selecionados."
   },
   "sendVaultCardTryItNow": {
     "message": "experimente-o agora",
@@ -7915,7 +7996,10 @@
   "assignToTheseCollections": {
     "message": "Atribuir a estas coleções"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Apenas os membros da organização com acesso a estas coleções poderão ver o item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver os itens."
   },
   "selectCollectionsToAssign": {
@@ -8253,7 +8337,7 @@
     "message": "Utilize o SDK do Gestor de Segredos do Bitwarden nas seguintes linguagens de programação para criar as suas próprias aplicações."
   },
   "setUpGithubActions": {
-    "message": "Configurar ações do Github"
+    "message": "Configurar ações do GitHub"
   },
   "setUpKubernetes": {
     "message": "Configurar o Kubernetes"
@@ -8570,27 +8654,42 @@
   "selectFolder": {
     "message": "Selecionar pasta"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidos para $ORG$. Deixará de ser proprietário destes itens.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para $ORG$. Estes itens deixarão de lhe pertencer.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
         "example": "Organization name"
       }
     }
+  },
+  "data": {
+    "message": "Dados"
   },
   "purchasedSeatsRemoved": {
     "message": "lugares adquiridos removidos"
