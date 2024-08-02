@@ -531,7 +531,18 @@
         </div>
 
         <!-- SSHKey -->
-        <div *ngIf="cipher.type === cipherType.SSHKey">SSH Key Placeholder</div>
+        <div *ngIf="cipher.type === cipherType.SSHKey">
+          <div class="box-content-row" appBoxRow>
+            <label for="privateKey">{{ "privateKey" | i18n }}</label>
+            <input
+              id="privateKey"
+              type="text"
+              name="Card.CardCardholderName"
+              [(ngModel)]="cipher.sshKey.privateKey"
+              [readonly]="!cipher.edit && editMode"
+            />
+          </div>
+        </div>
       </div>
     </div>
     <div class="box" *ngIf="cipher.type === cipherType.Login">

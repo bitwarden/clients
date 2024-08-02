@@ -79,6 +79,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   uriMatchOptions: any[];
   ownershipOptions: any[] = [];
   autofillOnPageLoadOptions: any[];
+  sshKeyAlgorithmOptions: any[];
   currentDate = new Date();
   allowPersonal = true;
   reprompt = false;
@@ -179,6 +180,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
       { name: i18nService.t("autoFillOnPageLoadUseDefault"), value: null },
       { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
       { name: i18nService.t("autoFillOnPageLoadNo"), value: false },
+    ];
+    this.sshKeyAlgorithmOptions = [
+      { name: i18nService.t("sshKeyAlgorithmED25519"), value: "ed25519" },
+      { name: i18nService.t("sshKeyAlgorithmRSA2048"), value: "rsa-2048" },
+      { name: i18nService.t("sshKeyAlgorithmRSA4096"), value: "rsa-4096" },
     ];
   }
 

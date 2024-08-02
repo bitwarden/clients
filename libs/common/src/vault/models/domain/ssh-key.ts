@@ -1,15 +1,17 @@
 import { Jsonify } from "type-fest";
 
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SSHKeyData } from "../data/ssh-key.data";
 import { SSHKeyView } from "../view/ssh-key.view";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 export class SSHKey extends Domain {
   privateKey: EncString;
   publicKey: EncString;
   keyAlgorithm: EncString;
+  keyFingerprint: EncString;
 
   constructor(obj?: SSHKeyData) {
     super();
@@ -24,6 +26,7 @@ export class SSHKey extends Domain {
         privateKey: null,
         publicKey: null,
         keyAlgorithm: null,
+        keyFingerprint: null,
       },
       [],
     );
@@ -36,6 +39,7 @@ export class SSHKey extends Domain {
         privateKey: null,
         publicKey: null,
         keyAlgorithm: null,
+        keyFingerprint: null,
       },
       orgId,
       encKey,
@@ -48,6 +52,7 @@ export class SSHKey extends Domain {
       privateKey: null,
       publicKey: null,
       keyAlgorithm: null,
+      keyFingerprint: null,
     });
     return c;
   }
@@ -60,10 +65,12 @@ export class SSHKey extends Domain {
     const privateKey = EncString.fromJSON(obj.privateKey);
     const publicKey = EncString.fromJSON(obj.publicKey);
     const keyAlgorithm = EncString.fromJSON(obj.keyAlgorithm);
+    const keyFingerprint = EncString.fromJSON(obj.keyFingerprint);
     return Object.assign(new SSHKey(), obj, {
       privateKey,
       publicKey,
       keyAlgorithm,
+      keyFingerprint,
     });
   }
 }

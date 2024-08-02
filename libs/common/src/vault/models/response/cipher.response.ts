@@ -77,7 +77,7 @@ export class CipherResponse extends BaseResponse {
       this.secureNote = new SecureNoteApi(secureNote);
     }
 
-    const sshKey = this.getResponseProperty("SSHKey");
+    const sshKey = this.getResponseProperty("sshKey");
     if (sshKey != null) {
       this.sshKey = new SSHKeyApi(sshKey);
     }

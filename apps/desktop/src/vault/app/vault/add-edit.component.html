@@ -472,7 +472,50 @@
             </div>
           </div>
           <!-- SSH Key -->
-          <div *ngIf="cipher.type === cipherType.SSHKey">SSH Key Placeholder</div>
+          <div *ngIf="cipher.type === cipherType.SSHKey">
+            <div class="box-content-row" appBoxRow>
+              <label for="sshPrivateKey">{{ "sshPrivateKey" | i18n }}</label>
+              <input
+                id="sshPrivateKey"
+                type="text"
+                name="SSHKey.SSHPrivateKey"
+                [(ngModel)]="cipher.sshKey.privateKey"
+                [readonly]="!cipher.edit && editMode"
+              />
+            </div>
+            <div class="box-content-row" appBoxRow>
+              <label for="sshPublicKey">{{ "sshPublicKey" | i18n }}</label>
+              <input
+                id="sshPublicKey"
+                type="text"
+                name="SSHKey.SSHPublicKey"
+                [(ngModel)]="cipher.sshKey.publicKey"
+                readonly
+              />
+            </div>
+            <div class="box-content-row" appBoxRow>
+              <label for="sshFingerprint">{{ "sshFingerprint" | i18n }}</label>
+              <input
+                id="sshFingerprint"
+                type="text"
+                name="SSHKey.SSHFingerprint"
+                [(ngModel)]="cipher.sshKey.keyFingerprint"
+                readonly
+              />
+            </div>
+            <div class="box-content-row" appBoxRow>
+              <label for="sshKeyAlgorithm">{{ "sshKeyAlgorithm" | i18n }}</label>
+              <select
+                id="sshKeyAlgorithm"
+                name="SSHKeyAlgorithm"
+                [(ngModel)]="cipher.sshKey.keyAlgorithm"
+              >
+                <option *ngFor="let algorithm of sshKeyAlgorithmOptions" [value]="algorithm.value">
+                  {{ algorithm.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
       <div class="box" *ngIf="cipher.type === cipherType.Login">
