@@ -65,6 +65,9 @@ const sshagent = {
   signRequestResponse: async (id: string, accepted: boolean) => {
     await ipcRenderer.invoke("sshagent.signrequestresponse", { id: id, accepted: accepted });
   },
+  generateKey: async (keyAlgorithm: string) => {
+    return await ipcRenderer.invoke("sshagent.generatekey", { keyAlgorithm: keyAlgorithm });
+  },
 };
 
 const powermonitor = {

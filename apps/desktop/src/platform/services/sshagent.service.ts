@@ -43,15 +43,15 @@ export class SSHAgentService {
         return;
       }
 
-      const noteCiphers = ciphers.filter((cipher) => cipher.type == CipherType.SecureNote);
+      const noteCiphers = ciphers.filter((cipher) => cipher.type == CipherType.SSHKey);
       const keys = noteCiphers.map((cipher) => {
         return {
           name: cipher.name,
-          privateKey: cipher.notes,
+          privateKey: cipher.sshKey.privateKey,
           uuid: cipher.id,
         };
       });
       await ipc.platform.sshagent.setKeys(keys);
-    }, 2000);
+    }, 20000);
   }
 }

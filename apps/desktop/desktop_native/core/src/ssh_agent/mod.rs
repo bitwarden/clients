@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
 use russh_keys::key::KeyPair;
+use ssh_key::private::KeypairData;
 use tokio::{net::UnixListener, sync::Mutex};
 use std::sync::RwLock;
 use std::collections::HashMap;
 use homedir::my_home;
 
-use russh_keys::key;
+use russh_keys::{key, PublicKeyBase64};
 
 use ssh_encoding::Encode;
 
@@ -68,13 +69,10 @@ pub async fn set_keys(new_keys:  Vec<(String, String, String)>) {
     (&KEYSTORE).0.write().unwrap().clear();
 
     for (key, name, uuid) in new_keys.iter() {
-        let private_key = ssh_key::private::PrivateKey::from_openssh(key).unwrap();
-        let key_pair = key::KeyPair::try_from(&private_key).unwrap();
-
-        let mut blob = Vec::new();
-        private_key.public_key().key_data().encode(&mut blob).unwrap();
-
+        println!("Adding key {:?}", key);
+        let key_pair = russh_keys::decode_secret_key(&key, None).unwrap();
+        let pubkey = key_pair.clone_public_key().unwrap();
         let keys = &KEYSTORE;
-        keys.0.write().unwrap().insert(blob, (Arc::new((key_pair, name.clone(), uuid.clone())), Vec::new()));
+        keys.0.write().unwrap().insert(pubkey.public_key_bytes(), (Arc::new((key_pair, name.clone(), uuid.clone())), Vec::new()));
     }
 }

@@ -64,5 +64,19 @@ export class SSHAgent {
         this.requestResponses.set(id, accepted);
       },
     );
+    ipcMain.handle(
+      "sshagent.generatekey",
+      async (event: any, { keyAlgorithm }: { keyAlgorithm: string }) => {
+        if (keyAlgorithm === "ed25519") {
+          return await sshagent.generateEd25519();
+        } else if (keyAlgorithm === "rsa-2048") {
+          return await sshagent.generateRsa(2048);
+        } else if (keyAlgorithm === "rsa-4096") {
+          return await sshagent.generateRsa(4096);
+        } else {
+          throw new Error("Unsupported key algorithm");
+        }
+      },
+    );
   }
 }

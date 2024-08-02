@@ -147,6 +147,7 @@ pub mod sshagent {
     use std::sync::Arc;
 
     use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
+    use russh_keys::{key::SignatureHash, PublicKeyBase64};
     use tokio::{self, sync::Mutex};
 
     #[napi(object)]
@@ -154,6 +155,14 @@ pub mod sshagent {
         pub private_key: String,
         pub name: String,
         pub uuid: String
+    }
+
+    #[napi(object)]
+    pub struct SSHKey {
+        pub private_key: String,
+        pub public_key: String,
+        pub key_algorithm: String,
+        pub key_fingerprint: String,
     }
 
     #[napi]
@@ -180,7 +189,8 @@ pub mod sshagent {
     }
 
     #[napi]
-    pub async fn generate_ed25519() -> napi::Result<String> {
+    pub async fn generate_ed25519() -> napi::Result<SSHKey> {
+        let key_algorithm = "ed25519";
         let key = russh_keys::key::KeyPair::generate_ed25519();
         match key {
             Some(k) => {
@@ -189,8 +199,49 @@ pub mod sshagent {
                 let buffer_string = String::from_utf8(buffer).unwrap();
                 match private_key {
                     Ok(_pk) => {
+                        let public_key = "ssh-ed25519 ".to_owned() + &k.public_key_base64();
+                        Ok(SSHKey {
+                            private_key: buffer_string.to_string(),
+                            public_key: public_key.to_string(),
+                            key_algorithm: key_algorithm.to_string(),
+                            key_fingerprint: k.clone_public_key().unwrap().fingerprint().to_string(),
+                        })
+                    },
+                    Err(e) => {
+                        Err(napi::Error::from_reason(e.to_string()))
+                    }
+                }
+            },
+            None => {
+                Err(napi::Error::from_reason("Failed to generate key".to_string()))
+            }
+        }
+    }
+
+    #[napi]
+    pub async fn generate_rsa(bits: u16) -> napi::Result<SSHKey> {
+        let key_algorithm = match bits {
+            2048 => "rsa-2048",
+            4096 => "rsa-4096",
+            _ => return Err(napi::Error::from_reason("Unsupported key size".to_string()))
+        };
+
+        let key = russh_keys::key::KeyPair::generate_rsa(bits as usize, SignatureHash::SHA2_256);
+        match key {
+            Some(k) => {
+                let mut buffer = Vec::new();
+                let private_key = russh_keys::encode_pkcs8_pem(&k, &mut buffer);
+                let buffer_string = String::from_utf8(buffer).unwrap();
+                match private_key {
+                    Ok(_pk) => {
+                        let public_key = "ssh-rsa ".to_owned() + &k.public_key_base64();
                         println!("Generated keypair {:?}", buffer_string);
-                        Ok(buffer_string.to_string())
+                        Ok(SSHKey {
+                            private_key: buffer_string.to_string(),
+                            public_key: public_key.to_string(),
+                            key_algorithm: key_algorithm.to_string(),
+                            key_fingerprint: k.clone_public_key().unwrap().fingerprint().to_string(),
+                        })
                     },
                     Err(e) => {
                         Err(napi::Error::from_reason(e.to_string()))
