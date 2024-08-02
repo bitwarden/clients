@@ -78,8 +78,8 @@ export class AutofillComponent implements OnInit {
    * Default values set here are used in component state operations
    * until corresponding stored settings have loaded on init.
    */
-  protected canOverrideBrowserAutofillSetting = false;
-  protected defaultBrowserAutofillDisabled = false;
+  protected canOverrideBrowserAutofillSetting: boolean = false;
+  protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
@@ -87,21 +87,21 @@ export class AutofillComponent implements OnInit {
     DisablePasswordManagerUris.Unknown;
   protected browserShortcutsURI: BrowserShortcutsUri = BrowserShortcutsUris.Unknown;
   protected browserClientIsUnknown: boolean;
-  enableAutofillOnPageLoad = false;
-  enableInlineMenu = false;
-  enableInlineMenuOnIconSelect = false;
-  autofillOnPageLoadDefault = false;
+  enableAutofillOnPageLoad: boolean = false;
+  enableInlineMenu: boolean = false;
+  enableInlineMenuOnIconSelect: boolean = false;
+  autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
-  enableContextMenuItem = false;
-  enableAutoTotpCopy = false;
+  enableContextMenuItem: boolean = false;
+  enableAutoTotpCopy: boolean = false;
   clearClipboard: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
-  showCardsCurrentTab = true;
-  showIdentitiesCurrentTab = true;
+  showCardsCurrentTab: boolean = true;
+  showIdentitiesCurrentTab: boolean = true;
   autofillKeyboardHelperText: string;
-  accountSwitcherEnabled = false;
+  accountSwitcherEnabled: boolean = false;
 
   constructor(
     private i18nService: I18nService,

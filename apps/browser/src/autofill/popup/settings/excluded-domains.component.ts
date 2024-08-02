@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { QueryList, Component, ElementRef, OnDestroy, OnInit, ViewChildren } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -56,6 +56,8 @@ const BroadcasterSubscriptionId = "excludedDomainsState";
   ],
 })
 export class ExcludedDomainsComponent implements OnInit, OnDestroy {
+  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>>;
+
   accountSwitcherEnabled = false;
   dataIsPristine = true;
   excludedDomainsState: string[] = [];
@@ -84,10 +86,20 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
 
     // Do not allow the first x (pre-existing) fields to be edited
     this.fieldsEditThreshold = this.storedExcludedDomains.length;
+
+    this.uriInputElements.changes.subscribe(() => {
+      this.focusNewUriInput();
+    });
   }
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+  }
+
+  focusNewUriInput() {
+    if (this.uriInputElements?.last?.nativeElement) {
+      this.uriInputElements.last.nativeElement.focus();
+    }
   }
 
   async addNewDomain() {

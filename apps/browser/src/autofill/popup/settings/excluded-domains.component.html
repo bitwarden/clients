@@ -27,6 +27,7 @@
             }}</bit-label>
             <input
               *ngIf="i >= fieldsEditThreshold"
+              #uriInput
               appInputVerbatim
               bitInput
               id="excludedDomain{{ i }}"
