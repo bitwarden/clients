@@ -23,6 +23,10 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
   <ng-container *ngIf="billing">
-    <app-billing-history [billing]="billing"></app-billing-history>
+    <app-billing-history
+      [subscriberEntityType]="SubscriberEntityType.Organization"
+      [subscriberEntityId]="organizationId"
+    >
+    </app-billing-history>
   </ng-container>
 </bit-container>

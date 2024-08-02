@@ -35,6 +35,11 @@
   </bit-table>
 </bit-section>
 <bit-section>
+  <button bitButton type="button" buttonType="secondary" [bitAction]="loadMoreInvoices">
+    {{ "loadMore" | i18n }}
+  </button>
+</bit-section>
+<bit-section>
   <h3 bitTypography="h3">{{ "transactions" | i18n }}</h3>
   <p bitTypography="body1" *ngIf="!transactions || !transactions.length">
     {{ "noTransactions" | i18n }}
@@ -69,4 +74,9 @@
     </ng-template>
   </bit-table>
   <small class="tw-text-muted">* {{ "chargesStatement" | i18n: "BITWARDEN" }}</small>
+</bit-section>
+<bit-section>
+  <button bitButton buttonType="secondary" [bitAction]="loadMoreTransactions">
+    {{ "loadMore" | i18n }}
+  </button>
 </bit-section>

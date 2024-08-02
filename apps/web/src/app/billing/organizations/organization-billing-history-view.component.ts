@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, Subject, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { SubscriberEntityType } from "@bitwarden/common/billing/enums/subscriber-entity-type.enum";
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 @Component({
@@ -47,4 +48,6 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
     this.billing = await this.organizationApiService.getBillingHistory(this.organizationId);
     this.loading = false;
   }
+
+  protected readonly SubscriberEntityType = SubscriberEntityType;
 }

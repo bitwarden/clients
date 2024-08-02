@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { SubscriberEntityType } from "@bitwarden/common/billing/enums/subscriber-entity-type.enum";
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -9,12 +9,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
   templateUrl: "billing-history-view.component.html",
 })
 export class BillingHistoryViewComponent implements OnInit {
-  loading = false;
   firstLoaded = false;
   billing: BillingHistoryResponse;
+  loading: boolean;
 
   constructor(
-    private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
   ) {}
@@ -26,16 +25,8 @@ export class BillingHistoryViewComponent implements OnInit {
       this.router.navigate(["/settings/subscription"]);
       return;
     }
-    await this.load();
     this.firstLoaded = true;
   }
 
-  async load() {
-    if (this.loading) {
-      return;
-    }
-    this.loading = true;
-    this.billing = await this.apiService.getUserBillingHistory();
-    this.loading = false;
-  }
+  protected readonly SubscriberEntityType = SubscriberEntityType;
 }
