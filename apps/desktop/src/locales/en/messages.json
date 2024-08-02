@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Secure note"
   },
+  "typeSSHKey": {
+    "message": "SSH key"
+  },
   "folders": {
     "message": "Folders"
   },
@@ -173,6 +176,27 @@
   },
   "address": {
     "message": "Address"
+  },
+  "sshPrivateKey": {
+    "message": "SSH private key"
+  },
+  "sshPublicKey": {
+    "message": "SSH public key"
+  },
+  "sshFingerprint": {
+    "message": "SSH fingerprint"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key type"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519 (Recommended)"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048 bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096 bit"
   },
   "premiumRequired": {
     "message": "Premium required"
@@ -738,10 +762,10 @@
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
-  "selfHostedCustomEnvHeader" :{
+  "selfHostedCustomEnvHeader": {
     "message": "For advanced configuration, you can specify the base URL of each service independently."
   },
-  "selfHostedEnvFormInvalid" :{
+  "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
   "customEnvironment": {
@@ -1276,10 +1300,10 @@
       }
     }
   },
-  "errorRefreshingAccessToken":{
+  "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
   },
-  "errorRefreshingAccessTokenDesc":{
+  "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
   },
   "help": {
@@ -1656,7 +1680,7 @@
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
-  "verificationRequired" : {
+  "verificationRequired": {
     "message": "Verification required",
     "description": "Default title for the user verification dialog."
   },

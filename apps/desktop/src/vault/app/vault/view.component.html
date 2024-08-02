@@ -399,6 +399,25 @@
             <div *ngIf="cipher.identity.country">{{ cipher.identity.country }}</div>
           </div>
         </div>
+        <!-- SSH Key -->
+        <div *ngIf="cipher.card">
+          <div class="box-content-row" *ngIf="cipher.sshKey.privateKey">
+            <span class="row-label">{{ "sshPrivatekey" | i18n }}</span>
+            {{ cipher.sshKey.privateKey }}
+          </div>
+          <div class="box-content-row" *ngIf="cipher.sshKey.publicKey">
+            <span class="row-label">{{ "sshPublicKey" | i18n }}</span>
+            {{ cipher.sshKey.publicKey }}
+          </div>
+          <div class="box-content-row" *ngIf="cipher.sshKey.keyFingerprint">
+            <span class="row-label">{{ "sshKeyFingerprint" | i18n }}</span>
+            {{ cipher.sshKey.keyFingerprint }}
+          </div>
+          <div class="box-content-row" *ngIf="cipher.sshKey.keyAlgorithm">
+            <span class="row-label">{{ "sshKeyAlgorithm" | i18n }}</span>
+            {{ cipher.sshKey.keyAlgorithm }}
+          </div>
+        </div>
       </div>
     </div>
     <div class="box" *ngIf="cipher.login && cipher.login.hasUris">

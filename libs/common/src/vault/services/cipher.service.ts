@@ -74,6 +74,7 @@ import {
   ENCRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
+import { SSHKey } from "../models/domain/ssh-key";
 
 const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
@@ -1490,6 +1491,19 @@ export class CipherService implements CipherServiceAbstraction {
             username: null,
             passportNumber: null,
             licenseNumber: null,
+          },
+          key,
+        );
+        return;
+      case CipherType.SSHKey:
+        cipher.sshKey = new SSHKey();
+        await this.encryptObjProperty(
+          model.sshKey,
+          cipher.sshKey,
+          {
+            privateKey: null,
+            publicKey: null,
+            keyAlgorithm: null,
           },
           key,
         );
