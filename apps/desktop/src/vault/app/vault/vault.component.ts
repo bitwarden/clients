@@ -757,9 +757,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         null,
         this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
       );
-      if (this.action === "view") {
-        this.messagingService.send("minimizeOnCopy");
-      }
+      this.messagingService.send("minimizeOnCopy");
     });
   }
 
