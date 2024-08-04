@@ -141,6 +141,8 @@
       color: themed("headingButtonColor");
     }
 
+    margin-right: 0.25rem;
+
     &:hover,
     &:focus {
       @include themify($themes) {
