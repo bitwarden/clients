@@ -27,6 +27,10 @@ export class FirstMenu {
     return this._accounts != null && Object.values(this._accounts).some((a) => a.isLockable);
   }
 
+  protected get hasAuthenticatedAccounts(): boolean {
+    return this._accounts != null && Object.values(this._accounts).some((a) => a.isAuthenticated);
+  }
+
   protected get checkForUpdates(): MenuItemConstructorOptions {
     return {
       id: "checkForUpdates",
