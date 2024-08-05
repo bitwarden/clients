@@ -292,6 +292,31 @@ export class PinService implements PinServiceAbstraction {
     return (await this.getPinLockType(userId)) !== "DISABLED";
   }
 
+  // For unlock & user verification scenarios
+  async canDecryptUserKeyWithPin(userId: UserId) {
+    this.validateUserId(userId, "Cannot determine if PIN is set.");
+
+    // TODO: change to exhaustive switch
+
+    const pinLockType = await this.getPinLockType(userId);
+
+    if (pinLockType === "DISABLED") {
+      return false;
+    }
+
+    const ephemeralPinSet = Boolean(await this.getPinKeyEncryptedUserKeyEphemeral(userId));
+
+    if (pinLockType === "EPHEMERAL" && ephemeralPinSet) {
+      return true;
+    }
+
+    if (pinLockType === "PERSISTENT") {
+      return true;
+    }
+
+    return false; // unsupported pinLockType
+  }
+
   async decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null> {
     this.validateUserId(userId, "Cannot decrypt user key with PIN.");
 
