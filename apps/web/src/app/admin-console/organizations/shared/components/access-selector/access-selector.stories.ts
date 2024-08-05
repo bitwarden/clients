@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { action } from "@storybook/addon-actions";
-import { applicationConfig, Meta, moduleMetadata, Story } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -55,6 +55,9 @@ export default {
   },
 } as Meta;
 
+// TODO: This is a workaround since this story does weird things.
+type Story = StoryObj<any>;
+
 const actionsData = {
   onValueChanged: action("onValueChanged"),
   onSubmit: action("onSubmit"),
@@ -99,9 +102,8 @@ const itemsFactory = (n: number, type: AccessItemType) => {
 const sampleMembers = itemsFactory(10, AccessItemType.Member);
 const sampleGroups = itemsFactory(6, AccessItemType.Group);
 
-const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent,
-) => ({
+// TODO: These renders are badly handled but storybook has made it more difficult to use multiple renders in a single story.
+const StandaloneAccessSelectorRender = (args: any) => ({
   props: {
     items: [],
     valueChanged: actionsData.onValueChanged,
@@ -109,25 +111,23 @@ const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
     ...args,
   },
   template: `
-            <bit-access-selector
-              (ngModelChange)="valueChanged($event)"
-              [ngModel]="initialValue"
-              [items]="items"
-              [disabled]="disabled"
-              [columnHeader]="columnHeader"
-              [showGroupColumn]="showGroupColumn"
-              [selectorLabelText]="selectorLabelText"
-              [selectorHelpText]="selectorHelpText"
-              [emptySelectionText]="emptySelectionText"
-              [permissionMode]="permissionMode"
-              [showMemberRoles]="showMemberRoles"
-            ></bit-access-selector>
-`,
+    <bit-access-selector
+      (ngModelChange)="valueChanged($event)"
+      [ngModel]="initialValue"
+      [items]="items"
+      [disabled]="disabled"
+      [columnHeader]="columnHeader"
+      [showGroupColumn]="showGroupColumn"
+      [selectorLabelText]="selectorLabelText"
+      [selectorHelpText]="selectorHelpText"
+      [emptySelectionText]="emptySelectionText"
+      [permissionMode]="permissionMode"
+      [showMemberRoles]="showMemberRoles"
+    ></bit-access-selector>
+  `,
 });
 
-const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent,
-) => ({
+const DialogAccessSelectorRender = (args: any) => ({
   props: {
     items: [],
     valueChanged: actionsData.onValueChanged,
@@ -164,7 +164,7 @@ const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
           aria-label="Delete"></button>
       </ng-container>
     </bit-dialog>
-`,
+  `,
 });
 
 const dialogAccessItems = itemsFactory(10, AccessItemType.Collection);
@@ -190,153 +190,115 @@ const memberCollectionAccessItems = itemsFactory(3, AccessItemType.Collection).c
   },
 ]);
 
-export const Dialog = DialogAccessSelectorTemplate.bind({});
-Dialog.args = {
-  permissionMode: "edit",
-  showMemberRoles: false,
-  showGroupColumn: true,
-  columnHeader: "Collection",
-  selectorLabelText: "Select Collections",
-  selectorHelpText: "Some helper text describing what this does",
-  emptySelectionText: "No collections added",
-  disabled: false,
-  initialValue: [],
-  items: dialogAccessItems,
-};
-Dialog.story = {
-  parameters: {
-    docs: {
-      storyDescription: `
-        Example of an access selector for modifying the collections a member has access to inside of a dialog.
-      `,
-    },
+export const Dialog: Story = {
+  args: {
+    permissionMode: "edit",
+    showMemberRoles: false,
+    showGroupColumn: true,
+    columnHeader: "Collection",
+    selectorLabelText: "Select Collections",
+    selectorHelpText: "Some helper text describing what this does",
+    emptySelectionText: "No collections added",
+    disabled: false,
+    initialValue: [] as any[],
+    items: dialogAccessItems,
   },
+  render: DialogAccessSelectorRender,
 };
 
-export const MemberCollectionAccess = StandaloneAccessSelectorTemplate.bind({});
-MemberCollectionAccess.args = {
-  permissionMode: "edit",
-  showMemberRoles: false,
-  showGroupColumn: true,
-  columnHeader: "Collection",
-  selectorLabelText: "Select Collections",
-  selectorHelpText: "Some helper text describing what this does",
-  emptySelectionText: "No collections added",
-  disabled: false,
-  initialValue: [],
-  items: memberCollectionAccessItems,
-};
-MemberCollectionAccess.story = {
-  parameters: {
-    docs: {
-      storyDescription: `
-        Example of an access selector for modifying the collections a member has access to.
-        Includes examples of a readonly group and member that cannot be edited.
-      `,
-    },
+export const MemberCollectionAccess: Story = {
+  args: {
+    permissionMode: "edit",
+    showMemberRoles: false,
+    showGroupColumn: true,
+    columnHeader: "Collection",
+    selectorLabelText: "Select Collections",
+    selectorHelpText: "Some helper text describing what this does",
+    emptySelectionText: "No collections added",
+    disabled: false,
+    initialValue: [],
+    items: memberCollectionAccessItems,
   },
+  render: StandaloneAccessSelectorRender,
 };
 
-export const MemberGroupAccess = StandaloneAccessSelectorTemplate.bind({});
-MemberGroupAccess.args = {
-  permissionMode: "readonly",
-  showMemberRoles: false,
-  columnHeader: "Groups",
-  selectorLabelText: "Select Groups",
-  selectorHelpText: "Some helper text describing what this does",
-  emptySelectionText: "No groups added",
-  disabled: false,
-  initialValue: [{ id: "3g" }, { id: "0g" }],
-  items: itemsFactory(4, AccessItemType.Group).concat([
-    {
-      id: "admin",
-      type: AccessItemType.Group,
-      listName: "Admin Group",
-      labelName: "Admin Group",
-    },
-  ]),
-};
-MemberGroupAccess.story = {
-  parameters: {
-    docs: {
-      storyDescription: `
-        Example of an access selector for selecting which groups an individual member belongs too.
-      `,
-    },
+export const MemberGroupAccess: Story = {
+  args: {
+    permissionMode: "readonly",
+    showMemberRoles: false,
+    columnHeader: "Groups",
+    selectorLabelText: "Select Groups",
+    selectorHelpText: "Some helper text describing what this does",
+    emptySelectionText: "No groups added",
+    disabled: false,
+    initialValue: [{ id: "3g" }, { id: "0g" }],
+    items: itemsFactory(4, AccessItemType.Group).concat([
+      {
+        id: "admin",
+        type: AccessItemType.Group,
+        listName: "Admin Group",
+        labelName: "Admin Group",
+      },
+    ]),
   },
+  render: StandaloneAccessSelectorRender,
 };
 
-export const GroupMembersAccess = StandaloneAccessSelectorTemplate.bind({});
-GroupMembersAccess.args = {
-  permissionMode: "hidden",
-  showMemberRoles: true,
-  columnHeader: "Members",
-  selectorLabelText: "Select Members",
-  selectorHelpText: "Some helper text describing what this does",
-  emptySelectionText: "No members added",
-  disabled: false,
-  initialValue: [{ id: "2m" }, { id: "0m" }],
-  items: sampleMembers,
-};
-GroupMembersAccess.story = {
-  parameters: {
-    docs: {
-      storyDescription: `
-        Example of an access selector for selecting which members belong to an specific group.
-      `,
-    },
+export const GroupMembersAccess: Story = {
+  args: {
+    permissionMode: "hidden",
+    showMemberRoles: true,
+    columnHeader: "Members",
+    selectorLabelText: "Select Members",
+    selectorHelpText: "Some helper text describing what this does",
+    emptySelectionText: "No members added",
+    disabled: false,
+    initialValue: [{ id: "2m" }, { id: "0m" }],
+    items: sampleMembers,
   },
+  render: StandaloneAccessSelectorRender,
 };
 
-export const CollectionAccess = StandaloneAccessSelectorTemplate.bind({});
-CollectionAccess.args = {
-  permissionMode: "edit",
-  showMemberRoles: false,
-  columnHeader: "Groups/Members",
-  selectorLabelText: "Select groups and members",
-  selectorHelpText:
-    "Permissions set for a member will replace permissions set by that member's group",
-  emptySelectionText: "No members or groups added",
-  disabled: false,
-  initialValue: [
-    { id: "3g", permission: CollectionPermission.EditExceptPass },
-    { id: "0m", permission: CollectionPermission.View },
-  ],
-  items: sampleGroups.concat(sampleMembers).concat([
-    {
-      id: "admin-group",
-      type: AccessItemType.Group,
-      listName: "Admin Group",
-      labelName: "Admin Group",
-      readonly: true,
-    },
-    {
-      id: "admin-member",
-      type: AccessItemType.Member,
-      listName: "Admin Member (admin@email.com)",
-      labelName: "Admin Member",
-      status: OrganizationUserStatusType.Confirmed,
-      role: OrganizationUserType.Admin,
-      email: "admin@email.com",
-      readonly: true,
-    },
-  ]),
-};
-GroupMembersAccess.story = {
-  parameters: {
-    docs: {
-      storyDescription: `
-        Example of an access selector for selecting which members/groups have access to a specific collection.
-      `,
-    },
+export const CollectionAccess: Story = {
+  args: {
+    permissionMode: "edit",
+    showMemberRoles: false,
+    columnHeader: "Groups/Members",
+    selectorLabelText: "Select groups and members",
+    selectorHelpText:
+      "Permissions set for a member will replace permissions set by that member's group",
+    emptySelectionText: "No members or groups added",
+    disabled: false,
+    initialValue: [
+      { id: "3g", permission: CollectionPermission.EditExceptPass },
+      { id: "0m", permission: CollectionPermission.View },
+    ],
+    items: sampleGroups.concat(sampleMembers).concat([
+      {
+        id: "admin-group",
+        type: AccessItemType.Group,
+        listName: "Admin Group",
+        labelName: "Admin Group",
+        readonly: true,
+      },
+      {
+        id: "admin-member",
+        type: AccessItemType.Member,
+        listName: "Admin Member (admin@email.com)",
+        labelName: "Admin Member",
+        status: OrganizationUserStatusType.Confirmed,
+        role: OrganizationUserType.Admin,
+        email: "admin@email.com",
+        readonly: true,
+      },
+    ]),
   },
+  render: StandaloneAccessSelectorRender,
 };
 
 const fb = new FormBuilder();
 
-const ReactiveFormAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent,
-) => ({
+const ReactiveFormAccessSelectorRender = (args: any) => ({
   props: {
     items: [],
     onSubmit: actionsData.onSubmit,
@@ -344,30 +306,32 @@ const ReactiveFormAccessSelectorTemplate: Story<AccessSelectorComponent> = (
   },
   template: `
     <form [formGroup]="formObj" (ngSubmit)="onSubmit(formObj.controls.formItems.value)">
-            <bit-access-selector
-              formControlName="formItems"
-              [items]="items"
-              [columnHeader]="columnHeader"
-              [selectorLabelText]="selectorLabelText"
-              [selectorHelpText]="selectorHelpText"
-              [emptySelectionText]="emptySelectionText"
-              [permissionMode]="permissionMode"
-              [showMemberRoles]="showMemberRoles"
-            ></bit-access-selector>
-            <button type="submit" bitButton buttonType="primary" class="tw-mt-5">Submit</button>
+      <bit-access-selector
+        formControlName="formItems"
+        [items]="items"
+        [columnHeader]="columnHeader"
+        [selectorLabelText]="selectorLabelText"
+        [selectorHelpText]="selectorHelpText"
+        [emptySelectionText]="emptySelectionText"
+        [permissionMode]="permissionMode"
+        [showMemberRoles]="showMemberRoles"
+      ></bit-access-selector>
+      <button type="submit" bitButton buttonType="primary" class="tw-mt-5">Submit</button>
     </form>
 `,
 });
 
-export const ReactiveForm = ReactiveFormAccessSelectorTemplate.bind({});
-ReactiveForm.args = {
-  formObj: fb.group({ formItems: [[{ id: "1g" }]] }),
-  permissionMode: "edit",
-  showMemberRoles: false,
-  columnHeader: "Groups/Members",
-  selectorLabelText: "Select groups and members",
-  selectorHelpText:
-    "Permissions set for a member will replace permissions set by that member's group",
-  emptySelectionText: "No members or groups added",
-  items: sampleGroups.concat(sampleMembers),
+export const ReactiveForm: Story = {
+  args: {
+    formObj: fb.group({ formItems: [[{ id: "1g" }]] }),
+    permissionMode: "edit",
+    showMemberRoles: false,
+    columnHeader: "Groups/Members",
+    selectorLabelText: "Select groups and members",
+    selectorHelpText:
+      "Permissions set for a member will replace permissions set by that member's group",
+    emptySelectionText: "No members or groups added",
+    items: sampleGroups.concat(sampleMembers),
+  },
+  render: ReactiveFormAccessSelectorRender,
 };

@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, Story, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BadgeModule, IconModule } from "@bitwarden/components";
@@ -32,18 +32,18 @@ export default {
   },
 } as Meta;
 
-const Template: Story<ReportCardComponent> = (args: ReportCardComponent) => ({
-  props: args,
-});
+type Story = StoryObj<ReportCardComponent>;
 
-export const Enabled = Template.bind({});
+export const Enabled: Story = {};
 
-export const RequiresPremium = Template.bind({});
-RequiresPremium.args = {
-  variant: ReportVariant.RequiresPremium,
+export const RequiresPremium: Story = {
+  args: {
+    variant: ReportVariant.RequiresPremium,
+  },
 };
 
-export const RequiresUpgrade = Template.bind({});
-RequiresUpgrade.args = {
-  variant: ReportVariant.RequiresUpgrade,
+export const RequiresUpgrade: Story = {
+  args: {
+    variant: ReportVariant.RequiresUpgrade,
+  },
 };

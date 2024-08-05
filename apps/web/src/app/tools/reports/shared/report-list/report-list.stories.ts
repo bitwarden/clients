@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, Story, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BadgeModule, IconModule } from "@bitwarden/components";
@@ -34,8 +34,6 @@ export default {
   },
 } as Meta;
 
-const Template: Story<ReportListComponent> = (args: ReportListComponent) => ({
-  props: args,
-});
+type Story = StoryObj<ReportListComponent>;
 
-export const Default = Template.bind({});
+export const Default: Story = {};

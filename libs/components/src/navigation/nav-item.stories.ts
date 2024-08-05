@@ -69,8 +69,7 @@ export const WithoutIcon: Story = {
 };
 
 export const WithoutRoute: Story = {
-  render: (args: NavItemComponent) => ({
-    props: args,
+  render: () => ({
     template: `
         <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
       `,
@@ -78,7 +77,7 @@ export const WithoutRoute: Story = {
 };
 
 export const WithChildButtons: Story = {
-  render: (args: NavItemComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-nav-item text="Hello World" [route]="['']" icon="bwi-collection">
@@ -104,7 +103,7 @@ export const WithChildButtons: Story = {
 };
 
 export const MultipleItemsWithDivider: Story = {
-  render: (args: NavItemComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
@@ -117,7 +116,7 @@ export const MultipleItemsWithDivider: Story = {
 };
 
 export const ForceActiveStyles: Story = {
-  render: (args: NavItemComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-nav-item text="First Nav" icon="bwi-collection"></bit-nav-item>

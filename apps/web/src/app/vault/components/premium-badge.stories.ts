@@ -1,4 +1,4 @@
-import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -47,9 +47,6 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<PremiumBadgeComponent> = (args: PremiumBadgeComponent) => ({
-  props: args,
-});
+type Story = StoryObj<PremiumBadgeComponent>;
 
-export const Primary = Template.bind({});
-Primary.args = {};
+export const Primary: Story = {};

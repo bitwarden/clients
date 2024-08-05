@@ -1,3 +1,4 @@
+import { dirname, join } from "path";
 import { StorybookConfig } from "@storybook/angular";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import remarkGfm from "remark-gfm";
@@ -20,11 +21,11 @@ const config: StorybookConfig = {
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-a11y",
-    "@storybook/addon-designs",
-    "@storybook/addon-interactions",
+    getAbsolutePath("@storybook/addon-links"),
+    getAbsolutePath("@storybook/addon-essentials"),
+    getAbsolutePath("@storybook/addon-a11y"),
+    getAbsolutePath("@storybook/addon-designs"),
+    getAbsolutePath("@storybook/addon-interactions"),
     {
       name: "@storybook/addon-docs",
       options: {
@@ -37,7 +38,7 @@ const config: StorybookConfig = {
     },
   ],
   framework: {
-    name: "@storybook/angular",
+    name: getAbsolutePath("@storybook/angular"),
     options: {},
   },
   core: {
@@ -53,9 +54,12 @@ const config: StorybookConfig = {
     }
     return config;
   },
-  docs: {
-    autodocs: true,
-  },
+  docs: {},
 };
 
 export default config;
+
+// Recommended for mono-repositories
+function getAbsolutePath(value: string): any {
+  return dirname(require.resolve(join(value, "package.json")));
+}

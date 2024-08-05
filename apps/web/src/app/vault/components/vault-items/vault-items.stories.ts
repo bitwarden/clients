@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, Story } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
@@ -118,138 +118,136 @@ export default {
   argTypes: { onEvent: { action: "onEvent" } },
 } as Meta;
 
-const Template: Story<VaultItemsComponent> = (args: VaultItemsComponent) => ({
-  props: args,
-});
+type Story = StoryObj<VaultItemsComponent>;
 
-export const Individual = Template.bind({});
-Individual.args = {
-  ciphers,
-  collections: [],
-  showOwner: true,
-  showCollections: false,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: true,
-  showBulkTrashOptions: false,
-  useEvents: false,
-  cloneableOrganizationCiphers: false,
+export const Individual: Story = {
+  args: {
+    ciphers,
+    collections: [],
+    showOwner: true,
+    showCollections: false,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: true,
+    showBulkTrashOptions: false,
+    useEvents: false,
+  },
 };
 
-export const IndividualDisabled = Template.bind({});
-IndividualDisabled.args = {
-  ciphers,
-  collections: [],
-  disabled: true,
-  showOwner: true,
-  showCollections: false,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: true,
-  showBulkTrashOptions: false,
-  useEvents: false,
-  cloneableOrganizationCiphers: false,
+export const IndividualDisabled: Story = {
+  args: {
+    ciphers,
+    collections: [],
+    disabled: true,
+    showOwner: true,
+    showCollections: false,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: true,
+    showBulkTrashOptions: false,
+    useEvents: false,
+  },
 };
 
-export const IndividualTrash = Template.bind({});
-IndividualTrash.args = {
-  ciphers: deletedCiphers,
-  collections: [],
-  showOwner: true,
-  showCollections: false,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: true,
-  useEvents: false,
-  cloneableOrganizationCiphers: false,
+export const IndividualTrash: Story = {
+  args: {
+    ciphers: deletedCiphers,
+    collections: [],
+    showOwner: true,
+    showCollections: false,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: true,
+    useEvents: false,
+  },
 };
 
-export const IndividualTopLevelCollection = Template.bind({});
-IndividualTopLevelCollection.args = {
-  ciphers: [],
-  collections,
-  showOwner: true,
-  showCollections: false,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: false,
-  useEvents: false,
-  cloneableOrganizationCiphers: false,
+export const IndividualTopLevelCollection: Story = {
+  args: {
+    ciphers: [],
+    collections,
+    showOwner: true,
+    showCollections: false,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: false,
+    useEvents: false,
+  },
 };
 
-export const IndividualSecondLevelCollection = Template.bind({});
-IndividualSecondLevelCollection.args = {
-  ciphers,
-  collections,
-  showOwner: true,
-  showCollections: false,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: true,
-  showBulkTrashOptions: false,
-  useEvents: false,
-  cloneableOrganizationCiphers: false,
+export const IndividualSecondLevelCollection: Story = {
+  args: {
+    ciphers,
+    collections,
+    showOwner: true,
+    showCollections: false,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: true,
+    showBulkTrashOptions: false,
+    useEvents: false,
+  },
 };
 
-export const OrganizationVault = Template.bind({});
-OrganizationVault.args = {
-  ciphers: organizationOnlyCiphers,
-  collections: [],
-  showOwner: false,
-  showCollections: true,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: false,
-  useEvents: true,
-  cloneableOrganizationCiphers: true,
+export const OrganizationVault: Story = {
+  args: {
+    ciphers: organizationOnlyCiphers,
+    collections: [],
+    showOwner: false,
+    showCollections: true,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: false,
+    useEvents: true,
+  },
 };
 
-export const OrganizationTrash = Template.bind({});
-OrganizationTrash.args = {
-  ciphers: deletedOrganizationOnlyCiphers,
-  collections: [],
-  showOwner: false,
-  showCollections: true,
-  showGroups: false,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: true,
-  useEvents: true,
-  cloneableOrganizationCiphers: true,
+export const OrganizationTrash: Story = {
+  args: {
+    ciphers: deletedOrganizationOnlyCiphers,
+    collections: [],
+    showOwner: false,
+    showCollections: true,
+    showGroups: false,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: true,
+    useEvents: true,
+  },
 };
 
 const unassignedCollection = new CollectionAdminView();
 unassignedCollection.id = Unassigned;
 unassignedCollection.name = "Unassigned";
-export const OrganizationTopLevelCollection = Template.bind({});
-OrganizationTopLevelCollection.args = {
-  ciphers: [],
-  collections: collections.concat(unassignedCollection),
-  showOwner: false,
-  showCollections: false,
-  showGroups: true,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: false,
-  useEvents: true,
-  cloneableOrganizationCiphers: true,
+export const OrganizationTopLevelCollection: Story = {
+  args: {
+    ciphers: [],
+    collections: collections.concat(unassignedCollection),
+    showOwner: false,
+    showCollections: false,
+    showGroups: true,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: false,
+    useEvents: true,
+  },
 };
 
-export const OrganizationSecondLevelCollection = Template.bind({});
-OrganizationSecondLevelCollection.args = {
-  ciphers: organizationOnlyCiphers,
-  collections,
-  showOwner: false,
-  showCollections: false,
-  showGroups: true,
-  showPremiumFeatures: true,
-  showBulkMove: false,
-  showBulkTrashOptions: false,
-  useEvents: true,
-  cloneableOrganizationCiphers: true,
+export const OrganizationSecondLevelCollection: Story = {
+  args: {
+    ciphers: organizationOnlyCiphers,
+    collections,
+    showOwner: false,
+    showCollections: false,
+    showGroups: true,
+    showPremiumFeatures: true,
+    showBulkMove: false,
+    showBulkTrashOptions: false,
+    useEvents: true,
+  },
 };
 
 function createCipherView(i: number, deleted = false): CipherView {

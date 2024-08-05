@@ -1,6 +1,6 @@
 import { FormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/testing-library";
+import { getAllByRole, userEvent } from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -40,7 +40,7 @@ export const Default: Story = {
       ...args,
     },
     template: /* html */ `
-      <bit-chip-select 
+      <bit-chip-select
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
@@ -138,7 +138,7 @@ export const Disabled: Story = {
       ...args,
     },
     template: /* html */ `
-      <bit-chip-select 
+      <bit-chip-select
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
