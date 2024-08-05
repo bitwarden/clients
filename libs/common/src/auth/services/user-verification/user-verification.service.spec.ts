@@ -410,6 +410,12 @@ describe("UserVerificationService", () => {
 
   function setPinAvailability(type: PinLockType) {
     pinService.getPinLockType.mockResolvedValue(type);
+
+    if (type === "EPHEMERAL" || type === "PERSISTENT") {
+      pinService.isPinDecryptionAvailable.mockResolvedValue(true);
+    } else if (type === "DISABLED") {
+      pinService.isPinDecryptionAvailable.mockResolvedValue(false);
+    }
   }
 
   function disableBiometricsAvailability() {
