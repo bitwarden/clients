@@ -292,29 +292,32 @@ export class PinService implements PinServiceAbstraction {
     return (await this.getPinLockType(userId)) !== "DISABLED";
   }
 
-  // For unlock & user verification scenarios
-  async canDecryptUserKeyWithPin(userId: UserId) {
-    this.validateUserId(userId, "Cannot determine if PIN is set.");
-
-    // TODO: change to exhaustive switch
+  async isPinDecryptionAvailable(userId: UserId): Promise<boolean> {
+    this.validateUserId(userId, "Cannot determine if decryption of user key via PIN is available.");
 
     const pinLockType = await this.getPinLockType(userId);
 
-    if (pinLockType === "DISABLED") {
-      return false;
+    switch (pinLockType) {
+      case "DISABLED":
+        return false;
+      case "PERSISTENT":
+        // The above getPinLockType call ensures that we have either a PinKeyEncryptedUserKey or OldPinKeyEncryptedMasterKey set.
+        return true;
+      case "EPHEMERAL": {
+        // The above getPinLockType call ensures that we have a UserKeyEncryptedPin set.
+        // However, we must additively check to ensure that we have a set PinKeyEncryptedUserKeyEphemeral b/c otherwise
+        // we cannot take a PIN, derive a PIN key, and decrypt the ephemeral UserKey.
+        const pinKeyEncryptedUserKeyEphemeral =
+          await this.getPinKeyEncryptedUserKeyEphemeral(userId);
+        return Boolean(pinKeyEncryptedUserKeyEphemeral);
+      }
+
+      default: {
+        // Compile-time check for exhaustive switch
+        const _exhaustiveCheck: never = pinLockType;
+        throw new Error(`Unexpected pinLockType: ${_exhaustiveCheck}`);
+      }
     }
-
-    const ephemeralPinSet = Boolean(await this.getPinKeyEncryptedUserKeyEphemeral(userId));
-
-    if (pinLockType === "EPHEMERAL" && ephemeralPinSet) {
-      return true;
-    }
-
-    if (pinLockType === "PERSISTENT") {
-      return true;
-    }
-
-    return false; // unsupported pinLockType
   }
 
   async decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null> {

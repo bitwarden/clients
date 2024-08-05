@@ -117,6 +117,12 @@ export abstract class PinServiceAbstraction {
   abstract isPinSet: (userId: UserId) => Promise<boolean>;
 
   /**
+   * Checks if PIN-encrypted keys are stored for the user.
+   * Used for unlock / user verification scenarios where we will need to decrypt the UserKey with the PIN.
+   */
+  abstract isPinDecryptionAvailable: (userId: UserId) => Promise<boolean>;
+
+  /**
    * Decrypts the UserKey with the provided PIN.
    *
    * @remarks - If the user has an old pinKeyEncryptedMasterKey (formerly called `pinProtected`), the UserKey
