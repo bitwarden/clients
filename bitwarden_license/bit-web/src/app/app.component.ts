@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 
 import { AppComponent as BaseAppComponent } from "@bitwarden/web-vault/app/app.component";
 
@@ -10,7 +10,7 @@ import { MaximumVaultTimeoutPolicy } from "./admin-console/policies/maximum-vaul
   selector: "app-root",
   templateUrl: "../../../../apps/web/src/app/app.component.html",
 })
-export class AppComponent extends BaseAppComponent {
+export class AppComponent extends BaseAppComponent implements OnInit {
   ngOnInit() {
     super.ngOnInit();
 

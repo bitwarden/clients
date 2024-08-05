@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, concatMap, takeUntil } from "rxjs";
 
@@ -16,7 +16,7 @@ import { ToastService } from "@bitwarden/components";
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",
 })
-export class ProviderSubscriptionComponent {
+export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   providerId: string;
   subscription: ProviderSubscriptionResponse;
 

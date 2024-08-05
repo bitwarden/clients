@@ -1,5 +1,5 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,7 +19,7 @@ import { TwoFactorBaseComponent } from "./two-factor-base.component";
   selector: "app-two-factor-duo",
   templateUrl: "two-factor-duo.component.html",
 })
-export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
+export class TwoFactorDuoComponent extends TwoFactorBaseComponent implements OnInit {
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
   type = TwoFactorProviderType.Duo;

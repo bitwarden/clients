@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -26,7 +26,7 @@ import { AcceptOrganizationInviteService } from "../organization-invite/accept-o
   selector: "app-register-form",
   templateUrl: "./register-form.component.html",
 })
-export class RegisterFormComponent extends BaseRegisterComponent {
+export class RegisterFormComponent extends BaseRegisterComponent implements OnInit {
   @Input() queryParamEmail: string;
   @Input() queryParamFromOrgInvite: boolean;
   @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions;

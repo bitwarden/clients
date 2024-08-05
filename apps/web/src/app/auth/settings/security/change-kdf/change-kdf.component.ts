@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
@@ -18,7 +18,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
   selector: "app-change-kdf",
   templateUrl: "change-kdf.component.html",
 })
-export class ChangeKdfComponent implements OnInit {
+export class ChangeKdfComponent implements OnInit, OnDestroy {
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
   kdfOptions: any[] = [];
   private destroy$ = new Subject<void>();

@@ -45,10 +45,16 @@ const announcementIcon = svgIcon`
       </span>
 
       <ng-container bitDialogFooter>
-        <a bitButton buttonType="primary" bitDialogClose (click)="navigateToLink()">
+        <button
+          bitButton
+          type="button"
+          buttonType="primary"
+          (click)="navigateToLink()"
+          bitDialogClose
+        >
           {{ "learnMore" | i18n }}
           <i class="bwi bwi-external-link bwi-fw" aria-hidden="true"></i>
-        </a>
+        </button>
         <button bitButton type="button" buttonType="secondary" bitDialogClose>
           {{ "close" | i18n }}
         </button>

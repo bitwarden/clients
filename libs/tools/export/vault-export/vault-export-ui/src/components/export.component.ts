@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
   Component,
   EventEmitter,
   Input,
@@ -63,7 +64,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     PasswordStrengthV2Component,
   ],
 })
-export class ExportComponent implements OnInit, OnDestroy {
+export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _organizationId: string;
 
   get organizationId(): string {

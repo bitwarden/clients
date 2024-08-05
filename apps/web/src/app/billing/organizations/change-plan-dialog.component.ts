@@ -1,5 +1,14 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -69,7 +78,7 @@ interface OnSuccessArgs {
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
 })
-export class ChangePlanDialogComponent implements OnInit {
+export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxComponent: TaxInfoComponent;
 

@@ -1,5 +1,5 @@
 import { DatePipe, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import qrcodeParser from "qrcode-parser";
 import { firstValueFrom } from "rxjs";
@@ -39,7 +39,7 @@ import { closeAddEditVaultItemPopout, VaultPopoutType } from "../../utils/vault-
   templateUrl: "add-edit.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class AddEditComponent extends BaseAddEditComponent {
+export class AddEditComponent extends BaseAddEditComponent implements OnInit {
   currentUris: string[];
   showAttachments = true;
   openAttachmentsInPopup: boolean;

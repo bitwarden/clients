@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   Observable,
@@ -80,7 +89,7 @@ const MY_VAULT_ID = "MyVault";
     DialogModule,
   ],
 })
-export class AssignCollectionsComponent implements OnInit {
+export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 

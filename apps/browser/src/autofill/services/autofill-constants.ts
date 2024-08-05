@@ -76,6 +76,11 @@ export class AutoFillConstants {
     "textarea",
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];
+
+  static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
+    "current-password",
+    "new-password",
+  ]);
 }
 
 export class CreditCardAutoFillConstants {
