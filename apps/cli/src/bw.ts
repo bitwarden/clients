@@ -3,7 +3,7 @@ import { program } from "commander";
 import { OssServeConfigurator } from "./oss-serve-configurator";
 import { registerOssPrograms } from "./register-oss-programs";
 import { ServeProgram } from "./serve.program";
-import { ServiceContainer } from "./service-container";
+import { ServiceContainer } from "./service-container/service-container";
 
 async function main() {
   const serviceContainer = new ServiceContainer();

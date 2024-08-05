@@ -59,7 +59,7 @@ export class ManageClientNameDialogComponent {
     request.assignedSeats = this.dialogParams.organization.seats;
     request.name = this.formGroup.value.name;
 
-    await this.billingApiService.updateClientOrganization(
+    await this.billingApiService.updateProviderClientOrganization(
       this.dialogParams.providerId,
       this.dialogParams.organization.id,
       request,

@@ -8,9 +8,18 @@
   >
   </app-item-details-v2>
 
-  <!-- ADDITIONAL INFORMATION -->
+  <!-- CARD DETAILS -->
+  <ng-container *ngIf="hasCard">
+    <app-card-details-view [card]="cipher.card"></app-card-details-view>
+  </ng-container>
+
+  <!-- IDENTITY SECTIONS -->
+  <app-view-identity-sections *ngIf="cipher.identity" [cipher]="cipher">
+  </app-view-identity-sections>
+
+  <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher.notes">
-    <app-additional-information [notes]="cipher.notes"> </app-additional-information>
+    <app-additional-options [notes]="cipher.notes"> </app-additional-options>
   </ng-container>
 
   <!-- CUSTOM FIELDS -->

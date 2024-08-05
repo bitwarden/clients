@@ -7,4 +7,5 @@ export interface PasswordInputResult {
   localMasterKeyHash: string;
   kdfConfig: PBKDF2KdfConfig;
   hint: string;
+  password: string;
 }

@@ -4,7 +4,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { NOTIFICATION_BAR_LIFESPAN_MS } from "@bitwarden/common/autofill/constants";
+import {
+  ExtensionCommand,
+  ExtensionCommandType,
+  NOTIFICATION_BAR_LIFESPAN_MS,
+} from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
@@ -45,6 +49,11 @@ export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
   private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private notificationQueue: NotificationQueueMessageItem[] = [];
+  private allowedRetryCommands: Set<ExtensionCommandType> = new Set([
+    ExtensionCommand.AutofillLogin,
+    ExtensionCommand.AutofillCard,
+    ExtensionCommand.AutofillIdentity,
+  ]);
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
     bgGetFolderData: () => this.getFolderData(),
@@ -689,8 +698,8 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
     const messageData = message.data as LockedVaultPendingNotificationsData;
-    const retryCommand = messageData.commandToRetry.message.command;
-    if (retryCommand === "autofill_login") {
+    const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
+    if (this.allowedRetryCommands.has(retryCommand)) {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 

@@ -1,5 +1,5 @@
 import { DatePipe, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import qrcodeParser from "qrcode-parser";
 import { firstValueFrom } from "rxjs";
@@ -39,7 +39,7 @@ import { closeAddEditVaultItemPopout, VaultPopoutType } from "../../utils/vault-
   templateUrl: "add-edit.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class AddEditComponent extends BaseAddEditComponent {
+export class AddEditComponent extends BaseAddEditComponent implements OnInit {
   currentUris: string[];
   showAttachments = true;
   openAttachmentsInPopup: boolean;
@@ -397,6 +397,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   // TODO: Remove and use fido2 user verification service once user verification for passkeys is approved for production.
+  // Be sure to make the same changes to add-edit-v2.component.ts if applicable
   private async handleFido2UserVerification(
     sessionId: string,
     userVerification: boolean,

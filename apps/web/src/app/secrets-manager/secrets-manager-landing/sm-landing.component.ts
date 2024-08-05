@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -13,7 +13,7 @@ import { SharedModule } from "../../shared/shared.module";
   imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule],
   templateUrl: "sm-landing.component.html",
 })
-export class SMLandingComponent {
+export class SMLandingComponent implements OnInit {
   tryItNowUrl: string;
   learnMoreUrl: string = "https://bitwarden.com/help/secrets-manager-overview/";
   imageSrc: string = "../images/sm.webp";

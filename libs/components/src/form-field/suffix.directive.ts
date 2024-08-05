@@ -1,4 +1,4 @@
-import { Directive, HostBinding, Input, Optional } from "@angular/core";
+import { Directive, HostBinding, Input, OnInit, Optional } from "@angular/core";
 
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 
@@ -7,7 +7,7 @@ import { PrefixButtonClasses, PrefixClasses, PrefixStaticContentClasses } from "
 @Directive({
   selector: "[bitSuffix]",
 })
-export class BitSuffixDirective {
+export class BitSuffixDirective implements OnInit {
   constructor(@Optional() private buttonComponent: ButtonLikeAbstraction) {}
 
   @HostBinding("class") @Input() get classList() {

@@ -1,3 +1,4 @@
+import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import {
   ClipboardOptions,
@@ -298,7 +299,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       autofillCommand = "Cmd+Shift+L";
     } else if (this.isFirefox()) {
       autofillCommand = (await browser.commands.getAll()).find(
-        (c) => c.name === "autofill_login",
+        (c) => c.name === ExtensionCommand.AutofillLogin,
       ).shortcut;
       // Firefox is returning Ctrl instead of Cmd for the modifier key on macOS if
       // the command is the default one set on installation.
@@ -311,7 +312,9 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     } else {
       await new Promise((resolve) =>
         chrome.commands.getAll((c) =>
-          resolve((autofillCommand = c.find((c) => c.name === "autofill_login").shortcut)),
+          resolve(
+            (autofillCommand = c.find((c) => c.name === ExtensionCommand.AutofillLogin).shortcut),
+          ),
         ),
       );
     }

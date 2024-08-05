@@ -12,7 +12,7 @@
     "message": "Yêu thích"
   },
   "types": {
-    "message": "Các loại"
+    "message": "Loại"
   },
   "typeLogin": {
     "message": "Đăng nhập"
@@ -476,7 +476,7 @@
     "message": "Chọn 1 tập tin."
   },
   "maxFileSize": {
-    "message": "Kích thước tối đa của tệp tin là 500MB."
+    "message": "Kích thước tối đa của tập tin là 500MB."
   },
   "encryptionKeyMigrationRequired": {
     "message": "Cần di chuyển khóa mã hóa. Vui lòng đăng nhập trang web Bitwaden để cập nhật khóa mã hóa của bạn."
@@ -894,7 +894,7 @@
     "message": "Đồng bộ thất bại"
   },
   "yourVaultIsLocked": {
-    "message": "Kho của bạn đã bị khoá. Hãy xác minh danh tính để tiếp tục."
+    "message": "Kho của bạn đã bị khóa. Xác minh danh tính của bạn để mở khoá."
   },
   "unlock": {
     "message": "Mở khóa"
@@ -1151,7 +1151,7 @@
     "message": "Đăng ký làm thành viên cao cấp và nhận được:"
   },
   "premiumSignUpStorage": {
-    "message": "1GB bộ nhớ lưu trữ tập tin được mã hóa."
+    "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
@@ -1376,10 +1376,10 @@
     "message": "Xuất kho"
   },
   "fileFormat": {
-    "message": "Định dạng tệp tin"
+    "message": "Định dạng tập tin"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "Tập tin này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã."
+    "message": "Tập tin xuất này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã."
   },
   "filePassword": {
     "message": "Mật khẩu tập tin"
@@ -2548,7 +2548,7 @@
     "message": "Mật khẩu này đã bị rò rỉ trong một vụ tấn công dữ liệu. Dùng mật khẩu mới và an toàn để bảo vệ tài khoản bạn. Bạn có chắc muốn sử dụng mật khẩu đã bị rò rỉ?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Mật khẩu chính Yếu và Bị Lộ"
+    "message": "Mật khẩu chính yếu và bị lộ"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Mật khẩu yếu này đã bị rò rỉ trong một vụ tấn công dữ liệu. Dùng mật khẩu mới và an toàn để bảo vệ tài khoản bạn. Bạn có chắc muốn sử dụng mật khẩu đã bị rò rỉ?"
@@ -2770,7 +2770,7 @@
     "message": "Lỗi nhập"
   },
   "importErrorDesc": {
-    "message": "Có vấn đề với dữ liệu bạn cố gắng nhập. Vui lòng khắc phục các lỗi được liệt kê bên dưới trong tệp nguồn của bạn và thử lại."
+    "message": "Có vấn đề với dữ liệu bạn cố gắng nhập. Vui lòng khắc phục các lỗi được liệt kê bên dưới trong tập tin nguồn của bạn và thử lại."
   },
   "resolveTheErrorsBelowAndTryAgain": {
     "message": "Giải quyết các lỗi bên dưới và thử lại."
@@ -2864,7 +2864,7 @@
     "message": "Chưa chọn tập tin nào"
   },
   "orCopyPasteFileContents": {
-    "message": "hoặc sao chép/dán để nhập nội dung file"
+    "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
   "instructionsFor": {
     "message": "Hướng dẫn dùng $NAME$",

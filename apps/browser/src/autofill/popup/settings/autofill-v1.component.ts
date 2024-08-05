@@ -84,7 +84,7 @@ export class AutofillV1Component implements OnInit {
       { name: i18nService.t("fiveMinutes"), value: 300 },
     ];
     this.uriMatchOptions = [
-      { name: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
+      { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
       { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
       { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
@@ -159,9 +159,9 @@ export class AutofillV1Component implements OnInit {
 
   private async setAutofillKeyboardHelperText(command: string) {
     if (command) {
-      this.autofillKeyboardHelperText = this.i18nService.t("autofillShortcutText", command);
+      this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutText", command);
     } else {
-      this.autofillKeyboardHelperText = this.i18nService.t("autofillShortcutNotSet");
+      this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutNotSet");
     }
   }
 

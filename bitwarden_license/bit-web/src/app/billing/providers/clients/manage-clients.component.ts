@@ -1,9 +1,9 @@
 import { Component } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, from, lastValueFrom, map } from "rxjs";
-import { switchMap, takeUntil } from "rxjs/operators";
+import { switchMap } from "rxjs/operators";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
@@ -46,7 +46,6 @@ export class ManageClientsComponent extends BaseClientsComponent {
   protected plans: PlanResponse[];
 
   constructor(
-    private apiService: ApiService,
     private billingApiService: BillingApiService,
     private configService: ConfigService,
     private providerService: ProviderService,
@@ -68,9 +67,7 @@ export class ManageClientsComponent extends BaseClientsComponent {
       validationService,
       webProviderService,
     );
-  }
 
-  ngOnInit() {
     this.activatedRoute.parent.params
       .pipe(
         switchMap((params) => {
@@ -90,13 +87,9 @@ export class ManageClientsComponent extends BaseClientsComponent {
             }),
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    super.ngOnDestroy();
   }
 
   removeMonthly = (plan: string) => plan.replace(" (Monthly)", "");
@@ -106,7 +99,9 @@ export class ManageClientsComponent extends BaseClientsComponent {
 
     this.isProviderAdmin = this.provider.type === ProviderUserType.ProviderAdmin;
 
-    this.clients = (await this.apiService.getProviderClients(this.providerId)).data;
+    this.clients = (
+      await this.billingApiService.getProviderClientOrganizations(this.providerId)
+    ).data;
 
     this.dataSource.data = this.clients;
 

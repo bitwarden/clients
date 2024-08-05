@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -17,11 +17,13 @@ import { PopupFooterComponent } from "../../../../apps/browser/src/platform/popu
 import { PopupHeaderComponent } from "../../../../apps/browser/src/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../apps/browser/src/platform/popup/layout/popup-page.component";
 
-import { AdditionalInformationComponent } from "./additional-information/additional-information.component";
+import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
+import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
+import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
 @Component({
   selector: "app-cipher-view",
@@ -35,13 +37,15 @@ import { ItemHistoryV2Component } from "./item-history/item-history-v2.component
     PopupHeaderComponent,
     PopupFooterComponent,
     ItemDetailsV2Component,
-    AdditionalInformationComponent,
+    AdditionalOptionsComponent,
     AttachmentsV2ViewComponent,
     ItemHistoryV2Component,
     CustomFieldV2Component,
+    CardDetailsComponent,
+    ViewIdentitySectionsComponent,
   ],
 })
-export class CipherViewComponent implements OnInit {
+export class CipherViewComponent implements OnInit, OnDestroy {
   @Input() cipher: CipherView;
   organization$: Observable<Organization>;
   folder$: Observable<FolderView>;
@@ -60,6 +64,11 @@ export class CipherViewComponent implements OnInit {
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  get hasCard() {
+    const { cardholderName, code, expMonth, expYear, brand, number } = this.cipher.card;
+    return cardholderName || code || expMonth || expYear || brand || number;
   }
 
   async loadCipherData() {

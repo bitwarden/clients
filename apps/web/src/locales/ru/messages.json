@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Ключ аутентификатора"
   },
+  "autofillOptions": {
+    "message": "Параметры автозаполнения"
+  },
+  "websiteUri": {
+    "message": "Сайт (URI)"
+  },
+  "websiteAdded": {
+    "message": "Сайт добавлен"
+  },
+  "addWebsite": {
+    "message": "Добавить сайт"
+  },
+  "deleteWebsite": {
+    "message": "Удалить сайт"
+  },
+  "defaultLabel": {
+    "message": "По умолчанию ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Показать обнаружение совпадений $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Скрыть обнаружение совпадений $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Автозаполнение при загрузке страницы?"
+  },
   "number": {
     "message": "Номер"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Запрошено одобрение устройства."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Начните 7-дневную бесплатную пробную версию Bitwarden для $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Добавить поле"
+  },
   "items": {
     "message": "Элементы"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Управление биллингом на портале провайдера"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Начните 7-дневную бесплатную пробную версию Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Начните 7-дневную бесплатную пробную версию Bitwarden Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Начните 7-дневную бесплатную пробную версию Bitwarden Family"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Начните 7-дневную бесплатную пробную версию Bitwarden Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden Family"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера паролей Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера паролей Bitwarden Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера паролей Bitwarden Family"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера паролей Bitwarden Enterprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Введите информацию о вашей команде"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Введите информацию о вашей семье"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Введите информацию о вашей организации"
+  },
   "viewItemsIn": {
     "message": "Просмотр элементов в $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "купленные места удалены"
+  },
+  "includesXMembers": {
+    "message": "для участников: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Дополнительный локальный хостинг"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Обновление организации $NAME$ ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Аутентификация SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "В семейных организациях может быть до $SEATCOUNT$ участников. Перейдите на платный план, чтобы пригласить больше участников.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "В семейных организациях может быть до $SEATCOUNT$ участников. Свяжитесь с владельцем вашей организации для обновления.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Повысьте тарифный план, чтобы пригласить больше участников и получить доступ к дополнительным возможностям Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Сэкономить $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Расширенные возможности для крупного бизнеса"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Предприятиям нужна мощная система безопасности"
+  },
+  "teamsInviteMessage": {
+    "message": "Приглашайте неограниченное количество участников"
+  },
+  "accessToCreateGroups": {
+    "message": "Доступ к созданию групп"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Синхронизация групп и пользователей из каталога"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Делитесь с семьей и друзьями"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Доступ к премиум-возможностям"
+  },
+  "additionalStorageGbMessage": {
+    "message": "Дополнительное место в хранилище"
   }
 }

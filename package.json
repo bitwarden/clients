@@ -92,7 +92,7 @@
     "copy-webpack-plugin": "12.0.2",
     "cross-env": "7.0.3",
     "css-loader": "6.10.0",
-    "electron": "31.3.0",
+    "electron": "31.3.1",
     "electron-builder": "24.13.3",
     "electron-log": "5.0.1",
     "electron-reload": "2.0.0-alpha.1",
@@ -202,7 +202,7 @@
     "qrious": "4.0.2",
     "rxjs": "7.8.1",
     "tabbable": "6.2.0",
-    "tldts": "6.1.34",
+    "tldts": "6.1.38",
     "utf-8-validate": "6.0.4",
     "zone.js": "0.13.3",
     "zxcvbn": "4.4.2"

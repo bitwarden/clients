@@ -260,10 +260,13 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
+    const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
+    this.updateElementStyles(this.iframe, styles);
+
     if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
-    this.updateElementStyles(this.iframe, position);
+
     this.announceAriaAlert();
   }
 
@@ -320,10 +323,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private handleFadeInInlineMenuIframe() {
     this.clearFadeInTimeout();
-    this.fadeInTimeout = globalThis.setTimeout(
-      () => this.updateElementStyles(this.iframe, { display: "block", opacity: "1" }),
-      10,
-    );
+    this.fadeInTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
+      this.clearFadeInTimeout();
+    }, 10);
   }
 
   /**

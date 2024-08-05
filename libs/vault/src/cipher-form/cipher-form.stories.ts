@@ -11,6 +11,9 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -96,7 +99,7 @@ const defaultConfig: CipherFormConfig = {
 
 class TestAddEditFormService implements CipherFormService {
   decryptCipher(): Promise<CipherView> {
-    return Promise.resolve(defaultConfig.originalCipher as any);
+    return Promise.resolve({ ...defaultConfig.originalCipher } as any);
   }
   async saveCipher(cipher: CipherView): Promise<CipherView> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -149,6 +152,18 @@ export default {
           provide: AuditService,
           useValue: {
             passwordLeaked: () => Promise.resolve(0),
+          },
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+          },
+        },
+        {
+          provide: AutofillSettingsServiceAbstraction,
+          useValue: {
+            autofillOnPageLoadDefault$: new BehaviorSubject(true),
           },
         },
       ],

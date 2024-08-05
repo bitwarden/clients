@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import {
   SingleUserState,
@@ -8,14 +8,17 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 
 /** construct a method that outputs a copy of `defaultValue` as an observable. */
-export function clone$PerUserId<Value>(defaultValue: Value) {
+export function observe$PerUserId<Value>(
+  create: () => Partial<Value>,
+): (key: UserId) => Observable<Value> {
   const _subjects = new Map<UserId, BehaviorSubject<Value>>();
 
   return (key: UserId) => {
     let value = _subjects.get(key);
 
     if (value === undefined) {
-      value = new BehaviorSubject({ ...defaultValue });
+      const initialValue = create();
+      value = new BehaviorSubject({ ...initialValue } as Value);
       _subjects.set(key, value);
     }
 

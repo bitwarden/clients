@@ -3,7 +3,6 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,8 +29,6 @@ const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 @Injectable()
 export class NativeMessagingService {
-  private sharedSecrets = new Map<string, SymmetricCryptoKey>();
-
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private cryptoService: CryptoService,
@@ -104,7 +101,7 @@ export class NativeMessagingService {
       return;
     }
 
-    if (this.sharedSecrets.get(appId) == null) {
+    if ((await ipc.platform.ephemeralStore.getEphemeralValue(appId)) == null) {
       ipc.platform.nativeMessaging.sendMessage({
         command: "invalidateEncryption",
         appId: appId,
@@ -115,7 +112,7 @@ export class NativeMessagingService {
     const message: LegacyMessage = JSON.parse(
       await this.cryptoService.decryptToUtf8(
         rawMessage as EncString,
-        this.sharedSecrets.get(appId),
+        SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
       ),
     );
 
@@ -144,11 +141,6 @@ export class NativeMessagingService {
           (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
 
         if (userId == null) {
-          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
-        }
-
-        const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
-        if (authStatus !== AuthenticationStatus.Unlocked) {
           return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
         }
 
@@ -185,6 +177,7 @@ export class NativeMessagingService {
               },
               appId,
             );
+            await ipc.platform.reloadProcess();
           } else {
             await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
           }
@@ -205,7 +198,7 @@ export class NativeMessagingService {
 
     const encrypted = await this.cryptoService.encrypt(
       JSON.stringify(message),
-      this.sharedSecrets.get(appId),
+      SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
     );
 
     ipc.platform.nativeMessaging.sendMessage({ appId: appId, message: encrypted });
@@ -213,7 +206,10 @@ export class NativeMessagingService {
 
   private async secureCommunication(remotePublicKey: Uint8Array, appId: string) {
     const secret = await this.cryptoFunctionService.randomBytes(64);
-    this.sharedSecrets.set(appId, new SymmetricCryptoKey(secret));
+    await ipc.platform.ephemeralStore.setEphemeralValue(
+      appId,
+      new SymmetricCryptoKey(secret).keyB64,
+    );
 
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
       secret,

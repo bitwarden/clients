@@ -1,4 +1,5 @@
 import { DatePipe } from "@angular/common";
+import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
@@ -12,8 +13,16 @@ import { ToastService } from "@bitwarden/components";
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
+
+@Component({
+  standalone: true,
+  selector: "vault-autofill-options",
+  template: "",
+})
+class MockAutoFillOptionsComponent {}
 
 describe("LoginDetailsSectionComponent", () => {
   let component: LoginDetailsSectionComponent;
@@ -45,7 +54,16 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: TotpCaptureService, useValue: totpCaptureService },
         { provide: I18nService, useValue: i18nService },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(LoginDetailsSectionComponent, {
+        remove: {
+          imports: [AutofillOptionsComponent],
+        },
+        add: {
+          imports: [MockAutoFillOptionsComponent],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(LoginDetailsSectionComponent);
     component = fixture.componentInstance;
@@ -452,6 +470,8 @@ describe("LoginDetailsSectionComponent", () => {
 
       fixture = TestBed.createComponent(LoginDetailsSectionComponent);
       component = fixture.componentInstance;
+
+      jest.spyOn(component, "viewHiddenFields", "get").mockReturnValue(true);
     });
 
     it("renders the passkey field when available", () => {
@@ -469,11 +489,19 @@ describe("LoginDetailsSectionComponent", () => {
     it("renders the passkey remove button when editable", () => {
       fixture.detectChanges();
 
-      expect(getRemovePasskeyBtn).not.toBeNull();
+      expect(getRemovePasskeyBtn()).not.toBeNull();
     });
 
     it("does not render the passkey remove button when not editable", () => {
       cipherFormContainer.config.mode = "partial-edit";
+
+      fixture.detectChanges();
+
+      expect(getRemovePasskeyBtn()).toBeNull();
+    });
+
+    it("does not render the passkey remove button when viewHiddenFields is false", () => {
+      jest.spyOn(component, "viewHiddenFields", "get").mockReturnValue(false);
 
       fixture.detectChanges();
 

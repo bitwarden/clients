@@ -4,69 +4,55 @@
   </bit-section-header>
   <bit-card>
     <div
-      class="tw-border-secondary-300"
+      class="tw-border-secondary-300 [&_bit-form-field:last-of-type]:tw-mb-0"
       *ngFor="let field of fields; let last = last"
       [ngClass]="{ 'tw-mb-4': !last }"
     >
-      <ng-container *ngIf="field.type === fieldType.Text">
-        <label class="tw-text-xs tw-text-muted tw-select-none">
-          {{ field.name }}
-        </label>
-        <bit-form-field>
-          <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
-          <button
-            bitIconButton="bwi-clone"
-            bitSuffix
-            type="button"
-            [appCopyClick]="field.value"
-            showToast
-            [appA11yTitle]="'copyValue' | i18n"
-          ></button>
-        </bit-form-field>
-      </ng-container>
-      <ng-container *ngIf="field.type === fieldType.Hidden">
-        <label class="tw-text-xs tw-text-muted tw-select-none">
-          {{ field.name }}
-        </label>
-        <bit-form-field>
-          <input readonly bitInput type="password" [value]="field.value" aria-readonly="true" />
-          <button bitSuffix type="button" bitIconButton bitPasswordInputToggle></button>
-          <button
-            bitIconButton="bwi-clone"
-            bitSuffix
-            type="button"
-            [appCopyClick]="field.value"
-            showToast
-            [appA11yTitle]="'copyValue' | i18n"
-          ></button>
-        </bit-form-field>
-      </ng-container>
-      <ng-container *ngIf="field.type === fieldType.Boolean">
-        <bit-form-control>
-          <input
-            bitCheckbox
-            type="checkbox"
-            [checked]="field.value === 'true'"
-            aria-readonly="true"
-            disabled
-          />
-          <bit-label> {{ field.name }} </bit-label>
-        </bit-form-control>
-      </ng-container>
-      <ng-container *ngIf="field.type === fieldType.Linked">
-        <label class="tw-text-xs tw-text-muted tw-select-none">
-          {{ "linked" | i18n }}: {{ field.name }}
-        </label>
-        <bit-form-field>
-          <input
-            readonly
-            bitInput
-            type="text"
-            [value]="getLinkedType(field.linkedId)"
-            aria-readonly="true"
-          />
-        </bit-form-field>
-      </ng-container>
+      <bit-form-field *ngIf="field.type === fieldType.Text">
+        <bit-label>{{ field.name }}</bit-label>
+        <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="field.value"
+          showToast
+          [appA11yTitle]="'copyValue' | i18n"
+        ></button>
+      </bit-form-field>
+      <bit-form-field *ngIf="field.type === fieldType.Hidden">
+        <bit-label>{{ field.name }}</bit-label>
+        <input readonly bitInput type="password" [value]="field.value" aria-readonly="true" />
+        <button bitSuffix type="button" bitIconButton bitPasswordInputToggle></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="field.value"
+          showToast
+          [appA11yTitle]="'copyValue' | i18n"
+        ></button>
+      </bit-form-field>
+      <bit-form-control *ngIf="field.type === fieldType.Boolean">
+        <input
+          bitCheckbox
+          type="checkbox"
+          [checked]="field.value === 'true'"
+          aria-readonly="true"
+          disabled
+        />
+        <bit-label> {{ field.name }} </bit-label>
+      </bit-form-control>
+      <bit-form-field *ngIf="field.type === fieldType.Linked">
+        <bit-label> {{ "linked" | i18n }}: {{ field.name }} </bit-label>
+        <input
+          readonly
+          bitInput
+          type="text"
+          [value]="getLinkedType(field.linkedId)"
+          aria-readonly="true"
+        />
+      </bit-form-field>
     </div>
   </bit-card>
 </bit-section>

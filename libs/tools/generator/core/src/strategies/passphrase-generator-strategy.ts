@@ -6,7 +6,7 @@ import { DefaultPassphraseBoundaries, DefaultPassphraseGenerationOptions, Polici
 import { PasswordRandomizer } from "../engine";
 import { mapPolicyToEvaluator } from "../rx";
 import { PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
-import { clone$PerUserId, sharedStateByUserId } from "../util";
+import { observe$PerUserId, sharedStateByUserId } from "../util";
 
 import { PASSPHRASE_SETTINGS } from "./storage";
 
@@ -25,7 +25,7 @@ export class PassphraseGeneratorStrategy
 
   // configuration
   durableState = sharedStateByUserId(PASSPHRASE_SETTINGS, this.stateProvider);
-  defaults$ = clone$PerUserId(DefaultPassphraseGenerationOptions);
+  defaults$ = observe$PerUserId(() => DefaultPassphraseGenerationOptions);
   readonly policy = PolicyType.PasswordGenerator;
   toEvaluator() {
     return mapPolicyToEvaluator(Policies.Passphrase);

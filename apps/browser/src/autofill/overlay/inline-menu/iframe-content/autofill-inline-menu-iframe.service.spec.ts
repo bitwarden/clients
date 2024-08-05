@@ -377,6 +377,21 @@ describe("AutofillInlineMenuIframeService", () => {
             autofillInlineMenuIframeService["ariaAlertElement"],
           );
         });
+
+        it("resets the fade in timeout if it is set", () => {
+          autofillInlineMenuIframeService["fadeInTimeout"] = setTimeout(jest.fn, 100);
+          const styles = { top: "100px", left: "100px" };
+          jest.spyOn(autofillInlineMenuIframeService as any, "handleFadeInInlineMenuIframe");
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles,
+          });
+
+          expect(
+            autofillInlineMenuIframeService["handleFadeInInlineMenuIframe"],
+          ).toHaveBeenCalled();
+        });
       });
 
       it("updates the visibility of the iframe", () => {

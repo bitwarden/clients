@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { TwoFactorAuthEmailComponent as TwoFactorAuthEmailBaseComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-email.component";
@@ -34,7 +34,7 @@ import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent {
+export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent implements OnInit {
   private dialogService = inject(DialogService);
 
   async ngOnInit(): Promise<void> {

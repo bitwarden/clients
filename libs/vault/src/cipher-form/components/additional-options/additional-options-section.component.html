@@ -8,7 +8,10 @@
       <bit-label>{{ "notes" | i18n }}</bit-label>
       <textarea bitInput formControlName="notes"></textarea>
     </bit-form-field>
-    <bit-form-control *ngIf="passwordRepromptEnabled$ | async">
+    <bit-form-control
+      *ngIf="passwordRepromptEnabled$ | async"
+      [disableMargin]="hasCustomFields || isPartialEdit"
+    >
       <input type="checkbox" bitCheckbox formControlName="reprompt" />
       <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
     </bit-form-control>

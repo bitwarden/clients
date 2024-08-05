@@ -1,3 +1,4 @@
+import { LogService } from "../../abstractions/log.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { GlobalState } from "../global-state";
 import { GlobalStateProvider } from "../global-state.provider";
@@ -8,7 +9,10 @@ import { DefaultGlobalState } from "./default-global-state";
 export class DefaultGlobalStateProvider implements GlobalStateProvider {
   private globalStateCache: Record<string, GlobalState<unknown>> = {};
 
-  constructor(private storageServiceProvider: StorageServiceProvider) {}
+  constructor(
+    private storageServiceProvider: StorageServiceProvider,
+    private readonly logService: LogService,
+  ) {}
 
   get<T>(keyDefinition: KeyDefinition<T>): GlobalState<T> {
     const [location, storageService] = this.storageServiceProvider.get(
@@ -23,7 +27,11 @@ export class DefaultGlobalStateProvider implements GlobalStateProvider {
       return existingGlobalState as DefaultGlobalState<T>;
     }
 
-    const newGlobalState = new DefaultGlobalState<T>(keyDefinition, storageService);
+    const newGlobalState = new DefaultGlobalState<T>(
+      keyDefinition,
+      storageService,
+      this.logService,
+    );
 
     this.globalStateCache[cacheKey] = newGlobalState;
     return newGlobalState;

@@ -10,59 +10,97 @@ export class RestClient {
     private api: ApiService,
     private i18n: I18nService,
   ) {}
+
   /** uses the fetch API to request a JSON payload. */
-  async fetchJson<Parameters extends IntegrationRequest, Response>(
-    rpc: JsonRpc<Parameters, Response>,
+  // FIXME: once legacy password generator is removed, replace forwarder-specific error
+  //   messages with RPC-generalized ones.
+  async fetchJson<Parameters extends IntegrationRequest, Result>(
+    rpc: JsonRpc<Parameters, Result>,
     params: Parameters,
-  ): Promise<Response> {
+  ): Promise<Result> {
+    // run the request
     const request = rpc.toRequest(params);
     const response = await this.api.nativeFetch(request);
 
-    // FIXME: once legacy password generator is removed, replace forwarder-specific error
-    //   messages with RPC-generalized ones.
-    let error: string = undefined;
-    let cause: string = undefined;
+    let result: Result = undefined;
+    let errorKey: string = undefined;
+    let errorMessage: string = undefined;
 
+    const commonError = await this.detectCommonErrors(response);
+    if (commonError) {
+      [errorKey, errorMessage] = commonError;
+    } else if (rpc.hasJsonPayload(response)) {
+      [result, errorMessage] = rpc.processJson(await response.json());
+    }
+
+    if (result) {
+      return result;
+    }
+
+    // handle failures
+    errorKey ??= errorMessage ? "forwarderError" : "forwarderUnknownError";
+    const error = this.i18n.t(errorKey, rpc.requestor.name, errorMessage);
+    throw error;
+  }
+
+  private async detectCommonErrors(response: Response): Promise<[string, string] | undefined> {
     if (response.status === 401 || response.status === 403) {
-      cause = await this.tryGetErrorMessage(response);
-      error = cause ? "forwarderInvalidTokenWithMessage" : "forwarderInvalidToken";
-    } else if (response.status >= 500) {
-      cause = await this.tryGetErrorMessage(response);
-      cause = cause ?? response.statusText;
-      error = "forwarderError";
+      const message = await this.tryGetErrorMessage(response);
+      const key = message ? "forwaderInvalidTokenWithMessage" : "forwaderInvalidToken";
+      return [key, message];
+    } else if (response.status >= 400) {
+      const message = await this.tryGetErrorMessage(response);
+      const key = message ? "forwarderError" : "forwarderUnknownError";
+      return [key, message];
     }
-
-    let ok: Response = undefined;
-    if (!error && rpc.hasJsonPayload(response)) {
-      [ok, cause] = rpc.processJson(await response.json());
-    }
-
-    // success
-    if (ok) {
-      return ok;
-    }
-
-    // failure
-    if (!error) {
-      error = cause ? "forwarderError" : "forwarderUnknownError";
-    }
-    throw this.i18n.t(error, rpc.requestor.name, cause);
   }
 
   private async tryGetErrorMessage(response: Response) {
     const body = (await response.text()) ?? "";
 
-    if (!body.startsWith("{")) {
+    // nullish continues processing; false returns undefined
+    // FIXME: inspect content-type header to determine extraction process
+    const error =
+      this.tryFindErrorAsJson(body) ?? this.tryFindErrorAsText(body) ?? response.statusText;
+
+    return error || undefined;
+  }
+
+  private tryFindErrorAsJson(body: string) {
+    // tryParse JSON object or string
+    const parsable = body.startsWith("{") || body.startsWith(`'`) || body.startsWith(`"`);
+    if (!parsable) {
+      // fail-and-continue because it's not JSON
+      return undefined;
+    }
+    let parsed = undefined;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      // fail-and-exit in case `body` is malformed JSON
+      return false;
+    }
+
+    // could be a string
+    if (parsed && typeof parsed === "string") {
+      return parsed;
+    }
+
+    // could be { error?: T, message?: U }
+    const error = parsed.error?.toString() ?? null;
+    const message = parsed.message?.toString() ?? null;
+
+    // `false` signals no message found
+    const result = error && message ? `${error}: ${message}` : (error ?? message ?? false);
+
+    return result;
+  }
+
+  private tryFindErrorAsText(body: string) {
+    if (!body.length || body.includes("<")) {
       return undefined;
     }
 
-    const json = JSON.parse(body);
-    if ("error" in json) {
-      return json.error;
-    } else if ("message" in json) {
-      return json.message;
-    }
-
-    return undefined;
+    return body;
   }
 }

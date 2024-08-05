@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Kopírovat bezpečnostní kód"
   },
+  "copyName": {
+    "message": "Kopírovat název"
+  },
+  "copyCompany": {
+    "message": "Kopírovat společnost"
+  },
+  "copySSN": {
+    "message": "Kopírovat rodné číslo"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovat číslo pasu"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovat číslo dokladu totožnosti"
+  },
   "autoFill": {
     "message": "Automatické vyplňování"
   },
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Výchozí zjišťování shody URI",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Vyberte výchozí způsob, jakým se detekuje shoda URI přihlašovacích údajů. Používá se například pro automatické vyplňování."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Zobrazit menu automatického vyplňování v polích formuláře",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Návrhy automatického vyplňování"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Otevřít trezor v postranním panelu"
   },
-  "commandAutofillDesc": {
+  "commandAutofillLoginDesc": {
     "message": "Automaticky vyplní poslední použité přihlašovací údaje pro tuto stránku."
+  },
+  "commandAutofillCardDesc": {
+    "message": "Automaticky vyplní poslední použitou kartu pro tuto stránku."
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Automaticky vyplní poslední použitou identitu pro tuto stránku."
   },
   "commandGeneratePasswordDesc": {
     "message": "Vygeneruje a zkopíruje nové náhodné heslo do schránky."
@@ -1634,6 +1655,10 @@
     "message": "Základní doména",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Název domény",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Zjišťování shody",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Výchozí zjišťování shody",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Přepnout volby"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatická registrace"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Změnit zkratku"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Spravovat zástupce"
+  },
   "autofillShortcut": {
     "message": "Klávesová zkratka pro automatické vyplňování"
   },
-  "autofillShortcutNotSet": {
-    "message": "Klávesová zkratka pro automatické vyplňování není nastavena. Změňte ji v nastavení prohlížeče."
+  "autofillLoginShortcutNotSet": {
+    "message": "Klávesová zkratka pro automatické vyplnění přihlášení není nastavena. Změňte ji v nastavení prohlížeče."
   },
-  "autofillShortcutText": {
-    "message": "Klávesová zkratka pro automatické vyplňování: $COMMAND$. Změňte ji v nastavení prohlížeče.",
+  "autofillLoginShortcutText": {
+    "message": "Klávesová zkratka pro automatické vyplnění přihlášení je $COMMAND$. Spravujte všechny zkratky v nastavení prohlížeče.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2774,7 +2805,7 @@
     }
   },
   "autofillShortcutTextSafari": {
-    "message": "Výchozí klávesová kombinace pro automatické vyplňování: $COMMAND$.",
+    "message": "Výchozí klávesová zkratka pro automatické vyplňování: $COMMAND$.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 pole vyžaduje Vaši pozornost."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ polí vyžaduje Vaši pozornost.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Vybrat --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Položky se žádostí o změnu hlavního hesla nemohou být automaticky vyplněny při načítání stránky. Automatické vyplnění při načítání stránky je vypnuto.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Pro úpravu tohoto pole vypněte požadavek na hlavní heslo",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Automatické vyplnění - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Ověřovací klíč"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "Podrobnosti karty"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Umístění položky"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden má nový vzhled!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Je snazší a intuitivnější než kdy jindy automaticky vyplňovat a vyhledávat z karty trezor. Mrkněte se!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

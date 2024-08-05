@@ -5,6 +5,28 @@ import { StorageKey } from "../../types/state";
 import { array, record } from "./deserialization-helpers";
 import { StateDefinition } from "./state-definition";
 
+export type DebugOptions = {
+  /**
+   * When true, logs will be written that look like the following:
+   *
+   * ```
+   * "Updating 'global_myState_myKey' from null to non-null"
+   * "Updating 'user_32265eda-62ff-4797-9ead-22214772f888_myState_myKey' from non-null to null."
+   * ```
+   *
+   * It does not include the value of the data, only whether it is null or non-null.
+   */
+  enableUpdateLogging?: boolean;
+
+  /**
+   * When true, logs will be written that look like the following everytime a value is retrieved from storage.
+   *
+   * "Retrieving 'global_myState_myKey' from storage, value is null."
+   * "Retrieving 'user_32265eda-62ff-4797-9ead-22214772f888_myState_myKey' from storage, value is non-null."
+   */
+  enableRetrievalLogging?: boolean;
+};
+
 /**
  * A set of options for customizing the behavior of a {@link KeyDefinition}
  */
@@ -24,6 +46,11 @@ export type KeyDefinitionOptions<T> = {
    * Defaults to 1000ms.
    */
   readonly cleanupDelayMs?: number;
+
+  /**
+   * Options for configuring the debugging behavior, see individual options for more info.
+   */
+  readonly debug?: DebugOptions;
 };
 
 /**
@@ -32,6 +59,8 @@ export type KeyDefinitionOptions<T> = {
  * sub-divides that domain into specific keys.
  */
 export class KeyDefinition<T> {
+  readonly debug: Required<DebugOptions>;
+
   /**
    * Creates a new instance of a KeyDefinition
    * @param stateDefinition The state definition for which this key belongs to.
@@ -55,6 +84,13 @@ export class KeyDefinition<T> {
         `'cleanupDelayMs' must be greater than or equal to 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
       );
     }
+
+    // Normalize optional debug options
+    const { enableUpdateLogging = false, enableRetrievalLogging = false } = options.debug ?? {};
+    this.debug = {
+      enableUpdateLogging,
+      enableRetrievalLogging,
+    };
   }
 
   /**

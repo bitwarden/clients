@@ -113,13 +113,13 @@ describe("Payment Method Warnings Service", () => {
       };
       activeUserState.nextState(state);
       await paymentMethodWarningsService.update(organizationId);
-      expect(billingApiService.getBillingStatus).not.toHaveBeenCalled();
+      expect(billingApiService.getOrganizationBillingStatus).not.toHaveBeenCalled();
     });
 
     it("Retrieves the billing status from the API and uses it to update the state if the state is null", async () => {
       const organizationId = "1";
       activeUserState.nextState(null);
-      billingApiService.getBillingStatus.mockResolvedValue(
+      billingApiService.getOrganizationBillingStatus.mockResolvedValue(
         getBillingStatusResponse(organizationId),
       );
       await paymentMethodWarningsService.update(organizationId);
@@ -131,7 +131,7 @@ describe("Payment Method Warnings Service", () => {
           savedAt: any(),
         },
       });
-      expect(billingApiService.getBillingStatus).toHaveBeenCalledTimes(1);
+      expect(billingApiService.getOrganizationBillingStatus).toHaveBeenCalledTimes(1);
     });
 
     it("Retrieves the billing status from the API and uses it to update the state if the stored warning is null", async () => {
@@ -139,7 +139,7 @@ describe("Payment Method Warnings Service", () => {
       activeUserState.nextState({
         [organizationId]: null,
       });
-      billingApiService.getBillingStatus.mockResolvedValue(
+      billingApiService.getOrganizationBillingStatus.mockResolvedValue(
         getBillingStatusResponse(organizationId),
       );
       await paymentMethodWarningsService.update(organizationId);
@@ -151,7 +151,7 @@ describe("Payment Method Warnings Service", () => {
           savedAt: any(),
         },
       });
-      expect(billingApiService.getBillingStatus).toHaveBeenCalledTimes(1);
+      expect(billingApiService.getOrganizationBillingStatus).toHaveBeenCalledTimes(1);
     });
 
     it("Retrieves the billing status from the API and uses it to update the state if the stored warning is older than a week", async () => {
@@ -164,7 +164,7 @@ describe("Payment Method Warnings Service", () => {
           savedAt: getPastDate(10),
         },
       });
-      billingApiService.getBillingStatus.mockResolvedValue(
+      billingApiService.getOrganizationBillingStatus.mockResolvedValue(
         new OrganizationBillingStatusResponse({
           OrganizationId: organizationId,
           OrganizationName: "Teams Organization",
@@ -180,7 +180,7 @@ describe("Payment Method Warnings Service", () => {
           savedAt: any(),
         },
       });
-      expect(billingApiService.getBillingStatus).toHaveBeenCalledTimes(1);
+      expect(billingApiService.getOrganizationBillingStatus).toHaveBeenCalledTimes(1);
     });
   });
 });

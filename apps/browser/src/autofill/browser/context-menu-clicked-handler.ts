@@ -16,6 +16,7 @@ import {
   CREATE_CARD_ID,
   CREATE_IDENTITY_ID,
   CREATE_LOGIN_ID,
+  ExtensionCommand,
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
@@ -79,7 +80,7 @@ export class ContextMenuClickedHandler {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          message: { command: NOOP_COMMAND_SUFFIX, contextMenuOnClickData: info },
+          message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",

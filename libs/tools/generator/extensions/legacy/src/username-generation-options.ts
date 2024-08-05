@@ -1,6 +1,6 @@
+import { IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import {
   ForwarderId,
-  RequestOptions,
   CatchallGenerationOptions,
   EffUsernameGenerationOptions,
   SubaddressGenerationOptions,
@@ -10,7 +10,7 @@ import {
 export type UsernameGeneratorOptions = EffUsernameGenerationOptions &
   SubaddressGenerationOptions &
   CatchallGenerationOptions &
-  RequestOptions & {
+  IntegrationRequest & {
     type?: UsernameGeneratorType;
     forwardedService?: ForwarderId | "";
     forwardedAnonAddyApiToken?: string;

@@ -1,15 +1,19 @@
+import { mock } from "jest-mock-extended";
+import { Jsonify } from "type-fest";
+
 import { GENERATOR_DISK, UserKeyDefinitionOptions } from "../../platform/state";
 
-import { SecretClassifier } from "./secret-classifier";
+import { Classifier } from "./classifier";
 import { SecretKeyDefinition } from "./secret-key-definition";
 
 describe("SecretKeyDefinition", () => {
-  const classifier = SecretClassifier.allSecret<{ foo: boolean }>();
+  type TestData = { foo: boolean };
+  const classifier = mock<Classifier<any, Record<string, never>, TestData>>();
   const options: UserKeyDefinitionOptions<any> = { deserializer: (v: any) => v, clearOn: [] };
 
   it("toEncryptedStateKey returns a key", () => {
-    const expectedOptions: UserKeyDefinitionOptions<any> = {
-      deserializer: (v: any) => v,
+    const expectedOptions: UserKeyDefinitionOptions<TestData> = {
+      deserializer: (v: Jsonify<TestData>) => v,
       cleanupDelayMs: 100,
       clearOn: ["logout", "lock"],
     };

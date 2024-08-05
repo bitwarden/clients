@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Clé d'authentification"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "Numéro"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Votre mot de passe principal ne répond pas aux exigences des politiques de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Délai d'expiration du coffre"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Approbation de l'appareil demandée."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "Éléments"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gérer la facturation depuis le Portail Fournisseur"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour les Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour Familles"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour Entreprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Équipes"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Familles"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Entreprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Équipes"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Familles"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Entreprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Entrez vos informations d'organisation pour Équipes"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Entrez vos informations d'organisation pour Familles"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Entrez vos informations d'organisation pour Entreprise"
+  },
   "viewItemsIn": {
     "message": "Voir les éléments dans $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "licenses achetées retirées"
+  },
+  "includesXMembers": {
+    "message": "pour $COUNT$ membre(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Auto-hébergement optionnel"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Mettez à niveau votre organisation $NAME$ ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Authentification SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Les organisations Familles peuvent avoir jusqu'à $SEATCOUNT$ membres. Passez à un plan payant pour inviter plus de membres.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Les organisations Familles peuvent avoir jusqu'à $SEATCOUNT$ membres. Contactez le propriétaire de votre organisation pour passer à un plan supérieur.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Mettez à niveau votre plan pour inviter plus de membres et accéder à des fonctionnalités supplémentaires de Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Économisez $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Fonctionnalités avancées pour les entreprises plus grandes"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Entreprises à la recherche d'une sécurité puissante"
+  },
+  "teamsInviteMessage": {
+    "message": "Invitez un nombre illimité de membres"
+  },
+  "accessToCreateGroups": {
+    "message": "Accès à la création de groupes"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Synchroniser les groupes et les utilisateurs à partir d'un répertoire"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Partager avec des membres de la famille et des amis"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Accède aux fonctionnalités Premium"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB de stockage additionnel"
   }
 }

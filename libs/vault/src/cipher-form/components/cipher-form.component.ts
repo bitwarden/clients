@@ -13,7 +13,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
@@ -89,6 +89,12 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   @Input()
   submitBtn?: ButtonComponent;
+
+  /**
+   * Optional function to call before submitting the form. If the function returns false, the form will not be submitted.
+   */
+  @Input()
+  beforeSubmit: () => Promise<boolean>;
 
   /**
    * Event emitted when the cipher is saved successfully.
@@ -184,7 +190,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
         this.config.originalCipher,
       );
 
-      this.updatedCipherView = Object.assign(this.updatedCipherView, this.originalCipherView);
+      // decryptCipher again to ensure we have a separate instance of CipherView
+      this.updatedCipherView = await this.addEditFormService.decryptCipher(
+        this.config.originalCipher,
+      );
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
@@ -207,13 +216,49 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private i18nService: I18nService,
   ) {}
 
+  /**
+   * Counts the number of invalid fields in a form group.
+   * @param formGroup - The form group to count the invalid fields in.
+   * @returns The number of invalid fields in the form group.
+   */
+  private countInvalidFields(formGroup: FormGroup): number {
+    return Object.values(formGroup.controls).reduce((count, control) => {
+      if (control instanceof FormGroup) {
+        return count + this.countInvalidFields(control);
+      }
+      return count + (control.invalid ? 1 : 0);
+    }, 0);
+  }
+
   submit = async () => {
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();
+
+      const invalidFieldsCount = this.countInvalidFields(this.cipherForm);
+      if (invalidFieldsCount > 0) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message:
+            invalidFieldsCount === 1
+              ? this.i18nService.t("singleFieldNeedsAttention")
+              : this.i18nService.t("multipleFieldsNeedAttention", invalidFieldsCount),
+        });
+      }
       return;
     }
 
-    await this.addEditFormService.saveCipher(this.updatedCipherView, this.config);
+    if (this.beforeSubmit) {
+      const shouldSubmit = await this.beforeSubmit();
+      if (!shouldSubmit) {
+        return;
+      }
+    }
+
+    const savedCipher = await this.addEditFormService.saveCipher(
+      this.updatedCipherView,
+      this.config,
+    );
 
     this.toastService.showToast({
       variant: "success",
@@ -225,6 +270,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       ),
     });
 
-    this.cipherSaved.emit(this.updatedCipherView);
+    this.cipherSaved.emit(savedCipher);
   };
 }

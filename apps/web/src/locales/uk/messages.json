@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Ключ автентифікації"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "Номер"
   },
@@ -571,7 +617,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Елементи переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -580,7 +626,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Елемент переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1507,7 +1553,7 @@
     "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Призначення"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -2480,7 +2526,7 @@
     "message": "Щоб оновити обліковий запис до Premium, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "uploadLicenseFileOrg": {
-    "message": "Щоб створити організацію, розміщену на локальному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
+    "message": "Щоб створити організацію на власному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "accountEmailMustBeVerified": {
     "message": "Необхідно підтвердити адресу електронної пошти вашого облікового запису."
@@ -2635,7 +2681,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "Локальний хостинг (необов'язково)"
+    "message": "Власний хостинг (необов'язково)"
   },
   "usersGetPremium": {
     "message": "Користувачі отримують доступ до можливостей Premium"
@@ -3460,7 +3506,7 @@
     "message": "Вас було запрошено приєднатися до зазначеної вгорі організації. Щоб підтвердити запрошення, вам необхідно увійти в обліковий запис Bitwarden, або створити його."
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
   },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
@@ -4387,7 +4433,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Копіювати посилання"
   },
   "copySendLink": {
     "message": "Копіювати посилання відправлення",
@@ -4805,73 +4851,73 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+    "message": "Команди розробників, DevOps та IT-спеціалісти обирають Менеджер секретів Bitwarden для безпечного керування і розгортання інфраструктурних і машинних секретів."
   },
   "centralizeSecretsManagement": {
-    "message": "Centralize secrets management."
+    "message": "Централізуйте керування секретами."
   },
   "centralizeSecretsManagementDescription": {
-    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+    "message": "Безпечно зберігайте та керуйте секретами в одному місці, щоб запобігти неналежному розповсюдженню в організації."
   },
   "preventSecretLeaks": {
-    "message": "Prevent secret leaks."
+    "message": "Запобігайте витоку секретів."
   },
   "preventSecretLeaksDescription": {
-    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+    "message": "Захистіть секрети за допомогою наскрізного шифрування. Більше не потрібно кодувати секрети чи ділитися ними за допомогою файлів .env."
   },
   "enhanceDeveloperProductivity": {
-    "message": "Enhance developer productivity."
+    "message": "Підвищте продуктивність розробників."
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+    "message": "Програмовано отримуйте та розгортайте секрети, щоб розробники могли зосередитися на найважливішому, як-от вдосконалення якості коду."
   },
   "strengthenBusinessSecurity": {
-    "message": "Strengthen business security."
+    "message": "Посильте безпеку бізнесу."
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+    "message": "Надійно контролюйте доступ машин і людей до секретів за допомогою інтеграції SSO, журналів подій та оновлення дозволів на доступ."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Спробувати зараз"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Надіслати запит"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Додати нотатку"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Менеджер секретів Bitwarden"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "Інші продукти від Bitwarden"
   },
   "requestAccessToSecretsManager": {
-    "message": "Request access to Secrets Manager"
+    "message": "Запитати доступ до менеджера секретів"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "You need approval from your administrator to try Secrets Manager."
+    "message": "Щоб спробувати менеджер секретів, необхідне схвалення вашого адміністратора."
   },
   "smAccessRequestEmailSent": {
-    "message": "Access request for secrets manager email sent to admins."
+    "message": "Електронний лист із запитом на доступ до менеджера секретів надіслано адміністраторам."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "Вітаю!\n\nПрошу надати передплату на Менеджер секретів Bitwarden для нашої команди. Ваша підтримка дуже важлива для нас!\n\nМенеджер секретів Bitwarden – це рішення з наскрізним шифруванням для керування секретами, яке дає змогу надійно зберігати, ділитися та розгортати машинні облікові дані, як-от ключі API, паролі баз даних і сертифікати автентифікації.\n\nЗа допомогою менеджера секретів ми зможемо:\n\n- Вдосконалити безпеку\n- Підвищити продуктивність операцій\n- Запобігти витоку секретів\n\nЩоб надіслати запит на безплатний пробний період для нашої команди, зверніться до Bitwarden.\n\nДякую за допомогу!"
   },
   "giveMembersAccess": {
-    "message": "Give members access:"
+    "message": "Надати доступ учасникам:"
   },
   "viewAndSelectTheMembers": {
-    "message": "view and select the members you want to give access to Secrets Manager."
+    "message": "перегляньте й виберіть учасників, яким ви хочете надати доступ до менеджера секретів."
   },
   "openYourOrganizations": {
-    "message": "Open your organization's"
+    "message": "Відкрийте"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "За допомогою меню виберіть"
   },
   "toGrantAccessToSelectedMembers": {
-    "message": "to grant access to selected members."
+    "message": "вашої організації, щоб надати доступ вибраним учасникам."
   },
   "sendVaultCardTryItNow": {
     "message": "спробуйте",
@@ -5275,6 +5321,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
   "maximumVaultTimeout": {
     "message": "Час очікування сховища"
@@ -5778,7 +5827,7 @@
     "message": "Власне середовище"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden. Зразок: https://bitwarden.company.com"
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Запит підтвердження пристрою."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Розпочніть 7-денний пробний період Bitwarden для $ORG$",
     "placeholders": {
@@ -7997,10 +8049,10 @@
     "message": "Призначити до цих збірок"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
   },
   "selectCollectionsToAssign": {
     "message": "Оберіть збірки для призначення"
@@ -8023,6 +8075,9 @@
         "example": "3"
       }
     }
+  },
+  "addField": {
+    "message": "Add field"
   },
   "items": {
     "message": "Записи"
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Керування рахунками на порталі провайдера"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для компаній"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для компаній"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для компаній"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї команди"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї родини"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї компанії"
+  },
   "viewItemsIn": {
     "message": "Переглянути записи в $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8655,10 +8755,10 @@
     "message": "Вибрати теку"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 елемент буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього елемента."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8667,7 +8767,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 елемент буде остаточно перенесено до $ORG$. Ви більше не будете власником цього елемента.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -8676,7 +8776,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8689,9 +8789,96 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Дані"
   },
   "purchasedSeatsRemoved": {
     "message": "куплених місць вилучено"
+  },
+  "includesXMembers": {
+    "message": "за $COUNT$ учасника",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Необов'язковий власний хостинг"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Покращте свою організацію $NAME$ ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Автентифікація SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Родинні організації можуть мати до $SEATCOUNT$ учасників. Передплатіть тарифний план, щоб запросити більше учасників.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Родинні організації можуть мати до $SEATCOUNT$ учасників. Зверніться до власника вашої організації для підвищення тарифного плану.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Перейдіть на вищий тарифний план, щоб запросити більше учасників та отримати доступ до додаткових функцій Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Заощадьте $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Розширені можливості для великого бізнесу"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Компанії, яким потрібна гарантована безпека"
+  },
+  "teamsInviteMessage": {
+    "message": "Запрошуйте користувачів без обмежень"
+  },
+  "accessToCreateGroups": {
+    "message": "Доступ для створення груп"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Синхронізуйте групи та користувачів з каталогу"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Надавайте спільний доступ родині та друзям"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Доступ до преміальних функцій"
+  },
+  "additionalStorageGbMessage": {
+    "message": "ГБ додаткового сховища"
   }
 }

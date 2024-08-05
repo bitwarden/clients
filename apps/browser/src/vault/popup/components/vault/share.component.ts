@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -15,7 +15,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
   templateUrl: "share.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ShareComponent extends BaseShareComponent {
+export class ShareComponent extends BaseShareComponent implements OnInit {
   constructor(
     collectionService: CollectionService,
     platformUtilsService: PlatformUtilsService,

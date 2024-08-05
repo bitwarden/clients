@@ -10,6 +10,7 @@ import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
@@ -45,6 +46,7 @@ describe("DefaultActiveUserState", () => {
   let diskStorageService: FakeStorageService;
   const storageServiceProvider = mock<StorageServiceProvider>();
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const logService = mock<LogService>();
   let activeAccountSubject: BehaviorSubject<{ id: UserId } & AccountInfo>;
 
   let singleUserStateProvider: DefaultSingleUserStateProvider;
@@ -58,6 +60,7 @@ describe("DefaultActiveUserState", () => {
     singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      logService,
     );
 
     activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);

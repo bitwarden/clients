@@ -552,10 +552,10 @@
     "message": "Підказка для головного пароля"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Приєднатися до організації"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
   },
   "settings": {
     "message": "Налаштування"
@@ -733,10 +733,10 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
   },
   "selfHostedBaseUrlHint": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden. Зразок: https://bitwarden.company.com"
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
@@ -2100,7 +2100,7 @@
     "message": "Час очікування сховища перевищує обмеження, встановлені вашою організацією."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Запрошення прийнято"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне подання запиту"
@@ -2827,7 +2827,7 @@
     "message": "Неправильний пароль файлу. Використайте пароль, який ви вводили під час створення експортованого файлу."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Призначення"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -3024,6 +3024,6 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Дані"
   }
 }

@@ -2827,7 +2827,7 @@
     "message": "无效的文件密码，请使用您创建导出文件时输入的密码。"
   },
   "destination": {
-    "message": "Destination"
+    "message": "目的地"
   },
   "learnAboutImportOptions": {
     "message": "了解您的导入选项"
@@ -3024,6 +3024,6 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "数据"
   }
 }

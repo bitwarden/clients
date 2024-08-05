@@ -1,5 +1,5 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { ChangeDetectorRef, Component, Inject, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { lastValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -54,7 +54,7 @@ export interface SecretOperation {
 @Component({
   templateUrl: "./secret-dialog.component.html",
 })
-export class SecretDialogComponent implements OnInit {
+export class SecretDialogComponent implements OnInit, OnDestroy {
   loading = true;
   projects: ProjectListView[];
   addNewProject = false;

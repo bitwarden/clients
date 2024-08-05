@@ -552,10 +552,10 @@
     "message": "Master-Passwort-Hinweis"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Organisation beitreten"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Schließe den Beitritt zu dieser Organisation ab, indem du ein Master-Passwort festlegst."
   },
   "settings": {
     "message": "Einstellungen"
@@ -2100,7 +2100,7 @@
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Einladung angenommen"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische Registrierung"
@@ -2827,7 +2827,7 @@
     "message": "Ungültiges Dateipasswort. Bitte verwende das Passwort, das du beim Erstellen der Exportdatei eingegeben hast."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Ziel"
   },
   "learnAboutImportOptions": {
     "message": "Erfahre mehr über deine Importoptionen"
@@ -3024,6 +3024,6 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Daten"
   }
 }

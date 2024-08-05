@@ -113,6 +113,10 @@ export class IdentitySectionComponent implements OnInit {
 
     if (this.originalCipherView && this.originalCipherView.id) {
       this.populateFormData();
+    } else {
+      this.identityForm.patchValue({
+        username: this.cipherFormContainer.config.initialValues?.username || "",
+      });
     }
   }
 

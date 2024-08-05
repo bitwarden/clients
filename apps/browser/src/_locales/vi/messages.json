@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Sao chép mã bảo mật"
   },
+  "copyName": {
+    "message": "Copy name"
+  },
+  "copyCompany": {
+    "message": "Copy company"
+  },
+  "copySSN": {
+    "message": "Copy Social Security number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
   "autoFill": {
     "message": "Tự động điền"
   },
@@ -132,7 +147,7 @@
     "message": "Tạo mật khẩu (đã sao chép)"
   },
   "copyElementIdentifier": {
-    "message": "Sao chép Tên trường Tùy chỉnh"
+    "message": "Sao chép tên trường tùy chỉnh"
   },
   "noMatchingLogins": {
     "message": "Không có thông tin đăng nhập phù hợp."
@@ -204,13 +219,13 @@
     "message": "Khám phá thêm các tính năng của tài khoản Bitwarden của bạn trên bản web."
   },
   "continueToHelpCenter": {
-    "message": "Đi đến Trung tâm trợ giúp?"
+    "message": "Tiếp tục tới Trung tâm trợ giúp?"
   },
   "continueToHelpCenterDesc": {
     "message": "Tìm hiểu thêm về cách sử dụng Bitwarden trong Trung tâm trợ giúp."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Vẫn tiếp tục đến cửa hàng tiện ích mở rộng?"
+    "message": "Tiếp tục tới cửa hàng tiện ích mở rộng của trình duyệt?"
   },
   "continueToBrowserExtensionStoreDesc": {
     "message": "Giúp người khác tìm hiểu xem Bitwarden có phù hợp với họ không. Hãy truy cập cửa hàng tiện ích mở rộng trên trình duyệt của bạn và đánh giá ngay bây giờ."
@@ -242,7 +257,7 @@
     "message": "Thông tin khác từ Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Vẫn tiếp tục đến bitwarden.com?"
+    "message": "Tiếp tục tới bitwarden.com?"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden dành cho Doanh Nghiệp"
@@ -320,10 +335,10 @@
     "message": "Đồng bộ lần cuối:"
   },
   "passGen": {
-    "message": "Tạo mật khẩu"
+    "message": "Trình tạo mật khẩu"
   },
   "generator": {
-    "message": "Tạo mật khẩu",
+    "message": "Trình tạo",
     "description": "Short for 'Password Generator'."
   },
   "passGenInfo": {
@@ -490,7 +505,7 @@
     "message": "Xác minh danh tính"
   },
   "yourVaultIsLocked": {
-    "message": "Kho lưu trữ của bạn đã bị khóa. Hãy xác minh danh tính của bạn để mở khoá."
+    "message": "Kho của bạn đã bị khóa. Xác minh danh tính của bạn để mở khoá."
   },
   "unlock": {
     "message": "Mở khóa"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Phương thức kiểm tra URI mặc định",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Chọn phương thức mặc định để kiểm tra so sánh URI cho các đăng nhập khi xử lí các hành động như là tự động điền."
@@ -904,10 +919,10 @@
     "message": "Xuất kho lưu trữ"
   },
   "fileFormat": {
-    "message": "File Format"
+    "message": "Định dạng tập tin"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "Tập tin này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã."
+    "message": "Tập tin xuất này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã."
   },
   "filePassword": {
     "message": "Mật khẩu tập tin"
@@ -941,7 +956,7 @@
     "message": "Bản xuất này chứa dữ liệu kho bạn và không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin đã xuất thông qua phương thức rủi ro (như email). Vui lòng xóa nó ngay lập tức khi bạn đã sử dụng xong."
   },
   "encExportKeyWarningDesc": {
-    "message": "Quá trình xuất này sẽ mã hóa dữ liệu của bạn bằng khóa mã hóa của tài khoản. Nếu bạn từng xoay khóa mã hóa tài khoản của mình, bạn nên xuất lại vì bạn sẽ không thể giải mã tệp xuất này."
+    "message": "Quá trình xuất này sẽ mã hóa dữ liệu của bạn bằng khóa mã hóa của tài khoản. Nếu bạn từng xoay khóa mã hóa tài khoản của mình, bạn nên xuất lại vì bạn sẽ không thể giải mã tập tin xuất này."
   },
   "encExportAccountWarningDesc": {
     "message": "Khóa mã hóa tài khoản là duy nhất cho mỗi tài khoản Bitwarden, vì vậy bạn không thể nhập tệp xuất được mã hóa vào một tài khoản khác."
@@ -1017,7 +1032,7 @@
     "message": "Chọn tập tin"
   },
   "maxFileSize": {
-    "message": "Kích thước tối đa của tệp tin là 500MB."
+    "message": "Kích thước tối đa của tập tin là 500MB."
   },
   "featureUnavailable": {
     "message": "Tính năng không có sẵn"
@@ -1044,7 +1059,7 @@
     "message": "Đăng ký làm thành viên cao cấp và nhận được:"
   },
   "ppremiumSignUpStorage": {
-    "message": "1GB bộ nhớ lưu trữ tập tin được mã hóa."
+    "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Hiển thị menu tự động điền trên các trường biểu mẫu",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Các gợi ý điền tự động"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Mở kho ở thanh bên"
   },
-  "commandAutofillDesc": {
-    "message": "Tự động điền thông tin đăng nhập người dùng cho trang web hiện tại."
+  "commandAutofillLoginDesc": {
+    "message": "Autofill the last used login for the current website"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Autofill the last used card for the current website"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Autofill the last used identity for the current website"
   },
   "commandGeneratePasswordDesc": {
     "message": "Tạo và sao chép một mật khẩu ngẫu nhiên mới vào khay nhớ tạm"
@@ -1634,12 +1655,16 @@
     "message": "Tên miền cơ sở",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Tên miền",
     "description": "Domain name. Ex. website.com"
   },
   "host": {
-    "message": "Máy chủ lưu trữ",
+    "message": "Máy chủ",
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Độ phù hợp",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Độ phù hợp mặc định",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Bật/tắt tùy chọn"
@@ -1699,7 +1724,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Ngày cập nhật mật khẩu",
+    "message": "Đã cập nhật mật khẩu",
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Mật khẩu chính của bạn không đáp ứng chính sách tổ chức của bạn. Để truy cập kho, bạn phải cập nhật mật khẩu chính của mình ngay bây giờ. Việc tiếp tục sẽ đăng xuất bạn khỏi phiên hiện tại và bắt buộc đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể tiếp tục duy trì hoạt động trong tối đa một giờ."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Đăng ký tự động"
   },
@@ -2705,7 +2733,7 @@
     "message": "Mật khẩu này đã bị rò rỉ trong một vụ tấn công dữ liệu. Dùng mật khẩu mới và an toàn để bảo vệ tài khoản bạn. Bạn có chắc muốn sử dụng mật khẩu đã bị rò rỉ?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Mật khẩu chính Yếu và Bị Lộ"
+    "message": "Mật khẩu chính yếu và bị lộ"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Mật khẩu yếu này đã bị rò rỉ trong một vụ tấn công dữ liệu. Dùng mật khẩu mới và an toàn để bảo vệ tài khoản bạn. Bạn có chắc muốn sử dụng mật khẩu đã bị rò rỉ?"
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Thay đổi phím tắt"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Manage shortcuts"
+  },
   "autofillShortcut": {
     "message": "Phím tắt tự động điền"
   },
-  "autofillShortcutNotSet": {
-    "message": "Chưa cài đặt phím tắt cho chức năng tự động điền. Vui lòng thay đổi trong cài đặt của trình duyệt."
+  "autofillLoginShortcutNotSet": {
+    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
   },
-  "autofillShortcutText": {
-    "message": "Phím tắt cho chức năng tự động điền là $COMMAND$. Vui lòng thay đổi trong cài đặt của trình duyệt.",
+  "autofillLoginShortcutText": {
+    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Chọn --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Các mục yêu cầu nhập lại mật khẩu chính không thể tự động điền khi tải trang. Tự động điền khi tải trang đã tắt.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Tắt yêu cầu nhập lại mật khẩu chính để chỉnh sửa trường này",
@@ -3122,7 +3165,7 @@
     "message": "Lỗi nhập"
   },
   "importErrorDesc": {
-    "message": "Có vấn đề với dữ liệu bạn cố gắng nhập. Vui lòng khắc phục các lỗi được liệt kê bên dưới trong tệp nguồn của bạn và thử lại."
+    "message": "Có vấn đề với dữ liệu bạn cố gắng nhập. Vui lòng khắc phục các lỗi được liệt kê bên dưới trong tập tin nguồn của bạn và thử lại."
   },
   "resolveTheErrorsBelowAndTryAgain": {
     "message": "Giải quyết các lỗi bên dưới và thử lại."
@@ -3258,7 +3301,7 @@
     "message": "Chưa chọn tập tin nào"
   },
   "orCopyPasteFileContents": {
-    "message": "hoặc sao chép/dán để nhập nội dung file"
+    "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
   "instructionsFor": {
     "message": "Hướng dẫn dùng $NAME$",
@@ -3466,7 +3509,7 @@
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Đi đến Trung tâm trợ giúp?",
+    "message": "Tiếp tục tới Trung tâm trợ giúp?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Tự động điền - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3727,7 +3770,7 @@
     "message": "Thêm tệp đính kèm"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Kích thước tối đa của tệp tin là 500MB"
+    "message": "Kích thước tối đa của tập tin là 500MB"
   },
   "deleteAttachmentName": {
     "message": "Xoá tệp đính kèm $NAME$",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Khóa xác thực"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "Thông tin thẻ"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Vị trí mục"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden has a new look!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Güvenlik kodunu kopyala"
   },
+  "copyName": {
+    "message": "Adı kopyala"
+  },
+  "copyCompany": {
+    "message": "Şirketi kopyala"
+  },
+  "copySSN": {
+    "message": "Sosyal güvenlik numarasını kopyala"
+  },
+  "copyPassportNumber": {
+    "message": "Pasaport numarasını kopyala"
+  },
+  "copyLicenseNumber": {
+    "message": "Ruhsat numarasını kopyala"
+  },
   "autoFill": {
     "message": "Otomatik doldur"
   },
@@ -799,7 +814,7 @@
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
   "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+    "message": "Kasa görünümünde kartları otomatik doldurma önerisi olarak göster"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -808,7 +823,7 @@
     "message": "Kolay otomatik doldurma için sekme sayfasında kart öğelerini listele"
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identifies as Autofill suggestions on Vault view"
+    "message": "Kasa görünümünde kimlikleri otomatik doldurma önerisi olarak göster"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Varsayılan URI eşleşme tespiti",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Otomatik doldurma gibi eylemler gerçekleştirilirken hesaplar için URI eşleşme tespitinin nasıl yapılacağını seçin."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Form alanlarında otomatik doldurma menüsünü göster",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Önerileri otomatik doldur"
@@ -1249,7 +1264,7 @@
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Simge seçildiğinde önerileri göster"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Oturum açmış tüm hesaplara uygulanır."
@@ -1282,7 +1297,7 @@
     "message": "Sayfa yüklendiğinde giriş formu tespit edilirse otomatik olarak formu doldur."
   },
   "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
+    "message": "$OPENTAG$Uyarı:$CLOSETAG$ Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir.",
     "placeholders": {
       "openTag": {
         "content": "$1",
@@ -1298,7 +1313,7 @@
     "message": "Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "Riskleri öğrenin"
   },
   "learnMoreAboutAutofill": {
     "message": "Otomatik doldurma hakkında bilgi alın"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Kasayı kenar çubuğunda aç"
   },
-  "commandAutofillDesc": {
+  "commandAutofillLoginDesc": {
     "message": "Geçerli site için son kullanılan hesabı otomatik doldur"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Geçerli site için son kullanılan kartı otomatik doldur"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Geçerli site için son kullanılan kimliği otomatik doldur"
   },
   "commandGeneratePasswordDesc": {
     "message": "Rastgele yeni bir parola oluştur ve panoya kopyala"
@@ -1564,7 +1585,7 @@
     }
   },
   "viewItemHeader": {
-    "message": "View $TYPE$",
+    "message": "$TYPE$ bilgileri",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1634,6 +1655,10 @@
     "message": "Ana alan adı",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Alan adı kökü (önerilen)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Alan adı",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Eşleşme tespiti",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Varsayılan eşleşme tespiti",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Seçenekleri aç/kapat"
@@ -1901,7 +1926,7 @@
     "message": "Yeni ana parolanız ilke gereksinimlerini karşılamıyor."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -2090,7 +2115,7 @@
     "message": "Parola korumalı"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Bağlantıyı kopyala"
   },
   "copySendLink": {
     "message": "Send bağlantısını kopyala",
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolanız kuruluş ilkelerinizi karşılamıyor. Kasanıza erişmek için ana parolanızı güncellemelisiniz. Devam ettiğinizde oturumunuz kapanacak ve yeniden oturum açmanız gerekecektir. Diğer cihazlardaki aktif oturumlar bir saate kadar aktif kalabilir."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Otomatik eklenme"
   },
@@ -2433,7 +2461,7 @@
     "message": "Kuruluş kasasını dışa aktarma"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "Yalnızca $ORGANIZATION$ ile ilişkili kuruluş kasası dışarı aktarılacak. Kişisel kasalardaki ve diğer kuruluşlardaki kayıtlar dahil edilmeyecek.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2553,7 +2581,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Invalid $SERVICENAME$ domain.",
+    "message": "Geçersiz $SERVICENAME$ alan adı.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2563,7 +2591,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Invalid $SERVICENAME$ url.",
+    "message": "Geçersiz $SERVICENAME$ URL'si.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -2573,7 +2601,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "Bilinmeyen $SERVICENAME$ hatası oluştu.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -2583,7 +2611,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "message": "Bilinmeyen yönlendirici: '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -2753,19 +2781,22 @@
     "message": "Otomatik doldurma ayarları"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Otomatik doldurma kısayolu"
   },
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Kısayolu değiştir"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Kısayolları yönet"
+  },
   "autofillShortcut": {
     "message": "Otomatik doldurma klavye kısayolu"
   },
-  "autofillShortcutNotSet": {
-    "message": "Otomatik doldurma kısayolu ayarlanmamış. Bunu tarayıcının ayarlarından değiştirebilirsiniz."
+  "autofillLoginShortcutNotSet": {
+    "message": "Hesabı otomatik doldurma kısayolu ayarlanmamış. Bunu tarayıcı ayarlarından değiştirebilirsiniz."
   },
-  "autofillShortcutText": {
-    "message": "Otomatik doldurma kısayolu: $COMMAND$. Bunu tarayıcının ayarlarından değiştirebilirsiniz.",
+  "autofillLoginShortcutText": {
+    "message": "Hesabı otomatik doldurma kısayolu: $COMMAND$. Tüm kısayolları tarayıcı ayarlarından değiştirebilirsiniz.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 alanla ilgilenmeniz gerekiyor."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ alanla ilgilenmeniz gerekiyor.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Seçin --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklendiğinde otomatik olarak doldurulamaz. Sayfa yüklendiğinde otomatik doldurma kapatıldı.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklendiğinde otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Bu alanı düzenlemek için ana parolayı yeniden istemeyi kapatın",
@@ -3097,7 +3140,7 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Yeni kimlik",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Otomatik doldur - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3787,6 +3830,52 @@
   "authenticatorKey": {
     "message": "Kimlik doğrulama anahtarı"
   },
+  "autofillOptions": {
+    "message": "Otomatik doldurma ayarları"
+  },
+  "websiteUri": {
+    "message": "Web sitesi (URI)"
+  },
+  "websiteAdded": {
+    "message": "Web sitesi eklendi"
+  },
+  "addWebsite": {
+    "message": "Web sitesi ekle"
+  },
+  "deleteWebsite": {
+    "message": "Web sitesini sil"
+  },
+  "defaultLabel": {
+    "message": "Varsayılan ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Sayfa yüklendiğinde otomatik doldur"
+  },
   "cardDetails": {
     "message": "Kart bilgileri"
   },
@@ -3848,10 +3937,10 @@
     "message": "Use hidden fields for sensitive data like a password"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to auto-fill a form's checkbox, like a remember email"
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing auto-fill issues for a specific website."
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
@@ -3860,7 +3949,7 @@
     "message": "Alanı düzenle"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ alanını düzenle",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3878,7 +3967,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "$LABEL$ eklendi",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Kayıt konumu"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden'ın tasarımı güncellendi!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Otomatik doldurma ve kasanızda arama yapma artık eskisinden daha kolay. Yeni tasarıma göz atmayı unutmayın!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

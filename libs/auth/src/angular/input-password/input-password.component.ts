@@ -56,6 +56,7 @@ export class InputPasswordComponent {
   @Input() buttonText: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
   @Input() loading: boolean = false;
+  @Input() btnBlock: boolean = true;
 
   private minHintLength = 0;
   protected maxHintLength = 50;
@@ -190,6 +191,7 @@ export class InputPasswordComponent {
       localMasterKeyHash,
       kdfConfig,
       hint: this.formGroup.controls.hint.value,
+      password,
     });
   };
 }

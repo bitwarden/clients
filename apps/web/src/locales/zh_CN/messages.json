@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "验证器密钥"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "号码"
   },
@@ -1507,7 +1553,7 @@
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
   },
   "destination": {
-    "message": "Destination"
+    "message": "目的地"
   },
   "learnAboutImportOptions": {
     "message": "了解您的导入选项"
@@ -3587,10 +3633,10 @@
     "message": "验证银行账户"
   },
   "verifyBankAccountDesc": {
-    "message": "我们已将两笔小额转账存入您的银行账户（将会在 1-2 个工作日到账）。输入这些金额来验证银行账户。"
+    "message": "我们已向您的银行账户存入了两笔小额转账（可能需要 1-2 个工作日到账）。输入这些金额以验证银行账户。"
   },
   "verifyBankAccountInitialDesc": {
-    "message": "只有美国用户才能使用银行账户付款。您需要验证自己的银行账户。我们将在 1-2 个工作日内进行两笔小额转账，在组织的计费页面输入这些金额来验证银行账户。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行两笔小额转账，请在组织的计费页面输入这些金额以验证银行账户。"
   },
   "verifyBankAccountFailureWarning": {
     "message": "验证银行账户失败将会错过支付，您的订阅将失效。"
@@ -4387,7 +4433,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "复制链接"
   },
   "copySendLink": {
     "message": "复制 Send 链接",
@@ -4805,73 +4851,73 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "开发 DevOps 和 IT 团队选择 Bitwarden 机密管理器来安全管理和部署他们的基础设施和机器秘密。"
+    "message": "开发、DevOps 和 IT 团队选择 Bitwarden 机密管理器来安全地管理和部署他们的基础设施和机器机密。"
   },
   "centralizeSecretsManagement": {
-    "message": "集中管理秘密。"
+    "message": "集中管理机密。"
   },
   "centralizeSecretsManagementDescription": {
-    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+    "message": "在一个位置安全地存储和管理机密，以防止机密扩散到您的组织。"
   },
   "preventSecretLeaks": {
-    "message": "Prevent secret leaks."
+    "message": "防止机密遭泄漏。"
   },
   "preventSecretLeaksDescription": {
-    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+    "message": "使用端到端加密保护机密。而不再需要硬编码机密或通过 .env 文件分享机密。"
   },
   "enhanceDeveloperProductivity": {
-    "message": "Enhance developer productivity."
+    "message": "提高开发人员的生产力。"
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+    "message": "程序化地在运行时检索和部署机密，使开发人员可以专注于最重要的事情，例如提高代码质量。"
   },
   "strengthenBusinessSecurity": {
-    "message": "Strengthen business security."
+    "message": "加强企业安全。"
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+    "message": "通过 SSO 集成、事件日志和访问轮换，保持机器和人类对机密访问权限的严格控制。"
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "立即试用"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "发送请求"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "添加备注"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Bitwarden 机密管理器"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "更多来自 Bitwarden 的产品"
   },
   "requestAccessToSecretsManager": {
-    "message": "Request access to Secrets Manager"
+    "message": "请求访问机密管理器"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "You need approval from your administrator to try Secrets Manager."
+    "message": "您需要管理员的批准才能试用机密管理器。"
   },
   "smAccessRequestEmailSent": {
-    "message": "Access request for secrets manager email sent to admins."
+    "message": "对机密管理器的访问请求电子邮件已发送给管理员。"
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "您好，\n\n我请求为我们的团队订阅 Bitwarden Secrets Manager。您的支持对我们来说意义重大！\n\nBitwarden Secrets Manager 是一个端到端加密的机密管理解决方案，用于安全地存储、共享和部署机器凭证，如 API 密钥、数据库密码和身份验证证书。\n\nSecrets Manager 将帮助我们：\n\n- 提高安全性\n- 精简操作\n- 防止昂贵的机密遭泄漏\n\n要为我们的团队申请免费试用，请联系 Bitwarden。\n\n感谢您的帮助！"
   },
   "giveMembersAccess": {
-    "message": "Give members access:"
+    "message": "授予成员访问权限："
   },
   "viewAndSelectTheMembers": {
-    "message": "view and select the members you want to give access to Secrets Manager."
+    "message": "查看并选择您想要授予机密管理器访问权限的成员。"
   },
   "openYourOrganizations": {
-    "message": "Open your organization's"
+    "message": "打开您的组织的"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "使用菜单，选择"
   },
   "toGrantAccessToSelectedMembers": {
-    "message": "to grant access to selected members."
+    "message": "以授予所选成员的访问权限。"
   },
   "sendVaultCardTryItNow": {
     "message": "立即体验",
@@ -5275,6 +5321,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
   "maximumVaultTimeout": {
     "message": "密码库超时时间"
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "请求了设备批准。"
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "开始 $ORG$ 的 Bitwarden 7 天免费试用",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "项目"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "从提供商门户管理账单"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "开始您的 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "开始您的团队版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "开始您的 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "开始您的团队版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "开始您的 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "开始您的团队版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "输入您的团队组织信息"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "输入您的家庭组织信息"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "输入您的企业组织信息"
+  },
   "viewItemsIn": {
     "message": "查看 $NAME$ 中的项目",
     "description": "Button to view the contents of a folder or collection",
@@ -8689,9 +8789,96 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "数据"
   },
   "purchasedSeatsRemoved": {
     "message": "购买的席位已移除"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "可选本地托管"
+  },
+  "upgradeFreeOrganization": {
+    "message": "升级您的 $NAME$ 组织 ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO 身份验证"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。升级到付费计划以邀请更多成员。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。联系您的组织所有者以升级。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "升级您的计划以邀请更多成员并获得附加的 Bitwarden 功能"
+  },
+  "upgradeDiscount": {
+    "message": "节省 $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "适用于大型企业的高级功能"
+  },
+  "upgradeTeamsMessage": {
+    "message": "企业寻求的强大安全保障"
+  },
+  "teamsInviteMessage": {
+    "message": "邀请不限数量的成员"
+  },
+  "accessToCreateGroups": {
+    "message": "创建群组的权限"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "从目录同步群组和用户"
+  },
+  "upgradeFamilyMessage": {
+    "message": "与家庭和朋友分享"
+  },
+  "accessToPremiumFeatures": {
+    "message": "访问高级会员功能"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB 附加存储"
   }
 }

@@ -5,3 +5,11 @@ export enum ProductTierType {
   Enterprise = 3,
   TeamsStarter = 4,
 }
+
+export function isNotSelfUpgradable(productType: ProductTierType): boolean {
+  return (
+    productType !== ProductTierType.Free &&
+    productType !== ProductTierType.TeamsStarter &&
+    productType !== ProductTierType.Families
+  );
+}

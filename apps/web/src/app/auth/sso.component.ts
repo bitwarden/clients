@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -32,7 +32,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
   templateUrl: "sso.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class SsoComponent extends BaseSsoComponent {
+export class SsoComponent extends BaseSsoComponent implements OnInit {
   protected formGroup = new FormGroup({
     identifier: new FormControl(null, [Validators.required]),
   });

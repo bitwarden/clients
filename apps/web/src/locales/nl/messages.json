@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Authenticatiesleutel"
   },
+  "autofillOptions": {
+    "message": "Instellingen automatisch invullen"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website toegevoegd"
+  },
+  "addWebsite": {
+    "message": "Website toevoegen"
+  },
+  "deleteWebsite": {
+    "message": "Website verwijderen"
+  },
+  "defaultLabel": {
+    "message": "Standaard ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Overeenkomstdetectie weergeven $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Overeenkomstdetectie verbergen $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Automatisch invullen bij laden van pagina?"
+  },
   "number": {
     "message": "Kaartnummer"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Time-out van de kluis"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Apparaatgoedkeuring gevraagd."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Begin je 7-daagse gratis Bitwarden-proefperiode voor $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Veld toevoegen"
+  },
   "items": {
     "message": "Items"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Begin je 7-daagse gratis Bitwarden-proefperiode"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Begin je 7-daagse gratis proefperiode voor Bitwarden voor Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Begin je 7-daagse gratis proefperiode voor Bitwarden voor Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Begin je 7-daagse gratis proefperiode voor Bitwarden voor Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Secrets Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Secrets Manager voor Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Secrets Manager voor Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Secrets Manager voor Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Wachtwoord Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Wachtwoord Manager voor Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Wachtwoord Manager voor Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Wachtwoord Manager voor Enterprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Voer je organisatie-informatie voor Teams in"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Voer je organisatie-informatie voor Families in"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Voer je organisatie-informatie voor Enterprise in"
+  },
   "viewItemsIn": {
     "message": "View items in $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "gekochte plaatsen verwijderd"
+  },
+  "includesXMembers": {
+    "message": "voor $COUNT$ lid",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Optionele on-premises hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Upgrade je $NAME$ organisatie ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO-authenticatie"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Familie-organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Upgrade naar een betaald abonnement voor het uitnodigen van meer leden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Familie-organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Neem contact op met de eigenaar van je organisatie om te upgraden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Upgrade je abonnement voor het uitnodigen van meer leden en toegang te krijgen tot extra Bitwarden-functionaliteit"
+  },
+  "upgradeDiscount": {
+    "message": "Bespaar $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Geavanceerde mogelijkheden voor grotere bedrijven"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Bedrijven die op zoek zijn naar krachtige beveiliging"
+  },
+  "teamsInviteMessage": {
+    "message": "Onbeperkt aantal leden uitnodigen"
+  },
+  "accessToCreateGroups": {
+    "message": "Toegang voor het aanmaken van groepen"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Synchroniseer je gebruikers en groepen vanuit een directory"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Deel met families en vrienden"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Toegang tot premium functionaliteiten"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB extra opslagruimte"
   }
 }

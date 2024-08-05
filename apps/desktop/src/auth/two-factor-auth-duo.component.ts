@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -42,7 +42,10 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthDuoComponent extends TwoFactorAuthDuoBaseComponent {
+export class TwoFactorAuthDuoComponent
+  extends TwoFactorAuthDuoBaseComponent
+  implements OnInit, OnDestroy
+{
   constructor(
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,

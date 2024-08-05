@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -16,7 +16,10 @@ import { ServiceAccountEventLogApiService } from "./service-account-event-log-ap
   selector: "sm-service-accounts-events",
   templateUrl: "./service-accounts-events.component.html",
 })
-export class ServiceAccountEventsComponent extends BaseEventsComponent implements OnDestroy {
+export class ServiceAccountEventsComponent
+  extends BaseEventsComponent
+  implements OnInit, OnDestroy
+{
   exportFileName = "machine-account-events";
   private destroy$ = new Subject<void>();
   private serviceAccountId: string;

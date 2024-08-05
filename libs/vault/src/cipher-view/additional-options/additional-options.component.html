@@ -1,0 +1,20 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "note" | i18n }}</bit-label>
+      <textarea readonly bitInput aria-readonly="true">{{ notes }}</textarea>
+      <button
+        bitSuffix
+        bitIconButton="bwi-clone"
+        size="small"
+        type="button"
+        [appCopyClick]="notes"
+        showToast
+        [appA11yTitle]="'copyValue' | i18n"
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

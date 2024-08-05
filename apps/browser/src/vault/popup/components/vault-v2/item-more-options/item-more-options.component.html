@@ -25,7 +25,7 @@
       {{ favoriteText | i18n }}
     </button>
     <ng-container *ngIf="canEdit">
-      <a routerLink="" bitMenuItem (click)="clone()">
+      <a bitMenuItem (click)="clone()">
         {{ "clone" | i18n }}
       </a>
       <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">

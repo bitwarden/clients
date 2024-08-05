@@ -33,6 +33,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private bodyElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
+  private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
   private lastElementOverrides: WeakMap<Element, number> = new WeakMap();
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
@@ -405,7 +406,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (this.lastElementOverrides.get(lastChild) >= 3) {
-      await this.handlePersistentLastChildOverride(lastChild);
+      this.handlePersistentLastChildOverride(lastChild);
 
       return;
     }
@@ -431,18 +432,33 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
+   * Handles the behavior of a persistent child element that is forcing itself to
+   * the bottom of the body element. This method will ensure that the inline menu
+   * elements are not obscured by the persistent child element.
+   *
+   * @param lastChild - The last child of the body element.
+   */
+  private handlePersistentLastChildOverride(lastChild: Element) {
+    const lastChildZIndex = parseInt((lastChild as HTMLElement).style.zIndex);
+    if (lastChildZIndex >= 2147483647) {
+      (lastChild as HTMLElement).style.zIndex = "2147483646";
+    }
+
+    this.clearPersistentLastChildOverrideTimeout();
+    this.handlePersistentLastChildOverrideTimeout = globalThis.setTimeout(
+      () => this.verifyInlineMenuIsNotObscured(lastChild),
+      500,
+    );
+  }
+
+  /**
    * Verifies if the last child of the body element is overlaying the inline menu elements.
    * This is triggered when the last child of the body is being forced by some script to
    * be an element other than the inline menu elements.
    *
    * @param lastChild - The last child of the body element.
    */
-  private async handlePersistentLastChildOverride(lastChild: Element) {
-    const lastChildZIndex = parseInt((lastChild as HTMLElement).style.zIndex);
-    if (lastChildZIndex >= 2147483647) {
-      (lastChild as HTMLElement).style.zIndex = "2147483646";
-    }
-
+  private verifyInlineMenuIsNotObscured = async (lastChild: Element) => {
     const inlineMenuPosition: InlineMenuPosition = await this.sendExtensionMessage(
       "getAutofillInlineMenuPosition",
     );
@@ -456,7 +472,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (!!list && this.elementAtCenterOfInlineMenuPosition(list) === lastChild) {
       this.closeInlineMenu();
     }
-  }
+  };
 
   /**
    * Returns the element present at the center of the inline menu position.
@@ -468,6 +484,16 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       position.left + position.width / 2,
       position.top + position.height / 2,
     );
+  }
+
+  /**
+   * Clears the timeout that is used to verify that the last child of the body element
+   * is not overlaying the inline menu elements.
+   */
+  private clearPersistentLastChildOverrideTimeout() {
+    if (this.handlePersistentLastChildOverrideTimeout) {
+      globalThis.clearTimeout(this.handlePersistentLastChildOverrideTimeout);
+    }
   }
 
   /**
@@ -503,5 +529,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   destroy() {
     this.closeInlineMenu();
+    this.clearPersistentLastChildOverrideTimeout();
   }
 }

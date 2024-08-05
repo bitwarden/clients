@@ -552,10 +552,10 @@
     "message": "Galvenās paroles norāde"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Pievienoties apvienībai"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Pabeigt pievienošanos šai apvienībai ar galvenās paroles iestatīšanu."
   },
   "settings": {
     "message": "Iestatījumi"
@@ -2100,7 +2100,7 @@
     "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Uzaicinājums apstiprināts"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"

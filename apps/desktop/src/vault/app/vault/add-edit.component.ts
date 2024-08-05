@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { Component, NgZone, OnChanges, OnDestroy, ViewChild } from "@angular/core";
+import { Component, NgZone, OnChanges, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -27,7 +27,7 @@ const BroadcasterSubscriptionId = "AddEditComponent";
   selector: "app-vault-add-edit",
   templateUrl: "add-edit.component.html",
 })
-export class AddEditComponent extends BaseAddEditComponent implements OnChanges, OnDestroy {
+export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
   constructor(

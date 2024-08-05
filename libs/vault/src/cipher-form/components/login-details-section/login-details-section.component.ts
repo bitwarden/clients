@@ -24,6 +24,7 @@ import {
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
 @Component({
   selector: "vault-login-details-section",
@@ -41,6 +42,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     AsyncActionsModule,
     NgIf,
     PopoverModule,
+    AutofillOptionsComponent,
   ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
@@ -144,9 +146,10 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private async initNewCipher() {
-    this.loginDetailsForm.controls.password.patchValue(
-      await this.generationService.generateInitialPassword(),
-    );
+    this.loginDetailsForm.patchValue({
+      username: this.cipherFormContainer.config.initialValues?.username || "",
+      password: await this.generationService.generateInitialPassword(),
+    });
   }
 
   captureTotp = async () => {

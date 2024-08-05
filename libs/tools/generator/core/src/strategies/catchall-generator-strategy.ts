@@ -6,7 +6,7 @@ import { DefaultCatchallOptions } from "../data";
 import { EmailCalculator, EmailRandomizer } from "../engine";
 import { newDefaultEvaluator } from "../rx";
 import { NoPolicy, CatchallGenerationOptions } from "../types";
-import { clone$PerUserId, sharedStateByUserId } from "../util";
+import { observe$PerUserId, sharedStateByUserId } from "../util";
 
 import { CATCHALL_SETTINGS } from "./storage";
 
@@ -26,7 +26,7 @@ export class CatchallGeneratorStrategy
 
   // configuration
   durableState = sharedStateByUserId(CATCHALL_SETTINGS, this.stateProvider);
-  defaults$ = clone$PerUserId(this.defaultOptions);
+  defaults$ = observe$PerUserId(() => this.defaultOptions);
   toEvaluator = newDefaultEvaluator<CatchallGenerationOptions>();
   readonly policy = PolicyType.PasswordGenerator;
 

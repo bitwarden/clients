@@ -76,6 +76,13 @@ export class ItemMoreOptionsComponent {
   }
 
   async doAutofillAndSave() {
+    if (
+      this.cipher.reprompt === CipherRepromptType.Password &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      return;
+    }
+
     await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher);
   }
 

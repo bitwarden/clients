@@ -23,6 +23,7 @@ import {
   DefaultSubaddressOptions,
   SubaddressGenerationOptions,
   policies,
+  Integrations,
 } from "@bitwarden/generator-core";
 import {
   GeneratorNavigationPolicy,
@@ -724,7 +725,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "anonaddy";
+      options.forwardedService = Integrations.AddyIo.id;
       await generator.saveOptions(options);
 
       expect(addyIo.saveOptions).toHaveBeenCalledWith(SomeUser, {
@@ -735,7 +736,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "duckduckgo";
+      options.forwardedService = Integrations.DuckDuckGo.id;
       await generator.saveOptions(options);
 
       expect(duckDuckGo.saveOptions).toHaveBeenCalledWith(SomeUser, {
@@ -744,7 +745,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "fastmail";
+      options.forwardedService = Integrations.Fastmail.id;
       await generator.saveOptions(options);
 
       expect(fastmail.saveOptions).toHaveBeenCalledWith(SomeUser, {
@@ -753,7 +754,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "firefoxrelay";
+      options.forwardedService = Integrations.FirefoxRelay.id;
       await generator.saveOptions(options);
 
       expect(firefoxRelay.saveOptions).toHaveBeenCalledWith(SomeUser, {
@@ -762,7 +763,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "forwardemail";
+      options.forwardedService = Integrations.ForwardEmail.id;
       await generator.saveOptions(options);
 
       expect(forwardEmail.saveOptions).toHaveBeenCalledWith(SomeUser, {
@@ -772,7 +773,7 @@ describe("LegacyUsernameGenerationService", () => {
       });
 
       options.type = "forwarded";
-      options.forwardedService = "simplelogin";
+      options.forwardedService = Integrations.SimpleLogin.id;
       await generator.saveOptions(options);
 
       expect(simpleLogin.saveOptions).toHaveBeenCalledWith(SomeUser, {

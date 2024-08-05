@@ -165,7 +165,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       await this.initFromExistingCipher();
     } else {
       this.itemDetailsForm.setValue({
-        name: "",
+        name: this.initialValues?.name || "",
         organizationId: this.initialValues?.organizationId || this.defaultOwner,
         folderId: this.initialValues?.folderId || null,
         collectionIds: [],

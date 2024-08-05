@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Ключ за удостоверяване"
   },
+  "autofillOptions": {
+    "message": "Настройки за автоматичното попълване"
+  },
+  "websiteUri": {
+    "message": "Уеб сайт (адрес)"
+  },
+  "websiteAdded": {
+    "message": "Уеб сайтът е добавен"
+  },
+  "addWebsite": {
+    "message": "Добавяне на уеб сайт"
+  },
+  "deleteWebsite": {
+    "message": "Изтриване на уеб сайт"
+  },
+  "defaultLabel": {
+    "message": "По подразбиране ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Автоматично попълване при зареждане на страницата?"
+  },
   "number": {
     "message": "Номер"
   },
@@ -4387,7 +4433,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Копиране на връзката"
   },
   "copySendLink": {
     "message": "Копиране на връзката към изпратеното",
@@ -4805,73 +4851,73 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+    "message": "Екипите по разработка, софтуерни операции и инфраструктура избират Управлението на тайни на Битуорден, за да управляват и внедряват по сигурен начин своите тайни данни свързани с инфраструктурата и конкретни машини."
   },
   "centralizeSecretsManagement": {
-    "message": "Centralize secrets management."
+    "message": "Централизирайте управлението на тайни."
   },
   "centralizeSecretsManagementDescription": {
-    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+    "message": "Съхранявайте и управлявайте сигурно тайните си данни на едно място, за да предотвратите разгласяването им из организацията."
   },
   "preventSecretLeaks": {
-    "message": "Prevent secret leaks."
+    "message": "Предотвратете изтичането на тайни данни."
   },
   "preventSecretLeaksDescription": {
-    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+    "message": "Защитете тайните си данни с шифроване от край до край. Без повече тайни в кода или споделяне чрез файлове „.env“."
   },
   "enhanceDeveloperProductivity": {
-    "message": "Enhance developer productivity."
+    "message": "Подобрете производителността на разработчиците."
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+    "message": "Изтегляйте и внедрявайте тайни в процеса на изпълнение на приложенията, така че разработчиците да могат да се концентрират върху това, в което са най-добри – да подобряват качеството на кода."
   },
   "strengthenBusinessSecurity": {
-    "message": "Strengthen business security."
+    "message": "Подсилете сигурността на бизнеса си."
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+    "message": "Упражнявайте стриктен контрол върху достъпа на машини и хора до тайните данни с внедряване на еднократно удостоверяване, журнали на събитията и завъртане на достъпа."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Изпробвайте сега"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Изпращане на зайвка"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Добавете бележка"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Управление на тайни от Битуорден"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "Още продукти от Битуорден"
   },
   "requestAccessToSecretsManager": {
-    "message": "Request access to Secrets Manager"
+    "message": "Заявете достъп до Управлението на тайни"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "You need approval from your administrator to try Secrets Manager."
+    "message": "Необходимо е одобрение от администратор, за да изпробвате Управлението на тайни."
   },
   "smAccessRequestEmailSent": {
-    "message": "Access request for secrets manager email sent to admins."
+    "message": "Заявката за достъп до Управлението на данни е изпратена по е-поща до администраторите."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "Здравейте!\n\nИмам нужда от абонамент за Управлението на тайни на Битуорден за нашия екип. Подкрепата Ви ще означава много за нас!\n\nУправлението на тайни на Битуорден е решение за управлението на тайни данни с шифроване от край до край, чрез което могат да се съхраняват, споделят и внедряват данни за удостоверяване на различни машини, като ключове за ППИ, пароли за бази данни и сертификати.\n\nУправлението на тайни ще ни помогне да:\n – подобрим сигурността си;\n – уеднаквим операционните си процеси;\n – предотвратим потенциални изтичания на тайни данни.\n\nМоля, свържете се с Битуорден, за да направите заявка за безплатен пробен период.\n\nБлагодаря предварително за помощта!"
   },
   "giveMembersAccess": {
-    "message": "Give members access:"
+    "message": "Даване на достъп за членовете:"
   },
   "viewAndSelectTheMembers": {
-    "message": "view and select the members you want to give access to Secrets Manager."
+    "message": "прегледайте и изберете членовете, на които искате да дадете достъп до Управлението на тайни."
   },
   "openYourOrganizations": {
     "message": "Open your organization's"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "Използвайки менюто, изберете"
   },
   "toGrantAccessToSelectedMembers": {
-    "message": "to grant access to selected members."
+    "message": ", за да дадете достъп на избраните членове."
   },
   "sendVaultCardTryItNow": {
     "message": "пробвайте още сега",
@@ -5275,6 +5321,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
   "maximumVaultTimeout": {
     "message": "Време за достъп"
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Заявено е одобрение на устройство."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден за $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Добавяне на поле"
+  },
   "items": {
     "message": "Елементи"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Управление на плащанията от Портала за доставчици"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден за екипи"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден за семейства"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден за големи организации"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на тайни на Битуорден"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на тайни на Битуорден за екипи"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на тайни на Битуорден за семейства"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на тайни на Битуорден за големи организации"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на пароли на Битуорден"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на пароли на Битуорден за екипи"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на пароли на Битуорден за семейства"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Започнете безплатен 7-дневен пробен период на Управлението на пароли на Битуорден за големи организации"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Въведете информацията относно своята екипна организация"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Въведете информацията относно своята семейна организация"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Въведете информацията относно своята голяма организация"
+  },
   "viewItemsIn": {
     "message": "Преглед на елементите в $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Възможност за собствен хостинг"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Upgrade your $NAME$ organization ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Еднократно удостоверяване"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Семейните организации могат да имат не повече от $SEATCOUNT$ членове. Надградете до платен план, ако искате да имате повече членове.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Семейните организации могат да имат не повече от $SEATCOUNT$ членове. Свържете се със собственика на организацията си, ако смятате, че планът трябва да бъде надграден.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Надградете плана си, за да може да поканите повече членове и да получите достъп до още функционалности на Битуорден"
+  },
+  "upgradeDiscount": {
+    "message": "Спестете $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Допълнителни възможности за големи компании"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Компании търсещи подобрена сигурност"
+  },
+  "teamsInviteMessage": {
+    "message": "Можете да каните неограничен брой членове"
+  },
+  "accessToCreateGroups": {
+    "message": "Достъп до създаване на групи"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Синхронизиране на групите и потребителите от директория"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Споделяне със семейство и приятели"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Достъп до платените функционалности"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB допълнително място за съхранение"
   }
 }

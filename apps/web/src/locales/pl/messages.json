@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Klucz uwierzytelniający"
   },
+  "autofillOptions": {
+    "message": "Opcje autouzupełniania"
+  },
+  "websiteUri": {
+    "message": "Strona internetowa (URI)"
+  },
+  "websiteAdded": {
+    "message": "Strona dodana"
+  },
+  "addWebsite": {
+    "message": "Dodaj stronę internetową"
+  },
+  "deleteWebsite": {
+    "message": "Usuń stronę internetową"
+  },
+  "defaultLabel": {
+    "message": "Domyślnie ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Włącz autouzupełnianie po załadowaniu strony?"
+  },
   "number": {
     "message": "Numer"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Twoje hasło główne nie spełnia jednej lub kilku zasad organizacji. Aby uzyskać dostęp do sejfu, musisz teraz zaktualizować swoje hasło główne. Kontynuacja wyloguje Cię z bieżącej sesji, wymagając zalogowania się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie jedną godzinę."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Blokowanie sejfu"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Poproszono o zatwierdzenie urządzenia."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Rozpocznij 7-dniowy darmowy okres próbny Bitwarden dla $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Dodaj pole"
+  },
   "items": {
     "message": "Elementy"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Zarządzaj płatnościami z portalu dostawcy"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Bitwarden dla zespołów"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Bitwarden dla rodzin"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Menedżera Sekretów Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Menedżera Sekretów Bitwarden dla zespołów"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny menedżera sekretów Bitwarden dla rodzin"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Menedżera haseł Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Menedżera haseł Bitwarden dla zespołów"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Rozpocznij 7-dniowy darmowy okres próbny Menedżera haseł Bitwarden dla rodzin"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Enter your Teams organization information"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Enter your Families organization information"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Enter your Enterprise organization information"
+  },
   "viewItemsIn": {
     "message": "Zobacz elementy w $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "zakupione miejsca usunięte"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Optional on-premises hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Ulepsz swoją organizację $NAME$ ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Uwierzytelnianie SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Organizacje rodzinne mogą mieć do $SEATCOUNT$ członków. Przejdź na płatny plan, aby zaprosić więcej członków.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Rodzinne organizacje mogą mieć maksymalnie $SEATCOUNT$ użytkowników. Skontaktuj się z właścicielem organizacji, aby przejść na płatny plan.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Ulepsz swój plan, aby zaprosić więcej członków i uzyskać dostęp do dodatkowych funkcji Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Zaoszczędź $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Zaawansowane możliwości dla większych przedsiębiorstw"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Przedsiębiorstwa szukające potężnego bezpieczeństwa"
+  },
+  "teamsInviteMessage": {
+    "message": "Zaproś nieograniczoną liczbę członków"
+  },
+  "accessToCreateGroups": {
+    "message": "Dostęp do tworzenia grup"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Synchronizuj grupy i użytkowników z użyciem katalogu"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Podziel się z rodziną i przyjaciółmi"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Dostęp do funkcji Premium"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB dodatkowej przestrzeni"
   }
 }

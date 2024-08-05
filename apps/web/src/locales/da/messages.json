@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Godkendelsesnøgle"
   },
+  "autofillOptions": {
+    "message": "Autoudfyldningsindstillinger"
+  },
+  "websiteUri": {
+    "message": "Websted (URI)"
+  },
+  "websiteAdded": {
+    "message": "Websted tilføjet"
+  },
+  "addWebsite": {
+    "message": "Tilføj websted"
+  },
+  "deleteWebsite": {
+    "message": "Slet websted"
+  },
+  "defaultLabel": {
+    "message": "Standard ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Vis matchdetektion $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Skjul matchdetektion $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autoudfyld ved sideindlæsning?"
+  },
   "number": {
     "message": "Nummer"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Din hovedadgangskode opfylder ikke et eller flere organisationspolitikkrav. For at kunne tilgå boksen skal hovedadgangskode derfor opdateres nu. Fortsættes, logges du ud af den nuværende session og vil skulle logge ind igen. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Boks-timeout"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Godkendelse af anmodet enhed."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Start din 7-dages gratis prøveperiode af Bitwarden til $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Tilføj felt"
+  },
   "items": {
     "message": "Emner"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Håndter fakturering via udbyderportalen"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden til Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden til Familier"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden til Virksomhed"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Secrets Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Secrets Manager til Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Secrets Manager til Familier"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Secrets Manager til Virksomhed"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Password Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Password Manager til Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Password Manager til Familier"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Start den 7-dages gratis prøveperiode på Bitwarden Password Manager til Virksomhed"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Angiv Teams-organisationsinformation"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Angiv Familier-organisationsinformation"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Angiv Virksomhed-organisationsinformation"
+  },
   "viewItemsIn": {
     "message": "Vis emner i $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "købte pladser fjernet"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ medlem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Valgfri lokal hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Opgradér $NAME$-organisationen ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO-godkendelse"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Familier-organisationer kan have op til $SEATCOUNT$ medlemmer. Opgradér til et betalt abonnement for at invitere flere til at blive medlemmer.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Familier-organisationer kan have op til $SEATCOUNT$ medlemmer. Kontakt organisationsejeren for at opgradere.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Opgradér abonnementstypen for at invitere flere til at blive medlemmer samt opnå adgang til yderligere Bitwarden-funktioner"
+  },
+  "upgradeDiscount": {
+    "message": "Spar $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Avancerede muligheder for større virksomheder"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Virksomheder, som leder efter stærk sikkerhed"
+  },
+  "teamsInviteMessage": {
+    "message": "Ubegrænset medlemsantal"
+  },
+  "accessToCreateGroups": {
+    "message": "Adgang til at oprette grupper"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Synk grupper og brugere fra et kartotek"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Del med familier og venner"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Adgang til Premium-funktioner"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB ekstra lagerplads"
   }
 }

@@ -8,7 +8,7 @@
   <div class="tw-bg-background-alt tw-p-2">
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
         <bit-form-control>
@@ -87,7 +87,7 @@
           />
           <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control>
+        <bit-form-control disableMargin>
           <input
             bitCheckbox
             id="showIdentitiesSuggestions"
@@ -103,11 +103,11 @@
     </bit-section>
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "autofillKeyboardShortcutSectionTitle" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "autofillKeyboardShortcutSectionTitle" | i18n }}</h2>
       </bit-section-header>
       <bit-item>
         <button bit-item-content type="button" (click)="openURI($event, browserShortcutsURI)">
-          <h3 bitTypography="h5">{{ "autofillKeyboardShortcutUpdateLabel" | i18n }}</h3>
+          <h3 bitTypography="h5">{{ "autofillKeyboardManagerShortcutsLabel" | i18n }}</h3>
           <bit-hint slot="secondary" class="tw-text-sm tw-whitespace-normal">
             {{ autofillKeyboardHelperText }}
           </bit-hint>
@@ -122,7 +122,7 @@
     </bit-section>
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "enableAutoFillOnPageLoadSectionTitle" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "enableAutoFillOnPageLoadSectionTitle" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
         <bit-hint class="tw-mb-6 tw-text-sm">
@@ -148,7 +148,7 @@
           />
           <bit-label for="autofillOnPageLoad">{{ "enableAutoFillOnPageLoad" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-field>
+        <bit-form-field disableMargin>
           <bit-label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</bit-label>
           <select
             bitInput
@@ -159,7 +159,7 @@
           >
             <option
               *ngFor="let o of autofillOnPageLoadOptions"
-              [value]="o.value"
+              [ngValue]="o.value"
               [label]="o.name"
             ></option>
           </select>
@@ -171,7 +171,7 @@
     </bit-section>
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "additionalOptions" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
         <bit-form-control>
@@ -206,14 +206,14 @@
             <option
               *ngFor="let o of clearClipboardOptions"
               [label]="o.name"
-              [value]="o.value"
+              [ngValue]="o.value"
             ></option>
           </select>
           <bit-hint class="tw-text-sm" id="clearClipboardHelp">
             {{ "clearClipboardDesc" | i18n }}
           </bit-hint>
         </bit-form-field>
-        <bit-form-field>
+        <bit-form-field disableMargin>
           <bit-label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</bit-label>
           <select
             aria-describedby="defaultUriMatchHelp"
@@ -222,7 +222,7 @@
             (change)="saveDefaultUriMatch()"
             [(ngModel)]="defaultUriMatch"
           >
-            <option *ngFor="let o of uriMatchOptions" [label]="o.name" [value]="o.value"></option>
+            <option *ngFor="let o of uriMatchOptions" [label]="o.name" [ngValue]="o.value"></option>
           </select>
           <bit-hint class="tw-text-sm" id="defaultUriMatchHelp">
             {{ "defaultUriMatchDetectionDesc" | i18n }}

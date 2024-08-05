@@ -10,7 +10,8 @@
     *ngIf="!loading"
     formId="cipherForm"
     [config]="config"
-    (cipherSaved)="onCipherSaved()"
+    (cipherSaved)="onCipherSaved($event)"
+    [beforeSubmit]="checkFido2UserVerification"
     [submitBtn]="submitBtn"
   >
     <app-open-attachments

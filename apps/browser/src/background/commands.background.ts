@@ -1,6 +1,7 @@
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
@@ -47,8 +48,23 @@ export default class CommandsBackground {
       case "generate_password":
         await this.generatePasswordToClipboard();
         break;
-      case "autofill_login":
-        await this.autoFillLogin(sender ? sender.tab : null);
+      case ExtensionCommand.AutofillLogin:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillCommand,
+        );
+        break;
+      case ExtensionCommand.AutofillCard:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillCard,
+        );
+        break;
+      case ExtensionCommand.AutofillIdentity:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillIdentity,
+        );
         break;
       case "open_popup":
         await this.openPopup();
@@ -68,19 +84,27 @@ export default class CommandsBackground {
     await this.passwordGenerationService.addHistory(password);
   }
 
-  private async autoFillLogin(tab?: chrome.tabs.Tab) {
+  private async triggerAutofillCommand(
+    tab?: chrome.tabs.Tab,
+    commandSender?: ExtensionCommandType,
+  ) {
     if (!tab) {
       tab = await BrowserApi.getTabFromCurrentWindowId();
     }
 
-    if (tab == null) {
+    if (tab == null || !commandSender) {
       return;
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          message: { command: "autofill_login" },
+          message: {
+            command:
+              commandSender === ExtensionCommand.AutofillCommand
+                ? ExtensionCommand.AutofillLogin
+                : commandSender,
+          },
           sender: { tab: tab },
         },
         target: "commands.background",
@@ -95,7 +119,7 @@ export default class CommandsBackground {
       return;
     }
 
-    await this.main.collectPageDetailsForContentScript(tab, "autofill_cmd");
+    await this.main.collectPageDetailsForContentScript(tab, commandSender);
   }
 
   private async openPopup() {

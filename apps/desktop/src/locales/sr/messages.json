@@ -552,10 +552,10 @@
     "message": "Савет главне лозинке"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Придружи Организацију"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Завршите придруживање овој организацији постављањем главне лозинке."
   },
   "settings": {
     "message": "Подешавања"
@@ -2100,7 +2100,7 @@
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Позив прихваћен"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Аутоматска пријава"
@@ -2827,7 +2827,7 @@
     "message": "Неважећа лозинка за датотеку, користите лозинку коју сте унели када сте креирали датотеку за извоз."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Одредиште"
   },
   "learnAboutImportOptions": {
     "message": "Сазнајте више о опцијама увоза"

@@ -14,7 +14,7 @@
     "message": "Inicieu sessió o creeu un compte nou per accedir a la caixa forta."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Invitació acceptada"
   },
   "createAccount": {
     "message": "Crea un compte"
@@ -53,7 +53,7 @@
     "message": "Una pista de contrasenya mestra us pot ajudar a recordar-la si l'oblideu."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Si oblideu la contrasenya, la pista de contrasenya es pot enviar al vostre correu electrònic. $CURRENT$/$MAXIMUM$ caràcters màxim.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -72,10 +72,10 @@
     "message": "Pista de la contrasenya mestra (opcional)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Uneix-te a l'organització"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Acabeu d'unir-vos a aquesta organització establint una contrasenya mestra."
   },
   "tab": {
     "message": "Pestanya"
@@ -115,6 +115,21 @@
   },
   "copySecurityCode": {
     "message": "Copia el codi de seguretat"
+  },
+  "copyName": {
+    "message": "Copia el nom"
+  },
+  "copyCompany": {
+    "message": "Copia la companyia"
+  },
+  "copySSN": {
+    "message": "Copia número de la Seguretat Social"
+  },
+  "copyPassportNumber": {
+    "message": "Copia el número de passaport"
+  },
+  "copyLicenseNumber": {
+    "message": "Copia el número de llicència"
   },
   "autoFill": {
     "message": "Emplenament automàtic"
@@ -201,19 +216,19 @@
     "message": "Continua cap a l'aplicació web?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Exploreu més característiques del vostre compte Bitwarden a l'aplicació web."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Voleu continuar cap al Centre d'ajuda?"
   },
   "continueToHelpCenterDesc": {
-    "message": "Learn more about how to use Bitwarden on the Help Center."
+    "message": "Obteniu més informació sobre com utilitzar Bitwarden al Centre d'ajuda."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Continue to browser extension store?"
+    "message": "Voleu continuar cap a la botiga d'extensions del navegador?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
+    "message": "Ajudeu els altres a descobrir si Bitwarden és adequat per a ells. Visiteu la botiga d'aplicacions i deixeu-nos una valoració ara."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Podeu canviar la vostra contrasenya mestra a l'aplicació web de Bitwarden."
@@ -233,43 +248,43 @@
     "message": "Tanca la sessió"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Quant a Bitwarden"
   },
   "about": {
     "message": "Quant a"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Més de Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Voleu continuar cap a bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden per a negocis"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "Autenticador Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "L'autenticador Bitwarden us permet emmagatzemar claus d'autenticació i generar codis TOTP per a fluxos de verificació en dos passos. Més informació al lloc web bitwarden.com"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Administrador de secrets de Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "Emmagatzema, gestiona i comparteix de manera segura els secrets dels desenvolupadors amb l'Administrador de secrets de Bitwarden. Més informació al lloc web bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
   },
   "continueToPasswordlessDotDevPageDesc": {
-    "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
+    "message": "Creeu experiències d'inici de sessió segures i sense contrasenyes tradicionals amb Passwordless.dev. Més informació al lloc web bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Famílies Bitwarden gratuït"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "Sou elegible per a Famílies Bitwarden gratuït. Bescanvia aquesta oferta hui a l'aplicació web."
   },
   "version": {
     "message": "Versió"
@@ -330,7 +345,7 @@
     "message": "Genera automàticament contrasenyes fortes i úniques per als vostres inicis de sessió."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Aplicació web Bitwarden"
   },
   "importItems": {
     "message": "Importa elements"
@@ -418,13 +433,13 @@
     "message": "Preferit"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Suprimeix de Preferits"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Element afegit als preferits"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Element suprimit dels preferits"
   },
   "notes": {
     "message": "Notes"
@@ -448,7 +463,7 @@
     "message": "Inicia"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Obri la web"
   },
   "website": {
     "message": "Lloc web"
@@ -566,16 +581,16 @@
     "message": "Seguretat"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "Confirma la contrasenya mestra"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Contrasenya mestra"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "La contrasenya mestra no es pot recuperar si la oblideu!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Pista de la contrasenya mestra"
   },
   "errorOccurred": {
     "message": "S'ha produït un error"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Detecció de coincidències URI per defecte",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Trieu la manera predeterminada en que es gestiona la detecció de coincidència d'URI per als inicis de sessió en realitzar accions com l'emplenament automàtic."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Mostra el menú d'emplenament automàtic als camps del formulari",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autofill suggestions"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Obri la caixa forta a la barra lateral"
   },
-  "commandAutofillDesc": {
-    "message": "Ompliu automàticament amb l'últim accés utilitzat per al lloc web actual."
+  "commandAutofillLoginDesc": {
+    "message": "Autofill the last used login for the current website"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Autofill the last used card for the current website"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Autofill the last used identity for the current website"
   },
   "commandGeneratePasswordDesc": {
     "message": "Genera i copia una nova contrasenya aleatòria al porta-retalls."
@@ -1634,6 +1655,10 @@
     "message": "Domini base",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Nom del domini",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Detecció de coincidències",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Detecció de coincidències per defecte",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Commuta opcions"
@@ -1904,7 +1929,7 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Anul·la subscripció"
   },
   "atAnyTime": {
     "message": "at any time."
@@ -2021,7 +2046,7 @@
     "message": "Una política d'organització ha bloquejat la importació d'elements a la vostra caixa forta individual."
   },
   "domainsTitle": {
-    "message": "Domains",
+    "message": "Dominis",
     "description": "A category title describing the concept of web domains"
   },
   "excludedDomains": {
@@ -2090,7 +2115,7 @@
     "message": "Protegit amb contrasenya"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Copia l'enllaç"
   },
   "copySendLink": {
     "message": "Copia l'enllaç Send",
@@ -2301,6 +2326,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscripció automàtica"
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Change shortcut"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Manage shortcuts"
+  },
   "autofillShortcut": {
     "message": "Drecera de teclat d'emplenament automàtic"
   },
-  "autofillShortcutNotSet": {
-    "message": "La drecera d'emplenament automàtic no està configurada. Canvieu-ho a la configuració del navegador."
+  "autofillLoginShortcutNotSet": {
+    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
   },
-  "autofillShortcutText": {
-    "message": "La drecera d'emplenament automàtic és: $COMMAND$. Canvieu-ho a la configuració del navegador.",
+  "autofillLoginShortcutText": {
+    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2825,7 +2856,7 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "Torna arrere"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Selecciona --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Els elements amb una nova sol·licitud de contrasenya mestra no es poden omplir automàticament en carregar la pàgina. L'emplenament automàtic en carregar de la pàgina està desactivat.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "S'ha configurat l'emplenament automàtic en carregar la pàgina per que utilitze la configuració predeterminada.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Desactiveu la sol·licitud de nova contrasenya mestra per editar aquest camp",
@@ -3089,7 +3132,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Nova targeta",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -3221,7 +3264,7 @@
     "message": "La contrasenya del fitxer no és vàlida. Utilitzeu la contrasenya que vau introduir quan vau crear el fitxer d'exportació."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destinació"
   },
   "learnAboutImportOptions": {
     "message": "Obteniu informació sobre les opcions d'importació"
@@ -3280,7 +3323,7 @@
     "message": "Confirma la contrasenya del fitxer"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "S'han exportat les dades de la caixa forta"
   },
   "typePasskey": {
     "message": "Clau de pas"
@@ -3531,10 +3574,10 @@
     "message": "Clau de pas suprimida"
   },
   "autofillSuggestions": {
-    "message": "Auto-fill suggestions"
+    "message": "Autofill suggestions"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to auto-fill"
+    "message": "Save a login item for this site to autofill"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -3596,8 +3639,8 @@
     }
   },
   "autofillTitle": {
-    "message": "Auto-fill - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "message": "Autofill - $ITEMNAME$",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3787,6 +3830,52 @@
   "authenticatorKey": {
     "message": "Authenticator key"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "cardDetails": {
     "message": "Card details"
   },
@@ -3848,10 +3937,10 @@
     "message": "Use hidden fields for sensitive data like a password"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to auto-fill a form's checkbox, like a remember email"
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing auto-fill issues for a specific website."
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Item Location"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden has a new look!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

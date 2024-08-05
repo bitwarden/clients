@@ -85,3 +85,17 @@ export const DisablePasswordManagerUris = {
   Vivaldi: "vivaldi://settings/autofill",
   Unknown: "https://bitwarden.com/help/disable-browser-autofill/",
 } as const;
+
+export const ExtensionCommand = {
+  AutofillCommand: "autofill_cmd",
+  AutofillCard: "autofill_card",
+  AutofillIdentity: "autofill_identity",
+  AutofillLogin: "autofill_login",
+  OpenAutofillOverlay: "open_autofill_overlay",
+  GeneratePassword: "generate_password",
+  OpenPopup: "open_popup",
+  LockVault: "lock_vault",
+  NoopCommand: "noop",
+} as const;
+
+export type ExtensionCommandType = (typeof ExtensionCommand)[keyof typeof ExtensionCommand];

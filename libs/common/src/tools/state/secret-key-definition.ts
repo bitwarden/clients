@@ -2,7 +2,7 @@ import { UserKeyDefinitionOptions, UserKeyDefinition } from "../../platform/stat
 // eslint-disable-next-line -- `StateDefinition` used as an argument
 import { StateDefinition } from "../../platform/state/state-definition";
 import { ClassifiedFormat } from "./classified-format";
-import { SecretClassifier } from "./secret-classifier";
+import { Classifier } from "./classifier";
 
 /** Encryption and storage settings for data stored by a `SecretState`.
  */
@@ -10,7 +10,7 @@ export class SecretKeyDefinition<Outer, Id, Inner extends object, Disclosed, Sec
   private constructor(
     readonly stateDefinition: StateDefinition,
     readonly key: string,
-    readonly classifier: SecretClassifier<Inner, Disclosed, Secret>,
+    readonly classifier: Classifier<Inner, Disclosed, Secret>,
     readonly options: UserKeyDefinitionOptions<Inner>,
     // type erasure is necessary here because typescript doesn't support
     // higher kinded types that generalize over collections. The invariants
@@ -46,7 +46,7 @@ export class SecretKeyDefinition<Outer, Id, Inner extends object, Disclosed, Sec
   static value<Value extends object, Disclosed, Secret>(
     stateDefinition: StateDefinition,
     key: string,
-    classifier: SecretClassifier<Value, Disclosed, Secret>,
+    classifier: Classifier<Value, Disclosed, Secret>,
     options: UserKeyDefinitionOptions<Value>,
   ) {
     return new SecretKeyDefinition<Value, void, Value, Disclosed, Secret>(
@@ -70,7 +70,7 @@ export class SecretKeyDefinition<Outer, Id, Inner extends object, Disclosed, Sec
   static array<Item extends object, Disclosed, Secret>(
     stateDefinition: StateDefinition,
     key: string,
-    classifier: SecretClassifier<Item, Disclosed, Secret>,
+    classifier: Classifier<Item, Disclosed, Secret>,
     options: UserKeyDefinitionOptions<Item>,
   ) {
     return new SecretKeyDefinition<Item[], number, Item, Disclosed, Secret>(
@@ -94,7 +94,7 @@ export class SecretKeyDefinition<Outer, Id, Inner extends object, Disclosed, Sec
   static record<Item extends object, Disclosed, Secret, Id extends string | number>(
     stateDefinition: StateDefinition,
     key: string,
-    classifier: SecretClassifier<Item, Disclosed, Secret>,
+    classifier: Classifier<Item, Disclosed, Secret>,
     options: UserKeyDefinitionOptions<Item>,
   ) {
     return new SecretKeyDefinition<Record<Id, Item>, Id, Item, Disclosed, Secret>(

@@ -1,14 +1,15 @@
 import { CommonModule, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -19,10 +20,18 @@ import {
   TotpCaptureService,
 } from "@bitwarden/vault";
 
+import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
+import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
+import { BrowserFido2UserInterfaceSession } from "../../../../fido2/browser-fido2-user-interface.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
+import {
+  fido2PopoutSessionData$,
+  Fido2SessionData,
+} from "../../../utils/fido2-popout-session-data";
+import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
 
 /**
@@ -31,12 +40,14 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = parseInt(params.type, null);
+    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
     this.collectionId = params.collectionId;
     this.uri = params.uri;
+    this.username = params.username;
+    this.name = params.name;
   }
 
   /**
@@ -47,7 +58,7 @@ class QueryParams {
   /**
    * The type of cipher to create.
    */
-  type: CipherType;
+  type?: CipherType;
 
   /**
    * Whether to clone the cipher.
@@ -73,6 +84,16 @@ class QueryParams {
    * Optional URI to pre-fill for login ciphers.
    */
   uri?: string;
+
+  /**
+   * Optional username to pre-fill for login/identity ciphers.
+   */
+  username?: string;
+
+  /**
+   * Optional name to pre-fill for the cipher.
+   */
+  name?: string;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -99,7 +120,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     AsyncActionsModule,
   ],
 })
-export class AddEditV2Component {
+export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
 
@@ -111,15 +132,49 @@ export class AddEditV2Component {
     return this.config?.originalCipher?.id as CipherId;
   }
 
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
+  private fido2PopoutSessionData: Fido2SessionData;
+
+  private get inFido2PopoutWindow() {
+    return BrowserPopupUtils.inPopout(window) && this.fido2PopoutSessionData.isFido2Session;
+  }
+
+  private get inSingleActionPopout() {
+    return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
+  }
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private i18nService: I18nService,
     private addEditFormConfigService: CipherFormConfigService,
     private router: Router,
+    private popupCloseWarningService: PopupCloseWarningService,
   ) {
     this.subscribeToParams();
   }
+
+  async ngOnInit() {
+    this.fido2PopoutSessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.enable();
+    }
+  }
+
+  /**
+   * Called before the form is submitted, allowing us to handle Fido2 user verification.
+   */
+  protected checkFido2UserVerification: () => Promise<boolean> = async () => {
+    if (!this.inFido2PopoutWindow) {
+      // Not in a Fido2 popout window, no need to handle user verification.
+      return true;
+    }
+
+    // TODO use fido2 user verification service once user verification for passkeys is approved for production.
+    // We are bypassing user verification pending approval for production.
+    return true;
+  };
 
   /**
    * Navigates to previous view or view-cipher path
@@ -129,6 +184,17 @@ export class AddEditV2Component {
    * forced into a popout window.
    */
   async handleBackButton() {
+    if (this.inFido2PopoutWindow) {
+      this.popupCloseWarningService.disable();
+      BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
+      return;
+    }
+
+    if (this.inSingleActionPopout) {
+      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
+      return;
+    }
+
     if (history.length === 1) {
       await this.router.navigate(["/view-cipher"], {
         queryParams: { cipherId: this.originalCipherId },
@@ -138,7 +204,25 @@ export class AddEditV2Component {
     }
   }
 
-  onCipherSaved() {
+  async onCipherSaved(cipher: CipherView) {
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.disable();
+    }
+
+    if (this.inFido2PopoutWindow) {
+      BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+        this.fido2PopoutSessionData.sessionId,
+        cipher.id,
+        this.fido2PopoutSessionData.userVerification,
+      );
+      return;
+    }
+
+    if (this.inSingleActionPopout) {
+      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      return;
+    }
+
     this.location.back();
   }
 
@@ -188,6 +272,12 @@ export class AddEditV2Component {
     }
     if (params.uri) {
       config.initialValues.loginUri = params.uri;
+    }
+    if (params.username) {
+      config.initialValues.username = params.username;
+    }
+    if (params.name) {
+      config.initialValues.name = params.name;
     }
   }
 

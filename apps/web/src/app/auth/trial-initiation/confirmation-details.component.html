@@ -1,5 +1,10 @@
 <div class="tw-pb-6 tw-pl-6">
-  <p class="tw-text-xl">{{ "trialThankYou" | i18n: orgLabel }}</p>
+  <p class="tw-text-xl" *ngIf="product === Product.PasswordManager">
+    {{ "trialThankYou" | i18n: orgLabel }}
+  </p>
+  <p class="tw-text-xl" *ngIf="product === Product.SecretsManager">
+    {{ "smFreeTrialThankYou" | i18n }}
+  </p>
   <ul class="tw-list-disc">
     <li>
       <p>

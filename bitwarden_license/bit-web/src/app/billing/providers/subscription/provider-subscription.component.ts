@@ -1,8 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, concatMap, takeUntil } from "rxjs";
 
-import { openAddAccountCreditDialog } from "@bitwarden/angular/billing/components";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
@@ -11,13 +10,13 @@ import {
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",
 })
-export class ProviderSubscriptionComponent {
+export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   providerId: string;
   subscription: ProviderSubscriptionResponse;
 
@@ -27,9 +26,10 @@ export class ProviderSubscriptionComponent {
   totalCost: number;
   currentDate = new Date();
 
+  protected readonly TaxInformation = TaxInformation;
+
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
-    private dialogService: DialogService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private toastService: ToastService,
@@ -62,13 +62,6 @@ export class ProviderSubscriptionComponent {
       ((100 - this.subscription.discountPercentage) / 100) * this.sumCost(this.subscription.plans);
     this.loading = false;
   }
-
-  addAccountCredit = () =>
-    openAddAccountCreditDialog(this.dialogService, {
-      data: {
-        providerId: this.providerId,
-      },
-    });
 
   updateTaxInformation = async (taxInformation: TaxInformation) => {
     const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
@@ -108,6 +101,4 @@ export class ProviderSubscriptionComponent {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  protected readonly TaxInformation = TaxInformation;
 }

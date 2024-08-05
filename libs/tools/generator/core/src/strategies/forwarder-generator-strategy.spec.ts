@@ -7,41 +7,17 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../../common/spec";
-import { DefaultDuckDuckGoOptions } from "../data";
+import { AddyIo, Fastmail, FirefoxRelay } from "../integration";
 import { DefaultPolicyEvaluator } from "../policies";
-import { ApiOptions } from "../types";
 
 import { ForwarderGeneratorStrategy } from "./forwarder-generator-strategy";
-import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_BUFFER } from "./storage";
-
-class TestForwarder extends ForwarderGeneratorStrategy<ApiOptions> {
-  constructor(
-    encryptService: EncryptService,
-    keyService: CryptoService,
-    stateProvider: StateProvider,
-  ) {
-    super(encryptService, keyService, stateProvider, { website: null, token: "" });
-  }
-
-  get key() {
-    // arbitrary.
-    return DUCK_DUCK_GO_FORWARDER;
-  }
-
-  get rolloverKey() {
-    return DUCK_DUCK_GO_BUFFER;
-  }
-
-  defaults$ = (userId: UserId) => {
-    return of(DefaultDuckDuckGoOptions);
-  };
-}
 
 const SomeUser = "some user" as UserId;
 const AnotherUser = "another user" as UserId;
@@ -56,10 +32,12 @@ describe("ForwarderGeneratorStrategy", () => {
   const encryptService = mock<EncryptService>();
   const keyService = mock<CryptoService>();
   const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
+  const restClient = mock<RestClient>();
+  const i18nService = mock<I18nService>();
 
   beforeEach(() => {
     const keyAvailable = of({} as UserKey);
-    keyService.getInMemoryUserKeyFor$.mockReturnValue(keyAvailable);
+    keyService.userKey$.mockReturnValue(keyAvailable);
   });
 
   afterEach(() => {
@@ -68,7 +46,14 @@ describe("ForwarderGeneratorStrategy", () => {
 
   describe("durableState", () => {
     it("constructs a secret state", () => {
-      const strategy = new TestForwarder(encryptService, keyService, stateProvider);
+      const strategy = new ForwarderGeneratorStrategy(
+        AddyIo,
+        restClient,
+        i18nService,
+        encryptService,
+        keyService,
+        stateProvider,
+      );
 
       const result = strategy.durableState(SomeUser);
 
@@ -76,7 +61,14 @@ describe("ForwarderGeneratorStrategy", () => {
     });
 
     it("returns the same secret state for a single user", () => {
-      const strategy = new TestForwarder(encryptService, keyService, stateProvider);
+      const strategy = new ForwarderGeneratorStrategy(
+        AddyIo,
+        restClient,
+        i18nService,
+        encryptService,
+        keyService,
+        stateProvider,
+      );
 
       const firstResult = strategy.durableState(SomeUser);
       const secondResult = strategy.durableState(SomeUser);
@@ -85,7 +77,14 @@ describe("ForwarderGeneratorStrategy", () => {
     });
 
     it("returns a different secret state for a different user", () => {
-      const strategy = new TestForwarder(encryptService, keyService, stateProvider);
+      const strategy = new ForwarderGeneratorStrategy(
+        AddyIo,
+        restClient,
+        i18nService,
+        encryptService,
+        keyService,
+        stateProvider,
+      );
 
       const firstResult = strategy.durableState(SomeUser);
       const secondResult = strategy.durableState(AnotherUser);
@@ -98,7 +97,14 @@ describe("ForwarderGeneratorStrategy", () => {
     it.each([[[]], [null], [undefined], [[SomePolicy]], [[SomePolicy, SomePolicy]]])(
       "should map any input (= %p) to the default policy evaluator",
       async (policies) => {
-        const strategy = new TestForwarder(encryptService, keyService, stateProvider);
+        const strategy = new ForwarderGeneratorStrategy(
+          AddyIo,
+          restClient,
+          i18nService,
+          encryptService,
+          keyService,
+          stateProvider,
+        );
 
         const evaluator$ = of(policies).pipe(strategy.toEvaluator());
         const evaluator = await firstValueFrom(evaluator$);
@@ -106,5 +112,40 @@ describe("ForwarderGeneratorStrategy", () => {
         expect(evaluator).toBeInstanceOf(DefaultPolicyEvaluator);
       },
     );
+  });
+
+  describe("generate", () => {
+    it("issues a remote procedure request to create the forwarding address", async () => {
+      restClient.fetchJson.mockResolvedValue("jdoe@example.com");
+      const strategy = new ForwarderGeneratorStrategy(
+        FirefoxRelay,
+        restClient,
+        i18nService,
+        encryptService,
+        keyService,
+        stateProvider,
+      );
+
+      const result = await strategy.generate({ website: null });
+
+      expect(result).toEqual("jdoe@example.com");
+    });
+
+    it("issues a remote procedure request to look up the account id before creating the forwarding address", async () => {
+      restClient.fetchJson.mockResolvedValue("some account id");
+      restClient.fetchJson.mockResolvedValue("jdoe@example.com");
+      const strategy = new ForwarderGeneratorStrategy(
+        Fastmail,
+        restClient,
+        i18nService,
+        encryptService,
+        keyService,
+        stateProvider,
+      );
+
+      const result = await strategy.generate({ website: null, prefix: "", domain: "example.com" });
+
+      expect(result).toEqual("jdoe@example.com");
+    });
   });
 });

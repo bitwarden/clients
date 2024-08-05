@@ -93,7 +93,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     request.assignedSeats = this.formGroup.value.assignedSeats;
     request.name = this.dialogParams.organization.organizationName;
 
-    await this.billingApiService.updateClientOrganization(
+    await this.billingApiService.updateProviderClientOrganization(
       this.dialogParams.provider.id,
       this.dialogParams.organization.id,
       request,

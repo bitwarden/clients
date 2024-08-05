@@ -1315,7 +1315,7 @@ describe("OverlayBackground", () => {
           expect(doAutoFillSpy).not.toHaveBeenCalled();
         });
 
-        it("auto-fills the selected cipher and move it to the top of the front of the ciphers map", async () => {
+        it("autofills the selected cipher and move it to the top of the front of the ciphers map", async () => {
           const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
           const cipher2 = mock<CipherView>({ id: "overlay-cipher-2" });
           const cipher3 = mock<CipherView>({ id: "overlay-cipher-3" });

@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -41,7 +41,7 @@ import {
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthWebAuthnComponent {
+export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
   @Output() token = new EventEmitter<string>();
 
   webAuthnReady = false;

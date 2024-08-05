@@ -99,7 +99,13 @@
       "suggested_key": {
         "default": "Ctrl+Shift+L"
       },
-      "description": "__MSG_commandAutofillDesc__"
+      "description": "__MSG_commandAutofillLoginDesc__"
+    },
+    "autofill_card": {
+      "description": "__MSG_commandAutofillCardDesc__"
+    },
+    "autofill_identity": {
+      "description": "__MSG_commandAutofillIdentityDesc__"
     },
     "generate_password": {
       "suggested_key": {

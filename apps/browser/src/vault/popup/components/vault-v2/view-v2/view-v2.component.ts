@@ -22,7 +22,6 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
 
@@ -55,14 +54,12 @@ export class ViewV2Component {
   organization$: Observable<Organization>;
   folder$: Observable<FolderView>;
   collections$: Observable<CollectionView[]>;
-  private passwordReprompted = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
     private cipherService: CipherService,
-    private passwordRepromptService: PasswordRepromptService,
     private dialogService: DialogService,
     private logService: LogService,
     private toastService: ToastService,
@@ -87,13 +84,16 @@ export class ViewV2Component {
   setHeader(type: CipherType) {
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin").toLowerCase());
       case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard").toLowerCase());
       case CipherType.Identity:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
+        return this.i18nService.t(
+          "viewItemHeader",
+          this.i18nService.t("typeIdentity").toLowerCase(),
+        );
       case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("note").toLowerCase());
     }
   }
 
@@ -102,20 +102,7 @@ export class ViewV2Component {
     return await cipher.decrypt(await this.cipherService.getKeyForCipherKeyDecryption(cipher));
   }
 
-  async checkForPasswordReprompt() {
-    this.passwordReprompted =
-      this.passwordReprompted ||
-      (await this.passwordRepromptService.passwordRepromptCheck(this.cipher));
-    if (!this.passwordReprompted) {
-      return false;
-    }
-    return true;
-  }
-
   async editCipher() {
-    if (!(await this.checkForPasswordReprompt())) {
-      return;
-    }
     if (this.cipher.isDeleted) {
       return false;
     }
@@ -126,10 +113,6 @@ export class ViewV2Component {
   }
 
   delete = async (): Promise<boolean> => {
-    if (!(await this.checkForPasswordReprompt())) {
-      return;
-    }
-
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteItem" },
       content: {

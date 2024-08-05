@@ -399,6 +399,11 @@ describe("AutofillInlineMenuContentService", () => {
       });
 
       it("sets the z-index of to a lower value", async () => {
+        autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = setTimeout(
+          jest.fn(),
+          1000,
+        );
+
         await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
         await waitForIdleCallback();
 
@@ -411,8 +416,9 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
-        await waitForIdleCallback();
+        await autofillInlineMenuContentService["verifyInlineMenuIsNotObscured"](
+          persistentLastChild,
+        );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
           overlayElement: AutofillOverlayElement.Button,
@@ -425,8 +431,9 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
-        await waitForIdleCallback();
+        await autofillInlineMenuContentService["verifyInlineMenuIsNotObscured"](
+          persistentLastChild,
+        );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
           overlayElement: AutofillOverlayElement.List,

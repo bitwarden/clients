@@ -110,6 +110,7 @@ describe("DefaultSetPasswordJitService", () => {
         localMasterKeyHash: "localMasterKeyHash",
         hint: "hint",
         kdfConfig: DEFAULT_KDF_CONFIG,
+        password: "password",
       };
 
       credentials = {
