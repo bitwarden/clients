@@ -658,7 +658,12 @@ export default class AutofillService implements AutofillServiceInterface {
         );
         break;
       case CipherType.Card:
-        fillScript = this.generateCardFillScript(fillScript, pageDetails, filledFields, options);
+        fillScript = await this.generateCardFillScript(
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
         break;
       case CipherType.Identity:
         fillScript = await this.generateIdentityFillScript(
@@ -867,12 +872,332 @@ export default class AutofillService implements AutofillServiceInterface {
    * @returns {AutofillScript|null}
    * @private
    */
-  private generateCardFillScript(
+  private async generateCardFillScript(
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
     options: GenerateFillScriptOptions,
-  ): AutofillScript | null {
+  ): Promise<AutofillScript | null> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.GenerateCardFillScriptRefactor)) {
+      return this._generateCardFillScript(fillScript, pageDetails, filledFields, options);
+    }
+
+    if (!options.cipher.card) {
+      return null;
+    }
+
+    const fillFields: { [id: string]: AutofillField } = {};
+
+    pageDetails.fields.forEach((f) => {
+      if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes)) {
+        return;
+      }
+
+      for (let i = 0; i < CreditCardAutoFillConstants.CardAttributes.length; i++) {
+        const attr = CreditCardAutoFillConstants.CardAttributes[i];
+        // eslint-disable-next-line
+        if (!f.hasOwnProperty(attr) || !f[attr] || !f.viewable) {
+          continue;
+        }
+
+        // ref https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
+        // ref https://developers.google.com/web/fundamentals/design-and-ux/input/forms/
+        if (
+          !fillFields.cardholderName &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardHolderFieldNames,
+            CreditCardAutoFillConstants.CardHolderFieldNameValues,
+          )
+        ) {
+          fillFields.cardholderName = f;
+          break;
+        } else if (
+          !fillFields.number &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardNumberFieldNames,
+            CreditCardAutoFillConstants.CardNumberFieldNameValues,
+          )
+        ) {
+          fillFields.number = f;
+          break;
+        } else if (
+          !fillFields.exp &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardExpiryFieldNames,
+            CreditCardAutoFillConstants.CardExpiryFieldNameValues,
+          )
+        ) {
+          fillFields.exp = f;
+          break;
+        } else if (
+          !fillFields.expMonth &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryMonthFieldNames)
+        ) {
+          fillFields.expMonth = f;
+          break;
+        } else if (
+          !fillFields.expYear &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryYearFieldNames)
+        ) {
+          fillFields.expYear = f;
+          break;
+        } else if (
+          !fillFields.code &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CVVFieldNames)
+        ) {
+          fillFields.code = f;
+          break;
+        } else if (
+          !fillFields.brand &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CardBrandFieldNames)
+        ) {
+          fillFields.brand = f;
+          break;
+        }
+      }
+    });
+
+    const card = options.cipher.card;
+    this.makeScriptAction(fillScript, card, fillFields, filledFields, "cardholderName");
+    this.makeScriptAction(fillScript, card, fillFields, filledFields, "number");
+    this.makeScriptAction(fillScript, card, fillFields, filledFields, "code");
+    this.makeScriptAction(fillScript, card, fillFields, filledFields, "brand");
+
+    if (fillFields.expMonth && AutofillService.hasValue(card.expMonth)) {
+      let expMonth: string = card.expMonth;
+
+      if (fillFields.expMonth.selectInfo && fillFields.expMonth.selectInfo.options) {
+        let index: number = null;
+        const siOptions = fillFields.expMonth.selectInfo.options;
+        if (siOptions.length === 12) {
+          index = parseInt(card.expMonth, null) - 1;
+        } else if (siOptions.length === 13) {
+          if (
+            siOptions[0][0] != null &&
+            siOptions[0][0] !== "" &&
+            (siOptions[12][0] == null || siOptions[12][0] === "")
+          ) {
+            index = parseInt(card.expMonth, null) - 1;
+          } else {
+            index = parseInt(card.expMonth, null);
+          }
+        }
+
+        if (index != null) {
+          const option = siOptions[index];
+          if (option.length > 1) {
+            expMonth = option[1];
+          }
+        }
+      } else if (
+        (this.fieldAttrsContain(fillFields.expMonth, "mm") ||
+          fillFields.expMonth.maxLength === 2) &&
+        expMonth.length === 1
+      ) {
+        expMonth = "0" + expMonth;
+      }
+
+      filledFields[fillFields.expMonth.opid] = fillFields.expMonth;
+      AutofillService.fillByOpid(fillScript, fillFields.expMonth, expMonth);
+    }
+
+    if (fillFields.expYear && AutofillService.hasValue(card.expYear)) {
+      let expYear: string = card.expYear;
+      if (fillFields.expYear.selectInfo && fillFields.expYear.selectInfo.options) {
+        for (let i = 0; i < fillFields.expYear.selectInfo.options.length; i++) {
+          const o: [string, string] = fillFields.expYear.selectInfo.options[i];
+          if (o[0] === card.expYear || o[1] === card.expYear) {
+            expYear = o[1];
+            break;
+          }
+          if (
+            o[1].length === 2 &&
+            card.expYear.length === 4 &&
+            o[1] === card.expYear.substring(2)
+          ) {
+            expYear = o[1];
+            break;
+          }
+          const colonIndex = o[1].indexOf(":");
+          if (colonIndex > -1 && o[1].length > colonIndex + 1) {
+            const val = o[1].substring(colonIndex + 2);
+            if (val != null && val.trim() !== "" && val === card.expYear) {
+              expYear = o[1];
+              break;
+            }
+          }
+        }
+      } else if (
+        this.fieldAttrsContain(fillFields.expYear, "yyyy") ||
+        fillFields.expYear.maxLength === 4
+      ) {
+        if (expYear.length === 2) {
+          expYear = "20" + expYear;
+        }
+      } else if (
+        this.fieldAttrsContain(fillFields.expYear, "yy") ||
+        fillFields.expYear.maxLength === 2
+      ) {
+        if (expYear.length === 4) {
+          expYear = expYear.substr(2);
+        }
+      }
+
+      filledFields[fillFields.expYear.opid] = fillFields.expYear;
+      AutofillService.fillByOpid(fillScript, fillFields.expYear, expYear);
+    }
+
+    if (
+      fillFields.exp &&
+      AutofillService.hasValue(card.expMonth) &&
+      AutofillService.hasValue(card.expYear)
+    ) {
+      const fullMonth = ("0" + card.expMonth).slice(-2);
+
+      let fullYear: string = card.expYear;
+      let partYear: string = null;
+      if (fullYear.length === 2) {
+        partYear = fullYear;
+        fullYear = "20" + fullYear;
+      } else if (fullYear.length === 4) {
+        partYear = fullYear.substr(2, 2);
+      }
+
+      let exp: string = null;
+      for (let i = 0; i < CreditCardAutoFillConstants.MonthAbbr.length; i++) {
+        if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "/" +
+              CreditCardAutoFillConstants.YearAbbrLong[i],
+          )
+        ) {
+          exp = fullMonth + "/" + fullYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "/" +
+              CreditCardAutoFillConstants.YearAbbrShort[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = fullMonth + "/" + partYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrLong[i] +
+              "/" +
+              CreditCardAutoFillConstants.MonthAbbr[i],
+          )
+        ) {
+          exp = fullYear + "/" + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrShort[i] +
+              "/" +
+              CreditCardAutoFillConstants.MonthAbbr[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = partYear + "/" + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "-" +
+              CreditCardAutoFillConstants.YearAbbrLong[i],
+          )
+        ) {
+          exp = fullMonth + "-" + fullYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] +
+              "-" +
+              CreditCardAutoFillConstants.YearAbbrShort[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = fullMonth + "-" + partYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrLong[i] +
+              "-" +
+              CreditCardAutoFillConstants.MonthAbbr[i],
+          )
+        ) {
+          exp = fullYear + "-" + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrShort[i] +
+              "-" +
+              CreditCardAutoFillConstants.MonthAbbr[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = partYear + "-" + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrLong[i] + CreditCardAutoFillConstants.MonthAbbr[i],
+          )
+        ) {
+          exp = fullYear + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.YearAbbrShort[i] + CreditCardAutoFillConstants.MonthAbbr[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = partYear + fullMonth;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrLong[i],
+          )
+        ) {
+          exp = fullMonth + fullYear;
+        } else if (
+          this.fieldAttrsContain(
+            fillFields.exp,
+            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrShort[i],
+          ) &&
+          partYear != null
+        ) {
+          exp = fullMonth + partYear;
+        }
+
+        if (exp != null) {
+          break;
+        }
+      }
+
+      if (exp == null) {
+        exp = fullYear + "-" + fullMonth;
+      }
+
+      this.makeScriptActionWithValue(fillScript, exp, fillFields.exp, filledFields);
+    }
+
+    return fillScript;
+  }
+
+  private async _generateCardFillScript(
+    fillScript: AutofillScript,
+    pageDetails: AutofillPageDetails,
+    filledFields: { [id: string]: AutofillField },
+    options: GenerateFillScriptOptions,
+  ): Promise<AutofillScript | null> {
+    // TODO: Adding this in a temporary capacity, will be iterated upon and refactored.
     if (!options.cipher.card) {
       return null;
     }

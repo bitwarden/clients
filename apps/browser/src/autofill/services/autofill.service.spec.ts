@@ -2700,11 +2700,11 @@ describe("AutofillService", () => {
         options.cipher.card.expMonth = "05";
       });
 
-      it("returns an expiration month parsed from found select options within the field", () => {
+      it("returns an expiration month parsed from found select options within the field", async () => {
         const testValue = "sometestvalue";
         expMonthField.selectInfo.options[4] = ["May", testValue];
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2714,12 +2714,12 @@ describe("AutofillService", () => {
         expect(value.script[2]).toStrictEqual(["fill_by_opid", expMonthField.opid, testValue]);
       });
 
-      it("returns an expiration month parsed from found select options within the field when the select field has an empty option at the end of the list of options", () => {
+      it("returns an expiration month parsed from found select options within the field when the select field has an empty option at the end of the list of options", async () => {
         const testValue = "sometestvalue";
         expMonthField.selectInfo.options[4] = ["May", testValue];
         expMonthField.selectInfo.options.push(["", ""]);
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2729,12 +2729,12 @@ describe("AutofillService", () => {
         expect(value.script[2]).toStrictEqual(["fill_by_opid", expMonthField.opid, testValue]);
       });
 
-      it("returns an expiration month parsed from found select options within the field when the select field has an empty option at the start of the list of options", () => {
+      it("returns an expiration month parsed from found select options within the field when the select field has an empty option at the start of the list of options", async () => {
         const testValue = "sometestvalue";
         expMonthField.selectInfo.options[4] = ["May", testValue];
         expMonthField.selectInfo.options.unshift(["", ""]);
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2744,13 +2744,13 @@ describe("AutofillService", () => {
         expect(value.script[2]).toStrictEqual(["fill_by_opid", expMonthField.opid, testValue]);
       });
 
-      it("returns an expiration month with a zero attached if the field requires two characters, and the vault item has only one character", () => {
+      it("returns an expiration month with a zero attached if the field requires two characters, and the vault item has only one character", async () => {
         options.cipher.card.expMonth = "5";
         expMonthField.selectInfo = null;
         expMonthField.placeholder = "mm";
         expMonthField.maxLength = 2;
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2785,12 +2785,12 @@ describe("AutofillService", () => {
         options.cipher.card.expYear = "2024";
       });
 
-      it("returns an expiration year parsed from the select options if an exact match is found for either the select option text or value", () => {
+      it("returns an expiration year parsed from the select options if an exact match is found for either the select option text or value", async () => {
         const someTestValue = "sometestvalue";
         expYearField.selectInfo.options[1] = ["2024", someTestValue];
         options.cipher.card.expYear = someTestValue;
 
-        let value = autofillService["generateCardFillScript"](
+        let value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2801,7 +2801,7 @@ describe("AutofillService", () => {
 
         expYearField.selectInfo.options[1] = [someTestValue, "2024"];
 
-        value = autofillService["generateCardFillScript"](
+        value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2811,12 +2811,12 @@ describe("AutofillService", () => {
         expect(value.script[2]).toStrictEqual(["fill_by_opid", expYearField.opid, someTestValue]);
       });
 
-      it("returns an expiration year parsed from the select options if the value of an option contains only two characters and the vault item value contains four characters", () => {
+      it("returns an expiration year parsed from the select options if the value of an option contains only two characters and the vault item value contains four characters", async () => {
         const yearValue = "26";
         expYearField.selectInfo.options.push(["The year 2026", yearValue]);
         options.cipher.card.expYear = "2026";
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2826,13 +2826,13 @@ describe("AutofillService", () => {
         expect(value.script[2]).toStrictEqual(["fill_by_opid", expYearField.opid, yearValue]);
       });
 
-      it("returns an expiration year parsed from the select options if the vault of an option is separated by a colon", () => {
+      it("returns an expiration year parsed from the select options if the vault of an option is separated by a colon", async () => {
         const yearValue = "26";
         const colonSeparatedYearValue = `2:0${yearValue}`;
         expYearField.selectInfo.options.push(["The year 2026", colonSeparatedYearValue]);
         options.cipher.card.expYear = yearValue;
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2846,14 +2846,14 @@ describe("AutofillService", () => {
         ]);
       });
 
-      it("returns an expiration year with `20` prepended to the vault item value if the field to be filled expects a `yyyy` format but the vault item only has two characters", () => {
+      it("returns an expiration year with `20` prepended to the vault item value if the field to be filled expects a `yyyy` format but the vault item only has two characters", async () => {
         const yearValue = "26";
         expYearField.selectInfo = null;
         expYearField.placeholder = "yyyy";
         expYearField.maxLength = 4;
         options.cipher.card.expYear = yearValue;
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2867,14 +2867,14 @@ describe("AutofillService", () => {
         ]);
       });
 
-      it("returns an expiration year with only the last two values if the field to be filled expects a `yy` format but the vault item contains four characters", () => {
+      it("returns an expiration year with only the last two values if the field to be filled expects a `yy` format but the vault item contains four characters", async () => {
         const yearValue = "26";
         expYearField.selectInfo = null;
         expYearField.placeholder = "yy";
         expYearField.maxLength = 2;
         options.cipher.card.expYear = `20${yearValue}`;
 
-        const value = autofillService["generateCardFillScript"](
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,
@@ -2919,7 +2919,7 @@ describe("AutofillService", () => {
         ["mmyy", "0524"],
       ];
       expectedDateFormats.forEach((dateFormat, index) => {
-        it(`returns an expiration date format matching '${dateFormat[0]}'`, () => {
+        it(`returns an expiration date format matching '${dateFormat[0]}'`, async () => {
           expirationDateField.placeholder = dateFormat[0];
           if (index === 0) {
             options.cipher.card.expYear = "24";
@@ -2928,7 +2928,7 @@ describe("AutofillService", () => {
             options.cipher.card.expMonth = "5";
           }
 
-          const value = autofillService["generateCardFillScript"](
+          const value = await autofillService["generateCardFillScript"](
             fillScript,
             pageDetails,
             filledFields,
@@ -2939,8 +2939,8 @@ describe("AutofillService", () => {
         });
       });
 
-      it("returns an expiration date format matching `yyyy-mm` if no valid format can be identified", () => {
-        const value = autofillService["generateCardFillScript"](
+      it("returns an expiration date format matching `yyyy-mm` if no valid format can be identified", async () => {
+        const value = await autofillService["generateCardFillScript"](
           fillScript,
           pageDetails,
           filledFields,

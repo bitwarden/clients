@@ -30,6 +30,7 @@ export enum FeatureFlag {
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   EnableUpgradePasswordManagerSub = "AC-2708-upgrade-password-manager-sub",
   GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
+  GenerateCardFillScriptRefactor = "generate-card-fill-script-refactor",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -70,6 +71,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.EnableUpgradePasswordManagerSub]: FALSE,
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
+  [FeatureFlag.GenerateCardFillScriptRefactor]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
