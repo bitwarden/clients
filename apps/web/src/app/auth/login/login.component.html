@@ -48,14 +48,15 @@
 
     <p class="tw-m-0 tw-text-sm">
       {{ "newAroundHere" | i18n }}
-      <!-- Two notes:  
-           (1) We check the value and validity of email so we don't send an invalid email to autofill 
+      <!-- Two notes:
+           (1) We check the value and validity of email so we don't send an invalid email to autofill
            on load of register for both enter and mouse based navigation
-           (2) We use mousedown to trigger navigation so that the onBlur form validation does not fire 
-           and move the create account link down the page on click which causes the user to miss actually 
-           clicking on the link. Mousedown fires before onBlur. 
+           (2) We use mousedown to trigger navigation so that the onBlur form validation does not fire
+           and move the create account link down the page on click which causes the user to miss actually
+           clicking on the link. Mousedown fires before onBlur.
       -->
       <a
+        bitLink
         [routerLink]="registerRoute$ | async"
         [queryParams]="emailFormControl.valid ? { email: emailFormControl.value } : {}"
         (mousedown)="goToRegister()"
@@ -72,6 +73,7 @@
         <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
       </bit-form-field>
       <a
+        bitLink
         class="tw-mt-2"
         routerLink="/hint"
         (mousedown)="goToHint()"
@@ -120,7 +122,7 @@
 
     <div class="tw-m-0 tw-text-sm">
       <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
-      <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
+      <a bitLink [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
     </div>
   </div>
 </form>

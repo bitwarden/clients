@@ -11,7 +11,7 @@
     <p>
       <ng-container *ngIf="isEnterpriseOrg; else teamsDescription">
         {{ "twoStepLoginEnterpriseDescStart" | i18n }}
-        <a routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
+        <a bitLink routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
         <br />
         {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
         <br />

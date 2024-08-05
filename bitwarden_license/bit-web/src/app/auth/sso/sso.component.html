@@ -13,7 +13,7 @@
   <form [formGroup]="ssoConfigForm" [bitSubmit]="submit" *ngIf="!loading">
     <p>
       {{ "ssoPolicyHelpStart" | i18n }}
-      <a routerLink="../policies">{{ "ssoPolicyHelpAnchor" | i18n }}</a>
+      <a bitLink routerLink="../policies">{{ "ssoPolicyHelpAnchor" | i18n }}</a>
       {{ "ssoPolicyHelpEnd" | i18n }}
       <br />
     </p>
@@ -31,7 +31,7 @@
         <input bitInput type="text" formControlName="ssoIdentifier" />
         <bit-hint>
           {{ "ssoIdentifierHintPartOne" | i18n }}
-          <a routerLink="../domain-verification">{{ "domainVerification" | i18n }}</a>
+          <a bitLink routerLink="../domain-verification">{{ "domainVerification" | i18n }}</a>
         </bit-hint>
       </bit-form-field>
 
@@ -68,7 +68,9 @@
           </bit-label>
           <bit-hint>
             {{ "memberDecryptionKeyConnectorDescStart" | i18n }}
-            <a routerLink="../policies">{{ "memberDecryptionKeyConnectorDescLink" | i18n }}</a>
+            <a bitLink routerLink="../policies">{{
+              "memberDecryptionKeyConnectorDescLink" | i18n
+            }}</a>
             {{ "memberDecryptionKeyConnectorDescEnd" | i18n }}
           </bit-hint>
         </bit-radio-button>
@@ -83,15 +85,15 @@
           </bit-label>
           <bit-hint>
             {{ "memberDecryptionOptionTdeDescriptionPartOne" | i18n }}
-            <a routerLink="../policies">{{
+            <a bitLink routerLink="../policies">{{
               "memberDecryptionOptionTdeDescriptionLinkOne" | i18n
             }}</a>
             {{ "memberDecryptionOptionTdeDescriptionPartTwo" | i18n }}
-            <a routerLink="../policies">{{
+            <a bitLink routerLink="../policies">{{
               "memberDecryptionOptionTdeDescriptionLinkTwo" | i18n
             }}</a>
             {{ "memberDecryptionOptionTdeDescriptionPartThree" | i18n }}
-            <a routerLink="../policies">{{
+            <a bitLink routerLink="../policies">{{
               "memberDecryptionOptionTdeDescriptionLinkThree" | i18n
             }}</a>
             {{ "memberDecryptionOptionTdeDescriptionPartFour" | i18n }}

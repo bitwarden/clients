@@ -46,9 +46,15 @@
               <app-vault-icon [cipher]="r"></app-vault-icon>
             </td>
             <td class="reduced-lh wrap">
-              <a href="#" appStopClick (click)="selectCipher(r)" title="{{ 'editItem' | i18n }}">{{
-                r.name
-              }}</a>
+              <a
+                bitLink
+                href="#"
+                appStopClick
+                (click)="selectCipher(r)"
+                title="{{ 'editItem' | i18n }}"
+              >
+                {{ r.name }}
+              </a>
               <ng-container *ngIf="!organization && r.organizationId">
                 <i
                   class="bwi bwi-collection"

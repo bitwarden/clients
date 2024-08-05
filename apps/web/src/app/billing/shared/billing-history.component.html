@@ -15,7 +15,13 @@
           >
             <i class="bwi bwi-file-pdf" aria-hidden="true"></i
           ></a>
-          <a href="{{ i.url }}" target="_blank" rel="noreferrer" title="{{ 'viewInvoice' | i18n }}">
+          <a
+            bitLink
+            href="{{ i.url }}"
+            target="_blank"
+            rel="noreferrer"
+            title="{{ 'viewInvoice' | i18n }}"
+          >
             {{ "invoiceNumber" | i18n: i.number }}</a
           >
         </td>
