@@ -55,6 +55,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   isWindows: boolean;
+  isLinux: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -197,6 +198,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = (await this.platformUtilsService.getDevice()) === DeviceType.WindowsDesktop;
+    this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
 
     if ((await this.stateService.getUserId()) == null) {
       return;
@@ -464,9 +466,36 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return;
       }
 
+      const needsSetup = await this.platformUtilsService.biometricsNeedsSetup();
+      const supportsBiometricAutoSetup =
+        await this.platformUtilsService.biometricsSupportsAutoSetup();
+
+      if (needsSetup) {
+        if (supportsBiometricAutoSetup) {
+          await this.platformUtilsService.biometricsSetup();
+        } else {
+          const confirmed = await this.dialogService.openSimpleDialog({
+            title: { key: "biometricsManualSetupTitle" },
+            content: { key: "biometricsManualSetupDesc" },
+            type: "warning",
+          });
+          if (confirmed) {
+            this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
+          }
+          return;
+        }
+      }
+
       await this.biometricStateService.setBiometricUnlockEnabled(true);
       if (this.isWindows) {
         // Recommended settings for Windows Hello
+        this.form.controls.requirePasswordOnStart.setValue(true);
+        this.form.controls.autoPromptBiometrics.setValue(false);
+        await this.biometricStateService.setPromptAutomatically(false);
+        await this.biometricStateService.setRequirePasswordOnStart(true);
+        await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+      } else if (this.isLinux) {
+        // Similar to Windows
         this.form.controls.requirePasswordOnStart.setValue(true);
         this.form.controls.autoPromptBiometrics.setValue(false);
         await this.biometricStateService.setPromptAutomatically(false);
@@ -624,7 +653,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       this.form.controls.enableBrowserIntegration.setValue(false);
       return;
-    } else if (ipc.platform.deviceType === DeviceType.LinuxDesktop) {
+    } else if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationLinuxDesc" },
@@ -735,6 +764,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return "unlockWithTouchId";
       case DeviceType.WindowsDesktop:
         return "unlockWithWindowsHello";
+      case DeviceType.LinuxDesktop:
+        return "unlockWithPolkit";
       default:
         throw new Error("Unsupported platform");
     }
@@ -746,6 +777,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return "autoPromptTouchId";
       case DeviceType.WindowsDesktop:
         return "autoPromptWindowsHello";
+      case DeviceType.LinuxDesktop:
+        return "autoPromptPolkit";
       default:
         throw new Error("Unsupported platform");
     }

@@ -9,6 +9,16 @@ export default class NoopBiometricsService implements OsBiometricService {
     return false;
   }
 
+  async osBiometricsNeedsSetup(): Promise<boolean> {
+    return false;
+  }
+
+  async osBiometricsCanAutoSetup(): Promise<boolean> {
+    return false;
+  }
+
+  async osBiometricsSetup(): Promise<void> {}
+
   async getBiometricKey(
     service: string,
     storageKey: string,

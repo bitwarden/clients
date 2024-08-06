@@ -51,4 +51,14 @@ export default class BiometricDarwinMain implements OsBiometricService {
       return false;
     }
   }
+
+  async osBiometricsNeedsSetup() {
+    return false;
+  }
+
+  async osBiometricsCanAutoSetup(): Promise<boolean> {
+    return false;
+  }
+
+  async osBiometricsSetup(): Promise<void> {}
 }
