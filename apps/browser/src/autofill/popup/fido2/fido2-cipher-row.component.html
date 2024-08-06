@@ -1,0 +1,21 @@
+<bit-item tabindex="0">
+  <button
+    type="button"
+    bit-item-content
+    (click)="selectCipher(cipher)"
+    appA11yTitle="{{ title }} - {{ cipher.name }}"
+  >
+    <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+    <span data-testid="item-name">
+      {{ cipher.name }}
+      <i
+        *ngIf="cipher.organizationId"
+        class="bwi bwi-collection text-muted"
+        [appA11yTitle]="'shared' | i18n"
+        aria-hidden="true"
+      ></i>
+    </span>
+    <span class="detail" *ngIf="getSubName(cipher)">{{ getSubName(cipher) }}</span>
+    <span *ngIf="cipher.subTitle" slot="secondary">{{ cipher.subTitle }}</span>
+  </button>
+</bit-item>

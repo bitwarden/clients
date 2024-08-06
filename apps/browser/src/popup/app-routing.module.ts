@@ -40,6 +40,7 @@ import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.comp
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
+import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
@@ -119,12 +120,11 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "home" },
   },
-  {
+  ...extensionRefreshSwap(Fido2V1Component, Fido2Component, {
     path: "fido2",
-    component: Fido2V1Component,
     canActivate: [fido2AuthGuard],
     data: { state: "fido2" },
-  },
+  }),
   {
     path: "login",
     component: LoginComponent,
@@ -296,7 +296,6 @@ const routes: Routes = [
   },
   ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
     path: "notifications",
-    component: NotificationsSettingsV1Component,
     canActivate: [authGuard],
     data: { state: "notifications" },
   }),
@@ -330,7 +329,6 @@ const routes: Routes = [
   },
   ...extensionRefreshSwap(ExcludedDomainsV1Component, ExcludedDomainsComponent, {
     path: "excluded-domains",
-    component: ExcludedDomainsV1Component,
     canActivate: [authGuard],
     data: { state: "excluded-domains" },
   }),
