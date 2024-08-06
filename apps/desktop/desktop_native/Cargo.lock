@@ -496,6 +496,7 @@ dependencies = [
  "core-foundation",
  "gio",
  "keytar",
+ "libc",
  "libsecret",
  "rand",
  "retry",

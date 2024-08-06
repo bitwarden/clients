@@ -17,6 +17,7 @@ arboard = { version = "=3.4.0", default-features = false, features = [
 ] }
 base64 = "=0.22.1"
 cbc = { version = "=0.1.2", features = ["alloc"] }
+libc = "0.2.155"
 rand = "=0.8.5"
 retry = "=2.0.0"
 scopeguard = "=1.2.0"

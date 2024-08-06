@@ -44,7 +44,10 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
-import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  AutofillSettingsService,
+  AutofillSettingsServiceAbstraction,
+} from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
   DomainSettingsService,
@@ -147,18 +150,18 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { CliPlatformUtilsService } from "./platform/services/cli-platform-utils.service";
-import { ConsoleLogService } from "./platform/services/console-log.service";
-import { I18nService } from "./platform/services/i18n.service";
-import { LowdbStorageService } from "./platform/services/lowdb-storage.service";
-import { NodeApiService } from "./platform/services/node-api.service";
-import { NodeEnvSecureStorageService } from "./platform/services/node-env-secure-storage.service";
+import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
+import { ConsoleLogService } from "../platform/services/console-log.service";
+import { I18nService } from "../platform/services/i18n.service";
+import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
+import { NodeApiService } from "../platform/services/node-api.service";
+import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 
 // Polyfills
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 
 // eslint-disable-next-line
-const packageJson = require("../package.json");
+const packageJson = require("../../package.json");
 
 /**
  * Instantiates services and makes them available for dependency injection.
@@ -254,13 +257,13 @@ export class ServiceContainer {
     } else if (process.env.BITWARDENCLI_APPDATA_DIR) {
       p = path.resolve(process.env.BITWARDENCLI_APPDATA_DIR);
     } else if (process.platform === "darwin") {
-      p = path.join(process.env.HOME, "Library/Application Support/Bitwarden CLI");
+      p = path.join(process.env.HOME ?? "", "Library/Application Support/Bitwarden CLI");
     } else if (process.platform === "win32") {
-      p = path.join(process.env.APPDATA, "Bitwarden CLI");
+      p = path.join(process.env.APPDATA ?? "", "Bitwarden CLI");
     } else if (process.env.XDG_CONFIG_HOME) {
       p = path.join(process.env.XDG_CONFIG_HOME, "Bitwarden CLI");
     } else {
-      p = path.join(process.env.HOME, ".config/Bitwarden CLI");
+      p = path.join(process.env.HOME ?? "", ".config/Bitwarden CLI");
     }
 
     const logoutCallback = async () => await this.logout();
@@ -452,8 +455,6 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.organizationApiService = new OrganizationApiService(this.apiService, this.syncService);
-
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
@@ -524,6 +525,40 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
+    this.authRequestService = new AuthRequestService(
+      this.appIdService,
+      this.accountService,
+      this.masterPasswordService,
+      this.cryptoService,
+      this.apiService,
+      this.stateProvider,
+    );
+
+    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
+      this.stateProvider,
+    );
+
+    this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
+
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.cryptoService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
       this.keyGenerationService,
@@ -541,20 +576,6 @@ export class ServiceContainer {
       this.configService,
     );
 
-    this.authRequestService = new AuthRequestService(
-      this.appIdService,
-      this.accountService,
-      this.masterPasswordService,
-      this.cryptoService,
-      this.apiService,
-      this.stateProvider,
-    );
-
-    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
-      this.stateProvider,
-    );
-
-    this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -583,23 +604,10 @@ export class ServiceContainer {
       this.taskSchedulerService,
     );
 
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.cryptoService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
+    // FIXME: CLI does not support autofill
+    this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
-      this.authService,
+      this.policyService,
     );
 
     this.cipherService = new CipherService(
@@ -661,7 +669,7 @@ export class ServiceContainer {
       this.taskSchedulerService,
       this.logService,
       lockedCallback,
-      null,
+      undefined,
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
@@ -752,6 +760,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.organizationApiService = new OrganizationApiService(this.apiService, this.syncService);
+
     this.providerApiService = new ProviderApiService(this.apiService);
   }
 
@@ -774,7 +784,7 @@ export class ServiceContainer {
     await this.stateService.clean();
     await this.accountService.clean(userId);
     await this.accountService.switchAccount(null);
-    process.env.BW_SESSION = null;
+    process.env.BW_SESSION = undefined;
   }
 
   async init() {
@@ -790,7 +800,7 @@ export class ServiceContainer {
     this.twoFactorService.init();
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (activeAccount) {
+    if (activeAccount?.id) {
       await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
     }
 

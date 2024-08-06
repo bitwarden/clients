@@ -72,7 +72,7 @@ export abstract class AccountService {
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId
    */
-  abstract switchAccount(userId: UserId): Promise<void>;
+  abstract switchAccount(userId: UserId | null): Promise<void>;
   /**
    * Cleans personal information for the given account from the `accounts$` observable. Does not remove the userId from the observable.
    *

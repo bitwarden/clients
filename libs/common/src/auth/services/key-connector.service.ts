@@ -5,6 +5,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { Organization } from "../../admin-console/models/domain/organization";
 import { KeysRequest } from "../../models/request/keys.request";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
@@ -114,7 +115,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     }
   }
 
-  async getManagingOrganization() {
+  async getManagingOrganization(): Promise<Organization> {
     const orgs = await this.organizationService.getAll();
     return orgs.find(
       (o) =>

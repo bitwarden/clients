@@ -64,8 +64,10 @@ function mapToSingleOrganization(organizationId: string) {
 }
 
 export class OrganizationService implements InternalOrganizationServiceAbstraction {
-  organizations$ = this.getOrganizationsFromState$();
-  memberOrganizations$ = this.organizations$.pipe(mapToExcludeProviderOrganizations());
+  organizations$: Observable<Organization[]> = this.getOrganizationsFromState$();
+  memberOrganizations$: Observable<Organization[]> = this.organizations$.pipe(
+    mapToExcludeProviderOrganizations(),
+  );
 
   constructor(private stateProvider: StateProvider) {}
 

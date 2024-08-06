@@ -4,7 +4,9 @@
     [pageTitle]="headerText"
     [backAction]="handleBackButton.bind(this)"
     showBackButton
-  ></popup-header>
+  >
+    <app-pop-out slot="end" />
+  </popup-header>
 
   <vault-cipher-form
     *ngIf="!loading"

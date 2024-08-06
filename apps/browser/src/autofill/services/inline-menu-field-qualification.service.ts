@@ -286,7 +286,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return this.keywordsFoundInFieldData(field, this.identityFieldKeywords);
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, this.identityFieldKeywords)
+    );
   }
 
   /**

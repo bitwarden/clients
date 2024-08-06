@@ -24,6 +24,7 @@ import {
 } from "@bitwarden/components";
 
 import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
+import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 
 import { PopupFooterComponent } from "./../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
@@ -45,6 +46,7 @@ import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup
     IconButtonModule,
     CipherViewComponent,
     AsyncActionsModule,
+    PopOutComponent,
   ],
 })
 export class ViewV2Component {

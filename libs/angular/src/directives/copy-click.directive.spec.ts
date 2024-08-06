@@ -12,12 +12,14 @@ import { CopyClickDirective } from "./copy-click.directive";
     <button appCopyClick="no toast shown" #noToast></button>
     <button appCopyClick="info toast shown" showToast="info" #infoToast></button>
     <button appCopyClick="success toast shown" showToast #successToast></button>
+    <button appCopyClick="toast with label" showToast valueLabel="Content" #toastWithLabel></button>
   `,
 })
 class TestCopyClickComponent {
   @ViewChild("noToast") noToastButton: ElementRef<HTMLButtonElement>;
   @ViewChild("infoToast") infoToastButton: ElementRef<HTMLButtonElement>;
   @ViewChild("successToast") successToastButton: ElementRef<HTMLButtonElement>;
+  @ViewChild("toastWithLabel") toastWithLabelButton: ElementRef<HTMLButtonElement>;
 }
 
 describe("CopyClickDirective", () => {
@@ -32,7 +34,17 @@ describe("CopyClickDirective", () => {
     await TestBed.configureTestingModule({
       declarations: [CopyClickDirective, TestCopyClickComponent],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, ...rest: string[]) => {
+              if (rest?.length) {
+                return `${key} ${rest.join("")}`;
+              }
+              return key;
+            },
+          },
+        },
         { provide: PlatformUtilsService, useValue: { copyToClipboard } },
         { provide: ToastService, useValue: { showToast } },
       ],
@@ -85,6 +97,18 @@ describe("CopyClickDirective", () => {
       message: "copySuccessful",
       title: null,
       variant: "info",
+    });
+  });
+
+  it('includes label in toast message when "copyLabel" is set', () => {
+    const toastWithLabelButton = fixture.componentInstance.toastWithLabelButton.nativeElement;
+
+    toastWithLabelButton.click();
+
+    expect(showToast).toHaveBeenCalledWith({
+      message: "valueCopied Content",
+      title: null,
+      variant: "success",
     });
   });
 });

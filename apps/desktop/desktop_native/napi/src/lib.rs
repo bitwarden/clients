@@ -143,6 +143,25 @@ pub mod clipboards {
 }
 
 #[napi]
+pub mod processisolations {
+    #[napi]
+    pub async fn disable_coredumps() -> napi::Result<()> {
+        desktop_core::process_isolation::disable_coredumps()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+    #[napi]
+    pub async fn is_core_dumping_disabled() -> napi::Result<bool> {
+        desktop_core::process_isolation::is_core_dumping_disabled()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+    #[napi]
+    pub async fn disable_memory_access() -> napi::Result<()> {
+        desktop_core::process_isolation::disable_memory_access()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod powermonitors {
     use napi::{threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode}, tokio};
 

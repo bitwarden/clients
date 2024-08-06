@@ -9,11 +9,7 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import {
-  OrganizationUserStatusType,
-  ProviderUserStatusType,
-  ProviderUserType,
-} from "@bitwarden/common/admin-console/enums";
+import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
@@ -42,7 +38,7 @@ import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.componen
 type ProviderUser = ProviderUserUserDetailsResponse;
 
 class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
-  protected statusType = OrganizationUserStatusType;
+  protected statusType = ProviderUserStatusType;
 }
 
 @Component({
@@ -92,7 +88,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     ])
       .pipe(
         switchMap(async ([urlParams, queryParams]) => {
-          this.searchControl.setValue(queryParams.search, { emitEvent: false });
+          this.searchControl.setValue(queryParams.search);
           this.dataSource.filter = peopleFilter(queryParams.search, null);
 
           this.providerId = urlParams.providerId;

@@ -41,6 +41,12 @@ export namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
 }
+export namespace processisolations {
+  export function disableCoredumps(): Promise<void>
+  export function isCoreDumpingDisabled(): Promise<boolean>
+  export function disableMemoryAccess(): Promise<void>
+}
+
 export namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>
   export function isLockMonitorAvailable(): Promise<boolean>

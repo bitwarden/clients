@@ -29,13 +29,13 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { ZonedMessageListenerService } from "../../../../platform/browser/zoned-message-listener.service";
+import { ZonedMessageListenerService } from "../../../platform/browser/zoned-message-listener.service";
 import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
-} from "../../../fido2/browser-fido2-user-interface.service";
-import { Fido2UserVerificationService } from "../../../services/fido2-user-verification.service";
-import { VaultPopoutType } from "../../utils/vault-popout-window";
+} from "../../../vault/fido2/browser-fido2-user-interface.service";
+import { VaultPopoutType } from "../../../vault/popup/utils/vault-popout-window";
+import { Fido2UserVerificationService } from "../../../vault/services/fido2-user-verification.service";
 
 interface ViewData {
   message: BrowserFido2Message;

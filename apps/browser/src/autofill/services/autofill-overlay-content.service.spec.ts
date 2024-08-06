@@ -1099,7 +1099,9 @@ describe("AutofillOverlayContentService", () => {
           selectFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
         });
 
         it("updates the most recently focused field", async () => {
@@ -1985,6 +1987,19 @@ describe("AutofillOverlayContentService", () => {
 
         expect(autofillFieldFocusSpy).not.toHaveBeenCalled();
         expect(nextFocusableElement.focus).toHaveBeenCalled();
+      });
+
+      it("focuses the most recently focused input field if no other tabbable elements are found", async () => {
+        autofillOverlayContentService["focusableElements"] = [];
+        findTabsSpy.mockReturnValue([]);
+
+        sendMockExtensionMessage({
+          command: "redirectAutofillInlineMenuFocusOut",
+          data: { direction: RedirectFocusDirection.Next },
+        });
+        await flushPromises();
+
+        expect(autofillFieldFocusSpy).toHaveBeenCalled();
       });
     });
 

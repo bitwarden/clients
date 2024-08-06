@@ -21,6 +21,7 @@ import {
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
@@ -118,6 +119,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     CipherFormModule,
     AsyncActionsModule,
+    PopOutComponent,
   ],
 })
 export class AddEditV2Component implements OnInit {

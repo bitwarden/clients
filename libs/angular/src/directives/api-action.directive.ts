@@ -42,7 +42,7 @@ export class ApiActionDirective implements OnChanges {
           this.logService.error("Captcha required error response: " + e.getSingleMessage());
           return;
         }
-        this.logService?.error(`Received API exception: ${e}`);
+        this.logService?.error(`Received API exception:`, e);
         this.validationService.showError(e);
       },
     );

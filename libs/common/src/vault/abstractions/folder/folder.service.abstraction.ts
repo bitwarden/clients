@@ -17,7 +17,7 @@ export abstract class FolderService implements UserKeyRotationDataProvider<Folde
   clearCache: () => Promise<void>;
   encrypt: (model: FolderView, key?: SymmetricCryptoKey) => Promise<Folder>;
   get: (id: string) => Promise<Folder>;
-  getDecrypted$: (id: string) => Observable<FolderView>;
+  getDecrypted$: (id: string) => Observable<FolderView | undefined>;
   getAllFromState: () => Promise<Folder[]>;
   /**
    * @deprecated Only use in CLI!
@@ -46,6 +46,6 @@ export abstract class FolderService implements UserKeyRotationDataProvider<Folde
 export abstract class InternalFolderService extends FolderService {
   upsert: (folder: FolderData | FolderData[]) => Promise<void>;
   replace: (folders: { [id: string]: FolderData }) => Promise<void>;
-  clear: (userId: string) => Promise<any>;
+  clear: (userId?: string) => Promise<void>;
   delete: (id: string | string[]) => Promise<any>;
 }

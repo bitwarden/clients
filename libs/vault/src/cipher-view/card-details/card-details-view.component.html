@@ -37,6 +37,7 @@
         type="button"
         [appCopyClick]="card.number"
         showToast
+        [valueLabel]="'number' | i18n"
         [appA11yTitle]="'copyValue' | i18n"
         data-testid="copy-number"
       ></button>
@@ -75,6 +76,7 @@
         type="button"
         [appCopyClick]="card.code"
         showToast
+        [valueLabel]="'securityCode' | i18n"
         [appA11yTitle]="'copyValue' | i18n"
         data-testid="copy-code"
       ></button>
