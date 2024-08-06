@@ -89,12 +89,16 @@ export class CryptoService implements CryptoServiceAbstraction {
     );
   }
 
-  async setUserKey(key: UserKey, userId?: UserId): Promise<void> {
+  async setUserKey(key: UserKey, userId: UserId): Promise<void> {
     if (key == null) {
       throw new Error("No key provided. Lock the user to clear the key");
     }
+    if (userId == null) {
+      throw new Error("No userId provided.");
+    }
+
     // Set userId to ensure we have one for the account status update
-    [userId, key] = await this.stateProvider.setUserState(USER_KEY, key, userId);
+    await this.stateProvider.setUserState(USER_KEY, key, userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
@@ -701,13 +705,7 @@ export class CryptoService implements CryptoServiceAbstraction {
    * @param key The user key
    * @param userId The desired user
    */
-  protected async storeAdditionalKeys(key: UserKey, userId?: UserId) {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (userId == null) {
-      throw new Error("Cannot store additional keys, no user Id resolved.");
-    }
-
+  protected async storeAdditionalKeys(key: UserKey, userId: UserId) {
     const storeAuto = await this.shouldStoreKey(KeySuffixOptions.Auto, userId);
     if (storeAuto) {
       await this.stateService.setUserKeyAutoUnlock(key.keyB64, { userId: userId });

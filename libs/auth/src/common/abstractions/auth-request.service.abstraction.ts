@@ -49,19 +49,23 @@ export abstract class AuthRequestServiceAbstraction {
    * Sets the `UserKey` from an auth request. Auth request must have a `UserKey`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
+   * @param userId The ID of the user for whose account we will set the key.
    */
   abstract setUserKeyAfterDecryptingSharedUserKey: (
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
+    userId: UserId,
   ) => Promise<void>;
   /**
    * Sets the `MasterKey` and `MasterKeyHash` from an auth request. Auth request must have a `MasterKey` and `MasterKeyHash`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
+   * @param userId The ID of the user for whose account we will set the keys.
    */
   abstract setKeysAfterDecryptingSharedMasterKeyAndHash: (
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
+    userId: UserId,
   ) => Promise<void>;
   /**
    * Decrypts a `UserKey` from a public key encrypted `UserKey`.

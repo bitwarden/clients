@@ -1045,10 +1045,10 @@ export default class MainBackground {
         this.messagingService,
         this.appIdService,
         this.platformUtilsService,
-        this.stateService,
         this.logService,
         this.authService,
         this.biometricStateService,
+        this.accountService,
       );
       this.commandsBackground = new CommandsBackground(
         this,

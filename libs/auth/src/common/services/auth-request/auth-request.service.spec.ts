@@ -133,14 +133,18 @@ describe("AuthRequestService", () => {
       cryptoService.setUserKey.mockResolvedValueOnce(undefined);
 
       // Act
-      await sut.setUserKeyAfterDecryptingSharedUserKey(mockAuthReqResponse, mockPrivateKey);
+      await sut.setUserKeyAfterDecryptingSharedUserKey(
+        mockAuthReqResponse,
+        mockPrivateKey,
+        mockUserId,
+      );
 
       // Assert
       expect(sut.decryptPubKeyEncryptedUserKey).toBeCalledWith(
         mockAuthReqResponse.key,
         mockPrivateKey,
       );
-      expect(cryptoService.setUserKey).toBeCalledWith(mockDecryptedUserKey);
+      expect(cryptoService.setUserKey).toBeCalledWith(mockDecryptedUserKey, mockUserId);
     });
   });
 
@@ -169,7 +173,11 @@ describe("AuthRequestService", () => {
       cryptoService.setUserKey.mockResolvedValueOnce(undefined);
 
       // Act
-      await sut.setKeysAfterDecryptingSharedMasterKeyAndHash(mockAuthReqResponse, mockPrivateKey);
+      await sut.setKeysAfterDecryptingSharedMasterKeyAndHash(
+        mockAuthReqResponse,
+        mockPrivateKey,
+        mockUserId,
+      );
 
       // Assert
       expect(sut.decryptPubKeyEncryptedMasterKeyAndHash).toBeCalledWith(
@@ -190,7 +198,7 @@ describe("AuthRequestService", () => {
         undefined,
         undefined,
       );
-      expect(cryptoService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey);
+      expect(cryptoService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
     });
   });
 
