@@ -18,7 +18,7 @@ export enum MessageType {
 }
 
 /**
- * The params provided by the page-script are created in an insecure environemnt and
+ * The params provided by the page-script are created in an insecure environment and
  * should not be trusted. This type is used to ensure that the content-script does not
  * trust the `origin` or `sameOriginWithAncestors` params.
  */
@@ -38,7 +38,7 @@ export type CredentialCreationResponse = {
 };
 
 /**
- * The params provided by the page-script are created in an insecure environemnt and
+ * The params provided by the page-script are created in an insecure environment and
  * should not be trusted. This type is used to ensure that the content-script does not
  * trust the `origin` or `sameOriginWithAncestors` params.
  */

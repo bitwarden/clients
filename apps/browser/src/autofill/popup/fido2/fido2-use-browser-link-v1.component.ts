@@ -90,11 +90,11 @@ export class Fido2UseBrowserLinkV1Component {
    * @param uri - The domain uri to exclude from future FIDO2 prompts.
    */
   private async handleDomainExclusion(uri: string) {
-    const exisitingDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
+    const existingDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
     const validDomain = Utils.getHostname(uri);
     const savedDomains: NeverDomains = {
-      ...exisitingDomains,
+      ...existingDomains,
     };
     savedDomains[validDomain] = null;
 

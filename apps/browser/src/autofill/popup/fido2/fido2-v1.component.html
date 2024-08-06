@@ -2,18 +2,20 @@
   <div class="auth-wrapper">
     <div class="auth-header">
       <div class="left">
-        <ng-container *ngIf="data.message.type != 'PickCredentialRequest'">
+        <ng-container *ngIf="data.message.type != BrowserFido2MessageTypes.PickCredentialRequest">
           <div class="logo">
             <i class="bwi bwi-shield"></i>
           </div>
         </ng-container>
-        <ng-container *ngIf="data.message.type === 'PickCredentialRequest'">
+        <ng-container *ngIf="data.message.type === BrowserFido2MessageTypes.PickCredentialRequest">
           <div class="logo">
             <i class="bwi bwi-shield"></i><span><strong>bit</strong>warden</span>
           </div>
         </ng-container>
       </div>
-      <ng-container *ngIf="data.message.type === 'ConfirmNewCredentialRequest'">
+      <ng-container
+        *ngIf="data.message.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest"
+      >
         <div class="search">
           <input
             type="{{ searchTypeSearch ? 'search' : 'text' }}"
@@ -37,8 +39,8 @@
     <ng-container>
       <ng-container
         *ngIf="
-          data.message.type === 'PickCredentialRequest' ||
-          data.message.type === 'ConfirmNewCredentialRequest'
+          data.message.type === BrowserFido2MessageTypes.PickCredentialRequest ||
+          data.message.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest
         "
       >
         <div class="auth-flow">
@@ -100,7 +102,9 @@
           </ng-container>
         </div>
       </ng-container>
-      <ng-container *ngIf="data.message.type === 'InformExcludedCredentialRequest'">
+      <ng-container
+        *ngIf="data.message.type === BrowserFido2MessageTypes.InformExcludedCredentialRequest"
+      >
         <div class="auth-flow">
           <p class="subtitle">{{ "passkeyAlreadyExists" | i18n }}</p>
           <div class="box list">
@@ -120,7 +124,9 @@
           </button>
         </div>
       </ng-container>
-      <ng-container *ngIf="data.message.type === 'InformCredentialNotFoundRequest'">
+      <ng-container
+        *ngIf="data.message.type === BrowserFido2MessageTypes.InformCredentialNotFoundRequest"
+      >
         <div class="auth-flow">
           <p class="subtitle">{{ "noPasskeysFoundForThisApplication" | i18n }}</p>
         </div>
