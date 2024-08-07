@@ -40,3 +40,6 @@ export * from "./registration/registration-start/registration-start-secondary.co
 export * from "./registration/registration-env-selector/registration-env-selector.component";
 export * from "./registration/registration-finish/registration-finish.service";
 export * from "./registration/registration-finish/default-registration-finish.service";
+
+// lock
+export * from "./lock/lock.component";
