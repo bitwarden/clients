@@ -86,7 +86,7 @@ class BrowserPopupUtils {
    * Identifies if the background page needs to be initialized.
    */
   static backgroundInitializationRequired() {
-    return !BrowserApi.getBackgroundPage();
+    return !BrowserApi.getBackgroundPage() || BrowserApi.isManifestVersion(3);
   }
 
   /**

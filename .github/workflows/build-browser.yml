@@ -179,12 +179,12 @@ jobs:
           path: browser-source/apps/browser/dist/dist-opera.zip
           if-no-files-found: error
 
-      # - name: Upload Opera MV3 artifact
-      #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      #   with:
-      #     name: dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
-      #     path: browser-source/apps/browser/dist/dist-opera-mv3.zip
-      #     if-no-files-found: error
+      - name: Upload Opera MV3 artifact (DO NOT USE FOR PROD)
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: DO-NOT-USE-FOR-PROD-dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/dist-opera-mv3.zip
+          if-no-files-found: error
 
       - name: Upload Chrome MV3 artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
@@ -207,6 +207,13 @@ jobs:
           path: browser-source/apps/browser/dist/dist-firefox.zip
           if-no-files-found: error
 
+      - name: Upload Firefox MV3 artifact (DO NOT USE FOR PROD)
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: DO-NOT-USE-FOR-PROD-dist-firefox-MV3-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/dist-firefox-mv3.zip
+          if-no-files-found: error
+
       - name: Upload Edge artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
@@ -214,12 +221,12 @@ jobs:
           path: browser-source/apps/browser/dist/dist-edge.zip
           if-no-files-found: error
 
-      # - name: Upload Edge MV3 artifact
-      #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      #   with:
-      #     name: dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
-      #     path: browser-source/apps/browser/dist/dist-edge-mv3.zip
-      #     if-no-files-found: error
+      - name: Upload Edge MV3 artifact (DO NOT USE FOR PROD)
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: DO-NOT-USE-FOR-PROD-dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/dist-edge-mv3.zip
+          if-no-files-found: error
 
       - name: Upload browser source
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1

@@ -522,12 +522,20 @@ export class BrowserApi {
     },
   ): Promise<unknown> {
     if (BrowserApi.isManifestVersion(3)) {
+      const target: chrome.scripting.InjectionTarget = {
+        tabId,
+      };
+
+      if (typeof details.frameId === "number") {
+        target.frameIds = [details.frameId];
+      }
+
+      if (!target.frameIds?.length && details.allFrames) {
+        target.allFrames = details.allFrames;
+      }
+
       return chrome.scripting.executeScript({
-        target: {
-          tabId: tabId,
-          allFrames: details.allFrames,
-          frameIds: details.frameId ? [details.frameId] : null,
-        },
+        target,
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
         world: scriptingApiDetails?.world || "ISOLATED",

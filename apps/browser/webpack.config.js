@@ -13,6 +13,52 @@ if (process.env.NODE_ENV == null) {
 }
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
+const browser = process.env.BROWSER;
+
+function modifyManifestV3(buffer) {
+  if (manifestVersion === 2 || !browser) {
+    return buffer;
+  }
+
+  const manifest = JSON.parse(buffer.toString());
+
+  if (browser === "chrome") {
+    // Remove unsupported properties
+    delete manifest.applications;
+    delete manifest.sidebar_action;
+    delete manifest.commands._execute_sidebar_action;
+
+    return JSON.stringify(manifest, null, 2);
+  }
+
+  // // Update the background script reference to be an event page
+  const backgroundScript = manifest.background.service_worker;
+  delete manifest.background.service_worker;
+  manifest.background.scripts = [backgroundScript];
+
+  // Remove unsupported properties
+  delete manifest.content_security_policy.sandbox;
+  delete manifest.sandbox;
+  delete manifest.applications;
+
+  manifest.permissions = manifest.permissions.filter((permission) => permission !== "offscreen");
+
+  if (browser === "safari") {
+    delete manifest.sidebar_action;
+    delete manifest.commands._execute_sidebar_action;
+    delete manifest.optional_permissions;
+    manifest.permissions.push("nativeMessaging");
+  }
+
+  if (browser === "firefox") {
+    delete manifest.storage;
+    manifest.optional_permissions = manifest.optional_permissions.filter(
+      (permission) => permission !== "privacy",
+    );
+  }
+
+  return JSON.stringify(manifest, null, 2);
+}
 
 console.log(`Building Manifest Version ${manifestVersion} app`);
 
@@ -133,7 +179,11 @@ const plugins = [
   new CopyWebpackPlugin({
     patterns: [
       manifestVersion == 3
-        ? { from: "./src/manifest.v3.json", to: "manifest.json" }
+        ? {
+            from: "./src/manifest.v3.json",
+            to: "manifest.json",
+            transform: (content) => modifyManifestV3(content),
+          }
         : "./src/manifest.json",
       { from: "./src/managed_schema.json", to: "managed_schema.json" },
       { from: "./src/_locales", to: "_locales" },
@@ -360,6 +410,20 @@ if (manifestVersion == 2) {
     dependencies: ["main"],
     plugins: [...requiredPlugins],
   };
+
+  // Safari's desktop build process requires a background.html and vendor.js file to exist
+  // within the root of the extension. This is a workaround to allow us to build Safari
+  // for manifest v2 and v3 without modifying the desktop project structure.
+  if (browser === "safari") {
+    backgroundConfig.plugins.push(
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: "./src/safari/mv3/fake-background.html", to: "background.html" },
+          { from: "./src/safari/mv3/fake-vendor.js", to: "vendor.js" },
+        ],
+      }),
+    );
+  }
 
   configs.push(mainConfig);
   configs.push(backgroundConfig);

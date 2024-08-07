@@ -8,6 +8,8 @@ const jeditor = require("gulp-json-editor");
 const replace = require("gulp-replace");
 
 const manifest = require("./src/manifest.json");
+const manifestVersion = parseInt(process.env.MANIFEST_VERSION || manifest.version);
+const betaBuild = process.env.BETA_BUILD === "1";
 
 const paths = {
   build: "./build/",
@@ -48,7 +50,7 @@ function buildString() {
   if (process.env.MANIFEST_VERSION) {
     build = `-mv${process.env.MANIFEST_VERSION}`;
   }
-  if (process.env.BETA_BUILD === "1") {
+  if (betaBuild) {
     build += "-beta";
   }
   if (process.env.BUILD_NUMBER && process.env.BUILD_NUMBER !== "") {
@@ -76,12 +78,17 @@ async function dist(browserName, manifest) {
 
 function distFirefox() {
   return dist("firefox", (manifest) => {
+    if (manifestVersion === 3) {
+      const backgroundScript = manifest.background.service_worker;
+      delete manifest.background.service_worker;
+      manifest.background.scripts = [backgroundScript];
+    }
     delete manifest.storage;
     delete manifest.sandbox;
     manifest.optional_permissions = manifest.optional_permissions.filter(
       (permission) => permission !== "privacy",
     );
-    if (process.env.BETA_BUILD === "1") {
+    if (betaBuild) {
       manifest = applyBetaLabels(manifest);
     }
     return manifest;
@@ -91,7 +98,16 @@ function distFirefox() {
 function distOpera() {
   return dist("opera", (manifest) => {
     delete manifest.applications;
-    if (process.env.BETA_BUILD === "1") {
+
+    // Mv3 on Opera does seem to have sidebar support, however it is not working as expected.
+    // On install, the extension will crash the browser entirely if the sidebar_action key is set.
+    // We will remove the sidebar_action key for now until opera implements a fix.
+    if (manifestVersion === 3) {
+      delete manifest.sidebar_action;
+      delete manifest.commands._execute_sidebar_action;
+    }
+
+    if (betaBuild) {
       manifest = applyBetaLabels(manifest);
     }
     return manifest;
@@ -103,7 +119,7 @@ function distChrome() {
     delete manifest.applications;
     delete manifest.sidebar_action;
     delete manifest.commands._execute_sidebar_action;
-    if (process.env.BETA_BUILD === "1") {
+    if (betaBuild) {
       manifest = applyBetaLabels(manifest);
     }
     return manifest;
@@ -115,7 +131,7 @@ function distEdge() {
     delete manifest.applications;
     delete manifest.sidebar_action;
     delete manifest.commands._execute_sidebar_action;
-    if (process.env.BETA_BUILD === "1") {
+    if (betaBuild) {
       manifest = applyBetaLabels(manifest);
     }
     return manifest;
@@ -234,11 +250,16 @@ async function safariCopyBuild(source, dest) {
         gulpif(
           "manifest.json",
           jeditor((manifest) => {
+            if (manifestVersion === 3) {
+              const backgroundScript = manifest.background.service_worker;
+              delete manifest.background.service_worker;
+              manifest.background.scripts = [backgroundScript];
+            }
             delete manifest.sidebar_action;
             delete manifest.commands._execute_sidebar_action;
             delete manifest.optional_permissions;
             manifest.permissions.push("nativeMessaging");
-            if (process.env.BETA_BUILD === "1") {
+            if (betaBuild) {
               manifest = applyBetaLabels(manifest);
             }
             return manifest;
