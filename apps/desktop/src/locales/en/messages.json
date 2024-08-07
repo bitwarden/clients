@@ -896,6 +896,9 @@
   "yourVaultIsLocked": {
     "message": "Your vault is locked. Verify your identity to continue."
   },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
+  },
   "unlock": {
     "message": "Unlock"
   },

@@ -948,6 +948,9 @@
   "yourVaultIsLockedV2": {
     "message": "Your vault is locked"
   },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
+  },
   "uuid":{
     "message" : "UUID"
   },

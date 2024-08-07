@@ -293,7 +293,7 @@ const routes: Routes = [
         path: "lockv2",
         canActivate: [],
         data: {
-          pageTitle: "yourVaultIsLockedV2",
+          pageTitle: "yourAccountIsLocked",
           pageIcon: LockIcon,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
