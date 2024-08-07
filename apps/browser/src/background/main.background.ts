@@ -9,6 +9,8 @@ import {
   AuthRequestService,
   LoginEmailServiceAbstraction,
   LogoutReason,
+  BiometricUnlockResponses,
+  BiometricProvideUserKeyCommand,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -1492,7 +1494,7 @@ export default class MainBackground {
     const responsePromise = this.nativeMessagingBackground.getResponse();
     await this.nativeMessagingBackground.send({ command: "biometricUnlock" });
     const response = await responsePromise;
-    return response.response === "unlocked";
+    return response.response === BiometricUnlockResponses.UNLOCKED;
   }
 
   private async fullSync(override = false) {
@@ -1512,10 +1514,7 @@ export default class MainBackground {
   async sendUserKeyToDesktop(): Promise<void> {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const userKeyB64 = (await firstValueFrom(this.cryptoService.userKey$(activeAccount.id))).keyB64;
-    await this.nativeMessagingBackground.send({
-      command: "browserProvidedUserKey",
-      userKeyB64: userKeyB64,
-    });
+    await this.nativeMessagingBackground.send(new BiometricProvideUserKeyCommand(userKeyB64));
   }
 
   private scheduleNextSync() {

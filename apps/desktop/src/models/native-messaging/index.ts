@@ -16,7 +16,6 @@ export * from "./decrypted-command-data";
 export * from "./encrypted-command";
 export * from "./encrypted-message";
 export * from "./encrypted-message-response";
-export * from "./legacy-message";
 export * from "./legacy-message-wrapper";
 export * from "./message";
 export * from "./message-common";

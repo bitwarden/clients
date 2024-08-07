@@ -1,8 +1,11 @@
 import { ipcRenderer } from "electron";
 
+import {
+  LegacySetupEncryptionResponse,
+  LegacyUnencryptedCommandMessage,
+} from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
 import { ThemeType, KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
   EncryptedMessageResponse,
@@ -63,12 +66,9 @@ const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
   },
-  sendMessage: (message: {
-    appId: string;
-    command?: string;
-    sharedSecret?: string;
-    message?: EncString;
-  }) => {
+  sendMessage: (
+    message: LegacyUnencryptedCommandMessage | LegacyMessageWrapper | LegacySetupEncryptionResponse,
+  ) => {
     ipcRenderer.send("nativeMessagingReply", message);
   },
   onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {

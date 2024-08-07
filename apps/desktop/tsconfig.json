@@ -39,5 +39,9 @@
     "strictTemplates": true,
     "preserveWhitespaces": true
   },
-  "include": ["src", "../../libs/common/src/platform/services/**/*.worker.ts"]
+  "include": [
+    "src",
+    "../../libs/common/src/platform/services/**/*.worker.ts",
+    "../../node_modules/@bitwarden/auth/src/common/services/native-messaging/legacy-message.ts"
+  ]
 }

@@ -1,5 +1,10 @@
 import { firstValueFrom } from "rxjs";
 
+import {
+  NativeMessageCommandTypes,
+  BiometricUnlockResponses,
+  BiometricCommandSetupEncryption,
+} from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -128,7 +133,7 @@ export class NativeMessagingBackground {
             this.connected = false;
             this.port.disconnect();
             break;
-          case "setupEncryption": {
+          case NativeMessageCommandTypes.SETUP_ENCRYPTION: {
             // Ignore since it belongs to another device
             if (message.appId !== this.appId) {
               return;
@@ -149,7 +154,7 @@ export class NativeMessagingBackground {
             this.secureSetupResolve();
             break;
           }
-          case "invalidateEncryption":
+          case NativeMessageCommandTypes.INVALIDATE_ENCRYPTION:
             // Ignore since it belongs to another device
             if (message.appId !== this.appId) {
               return;
@@ -172,7 +177,7 @@ export class NativeMessagingBackground {
             }
 
             break;
-          case "verifyFingerprint": {
+          case NativeMessageCommandTypes.VERIFY_FINGERPRINT: {
             if (this.sharedSecret == null) {
               this.validatingFingerprint = true;
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -181,7 +186,7 @@ export class NativeMessagingBackground {
             }
             break;
           }
-          case "wrongUserId":
+          case NativeMessageCommandTypes.WRONG_USER:
             this.showWrongUserDialog();
             break;
           default:
@@ -305,8 +310,8 @@ export class NativeMessagingBackground {
     }
 
     switch (message.command) {
-      case "biometricUnlock": {
-        if (message.response === "not enabled") {
+      case NativeMessageCommandTypes.BIOMETRIC_UNLOCK: {
+        if (message.response === BiometricUnlockResponses.NOT_ENABLED) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNotEnabledTitle" },
             content: { key: "biometricsNotEnabledDesc" },
@@ -315,7 +320,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === "not supported") {
+        } else if (message.response === BiometricUnlockResponses.NOT_SUPPORTED) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNotSupportedTitle" },
             content: { key: "biometricsNotSupportedDesc" },
@@ -324,7 +329,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === "no userid") {
+        } else if (message.response === BiometricUnlockResponses.NO_USER_ID) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoUserIdTitle" },
             content: { key: "biometricsNoUserIdDesc" },
@@ -333,7 +338,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === "no user") {
+        } else if (message.response === BiometricUnlockResponses.NO_USER) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoUserTitle" },
             content: { key: "biometricsNoUserDesc" },
@@ -342,7 +347,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === "no clientKeyHalf") {
+        } else if (message.response === BiometricUnlockResponses.NO_CLIENT_KEY_HALF) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoClientKeyHalfTitle" },
             content: { key: "biometricsNoClientKeyHalfDesc" },
@@ -351,23 +356,14 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === "not unlocked") {
-          this.messagingService.send("showDialog", {
-            title: { key: "biometricsNotUnlockedTitle" },
-            content: { key: "biometricsNotUnlockedDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "warning",
-          });
-          break;
-        } else if (message.response === "canceled") {
+        } else if (message.response === BiometricUnlockResponses.CANCELED) {
           break;
         }
 
         // Check for initial setup of biometric unlock
         const enabled = await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$);
         if (enabled === null || enabled === false) {
-          if (message.response === "unlocked") {
+          if (message.response === BiometricUnlockResponses.UNLOCKED) {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
           }
           break;
@@ -378,7 +374,7 @@ export class NativeMessagingBackground {
           break;
         }
 
-        if (message.response === "unlocked") {
+        if (message.response === BiometricUnlockResponses.UNLOCKED) {
           try {
             if (message.userKeyB64) {
               const userKey = new SymmetricCryptoKey(
@@ -450,12 +446,12 @@ export class NativeMessagingBackground {
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendUnencrypted({
-      command: "setupEncryption",
-      publicKey: Utils.fromBufferToB64(publicKey),
-      userId: await this.stateService.getUserId(),
-    });
-
+    this.sendUnencrypted(
+      new BiometricCommandSetupEncryption(
+        Utils.fromBufferToB64(publicKey),
+        await this.stateService.getUserId(),
+      ),
+    );
     return new Promise((resolve, reject) => (this.secureSetupResolve = resolve));
   }
 
