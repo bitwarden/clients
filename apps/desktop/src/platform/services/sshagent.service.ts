@@ -43,7 +43,9 @@ export class SSHAgentService {
         return;
       }
 
-      const noteCiphers = ciphers.filter((cipher) => cipher.type == CipherType.SSHKey);
+      const noteCiphers = ciphers.filter(
+        (cipher) => cipher.type == CipherType.SSHKey && cipher.isDeleted == false,
+      );
       const keys = noteCiphers.map((cipher) => {
         return {
           name: cipher.name,
@@ -52,6 +54,6 @@ export class SSHAgentService {
         };
       });
       await ipc.platform.sshagent.setKeys(keys);
-    }, 20000);
+    }, 1000);
   }
 }

@@ -55,8 +55,7 @@ export namespace sshagent {
   }
   export function serve(callback: (err: Error | null, arg: string) => any): Promise<void>
   export function setKeys(newKeys: Array<PrivateKey>): Promise<void>
-  export function generateEd25519(): Promise<SshKey>
-  export function generateRsa(bits: number): Promise<SshKey>
+  export function generateKeypair(keyAlgorithm: string): Promise<SshKey>
 }
 export namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>

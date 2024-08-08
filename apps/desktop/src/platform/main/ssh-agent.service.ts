@@ -16,15 +16,6 @@ export class SSHAgent {
     this.logService.info("ts: Starting ssh agent");
 
     sshagent
-      .generateEd25519()
-      .then((key) => {
-        this.logService.info("ts: SSH agent generated key", key);
-      })
-      .catch((e) => {
-        this.logService.error("ts: SSH agent error", e);
-      });
-
-    sshagent
       .serve(async (err: Error, uuid: string) => {
         this.logService.info("ts: SSH agent callback");
         this.messagingService.send("sshagent.signrequest", { data: uuid });
@@ -67,15 +58,7 @@ export class SSHAgent {
     ipcMain.handle(
       "sshagent.generatekey",
       async (event: any, { keyAlgorithm }: { keyAlgorithm: string }) => {
-        if (keyAlgorithm === "ed25519") {
-          return await sshagent.generateEd25519();
-        } else if (keyAlgorithm === "rsa-2048") {
-          return await sshagent.generateRsa(2048);
-        } else if (keyAlgorithm === "rsa-4096") {
-          return await sshagent.generateRsa(4096);
-        } else {
-          throw new Error("Unsupported key algorithm");
-        }
+        return await sshagent.generateKeypair(keyAlgorithm);
       },
     );
   }

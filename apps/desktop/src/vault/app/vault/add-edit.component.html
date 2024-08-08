@@ -11,7 +11,7 @@
         <div class="box-content">
           <div class="box-content-row" *ngIf="!editMode" appBoxRow>
             <label for="type">{{ "type" | i18n }}</label>
-            <select id="type" name="Type" [(ngModel)]="cipher.type">
+            <select id="type" name="Type" [(ngModel)]="cipher.type" (change)="typeChange()">
               <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>
             </select>
           </div>
@@ -473,7 +473,7 @@
           </div>
           <!-- SSH Key -->
           <div *ngIf="cipher.type === cipherType.SSHKey">
-            <div class="box-content-row" appBoxRow>
+            <div class="box-content-row" appBoxRow style="overflow: hidden">
               <label for="sshPublicKey">{{ "sshPublicKey" | i18n }}</label>
               <input
                 id="sshPublicKey"
@@ -499,6 +499,7 @@
                 id="sshKeyAlgorithm"
                 name="SSHKeyAlgorithm"
                 [(ngModel)]="cipher.sshKey.keyAlgorithm"
+                (change)="keyAlgorithmChange()"
               >
                 <option *ngFor="let algorithm of sshKeyAlgorithmOptions" [value]="algorithm.value">
                   {{ algorithm.name }}

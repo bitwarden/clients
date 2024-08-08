@@ -675,7 +675,9 @@ name = "desktop_napi"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "base64",
  "desktop_core",
+ "hex",
  "napi",
  "napi-build",
  "napi-derive",

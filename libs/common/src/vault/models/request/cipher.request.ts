@@ -103,6 +103,10 @@ export class CipherRequest {
           cipher.sshKey.publicKey != null ? cipher.sshKey.publicKey.encryptedString : null;
         this.sshKey.keyAlgorithm =
           cipher.sshKey.keyAlgorithm != null ? cipher.sshKey.keyAlgorithm.encryptedString : null;
+        this.sshKey.keyFingerprint =
+          cipher.sshKey.keyFingerprint != null
+            ? cipher.sshKey.keyFingerprint.encryptedString
+            : null;
         break;
       case CipherType.Card:
         this.card = new CardApi();
