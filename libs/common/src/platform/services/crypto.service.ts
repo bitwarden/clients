@@ -620,7 +620,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   // ---HELPERS---
-  protected async validateUserKey(key: UserKey, userId: UserId): Promise<boolean> {
+  async validateUserKey(key: UserKey, userId: UserId): Promise<boolean> {
     if (!key) {
       return false;
     }

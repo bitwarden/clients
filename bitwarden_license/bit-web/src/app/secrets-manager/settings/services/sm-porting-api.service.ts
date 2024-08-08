@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
@@ -22,11 +22,13 @@ import {
   providedIn: "root",
 })
 export class SecretsManagerPortingApiService {
+  protected _imports = new Subject<SecretsManagerImportRequest>();
+  imports$ = this._imports.asObservable();
+
   constructor(
     private apiService: ApiService,
     private encryptService: EncryptService,
     private cryptoService: CryptoService,
-    private i18nService: I18nService,
   ) {}
 
   async export(organizationId: string): Promise<string> {
@@ -45,7 +47,7 @@ export class SecretsManagerPortingApiService {
     );
   }
 
-  async import(organizationId: string, fileContents: string): Promise<SecretsManagerImportError> {
+  async import(organizationId: string, fileContents: string): Promise<void> {
     let requestObject = {};
 
     try {
@@ -59,9 +61,11 @@ export class SecretsManagerPortingApiService {
         true,
         true,
       );
+
+      this._imports.next(requestBody);
     } catch (error) {
       const errorResponse = new ErrorResponse(error, 400);
-      return this.handleServerError(errorResponse, requestObject);
+      throw this.handleServerError(errorResponse, requestObject);
     }
   }
 
@@ -162,12 +166,12 @@ export class SecretsManagerPortingApiService {
       let itemType;
       const id = Number(key.match(/[0-9]+/)[0]);
 
-      switch (key.match(/^\w+/)[0]) {
-        case "Projects":
+      switch (key.match(/^[$\\.]*(\w+)/)[1].toLowerCase()) {
+        case "projects":
           item = importResult.projects[id];
           itemType = "Project";
           break;
-        case "Secrets":
+        case "secrets":
           item = importResult.secrets[id];
           itemType = "Secret";
           break;
@@ -177,8 +181,8 @@ export class SecretsManagerPortingApiService {
 
       result.lines.push({
         id: id + 1,
-        type: itemType == "Project" ? "Project" : "Secret",
-        key: item.key,
+        type: itemType === "Project" ? "Project" : "Secret",
+        key: itemType === "Project" ? item.name : item.key,
         errorMessage: value.length > 0 ? value[0] : "",
       });
     });

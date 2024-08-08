@@ -1,5 +1,6 @@
 <main
-  class="tw-flex tw-min-h-screen tw-w-full tw-mx-auto tw-flex-col tw-gap-7 tw-bg-background-alt tw-px-8 tw-pb-4 tw-pt-8 tw-text-main"
+  class="tw-flex tw-min-h-screen tw-w-full tw-mx-auto tw-flex-col tw-gap-7 tw-bg-background-alt tw-px-8 tw-pb-4 tw-text-main"
+  [ngClass]="{ 'tw-pt-0': decreaseTopPadding, 'tw-pt-8': !decreaseTopPadding }"
 >
   <bit-icon *ngIf="!hideLogo" [icon]="logo" class="tw-max-w-36"></bit-icon>
 

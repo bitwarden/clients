@@ -3043,5 +3043,11 @@
   },
   "data": {
     "message": "Data"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   }
 }

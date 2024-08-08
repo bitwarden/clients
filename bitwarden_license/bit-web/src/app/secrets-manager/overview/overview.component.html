@@ -54,7 +54,7 @@
         [projects]="view.latestProjects"
       ></sm-projects-list>
       <div *ngIf="view.allProjects.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.allProjects.length }}
+        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.counts.projects }}
         <a bitLink routerLink="projects" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
       </div>
     </sm-section>
@@ -72,7 +72,7 @@
         [secrets]="view.latestSecrets"
       ></sm-secrets-list>
       <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.allSecrets.length }}
+        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.counts.secrets }}
         <a bitLink routerLink="secrets" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
       </div>
     </sm-section>

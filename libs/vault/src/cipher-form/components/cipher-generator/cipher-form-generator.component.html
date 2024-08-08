@@ -1,0 +1,62 @@
+<bit-section>
+  <!-- Password/Passphrase Toggle -->
+  <bit-toggle-group
+    *ngIf="isPassword"
+    class="tw-w-full tw-justify-center tw-mt-3 tw-mb-5"
+    (selectedChange)="updatePasswordType($event)"
+    [selected]="passwordType$ | async"
+  >
+    <bit-toggle [value]="'password'">
+      {{ "password" | i18n }}
+    </bit-toggle>
+    <bit-toggle [value]="'passphrase'">
+      {{ "passphrase" | i18n }}
+    </bit-toggle>
+  </bit-toggle-group>
+
+  <!-- Generated Password/Passphrase/Username -->
+  <bit-item>
+    <bit-item-content>
+      <bit-color-password [password]="generatedValue"></bit-color-password>
+    </bit-item-content>
+    <ng-container slot="end">
+      <bit-item-action>
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [appCopyClick]="generatedValue"
+          showToast
+          [appA11yTitle]="'copyValue' | i18n"
+          data-testid="copy-value-button"
+        ></button>
+      </bit-item-action>
+      <bit-item-action>
+        <button
+          type="button"
+          bitIconButton="bwi-generate"
+          size="small"
+          (click)="regenerate$.next()"
+          [appA11yTitle]="regenerateButtonTitle"
+          data-testid="regenerate-button"
+        ></button>
+      </bit-item-action>
+    </ng-container>
+  </bit-item>
+</bit-section>
+
+<!-- Generator Options -->
+<!-- TODO: Replace with Generator Options Component(s) when available
+    It is expected that the generator options component(s) will internally update the options stored in state
+    which will trigger regeneration automatically in this dialog.
+-->
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ "options" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <em bitTypography="body2"
+      >Placeholder: Replace with Generator Options Component(s) when available</em
+    >
+  </bit-card>
+</bit-section>

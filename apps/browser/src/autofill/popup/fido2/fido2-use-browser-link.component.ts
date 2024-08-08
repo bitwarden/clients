@@ -9,8 +9,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { BrowserFido2UserInterfaceSession } from "../../../vault/fido2/browser-fido2-user-interface.service";
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
+import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-fido2-use-browser-link",

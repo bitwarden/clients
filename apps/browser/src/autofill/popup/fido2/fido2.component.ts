@@ -30,12 +30,12 @@ import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ZonedMessageListenerService } from "../../../platform/browser/zoned-message-listener.service";
+import { VaultPopoutType } from "../../../vault/popup/utils/vault-popout-window";
+import { Fido2UserVerificationService } from "../../../vault/services/fido2-user-verification.service";
 import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
-} from "../../../vault/fido2/browser-fido2-user-interface.service";
-import { VaultPopoutType } from "../../../vault/popup/utils/vault-popout-window";
-import { Fido2UserVerificationService } from "../../../vault/services/fido2-user-verification.service";
+} from "../../fido2/services/browser-fido2-user-interface.service";
 
 interface ViewData {
   message: BrowserFido2Message;

@@ -145,9 +145,9 @@ export const ScrollingContent: Story = {
     template: `
       <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
         <span bitDialogContent>
-          Dialog body text goes here.<br>
+          Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
-            repeating lines of characters <br>
+            repeating lines of characters <br />
           </ng-container>
           end of sequence!
         </span>

@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   AssertCredentialParams,
   CreateCredentialParams,
@@ -54,6 +55,7 @@ describe("Fido2Background", () => {
   let fido2ClientService!: MockProxy<Fido2ClientService>;
   let vaultSettingsService!: MockProxy<VaultSettingsService>;
   let scriptInjectorServiceMock!: MockProxy<BrowserScriptInjectorService>;
+  let configServiceMock!: MockProxy<ConfigService>;
   let enablePasskeysMock$!: BehaviorSubject<boolean>;
   let fido2Background!: Fido2Background;
 
@@ -71,6 +73,7 @@ describe("Fido2Background", () => {
     abortController = mock<AbortController>();
     registeredContentScripsMock = mock<browser.contentScripts.RegisteredContentScript>();
     scriptInjectorServiceMock = mock<BrowserScriptInjectorService>();
+    configServiceMock = mock<ConfigService>();
 
     enablePasskeysMock$ = new BehaviorSubject(true);
     vaultSettingsService.enablePasskeys$ = enablePasskeysMock$;
@@ -80,6 +83,7 @@ describe("Fido2Background", () => {
       fido2ClientService,
       vaultSettingsService,
       scriptInjectorServiceMock,
+      configServiceMock,
     );
     fido2Background["abortManager"] = abortManagerMock;
     abortManagerMock.runWithAbortController.mockImplementation((_requestId, runner) =>
@@ -110,6 +114,7 @@ describe("Fido2Background", () => {
       tabsQuerySpy.mockResolvedValueOnce([tabMock, secondTabMock, insecureTab, noUrlTab]);
 
       await fido2Background.injectFido2ContentScriptsInAllTabs();
+      await flushPromises();
 
       expect(scriptInjectorServiceMock.inject).toHaveBeenCalledWith({
         tabId: tabMock.id,
@@ -133,6 +138,7 @@ describe("Fido2Background", () => {
       tabsQuerySpy.mockResolvedValueOnce([tabMock]);
 
       await fido2Background.injectFido2ContentScriptsInAllTabs();
+      await flushPromises();
 
       expect(scriptInjectorServiceMock.inject).toHaveBeenCalledWith({
         tabId: tabMock.id,
@@ -200,6 +206,22 @@ describe("Fido2Background", () => {
         expect(BrowserApi.registerContentScriptsMv2).toHaveBeenCalledWith({
           js: [
             { file: Fido2ContentScript.PageScriptAppend },
+            { file: Fido2ContentScript.ContentScript },
+          ],
+          ...sharedRegistrationOptions,
+        });
+      });
+
+      it("registers the page-script-delay-append-mv2.js content script when the DelayFido2PageScriptInitWithinMv2 feature flag is enabled", async () => {
+        configServiceMock.getFeatureFlag.mockResolvedValue(true);
+        isManifestVersionSpy.mockImplementation((manifestVersion) => manifestVersion === 2);
+
+        enablePasskeysMock$.next(true);
+        await flushPromises();
+
+        expect(BrowserApi.registerContentScriptsMv2).toHaveBeenCalledWith({
+          js: [
+            { file: Fido2ContentScript.PageScriptDelayAppend },
             { file: Fido2ContentScript.ContentScript },
           ],
           ...sharedRegistrationOptions,

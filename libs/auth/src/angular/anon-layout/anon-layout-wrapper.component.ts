@@ -106,7 +106,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageIcon = data.pageIcon;
     }
 
-    if (data.showReadonlyHostname) {
+    if (data.showReadonlyHostname != null) {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
   }

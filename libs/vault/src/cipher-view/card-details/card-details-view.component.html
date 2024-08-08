@@ -2,8 +2,8 @@
   <bit-section-header>
     <h2 bitTypography="h6">{{ setSectionTitle }}</h2>
   </bit-section-header>
-  <bit-card>
-    <bit-form-field [disableMargin]="!card.number && !card.expiration && !card.code">
+  <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
+    <bit-form-field *ngIf="card.cardholderName">
       <bit-label>{{ "cardholderName" | i18n }}</bit-label>
       <input
         readonly
@@ -14,7 +14,7 @@
         data-testid="cardholder-name"
       />
     </bit-form-field>
-    <bit-form-field *ngIf="card.number" [disableMargin]="!card.expiration && !card.code">
+    <bit-form-field *ngIf="card.number">
       <bit-label>{{ "number" | i18n }}</bit-label>
       <input
         readonly
@@ -42,7 +42,7 @@
         data-testid="copy-number"
       ></button>
     </bit-form-field>
-    <bit-form-field *ngIf="card.expiration" [disableMargin]="!card.code">
+    <bit-form-field *ngIf="card.expiration">
       <bit-label>{{ "expiration" | i18n }}</bit-label>
       <input
         readonly
@@ -53,7 +53,7 @@
         data-testid="cardholder-expiration"
       />
     </bit-form-field>
-    <bit-form-field *ngIf="card.code" disableMargin>
+    <bit-form-field *ngIf="card.code">
       <bit-label>{{ "securityCode" | i18n }}</bit-label>
       <input
         readonly

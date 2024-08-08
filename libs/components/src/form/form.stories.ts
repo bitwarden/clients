@@ -96,19 +96,19 @@ export const FullExample: Story = {
           <bit-label>Name</bit-label>
           <input bitInput formControlName="name" />
         </bit-form-field>
-  
+
         <bit-form-field>
           <bit-label>Email</bit-label>
           <input bitInput formControlName="email" />
         </bit-form-field>
-  
+
         <bit-form-field>
           <bit-label>Country</bit-label>
           <bit-select formControlName="country">
             <bit-option *ngFor="let country of countries" [value]="country.value" [label]="country.name"></bit-option>
           </bit-select>
         </bit-form-field>
-  
+
         <bit-form-field>
           <bit-label>Age</bit-label>
           <input
@@ -119,13 +119,13 @@ export const FullExample: Story = {
             max="150"
           />
         </bit-form-field>
-  
+
         <bit-form-control>
           <bit-label>Agree to terms</bit-label>
-          <input type="checkbox" bitCheckbox formControlName="terms">
+          <input type="checkbox" bitCheckbox formControlName="terms" />
           <bit-hint>Required for the service to work properly</bit-hint>
         </bit-form-control>
-  
+
         <bit-radio-group formControlName="updates">
           <bit-label>Subscribe to updates?</bit-label>
           <bit-radio-button value="yes">
@@ -138,7 +138,7 @@ export const FullExample: Story = {
             <bit-label>Decide later</bit-label>
           </bit-radio-button>
         </bit-radio-group>
-  
+
         <button type="submit" bitButton buttonType="primary">Submit</button>
       </form>
     `,

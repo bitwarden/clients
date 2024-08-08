@@ -1,8 +1,11 @@
+import { Observable } from "rxjs";
+
 import {
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
+import { UserId } from "../../types/guid";
 
 /**
  * A class encapsulating sync operations and data.
@@ -20,15 +23,16 @@ export abstract class SyncService {
    * Gets the date of the last sync for the currently active user.
    *
    * @returns The date of the last sync or null if there is no active user or the active user has not synced before.
+   *
+   * @deprecated Use {@link lastSync$} to get an observable stream of a given users last sync date instead.
    */
-  abstract getLastSync(): Promise<Date>;
+  abstract getLastSync(): Promise<Date | null>;
 
   /**
-   * Updates a users last sync date.
-   * @param date The date to be set as the users last sync date.
-   * @param userId The userId of the user to update the last sync date for.
+   * Retrieves a stream of the given users last sync date. Or null if the user has not synced before.
+   * @param userId The user id of the user to get the stream for.
    */
-  abstract setLastSync(date: Date, userId?: string): Promise<void>;
+  abstract lastSync$(userId: UserId): Observable<Date | null>;
 
   /**
    * Optionally does a full sync operation including going to the server to gather the source

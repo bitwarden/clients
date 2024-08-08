@@ -139,6 +139,18 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  biometricsNeedsSetup(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  biometricsSupportsAutoSetup(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  biometricsSetup(): Promise<void> {
+    return Promise.resolve();
+  }
+
   supportsSecureStorage(): boolean {
     return false;
   }

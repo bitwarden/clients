@@ -64,10 +64,9 @@ export const ScrollingContent: Story = {
       <bit-simple-dialog>
         <span bitDialogTitle>Alert Dialog</span>
         <span bitDialogContent>
-          Message Content
-          Message text goes here.<br>
+          Message Content Message text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
-            repeating lines of characters <br>
+            repeating lines of characters <br />
           </ng-container>
           end of sequence!
         </span>
@@ -81,4 +80,20 @@ export const ScrollingContent: Story = {
   args: {
     useDefaultIcon: true,
   },
+};
+
+export const TextOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-simple-dialog>
+        <span bitDialogTitle>Alert Dialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialog</span>
+        <span bitDialogContent>Message Contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</span>
+        <ng-container bitDialogFooter>
+          <button bitButton buttonType="primary">Yes</button>
+          <button bitButton buttonType="secondary">No</button>
+        </ng-container>
+      </bit-simple-dialog>
+    `,
+  }),
 };

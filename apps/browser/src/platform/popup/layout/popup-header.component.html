@@ -14,7 +14,7 @@
         type="button"
         *ngIf="showBackButton"
         [title]="'back' | i18n"
-        [ariaLabel]="'back' | i18n"
+        [attr.aria-label]="'back' | i18n"
         [bitAction]="backAction"
       ></button>
       <h1 *ngIf="pageTitle" bitTypography="h3" class="!tw-mb-0.5 tw-text-headers">

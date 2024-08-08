@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
   filter,
@@ -13,11 +13,13 @@ import {
 } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
+import { ProjectCounts } from "../../models/view/counts.view";
 import { ProjectView } from "../../models/view/project.view";
+import { SecretService } from "../../secrets/secret.service";
+import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
+import { CountService } from "../../shared/counts/count.service";
 import {
   OperationType,
   ProjectDialogComponent,
@@ -31,6 +33,7 @@ import { ProjectService } from "../project.service";
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   protected project$: Observable<ProjectView>;
+  protected projectCounts: ProjectCounts;
 
   private organizationId: string;
   private projectId: string;
@@ -40,11 +43,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
-    private router: Router,
+    private secretService: SecretService,
+    private accessPolicyService: AccessPolicyService,
     private dialogService: DialogService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
     private organizationService: OrganizationService,
+    private countService: CountService,
   ) {}
 
   ngOnInit(): void {
@@ -62,13 +65,23 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const organization$ = this.route.params.pipe(
       concatMap((params) => this.organizationService.get$(params.organizationId)),
     );
+    const projectCounts$ = combineLatest([
+      this.route.params,
+      this.secretService.secret$.pipe(startWith(null)),
+      this.accessPolicyService.accessPolicy$.pipe(startWith(null)),
+    ]).pipe(switchMap(([params]) => this.countService.getProjectCounts(params.projectId)));
 
-    combineLatest([projectId$, organization$])
+    combineLatest([projectId$, organization$, projectCounts$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([projectId, organization]) => {
+      .subscribe(([projectId, organization, projectCounts]) => {
         this.organizationId = organization.id;
         this.projectId = projectId;
         this.organizationEnabled = organization.enabled;
+        this.projectCounts = {
+          secrets: projectCounts.secrets,
+          people: projectCounts.people,
+          serviceAccounts: projectCounts.serviceAccounts,
+        };
       });
   }
 

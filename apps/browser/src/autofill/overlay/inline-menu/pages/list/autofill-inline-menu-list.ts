@@ -1,12 +1,18 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EVENTS } from "@bitwarden/common/autofill/constants";
+import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { buildSvgDomElement } from "../../../../utils";
-import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
+import { buildSvgDomElement, throttle } from "../../../../utils";
+import {
+  globeIcon,
+  lockIcon,
+  plusIcon,
+  viewCipherIcon,
+  passkeyIcon,
+} from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
   InitAutofillInlineMenuListMessage,
@@ -24,8 +30,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
   private showInlineMenuAccountCreation: boolean;
-  private readonly showCiphersPerPage = 6;
+  private showPasskeysLabels: boolean;
   private newItemButtonElement: HTMLButtonElement;
+  private passkeysHeadingElement: HTMLLIElement;
+  private loginHeadingElement: HTMLLIElement;
+  private lastPasskeysListItem: HTMLLIElement;
+  private passkeysHeadingHeight: number;
+  private lastPasskeysListItemHeight: number;
+  private ciphersListHeight: number;
+  private readonly showCiphersPerPage = 6;
+  private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
@@ -53,6 +67,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param portKey - Background generated key that allows the port to communicate with the background.
    * @param filledByCipherType - The type of cipher that fills the current field.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
+   * @param showPasskeysLabels - Whether passkeys labels are shown in the inline menu list.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -63,6 +78,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     portKey,
     filledByCipherType,
     showInlineMenuAccountCreation,
+    showPasskeysLabels,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -72,6 +88,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     this.filledByCipherType = filledByCipherType;
+    this.showPasskeysLabels = showPasskeysLabels;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -155,9 +172,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
-    this.ciphersList.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent, {
-      passive: true,
-    });
+    this.setupCipherListScrollListeners();
 
     this.loadPageOfCiphers();
 
@@ -288,8 +303,35 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.currentCipherIndex++;
     }
 
-    if (this.currentCipherIndex >= this.ciphers.length) {
-      this.ciphersList.removeEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
+    if (!this.showPasskeysLabels && this.allCiphersLoaded()) {
+      this.ciphersList.removeEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll);
+    }
+  }
+
+  /**
+   * Validates whether the list of ciphers has been fully loaded.
+   */
+  private allCiphersLoaded() {
+    return this.currentCipherIndex >= this.ciphers.length;
+  }
+
+  /**
+   * Sets up the scroll listeners for the ciphers list. These are used to trigger an update of
+   * the list of ciphers when the user scrolls to the bottom of the list. Also sets up the
+   * scroll listeners that reposition the passkeys and login headings when the user scrolls.
+   */
+  private setupCipherListScrollListeners() {
+    const options = { passive: true };
+    this.ciphersList.addEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll, options);
+    if (this.showPasskeysLabels) {
+      this.ciphersList.addEventListener(
+        EVENTS.SCROLL,
+        this.useEventHandlersMemo(
+          throttle(() => this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop), 50),
+          UPDATE_PASSKEYS_HEADINGS_ON_SCROLL,
+        ),
+        options,
+      );
     }
   }
 
@@ -297,7 +339,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles updating the list of ciphers when the
    * user scrolls to the bottom of the list.
    */
-  private handleCiphersListScrollEvent = () => {
+  private updateCiphersListOnScroll = () => {
     if (this.cipherListScrollIsDebounced) {
       return;
     }
@@ -318,15 +360,100 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
+    const cipherListScrollTop = this.ciphersList.scrollTop;
+
+    this.updatePasskeysHeadingsOnScroll(cipherListScrollTop);
+
+    if (this.allCiphersLoaded()) {
+      return;
+    }
+
+    if (!this.ciphersListHeight) {
+      this.ciphersListHeight = this.ciphersList.offsetHeight;
+    }
 
     const scrollPercentage =
-      (this.ciphersList.scrollTop /
-        (this.ciphersList.scrollHeight - this.ciphersList.offsetHeight)) *
-      100;
+      (cipherListScrollTop / (this.ciphersList.scrollHeight - this.ciphersListHeight)) * 100;
     if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
     }
   };
+
+  /**
+   * Updates the passkeys and login headings when the user scrolls the ciphers list.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
+  private updatePasskeysHeadingsOnScroll = (cipherListScrollTop: number) => {
+    if (!this.showPasskeysLabels) {
+      return;
+    }
+
+    if (this.passkeysHeadingElement) {
+      this.togglePasskeysHeadingAnchored(cipherListScrollTop);
+      this.togglePasskeysHeadingBorder(cipherListScrollTop);
+    }
+
+    if (this.loginHeadingElement) {
+      this.toggleLoginHeadingBorder(cipherListScrollTop);
+    }
+  };
+
+  /**
+   * Anchors the passkeys heading to the top of the last passkey item when the user scrolls.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
+  private togglePasskeysHeadingAnchored(cipherListScrollTop: number) {
+    if (!this.passkeysHeadingHeight) {
+      this.passkeysHeadingHeight = this.passkeysHeadingElement.offsetHeight;
+    }
+
+    const passkeysHeadingOffset = this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight;
+    if (cipherListScrollTop >= passkeysHeadingOffset) {
+      this.passkeysHeadingElement.style.position = "relative";
+      this.passkeysHeadingElement.style.top = `${passkeysHeadingOffset}px`;
+
+      return;
+    }
+
+    this.passkeysHeadingElement.setAttribute("style", "");
+  }
+
+  /**
+   * Toggles a border on the passkeys heading on scroll, adding it when the user has
+   * scrolled at all and removing it once the user scrolls back to the top.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
+  private togglePasskeysHeadingBorder(cipherListScrollTop: number) {
+    if (cipherListScrollTop < 1) {
+      this.passkeysHeadingElement.classList.remove(this.headingBorderClass);
+      return;
+    }
+
+    this.passkeysHeadingElement.classList.add(this.headingBorderClass);
+  }
+
+  /**
+   * Toggles a border on  the login heading on scroll, adding it when the user has
+   * scrolled past the last passkey item and removing it once the user scrolls back up.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
+  private toggleLoginHeadingBorder(cipherListScrollTop: number) {
+    if (!this.lastPasskeysListItemHeight) {
+      this.lastPasskeysListItemHeight = this.lastPasskeysListItem.offsetHeight;
+    }
+
+    const lastPasskeyOffset = this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItemHeight;
+    if (cipherListScrollTop < lastPasskeyOffset) {
+      this.loginHeadingElement.classList.remove(this.headingBorderClass);
+      return;
+    }
+
+    this.loginHeadingElement.classList.add(this.headingBorderClass);
+  }
 
   /**
    * Builds the list item for a given cipher.
@@ -334,6 +461,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the list item for.
    */
   private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
+    this.buildPasskeysHeadingElements(cipher);
+
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -346,7 +475,41 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     inlineMenuListActionsItem.classList.add("inline-menu-list-actions-item");
     inlineMenuListActionsItem.appendChild(cipherContainerElement);
 
+    if (this.showPasskeysLabels && cipher.login?.passkey) {
+      this.lastPasskeysListItem = inlineMenuListActionsItem;
+    }
+
     return inlineMenuListActionsItem;
+  }
+
+  /**
+   * Builds the passkeys and login headings for the list of cipher items.
+   *
+   * @param cipher - The cipher that will follow the heading.
+   */
+  private buildPasskeysHeadingElements(cipher: InlineMenuCipherData) {
+    if (!this.showPasskeysLabels || (this.passkeysHeadingElement && this.loginHeadingElement)) {
+      return;
+    }
+
+    const passkeyData = cipher.login?.passkey;
+    if (!this.passkeysHeadingElement && passkeyData) {
+      this.passkeysHeadingElement = globalThis.document.createElement("li");
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
+      this.passkeysHeadingElement.textContent = this.getTranslation("passkeys");
+      this.ciphersList.appendChild(this.passkeysHeadingElement);
+
+      return;
+    }
+
+    if (!this.passkeysHeadingElement || this.loginHeadingElement || passkeyData) {
+      return;
+    }
+
+    this.loginHeadingElement = globalThis.document.createElement("li");
+    this.loginHeadingElement.classList.add("inline-menu-list-heading");
+    this.loginHeadingElement.textContent = this.getTranslation("passwords");
+    this.ciphersList.appendChild(this.loginHeadingElement);
   }
 
   /**
@@ -364,8 +527,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     fillCipherElement.classList.add("fill-cipher-button", "inline-menu-list-action");
     fillCipherElement.setAttribute(
       "aria-label",
-      `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`,
+      `${
+        cipher.login?.passkey
+          ? this.getTranslation("logInWithPasskey")
+          : this.getTranslation("fillCredentialsFor")
+      } ${cipher.name}`,
     );
+
     this.addFillCipherElementAriaDescription(fillCipherElement, cipher);
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
@@ -385,10 +553,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipher: InlineMenuCipherData,
   ) {
     if (cipher.login) {
-      fillCipherElement.setAttribute(
-        "aria-description",
-        `${this.getTranslation("username")}: ${cipher.login.username}`,
-      );
+      const passkeyUserName = cipher.login.passkey?.userName || "";
+      const username = cipher.login.username || passkeyUserName;
+      if (username) {
+        fillCipherElement.setAttribute(
+          "aria-description",
+          `${this.getTranslation("username")}: ${username}`,
+        );
+      }
       return;
     }
 
@@ -419,13 +591,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to fill.
    */
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
+    const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
           command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: cipher.id,
+          usePasskey,
         }),
-      `${cipher.id}-fill-cipher-button-click-handler`,
+      `${cipher.id}-fill-cipher-button-click-handler-${usePasskey ? "passkey" : ""}`,
     );
   };
 
@@ -599,14 +773,20 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the details for.
    */
   private buildCipherDetailsElement(cipher: InlineMenuCipherData) {
-    const cipherNameElement = this.buildCipherNameElement(cipher);
-    const cipherSubtitleElement = this.buildCipherSubtitleElement(cipher);
-
     const cipherDetailsElement = globalThis.document.createElement("span");
     cipherDetailsElement.classList.add("cipher-details");
+
+    const cipherNameElement = this.buildCipherNameElement(cipher);
     if (cipherNameElement) {
       cipherDetailsElement.appendChild(cipherNameElement);
     }
+
+    if (cipher.login?.passkey) {
+      return this.buildPasskeysCipherDetailsElement(cipher, cipherDetailsElement);
+    }
+
+    const subTitleText = this.getSubTitleText(cipher);
+    const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
     if (cipherSubtitleElement) {
       cipherDetailsElement.appendChild(cipherSubtitleElement);
     }
@@ -635,10 +815,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Builds the subtitle element for a given cipher.
    *
-   * @param cipher - The cipher to build the username login element for.
+   * @param subTitleText - The subtitle text to display.
    */
-  private buildCipherSubtitleElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
-    const subTitleText = this.getSubTitleText(cipher);
+  private buildCipherSubtitleElement(subTitleText: string): HTMLSpanElement | null {
     if (!subTitleText) {
       return null;
     }
@@ -649,6 +828,52 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipherSubtitleElement.setAttribute("title", subTitleText);
 
     return cipherSubtitleElement;
+  }
+
+  /**
+   * Builds the passkeys details for a given cipher. Includes the passkey name and username.
+   *
+   * @param cipher - The cipher to build the passkey details for.
+   * @param cipherDetailsElement - The cipher details element to append the passkey details to.
+   */
+  private buildPasskeysCipherDetailsElement(
+    cipher: InlineMenuCipherData,
+    cipherDetailsElement: HTMLSpanElement,
+  ): HTMLSpanElement {
+    let rpNameSubtitle: HTMLSpanElement;
+
+    if (cipher.name !== cipher.login.passkey.rpName) {
+      rpNameSubtitle = this.buildCipherSubtitleElement(cipher.login.passkey.rpName);
+      if (rpNameSubtitle) {
+        rpNameSubtitle.prepend(buildSvgDomElement(passkeyIcon));
+        rpNameSubtitle.classList.add("cipher-subtitle--passkey");
+        cipherDetailsElement.appendChild(rpNameSubtitle);
+      }
+    }
+
+    if (cipher.login.username) {
+      const usernameSubtitle = this.buildCipherSubtitleElement(cipher.login.username);
+      if (usernameSubtitle) {
+        if (!rpNameSubtitle) {
+          usernameSubtitle.prepend(buildSvgDomElement(passkeyIcon));
+          usernameSubtitle.classList.add("cipher-subtitle--passkey");
+        }
+        cipherDetailsElement.appendChild(usernameSubtitle);
+      }
+
+      return cipherDetailsElement;
+    }
+
+    const passkeySubtitle = this.buildCipherSubtitleElement(cipher.login.passkey.userName);
+    if (passkeySubtitle) {
+      if (!rpNameSubtitle) {
+        passkeySubtitle.prepend(buildSvgDomElement(passkeyIcon));
+        passkeySubtitle.classList.add("cipher-subtitle--passkey");
+      }
+      cipherDetailsElement.appendChild(passkeySubtitle);
+    }
+
+    return cipherDetailsElement;
   }
 
   /**
@@ -779,7 +1004,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param currentListItem - The current list item.
    */
   private focusNextListItem(currentListItem: HTMLElement) {
-    const nextListItem = currentListItem.nextSibling as HTMLElement;
+    let nextListItem = currentListItem.nextSibling as HTMLElement;
+    if (this.listItemIsHeadingElement(nextListItem)) {
+      nextListItem = nextListItem.nextSibling as HTMLElement;
+    }
+
     const nextSibling = nextListItem?.querySelector(".inline-menu-list-action") as HTMLElement;
     if (nextSibling) {
       nextSibling.focus();
@@ -791,7 +1020,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    const firstListItem = currentListItem.parentElement?.firstChild as HTMLElement;
+    let firstListItem = currentListItem.parentElement?.firstChild as HTMLElement;
+    if (this.listItemIsHeadingElement(firstListItem)) {
+      firstListItem = firstListItem.nextSibling as HTMLElement;
+    }
+
     const firstSibling = firstListItem?.querySelector(".inline-menu-list-action") as HTMLElement;
     firstSibling?.focus();
   }
@@ -803,7 +1036,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param currentListItem - The current list item.
    */
   private focusPreviousListItem(currentListItem: HTMLElement) {
-    const previousListItem = currentListItem.previousSibling as HTMLElement;
+    let previousListItem = currentListItem.previousSibling as HTMLElement;
+    if (this.listItemIsHeadingElement(previousListItem)) {
+      previousListItem = previousListItem.previousSibling as HTMLElement;
+    }
+
     const previousSibling = previousListItem?.querySelector(
       ".inline-menu-list-action",
     ) as HTMLElement;
@@ -855,5 +1092,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private isFilledByIdentityCipher = () => {
     return this.filledByCipherType === CipherType.Identity;
+  };
+
+  /**
+   * Identifies if the passed list item is a heading element.
+   *
+   * @param listItem - The list item to check.
+   */
+  private listItemIsHeadingElement = (listItem: HTMLElement) => {
+    return listItem === this.passkeysHeadingElement || listItem === this.loginHeadingElement;
   };
 }
