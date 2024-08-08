@@ -36,10 +36,13 @@ export class WebauthnUtils {
       extensions: {
         credProps: keyOptions.extensions?.credProps,
       },
-      pubKeyCredParams: keyOptions.pubKeyCredParams.map((params) => ({
-        alg: params.alg,
-        type: params.type,
-      })),
+      pubKeyCredParams: keyOptions.pubKeyCredParams
+        .map((params) => ({
+          // Fix for spec-deviation: Sites using KeycloakJS send `kp.alg` as a string
+          alg: Number(params.alg),
+          type: params.type,
+        }))
+        .filter((params) => !isNaN(params.alg)),
       rp: {
         id: keyOptions.rp.id,
         name: keyOptions.rp.name,
