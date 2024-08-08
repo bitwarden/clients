@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { Observable } from "rxjs";
 
+import { SelectableTableDataSource } from "./selectable-table-data-source";
 import { TableDataSource } from "./table-data-source";
 
 @Directive({
@@ -25,7 +26,7 @@ export class TableBodyDirective {
   templateUrl: "./table.component.html",
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {
-  @Input() dataSource: TableDataSource<any>;
+  @Input() dataSource: TableDataSource<any> | SelectableTableDataSource<any>;
   @Input() layout: "auto" | "fixed" = "auto";
 
   @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;
