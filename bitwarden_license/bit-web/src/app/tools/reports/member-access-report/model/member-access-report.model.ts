@@ -1,16 +1,14 @@
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
-export type MemberAccessCollectionModel = {
-  id: string;
-  name: EncString;
+export type MemberAccessDetails = {
+  collectionId: string;
+  groupId: string;
+  groupName: string;
+  collectionName: EncString;
   itemCount: number;
-};
-
-export type MemberAccessGroupModel = {
-  id: string;
-  name: string;
-  itemCount: number;
-  collections: MemberAccessCollectionModel[];
+  readOnly: boolean;
+  hidePasswords: boolean;
+  manage: boolean;
 };
 
 export type MemberAccessReportModel = {
@@ -18,6 +16,8 @@ export type MemberAccessReportModel = {
   email: string;
   twoFactorEnabled: boolean;
   accountRecoveryEnabled: boolean;
-  collections: MemberAccessCollectionModel[];
-  groups: MemberAccessGroupModel[];
+  groupsCount: number;
+  collectionsCount: number;
+  totalItemCount: number;
+  accessDetails: MemberAccessDetails[];
 };

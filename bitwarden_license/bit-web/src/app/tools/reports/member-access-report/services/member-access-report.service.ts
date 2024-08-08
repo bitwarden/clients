@@ -1,24 +1,27 @@
 import { Injectable } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionAccessSelectionView } from "@bitwarden/web-vault/app/admin-console/organizations/core/views";
 import {
-  collectProperty,
-  getUniqueItems,
-  sumValue,
-} from "@bitwarden/web-vault/app/tools/reports/report-utils";
+  getPermissionList,
+  convertToPermission,
+} from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
-import {
-  MemberAccessCollectionModel,
-  MemberAccessGroupModel,
-} from "../model/member-access-report.model";
+import { MemberAccessDetails } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
 import { MemberAccessReportView } from "../view/member-access-report.view";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 
+
+
 @Injectable({ providedIn: "root" })
 export class MemberAccessReportService {
-  constructor(private reportApiService: MemberAccessReportApiService) {}
+  constructor(
+    private reportApiService: MemberAccessReportApiService,
+    private i18nService: I18nService,
+  ) {}
   /**
    * Transforms user data into a MemberAccessReportView.
    *
@@ -26,88 +29,57 @@ export class MemberAccessReportService {
    * @param {ReportCollection[]} collections - An array of collections, each with an ID and a total number of items.
    * @returns {MemberAccessReportView} The aggregated report view.
    */
-  generateMemberAccessReportView(): MemberAccessReportView[] {
+  async generateMemberAccessReportView(
+    organizationId: OrganizationId,
+  ): Promise<MemberAccessReportView[]> {
     const memberAccessReportViewCollection: MemberAccessReportView[] = [];
-    const memberAccessData = this.reportApiService.getMemberAccessData();
+    const memberAccessData = await this.reportApiService.getMemberAccessData(organizationId);
     memberAccessData.forEach((userData) => {
-      const name = userData.userName;
-      const email = userData.email;
-      const groupCollections = collectProperty<
-        MemberAccessGroupModel,
-        "collections",
-        MemberAccessCollectionModel
-      >(userData.groups, "collections");
-
-      const uniqueCollections = getUniqueItems(
-        [...groupCollections, ...userData.collections],
-        (item: MemberAccessCollectionModel) => item.id,
-      );
-      const collectionsCount = uniqueCollections.length;
-      const groupsCount = userData.groups.length;
-      const itemsCount = sumValue(
-        uniqueCollections,
-        (collection: MemberAccessCollectionModel) => collection.itemCount,
-      );
-
       memberAccessReportViewCollection.push({
-        name: name,
-        email: email,
-        collectionsCount: collectionsCount,
-        groupsCount: groupsCount,
-        itemsCount: itemsCount,
+        name: userData.userName,
+        email: userData.email,
+        collectionsCount: userData.collectionsCount,
+        groupsCount: userData.groupsCount,
+        itemsCount: userData.totalItemCount,
       });
     });
-
     return memberAccessReportViewCollection;
   }
 
   async generateUserReportExportItems(
     organizationId: OrganizationId,
   ): Promise<MemberAccessExportItem[]> {
-    const memberAccessReports = this.reportApiService.getMemberAccessData();
-    const userReportItemPromises = memberAccessReports.flatMap(async (memberAccessReport) => {
-      const partialMemberReportItem: Partial<MemberAccessExportItem> = {
-        email: memberAccessReport.email,
-        name: memberAccessReport.userName,
-        twoStepLogin: memberAccessReport.twoFactorEnabled ? "On" : "Off",
-        accountRecovery: memberAccessReport.accountRecoveryEnabled ? "On" : "Off",
-      };
-      const groupCollectionPromises = memberAccessReport.groups.map(async (group) => {
-        const groupPartialReportItem = { ...partialMemberReportItem, group: group.name };
-        return await this.buildReportItemFromCollection(
-          group.collections,
-          groupPartialReportItem,
-          organizationId,
-        );
+    const memberAccessReports = await this.reportApiService.getMemberAccessData(organizationId);
+    const exportItems = memberAccessReports.flatMap(async (report) => {
+      const userDetails = report.accessDetails.map(async (detail) => {
+        const collectionName = await detail.collectionName.decrypt(organizationId);
+        return {
+          email: report.email,
+          name: report.userName,
+          twoStepLogin: report.twoFactorEnabled ? "On" : "Off",
+          accountRecovery: report.accountRecoveryEnabled ? "On" : "Off",
+          group: detail.groupName,
+          collection: collectionName,
+          collectionPermission: this.getPermissionText(detail),
+          totalItems: detail.itemCount.toString(),
+        };
       });
-      const noGroupPartialReportItem = { ...partialMemberReportItem, group: "(No group)" };
-      const noGroupCollectionPromises = await this.buildReportItemFromCollection(
-        memberAccessReport.collections,
-        noGroupPartialReportItem,
-        organizationId,
-      );
-
-      return Promise.all([...groupCollectionPromises, noGroupCollectionPromises]);
+      return Promise.all(userDetails);
     });
-
-    const nestedUserReportItems = (await Promise.all(userReportItemPromises)).flat();
-    return nestedUserReportItems.flat();
+    const resolvedItems = await Promise.all(exportItems);
+    return resolvedItems.flat();
   }
 
-  async buildReportItemFromCollection(
-    memberAccessCollections: MemberAccessCollectionModel[],
-    partialReportItem: Partial<MemberAccessExportItem>,
-    organizationId: string,
-  ): Promise<MemberAccessExportItem[]> {
-    const reportItemPromises = memberAccessCollections.map(async (collection) => {
-      return {
-        ...partialReportItem,
-        collection: await collection.name.decrypt(organizationId),
-        collectionPermission: "read only", //TODO update this value
-        totalItems: collection.itemCount.toString(),
-      };
+  private getPermissionText(accessDetails: MemberAccessDetails): string {
+    const permissionList = getPermissionList();
+    const collectionSelectionView = new CollectionAccessSelectionView({
+      id: accessDetails.groupId ?? accessDetails.collectionId,
+      readOnly: accessDetails.readOnly,
+      hidePasswords: accessDetails.hidePasswords,
+      manage: accessDetails.manage,
     });
-
-    return Promise.all(reportItemPromises);
+    return this.i18nService.t(
+      permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
+    );
   }
 }

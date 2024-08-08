@@ -6,6 +6,7 @@ import { debounceTime, firstValueFrom } from "rxjs";
 
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SearchModule, TableDataSource } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
@@ -27,7 +28,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
       useClass: MemberAccessReportService,
-      deps: [MemberAccessReportApiService],
+      deps: [MemberAccessReportApiService, I18nService],
     }),
   ],
   standalone: true,
@@ -51,7 +52,9 @@ export class MemberAccessReportComponent implements OnInit {
   async ngOnInit() {
     const params = await firstValueFrom(this.route.params);
     this.organizationId = params.organizationId;
-    this.dataSource.data = this.reportService.generateMemberAccessReportView();
+    this.dataSource.data = await this.reportService.generateMemberAccessReportView(
+      this.organizationId,
+    );
   }
 
   exportReportAction = async (): Promise<void> => {

@@ -4,7 +4,9 @@ import { MemberAccessExportItem } from "../view/member-access-export.view";
 import { MemberAccessReportView } from "../view/member-access-report.view";
 
 export abstract class MemberAccessReportServiceAbstraction {
-  generateMemberAccessReportView: () => MemberAccessReportView[];
+  generateMemberAccessReportView: (
+    organizationId: OrganizationId,
+  ) => Promise<MemberAccessReportView[]>;
   generateUserReportExportItems: (
     organizationId: OrganizationId,
   ) => Promise<MemberAccessExportItem[]>;

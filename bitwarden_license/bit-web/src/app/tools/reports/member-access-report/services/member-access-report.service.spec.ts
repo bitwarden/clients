@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/src/types/guid";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
@@ -9,15 +10,18 @@ describe("ImportService", () => {
   const mockOrganizationId = "mockOrgId" as OrganizationId;
   const reportApiService = mock<MemberAccessReportApiService>();
   let memberAccessReportService: MemberAccessReportService;
+  const i18nService = mock<I18nService>();
 
   beforeEach(() => {
-    reportApiService.getMemberAccessData.mockImplementation(() => memberAccessReportsMock);
-    memberAccessReportService = new MemberAccessReportService(reportApiService);
+    reportApiService.getMemberAccessData.mockImplementation(() =>
+      Promise.resolve(memberAccessReportsMock),
+    );
+    memberAccessReportService = new MemberAccessReportService(reportApiService, i18nService);
   });
 
   describe("generateMemberAccessReportView", () => {
     it("should generate member access report view", () => {
-      const result = memberAccessReportService.generateMemberAccessReportView();
+      const result = memberAccessReportService.generateMemberAccessReportView(mockOrganizationId);
 
       expect(result).toEqual([
         {
