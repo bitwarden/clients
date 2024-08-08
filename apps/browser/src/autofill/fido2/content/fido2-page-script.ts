@@ -90,6 +90,11 @@ import { Messenger } from "./messaging/messenger";
       (authenticatorAttachmentIsPlatform && browserNativeWebauthnPlatformAuthenticatorSupport) ||
       (!authenticatorAttachmentIsPlatform && browserNativeWebauthnSupport);
     try {
+      // TODO: Remove "as any" when typings are updated
+      if ((options as any)?.mediation && (options as any).mediation !== "optional") {
+        throw new FallbackRequestedError();
+      }
+
       const response = await messenger.request(
         {
           type: MessageType.CredentialCreationRequest,
