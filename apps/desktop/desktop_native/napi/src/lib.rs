@@ -143,6 +143,91 @@ pub mod clipboards {
 }
 
 #[napi]
+pub mod sshagent {
+    use std::sync::Arc;
+
+    use napi::{bindgen_prelude::Promise, threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction}};
+    use russh_keys::{key::SignatureHash, PublicKeyBase64};
+    use tokio::{self, sync::Mutex};
+
+    #[napi(object)]
+    pub struct PrivateKey {
+        pub private_key: String,
+        pub name: String,
+        pub uuid: String
+    }
+
+    #[napi(object)]
+    pub struct SSHKey {
+        pub private_key: String,
+        pub public_key: String,
+        pub key_algorithm: String,
+        pub key_fingerprint: String,
+    }
+
+    #[napi]
+    pub async fn serve(callback: ThreadsafeFunction<String, CalleeHandled>) -> napi::Result<()> {
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(32);
+        let (tx1, rx1) = tokio::sync::mpsc::channel::<bool>(32);
+        tokio::spawn(async move {
+            while let Some(message) = rx.recv().await {
+                println!("sign req callback channel mesg {:?} |", message);
+                let test: Result<Promise<bool>, napi::Error> = callback.call_async(Ok(message)).await;
+                let res = test.unwrap();
+                let res1 = res.await.unwrap();
+                println!("sign req callback channel {:?}", res1);
+                let _ = tx1.send(res1).await;
+            }
+        });
+        desktop_core::ssh_agent::start_server(tx, Arc::new(Mutex::new(rx1))).await;
+        Ok(())
+    }
+    #[napi]
+    pub async fn set_keys(new_keys: Vec<PrivateKey>) -> napi::Result<()> {
+        desktop_core::ssh_agent::set_keys(new_keys.iter().map(|k|  (k.private_key.clone(), k.name.clone(), k.uuid.clone())).collect()).await;
+        Ok(())
+    }
+    
+    #[napi]
+    pub async fn generate_keypair(key_algorithm: String) -> napi::Result<SSHKey> {
+        let key = match key_algorithm.as_str() {
+            "ed25519" => russh_keys::key::KeyPair::generate_ed25519(),
+            "rsa-2048" => russh_keys::key::KeyPair::generate_rsa(2048, SignatureHash::SHA2_256),
+            "rsa-4096" => russh_keys::key::KeyPair::generate_rsa(4096, SignatureHash::SHA2_256),
+            _ => return Err(napi::Error::from_reason("Unsupported key algorithm".to_string()))
+        };
+        match key {
+            Some(k) => {
+                let mut buffer = Vec::new();
+                let private_key = russh_keys::encode_pkcs8_pem(&k, &mut buffer);
+                let buffer_string = String::from_utf8(buffer).unwrap();
+                match private_key {
+                    Ok(_pk) => {
+                        let public_key = match key_algorithm.as_str() {
+                            "ed25519" => "ssh-ed25519 ".to_owned() + &k.public_key_base64(),
+                            "rsa-2048" => "ssh-rsa ".to_owned() + &k.public_key_base64(),
+                            "rsa-4096" => "ssh-rsa ".to_owned() + &k.public_key_base64(),
+                            _ => return Err(napi::Error::from_reason("Unsupported key algorithm".to_string()))
+                        };
+                        Ok(SSHKey {
+                            private_key: buffer_string.to_string(),
+                            public_key: public_key.to_string(),
+                            key_algorithm: key_algorithm.to_string(),
+                            key_fingerprint: "SHA256:".to_string() + &k.clone_public_key().unwrap().fingerprint().to_string(),
+                        })
+                    },
+                    Err(e) => {
+                        Err(napi::Error::from_reason(e.to_string()))
+                    }
+                }
+            },
+            None => {
+                Err(napi::Error::from_reason("Failed to generate key".to_string()))
+            }
+        }
+    }
+}
+#[napi]
 pub mod powermonitors {
     use napi::{threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode}, tokio};
 
@@ -162,5 +247,4 @@ pub mod powermonitors {
     pub async fn is_lock_monitor_available() -> napi::Result<bool> {
         Ok(desktop_core::powermonitor::is_lock_monitor_available().await)
     }
-
 }

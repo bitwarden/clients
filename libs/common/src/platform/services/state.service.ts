@@ -414,11 +414,11 @@ export class StateService<
     }
 
     const account = options?.useSecureStorage
-      ? ((await this.secureStorageService.get<TAccount>(options.userId, options)) ??
+      ? (await this.secureStorageService.get<TAccount>(options.userId, options)) ??
         (await this.storageService.get<TAccount>(
           options.userId,
           this.reconcileOptions(options, { htmlStorageLocation: HtmlStorageLocation.Local }),
-        )))
+        ))
       : await this.storageService.get<TAccount>(options.userId, options);
     return account;
   }

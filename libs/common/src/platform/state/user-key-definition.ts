@@ -63,7 +63,7 @@ export class UserKeyDefinition<T> {
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
+    return this.options.cleanupDelayMs < 0 ? 0 : this.options.cleanupDelayMs ?? 1000;
   }
 
   /**

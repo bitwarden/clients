@@ -18,8 +18,11 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
+
+import { SSHAgentService } from "../../../platform/services/sshagent.service";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
 
@@ -50,6 +53,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
+    private sshAgentService: SSHAgentService,
   ) {
     super(
       cipherService,
@@ -136,5 +140,24 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     this.platformUtilsService.launchUri(
       "https://bitwarden.com/help/managing-items/#protect-individual-items",
     );
+  }
+
+  async generateSSHKey() {
+    const generatedKey = await ipc.platform.sshagent.generateKey(this.cipher.sshKey.keyAlgorithm);
+    this.cipher.sshKey.privateKey = generatedKey.privateKey;
+    this.cipher.sshKey.publicKey = generatedKey.publicKey;
+    this.cipher.sshKey.keyAlgorithm = generatedKey.keyAlgorithm;
+    this.cipher.sshKey.keyFingerprint = generatedKey.keyFingerprint;
+  }
+
+  async typeChange() {
+    if (this.cipher.type == CipherType.SSHKey) {
+      this.cipher.sshKey.keyAlgorithm = "ed25519";
+      await this.generateSSHKey();
+    }
+  }
+
+  async keyAlgorithmChange() {
+    await this.generateSSHKey();
   }
 }

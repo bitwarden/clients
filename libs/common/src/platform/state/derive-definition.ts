@@ -164,7 +164,7 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
   }
 
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
+    return this.options.cleanupDelayMs < 0 ? 0 : this.options.cleanupDelayMs ?? 1000;
   }
 
   get clearOnCleanup() {

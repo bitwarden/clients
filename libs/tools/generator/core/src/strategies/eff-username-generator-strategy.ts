@@ -32,11 +32,11 @@ export class EffUsernameGeneratorStrategy
   // algorithm
   async generate(options: EffUsernameGenerationOptions) {
     const casing =
-      (options.wordCapitalize ?? DefaultEffUsernameOptions.wordCapitalize)
+      options.wordCapitalize ?? DefaultEffUsernameOptions.wordCapitalize
         ? "TitleCase"
         : "lowercase";
     const digits =
-      (options.wordIncludeNumber ?? DefaultEffUsernameOptions.wordIncludeNumber)
+      options.wordIncludeNumber ?? DefaultEffUsernameOptions.wordIncludeNumber
         ? UsernameDigits.enabled
         : UsernameDigits.disabled;
     const word = await this.randomizer.randomWords({ numberOfWords: 1, casing, digits });

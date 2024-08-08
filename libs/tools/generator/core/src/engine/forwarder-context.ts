@@ -28,7 +28,7 @@ export class ForwarderContext<Settings extends ApiSettings> extends IntegrationC
    *  @remarks the string is thrown for backwards compatibility
    */
   emailDomain(): Settings extends EmailDomainSettings ? string : never {
-    const domain = "domain" in this.settings ? (this.settings.domain ?? "") : "";
+    const domain = "domain" in this.settings ? this.settings.domain ?? "" : "";
     if (domain === "") {
       const error = this.i18n.t("forwarderNoDomain", this.configuration.name);
       throw error;
@@ -43,7 +43,7 @@ export class ForwarderContext<Settings extends ApiSettings> extends IntegrationC
    *  @remarks the string is thrown for backwards compatibility
    */
   emailPrefix(): Settings extends EmailPrefixSettings ? string : never {
-    const prefix = "prefix" in this.settings ? (this.settings.prefix ?? "") : "";
+    const prefix = "prefix" in this.settings ? this.settings.prefix ?? "" : "";
     if (prefix === "") {
       const error = this.i18n.t("forwarderNoPrefix", this.configuration.name);
       throw error;

@@ -36,6 +36,7 @@ import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { SSHAgent } from "./platform/main/ssh-agent.service";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -225,6 +226,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    const sshAgent = new SSHAgent(this.logService, this.messagingService);
+    sshAgent.init();
 
     new EphemeralValueStorageService();
   }

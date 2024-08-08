@@ -6,7 +6,7 @@
     [ngClass]="{
       'tw-invisible': loading || nonScrollable.childElementCount === 0,
       'tw-border-secondary-300': scrolled(),
-      'tw-border-transparent': !scrolled(),
+      'tw-border-transparent': !scrolled()
     }"
   >
     <ng-content select="[slot=above-scroll-area]"></ng-content>

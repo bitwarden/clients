@@ -25,7 +25,7 @@
     <!-- overlay backdrop for side-nav -->
     <div
       *ngIf="{
-        open: sideNavService.open$ | async,
+        open: sideNavService.open$ | async
       } as data"
       class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
       [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"

@@ -39,7 +39,7 @@ export class EmailCalculator {
    * @returns an email address or `null` if the calculation fails.
    */
   concatenate(username: string, domain: string) {
-    const emailDomain = domain?.startsWith("@") ? domain.substring(1, Infinity) : (domain ?? "");
+    const emailDomain = domain?.startsWith("@") ? domain.substring(1, Infinity) : domain ?? "";
     if (emailDomain.length < 1) {
       return null;
     }

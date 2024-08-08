@@ -90,7 +90,7 @@ export class PassphraseGeneratorOptionsEvaluator
     const wordSeparator =
       options.wordSeparator === ""
         ? ""
-        : (options.wordSeparator?.[0] ?? DefaultPassphraseGenerationOptions.wordSeparator);
+        : options.wordSeparator?.[0] ?? DefaultPassphraseGenerationOptions.wordSeparator;
 
     return {
       ...options,

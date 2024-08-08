@@ -50,6 +50,7 @@ import { LoginUri } from "../models/domain/login-uri";
 import { Password } from "../models/domain/password";
 import { SecureNote } from "../models/domain/secure-note";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
+import { SSHKey } from "../models/domain/ssh-key";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
@@ -74,7 +75,6 @@ import {
   ENCRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
-import { SSHKey } from "../models/domain/ssh-key";
 
 const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
@@ -1504,6 +1504,7 @@ export class CipherService implements CipherServiceAbstraction {
             privateKey: null,
             publicKey: null,
             keyAlgorithm: null,
+            keyFingerprint: null,
           },
           key,
         );

@@ -38,7 +38,7 @@ export class ExportCommand {
     // format is 'undefined' => Defaults to 'csv'
     // Any other case => returns the options.format
     const format =
-      password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
+      password && options.format == "json" ? "encrypted_json" : options.format ?? "csv";
 
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(

@@ -60,7 +60,7 @@ export class IntegrationContext<Settings extends object> {
     options: { base64?: boolean; suffix?: string } = null,
   ): Settings extends ApiSettings ? string : never {
     // normalize `token` then assert it has a value
-    let token = "token" in this.settings ? ((this.settings.token as string) ?? "") : "";
+    let token = "token" in this.settings ? (this.settings.token as string) ?? "" : "";
     if (token === "") {
       const error = this.i18n.t("forwaderInvalidToken", this.metadata.name);
       throw error;

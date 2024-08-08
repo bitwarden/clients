@@ -91,7 +91,7 @@ export class RestClient {
     const message = parsed.message?.toString() ?? null;
 
     // `false` signals no message found
-    const result = error && message ? `${error}: ${message}` : (error ?? message ?? false);
+    const result = error && message ? `${error}: ${message}` : error ?? message ?? false;
 
     return result;
   }

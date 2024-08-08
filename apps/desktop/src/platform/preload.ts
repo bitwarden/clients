@@ -59,6 +59,17 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const sshagent = {
+  setKeys: (keys: { name: string; privateKey: string; uuid: string }[]): Promise<void> =>
+    ipcRenderer.invoke("sshagent.setkeys", keys),
+  signRequestResponse: async (id: string, accepted: boolean) => {
+    await ipcRenderer.invoke("sshagent.signrequestresponse", { id: id, accepted: accepted });
+  },
+  generateKey: async (keyAlgorithm: string) => {
+    return await ipcRenderer.invoke("sshagent.generatekey", { keyAlgorithm: keyAlgorithm });
+  },
+};
+
 const powermonitor = {
   isLockMonitorAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
@@ -161,6 +172,7 @@ export default {
   passwords,
   biometric,
   clipboard,
+  sshagent,
   powermonitor,
   nativeMessaging,
   crypto,

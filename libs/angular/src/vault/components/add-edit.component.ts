@@ -12,7 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { ClientType, EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -129,8 +129,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       { name: i18nService.t("typeCard"), value: CipherType.Card },
       { name: i18nService.t("typeIdentity"), value: CipherType.Identity },
       { name: i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
-      { name: i18nService.t("typeSSHKey"), value: CipherType.SSHKey },
     ];
+
+    if (this.platformUtilsService.getClientType() == ClientType.Desktop) {
+      this.typeOptions.push({ name: i18nService.t("typeSSHKey"), value: CipherType.SSHKey });
+    }
+
     this.cardBrandOptions = [
       { name: "-- " + i18nService.t("select") + " --", value: null },
       { name: "Visa", value: "Visa" },
