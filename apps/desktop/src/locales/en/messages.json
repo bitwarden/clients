@@ -899,6 +899,12 @@
   "yourAccountIsLocked": {
     "message": "Your account is locked"
   },
+  "or": {
+    "message": "or"
+  },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
+  },
   "unlock": {
     "message": "Unlock"
   },

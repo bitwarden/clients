@@ -16,13 +16,19 @@
 
   <hr />
 
-  <div class="tw-flex tw-gap-2">
+  <div class="tw-flex tw-flex-col tw-space-y-3">
     <button type="submit" bitButton bitFormButton buttonType="primary" block>
-      <i class="bwi bwi-unlock" aria-hidden="true"></i>
       {{ "unlock" | i18n }}
     </button>
+
+    <p class="tw-text-center">{{ "or" | i18n }}</p>
+
     <button type="button" bitButton bitFormButton block (click)="logOut()">
       {{ "logOut" | i18n }}
     </button>
   </div>
 </form>
+
+<!-- <button type="submit" bitButton bitFormButton buttonType="primary" block>
+      {{ "unlockWithBiometrics" | i18n }}
+    </button> -->

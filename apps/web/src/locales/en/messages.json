@@ -7227,6 +7227,9 @@
   "or": {
     "message": "or"
   },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
+  },
   "licenseAndBillingManagement": {
     "message": "License and billing management"
   },
