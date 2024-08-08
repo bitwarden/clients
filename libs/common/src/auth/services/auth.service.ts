@@ -93,8 +93,8 @@ export class AuthService implements AuthServiceAbstraction {
     return await firstValueFrom(this.authStatusFor$(userId as UserId));
   }
 
-  logOut(callback: () => void) {
+  logOut(callback: () => void, userId?: string): void {
     callback();
-    this.messageSender.send("loggedOut");
+    this.messageSender.send("loggedOut", { userId });
   }
 }

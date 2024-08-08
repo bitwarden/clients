@@ -16,5 +16,5 @@ export abstract class AuthService {
   abstract authStatusFor$(userId: UserId): Observable<AuthenticationStatus>;
   /** @deprecated use {@link activeAccountStatus$} instead */
   abstract getAuthStatus: (userId?: string) => Promise<AuthenticationStatus>;
-  abstract logOut: (callback: () => void) => void;
+  abstract logOut: (callback: () => void, userId?: string) => void;
 }
