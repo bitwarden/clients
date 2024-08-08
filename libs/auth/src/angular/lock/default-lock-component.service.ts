@@ -5,6 +5,10 @@ import { LockComponentService } from "./lock-component.service";
 export class DefaultLockComponentService implements LockComponentService {
   constructor() {}
 
+  async isFido2Session(): Promise<boolean> {
+    return false;
+  }
+
   async isWindowVisible(): Promise<boolean> {
     return false;
   }

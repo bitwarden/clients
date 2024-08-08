@@ -5,6 +5,10 @@ import { UserId } from "@bitwarden/common/types/guid";
  * client specific functionality to client specific services implementations of LockComponentService.
  */
 export abstract class LockComponentService {
+  // Extension
+  abstract isFido2Session(): Promise<boolean>;
+
+  // Desktop only
   abstract isWindowVisible(): Promise<boolean>;
   abstract biometricsEnabled(userId: UserId): Promise<boolean>;
 }

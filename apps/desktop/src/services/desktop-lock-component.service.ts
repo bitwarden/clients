@@ -5,10 +5,6 @@ export class DesktopLockComponentService
   extends DefaultLockComponentService
   implements LockComponentService
 {
-  constructor() {
-    super();
-  }
-
   override async isWindowVisible(): Promise<boolean> {
     return ipc.platform.isWindowVisible();
   }
