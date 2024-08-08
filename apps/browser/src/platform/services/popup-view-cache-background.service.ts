@@ -1,5 +1,6 @@
-import { switchMap, merge, delay, filter } from "rxjs";
+import { switchMap, merge, delay, filter, concatMap } from "rxjs";
 
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
   POPUP_VIEW_MEMORY,
   KeyDefinition,
@@ -10,6 +11,15 @@ import { fromChromeEvent } from "../browser/from-chrome-event";
 
 const popupClosedPortName = "new_popup";
 
+/** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
+export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<string>(
+  POPUP_VIEW_MEMORY,
+  "popup-view-cache",
+  {
+    deserializer: (jsonValue) => jsonValue,
+  },
+);
+
 export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
   POPUP_VIEW_MEMORY,
   "popup-route-history",
@@ -18,12 +28,44 @@ export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
   },
 );
 
+export const SAVE_VIEW_CACHE_COMMAND = new CommandDefinition<{
+  key: string;
+  value: string;
+}>("save-view-cache");
+
+export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition("clear-view-cache");
+
 export class PopupViewCacheBackgroundService {
+  private popupViewCacheState = this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY);
   private popupRouteHistoryState = this.globalStateProvider.get(POPUP_ROUTE_HISTORY_KEY);
 
-  constructor(private globalStateProvider: GlobalStateProvider) {}
+  constructor(
+    private messageListener: MessageListener,
+    private globalStateProvider: GlobalStateProvider,
+  ) {}
 
   async init() {
+    this.messageListener
+      .messages$(SAVE_VIEW_CACHE_COMMAND)
+      .pipe(
+        concatMap(async ({ key, value }) =>
+          this.popupViewCacheState.update((state) => ({
+            ...state,
+            [key]: value,
+          })),
+        ),
+      )
+      .subscribe();
+
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(
+        concatMap(async () => {
+          return this.popupViewCacheState.update(() => ({}), { shouldUpdate: this.objNotEmpty });
+        }),
+      )
+      .subscribe();
+
     merge(
       // on tab changed, excluding extension tabs
       fromChromeEvent(chrome.tabs.onActivated).pipe(
@@ -43,6 +85,7 @@ export class PopupViewCacheBackgroundService {
 
   async clearState() {
     return Promise.all([
+      this.popupViewCacheState.update(() => ({}), { shouldUpdate: this.objNotEmpty }),
       this.popupRouteHistoryState.update(() => [], { shouldUpdate: this.objNotEmpty }),
     ]);
   }
