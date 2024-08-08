@@ -14,6 +14,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import {
@@ -43,10 +44,12 @@ import {
 } from "@bitwarden/components";
 
 import { PinServiceAbstraction } from "../../common/abstractions";
+import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
 import { LockComponentService } from "./lock-component.service";
 
 // TODO: investigate this approach. It seems like a good way to handle the different unlock options.
+// See user verification form input for example.
 // type UnlockOptions = {
 //   masterPassword: boolean;
 //   pin: boolean;
@@ -116,6 +119,12 @@ export class LockV2Component implements OnInit, OnDestroy {
   private autoPromptBiometric = false;
   private timerId: any;
 
+  // Browser extension properties:
+  private isInitialLockScreen = (window as any).previousPopupUrl == null;
+  biometricError: string;
+  pendingBiometric = false;
+  isFido2Session: boolean = false;
+
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
@@ -141,6 +150,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
 
     private lockComponentService: LockComponentService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
 
     // desktop deps
     private broadcasterService: BroadcasterService,
@@ -164,10 +174,16 @@ export class LockV2Component implements OnInit, OnDestroy {
     if (clientType === "desktop") {
       await this.desktopOnInit();
     }
+
+    if (clientType === "browser") {
+      await this.extensionOnInit();
+    }
   }
 
   // Base component methods
   private async load(activeAccount: { id: UserId | undefined } & AccountInfo) {
+    this.setEmailAsPageSubtitle(activeAccount.email);
+
     this.pinEnabled = await this.pinService.isPinDecryptionAvailable(activeAccount.id);
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
@@ -185,6 +201,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     // this.email = activeAccount.email;
 
     this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
+  }
+
+  private setEmailAsPageSubtitle(email: string) {
+    // This doesn't work until we can pass whether we want the value translated or not.
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageSubtitle: email,
+    });
   }
 
   async submit() {
@@ -418,7 +441,10 @@ export class LockV2Component implements OnInit, OnDestroy {
     );
   }
 
+  // -----------------------------------------------------------------------------------------------
   // Desktop methods:
+  // -----------------------------------------------------------------------------------------------
+
   async desktopOnInit() {
     this.autoPromptBiometric = await firstValueFrom(
       this.biometricStateService.promptAutomatically$,
@@ -522,6 +548,57 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   private focusInput() {
     document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Browser Extension methods:
+  // -----------------------------------------------------------------------------------------------
+
+  async extensionOnInit() {
+    this.isFido2Session = await this.lockComponentService.isFido2Session();
+
+    const autoBiometricsPrompt = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
+
+    window.setTimeout(async () => {
+      this.focusInput();
+      if (
+        this.biometricLock &&
+        autoBiometricsPrompt &&
+        this.isInitialLockScreen &&
+        (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
+      ) {
+        await this.extensionUnlockBiometric();
+      }
+    }, 100);
+  }
+
+  private async extensionUnlockBiometric(): Promise<boolean> {
+    if (!this.biometricLock) {
+      return;
+    }
+
+    this.pendingBiometric = true;
+    this.biometricError = null;
+
+    let success;
+    try {
+      success = await this.unlockBiometric();
+    } catch (e) {
+      // TODO: these errors are only used in the extension
+      // Must move logic into services.
+      // const error = BiometricErrors[e?.message as BiometricErrorTypes];
+      // if (error == null) {
+      //   this.logService.error("Unknown error: " + e);
+      //   return false;
+      // }
+      // this.biometricError = this.i18nService.t(error.description);
+    } finally {
+      this.pendingBiometric = false;
+    }
+
+    return success;
   }
 
   ngOnDestroy() {
