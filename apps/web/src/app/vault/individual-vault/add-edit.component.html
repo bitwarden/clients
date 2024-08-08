@@ -847,6 +847,76 @@
             </div>
           </div>
         </ng-container>
+        <!-- SSH Key -->
+        <ng-container *ngIf="cipher.type === cipherType.SSHKey">
+          <div class="row">
+            <div class="col-12 form-group">
+              <label for="sshKeyPublicKey">{{ "sshKeyPublicKey" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyPublicKey"
+                  class="form-control"
+                  type="text"
+                  name="SSHKey.PublicKey"
+                  [(ngModel)]="cipher.sshKey.publicKey"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySSHPublicKey' | i18n }}"
+                    (click)="copy(cipher.sshKey.publicKey, 'sshKeyPublicKey', 'PublicKey')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyFingerprint">{{ "sshKeyFingerprint" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyFingerprint"
+                  class="form-control"
+                  type="text"
+                  name="SSHKey.Fingerprint"
+                  [(ngModel)]="cipher.sshKey.keyFingerprint"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySSHFingerprint' | i18n }}"
+                    (click)="copy(cipher.sshKey.keyFingerprint, 'sshKeyFingerprint', 'Fingerprint')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyAlgorithm">{{ "sshKeyAlgorithm" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyAlgorithm"
+                  class="form-control"
+                  type="text"
+                  name="SSHKey.KeyAlgorithm"
+                  [(ngModel)]="cipher.sshKey.keyAlgorithm"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+        </ng-container>
         <div class="form-group">
           <label for="notes">{{ "notes" | i18n }}</label>
           <textarea

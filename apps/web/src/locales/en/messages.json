@@ -896,8 +896,8 @@
   "unexpectedError": {
     "message": "An unexpected error has occurred."
   },
-  "expirationDateError" : {
-    "message":"Please select an expiration date that is in the future."
+  "expirationDateError": {
+    "message": "Please select an expiration date that is in the future."
   },
   "emailAddress": {
     "message": "Email address"
@@ -905,8 +905,8 @@
   "yourVaultIsLockedV2": {
     "message": "Your vault is locked"
   },
-  "uuid":{
-    "message" : "UUID"
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Unlock"
@@ -1142,10 +1142,10 @@
   "copyUuid": {
     "message": "Copy UUID"
   },
-  "errorRefreshingAccessToken":{
+  "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
   },
-  "errorRefreshingAccessTokenDesc":{
+  "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
   },
   "warning": {
@@ -4855,7 +4855,7 @@
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
     "message": "You need approval from your administrator to try Secrets Manager."
   },
-  "smAccessRequestEmailSent" : {
+  "smAccessRequestEmailSent": {
     "message": "Access request for secrets manager email sent to admins."
   },
   "requestAccessSMDefaultEmailContent": {
@@ -4864,8 +4864,8 @@
   "giveMembersAccess": {
     "message": "Give members access:"
   },
-  "viewAndSelectTheMembers" : {
-    "message" :"view and select the members you want to give access to Secrets Manager."
+  "viewAndSelectTheMembers": {
+    "message": "view and select the members you want to give access to Secrets Manager."
   },
   "openYourOrganizations": {
     "message": "Open your organization's"
@@ -5783,10 +5783,10 @@
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
-  "selfHostedCustomEnvHeader" :{
+  "selfHostedCustomEnvHeader": {
     "message": "For advanced configuration, you can specify the base URL of each service independently."
   },
-  "selfHostedEnvFormInvalid" :{
+  "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
   "apiUrl": {
@@ -7528,7 +7528,7 @@
       }
     }
   },
-  "verificationRequired" : {
+  "verificationRequired": {
     "message": "Verification required",
     "description": "Default title for the user verification dialog."
   },
@@ -8327,7 +8327,7 @@
     "message": "Integrations & SDKs",
     "description": "The title for the section that deals with integrations and SDKs."
   },
-  "integrations":{
+  "integrations": {
     "message": "Integrations"
   },
   "integrationsDesc": {
@@ -8613,11 +8613,11 @@
     "placeholders": {
       "value": {
         "content": "$1",
-        "example":"increments of 100,000"
+        "example": "increments of 100,000"
       }
     }
   },
-  "providerReinstate":{
+  "providerReinstate": {
     "message": " Contact Customer Support to reinstate your subscription."
   },
   "secretPeopleDescription": {
@@ -8828,5 +8828,14 @@
   },
   "additionalStorageGbMessage": {
     "message": "GB additional storage"
+  },
+  "sshKeyAlgorithm": {
+    "message": "SSH Key Algorithm"
+  },
+  "sshKeyFingerprint": {
+    "message": "SSH Key Fingerprint"
+  },
+  "sshKeyPublicKey": {
+    "message": "SSH Key Public Key"
   }
 }
