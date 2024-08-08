@@ -21,6 +21,7 @@ import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-con
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -72,6 +73,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     private ssoLoginService: SsoLoginServiceAbstraction,
     dialogService: DialogService,
     kdfConfigService: KdfConfigService,
+    private encryptService: EncryptService,
   ) {
     super(
       i18nService,
@@ -160,7 +162,23 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       // Existing JIT provisioned user in a MP encryption org setting first password
       // Users in this state will not already have a user asymmetric key pair so must create it for them
       // We don't want to re-create the user key pair if the user already has one (TDE user case)
-      newKeyPair = await this.cryptoService.makeKeyPair(userKey[0]);
+
+      // in case we have a local private key, and are not sure whether it has been posted to the server, we post the local private key instead of generating a new one
+      const existingUserPrivateKey = (await firstValueFrom(
+        this.cryptoService.userPrivateKey$(this.userId),
+      )) as Uint8Array;
+      const existingUserPublicKey = await firstValueFrom(
+        this.cryptoService.userPublicKey$(this.userId),
+      );
+      if (existingUserPrivateKey != null && existingUserPublicKey != null) {
+        const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
+        newKeyPair = [
+          existingUserPublicKeyB64,
+          await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
+        ];
+      } else {
+        newKeyPair = await this.cryptoService.makeKeyPair(userKey[0]);
+      }
       keysRequest = new KeysRequest(newKeyPair[0], newKeyPair[1].encryptedString);
     }
 
