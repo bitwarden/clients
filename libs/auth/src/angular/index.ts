@@ -43,3 +43,5 @@ export * from "./registration/registration-finish/default-registration-finish.se
 
 // lock
 export * from "./lock/lock.component";
+export * from "./lock/lock-component.service";
+export * from "./lock/default-lock-component.service";

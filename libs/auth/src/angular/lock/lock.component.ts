@@ -44,6 +44,8 @@ import {
 
 import { PinServiceAbstraction } from "../../common/abstractions";
 
+import { LockComponentService } from "./lock-component.service";
+
 // TODO: investigate this approach. It seems like a good way to handle the different unlock options.
 // type UnlockOptions = {
 //   masterPassword: boolean;
@@ -137,6 +139,8 @@ export class LockV2Component implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private formBuilder: FormBuilder,
+
+    private lockComponentService: LockComponentService,
 
     // desktop deps
     private broadcasterService: BroadcasterService,
@@ -461,9 +465,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async canUseBiometric() {
-    // TODO: replace ipc call with a service call
-    // return await ipc.platform.biometric.enabled(this.activeAccount.id);
-    return false;
+    return await this.lockComponentService.biometricsEnabled(this.activeAccount.id);
   }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
@@ -507,12 +509,11 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     this.biometricAsked = true;
-    // TODO: replace ipc call with a service call
-    // if (await ipc.platform.isWindowVisible()) {
-    //   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    //   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //   this.unlockBiometric();
-    // }
+    if (await this.lockComponentService.isWindowVisible()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.unlockBiometric();
+    }
   }
 
   onWindowHidden() {
