@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -20,6 +20,8 @@ import {
   MasterPasswordVerification,
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
+import { DeviceType } from "@bitwarden/common/enums";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -42,6 +44,15 @@ import {
 
 import { PinServiceAbstraction } from "../../common/abstractions";
 
+// TODO: investigate this approach. It seems like a good way to handle the different unlock options.
+// type UnlockOptions = {
+//   masterPassword: boolean;
+//   pin: boolean;
+//   biometrics: boolean;
+// };
+
+const BroadcasterSubscriptionId = "LockComponent";
+
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
@@ -60,6 +71,13 @@ export class LockV2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   activeAccount: { id: UserId | undefined } & AccountInfo;
+
+  // TODO: is there a better way to do this?
+  // unlockOpts: UnlockOptions = {
+  //   masterPassword: false,
+  //   pin: false,
+  //   biometrics: false,
+  // };
 
   pinEnabled = false;
   pin = "";
@@ -89,6 +107,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     masterPassword: ["", { validators: Validators.required, updateOn: "submit" }],
   });
 
+  // Desktop properties:
+  private deferFocus: boolean = null;
+  biometricReady = false;
+  private biometricAsked = false;
+  private autoPromptBiometric = false;
+  private timerId: any;
+
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
@@ -112,9 +137,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private formBuilder: FormBuilder,
+
+    // desktop deps
+    private broadcasterService: BroadcasterService,
+    private activatedRoute: ActivatedRoute,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.accountService.activeAccount$
       .pipe(
         switchMap(async (account) => {
@@ -124,15 +153,25 @@ export class LockV2Component implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    // Identify client
+    const clientType = this.platformUtilsService.getClientType();
+
+    if (clientType === "desktop") {
+      await this.desktopOnInit();
+    }
   }
 
+  // Base component methods
   private async load(activeAccount: { id: UserId | undefined } & AccountInfo) {
     this.pinEnabled = await this.pinService.isPinDecryptionAvailable(activeAccount.id);
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
+    // TODO: do we even need this?
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
 
+    // TODO: This really should be biometricsLockSet, or biometricsUnlockEnabled or something.
     this.biometricLock =
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
@@ -375,8 +414,120 @@ export class LockV2Component implements OnInit, OnDestroy {
     );
   }
 
+  // Desktop methods:
+  async desktopOnInit() {
+    this.autoPromptBiometric = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
+    this.biometricReady = await this.canUseBiometric();
+
+    await this.displayBiometricUpdateWarning();
+
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.delayedAskForBiometric(500);
+    this.activatedRoute.queryParams.pipe(
+      switchMap((params) => this.delayedAskForBiometric(500, params)),
+    );
+
+    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
+      this.ngZone.run(() => {
+        switch (message.command) {
+          case "windowHidden":
+            this.onWindowHidden();
+            break;
+          case "windowIsFocused":
+            if (this.deferFocus === null) {
+              this.deferFocus = !message.windowIsFocused;
+              if (!this.deferFocus) {
+                this.focusInput();
+              }
+            } else if (this.deferFocus && message.windowIsFocused) {
+              this.focusInput();
+              this.deferFocus = false;
+            }
+            break;
+          default:
+        }
+      });
+    });
+    this.messagingService.send("getWindowIsFocused");
+
+    // start background listener until destroyed on interval
+    this.timerId = setInterval(async () => {
+      this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
+      this.biometricReady = await this.canUseBiometric();
+    }, 1000);
+  }
+
+  private async canUseBiometric() {
+    // TODO: replace ipc call with a service call
+    // return await ipc.platform.biometric.enabled(this.activeAccount.id);
+    return false;
+  }
+
+  private async displayBiometricUpdateWarning(): Promise<void> {
+    if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
+      return;
+    }
+
+    if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
+      return;
+    }
+
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)) {
+      const response = await this.dialogService.openSimpleDialog({
+        title: { key: "windowsBiometricUpdateWarningTitle" },
+        content: { key: "windowsBiometricUpdateWarning" },
+        type: "warning",
+      });
+
+      await this.biometricStateService.setRequirePasswordOnStart(response);
+      if (response) {
+        await this.biometricStateService.setPromptAutomatically(false);
+      }
+      this.supportsBiometric = await this.canUseBiometric();
+      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+    }
+  }
+
+  private async delayedAskForBiometric(delay: number, params?: any) {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    if (params && !params.promptBiometric) {
+      return;
+    }
+
+    if (!this.supportsBiometric || !this.autoPromptBiometric || this.biometricAsked) {
+      return;
+    }
+
+    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
+      return;
+    }
+
+    this.biometricAsked = true;
+    // TODO: replace ipc call with a service call
+    // if (await ipc.platform.isWindowVisible()) {
+    //   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    //   // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    //   this.unlockBiometric();
+    // }
+  }
+
+  onWindowHidden() {
+    this.showPassword = false;
+  }
+
+  private focusInput() {
+    document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+
+    // Desktop cleanup
+    clearInterval(this.timerId);
   }
 }
