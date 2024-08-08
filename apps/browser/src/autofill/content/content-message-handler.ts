@@ -11,9 +11,13 @@ import {
  * is registered within a class. This is why these listeners are registered
  * at the top level of this file.
  */
+
+const channel = new BroadcastChannel("BitwardenContentScriptMessageHandler");
+channel.addEventListener("message", handleChannelMessage);
 window.addEventListener("message", handleWindowMessageEvent, false);
 chrome.runtime.onMessage.addListener(handleExtensionMessage);
 setupExtensionDisconnectAction(() => {
+  channel.close();
   window.removeEventListener("message", handleWindowMessageEvent);
   chrome.runtime.onMessage.removeListener(handleExtensionMessage);
 });
@@ -86,6 +90,23 @@ function handleWindowMessageEvent(event: MessageEvent) {
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });
+  }
+}
+
+/**
+ * Handles messages from BroadcastChannel.
+ *
+ * @param event - The channel message event
+ */
+function handleChannelMessage(event: MessageEvent) {
+  const { data } = event;
+  if (!data?.command) {
+    return;
+  }
+
+  const handler = windowMessageHandlers[data.command];
+  if (handler) {
+    handler({ data, referrer: data.source });
   }
 }
 
