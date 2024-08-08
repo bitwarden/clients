@@ -99,11 +99,12 @@ export class AdjustSubscription implements OnInit, OnDestroy {
       : 0;
   }
 
-  get adjustedSeatTotal(): number {
-    return this.additionalSeatCount * this.seatPrice;
+  get maxSeatTotal(): number {
+    return Math.abs((this.adjustSubscriptionForm.value.newMaxSeats ?? 0) * this.seatPrice);
   }
 
-  get maxSeatTotal(): number {
-    return this.additionalMaxSeatCount * this.seatPrice;
+  get seatTotalCost(): number {
+    const totalSeat = Math.abs(this.adjustSubscriptionForm.value.newSeatCount * this.seatPrice);
+    return totalSeat;
   }
 }
