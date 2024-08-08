@@ -116,24 +116,20 @@ export const Scrollable: Story = {
       sortFn: (a: any, b: any) => a.id - b.id,
     },
     template: `
-      <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-        <bit-table [dataSource]="dataSource">
-          <ng-container header>
-            <tr>
-              <th bitCell bitSortable="id" default>Id</th>
-              <th bitCell bitSortable="name">Name</th>
-              <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
-            </tr>
-          </ng-container>
-          <ng-template body let-rows$>
-            <tr bitRow *cdkVirtualFor="let r of rows$">
-              <td bitCell>{{ r.id }}</td>
-              <td bitCell>{{ r.name }}</td>
-              <td bitCell>{{ r.other }}</td>
-            </tr>
-          </ng-template>
-        </bit-table>
-      </cdk-virtual-scroll-viewport>
+      <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="id" default>Id</th>
+            <th bitCell bitSortable="name">Name</th>
+            <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+          </tr>
+        </ng-container>
+        <ng-template bitRowDef let-row>
+          <td bitCell>{{ row.id }}</td>
+          <td bitCell>{{ row.name }}</td>
+          <td bitCell>{{ row.other }}</td>
+        </ng-template>
+      </bit-table-scroll>
     `,
   }),
 };
