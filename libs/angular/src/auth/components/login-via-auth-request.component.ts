@@ -158,6 +158,10 @@ export class LoginViaAuthRequestComponent
       this.email = this.loginEmailService.getEmail();
 
       if (!this.email) {
+        this.email = await firstValueFrom(this.loginEmailService.tempEmail$);
+      }
+
+      if (!this.email) {
         this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises

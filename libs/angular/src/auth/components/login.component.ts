@@ -218,6 +218,9 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     }
 
     await this.saveEmailSettings();
+
+    await this.loginEmailService.setTempEmail();
+
     await this.router.navigate(["/login-with-device"]);
   }
 

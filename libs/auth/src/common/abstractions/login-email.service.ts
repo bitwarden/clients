@@ -10,6 +10,11 @@ export abstract class LoginEmailServiceAbstraction {
    * Gets the current email being used in the login process from memory.
    * @returns A string of the email.
    */
+
+  tempEmail$: Observable<string | null>;
+
+  setTempEmail: () => Promise<void>;
+
   getEmail: () => string;
   /**
    * Sets the current email being used in the login process in memory.
