@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
   ButtonModule,
   BadgeModule,
@@ -30,6 +31,7 @@ describe("SendListItemsContainerComponent", () => {
   let component: SendListItemsContainerComponent;
   let fixture: ComponentFixture<SendListItemsContainerComponent>;
   let environmentService: MockProxy<EnvironmentService>;
+  let sendService: MockProxy<SendService>;
 
   const openSimpleDialog = jest.fn();
   const showToast = jest.fn();
@@ -37,6 +39,8 @@ describe("SendListItemsContainerComponent", () => {
   const deleteFn = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(async () => {
+    sendService = mock<SendService>();
+
     await TestBed.configureTestingModule({
       imports: [
         CommonModule,
@@ -57,6 +61,7 @@ describe("SendListItemsContainerComponent", () => {
         { provide: PlatformUtilsService, useValue: { copyToClipboard } },
         { provide: SendApiService, useValue: { delete: deleteFn } },
         { provide: ToastService, useValue: { showToast } },
+        { provide: SendService, useValue: sendService },
       ],
     })
       .overrideProvider(DialogService, {
@@ -113,10 +118,11 @@ describe("SendListItemsContainerComponent", () => {
 
   it("should copy send link", async () => {
     const send = { id: "123", accessId: "abc", urlB64Key: "xyz" } as SendView;
+    const link = "https://example.com/#/send/abc/xyz";
 
     await component.copySendLink(send);
 
-    expect(copyToClipboard).toHaveBeenCalledWith("https://example.com/#/send/abc/xyz");
+    expect(copyToClipboard).toHaveBeenCalledWith(link);
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
       title: null,

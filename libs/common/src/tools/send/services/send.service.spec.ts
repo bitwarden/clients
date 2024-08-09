@@ -1,5 +1,8 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
+
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 
 import {
   FakeAccountService,
@@ -41,6 +44,7 @@ describe("SendService", () => {
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
+  const environmentService = mock<EnvironmentService>();
 
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
@@ -56,6 +60,10 @@ describe("SendService", () => {
     accountService = mockAccountServiceWith(mockUserId);
     stateProvider = new FakeStateProvider(accountService);
     sendStateProvider = new SendStateProvider(stateProvider);
+    Object.defineProperty(environmentService, "environment$", {
+      configurable: true,
+      get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
+    });
 
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
 

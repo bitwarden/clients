@@ -4823,6 +4823,9 @@
   "copySendLinkOnSave": {
     "message": "Copy the link to share this Send to my clipboard upon save."
   },
+  "copyLink": {
+    "message": "Copy link"
+  },
   "sendLinkLabel": {
     "message": "Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
