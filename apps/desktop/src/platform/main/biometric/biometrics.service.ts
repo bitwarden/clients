@@ -6,9 +6,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
 
-import { BiometricsServiceAbstraction, OsBiometricService } from "./biometrics.service.abstraction";
+import { DesktopBiometricsService, OsBiometricService } from "./desktop.biometrics.service";
 
-export class BiometricsService implements BiometricsServiceAbstraction {
+export class BiometricsService extends DesktopBiometricsService {
   private platformSpecificService: OsBiometricService;
   private clientKeyHalves = new Map<string, string>();
 
@@ -20,6 +20,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
   ) {
+    super();
     this.loadPlatformSpecificService(this.platform);
   }
 
@@ -63,19 +64,19 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     this.platformSpecificService = new NoopBiometricsService();
   }
 
-  async osSupportsBiometric() {
+  async supportsBiometric() {
     return await this.platformSpecificService.osSupportsBiometric();
   }
 
-  async osBiometricsNeedsSetup() {
+  async biometricsNeedsSetup() {
     return await this.platformSpecificService.osBiometricsNeedsSetup();
   }
 
-  async osBiometricsCanAutoSetup() {
+  async biometricsSupportsAutoSetup() {
     return await this.platformSpecificService.osBiometricsCanAutoSetup();
   }
 
-  async osBiometricsSetup() {
+  async biometricsSetup() {
     await this.platformSpecificService.osBiometricsSetup();
   }
 
@@ -91,7 +92,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
     const clientKeyHalfB64 = this.getClientKeyHalf(service, key);
     const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
-    return clientKeyHalfSatisfied && (await this.osSupportsBiometric());
+    return clientKeyHalfSatisfied && (await this.supportsBiometric());
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -108,6 +109,10 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       },
     );
     return result;
+  }
+
+  async isBiometricUnlockAvailable(): Promise<boolean> {
+    return await this.platformSpecificService.osSupportsBiometric();
   }
 
   async getBiometricKey(service: string, storageKey: string): Promise<string | null> {

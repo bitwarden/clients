@@ -1,4 +1,4 @@
-import { OsBiometricService } from "./biometrics.service.abstraction";
+import { OsBiometricService } from "./desktop.biometrics.service";
 
 export default class NoopBiometricsService implements OsBiometricService {
   constructor() {}

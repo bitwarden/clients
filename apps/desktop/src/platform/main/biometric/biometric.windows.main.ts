@@ -6,7 +6,7 @@ import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
 
-import { OsBiometricService } from "./biometrics.service.abstraction";
+import { OsBiometricService } from "./desktop.biometrics.service";
 
 const KEY_WITNESS_SUFFIX = "_witness";
 const WITNESS_VALUE = "known key";

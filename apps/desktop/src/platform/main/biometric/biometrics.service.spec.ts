@@ -11,7 +11,7 @@ import { WindowMain } from "../../../main/window.main";
 import BiometricDarwinMain from "./biometric.darwin.main";
 import BiometricWindowsMain from "./biometric.windows.main";
 import { BiometricsService } from "./biometrics.service";
-import { OsBiometricService } from "./biometrics.service.abstraction";
+import { OsBiometricService } from "./desktop.biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
   return {

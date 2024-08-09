@@ -28,12 +28,15 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { BiometricsService as AbstractBiometricService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
+
+import { BiometricsService } from "src/platform/main/biometric";
 
 import { LockComponent } from "./lock.component";
 
@@ -53,6 +56,7 @@ describe("LockComponent", () => {
   let fixture: ComponentFixture<LockComponent>;
   let stateServiceMock: MockProxy<StateService>;
   let biometricStateService: MockProxy<BiometricStateService>;
+  let biometricsService: MockProxy<BiometricsService>;
   let messagingServiceMock: MockProxy<MessagingService>;
   let broadcasterServiceMock: MockProxy<BroadcasterService>;
   let platformUtilsServiceMock: MockProxy<PlatformUtilsService>;
@@ -162,6 +166,10 @@ describe("LockComponent", () => {
         {
           provide: BiometricStateService,
           useValue: biometricStateService,
+        },
+        {
+          provide: AbstractBiometricService,
+          useValue: biometricsService,
         },
         {
           provide: AccountService,

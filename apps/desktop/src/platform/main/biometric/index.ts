@@ -1,2 +1,2 @@
-export * from "./biometrics.service.abstraction";
+export * from "./desktop.biometrics.service";
 export * from "./biometrics.service";

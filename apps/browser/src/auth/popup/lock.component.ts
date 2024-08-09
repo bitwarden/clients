@@ -24,6 +24,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
@@ -67,6 +68,7 @@ export class LockComponent extends BaseLockComponent implements OnInit {
     pinService: PinServiceAbstraction,
     private routerService: BrowserRouterService,
     biometricStateService: BiometricStateService,
+    biometricsService: BiometricsService,
     accountService: AccountService,
     kdfConfigService: KdfConfigService,
     syncService: SyncService,
@@ -93,6 +95,7 @@ export class LockComponent extends BaseLockComponent implements OnInit {
       userVerificationService,
       pinService,
       biometricStateService,
+      biometricsService,
       accountService,
       authService,
       kdfConfigService,
@@ -129,22 +132,35 @@ export class LockComponent extends BaseLockComponent implements OnInit {
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {
-        await this.unlockBiometric();
+        await this.unlockBiometric(true);
       }
     }, 100);
   }
 
-  override async unlockBiometric(): Promise<boolean> {
+  override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
     if (!this.biometricLock) {
       return;
     }
 
-    this.pendingBiometric = true;
     this.biometricError = null;
 
     let success;
     try {
-      success = await super.unlockBiometric();
+      const available = await super.isBiometricUnlockAvailable();
+      if (!available) {
+        if (!automaticPrompt) {
+          await this.dialogService.openSimpleDialog({
+            type: "warning",
+            title: { key: "biometricsNotAvailableTitle" },
+            content: { key: "biometricsNotAvailableDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+          });
+        }
+      } else {
+        this.pendingBiometric = true;
+        success = await super.unlockBiometric();
+      }
     } catch (e) {
       const error = BiometricErrors[e?.message as BiometricErrorTypes];
 

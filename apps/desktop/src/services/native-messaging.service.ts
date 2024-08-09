@@ -7,8 +7,8 @@ import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/c
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -32,11 +32,11 @@ export class NativeMessagingService {
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private cryptoService: CryptoService,
-    private platformUtilService: PlatformUtilsService,
     private logService: LogService,
     private messagingService: MessagingService,
     private desktopSettingService: DesktopSettingsService,
     private biometricStateService: BiometricStateService,
+    private biometricsService: BiometricsService,
     private nativeMessageHandler: NativeMessageHandlerService,
     private dialogService: DialogService,
     private accountService: AccountService,
@@ -132,7 +132,14 @@ export class NativeMessagingService {
 
     switch (message.command) {
       case "biometricUnlock": {
-        if (!(await this.platformUtilService.supportsBiometric())) {
+        const isTemporarilyDisabled =
+          (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
+          !(await this.biometricsService.supportsBiometric());
+        if (isTemporarilyDisabled) {
+          return this.send({ command: "biometricUnlock", response: "not available" }, appId);
+        }
+
+        if (!(await this.biometricsService.supportsBiometric())) {
           return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
         }
 
@@ -187,8 +194,18 @@ export class NativeMessagingService {
 
         break;
       }
+      case "biometricUnlockAvailable": {
+        const isAvailable = await this.biometricsService.supportsBiometric();
+        return this.send(
+          {
+            command: "biometricUnlockAvailable",
+            response: isAvailable ? "available" : "not available",
+          },
+          appId,
+        );
+      }
       default:
-        this.logService.error("NativeMessage, got unknown command.");
+        this.logService.error("NativeMessage, got unknown command: " + message.command);
         break;
     }
   }

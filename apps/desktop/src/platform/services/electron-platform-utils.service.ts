@@ -131,30 +131,6 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return ipc.platform.clipboard.read();
   }
 
-  async supportsBiometric(): Promise<boolean> {
-    return await ipc.platform.biometric.osSupported();
-  }
-
-  async biometricsNeedsSetup(): Promise<boolean> {
-    return await ipc.platform.biometric.biometricsNeedsSetup();
-  }
-
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return await ipc.platform.biometric.biometricsCanAutoSetup();
-  }
-
-  async biometricsSetup(): Promise<void> {
-    return await ipc.platform.biometric.biometricsSetup();
-  }
-
-  /** This method is used to authenticate the user presence _only_.
-   * It should not be used in the process to retrieve
-   * biometric keys, which has a separate authentication mechanism.
-   * For biometric keys, invoke "keytar" with a biometric key suffix */
-  async authenticateBiometric(): Promise<boolean> {
-    return await ipc.platform.biometric.authenticate();
-  }
-
   supportsSecureStorage(): boolean {
     return ELECTRON_SUPPORTS_SECURE_STORAGE;
   }

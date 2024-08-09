@@ -6,14 +6,14 @@ import { passwords } from "@bitwarden/desktop-napi";
 
 import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
 
-import { BiometricsServiceAbstraction } from "./biometric/index";
+import { DesktopBiometricsService } from "./biometric/index";
 
 const AuthRequiredSuffix = "_biometric";
 
 export class DesktopCredentialStorageListener {
   constructor(
     private serviceName: string,
-    private biometricService: BiometricsServiceAbstraction,
+    private biometricService: DesktopBiometricsService,
     private logService: ConsoleLogService,
   ) {}
 
@@ -77,16 +77,16 @@ export class DesktopCredentialStorageListener {
             });
             break;
           case BiometricAction.OsSupported:
-            val = await this.biometricService.osSupportsBiometric();
+            val = await this.biometricService.supportsBiometric();
             break;
           case BiometricAction.NeedsSetup:
-            val = await this.biometricService.osBiometricsNeedsSetup();
+            val = await this.biometricService.biometricsNeedsSetup();
             break;
           case BiometricAction.Setup:
-            await this.biometricService.osBiometricsSetup();
+            await this.biometricService.biometricsSetup();
             break;
           case BiometricAction.CanAutoSetup:
-            val = await this.biometricService.osBiometricsCanAutoSetup();
+            val = await this.biometricService.biometricsSupportsAutoSetup();
             break;
           default:
         }

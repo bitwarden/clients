@@ -15,7 +15,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   constructor(
     private clipboardWriteCallback: (clipboardValue: string, clearMs: number) => void,
-    private biometricCallback: () => Promise<boolean>,
     private globalContext: Window | ServiceWorkerGlobalScope,
     private offscreenDocumentService: OffscreenDocumentService,
   ) {}
@@ -274,30 +273,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     }
 
     return await BrowserClipboardService.read(windowContext);
-  }
-
-  async supportsBiometric() {
-    const platformInfo = await BrowserApi.getPlatformInfo();
-    if (platformInfo.os === "mac" || platformInfo.os === "win" || platformInfo.os === "linux") {
-      return true;
-    }
-    return false;
-  }
-
-  async biometricsNeedsSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSetup(): Promise<void> {
-    return;
-  }
-
-  authenticateBiometric() {
-    return this.biometricCallback();
   }
 
   supportsSecureStorage(): boolean {

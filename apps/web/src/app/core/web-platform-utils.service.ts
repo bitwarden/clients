@@ -186,20 +186,6 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     throw new Error("Cannot read from clipboard on web.");
   }
 
-  supportsBiometric() {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric() {
-    return Promise.resolve(false);
-  }
-
-  biometricsNeedsSetup: () => Promise<boolean>;
-  biometricsSupportsAutoSetup(): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
-  biometricsSetup: () => Promise<void>;
-
   supportsSecureStorage() {
     return false;
   }
