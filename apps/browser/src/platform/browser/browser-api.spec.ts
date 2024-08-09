@@ -276,26 +276,8 @@ describe("BrowserApi", () => {
   });
 
   describe("reloadExtension", () => {
-    it("reloads the window location if the passed globalContext is for the window", () => {
-      const windowMock = mock<Window>({
-        location: { reload: jest.fn() },
-      }) as unknown as Window & typeof globalThis;
-
-      BrowserApi.reloadExtension(windowMock);
-
-      expect(windowMock.location.reload).toHaveBeenCalled();
-    });
-
-    it("reloads the extension runtime if the passed globalContext is not for the window", () => {
-      const globalMock = mock<typeof globalThis>({}) as any;
-      BrowserApi.reloadExtension(globalMock);
-
-      expect(chrome.runtime.reload).toHaveBeenCalled();
-    });
-
-    it("reloads the extension runtime if a null value is passed as the globalContext", () => {
-      BrowserApi.reloadExtension(null);
-
+    it("forwards call to extension runtime", () => {
+      BrowserApi.reloadExtension();
       expect(chrome.runtime.reload).toHaveBeenCalled();
     });
   });

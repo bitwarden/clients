@@ -88,7 +88,7 @@ export class NativeMessagingBackground {
       // Reload extension to activate nativeMessaging
       chrome.permissions.onAdded.addListener((permissions) => {
         if (permissions.permissions?.includes("nativeMessaging")) {
-          BrowserApi.reloadExtension(null);
+          BrowserApi.reloadExtension();
         }
       });
     }

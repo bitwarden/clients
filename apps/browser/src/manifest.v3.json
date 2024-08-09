@@ -143,7 +143,8 @@
   "sidebar_action": {
     "default_title": "Bitwarden",
     "default_panel": "popup/index.html?uilocation=sidebar",
-    "default_icon": "images/icon19.png"
+    "default_icon": "images/icon19.png",
+    "open_at_install": false
   },
   "storage": {
     "managed_schema": "managed_schema.json"
