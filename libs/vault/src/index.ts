@@ -12,3 +12,5 @@ export {
 } from "./components/assign-collections.component";
 
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
+
+export * as VaultIcons from "./icons";

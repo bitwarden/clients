@@ -10,8 +10,8 @@ import {
   ButtonModule,
   DialogService,
   IconButtonModule,
-  Icons,
 } from "@bitwarden/components";
+import { VaultIcons } from "@bitwarden/vault";
 
 import { ItemGroupComponent } from "../../../../../../libs/components/src/item/item-group.component";
 import { ItemModule } from "../../../../../../libs/components/src/item/item.module";
@@ -46,7 +46,7 @@ import { NewItemDropdownV2Component } from "../components/vault-v2/new-item-drop
 export class FoldersV2Component {
   folders$: Observable<FolderView[]>;
 
-  NoFoldersIcon = Icons.NoFolders;
+  NoFoldersIcon = VaultIcons.NoFolders;
 
   constructor(
     private folderService: FolderService,
