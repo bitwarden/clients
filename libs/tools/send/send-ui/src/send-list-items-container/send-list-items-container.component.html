@@ -10,6 +10,8 @@
       <button
         bit-item-content
         appA11yTitle="{{ 'edit' | i18n }} - {{ send.name }}"
+        routerLink="/edit-send"
+        [queryParams]="{ sendId: send.id, type: send.type }"
         appStopClick
         type="button"
         class="tw-pb-1"

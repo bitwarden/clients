@@ -53,6 +53,7 @@ import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/pass
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
 import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
 import { SendTypeComponent } from "../tools/popup/send/send-type.component";
+import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { AboutPageComponent } from "../tools/popup/settings/about-page/about-page.component";
@@ -356,18 +357,16 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "send-type" },
   },
-  {
+  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
     path: "add-send",
-    component: SendAddEditComponent,
     canActivate: [authGuard],
     data: { state: "add-send" },
-  },
-  {
+  }),
+  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
     path: "edit-send",
-    component: SendAddEditComponent,
     canActivate: [authGuard],
     data: { state: "edit-send" },
-  },
+  }),
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
