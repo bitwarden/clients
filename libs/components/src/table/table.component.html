@@ -1,10 +1,10 @@
 <table [ngClass]="tableClass">
   <thead
-    class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-secondary-300 tw-font-bold tw-text-muted"
+    class="tw-h-full tw-border-0 tw-border-b-2 tw-border-solid tw-border-secondary-300 tw-font-bold tw-text-muted"
   >
     <ng-content select="[header]"></ng-content>
   </thead>
-  <tbody>
+  <tbody class="tw-h-full">
     <ng-container
       *ngTemplateOutlet="templateVariable.template; context: { $implicit: rows }"
     ></ng-container>
