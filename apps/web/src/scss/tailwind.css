@@ -5,9 +5,14 @@
 @import "../../../../libs/components/src/tw-theme.css";
 
 /*
- * Duplicated styling from Angular components.
+ * Web specific global styling.
  *
- * For use in non Angular pages like the 404 and connectors.
+ * Be mindful of what is added here. Generally use Tailwind classes directly in Angular components.
+ *
+ * Some valid scenarios for adding styles here:
+ *
+ * - Duplicated styling for CL components used in non Angular pages like connectors and 404.
+ * - Shared styles like Logo.
  */
 @layer components {
   .tw-h1 {
@@ -23,5 +28,36 @@
 
     @apply tw-bg-transparent tw-border-text-muted hover:tw-bg-text-muted hover:tw-border-text-muted hover:!tw-text-contrast disabled:tw-bg-transparent disabled:tw-border-text-muted/60 disabled:!tw-text-muted/60 disabled:tw-cursor-not-allowed;
     @apply tw-text-muted !important;
+  }
+
+  /**
+   * Loading page
+   */
+  body.layout_frontend {
+    /* We apply the background color here since body classes are dynamically added and removed */
+    @apply tw-bg-background-alt !important;
+
+    /* Spinner requires fixed height and width to appear centered */
+    .spinner-container {
+      @apply tw-fixed tw-inset-2/4 -tw-translate-x-1/2 -tw-translate-y-1/2;
+
+      height: 42px;
+      width: 42px;
+    }
+  }
+
+  /**
+   * Logo, used both in loading and on "frontend" pages.
+   */
+  img.new-logo-themed {
+    @apply tw-block;
+
+    width: 128px;
+  }
+  .theme_light img.new-logo-themed {
+    content: url("../images/logo.svg");
+  }
+  .theme_dark img.new-logo-themed {
+    content: url("../images/logo-white.svg");
   }
 }

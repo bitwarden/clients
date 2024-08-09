@@ -10,7 +10,6 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { IconModule, Icon } from "../../../../components/src/icon";
 import { SharedModule } from "../../../../components/src/shared";
 import { TypographyModule } from "../../../../components/src/typography";
-import { BitwardenLogoPrimary, BitwardenLogoWhite } from "../icons";
 import { BitwardenShieldPrimary, BitwardenShieldWhite } from "../icons/bitwarden-shield.icon";
 
 @Component({
@@ -34,8 +33,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    */
   @Input() maxWidth: "md" | "3xl" = "md";
 
-  protected logo: Icon;
-
   protected year = "2024";
   protected clientType: ClientType;
   protected hostname: string;
@@ -58,12 +55,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     this.maxWidth = this.maxWidth ?? "md";
 
     this.theme = await firstValueFrom(this.themeStateService.selectedTheme$);
-
-    if (this.theme === "dark") {
-      this.logo = BitwardenLogoWhite;
-    } else {
-      this.logo = BitwardenLogoPrimary;
-    }
 
     await this.updateIcon(this.theme);
 
