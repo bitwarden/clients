@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Ключ автентифікації"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "Номер"
   },
@@ -2480,7 +2526,7 @@
     "message": "Щоб оновити обліковий запис до Premium, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "uploadLicenseFileOrg": {
-    "message": "Щоб створити організацію, розміщену на локальному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
+    "message": "Щоб створити організацію на власному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "accountEmailMustBeVerified": {
     "message": "Необхідно підтвердити адресу електронної пошти вашого облікового запису."
@@ -2635,7 +2681,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "Локальний хостинг (необов'язково)"
+    "message": "Власний хостинг (необов'язково)"
   },
   "usersGetPremium": {
     "message": "Користувачі отримують доступ до можливостей Premium"
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Час очікування сховища"
   },
@@ -5778,7 +5827,7 @@
     "message": "Власне середовище"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden. Зразок: https://bitwarden.company.com"
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Запит підтвердження пристрою."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Розпочніть 7-денний пробний період Bitwarden для $ORG$",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "Записи"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Керування рахунками на порталі провайдера"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Розпочніть 7-денний пробний період Bitwarden для компаній"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера секретів Bitwarden для компаній"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для команд"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для родини"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Розпочніть безплатний 7-денний пробний період менеджера паролів Bitwarden для компаній"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї команди"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї родини"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Введіть інформацію про організацію своєї компанії"
+  },
   "viewItemsIn": {
     "message": "Переглянути записи в $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "куплених місць вилучено"
+  },
+  "includesXMembers": {
+    "message": "за $COUNT$ учасника",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Необов'язковий власний хостинг"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Покращте свою організацію $NAME$ ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Автентифікація SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Родинні організації можуть мати до $SEATCOUNT$ учасників. Передплатіть тарифний план, щоб запросити більше учасників.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Родинні організації можуть мати до $SEATCOUNT$ учасників. Зверніться до власника вашої організації для підвищення тарифного плану.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Перейдіть на вищий тарифний план, щоб запросити більше учасників та отримати доступ до додаткових функцій Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Заощадьте $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Розширені можливості для великого бізнесу"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Компанії, яким потрібна гарантована безпека"
+  },
+  "teamsInviteMessage": {
+    "message": "Запрошуйте користувачів без обмежень"
+  },
+  "accessToCreateGroups": {
+    "message": "Доступ для створення груп"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Синхронізуйте групи та користувачів з каталогу"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Надавайте спільний доступ родині та друзям"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Доступ до преміальних функцій"
+  },
+  "additionalStorageGbMessage": {
+    "message": "ГБ додаткового сховища"
   }
 }

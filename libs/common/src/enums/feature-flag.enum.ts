@@ -29,6 +29,8 @@ export enum FeatureFlag {
   AuthenticatorTwoFactorToken = "authenticator-2fa-token",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   EnableUpgradePasswordManagerSub = "AC-2708-upgrade-password-manager-sub",
+  GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
+  DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -68,6 +70,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AuthenticatorTwoFactorToken]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.EnableUpgradePasswordManagerSub]: FALSE,
+  [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
+  [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

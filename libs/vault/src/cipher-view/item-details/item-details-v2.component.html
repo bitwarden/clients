@@ -22,6 +22,7 @@
     <ul
       [attr.aria-label]="'itemLocation' | i18n"
       *ngIf="cipher.collectionIds?.length || cipher.organizationId || cipher.folderId"
+      class="tw-mb-0"
     >
       <li
         *ngIf="cipher.organizationId && organization"

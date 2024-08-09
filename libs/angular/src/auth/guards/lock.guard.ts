@@ -21,7 +21,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 /**
  * Only allow access to this route if the vault is locked.
  * If TDE is enabled then the user must also have had a user key at some point.
- * Otherwise redirect to root.
+ * Otherwise reject navigation.
  *
  * TODO: This should return Observable<boolean | UrlTree> once we can remove all the promises
  */

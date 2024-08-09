@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -52,7 +52,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
   templateUrl: "account-security.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class AccountSecurityComponent implements OnInit {
+export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
   availableVaultTimeoutActions: VaultTimeoutAction[] = [];

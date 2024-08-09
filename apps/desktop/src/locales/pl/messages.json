@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Dodatkowe ustawienia Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Odblokuj za pomocą uwierzytelniania systemowego"
+  },
   "windowsHelloConsentMessage": {
     "message": "Zweryfikuj dla Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Uwierzytelnij, aby odblokować Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Odblokuj za pomocą Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Poproś o Windows Hello przy uruchomieniu"
+  },
+  "autoPromptPolkit": {
+    "message": "Zapytaj o uwierzytelnianie systemowe przy uruchomieniu"
   },
   "autoPromptTouchId": {
     "message": "Poproś o Touch ID przy uruchomieniu"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Aby włączyć dane biometryczne w przeglądarce, musisz włączyć tę samą funkcję w ustawianiach aplikacji."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automatyczna konfiguracja niedostępna"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Ze względu na metodę instalacji, biometria nie może być automatycznie włączona. Czy chcesz otworzyć dokumentację dotyczącą tego, jak to zrobić ręcznie?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Ze względu na zasadę przedsiębiorstwa, nie możesz zapisywać elementów w osobistym sejfie. Zmień właściciela elementu na organizację i wybierz jedną z dostępnych kolekcji."
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Twoje hasło główne nie spełnia jednej lub kilku zasad organizacji. Aby uzyskać dostęp do sejfu, musisz teraz zaktualizować swoje hasło główne. Kontynuacja wyloguje Cię z bieżącej sesji, wymagając zalogowania się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie jedną godzinę."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "tryAgain": {
     "message": "Spróbuj ponownie"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Dane"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   }
 }

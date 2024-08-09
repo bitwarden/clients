@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { first } from "rxjs/operators";
 
@@ -17,7 +17,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
   templateUrl: "collections.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class CollectionsComponent extends BaseCollectionsComponent {
+export class CollectionsComponent extends BaseCollectionsComponent implements OnInit {
   constructor(
     collectionService: CollectionService,
     platformUtilsService: PlatformUtilsService,

@@ -500,7 +500,7 @@
     "message": "Opprett en konto"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Velg et sterkt passord"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -552,7 +552,7 @@
     "message": "Master password hint"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Bli med i organisasjon"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Finish joining this organization by setting a master password."
@@ -595,7 +595,7 @@
     "message": "You successfully logged in"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Du kan lukke dette vinduet"
   },
   "masterPassDoesntMatch": {
     "message": "Superpassord-bekreftelsen er ikke samsvarende."
@@ -634,7 +634,7 @@
     "message": "En verifiseringskode er påkrevd."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Autentiseringen ble avbrutt eller tok for lang tid. Prøv igjen."
   },
   "invalidVerificationCode": {
     "message": "Ugyldig verifiseringskode"
@@ -799,10 +799,10 @@
     "message": "Din innloggingsøkt har utløpt."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Start registrering på nytt"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Utløpt lenke"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -1382,7 +1382,7 @@
     "message": "This file export will be password protected and require the file password to decrypt."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Filpassord"
   },
   "exportPasswordDescription": {
     "message": "This password will be used to export and import this file"
@@ -1400,7 +1400,7 @@
     "message": "Export type"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "Konto begrenset"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Ytterligere Windows Hello-innstillinger"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with system authentication"
+  },
   "windowsHelloConsentMessage": {
     "message": "Bekreft for Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Lås opp med Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Spør etter Windows Hello ved oppstart"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for system authentication on launch"
   },
   "autoPromptTouchId": {
     "message": "Spør om Touch ID ved oppstart"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Biometri i nettleserutvidelsen krever først aktivering i innstillinger i skrivebordsprogrammet."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Autometic setup not available"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+  },
   "personalOwnershipSubmitError": {
     "message": "På grunn av bedrifsretningslinjer er du begrenset fra å lagre objekter til ditt personlige hvelv. Endre alternativ for eierskap til en organisasjon og velg blant tilgjengelige samlinger."
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "tryAgain": {
     "message": "Prøv igjen"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Data"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   }
 }

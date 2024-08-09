@@ -1,5 +1,5 @@
 import { Program } from "./program";
-import { ServiceContainer } from "./service-container";
+import { ServiceContainer } from "./service-container/service-container";
 import { SendProgram } from "./tools/send/send.program";
 import { VaultProgram } from "./vault.program";
 

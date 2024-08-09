@@ -3,7 +3,7 @@ import { program } from "commander";
 import { BaseProgram } from "./base-program";
 import { ServeCommand } from "./commands/serve.command";
 import { OssServeConfigurator } from "./oss-serve-configurator";
-import { ServiceContainer } from "./service-container";
+import { ServiceContainer } from "./service-container/service-container";
 import { CliUtils } from "./utils";
 
 const writeLn = CliUtils.writeLn;

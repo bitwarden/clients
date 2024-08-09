@@ -25,10 +25,26 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { BrowserApi } from "../../platform/browser/browser-api";
-import { closeFido2Popout, openFido2Popout } from "../popup/utils/vault-popout-window";
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
+
+export const BrowserFido2MessageTypes = {
+  ConnectResponse: "ConnectResponse",
+  NewSessionCreatedRequest: "NewSessionCreatedRequest",
+  PickCredentialRequest: "PickCredentialRequest",
+  PickCredentialResponse: "PickCredentialResponse",
+  ConfirmNewCredentialRequest: "ConfirmNewCredentialRequest",
+  ConfirmNewCredentialResponse: "ConfirmNewCredentialResponse",
+  InformExcludedCredentialRequest: "InformExcludedCredentialRequest",
+  InformCredentialNotFoundRequest: "InformCredentialNotFoundRequest",
+  AbortRequest: "AbortRequest",
+  AbortResponse: "AbortResponse",
+} as const;
+
+export type BrowserFido2MessageTypeValue =
+  (typeof BrowserFido2MessageTypes)[keyof typeof BrowserFido2MessageTypes];
 
 export class SessionClosedError extends Error {
   constructor() {
@@ -39,30 +55,30 @@ export class SessionClosedError extends Error {
 export type BrowserFido2Message = { sessionId: string } & (
   | /**
    * This message is used by popouts to announce that they are ready
-   * to recieve messages.
+   * to receive messages.
    **/ {
-      type: "ConnectResponse";
+      type: typeof BrowserFido2MessageTypes.ConnectResponse;
     }
   /**
    * This message is used to announce the creation of a new session.
    * It is used by popouts to know when to close.
    **/
   | {
-      type: "NewSessionCreatedRequest";
+      type: typeof BrowserFido2MessageTypes.NewSessionCreatedRequest;
     }
   | {
-      type: "PickCredentialRequest";
+      type: typeof BrowserFido2MessageTypes.PickCredentialRequest;
       cipherIds: string[];
       userVerification: boolean;
       fallbackSupported: boolean;
     }
   | {
-      type: "PickCredentialResponse";
+      type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
       cipherId?: string;
       userVerified: boolean;
     }
   | {
-      type: "ConfirmNewCredentialRequest";
+      type: typeof BrowserFido2MessageTypes.ConfirmNewCredentialRequest;
       credentialName: string;
       userName: string;
       userHandle: string;
@@ -71,24 +87,24 @@ export type BrowserFido2Message = { sessionId: string } & (
       rpId: string;
     }
   | {
-      type: "ConfirmNewCredentialResponse";
+      type: typeof BrowserFido2MessageTypes.ConfirmNewCredentialResponse;
       cipherId: string;
       userVerified: boolean;
     }
   | {
-      type: "InformExcludedCredentialRequest";
+      type: typeof BrowserFido2MessageTypes.InformExcludedCredentialRequest;
       existingCipherIds: string[];
       fallbackSupported: boolean;
     }
   | {
-      type: "InformCredentialNotFoundRequest";
+      type: typeof BrowserFido2MessageTypes.InformCredentialNotFoundRequest;
       fallbackSupported: boolean;
     }
   | {
-      type: "AbortRequest";
+      type: typeof BrowserFido2MessageTypes.AbortRequest;
     }
   | {
-      type: "AbortResponse";
+      type: typeof BrowserFido2MessageTypes.AbortResponse;
       fallbackRequested: boolean;
     }
 );
@@ -138,7 +154,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   static abortPopout(sessionId: string, fallbackRequested = false) {
     this.sendMessage({
       sessionId: sessionId,
-      type: "AbortResponse",
+      type: BrowserFido2MessageTypes.AbortResponse,
       fallbackRequested: fallbackRequested,
     });
   }
@@ -146,7 +162,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   static confirmNewCredentialResponse(sessionId: string, cipherId: string, userVerified: boolean) {
     this.sendMessage({
       sessionId: sessionId,
-      type: "ConfirmNewCredentialResponse",
+      type: BrowserFido2MessageTypes.ConfirmNewCredentialResponse,
       cipherId,
       userVerified,
     });
@@ -169,7 +185,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   ) {
     this.messages$
       .pipe(
-        filter((msg) => msg.type === "ConnectResponse"),
+        filter((msg) => msg.type === BrowserFido2MessageTypes.ConnectResponse),
         take(1),
         takeUntil(this.destroy$),
       )
@@ -185,7 +201,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.close();
         BrowserFido2UserInterfaceSession.sendMessage({
-          type: "AbortRequest",
+          type: BrowserFido2MessageTypes.AbortRequest,
           sessionId: this.sessionId,
         });
       });
@@ -193,12 +209,12 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // Handle session aborted by user
     this.messages$
       .pipe(
-        filter((msg) => msg.type === "AbortResponse"),
+        filter((msg) => msg.type === BrowserFido2MessageTypes.AbortResponse),
         take(1),
         takeUntil(this.destroy$),
       )
       .subscribe((msg) => {
-        if (msg.type === "AbortResponse") {
+        if (msg.type === BrowserFido2MessageTypes.AbortResponse) {
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.close();
@@ -217,7 +233,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
 
     BrowserFido2UserInterfaceSession.sendMessage({
-      type: "NewSessionCreatedRequest",
+      type: BrowserFido2MessageTypes.NewSessionCreatedRequest,
       sessionId,
     });
   }
@@ -227,7 +243,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userVerification,
   }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
     const data: BrowserFido2Message = {
-      type: "PickCredentialRequest",
+      type: BrowserFido2MessageTypes.PickCredentialRequest,
       cipherIds,
       sessionId: this.sessionId,
       userVerification,
@@ -235,7 +251,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     };
 
     await this.send(data);
-    const response = await this.receive("PickCredentialResponse");
+    const response = await this.receive(BrowserFido2MessageTypes.PickCredentialResponse);
 
     return { cipherId: response.cipherId, userVerified: response.userVerified };
   }
@@ -248,7 +264,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     rpId,
   }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
     const data: BrowserFido2Message = {
-      type: "ConfirmNewCredentialRequest",
+      type: BrowserFido2MessageTypes.ConfirmNewCredentialRequest,
       sessionId: this.sessionId,
       credentialName,
       userName,
@@ -259,21 +275,21 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     };
 
     await this.send(data);
-    const response = await this.receive("ConfirmNewCredentialResponse");
+    const response = await this.receive(BrowserFido2MessageTypes.ConfirmNewCredentialResponse);
 
     return { cipherId: response.cipherId, userVerified: response.userVerified };
   }
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
     const data: BrowserFido2Message = {
-      type: "InformExcludedCredentialRequest",
+      type: BrowserFido2MessageTypes.InformExcludedCredentialRequest,
       sessionId: this.sessionId,
       existingCipherIds,
       fallbackSupported: this.fallbackSupported,
     };
 
     await this.send(data);
-    await this.receive("AbortResponse");
+    await this.receive(BrowserFido2MessageTypes.AbortResponse);
   }
 
   async ensureUnlockedVault(): Promise<void> {
@@ -284,13 +300,13 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async informCredentialNotFound(): Promise<void> {
     const data: BrowserFido2Message = {
-      type: "InformCredentialNotFoundRequest",
+      type: BrowserFido2MessageTypes.InformCredentialNotFoundRequest,
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,
     };
 
     await this.send(data);
-    await this.receive("AbortResponse");
+    await this.receive(BrowserFido2MessageTypes.AbortResponse);
   }
 
   async close() {

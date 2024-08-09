@@ -1,5 +1,6 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { PageDetail } from "../../services/abstractions/autofill.service";
@@ -95,6 +96,10 @@ export type OverlayAddNewItemMessage = {
   identity?: NewIdentityCipherData;
 };
 
+export type CurrentAddNewItemData = OverlayAddNewItemMessage & {
+  sender: chrome.runtime.MessageSender;
+};
+
 export type CloseInlineMenuMessage = {
   forceCloseInlineMenu?: boolean;
   overlayElement?: string;
@@ -128,6 +133,7 @@ export type OverlayPortMessage = {
   direction?: string;
   inlineMenuCipherId?: string;
   addNewCipherType?: CipherType;
+  usePasskey?: boolean;
 };
 
 export type InlineMenuCipherData = {
@@ -138,12 +144,27 @@ export type InlineMenuCipherData = {
   favorite: boolean;
   icon: WebsiteIconData;
   accountCreationFieldType?: string;
-  login?: { username: string };
+  login?: {
+    username: string;
+    passkey: {
+      rpName: string;
+      userName: string;
+    } | null;
+  };
   card?: string;
   identity?: {
     fullName: string;
     username?: string;
   };
+};
+
+export type BuildCipherDataParams = {
+  inlineMenuCipherId: string;
+  cipher: CipherView;
+  showFavicons?: boolean;
+  showInlineMenuAccountCreation?: boolean;
+  hasPasskey?: boolean;
+  identityData?: { fullName: string; username?: string };
 };
 
 export type BackgroundMessageParam = {
@@ -161,7 +182,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
+  updateIsFieldCurrentlyFocused: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsFieldCurrentlyFocused: () => boolean;
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFilling: () => boolean;

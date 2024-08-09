@@ -270,7 +270,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator(
         {},
         {
-          defaultType: "password",
+          overridePasswordType: "password",
         },
       );
       const generator = new LegacyPasswordGenerationService(
@@ -284,7 +284,7 @@ describe("LegacyPasswordGenerationService", () => {
       const [, policy] = await generator.getOptions();
 
       expect(policy).toEqual({
-        defaultType: "password",
+        overridePasswordType: "password",
         minLength: 20,
         numberCount: 10,
         specialCount: 11,
@@ -402,7 +402,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator(
         {},
         {
-          defaultType: "password",
+          overridePasswordType: "password",
         },
       );
       const generator = new LegacyPasswordGenerationService(
@@ -416,7 +416,7 @@ describe("LegacyPasswordGenerationService", () => {
       const [, policy] = await generator.enforcePasswordGeneratorPoliciesOnOptions({});
 
       expect(policy).toEqual({
-        defaultType: "password",
+        overridePasswordType: "password",
         minLength: 20,
         numberCount: 10,
         specialCount: 11,

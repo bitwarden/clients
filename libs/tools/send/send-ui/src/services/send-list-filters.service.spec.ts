@@ -5,7 +5,7 @@ import { BehaviorSubject, first } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 
 import { SendListFiltersService } from "./send-list-filters.service";
 
@@ -47,7 +47,7 @@ describe("SendListFiltersService", () => {
   });
 
   it("filters disabled sends", (done) => {
-    const sends = [{ disabled: true }, { disabled: false }, { disabled: true }] as Send[];
+    const sends = [{ disabled: true }, { disabled: false }, { disabled: true }] as SendView[];
     service.filterFunction$.pipe(first()).subscribe((filterFunction) => {
       expect(filterFunction(sends)).toEqual([sends[1]]);
       done();
@@ -67,7 +67,7 @@ describe("SendListFiltersService", () => {
       { type: SendType.File },
       { type: SendType.Text },
       { type: SendType.File },
-    ] as Send[];
+    ] as SendView[];
     service.filterFunction$.subscribe((filterFunction) => {
       expect(filterFunction(sends)).toEqual([sends[1]]);
       done();

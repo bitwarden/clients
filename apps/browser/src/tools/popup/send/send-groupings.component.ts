@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
@@ -26,7 +26,7 @@ const ComponentId = "SendComponent";
   selector: "app-send-groupings",
   templateUrl: "send-groupings.component.html",
 })
-export class SendGroupingsComponent extends BaseSendComponent {
+export class SendGroupingsComponent extends BaseSendComponent implements OnInit, OnDestroy {
   // Header
   showLeftHeader = true;
   // State Handling

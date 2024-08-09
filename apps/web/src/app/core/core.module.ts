@@ -38,7 +38,6 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -71,7 +70,6 @@ import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
-import { StateService as WebStateService } from "./state";
 import { WebFileDownloadService } from "./web-file-download.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
@@ -134,11 +132,6 @@ const safeProviders: SafeProvider[] = [
     provide: ModalServiceAbstraction,
     useClass: ModalService,
     useAngularDecorators: true,
-  }),
-  safeProvider(WebStateService),
-  safeProvider({
-    provide: StateService,
-    useExisting: WebStateService,
   }),
   safeProvider({
     provide: FileDownloadService,

@@ -1,6 +1,6 @@
 <bit-section [formGroup]="loginDetailsForm">
   <bit-section-header>
-    <h2 bitTypography="h5">
+    <h2 bitTypography="h6">
       {{ "loginCredentials" | i18n }}
     </h2>
   </bit-section-header>
@@ -23,6 +23,16 @@
     <bit-form-field>
       <bit-label>{{ "password" | i18n }}</bit-label>
       <input bitInput formControlName="password" type="password" />
+      <bit-hint *ngIf="loginDetailsForm.controls.password.enabled">
+        <ng-container *ngIf="newPasswordGenerated">
+          {{ "securePasswordGenerated" | i18n }}
+        </ng-container>
+        <ng-container *ngIf="!newPasswordGenerated">
+          {{ "useGeneratorHelpTextPartOne" | i18n }}
+          <i class="bwi bwi-generate" aria-hidden="true"></i>
+          {{ "useGeneratorHelpTextPartTwo" | i18n }}
+        </ng-container>
+      </bit-hint>
       <button
         type="button"
         bitIconButton="bwi-check-circle"

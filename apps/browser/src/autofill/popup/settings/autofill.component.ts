@@ -87,6 +87,9 @@ export class AutofillComponent implements OnInit {
     DisablePasswordManagerUris.Unknown;
   protected browserShortcutsURI: BrowserShortcutsUri = BrowserShortcutsUris.Unknown;
   protected browserClientIsUnknown: boolean;
+  protected autofillOnPageLoadFromPolicy$ =
+    this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+
   enableAutofillOnPageLoad = false;
   enableInlineMenu = false;
   enableInlineMenuOnIconSelect = false;

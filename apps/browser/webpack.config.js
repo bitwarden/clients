@@ -301,6 +301,8 @@ if (manifestVersion == 2) {
     "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-append-mv2"] =
     "./src/autofill/fido2/content/fido2-page-script-append.mv2.ts";
+  mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
+    "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {

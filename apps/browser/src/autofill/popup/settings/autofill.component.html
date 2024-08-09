@@ -145,8 +145,12 @@
             type="checkbox"
             (change)="updateAutofillOnPageLoad()"
             [(ngModel)]="enableAutofillOnPageLoad"
+            [disabled]="autofillOnPageLoadFromPolicy$ | async"
           />
           <bit-label for="autofillOnPageLoad">{{ "enableAutoFillOnPageLoad" | i18n }}</bit-label>
+          <bit-hint class="tw-text-sm" *ngIf="autofillOnPageLoadFromPolicy$ | async">{{
+            "enterprisePolicyRequirementsApplied" | i18n
+          }}</bit-hint>
         </bit-form-control>
         <bit-form-field disableMargin>
           <bit-label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</bit-label>

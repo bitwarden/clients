@@ -442,10 +442,10 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Dubbelzinnige tekens vermijden"
+    "message": "Vermijd dubbelzinnige tekens"
   },
   "searchCollection": {
-    "message": "Verzameling doorzoeken"
+    "message": "Doorzoek collectie"
   },
   "searchFolder": {
     "message": "Map doorzoeken"
@@ -458,22 +458,22 @@
     "description": "Search item type"
   },
   "newAttachment": {
-    "message": "Nieuwe bijlage toevoegen"
+    "message": "Voeg nieuwe bijlage toe"
   },
   "deletedAttachment": {
-    "message": "Bijlage is verwijderd"
+    "message": "Bijlage verwijderd"
   },
   "deleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage wilt verwijderen?"
   },
   "attachmentSaved": {
-    "message": "De bijlage is opgeslagen."
+    "message": "Bijlage opgeslagen"
   },
   "file": {
     "message": "Bestand"
   },
   "selectFile": {
-    "message": "Selecteer een bestand."
+    "message": "Selecteer een bestand"
   },
   "maxFileSize": {
     "message": "Maximale bestandsgrootte is 500 MB."
@@ -491,22 +491,22 @@
     "message": "Weet je zeker dat je deze map wilt verwijderen?"
   },
   "deletedFolder": {
-    "message": "Map is verwijderd"
+    "message": "Map verwijderd"
   },
   "loginOrCreateNewAccount": {
     "message": "Log in of maak een nieuw account aan om toegang te krijgen tot je beveiligde kluis."
   },
   "createAccount": {
-    "message": "Account aanmaken"
+    "message": "Maak een account aan"
   },
   "setAStrongPassword": {
-    "message": "Sterk wachtwoord instellen"
+    "message": "Stel een sterk wachtwoord in"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Rond het aanmaken van je account af met het instellen van een wachtwoord"
   },
   "logIn": {
-    "message": "Inloggen"
+    "message": "Log in"
   },
   "submit": {
     "message": "Opslaan"
@@ -552,7 +552,7 @@
     "message": "Hoofdwachtwoordhint"
   },
   "joinOrganization": {
-    "message": "Lid van organisatie worden"
+    "message": "Join organisatie"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Voltooi je lidmaatschap aan deze organisatie door een hoofdwachtwoord in te stellen."
@@ -610,16 +610,16 @@
     "message": "Er is een onverwachte fout opgetreden."
   },
   "itemInformation": {
-    "message": "Item"
+    "message": "Item-informatie"
   },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
   },
   "sendVerificationCode": {
-    "message": "Stuur een verificatiecode naar je e-mail"
+    "message": "Stuur verificatiecode naar je e-mail"
   },
   "sendCode": {
-    "message": "Code versturen"
+    "message": "Verstuur code"
   },
   "codeSent": {
     "message": "Code verstuurd"
@@ -698,7 +698,7 @@
     "message": "Gebruik een YubiKey om toegang te krijgen tot je account. Werkt met YubiKey 4, 4 Nano, 4C en Neo-apparaten."
   },
   "duoDescV2": {
-    "message": "Door Duo Security gegenereerde code invoeren.",
+    "message": "Voer een door Duo Security gegenereerde code in.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -847,7 +847,7 @@
     "message": "Hulp en feedback"
   },
   "getHelp": {
-    "message": "Hulp vragen"
+    "message": "Vraag ondersteuning"
   },
   "fileBugReport": {
     "message": "Rapporteer een fout (bug)"
@@ -882,10 +882,10 @@
     "message": "Ga naar de webkluis"
   },
   "getMobileApp": {
-    "message": "Download de mobiele app"
+    "message": "Download mobiele app"
   },
   "getBrowserExtension": {
-    "message": "Download de browserextensie"
+    "message": "Download browserextensie"
   },
   "syncingComplete": {
     "message": "Synchronisatie voltooid"
@@ -979,7 +979,7 @@
     "message": "Beveiliging"
   },
   "clearClipboard": {
-    "message": "Klembord wissen",
+    "message": "Wis klembord",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
@@ -987,7 +987,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
+    "message": "Toon website-pictogrammen"
   },
   "faviconDesc": {
     "message": "Een herkenbare afbeelding naast iedere login weergeven."
@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Extra Windows Hello-instellingen"
   },
+  "unlockWithPolkit": {
+    "message": "Ontgrendel met systeemauthenticatie"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verifiëren voor Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Verifieer om Bitwarden te ontgrendelen."
   },
   "unlockWithTouchId": {
     "message": "Ontgrendelen met Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Vraag om Windows Hello bij opstarten"
+  },
+  "autoPromptPolkit": {
+    "message": "Vraag naar systeemverificatie bij het opstarten"
   },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Voor browserbiometrie moet je eerst desktopbiometrie inschakelen in de instellingen."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automatisch installeren niet beschikbaar"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Vanwege de installatiemethode kon biometrische ondersteuning niet automatisch worden ingeschakeld. Wil je de documentatie lezen over hoe je dit handmatig kunt doen?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Wegens bedrijfsbeleid mag je geen wachtwoorden opslaan in je persoonlijke kluis. Verander het eigenaarschap naar een organisatie en kies uit een van de beschikbare collecties."
   },
@@ -1977,7 +1992,7 @@
     "message": "Wordt verwijderd"
   },
   "webAuthnAuthenticate": {
-    "message": "Authenticeer WebAuthn"
+    "message": "Verifieer WebAuthn"
   },
   "hideEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Je organisatie heeft het versleutelen van vertrouwde apparaten uitgeschakeld. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
   "tryAgain": {
     "message": "Opnieuw proberen"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Gegevens"
+  },
+  "fileSends": {
+    "message": "Bestand-Sends"
+  },
+  "textSends": {
+    "message": "Tekst-Sends"
   }
 }

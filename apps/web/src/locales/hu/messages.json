@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Hitelesítő kulcs"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "Szám"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Széf időkifutás"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "A kért eszköz jóváhagyása."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Kezdjük el a Bitwarden 7 napos ingyenes próbaverzió használatát $ORG$ áron",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "Elemek"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "A számlázás kezelése a szolgáltatói portálon keresztül"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "A Bitwarden 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "A Bitwarden for Teams 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "A Bitwarden for Families 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "A Bitwarden for Enterprise 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "A Bitwarden Secrets Manager 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "A Bitwarden Secrets Manager for Teams 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "A Bitwarden Secrets Manager for Families 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "A Bitwarden Secrets Manager for Enterprise 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "A Bitwarden Password Manager 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "A Bitwarden Password Manager for Teams 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "A Bitwarden Password Manager for Families 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "A Bitwarden password Manager for Enterprise 7 napos ingyenes próbaverziójának elindítása"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Adjuk meg a Teams szervezet információit."
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Adjuk meg a Családi szervezet információit."
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Adjuk meg a Vállalat szervezet információit."
+  },
   "viewItemsIn": {
     "message": "$NAME$ elemek megtekintése",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "megvásárolt hely eltávolításra került."
+  },
+  "includesXMembers": {
+    "message": "$COUNT$ member részére",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Választható helyszín tárhely"
+  },
+  "upgradeFreeOrganization": {
+    "message": "$NAME$ szervezet áttérés ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO hitelesítés"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "A családi szervezeteknek legfeljebb $SEATCOUNT$ tagja lehet. Térjünk át fizetős csomagra további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "A családi szervezeteknek legfeljebb $SEATCOUNT$ tagja lehet. Az áttéréshez forduljunk a szervezet tulajdonosához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Térjünk át más csomagra, hogy több tagot hívhassunk meg és hozzáférjünk a Bitwarden további funkcióihoz."
+  },
+  "upgradeDiscount": {
+    "message": "$AMOUNT$% megtakarítás",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Fejlett képességek nagyobb vállalkozások számára"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Hatékony biztonságot kereső vállalkozások"
+  },
+  "teamsInviteMessage": {
+    "message": "Korlátlan számú tagok meghívása"
+  },
+  "accessToCreateGroups": {
+    "message": "Hozzáférés csoportok létrehozásához"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "A felhasználók és csoportok szinkronizálása könyvtárból"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Mggosztáás családtagokkal és ismerősökkel"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Prémium funkciók elérése"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB kiegészítő tároló"
   }
 }

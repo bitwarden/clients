@@ -16,10 +16,8 @@ describe("InlineMenuFieldQualificationService", () => {
       forms: {},
       fields: [],
     });
-    chrome.runtime.sendMessage = jest.fn().mockImplementation((message) => ({
-      result: message.command === "getInlineMenuFieldQualificationFeatureFlag",
-    }));
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    inlineMenuFieldQualificationService["inlineMenuFieldQualificationFlagSet"] = true;
   });
 
   describe("isFieldForLoginForm", () => {

@@ -8,6 +8,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService } from "@bitwarden/components";
 
+import { ServiceAccountPeopleAccessPoliciesView } from "../../models/view/access-policies/service-account-people-access-policies.view";
 import { AccessPolicySelectorService } from "../../shared/access-policies/access-policy-selector/access-policy-selector.service";
 import {
   ApItemValueType,
@@ -179,7 +180,7 @@ export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
   private async updateServiceAccountPeopleAccessPolicies(
     serviceAccountId: string,
     selectedPolicies: ApItemValueType[],
-  ) {
+  ): Promise<ServiceAccountPeopleAccessPoliciesView> {
     const serviceAccountPeopleView = convertToPeopleAccessPoliciesView(selectedPolicies);
     return await this.accessPolicyService.putServiceAccountPeopleAccessPolicies(
       serviceAccountId,

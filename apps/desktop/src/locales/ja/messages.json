@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "追加の Windows Hello 設定"
   },
+  "unlockWithPolkit": {
+    "message": "システム認証でロック解除"
+  },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden の認証を行います。"
+  },
+  "polkitConsentMessage": {
+    "message": "認証して Bitwarden のロックを解除します。"
   },
   "unlockWithTouchId": {
     "message": "Touch ID でロック解除"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "起動時に Windows Hello を要求する"
+  },
+  "autoPromptPolkit": {
+    "message": "起動時にシステム認証を要求する"
   },
   "autoPromptTouchId": {
     "message": "起動時に Touch ID を要求する"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "ブラウザで生体認証を利用するには、最初に設定でデスクトップ生体認証を有効にする必要があります。"
   },
+  "biometricsManualSetupTitle": {
+    "message": "自動設定は利用できません"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "インストール方法により、生体認証を自動的に有効化できませんでした。手動で設定する方法の説明を開きますか？"
+  },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
   },
   "tryAgain": {
     "message": "再試行"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "データ"
+  },
+  "fileSends": {
+    "message": "ファイル Send"
+  },
+  "textSends": {
+    "message": "テキスト Send"
   }
 }

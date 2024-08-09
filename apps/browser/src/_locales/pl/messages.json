@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Kopiuj kod zabezpieczający"
   },
+  "copyName": {
+    "message": "Kopiuj nazwę"
+  },
+  "copyCompany": {
+    "message": "Kopiuj firmę"
+  },
+  "copySSN": {
+    "message": "Kopiuj numer PESEL"
+  },
+  "copyPassportNumber": {
+    "message": "Kopiuj numer paszportu"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopiuj numer licencji"
+  },
   "autoFill": {
     "message": "Autouzupełnianie"
   },
@@ -159,7 +174,7 @@
     "message": "Zaloguj się do sejfu"
   },
   "autoFillInfo": {
-    "message": "Brak dostępnych danych logowania do autouzupełnienia dla obecnej karty przeglądarki."
+    "message": "Brak danych logowania do użycia przez autouzupełnienie na obecnej karcie przeglądarki."
   },
   "addLogin": {
     "message": "Dodaj dane logowania"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Domyślne wykrywanie dopasowania",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Wybierz domyślny sposób wykrywania dopasowania adresów dla czynności takich jak autouzupełnianie."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Pokaż menu autouzupełniania na polach formularza",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Sugestie autouzupełniania"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Otwórz sejf na pasku bocznym"
   },
-  "commandAutofillDesc": {
-    "message": "Autouzupełnianie korzysta z ostatnio używanych danych logowania na tej stronie."
+  "commandAutofillLoginDesc": {
+    "message": "Autouzupełnianie korzysta z ostatnio używanych danych logowania na tej stronie"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Autouzupełnianie korzysta z ostatnio używanych danych karty na tej stronie"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Autouzupełnianie korzysta z ostatnio używanej tożsamości na tej stronie"
   },
   "commandGeneratePasswordDesc": {
     "message": "Wygeneruj nowe losowe hasło i skopiuj je do schowka."
@@ -1634,6 +1655,10 @@
     "message": "Domena podstawowa",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Domena podstawowa (rekomendowana)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Nazwa domeny",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Wykrywanie dopasowania",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Domyślne wykrywanie dopasowania",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Zmień opcje"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Twoje hasło główne nie spełnia jednej lub kilku zasad organizacji. Aby uzyskać dostęp do sejfu, musisz teraz zaktualizować swoje hasło główne. Kontynuacja wyloguje Cię z bieżącej sesji, wymagając zalogowania się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie jedną godzinę."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatyczne rejestrowanie użytkowników"
   },
@@ -2758,13 +2786,16 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Zmień skrót"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Zarządzaj skrótami"
+  },
   "autofillShortcut": {
     "message": "Skrót klawiaturowy autouzupełniania"
   },
-  "autofillShortcutNotSet": {
+  "autofillLoginShortcutNotSet": {
     "message": "Skrót autouzupełniania nie jest ustawiony. Zmień to w ustawieniach przeglądarki."
   },
-  "autofillShortcutText": {
+  "autofillLoginShortcutText": {
     "message": "Skrót autouzupełniania to: $COMMAND$. Zmień to w ustawieniach przeglądarki.",
     "placeholders": {
       "command": {
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 pole wymaga Twojej uwagi."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "Pola wymagające Twojej uwagi: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Wybierz --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Elementy z pytaniem o hasło głównege nie mogą być automatycznie wypełniane przy wczytywaniu strony. Automatyczne wypełnianie po wczytywania strony zostało wyłączone.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatyczne wypełnianie przy wczytywaniu strony zostało ustawione, aby używać ustawień domyślnych.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Wyłącz prośbę o podanie hasła głównego, aby edytować to pole",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Autouzupełnij - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Klucz uwierzytelniający"
+  },
+  "autofillOptions": {
+    "message": "Opcje autouzupełniania"
+  },
+  "websiteUri": {
+    "message": "Strona internetowa (URI)"
+  },
+  "websiteAdded": {
+    "message": "Strona dodana"
+  },
+  "addWebsite": {
+    "message": "Dodaj stronę internetową"
+  },
+  "deleteWebsite": {
+    "message": "Usuń stronę internetową"
+  },
+  "defaultLabel": {
+    "message": "Domyślnie ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Włącz autouzupełnianie po załadowaniu strony?"
   },
   "cardDetails": {
     "message": "Szczegóły karty"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Lokalizacja elementu"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden ma nowy wygląd!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Auto wypełnianie i szukanie na zakładce sejfu jest teraz prostsze i bardziej intuicyjne. Rozejrzyj się tam!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

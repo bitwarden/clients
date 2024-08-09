@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Definições adicionais do Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Desbloqueio com autenticação do sistema"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verificar para o Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Autenticar para desbloquear o Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Desbloquear com Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Pedir o Windows Hello ao iniciar a aplicação"
+  },
+  "autoPromptPolkit": {
+    "message": "Pedir a autenticação do sistema no arranque"
   },
   "autoPromptTouchId": {
     "message": "Pedir o Touch ID ao iniciar a aplicação"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "A biometria do navegador requer que a biometria do computador seja primeiro configurada nas definições."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Configuração automática não disponível"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Devido ao método de instalação, não foi possível ativar automaticamente o suporte biométrico. Gostaria de abrir a documentação sobre como o fazer manualmente?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "A sua organização desativou a encriptação de dispositivos fiáveis. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
   },
   "tryAgain": {
     "message": "Tentar novamente"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Dados"
+  },
+  "fileSends": {
+    "message": "Sends de ficheiros"
+  },
+  "textSends": {
+    "message": "Sends de texto"
   }
 }

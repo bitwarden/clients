@@ -1,9 +1,10 @@
 import { Jsonify } from "type-fest";
 
-import { CryptoService } from "../../platform/abstractions/crypto.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { EncString } from "../../platform/models/domain/enc-string";
-import { UserId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 
 import { DataPacker } from "./data-packer.abstraction";
 import { UserEncryptor } from "./user-encryptor.abstraction";
@@ -13,45 +14,38 @@ import { UserEncryptor } from "./user-encryptor.abstraction";
  */
 export class UserKeyEncryptor extends UserEncryptor {
   /** Instantiates the encryptor
+   *  @param userId identifies the user bound to the encryptor.
    *  @param encryptService protects properties of `Secret`.
    *  @param keyService looks up the user key when protecting data.
    *  @param dataPacker packs and unpacks data classified as secrets.
    */
   constructor(
+    readonly userId: UserId,
     private readonly encryptService: EncryptService,
-    private readonly keyService: CryptoService,
+    private readonly key: UserKey,
     private readonly dataPacker: DataPacker,
   ) {
     super();
+    this.assertHasValue("userId", userId);
+    this.assertHasValue("key", key);
+    this.assertHasValue("dataPacker", dataPacker);
+    this.assertHasValue("encryptService", encryptService);
   }
 
-  /** {@link UserEncryptor.encrypt} */
-  async encrypt<Secret>(secret: Jsonify<Secret>, userId: UserId): Promise<EncString> {
+  async encrypt<Secret>(secret: Jsonify<Secret>): Promise<EncString> {
     this.assertHasValue("secret", secret);
-    this.assertHasValue("userId", userId);
 
     let packed = this.dataPacker.pack(secret);
-
-    // encrypt the data and drop the key
-    let key = await this.keyService.getUserKey(userId);
-    const encrypted = await this.encryptService.encrypt(packed, key);
+    const encrypted = await this.encryptService.encrypt(packed, this.key);
     packed = null;
-    key = null;
 
     return encrypted;
   }
 
-  /** {@link UserEncryptor.decrypt} */
-  async decrypt<Secret>(secret: EncString, userId: UserId): Promise<Jsonify<Secret>> {
+  async decrypt<Secret>(secret: EncString): Promise<Jsonify<Secret>> {
     this.assertHasValue("secret", secret);
-    this.assertHasValue("userId", userId);
 
-    // decrypt the data and drop the key
-    let key = await this.keyService.getUserKey(userId);
-    let decrypted = await this.encryptService.decryptToUtf8(secret, key);
-    key = null;
-
-    // reconstruct TFrom's data
+    let decrypted = await this.encryptService.decryptToUtf8(secret, this.key);
     const unpacked = this.dataPacker.unpack<Secret>(decrypted);
     decrypted = null;
 

@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Copiar código de segurança"
   },
+  "copyName": {
+    "message": "Copiar nome"
+  },
+  "copyCompany": {
+    "message": "Copiar empresa"
+  },
+  "copySSN": {
+    "message": "Copiar número de segurança social"
+  },
+  "copyPassportNumber": {
+    "message": "Copiar número do passaporte"
+  },
+  "copyLicenseNumber": {
+    "message": "Copiar número da carta de condução"
+  },
   "autoFill": {
     "message": "Preencher automaticamente"
   },
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Deteção de correspondência de URI predefinida",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Escolha a forma predefinida como a deteção de correspondência de URI é tratada para credenciais ao executar ações como o preenchimento automático."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Mostrar menu de preenchimento automático nos campos do formulário",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Sugestões de preenchimento automático"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Abrir o cofre na barra lateral"
   },
-  "commandAutofillDesc": {
+  "commandAutofillLoginDesc": {
     "message": "Preencher automaticamente com a última credencial utilizada no site atual"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Preencher automaticamente com o último cartão utilizado no site atual"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Preencher automaticamente com a última identidade utilizada no site atual"
   },
   "commandGeneratePasswordDesc": {
     "message": "Gerar e copiar uma nova palavra-passe aleatória para a área de transferência"
@@ -1634,6 +1655,10 @@
     "message": "Domínio de base",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Domínio base (recomendado)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Nome do domínio",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Deteção de correspondência",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Deteção de correspondência predefinida",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Alternar opções"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Alterar atalho"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Gerir atalhos"
+  },
   "autofillShortcut": {
     "message": "Atalho de teclado de preenchimento automático"
   },
-  "autofillShortcutNotSet": {
-    "message": "O atalho de preenchimento automático não está definido. Altere-o nas definições do navegador."
+  "autofillLoginShortcutNotSet": {
+    "message": "O atalho de preenchimento automático de credenciais não está definido. Altere-o nas definições do navegador."
   },
-  "autofillShortcutText": {
-    "message": "O atalho de preenchimento automático é: $COMMAND$. Altere-o nas definições do navegador.",
+  "autofillLoginShortcutText": {
+    "message": "O atalho de preenchimento automático de credenciais é $COMMAND$. Gira todos os atalhos nas definidções do navegador.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 campo precisa da sua atenção."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ campos precisam da sua atenção.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Selecionar --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Os itens que voltem a pedir a palavra-passe mestra não podem ser preenchidos automaticamente no carregamento da página. Preenchimento automático no carregamento da página desativado.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Desativar o pedido para reintroduzir a palavra-passe mestra para editar este campo",
@@ -3033,7 +3076,7 @@
     "message": "Avançar para o conteúdo"
   },
   "bitwardenOverlayButton": {
-    "message": "Botão de menu de preenchimento automático Bitwarden",
+    "message": "Botão de menu de preenchimento automático do Bitwarden",
     "description": "Page title for the iframe containing the overlay button"
   },
   "toggleBitwardenVaultOverlay": {
@@ -3105,7 +3148,7 @@
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Menu de preenchimento automático Bitwarden disponível. Prima a tecla de seta para baixo para selecionar.",
+    "message": "Menu de preenchimento automático do Bitwarden disponível. Prima a tecla de seta para baixo para selecionar.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Preencher automaticamente - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Chave de autenticação"
+  },
+  "autofillOptions": {
+    "message": "Opções de preenchimento automático"
+  },
+  "websiteUri": {
+    "message": "Site (URI)"
+  },
+  "websiteAdded": {
+    "message": "Site adicionado"
+  },
+  "addWebsite": {
+    "message": "Adicionar site"
+  },
+  "deleteWebsite": {
+    "message": "Eliminar site"
+  },
+  "defaultLabel": {
+    "message": "Predefinido ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Mostrar deteção de correspondência para $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Ocultar deteção de correspondência para $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Preencher automaticamente ao carregar a página?"
   },
   "cardDetails": {
     "message": "Detalhes do cartão"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Localização do item"
+  },
+  "bitwardenNewLook": {
+    "message": "O Bitwarden tem um novo visual!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "É mais fácil e mais intuitivo do que nunca preencher automaticamente e pesquisar a partir do separador Cofre. Dê uma vista de olhos!"
+  },
+  "accountActions": {
+    "message": "Ações da conta"
   }
 }

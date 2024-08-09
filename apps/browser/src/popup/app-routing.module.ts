@@ -39,6 +39,7 @@ import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component"
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
+import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
@@ -63,7 +64,7 @@ import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-
 import { ImportBrowserComponent } from "../tools/popup/settings/import/import-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { SettingsComponent } from "../tools/popup/settings/settings.component";
-import { Fido2Component } from "../vault/popup/components/fido2/fido2.component";
+import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
 import { CollectionsComponent } from "../vault/popup/components/vault/collections.component";
@@ -78,8 +79,10 @@ import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
+import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
+import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
 import { FoldersComponent } from "../vault/popup/settings/folders.component";
 import { SyncComponent } from "../vault/popup/settings/sync.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
@@ -302,12 +305,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "vault-settings" },
   }),
-  {
+  ...extensionRefreshSwap(FoldersComponent, FoldersV2Component, {
     path: "folders",
-    component: FoldersComponent,
     canActivate: [authGuard],
     data: { state: "folders" },
-  },
+  }),
   {
     path: "add-folder",
     component: FolderAddEditComponent,
@@ -338,12 +340,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "premium" },
   },
-  {
+  ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
     path: "appearance",
-    component: AppearanceComponent,
     canActivate: [authGuard],
     data: { state: "appearance" },
-  },
+  }),
   ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
     path: "clone-cipher",
     canActivate: [authGuard],
@@ -457,6 +458,7 @@ const routes: Routes = [
       ...extensionRefreshSwap(VaultFilterComponent, VaultV2Component, {
         path: "vault",
         canActivate: [authGuard],
+        canDeactivate: [clearVaultStateGuard],
         data: { state: "tabs_vault" },
       }),
       {

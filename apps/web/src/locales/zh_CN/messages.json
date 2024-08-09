@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "验证器密钥"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "号码"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "密码库超时时间"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "请求了设备批准。"
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "开始 $ORG$ 的 Bitwarden 7 天免费试用",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "项目"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "从提供商门户管理账单"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "开始您的 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "开始您的团队版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "开始您的 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "开始您的团队版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 机密管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "开始您的 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "开始您的团队版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "开始您的家庭版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "开始您的企业版 Bitwarden 密码管理器 7 天免费试用"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "输入您的团队组织信息"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "输入您的家庭组织信息"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "输入您的企业组织信息"
+  },
   "viewItemsIn": {
     "message": "查看 $NAME$ 中的项目",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "购买的席位已移除"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "可选本地托管"
+  },
+  "upgradeFreeOrganization": {
+    "message": "升级您的 $NAME$ 组织 ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO 身份验证"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。升级到付费计划以邀请更多成员。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。联系您的组织所有者以升级。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "升级您的计划以邀请更多成员并获得附加的 Bitwarden 功能"
+  },
+  "upgradeDiscount": {
+    "message": "节省 $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "适用于大型企业的高级功能"
+  },
+  "upgradeTeamsMessage": {
+    "message": "企业寻求的强大安全保障"
+  },
+  "teamsInviteMessage": {
+    "message": "邀请不限数量的成员"
+  },
+  "accessToCreateGroups": {
+    "message": "创建群组的权限"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "从目录同步群组和用户"
+  },
+  "upgradeFamilyMessage": {
+    "message": "与家庭和朋友分享"
+  },
+  "accessToPremiumFeatures": {
+    "message": "访问高级会员功能"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB 附加存储"
   }
 }

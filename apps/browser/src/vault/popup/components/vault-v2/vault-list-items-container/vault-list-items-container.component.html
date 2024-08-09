@@ -32,6 +32,11 @@
           [size]="'small'"
           [appA11yTitle]="orgIconTooltip(cipher)"
         ></i>
+        <i
+          *ngIf="cipher.hasAttachments"
+          class="bwi bwi-paperclip bwi-sm"
+          [appA11yTitle]="'attachments' | i18n"
+        ></i>
         <span slot="secondary">{{ cipher.subTitle }}</span>
       </a>
       <ng-container slot="end">

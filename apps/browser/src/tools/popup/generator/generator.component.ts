@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -21,7 +21,7 @@ import {
   selector: "app-generator",
   templateUrl: "generator.component.html",
 })
-export class GeneratorComponent extends BaseGeneratorComponent {
+export class GeneratorComponent extends BaseGeneratorComponent implements OnInit {
   private addEditCipherInfo: AddEditCipherInfo;
   private cipherState: CipherView;
   private cipherService: CipherService;

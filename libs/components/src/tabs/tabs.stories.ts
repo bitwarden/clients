@@ -33,6 +33,12 @@ class ItemThreeDummyComponent {}
 })
 class DisabledDummyComponent {}
 
+@Component({
+  selector: "bit-tab-item-with-child-counter-dummy",
+  template: "Router - Item With Child Counter selected",
+})
+class ItemWithChildCounterDummyComponent {}
+
 export default {
   title: "Component Library/Tabs",
   component: TabGroupComponent,
@@ -42,6 +48,7 @@ export default {
         ActiveDummyComponent,
         ItemTwoDummyComponent,
         ItemThreeDummyComponent,
+        ItemWithChildCounterDummyComponent,
         DisabledDummyComponent,
       ],
       imports: [CommonModule, TabsModule, ButtonModule, FormFieldModule, RouterModule],
@@ -55,6 +62,7 @@ export default {
               { path: "active", component: ActiveDummyComponent },
               { path: "item-2", component: ItemTwoDummyComponent },
               { path: "item-3", component: ItemThreeDummyComponent },
+              { path: "item-with-child-counter", component: ItemWithChildCounterDummyComponent },
               { path: "disabled", component: DisabledDummyComponent },
             ],
             { useHash: true },
@@ -102,6 +110,12 @@ export const NavigationTabs: Story = {
         <bit-tab-link [route]="['active']">Active</bit-tab-link>
         <bit-tab-link [route]="['item-2']">Item 2</bit-tab-link>
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
+        <bit-tab-link [route]="['item-with-child-counter']">
+          Item With Counter
+          <div slot="end" class="tw-pl-2 tw-text-muted">
+            42
+          </div>
+        </bit-tab-link>
         <bit-tab-link [route]="['disable']" [disabled]="true">Disabled</bit-tab-link>
       </bit-tab-nav-bar>
       <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">

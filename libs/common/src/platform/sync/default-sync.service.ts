@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { LogoutReason } from "../../../../auth/src/common/types";
@@ -17,6 +17,7 @@ import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { KeyConnectorService } from "../../auth/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../auth/abstractions/token.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
@@ -42,6 +43,7 @@ import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { sequentialize } from "../misc/sequentialize";
+import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
 
@@ -73,6 +75,7 @@ export class DefaultSyncService extends CoreSyncService {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private tokenService: TokenService,
     authService: AuthService,
+    stateProvider: StateProvider,
   ) {
     super(
       stateService,
@@ -87,14 +90,16 @@ export class DefaultSyncService extends CoreSyncService {
       authService,
       sendService,
       sendApiService,
+      stateProvider,
     );
   }
 
   @sequentialize(() => "fullSync")
   override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
-    const isAuthenticated = await this.stateService.getIsAuthenticated();
-    if (!isAuthenticated) {
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus === AuthenticationStatus.LoggedOut) {
       return this.syncCompleted(false);
     }
 
@@ -110,7 +115,7 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     if (!needsSync) {
-      await this.setLastSync(now);
+      await this.setLastSync(now, userId);
       return this.syncCompleted(false);
     }
 
@@ -126,7 +131,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSettings(response.domains);
       await this.syncPolicies(response.policies);
 
-      await this.setLastSync(now);
+      await this.setLastSync(now, userId);
       return this.syncCompleted(true);
     } catch (e) {
       if (allowThrowOnError) {

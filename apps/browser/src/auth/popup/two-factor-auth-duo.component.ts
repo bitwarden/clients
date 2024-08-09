@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { Subject, Subscription, filter, firstValueFrom, takeUntil } from "rxjs";
 
@@ -38,7 +38,10 @@ import { ZonedMessageListenerService } from "../../platform/browser/zoned-messag
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthDuoComponent extends TwoFactorAuthDuoBaseComponent {
+export class TwoFactorAuthDuoComponent
+  extends TwoFactorAuthDuoBaseComponent
+  implements OnInit, OnDestroy
+{
   private destroy$ = new Subject<void>();
   duoResultSubscription: Subscription;
 

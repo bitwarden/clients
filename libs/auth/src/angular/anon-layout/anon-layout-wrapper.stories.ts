@@ -177,7 +177,10 @@ const initialData: AnonLayoutWrapperData = {
 
 const changedData: AnonLayoutWrapperData = {
   pageTitle: "enterpriseSingleSignOn",
-  pageSubtitle: "checkYourEmail",
+  pageSubtitle: {
+    subtitle: "user@email.com (non-translated)",
+    translate: false,
+  },
   pageIcon: RegistrationCheckEmailIcon,
 };
 

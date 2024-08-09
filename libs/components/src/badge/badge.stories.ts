@@ -31,9 +31,9 @@ export const Primary: Story = {
     props: args,
     template: `
       <span class="tw-text-main">Span </span><span bitBadge [variant]="variant" [truncate]="truncate">Badge containing lengthy text</span>
-      <br><br>
+      <br /><br />
       <span class="tw-text-main">Link </span><a href="#" bitBadge [variant]="variant" [truncate]="truncate">Badge</a>
-      <br><br>
+      <br /><br />
       <span class="tw-text-main">Button </span><button bitBadge [variant]="variant" [truncate]="truncate">Badge</button>
     `,
   }),

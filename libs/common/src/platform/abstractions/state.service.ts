@@ -59,7 +59,5 @@ export abstract class StateService<T extends Account = Account> {
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
   getIsAuthenticated: (options?: StorageOptions) => Promise<boolean>;
-  getLastSync: (options?: StorageOptions) => Promise<string>;
-  setLastSync: (value: string, options?: StorageOptions) => Promise<void>;
   getUserId: (options?: StorageOptions) => Promise<string>;
 }

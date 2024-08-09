@@ -13,7 +13,7 @@ import { RestoreCommand } from "./commands/restore.command";
 import { StatusCommand } from "./commands/status.command";
 import { Response } from "./models/response";
 import { FileResponse } from "./models/response/file.response";
-import { ServiceContainer } from "./service-container";
+import { ServiceContainer } from "./service-container/service-container";
 import { GenerateCommand } from "./tools/generate.command";
 import {
   SendEditCommand,

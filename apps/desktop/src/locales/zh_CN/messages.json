@@ -157,7 +157,7 @@
     "message": "公司"
   },
   "ssn": {
-    "message": "社会保险号码"
+    "message": "社会保障号码"
   },
   "passportNumber": {
     "message": "护照号码"
@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "额外的 Windows Hello 设置"
   },
+  "unlockWithPolkit": {
+    "message": "使用系统身份验证解锁"
+  },
   "windowsHelloConsentMessage": {
     "message": "验证 Bitwarden。"
+  },
+  "polkitConsentMessage": {
+    "message": "验证以解锁 Bitwarden。"
   },
   "unlockWithTouchId": {
     "message": "使用触控 ID 解锁"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "应用程序启动时要求使用 Windows Hello"
+  },
+  "autoPromptPolkit": {
+    "message": "启动时请求系统身份验证"
   },
   "autoPromptTouchId": {
     "message": "应用程序启动时要求使用触控 ID"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "需要先在桌面应用程序的设置中设置生物识别，才能使用浏览器中的生物识别。"
   },
+  "biometricsManualSetupTitle": {
+    "message": "自动设置不可用"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "由于安装方式的原因，生物识别支持无法自动启用。您想要打开关于如何手动执行此操作的文档吗？"
+  },
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "tryAgain": {
     "message": "请重试"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "数据"
+  },
+  "fileSends": {
+    "message": "文件 Send"
+  },
+  "textSends": {
+    "message": "文本 Send"
   }
 }

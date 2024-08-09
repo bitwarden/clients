@@ -23,8 +23,4 @@ export class DefaultCipherFormGenerationService implements CipherFormGenerationS
     const options = await this.usernameGenerationService.getOptions();
     return await this.usernameGenerationService.generateUsername(options);
   }
-
-  async generateInitialPassword(): Promise<string> {
-    return await this.generatePassword();
-  }
 }

@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Chave de autenticação"
   },
+  "autofillOptions": {
+    "message": "Opções de preenchimento automático"
+  },
+  "websiteUri": {
+    "message": "Site (URI)"
+  },
+  "websiteAdded": {
+    "message": "Site adicionado"
+  },
+  "addWebsite": {
+    "message": "Adicionar site"
+  },
+  "deleteWebsite": {
+    "message": "Eliminar site"
+  },
+  "defaultLabel": {
+    "message": "Predefinido ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Mostrar deteção de correspondência para $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Ocultar deteção de correspondência para $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Preencher automaticamente ao carregar a página?"
+  },
   "number": {
     "message": "Número"
   },
@@ -2288,7 +2334,7 @@
     "message": "O seu método de pagamento será cobrado por quaisquer subscrições não pagas."
   },
   "paymentChargedWithTrial": {
-    "message": "O seu plano inclui um teste gratuito de 7 dias. O seu método de pagamento não será cobrado até ao fim do período de avaliação. Pode cancelar a qualquer momento."
+    "message": "O seu plano inclui um período experimental gratuito de 7 dias. O seu método de pagamento não será cobrado até ao fim do período experimental. Pode cancelar a qualquer momento."
   },
   "paymentInformation": {
     "message": "Informações de pagamento"
@@ -2297,7 +2343,7 @@
     "message": "Informações de faturação"
   },
   "billingTrialSubLabel": {
-    "message": "O seu método de pagamento não será cobrado durante os 7 dias de teste gratuito."
+    "message": "O seu método de pagamento não será cobrado durante os 7 dias do período experimental gratuito."
   },
   "creditCard": {
     "message": "Cartão de crédito"
@@ -2656,7 +2702,7 @@
     "message": "Prioridade no apoio ao cliente"
   },
   "xDayFreeTrial": {
-    "message": "$COUNT$ dia(s) de teste gratuito, cancele quando quiser",
+    "message": "$COUNT$ dias de período experimental, cancele quando quiser",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2683,7 +2729,7 @@
     }
   },
   "trialPaidInfoMessage": {
-    "message": "O seu teste gratuito de 7 dias de $PLAN$ será convertido numa subscrição paga após 7 dias.",
+    "message": "O seu período experimental gratuito de 7 dias de $PLAN$ será convertido numa subscrição paga após 7 dias.",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Tempo limite do cofre"
   },
@@ -7628,8 +7677,11 @@
   "requestedDeviceApproval": {
     "message": "Aprovação de dispositivo pedida."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "Comece o seu período de teste gratuito de 7 dias do Bitwarden para $ORG$",
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden para $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7638,7 +7690,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Inicie a sua avaliação gratuita de 7 dias do Gestor de Segredos Bitwarden para $ORG$",
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Segredos para $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7926,7 +7978,7 @@
     "message": "Detalhes da confirmação"
   },
   "smFreeTrialThankYou": {
-    "message": "Obrigado por se registar no Gestor de Segredos Bitwarden!"
+    "message": "Obrigado por se registar no Bitwarden - Gestor de Segredos!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Enviámos um e-mail de confirmação para o seu e-mail:"
@@ -8023,6 +8075,9 @@
         "example": "3"
       }
     }
+  },
+  "addField": {
+    "message": "Adicionar campo"
   },
   "items": {
     "message": "Itens"
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gira a faturação a partir do Portal do fornecedor"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden do plano Equipas"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden do plano Familiar"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden do plano Empresarial"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Segredos"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Segredos do plano Equipas"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Segredos do plano Familiar"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Segredos do plano Empresarial"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Palavras-passe"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Palavras-passe do plano Equipas"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Palavras-passe do plano Familiar"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden - Gestor de Palavras-passe do plano Empresarial"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Introduza as informações da organização do plano Equipas"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Introduza as informações da organização do plano Familiar"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Introduza as informações da organização do plano Empresarial"
+  },
   "viewItemsIn": {
     "message": "Ver itens em $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "lugares adquiridos removidos"
+  },
+  "includesXMembers": {
+    "message": "para $COUNT$ membro(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Alojamento opcional no local"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Atualize o seu plano $NAME$ da organização ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "Autenticação SSO"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "As organizações com o plano Familiar podem ter até $SEATCOUNT$ membros. Atualize para um plano pago para convidar mais membros.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "As organizações com o plano Familiar podem ter até $SEATCOUNT$ membros. Contacte o proprietário da organização para fazer uma atualização.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Atualize o seu plano para convidar mais membros e obter acesso a funcionalidades adicionais do Bitwarden"
+  },
+  "upgradeDiscount": {
+    "message": "Poupe $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Capacidades avançadas para empresas de maior dimensão"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Empresas que procuram uma segurança poderosa"
+  },
+  "teamsInviteMessage": {
+    "message": "Convide membros ilimitados"
+  },
+  "accessToCreateGroups": {
+    "message": "Acesso para criar grupos"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Sincronize grupos e utilizadores a partir de um diretório"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Partilhe com familiares e amigos"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Acesso a funcionalidades Premium"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB de armazenamento adicional"
   }
 }

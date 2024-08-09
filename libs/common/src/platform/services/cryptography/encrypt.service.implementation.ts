@@ -71,12 +71,12 @@ export class EncryptServiceImplementation implements EncryptService {
     key = this.resolveLegacyKey(key, encString);
 
     if (key.macKey != null && encString?.mac == null) {
-      this.logService.error("mac required.");
+      this.logService.error("MAC required but not provided.");
       return null;
     }
 
     if (key.encType !== encString.encryptionType) {
-      this.logService.error("encType unavailable.");
+      this.logService.error("Key encryption type does not match payload encryption type.");
       return null;
     }
 
@@ -94,7 +94,7 @@ export class EncryptServiceImplementation implements EncryptService {
       );
       const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
       if (!macsEqual) {
-        this.logMacFailed("mac failed.");
+        this.logMacFailed("MAC comparison failed. Key or payload has changed.");
         return null;
       }
     }
@@ -114,10 +114,12 @@ export class EncryptServiceImplementation implements EncryptService {
     key = this.resolveLegacyKey(key, encThing);
 
     if (key.macKey != null && encThing.macBytes == null) {
+      this.logService.error("MAC required but not provided.");
       return null;
     }
 
     if (key.encType !== encThing.encryptionType) {
+      this.logService.error("Key encryption type does not match payload encryption type.");
       return null;
     }
 
@@ -127,12 +129,13 @@ export class EncryptServiceImplementation implements EncryptService {
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
       const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
       if (computedMac === null) {
+        this.logMacFailed("Failed to compute MAC.");
         return null;
       }
 
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
-        this.logMacFailed("mac failed.");
+        this.logMacFailed("MAC comparison failed. Key or payload has changed.");
         return null;
       }
     }

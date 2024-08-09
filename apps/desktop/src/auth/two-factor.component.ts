@@ -1,4 +1,4 @@
-import { Component, Inject, NgZone, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, Inject, NgZone, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -36,7 +36,7 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   templateUrl: "two-factor.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
 

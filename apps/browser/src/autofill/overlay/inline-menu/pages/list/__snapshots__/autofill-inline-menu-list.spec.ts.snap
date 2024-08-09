@@ -478,7 +478,6 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
         class="cipher-container"
       >
         <button
-          aria-description="username: "
           aria-label="fillCredentialsFor "
           class="fill-cipher-button inline-menu-list-action"
           tabindex="-1"
@@ -910,7 +909,6 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
         class="cipher-container"
       >
         <button
-          aria-description="username: "
           aria-label="fillCredentialsFor "
           class="fill-cipher-button inline-menu-list-action"
           tabindex="-1"
@@ -1342,7 +1340,6 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
         class="cipher-container"
       >
         <button
-          aria-description="username: "
           aria-label="fillCredentialsFor "
           class="fill-cipher-button inline-menu-list-action"
           tabindex="-1"
@@ -1582,6 +1579,507 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
         </button>
         <button
           aria-label="view website login 6, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user creating a list of passkeys renders the passkeys list item views 1`] = `
+<div
+  class="inline-menu-list-container theme_light"
+>
+  <ul
+    class="inline-menu-list-actions"
+    role="list"
+  >
+    <li
+      class="inline-menu-list-heading"
+    />
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username1"
+          aria-label=" https://example.com"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="https://example.com"
+            >
+              https://example.com
+            </span>
+            <span
+              class="cipher-subtitle cipher-subtitle--passkey"
+              title="username1"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="15"
+                viewBox="0 0 14 15"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.35 12.112a.713.713 0 1 1 0-1.426.713.713 0 0 1 0 1.426Z"
+                  fill="#6D757E"
+                />
+                <path
+                  clip-rule="evenodd"
+                  d="M4.597 7.695a3.5 3.5 0 1 1 3.741 0A5.33 5.33 0 0 1 10.5 9.186c.154.172.29.328.384.461l1.562-.001L14 11.14l-2.188 1.952-.874-.875-.876.875-.874-.875-.876.84-2.613-.003a3.152 3.152 0 0 1-2.634 1.307c-1.729-.036-3.101-1.436-3.064-3.127C.038 9.543 1.469 8.2 3.199 8.237c.098.002.195.009.291.02a6.76 6.76 0 0 1 .296-.181c.257-.149.528-.276.81-.381Zm1.176 1.957 3.952-.004a4.11 4.11 0 0 0-.498-.462 4.452 4.452 0 0 0-2.76-.95c-.647 0-1.262.137-1.817.384a3.12 3.12 0 0 1 1.123 1.032Zm-1.93-4.916a2.625 2.625 0 1 0 5.25 0 2.625 2.625 0 0 0-5.25 0Zm1.407 7.442-.262.366a2.277 2.277 0 0 1-1.904.942C1.819 13.459.85 12.442.876 11.253c.025-1.19 1.04-2.168 2.304-2.141a2.27 2.27 0 0 1 1.86 1.019l.26.396 6.794-.006.619.595-.866.773-.91-.909-.874.875-.863-.862-1.239 1.19-2.711-.005Z"
+                  fill="#6D757E"
+                  fill-rule="evenodd"
+                />
+              </svg>
+              username1
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view https://example.com, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username2"
+          aria-label=" https://example.com"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="https://example.com"
+            >
+              https://example.com
+            </span>
+            <span
+              class="cipher-subtitle cipher-subtitle--passkey"
+              title="username2"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="15"
+                viewBox="0 0 14 15"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.35 12.112a.713.713 0 1 1 0-1.426.713.713 0 0 1 0 1.426Z"
+                  fill="#6D757E"
+                />
+                <path
+                  clip-rule="evenodd"
+                  d="M4.597 7.695a3.5 3.5 0 1 1 3.741 0A5.33 5.33 0 0 1 10.5 9.186c.154.172.29.328.384.461l1.562-.001L14 11.14l-2.188 1.952-.874-.875-.876.875-.874-.875-.876.84-2.613-.003a3.152 3.152 0 0 1-2.634 1.307c-1.729-.036-3.101-1.436-3.064-3.127C.038 9.543 1.469 8.2 3.199 8.237c.098.002.195.009.291.02a6.76 6.76 0 0 1 .296-.181c.257-.149.528-.276.81-.381Zm1.176 1.957 3.952-.004a4.11 4.11 0 0 0-.498-.462 4.452 4.452 0 0 0-2.76-.95c-.647 0-1.262.137-1.817.384a3.12 3.12 0 0 1 1.123 1.032Zm-1.93-4.916a2.625 2.625 0 1 0 5.25 0 2.625 2.625 0 0 0-5.25 0Zm1.407 7.442-.262.366a2.277 2.277 0 0 1-1.904.942C1.819 13.459.85 12.442.876 11.253c.025-1.19 1.04-2.168 2.304-2.141a2.27 2.27 0 0 1 1.86 1.019l.26.396 6.794-.006.619.595-.866.773-.91-.909-.874.875-.863-.862-1.239 1.19-2.711-.005Z"
+                  fill="#6D757E"
+                  fill-rule="evenodd"
+                />
+              </svg>
+              username2
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view https://example.com, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username3"
+          aria-label=" website login 3"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="website login 3"
+            >
+              website login 3
+            </span>
+            <span
+              class="cipher-subtitle cipher-subtitle--passkey"
+              title="https://example.com"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="15"
+                viewBox="0 0 14 15"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.35 12.112a.713.713 0 1 1 0-1.426.713.713 0 0 1 0 1.426Z"
+                  fill="#6D757E"
+                />
+                <path
+                  clip-rule="evenodd"
+                  d="M4.597 7.695a3.5 3.5 0 1 1 3.741 0A5.33 5.33 0 0 1 10.5 9.186c.154.172.29.328.384.461l1.562-.001L14 11.14l-2.188 1.952-.874-.875-.876.875-.874-.875-.876.84-2.613-.003a3.152 3.152 0 0 1-2.634 1.307c-1.729-.036-3.101-1.436-3.064-3.127C.038 9.543 1.469 8.2 3.199 8.237c.098.002.195.009.291.02a6.76 6.76 0 0 1 .296-.181c.257-.149.528-.276.81-.381Zm1.176 1.957 3.952-.004a4.11 4.11 0 0 0-.498-.462 4.452 4.452 0 0 0-2.76-.95c-.647 0-1.262.137-1.817.384a3.12 3.12 0 0 1 1.123 1.032Zm-1.93-4.916a2.625 2.625 0 1 0 5.25 0 2.625 2.625 0 0 0-5.25 0Zm1.407 7.442-.262.366a2.277 2.277 0 0 1-1.904.942C1.819 13.459.85 12.442.876 11.253c.025-1.19 1.04-2.168 2.304-2.141a2.27 2.27 0 0 1 1.86 1.019l.26.396 6.794-.006.619.595-.866.773-.91-.909-.874.875-.863-.862-1.239 1.19-2.711-.005Z"
+                  fill="#6D757E"
+                  fill-rule="evenodd"
+                />
+              </svg>
+              https://example.com
+            </span>
+            <span
+              class="cipher-subtitle"
+              title="username3"
+            >
+              username3
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view website login 3, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-heading"
+    />
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username1"
+          aria-label="fillCredentialsFor website login 1"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="website login 1"
+            >
+              website login 1
+            </span>
+            <span
+              class="cipher-subtitle"
+              title="username1"
+            >
+              username1
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view website login 1, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username2"
+          aria-label="fillCredentialsFor website login 2"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="website login 2"
+            >
+              website login 2
+            </span>
+            <span
+              class="cipher-subtitle"
+              title="username2"
+            >
+              username2
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view website login 2, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: username3"
+          aria-label="fillCredentialsFor website login 3"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+            style="background-image: url(https://jest-testing-website.com/image.png);"
+          />
+          <span
+            class="cipher-details"
+          >
+            <span
+              class="cipher-name"
+              title="website login 3"
+            >
+              website login 3
+            </span>
+            <span
+              class="cipher-subtitle"
+              title="username3"
+            >
+              username3
+            </span>
+          </span>
+        </button>
+        <button
+          aria-label="view website login 3, opensInANewWindow"
           class="view-cipher-button"
           tabindex="-1"
         >

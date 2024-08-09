@@ -7,8 +7,11 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -18,6 +21,7 @@ import { DO_FULL_SYNC, ForegroundSyncService, FullSyncMessage } from "./foregrou
 import { FullSyncFinishedMessage } from "./sync-service.listener";
 
 describe("ForegroundSyncService", () => {
+  const userId = Utils.newGuid() as UserId;
   const stateService = mock<StateService>();
   const folderService = mock<InternalFolderService>();
   const folderApiService = mock<FolderApiServiceAbstraction>();
@@ -31,6 +35,7 @@ describe("ForegroundSyncService", () => {
   const sendService = mock<InternalSendService>();
   const sendApiService = mock<SendApiService>();
   const messageListener = mock<MessageListener>();
+  const stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
 
   const sut = new ForegroundSyncService(
     stateService,
@@ -46,6 +51,7 @@ describe("ForegroundSyncService", () => {
     sendService,
     sendApiService,
     messageListener,
+    stateProvider,
   );
 
   beforeEach(() => {

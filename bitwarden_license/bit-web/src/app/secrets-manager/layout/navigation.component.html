@@ -6,19 +6,31 @@
     [text]="'projects' | i18n"
     route="projects"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.projects }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-key"
     [text]="'secrets' | i18n"
     route="secrets"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.secrets }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-wrench"
     [text]="'machineAccounts' | i18n"
     route="machine-accounts"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.serviceAccounts }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-providers"
     [text]="'integrations' | i18n"

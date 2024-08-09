@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -13,7 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
   selector: "app-hint",
   templateUrl: "hint.component.html",
 })
-export class HintComponent extends BaseHintComponent {
+export class HintComponent extends BaseHintComponent implements OnInit {
   formGroup = this.formBuilder.group({
     email: ["", [Validators.email, Validators.required]],
   });

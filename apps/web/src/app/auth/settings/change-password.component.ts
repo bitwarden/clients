@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
@@ -31,7 +31,10 @@ import { UserKeyRotationService } from "../key-rotation/user-key-rotation.servic
   selector: "app-change-password",
   templateUrl: "change-password.component.html",
 })
-export class ChangePasswordComponent extends BaseChangePasswordComponent {
+export class ChangePasswordComponent
+  extends BaseChangePasswordComponent
+  implements OnInit, OnDestroy
+{
   rotateUserKey = false;
   currentMasterPassword: string;
   masterPasswordHint: string;

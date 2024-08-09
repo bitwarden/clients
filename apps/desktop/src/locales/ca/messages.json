@@ -500,10 +500,10 @@
     "message": "Crea un compte"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Estableix una contrasenya segura"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Acabeu de crear el vostre compte establint una contrasenya"
   },
   "logIn": {
     "message": "Inicia sessió"
@@ -527,7 +527,7 @@
     "message": "Pista de la contrasenya mestra (opcional)"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Si oblideu la contrasenya, la pista de contrasenya es pot enviar al vostre correu electrònic. $CURRENT$/$MAXIMUM$ caràcters màxim.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -540,22 +540,22 @@
     }
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Contrasenya mestra"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "La contrasenya mestra no es pot recuperar si la oblideu!"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "Confirma la contrasenya mestra"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Pista de la contrasenya mestra"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Uneix-te a l'organització"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Acabeu d'unir-vos a aquesta organització establint una contrasenya mestra."
   },
   "settings": {
     "message": "Configuració"
@@ -634,7 +634,7 @@
     "message": "El codi de verificació és obligatori."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "L'autenticació s'ha cancel·lat o ha tardat massa. Torna-ho a provar."
   },
   "invalidVerificationCode": {
     "message": "Codi de verificació no vàlid"
@@ -692,7 +692,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP security key"
+    "message": "Clau de seguretat OTP de Yubico"
   },
   "yubiKeyDesc": {
     "message": "Utilitzeu una YubiKey per accedir al vostre compte. Funciona amb els dispositius YubiKey 4, 4 Nano, 4C i NEO."
@@ -739,7 +739,7 @@
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "Per a la configuració avançada, podeu especificar l'URL base de cada servei de manera independent."
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
@@ -802,7 +802,7 @@
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -1370,7 +1370,7 @@
     "description": "ex. Date this password was updated"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Exporta des de"
   },
   "exportVault": {
     "message": "Exporta caixa forta"
@@ -1382,7 +1382,7 @@
     "message": "This file export will be password protected and require the file password to decrypt."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Contrasenya del fitxer"
   },
   "exportPasswordDescription": {
     "message": "This password will be used to export and import this file"
@@ -1391,13 +1391,13 @@
     "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "Protegit amb contrasenya"
   },
   "passwordProtectedOptionDescription": {
     "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Tipus d'exportació"
   },
   "accountRestricted": {
     "message": "Account restricted"
@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Configuració addicional de Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with system authentication"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verifica per Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Desbloqueja amb Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Sol·liciteu Windows Hello en iniciar"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for system authentication on launch"
   },
   "autoPromptTouchId": {
     "message": "Sol·liciteu Touch ID en iniciar"
@@ -1715,16 +1724,16 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Anul·la la subscripció"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "en qualsevol moment."
   },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
   },
   "and": {
-    "message": "and"
+    "message": "i"
   },
   "acceptPolicies": {
     "message": "Si activeu aquesta casella, indiqueu que esteu d’acord amb el següent:"
@@ -1803,6 +1812,12 @@
   },
   "biometricsNotEnabledDesc": {
     "message": "La biometria del navegador primer necessita habilitar la biomètrica d’escriptori a la configuració."
+  },
+  "biometricsManualSetupTitle": {
+    "message": "Autometic setup not available"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
   },
   "personalOwnershipSubmitError": {
     "message": "A causa d'una política empresarial, no podeu guardar elements a la vostra caixa forta personal. Canvieu l'opció Propietat en organització i trieu entre les col·leccions disponibles."
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "tryAgain": {
     "message": "Torneu-ho a provar"
@@ -2521,13 +2539,13 @@
     "message": "S'ha sol·licitat inici de sessió"
   },
   "creatingAccountOn": {
-    "message": "Creating account on"
+    "message": "Creant compte en"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "Comprova el teu correu"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "Follow the link in the email sent to"
+    "message": "Seguiu l'enllaç del correu electrònic enviat a"
   },
   "andContinueCreatingYourAccount": {
     "message": "and continue creating your account."
@@ -2536,7 +2554,7 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "Torna arrere"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
@@ -2827,7 +2845,7 @@
     "message": "La contrasenya del fitxer no és vàlida. Utilitzeu la contrasenya que vau introduir quan vau crear el fitxer d'exportació."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destinació"
   },
   "learnAboutImportOptions": {
     "message": "Obteniu informació sobre les opcions d'importació"
@@ -2886,7 +2904,7 @@
     "message": "Confirma la contrasenya del fitxer"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "S'han exportat les dades de la caixa forta"
   },
   "multifactorAuthenticationCancelled": {
     "message": "S'ha cancel·lat l'autenticació multifactor"
@@ -3010,7 +3028,7 @@
     }
   },
   "back": {
-    "message": "Back",
+    "message": "Arrere",
     "description": "Button text to navigate back"
   },
   "removeItem": {
@@ -3024,6 +3042,12 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Dades"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   }
 }

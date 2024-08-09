@@ -7,7 +7,7 @@ import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-util
 import {
   InsecureAssertCredentialParams,
   InsecureCreateCredentialParams,
-} from "../../autofill/fido2/content/messaging/message";
+} from "../content/messaging/message";
 
 export class WebauthnUtils {
   static mapCredentialCreationOptions(
@@ -111,6 +111,7 @@ export class WebauthnUtils {
       rpId: keyOptions.rpId,
       userVerification: keyOptions.userVerification,
       timeout: keyOptions.timeout,
+      mediation: options.mediation,
       fallbackSupported,
     };
   }

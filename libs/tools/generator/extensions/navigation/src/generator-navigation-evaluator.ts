@@ -1,4 +1,4 @@
-import { PolicyEvaluator } from "@bitwarden/generator-core";
+import { PasswordTypes, PolicyEvaluator } from "@bitwarden/generator-core";
 
 import { DefaultGeneratorNavigation } from "./default-generator-navigation";
 import { GeneratorNavigation } from "./generator-navigation";
@@ -17,7 +17,7 @@ export class GeneratorNavigationEvaluator
 
   /** {@link PolicyEvaluator.policyInEffect} */
   get policyInEffect(): boolean {
-    return this.policy?.defaultType ? true : false;
+    return PasswordTypes.includes(this.policy?.overridePasswordType);
   }
 
   /** Apply policy to the input options.
@@ -25,7 +25,13 @@ export class GeneratorNavigationEvaluator
    *  @returns A new password generation request with policy applied.
    */
   applyPolicy(options: GeneratorNavigation): GeneratorNavigation {
-    return options;
+    const result = { ...options };
+
+    if (this.policyInEffect) {
+      result.type = this.policy.overridePasswordType ?? result.type;
+    }
+
+    return result;
   }
 
   /** Ensures internal options consistency.
@@ -33,12 +39,9 @@ export class GeneratorNavigationEvaluator
    *  @returns A passphrase generation request with cascade applied.
    */
   sanitize(options: GeneratorNavigation): GeneratorNavigation {
-    const defaultType = this.policyInEffect
-      ? this.policy.defaultType
-      : DefaultGeneratorNavigation.type;
     return {
       ...options,
-      type: options.type ?? defaultType,
+      type: options.type ?? DefaultGeneratorNavigation.type,
     };
   }
 }

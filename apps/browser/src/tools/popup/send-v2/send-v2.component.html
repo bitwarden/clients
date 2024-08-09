@@ -8,12 +8,32 @@
     </ng-container>
   </popup-header>
 
-  <div *ngIf="sends.length === 0" class="tw-flex tw-flex-col tw-h-full tw-justify-center">
+  <div
+    *ngIf="listState === sendState.Empty"
+    class="tw-flex tw-flex-col tw-h-full tw-justify-center"
+  >
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
       <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
       <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
       <tools-new-send-dropdown slot="button"></tools-new-send-dropdown>
     </bit-no-items>
   </div>
-  <app-send-list-items-container [sends]="sends" />
+
+  <ng-container *ngIf="listState !== sendState.Empty">
+    <div
+      *ngIf="listState === sendState.NoResults"
+      class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
+    >
+      <bit-no-items [icon]="noResultsIcon">
+        <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+      </bit-no-items>
+    </div>
+    <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
+  </ng-container>
+
+  <div slot="above-scroll-area" class="tw-p-4" *ngIf="listState !== sendState.Empty">
+    <tools-send-search></tools-send-search>
+    <app-send-list-filters></app-send-list-filters>
+  </div>
 </popup-page>

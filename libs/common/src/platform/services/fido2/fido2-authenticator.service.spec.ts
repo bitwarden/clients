@@ -756,6 +756,22 @@ describe("FidoAuthenticatorService", () => {
       });
     });
 
+    describe("silentCredentialDiscovery", () => {
+      it("returns the fido2Credentials of a cipher found by its rpId", async () => {
+        const credentialId = Utils.newGuid();
+        const cipher = await createCipherView(
+          { type: CipherType.Login },
+          { credentialId, rpId: RpId, discoverable: true },
+        );
+        const ciphers = [cipher];
+        cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+
+        const result = await authenticator.silentCredentialDiscovery(RpId);
+
+        expect(result).toEqual([cipher.login.fido2Credentials[0]]);
+      });
+    });
+
     async function createParams(
       params: Partial<Fido2AuthenticatorGetAssertionParams> = {},
     ): Promise<Fido2AuthenticatorGetAssertionParams> {

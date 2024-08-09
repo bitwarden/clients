@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Yderligere indstillinger for Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Oplås med systemgodkendelse"
+  },
   "windowsHelloConsentMessage": {
     "message": "Bekræft for Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Godkend for at oplåse Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Oplås med Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Anmod om Windows Hello ved app-start"
+  },
+  "autoPromptPolkit": {
+    "message": "Anmod om systemgodkendelse ved start"
   },
   "autoPromptTouchId": {
     "message": "Anmod om Touch ID ved app-start"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Browserbiometri kræver, at computerbiometri er opsat i indstillingerne først."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automatisk opsætning utilgængelig"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Grundet installationsmetoden kunne biometriunderstøttelse ikke automatisk aktiveres. Åbn dokumentationen til, hvordan dette gøres manuelt?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Grundet en virksomhedspolitik forhindres du i at gemme emner i din personlige boks. Skift ejerskabsindstillingen til en organisation, og vælg blandt de tilgængelige samlinger."
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Din hovedadgangskode overholder ikke en eller flere organisationspolitikker. For at få adgang til boksen skal hovedadgangskode opdateres nu. Fortsættes, logges du ud af den nuværende session og vil skulle logger ind igen. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Organisationen har deaktiveret betroet enhedskryptering. Opsæt en hovedadgangskode for at tilgå boksen."
   },
   "tryAgain": {
     "message": "Forsøg igen"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Data"
+  },
+  "fileSends": {
+    "message": "Fil-Sends"
+  },
+  "textSends": {
+    "message": "Tekst-Sends"
   }
 }

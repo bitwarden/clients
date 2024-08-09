@@ -69,7 +69,7 @@ describe("DefaultGeneratorNavigationService", () => {
               organizationId: "" as any,
               enabled: true,
               type: PolicyType.PasswordGenerator,
-              data: { defaultType: "password" },
+              data: { overridePasswordType: "password" },
             }),
           ]);
         },

@@ -187,7 +187,10 @@ export function createAutofillOverlayCipherDataMock(
   return {
     id: String(index),
     name: `website login ${index}`,
-    login: { username: `username${index}` },
+    login: {
+      username: `username${index}`,
+      passkey: null,
+    },
     type: CipherType.Login,
     reprompt: CipherRepromptType.None,
     favorite: false,

@@ -22,8 +22,11 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { TotpCaptureService } from "@bitwarden/vault";
 
 import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
+import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
+import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 
 import { PopupFooterComponent } from "./../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
@@ -33,6 +36,7 @@ import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
   standalone: true,
+  providers: [{ provide: TotpCaptureService, useClass: BrowserTotpCaptureService }],
   imports: [
     CommonModule,
     SearchModule,
@@ -45,6 +49,7 @@ import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup
     IconButtonModule,
     CipherViewComponent,
     AsyncActionsModule,
+    PopOutComponent,
   ],
 })
 export class ViewV2Component {

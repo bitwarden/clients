@@ -26,11 +26,12 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { flagEnabled } from "../../../utils/flags";
-import { RouterService, StateService } from "../../core";
+import { RouterService } from "../../core";
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
 import { OrganizationInvite } from "../organization-invite/organization-invite";
 

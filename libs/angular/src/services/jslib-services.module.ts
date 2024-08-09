@@ -687,6 +687,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       TokenServiceAbstraction,
       AuthServiceAbstraction,
+      StateProvider,
     ],
   }),
   safeProvider({

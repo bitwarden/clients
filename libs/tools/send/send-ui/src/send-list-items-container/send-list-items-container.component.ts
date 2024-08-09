@@ -48,6 +48,9 @@ export class SendListItemsContainerComponent {
   @Input()
   sends: SendView[] = [];
 
+  @Input()
+  headerText: string;
+
   constructor(
     protected dialogService: DialogService,
     protected environmentService: EnvironmentService,

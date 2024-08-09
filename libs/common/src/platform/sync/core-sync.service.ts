@@ -12,6 +12,7 @@ import {
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
@@ -22,6 +23,12 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
+import { StateProvider, SYNC_DISK, UserKeyDefinition } from "../state";
+
+const LAST_SYNC_DATE = new UserKeyDefinition<Date>(SYNC_DISK, "lastSync", {
+  deserializer: (d) => (d != null ? new Date(d) : null),
+  clearOn: ["logout"],
+});
 
 /**
  * Core SyncService Logic EXCEPT for fullSync so that implementations can differ.
@@ -42,25 +49,26 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly authService: AuthService,
     protected readonly sendService: InternalSendService,
     protected readonly sendApiService: SendApiService,
+    protected readonly stateProvider: StateProvider,
   ) {}
 
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   async getLastSync(): Promise<Date> {
-    if ((await this.stateService.getUserId()) == null) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (userId == null) {
       return null;
     }
 
-    const lastSync = await this.stateService.getLastSync();
-    if (lastSync) {
-      return new Date(lastSync);
-    }
-
-    return null;
+    return await firstValueFrom(this.lastSync$(userId));
   }
 
-  async setLastSync(date: Date, userId?: string): Promise<any> {
-    await this.stateService.setLastSync(date.toJSON(), { userId: userId });
+  lastSync$(userId: UserId) {
+    return this.stateProvider.getUser(userId, LAST_SYNC_DATE).state$;
+  }
+
+  async setLastSync(date: Date, userId: UserId): Promise<void> {
+    await this.stateProvider.getUser(userId, LAST_SYNC_DATE).update(() => date);
   }
 
   async syncUpsertFolder(notification: SyncFolderNotification, isEdit: boolean): Promise<boolean> {

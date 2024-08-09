@@ -1,4 +1,4 @@
-import { Observable, map, concatMap, share, ReplaySubject, timer } from "rxjs";
+import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
 import { EncString } from "../../platform/models/domain/enc-string";
 import {
@@ -30,7 +30,7 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
   // wiring the derived and secret states together.
   private constructor(
     private readonly key: SecretKeyDefinition<Outer, Id, Plaintext, Disclosed, Secret>,
-    private readonly encryptor: UserEncryptor,
+    private readonly $encryptor: Observable<UserEncryptor>,
     userId: UserId,
     provider: StateProvider,
   ) {
@@ -38,9 +38,10 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     this.encryptedState = provider.getUser(userId, key.toEncryptedStateKey());
 
     // cache plaintext
-    this.combinedState$ = this.encryptedState.combinedState$.pipe(
+    this.combinedState$ = combineLatest([this.encryptedState.combinedState$, this.$encryptor]).pipe(
       concatMap(
-        async ([userId, state]) => [userId, await this.declassifyAll(state)] as [UserId, Outer],
+        async ([[userId, state], encryptor]) =>
+          [userId, await this.declassifyAll(encryptor, state)] as [UserId, Outer],
       ),
       share({
         connector: () => {
@@ -85,15 +86,18 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     userId: UserId,
     key: SecretKeyDefinition<Outer, Id, TFrom, Disclosed, Secret>,
     provider: StateProvider,
-    encryptor: UserEncryptor,
+    encryptor$: Observable<UserEncryptor>,
   ) {
-    const secretState = new SecretState(key, encryptor, userId, provider);
+    const secretState = new SecretState(key, encryptor$, userId, provider);
     return secretState;
   }
 
-  private async declassifyItem({ id, secret, disclosed }: ClassifiedFormat<Id, Disclosed>) {
+  private async declassifyItem(
+    encryptor: UserEncryptor,
+    { id, secret, disclosed }: ClassifiedFormat<Id, Disclosed>,
+  ) {
     const encrypted = EncString.fromJSON(secret);
-    const decrypted = await this.encryptor.decrypt(encrypted, this.encryptedState.userId);
+    const decrypted = await encryptor.decrypt(encrypted);
 
     const declassified = this.key.classifier.declassify(disclosed, decrypted);
     const result = [id, this.key.options.deserializer(declassified)] as const;
@@ -101,14 +105,14 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     return result;
   }
 
-  private async declassifyAll(data: ClassifiedFormat<Id, Disclosed>[]) {
+  private async declassifyAll(encryptor: UserEncryptor, data: ClassifiedFormat<Id, Disclosed>[]) {
     // fail fast if there's no value
     if (data === null || data === undefined) {
       return null;
     }
 
     // decrypt each item
-    const decryptTasks = data.map(async (item) => this.declassifyItem(item));
+    const decryptTasks = data.map(async (item) => this.declassifyItem(encryptor, item));
 
     // reconstruct expected type
     const results = await Promise.all(decryptTasks);
@@ -117,9 +121,9 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     return result;
   }
 
-  private async classifyItem([id, item]: [Id, Plaintext]) {
+  private async classifyItem(encryptor: UserEncryptor, [id, item]: [Id, Plaintext]) {
     const classified = this.key.classifier.classify(item);
-    const encrypted = await this.encryptor.encrypt(classified.secret, this.encryptedState.userId);
+    const encrypted = await encryptor.encrypt(classified.secret);
 
     // the deserializer in the plaintextState's `derive` configuration always runs, but
     // `encryptedState` is not guaranteed to serialize the data, so it's necessary to
@@ -133,7 +137,7 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     return serialized;
   }
 
-  private async classifyAll(data: Outer) {
+  private async classifyAll(encryptor: UserEncryptor, data: Outer) {
     // fail fast if there's no value
     if (data === null || data === undefined) {
       return null;
@@ -144,7 +148,7 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     const desconstructed = this.key.deconstruct(data);
 
     // encrypt each value individually
-    const classifyTasks = desconstructed.map(async (item) => this.classifyItem(item));
+    const classifyTasks = desconstructed.map(async (item) => this.classifyItem(encryptor, item));
     const classified = await Promise.all(classifyTasks);
 
     return classified;
@@ -167,20 +171,26 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
     configureState: (state: Outer, dependencies: TCombine) => Outer,
     options: StateUpdateOptions<Outer, TCombine> = null,
   ): Promise<Outer> {
+    const combineLatestWith = combineLatest([
+      options?.combineLatestWith ?? of(null),
+      this.$encryptor,
+    ]);
+
     // read the backing store
     let latestClassified: ClassifiedFormat<Id, Disclosed>[];
     let latestCombined: TCombine;
+    let latestEncryptor: UserEncryptor;
     await this.encryptedState.update((c) => c, {
       shouldUpdate: (latest, combined) => {
         latestClassified = latest;
-        latestCombined = combined;
+        [latestCombined, latestEncryptor] = combined;
         return false;
       },
-      combineLatestWith: options?.combineLatestWith,
+      combineLatestWith,
     });
 
     // exit early if there's no update to apply
-    const latestDeclassified = await this.declassifyAll(latestClassified);
+    const latestDeclassified = await this.declassifyAll(latestEncryptor, latestClassified);
     const shouldUpdate = options?.shouldUpdate?.(latestDeclassified, latestCombined) ?? true;
     if (!shouldUpdate) {
       return latestDeclassified;
@@ -188,7 +198,7 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
 
     // apply the update
     const updatedDeclassified = configureState(latestDeclassified, latestCombined);
-    const updatedClassified = await this.classifyAll(updatedDeclassified);
+    const updatedClassified = await this.classifyAll(latestEncryptor, updatedDeclassified);
     await this.encryptedState.update(() => updatedClassified);
 
     return updatedDeclassified;

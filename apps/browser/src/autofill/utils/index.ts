@@ -105,7 +105,19 @@ export async function sendExtensionMessage(
   command: string,
   options: Record<string, any> = {},
 ): Promise<any> {
-  return chrome.runtime.sendMessage({ command, ...options });
+  if (typeof browser !== "undefined") {
+    return browser.runtime.sendMessage({ command, ...options });
+  }
+
+  return new Promise((resolve) =>
+    chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
+      if (chrome.runtime.lastError) {
+        resolve(null);
+      }
+
+      resolve(response);
+    }),
+  );
 }
 
 /**

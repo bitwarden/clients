@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,10 +19,12 @@ import { PopupPageComponent } from "../../../../apps/browser/src/platform/popup/
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
+import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
+import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
 @Component({
@@ -43,9 +45,11 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     ViewIdentitySectionsComponent,
+    LoginCredentialsViewComponent,
+    AutofillOptionsViewComponent,
   ],
 })
-export class CipherViewComponent implements OnInit {
+export class CipherViewComponent implements OnInit, OnDestroy {
   @Input() cipher: CipherView;
   organization$: Observable<Organization>;
   folder$: Observable<FolderView>;
@@ -61,6 +65,7 @@ export class CipherViewComponent implements OnInit {
   async ngOnInit() {
     await this.loadCipherData();
   }
+
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
@@ -69,6 +74,15 @@ export class CipherViewComponent implements OnInit {
   get hasCard() {
     const { cardholderName, code, expMonth, expYear, brand, number } = this.cipher.card;
     return cardholderName || code || expMonth || expYear || brand || number;
+  }
+
+  get hasLogin() {
+    const { username, password, totp } = this.cipher.login;
+    return username || password || totp;
+  }
+
+  get hasAutofill() {
+    return this.cipher.login?.uris.length > 0;
   }
 
   async loadCipherData() {
