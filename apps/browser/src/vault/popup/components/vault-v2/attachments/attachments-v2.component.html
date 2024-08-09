@@ -1,10 +1,5 @@
 <popup-page>
-  <popup-header
-    slot="header"
-    [pageTitle]="'attachments' | i18n"
-    showBackButton
-    [backAction]="handleBackButton.bind(this)"
-  >
+  <popup-header slot="header" [pageTitle]="'attachments' | i18n" showBackButton>
     <app-pop-out slot="end" />
   </popup-header>
 
@@ -12,7 +7,7 @@
     *ngIf="cipherId"
     [cipherId]="cipherId"
     [submitBtn]="submitButton"
-    (onUploadSuccess)="navigateToEditScreen()"
+    (onUploadSuccess)="navigateTheUserBack()"
   ></app-cipher-attachments>
 
   <popup-footer slot="footer">

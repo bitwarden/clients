@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -16,6 +16,7 @@ import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
+import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
@@ -26,7 +27,6 @@ import { AttachmentsV2Component } from "./attachments-v2.component";
 })
 class MockPopupHeaderComponent {
   @Input() pageTitle: string;
-  @Input() backAction: () => void;
 }
 
 @Component({
@@ -43,7 +43,7 @@ describe("AttachmentsV2Component", () => {
   let fixture: ComponentFixture<AttachmentsV2Component>;
   const queryParams = new BehaviorSubject<{ cipherId: string }>({ cipherId: "5555-444-3333" });
   let cipherAttachment: CipherAttachmentsComponent;
-  const navigate = jest.fn();
+  const back = jest.fn();
 
   const cipherDomain = {
     type: CipherType.Login,
@@ -53,8 +53,7 @@ describe("AttachmentsV2Component", () => {
   const cipherServiceGet = jest.fn().mockResolvedValue(cipherDomain);
 
   beforeEach(async () => {
-    cipherServiceGet.mockClear();
-    navigate.mockClear();
+    back.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [AttachmentsV2Component],
@@ -63,7 +62,7 @@ describe("AttachmentsV2Component", () => {
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: Router, useValue: { navigate } },
+        { provide: PopupRouterCacheService, useValue: { back } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -110,14 +109,11 @@ describe("AttachmentsV2Component", () => {
     expect(cipherAttachment.submitBtn).toEqual(submitBtn);
   });
 
-  it("navigates the user to the edit view `onUploadSuccess`", fakeAsync(() => {
+  it("navigates the user back on `onUploadSuccess`", fakeAsync(() => {
     cipherAttachment.onUploadSuccess.emit();
 
     tick();
 
-    expect(navigate).toHaveBeenCalledWith(["/edit-cipher"], {
-      queryParams: { cipherId: "5555-444-3333", type: CipherType.Login },
-      replaceUrl: true,
-    });
+    expect(back).toHaveBeenCalled();
   }));
 });

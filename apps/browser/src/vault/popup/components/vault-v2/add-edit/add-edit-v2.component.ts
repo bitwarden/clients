@@ -1,4 +1,4 @@
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -27,6 +27,7 @@ import { PopOutComponent } from "../../../../../platform/popup/components/pop-ou
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
@@ -150,9 +151,9 @@ export class AddEditV2Component implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private location: Location,
     private i18nService: I18nService,
     private addEditFormConfigService: CipherFormConfigService,
+    private popoutRouterCacheService: PopupRouterCacheService,
     private router: Router,
     private popupCloseWarningService: PopupCloseWarningService,
   ) {
@@ -205,7 +206,7 @@ export class AddEditV2Component implements OnInit {
         queryParams: { cipherId: this.originalCipherId },
       });
     } else {
-      this.location.back();
+      await this.popoutRouterCacheService.back();
     }
   }
 
@@ -228,7 +229,7 @@ export class AddEditV2Component implements OnInit {
       return;
     }
 
-    this.location.back();
+    await this.popoutRouterCacheService.back();
   }
 
   subscribeToParams(): void {
