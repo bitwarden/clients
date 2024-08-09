@@ -5,7 +5,7 @@ import {
   DialogRef,
   DIALOG_SCROLL_STRATEGY,
 } from "@angular/cdk/dialog";
-import { ComponentType, Overlay, OverlayContainer } from "@angular/cdk/overlay";
+import { ComponentType, Overlay, OverlayContainer, ScrollStrategy } from "@angular/cdk/overlay";
 import {
   Inject,
   Injectable,
@@ -25,11 +25,34 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions, Translation } from "./simple-dialog/types";
 
+/**
+ * The default `BlockScrollStrategy` does not work well with virtual scrolling.
+ *
+ * https://github.com/angular/components/issues/7390
+ */
+class CustomBlockScrollStrategy implements ScrollStrategy {
+  enable() {
+    document.body.classList.add("tw-overflow-hidden");
+  }
+
+  disable() {
+    document.body.classList.remove("tw-overflow-hidden");
+  }
+
+  /** Noop */
+  attach() {}
+
+  /** Noop */
+  detach() {}
+}
+
 @Injectable()
 export class DialogService extends Dialog implements OnDestroy {
   private _destroy$ = new Subject<void>();
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
+
+  private defaultScrollStrategy = new CustomBlockScrollStrategy();
 
   constructor(
     /** Parent class constructor */
@@ -73,6 +96,7 @@ export class DialogService extends Dialog implements OnDestroy {
   ): DialogRef<R, C> {
     config = {
       backdropClass: this.backDropClasses,
+      scrollStrategy: this.defaultScrollStrategy,
       ...config,
     };
 
