@@ -589,18 +589,24 @@ export class VaultComponent implements OnInit, OnDestroy {
   async addCipher() {
     const component = await this.editCipher(null);
     component.type = this.activeFilter.cipherType;
-    if (this.activeFilter.organizationId !== "MyVault") {
+    if (
+      this.activeFilter.organizationId !== "MyVault" &&
+      this.activeFilter.organizationId != null
+    ) {
       component.organizationId = this.activeFilter.organizationId;
       component.collections = (
         await firstValueFrom(this.vaultFilterService.filteredCollections$)
       ).filter((c) => !c.readOnly && c.id != null);
     }
     const selectedColId = this.activeFilter.collectionId;
-    if (selectedColId !== "AllCollections") {
-      component.organizationId = component.collections.find(
-        (collection) => collection.id === selectedColId,
-      )?.organizationId;
-      component.collectionIds = [selectedColId];
+    if (selectedColId !== "AllCollections" && selectedColId != null) {
+      const selectedCollection = (
+        await firstValueFrom(this.vaultFilterService.filteredCollections$)
+      ).find((c) => c.id === selectedColId);
+      component.organizationId = selectedCollection?.organizationId;
+      if (!selectedCollection.readOnly) {
+        component.collectionIds = [selectedColId];
+      }
     }
     component.folderId = this.activeFilter.folderId;
   }

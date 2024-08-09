@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
+  combineLatest,
   combineLatestWith,
   firstValueFrom,
   map,
@@ -39,10 +40,15 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  organizationTree$: Observable<TreeNode<OrganizationFilter>> =
-    this.organizationService.memberOrganizations$.pipe(
-      switchMap((orgs) => this.buildOrganizationTree(orgs)),
-    );
+  organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
+    this.organizationService.memberOrganizations$,
+    this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
+    this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+  ]).pipe(
+    switchMap(([orgs, singleOrgPolicy, personalOwnershipPolicy]) =>
+      this.buildOrganizationTree(orgs, singleOrgPolicy, personalOwnershipPolicy),
+    ),
+  );
 
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
@@ -125,14 +131,16 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected async buildOrganizationTree(
-    orgs?: Organization[],
+    orgs: Organization[],
+    singleOrgPolicy: boolean,
+    personalOwnershipPolicy: boolean,
   ): Promise<TreeNode<OrganizationFilter>> {
     const headNode = this.getOrganizationFilterHead();
-    if (!(await this.policyService.policyAppliesToUser(PolicyType.PersonalOwnership))) {
+    if (!personalOwnershipPolicy) {
       const myVaultNode = this.getOrganizationFilterMyVault();
       headNode.children.push(myVaultNode);
     }
-    if (await this.policyService.policyAppliesToUser(PolicyType.SingleOrg)) {
+    if (singleOrgPolicy) {
       orgs = orgs.slice(0, 1);
     }
     if (orgs) {

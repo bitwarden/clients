@@ -5,17 +5,28 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
+  OnDestroy,
   OnInit,
   Output,
   TemplateRef,
   ViewChild,
   ViewContainerRef,
-  HostListener,
-  OnDestroy,
 } from "@angular/core";
-import { BehaviorSubject, concatMap, map, merge, Observable, Subject, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  concatMap,
+  map,
+  merge,
+  Observable,
+  Subject,
+  takeUntil,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -88,6 +99,7 @@ export class VaultSelectComponent implements OnInit, OnDestroy {
     private viewContainerRef: ViewContainerRef,
     private platformUtilsService: PlatformUtilsService,
     private organizationService: OrganizationService,
+    private policyService: PolicyService,
   ) {}
 
   @HostListener("document:keydown.escape", ["$event"])
@@ -103,11 +115,13 @@ export class VaultSelectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy))
       .pipe(map((orgs) => orgs.sort(Utils.getSortFunction(this.i18nService, "name"))));
 
-    this.organizations$
+    combineLatest([
+      this.organizations$,
+      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+    ])
       .pipe(
-        concatMap(async (organizations) => {
-          this.enforcePersonalOwnership =
-            await this.vaultFilterService.checkForPersonalOwnershipPolicy();
+        concatMap(async ([organizations, enforcePersonalOwnership]) => {
+          this.enforcePersonalOwnership = enforcePersonalOwnership;
 
           if (this.shouldShow(organizations)) {
             if (this.enforcePersonalOwnership && !this.vaultFilterService.vaultFilter.myVaultOnly) {
