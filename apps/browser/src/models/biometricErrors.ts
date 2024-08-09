@@ -3,7 +3,15 @@ type BiometricError = {
   description: string;
 };
 
-export type BiometricErrorTypes = "startDesktop" | "desktopIntegrationDisabled";
+export type BiometricErrorTypes =
+  | "startDesktop"
+  | "desktopIntegrationDisabled"
+  | "not enabled"
+  | "not supported"
+  | "not unlocked"
+  | "invalidateEncryption"
+  | "userkey wrong"
+  | "wrongUserId";
 
 export const BiometricErrors: Record<BiometricErrorTypes, BiometricError> = {
   startDesktop: {
@@ -13,5 +21,29 @@ export const BiometricErrors: Record<BiometricErrorTypes, BiometricError> = {
   desktopIntegrationDisabled: {
     title: "desktopIntegrationDisabledTitle",
     description: "desktopIntegrationDisabledDesc",
+  },
+  "not enabled": {
+    title: "biometricsNotEnabledTitle",
+    description: "biometricsNotEnabledDesc",
+  },
+  "not supported": {
+    title: "biometricsNotSupportedTitle",
+    description: "biometricsNotSupportedDesc",
+  },
+  "not unlocked": {
+    title: "biometricsUnlockNotUnlockedTitle",
+    description: "biometricsUnlockNotUnlockedDesc",
+  },
+  invalidateEncryption: {
+    title: "nativeMessagingInvalidEncryptionTitle",
+    description: "nativeMessagingInvalidEncryptionDesc",
+  },
+  "userkey wrong": {
+    title: "nativeMessagingWrongUserKeyTitle",
+    description: "nativeMessagingWrongUserKeyDesc",
+  },
+  wrongUserId: {
+    title: "biometricsWrongUserTitle",
+    description: "biometricsWrongUserDesc",
   },
 };

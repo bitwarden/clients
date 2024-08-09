@@ -3,14 +3,14 @@
     <bit-label>{{ "vaultTimeout" | i18n }}</bit-label>
     <bit-select formControlName="vaultTimeout">
       <bit-option
-        *ngFor="let o of vaultTimeoutOptions"
+        *ngFor="let o of filteredVaultTimeoutOptions"
         [value]="o.value"
         [label]="o.name"
       ></bit-option>
     </bit-select>
-    <bit-hint class="tw-text-sm">{{
-      ((canLockVault$ | async) ? "vaultTimeoutDesc" : "vaultTimeoutLogoutDesc") | i18n
-    }}</bit-hint>
+    <bit-hint *ngIf="vaultTimeoutPolicy != null && !exceedsMaximumTimeout">
+      {{ "vaultTimeoutPolicyInEffect" | i18n: vaultTimeoutPolicyHours : vaultTimeoutPolicyMinutes }}
+    </bit-hint>
   </bit-form-field>
   <div class="tw-grid tw-grid-cols-12 tw-gap-4" *ngIf="showCustom" formGroupName="custom">
     <bit-form-field class="tw-col-span-6">
@@ -23,7 +23,10 @@
       <bit-hint>{{ "minutes" | i18n }}</bit-hint>
     </bit-form-field>
   </div>
-  <small *ngIf="!exceedsMinimumTimout" class="tw-text-danger">
-    <i class="bwi bwi-error" aria-hidden="true"></i> {{ "vaultCustomTimeoutMinimum" | i18n }}
+  <small class="tw-text-danger" *ngIf="vaultTimeoutPolicy != null && exceedsMaximumTimeout">
+    <i class="bwi bwi-error" aria-hidden="true"></i>
+    {{
+      "vaultTimeoutPolicyMaximumError" | i18n: vaultTimeoutPolicyHours : vaultTimeoutPolicyMinutes
+    }}
   </small>
 </div>

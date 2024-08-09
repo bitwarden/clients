@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
@@ -29,6 +30,7 @@ import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
+import { AccountSecurityComponent as AccountSecurityComponentV1 } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
 import { SsoComponent } from "../auth/popup/sso.component";
@@ -94,6 +96,7 @@ import "../platform/popup/locales";
     A11yModule,
     AppRoutingModule,
     AutofillComponent,
+    AccountSecurityComponent,
     ToastModule.forRoot({
       maxOpened: 2,
       autoDismiss: true,
@@ -163,7 +166,6 @@ import "../platform/popup/locales";
     SendListComponent,
     SendTypeComponent,
     SetPasswordComponent,
-    AccountSecurityComponent,
     SettingsComponent,
     VaultSettingsComponent,
     ShareComponent,
@@ -175,6 +177,7 @@ import "../platform/popup/locales";
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
     UserVerificationComponent,
+    AccountSecurityComponentV1,
     VaultTimeoutInputComponent,
     ViewComponent,
     ViewCustomFieldsComponent,

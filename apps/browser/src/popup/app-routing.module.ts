@@ -33,6 +33,7 @@ import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
+import { AccountSecurityComponent as AccountSecurityV1Component } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
@@ -288,12 +289,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "autofill" },
   }),
-  {
+  ...extensionRefreshSwap(AccountSecurityV1Component, AccountSecurityComponent, {
     path: "account-security",
-    component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { state: "account-security" },
-  },
+  }),
   ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
     path: "notifications",
     component: NotificationsSettingsV1Component,
