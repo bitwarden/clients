@@ -39,6 +39,7 @@
               <app-premium-badge
                 class="tw-mx-1"
                 *ngIf="!canAccessPremium && o.premium"
+                slot="end"
               ></app-premium-badge>
             </bit-label>
           </bit-radio-button>
@@ -196,6 +197,7 @@
                   (click)="clearExpiration()"
                   *ngIf="!disableSend"
                   class="tw-ml-auto"
+                  slot="end"
                 >
                   {{ "clear" | i18n }}
                 </button>

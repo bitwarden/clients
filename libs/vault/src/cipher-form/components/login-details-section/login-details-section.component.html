@@ -92,6 +92,7 @@
           type="button"
           size="small"
           [bitPopoverTriggerFor]="totpPopover"
+          slot="end"
         ></button>
         <bit-popover #totpPopover [title]="'totpHelperTitle' | i18n">
           <p>{{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}</p>
