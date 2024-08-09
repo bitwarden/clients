@@ -90,8 +90,15 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     await this.cryptoService.refreshAdditionalKeys();
   }
 
-  availableVaultTimeoutActions$(userId?: string) {
+  availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]> {
     return defer(() => this.getAvailableVaultTimeoutActions(userId));
+  }
+
+  async canLock(userId: UserId): Promise<boolean> {
+    const availableVaultTimeoutActions: VaultTimeoutAction[] = await firstValueFrom(
+      this.availableVaultTimeoutActions$(userId),
+    );
+    return availableVaultTimeoutActions?.includes(VaultTimeoutAction.Lock) || false;
   }
 
   async isBiometricLockSet(userId?: string): Promise<boolean> {

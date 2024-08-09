@@ -127,6 +127,38 @@ describe("VaultTimeoutSettingsService", () => {
     });
   });
 
+  describe("canLock", () => {
+    it("returns true if the user can lock", async () => {
+      jest
+        .spyOn(vaultTimeoutSettingsService, "availableVaultTimeoutActions$")
+        .mockReturnValue(of([VaultTimeoutAction.Lock]));
+
+      const result = await vaultTimeoutSettingsService.canLock("userId" as UserId);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false if the user only has the log out vault timeout action", async () => {
+      jest
+        .spyOn(vaultTimeoutSettingsService, "availableVaultTimeoutActions$")
+        .mockReturnValue(of([VaultTimeoutAction.LogOut]));
+
+      const result = await vaultTimeoutSettingsService.canLock("userId" as UserId);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false if the user has no vault timeout actions", async () => {
+      jest
+        .spyOn(vaultTimeoutSettingsService, "availableVaultTimeoutActions$")
+        .mockReturnValue(of([]));
+
+      const result = await vaultTimeoutSettingsService.canLock("userId" as UserId);
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe("getVaultTimeoutActionByUserId$", () => {
     it("should throw an error if no user id is provided", async () => {
       expect(() => vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(null)).toThrow(

@@ -26,6 +26,12 @@ export abstract class VaultTimeoutSettingsService {
   availableVaultTimeoutActions$: (userId?: string) => Observable<VaultTimeoutAction[]>;
 
   /**
+   * Evaluates the user's available vault timeout actions and returns a boolean representing
+   * if the user can lock or not
+   */
+  canLock: (userId: string) => Promise<boolean>;
+
+  /**
    * Gets the vault timeout action for the given user id. The returned value is
    * calculated based on the current state, if a max vault timeout policy applies to the user,
    * and what the user's available unlock methods are.
