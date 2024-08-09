@@ -1,5 +1,5 @@
 <ng-container [formGroup]="uriForm">
-  <bit-form-field>
+  <bit-form-field [class.!tw-mb-1]="showMatchDetection">
     <bit-label>{{ "websiteUri" | i18n }}</bit-label>
     <input bitInput formControlName="uri" #uriInput />
     <button
@@ -22,7 +22,7 @@
     ></button>
   </bit-form-field>
 
-  <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-9 -tw-mt-4">
+  <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
     <bit-label>{{ "matchDetection" | i18n }}</bit-label>
     <bit-select formControlName="matchDetection" #matchDetectionSelect>
       <bit-option
