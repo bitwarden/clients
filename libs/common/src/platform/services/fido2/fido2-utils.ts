@@ -17,8 +17,10 @@ export class Fido2Utils {
     return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str));
   }
 
-  static bufferSourceToUint8Array(bufferSource: BufferSource) {
-    if (Fido2Utils.isArrayBuffer(bufferSource)) {
+  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
+    if (bufferSource instanceof Uint8Array) {
+      return bufferSource;
+    } else if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
       return new Uint8Array(bufferSource.buffer);
