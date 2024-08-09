@@ -1,25 +1,35 @@
----
 name: Chromatic
 
 on:
   push:
-    branches-ignore:
-      - 'renovate/**'
-    paths-ignore:
-      - '.github/workflows/**'
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+  
   chromatic:
     name: Chromatic
     runs-on: ubuntu-22.04
+    needs: check-run
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout repo
+      - name: Check out repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
+          ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Get Node Version
+      - name: Get Node version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
@@ -31,7 +41,7 @@ jobs:
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
-      - name: Cache npm
+      - name: Cache NPM
         id: npm-cache
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         with:
@@ -41,7 +51,7 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      # Manual build the storybook to resolve a chromatic/storybook bug related to TurboSnap
+      # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Storybook
         run: npm run build-storybook:ci
 
