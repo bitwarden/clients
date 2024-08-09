@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "フォルダーを編集"
   },
+  "newFolder": {
+    "message": "新しいフォルダー"
+  },
+  "folderName": {
+    "message": "フォルダー名"
+  },
+  "folderHintText": {
+    "message": "親フォルダーの名前の後に「/」を追加するとフォルダをネストします。例: ソーシャル/フォーラム"
+  },
+  "noFoldersAdded": {
+    "message": "フォルダーが追加されていません"
+  },
+  "createFoldersToOrganize": {
+    "message": "保管庫のアイテムを整理するフォルダーを作成します"
+  },
+  "deleteFolderPermanently": {
+    "message": "このフォルダーを完全に削除しますか？"
+  },
   "deleteFolder": {
     "message": "フォルダーを削除"
   },
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "ベースドメイン (推奨)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "一つ以上の組織のポリシーがパスワード生成の設定に影響しています。"
+  },
+  "passwordGenerator": {
+    "message": "パスワード生成ツール"
+  },
+  "usernameGenerator": {
+    "message": "ユーザー名生成ツール"
+  },
+  "useThisPassword": {
+    "message": "このパスワードを使用する"
+  },
+  "useThisUsername": {
+    "message": "このユーザー名を使用する"
+  },
+  "securePasswordGenerated": {
+    "message": "安全なパスワードを生成しました! ウェブサイト上でパスワードを更新することを忘れないでください。"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "生成機能",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "を使うと強力で一意なパスワードを作れます",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "保管庫タイムアウト時のアクション"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "アカウントが一致しません"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "生体認証のロック解除に失敗しました。生体認証キーでの保管庫のロック解除に失敗しました。生体認証を再度設定してください。"
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "生体認証キーが一致しません"
   },
   "biometricsNotEnabledTitle": {
     "message": "生体認証が有効になっていません"
@@ -2328,7 +2375,7 @@
     "message": "あなたのマスターパスワードは、組織のポリシーを満たしていません。保管庫にアクセスするには、今すぐマスターパスワードを更新する必要があります。この操作を続けると、現在のセッションがログアウトされ、再ログインする必要があります。他のデバイスでのアクティブなセッションは最大1時間継続する場合があります。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動登録"
@@ -3831,22 +3878,22 @@
     "message": "認証キー"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "自動入力オプション"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "ウェブサイト (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "ウェブサイトを追加しました"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "ウェブサイトを追加"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "ウェブサイトを削除"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "デフォルト ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "一致検出 $WEBSITE$を表示",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "一致検出 $WEBSITE$を非表示",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "ページ読み込み時に自動入力する"
   },
   "cardDetails": {
     "message": "カード情報"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "データ"
+  },
+  "passkeys": {
+    "message": "パスキー",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "パスワード",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "パスキーでログイン",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "割り当て"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "アイテムの場所"
   },
+  "fileSends": {
+    "message": "ファイル Send"
+  },
+  "textSends": {
+    "message": "テキスト Send"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden が新しい外観になりました。"
   },
@@ -4098,6 +4163,12 @@
     "message": "保管庫タブからの自動入力と検索がこれまで以上に簡単で直感的になりました。"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "アカウントの操作"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "拡張機能アイコンにログイン自動入力の候補の数を表示する"
+  },
+  "systemDefault": {
+    "message": "システムのデフォルト"
   }
 }

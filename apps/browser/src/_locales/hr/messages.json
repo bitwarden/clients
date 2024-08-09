@@ -135,13 +135,13 @@
     "message": "Auto-ispuna"
   },
   "autoFillLogin": {
-    "message": "Automatsko popunjavanje prijave"
+    "message": "Auto-ispuna prijave"
   },
   "autoFillCard": {
-    "message": "Automatsko popunjavanje kartice"
+    "message": "Auto-ispuna kartice"
   },
   "autoFillIdentity": {
-    "message": "Automatsko popunjavanje identiteta"
+    "message": "Auto-ispuna identiteta"
   },
   "generatePasswordCopied": {
     "message": "Generiraj lozinku (i kopiraj)"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "Uredi mapu"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
     "message": "Izbriši mapu"
@@ -652,7 +670,7 @@
     }
   },
   "autofillError": {
-    "message": "Nije moguće automatski ispuniti odabranu stavku na ovoj stranici. Umjesto toga kopirajte i zalijepite podatke."
+    "message": "Nije moguće auto-ispuniti odabranu prijavu na ovoj stranici. Umjesto toga kopiraj/zalijepi podatke."
   },
   "totpCaptureError": {
     "message": "Nije moguće skenirati QR kod s trenutne web stranice"
@@ -867,7 +885,7 @@
     "message": "Ažuriraj"
   },
   "notificationUnlockDesc": {
-    "message": "Za dovršetak auto-ispune, otključaj svoj trezor."
+    "message": "Za dovršetak auto-ispune, otključaj svoj Bitwarden trezor."
   },
   "notificationUnlock": {
     "message": "Otključaj"
@@ -1104,7 +1122,7 @@
     "message": "Automatski kopiraj TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Ako se za prijavu koristi dvostruka autentifikacija, TOTP kontrolni kôd se automatski kopira u međuspremnik nakon auto-ispune korisničkog imena i lozinke."
+    "message": "Ako za prijavu postoji autentifikatorski ključ, kopiraj TOTP kontrolni kôd u međuspremnik nakon auto-ispune prijave."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Traži biometrijsku autentifikaciju pri pokretanju"
@@ -1489,7 +1507,7 @@
     "message": "dr."
   },
   "mx": {
-    "message": "Mx"
+    "message": "gx."
   },
   "firstName": {
     "message": "Ime"
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Osnovna domena (preporučeno)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Jedno ili više pravila organizacije utječe na postavke generatora."
   },
+  "passwordGenerator": {
+    "message": "Password generator"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Nakon isteka trezora"
   },
@@ -1848,10 +1889,10 @@
     "message": "Ispuni i spremi"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "Auto-ispunjena stavka i spremanje URI"
+    "message": "Stavka auto-ispunjena i spremljen URI"
   },
   "autoFillSuccess": {
-    "message": "Stavka je automatski popunjena"
+    "message": "Stavka je auto-ispunjena "
   },
   "insecurePageWarning": {
     "message": "Upozorenje: Ovo je nezaštićena HTTP stranica i svi podaci koje preko nje pošalješ drugi mogu vidjeti i izmijeniti. Ova prijava je prvotno bila spremljena za sigurnu (HTTPS) stranicu."
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Pogrešan korisnički račun"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometrijsko otključavanje nije uspjelo. Biometrijski tajni ključ nije uspio otključati trezor. Pokušaj ponovo postaviti biometriju."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Neusklađenost biometrijskog ključa"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometrija nije omogućena"
@@ -2328,7 +2375,7 @@
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Tvoja je organizacija onemogućila šifriranje pouzdanog uređaja. Postavi glavnu lozinku za pristup svom trezoru."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatsko učlanjenje"
@@ -3831,22 +3878,22 @@
     "message": "Kôd za provjeru"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Postavke auto-ispune"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Web stranica (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Web stranica dodana"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Dodaj web stranicu"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Izbriši web stranicu"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Zadano ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Prikaži otkrivanje podudaranja $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Sakrij otkrivanje podudaranja $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Auto-ispuna kod učitavanja?"
   },
   "cardDetails": {
     "message": "Detalji kartice"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Podaci"
+  },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Dodijeli"
@@ -3937,7 +3996,7 @@
     "message": "Koristi skrivena polja za osjetljive podatke poput lozinke"
   },
   "checkBoxHelpText": {
-    "message": "Koristi potvrdne okvire ako ih želiš automatski uključiti u obrascu, npr. zapamti adresu e-pošte"
+    "message": "Koristi potvrdne okvire ako ih želiš auto-ispuniti u obrascu, npr. zapamti adresu e-pošte"
   },
   "linkedHelpText": {
     "message": "Koristi povezano polje kada imaš problema s auto-ispunom za određenu web stranicu."
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Lokacija stavke"
   },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden ima novi izgled!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Auto-ispuna i pretraga iz kartice Trezor je lakša i intuitivnija nego ikad prije. Razgledaj!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Radnje na računu"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

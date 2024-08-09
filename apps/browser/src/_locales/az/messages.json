@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Qovluğa düzəliş et"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Qovluğu sil"
   },
@@ -1343,13 +1361,13 @@
     "message": "Anbarı yan çubuqda aç"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Hazırkı veb sayt üçün son istifadə edilən girişi avto-doldur"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Hazırkı veb sayt üçün son istifadə edilən kartı avto-doldur"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Hazırkı veb sayt üçün son istifadə edilən kimliyi avto-doldur"
   },
   "commandGeneratePasswordDesc": {
     "message": "Təsadüfi yeni bir parol yarat və lövhəyə kopyala"
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Baza domeni (tövsiyə edilən)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti yaradıcı ayarlarınıza təsir edir."
+  },
+  "passwordGenerator": {
+    "message": "Password generator"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Anbar vaxtının bitmə əməliyyatı"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Hesablar uyuşmur"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometriklər qurulmayıb"
@@ -2328,7 +2375,7 @@
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Anbara müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Təşkilatınız, güvənli cihaz şifrələməsini sıradan çıxartdı. Anbarınıza müraciət etmək üçün lütfən ana parol təyin edin."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Avtomatik yazılma"
@@ -2787,16 +2834,16 @@
     "message": "Qısayolu dəyişdir"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Qısayolları idarə et"
   },
   "autofillShortcut": {
     "message": "Avto-doldurma klaviatura qısayolu"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "Avto-doldurma giriş qısayolu ayarlanmayıb. Bunu brauzerin ayarlarında dəyişdirin."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "Girişin avto-doldurma qısayolu: $COMMAND$. Bütün qısayolları brauzerin ayarlarında idarə edin.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3831,22 +3878,22 @@
     "message": "Kimlik doğrulayıcı açarı"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Avto-doldurma seçimləri"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Veb sayt (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Veb sayt əlavə edildi"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Veb sayt əlavə et"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Veb saytı sil"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "İlkin ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "$WEBSITE$ ilə uyuşma aşkarlamasını göstər",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "$WEBSITE$ ilə uyuşma aşkarlamasını gizlət",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Səhifə yüklənəndə avto-doldurulsun?"
   },
   "cardDetails": {
     "message": "Kart detalları"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Data"
+  },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Təyin et"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Element yeri"
   },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden-in yeni bir görünüşü var!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Anbar vərəqindən avto-doldurma və axtarış etmə artıq daha asan və intuitivdir. Nəzər salın!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Hesab fəaliyyətləri"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

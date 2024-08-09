@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Upraviť priečinok"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Odstrániť priečinok"
   },
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Jedno alebo viac nastavení organizácie ovplyvňujú vaše nastavenia generátora."
   },
+  "passwordGenerator": {
+    "message": "Generátor hesla"
+  },
+  "usernameGenerator": {
+    "message": "Generátor používateľského mena"
+  },
+  "useThisPassword": {
+    "message": "Použiť toto heslo"
+  },
+  "useThisUsername": {
+    "message": "Použit toto používateľské meno"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Akcia pri vypršaní času pre trezor"
   },
@@ -1983,7 +2024,7 @@
     "message": "Aplikácia Bitwarden Desktop musí byť pred použitím odomknutia pomocou biometrických údajov spustená."
   },
   "errorEnableBiometricTitle": {
-    "message": "Nie je môžné povoliť biometriu"
+    "message": "Nie je môžné povoliť biometrické údaje"
   },
   "errorEnableBiometricDesc": {
     "message": "Akcia bola zrušená desktopovou aplikáciou"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Nezhoda účtu"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Odomknutie biometrickými údajmi zlyhalo. Tajný kľúč biometrických údajov nedokázal odomknúť trezor. Skúste biometrické údaje nastaviť znova."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Kľúč biometrických údajov sa nezhoduje"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometria nie je povolená"
@@ -2328,7 +2375,7 @@
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Vaša organizácia zakázala šifrovanie dôveryhodného zariadenia. Na prístup k trezoru nastavte hlavné heslo."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatická registrácia"
@@ -3831,22 +3878,22 @@
     "message": "Kľúč overovacej aplikácie"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Možnosti automatického vypĺňania"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webová stránka (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Webová stránka pridaná"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Pridať webovú stránku"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Odstrániť webovú stránku"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Predvolené ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Zobraziť spôsob mapovania $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Skryť spôsob mapovania $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automaticky vyplniť pri načítaní stránky?"
   },
   "cardDetails": {
     "message": "Podrobnosti o karte"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Údaje"
+  },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Priradiť"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Umiestnenie položky"
   },
+  "fileSends": {
+    "message": "Sendy so súborom"
+  },
+  "textSends": {
+    "message": "Textové Sendy"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden má nový vzhľad!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Automatické vypĺňanie a vyhľadávanie na karte Trezor je jednoduchšie a intuitívnejšie ako kedykoľvek predtým. Poobzerajte sa!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Operácie s účtom"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

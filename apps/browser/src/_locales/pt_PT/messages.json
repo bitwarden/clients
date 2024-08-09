@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Editar pasta"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Eliminar pasta"
   },
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Uma ou mais políticas da organização estão a afetar as suas definições do gerador."
   },
+  "passwordGenerator": {
+    "message": "Gerador de palavras-passe"
+  },
+  "usernameGenerator": {
+    "message": "Gerador de nomes de utilizador"
+  },
+  "useThisPassword": {
+    "message": "Utilizar esta palavra-passe"
+  },
+  "useThisUsername": {
+    "message": "Utilizar este nome de utilizador"
+  },
+  "securePasswordGenerated": {
+    "message": "Palavra-passe segura gerada! Não se esqueça de atualizar também a sua palavra-passe no site."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Utilize o gerador",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "para criar uma palavra-passe forte e única",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Ação de tempo limite do cofre"
   },
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Incompatibilidade de contas"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "O desbloqueio biométrico falhou. A chave secreta biométrica não conseguiu desbloquear o cofre. Por favor, tente configurar a biometria novamente."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Incompatibilidade da chave biométrica"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometria não configurada"
@@ -2328,7 +2375,7 @@
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "A sua organização desativou a encriptação de dispositivos fiáveis. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Dados"
   },
+  "passkeys": {
+    "message": "Chaves de acesso",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Palavras-passe",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Iniciar sessão com a chave de acesso",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Atribuir"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Localização do item"
   },
+  "fileSends": {
+    "message": "Sends de ficheiros"
+  },
+  "textSends": {
+    "message": "Sends de texto"
+  },
   "bitwardenNewLook": {
     "message": "O Bitwarden tem um novo visual!"
   },
@@ -4099,5 +4164,11 @@
   },
   "accountActions": {
     "message": "Ações da conta"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

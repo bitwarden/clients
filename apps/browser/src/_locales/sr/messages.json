@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Уреди фасциклу"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Избриши фасциклу"
   },
@@ -1343,13 +1361,13 @@
     "message": "Отвори сеф у бочну траку"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Аутоматско попуњавање последњу коришћену пријаву за тренутну веб страницу"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Аутоматско попуњавање последњу коришћену картицу за тренутну веб страницу"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Аутоматско попуњавање последњи коришћен идентитет за тренутну веб страницу"
   },
   "commandGeneratePasswordDesc": {
     "message": "Генеришите и копирајте нову случајну лозинку у привремену меморију"
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Основни домен (препоручено)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Једна или више смерница организације утичу на поставке вашег генератора."
+  },
+  "passwordGenerator": {
+    "message": "Password generator"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Акција на тајмаут сефа"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Неподударање налога"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
   },
   "biometricsNotEnabledTitle": {
     "message": "Биометрија није омогућена"
@@ -2328,7 +2375,7 @@
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Ваша организација је онемогућила шифровање поузданог уређаја. Поставите главну лозинку за приступ вашем трезору."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Ауто пријављивање"
@@ -2787,16 +2834,16 @@
     "message": "Промени пречицу"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Управљање пречицама"
   },
   "autofillShortcut": {
     "message": "Пречице Ауто-пуњења"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "Пречица за ауто-попуњавање није подешена. Промените ово у подешавањима претраживача."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "Пречица за пријављивање за аутоматско попуњавање је $COMMAND$. Управљајте свим пречицама у подешавањима претраживача.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3831,22 +3878,22 @@
     "message": "Кључ аутентификатора"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Опције Ауто-пуњења"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Вебсајт (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Вебсајт додат"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Додај вебсајт"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Обриши вебсајт"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Подразумевано ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Прикажи откривање подударања $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Сакриј откривање подударања $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Ауто-попуњавање при учитавању странице?"
   },
   "cardDetails": {
     "message": "Детаљи картице"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Подаци"
+  },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Додели"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Смештај ставке"
   },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden има нови изглед!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Лакше је и интуитивније него икада да се аутоматски попуњава и тражи са картице Сефа. Проверите!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Акције везане за налог"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

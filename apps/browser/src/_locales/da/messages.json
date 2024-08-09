@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Redigér mappe"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Slet mappe"
   },
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Én eller flere organisationspolitikker påvirker dine generatorindstillinger."
   },
+  "passwordGenerator": {
+    "message": "Adgangskodegenerator"
+  },
+  "usernameGenerator": {
+    "message": "Brugernavngenerator"
+  },
+  "useThisPassword": {
+    "message": "Anvend denne adgangskode"
+  },
+  "useThisUsername": {
+    "message": "Anvend dette brugernavn"
+  },
+  "securePasswordGenerated": {
+    "message": "Sikker adgangskode genereret! Glem ikke at opdatere adgangskoden på webstedet også."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Anvend generatoren",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "til at oprette en stærk, unik adgangskode",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Boks timeout-handling"
   },
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Konto mismatch"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometrisk oplåsning mislykkedes. Den hemmelige biometriske nøgle kunne ikke oplåse boksen. Prøv at opsætte biometri igen."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometrisk nøgle matcher ikke"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometri ikke aktiveret"
@@ -2328,7 +2375,7 @@
     "message": "Din hovedadgangskode overholder ikke en eller flere organisationspolitikker. For at få adgang til boksen skal hovedadgangskode opdateres nu. Fortsættes, logges du ud af den nuværende session og vil skulle logger ind igen. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Organisationen har deaktiveret betroet enhedskryptering. Opsæt en hovedadgangskode for at tilgå boksen."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatisk tilmelding"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Data"
   },
+  "passkeys": {
+    "message": "Adgangsnøgler",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Adgangskoder",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log ind med adgangsnøgle",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Tildel"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Emneplacering"
   },
+  "fileSends": {
+    "message": "Fil-Sends"
+  },
+  "textSends": {
+    "message": "Tekst-Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden har fået et nyt look!"
   },
@@ -4099,5 +4164,11 @@
   },
   "accountActions": {
     "message": "Kontohandlinger"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

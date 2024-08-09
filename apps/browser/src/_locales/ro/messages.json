@@ -3,27 +3,27 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden - Manager Gratuit de Parole",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Acasă, la serviciu sau în deplasare, Bitwarden vă protejează toate parolele și informațiile sensibile",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Autentificați-vă sau creați un cont nou pentru a accesa seiful dvs. securizat."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Invitație acceptată"
   },
   "createAccount": {
     "message": "Creare cont"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Setați o parolă puternică"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Finalizați crearea contului prin setarea unei parole"
   },
   "login": {
     "message": "Conectare"
@@ -53,7 +53,7 @@
     "message": "Un indiciu pentru parola principală vă poate ajuta să v-o reamintiți dacă o uitați."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Dacă vă uitați parola, indiciul parolei poate fi trimis la adresa dvs. de e-mail. $CURRENT$/$MAXIMUM$ de caractere maxim.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -72,10 +72,10 @@
     "message": "Indiciu pentru parola principală (opțional)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Alăturați-vă organizației"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Finalizați aderarea la această organizație prin setarea unei parole principale."
   },
   "tab": {
     "message": "Filă"
@@ -117,31 +117,31 @@
     "message": "Copiere cod de securitate"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copiați numele"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copiați firma"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Copiați numărul de securitate socială"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiați numărul pașaportului"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiați numărul de licență"
   },
   "autoFill": {
     "message": "Auto-completare"
   },
   "autoFillLogin": {
-    "message": "Autofill login"
+    "message": "Autocompletare date de autentificare"
   },
   "autoFillCard": {
-    "message": "Autofill card"
+    "message": "Autocompletare card"
   },
   "autoFillIdentity": {
-    "message": "Autofill identity"
+    "message": "Autocompletare identitate"
   },
   "generatePasswordCopied": {
     "message": "Generare parolă (s-a copiat)"
@@ -153,19 +153,19 @@
     "message": "Nu există potrivire de autentificări"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Niciun card"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Nicio identitate"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Adăugare date de autentificare"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Adăugare card"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Adăugare identitate"
   },
   "unlockVaultMenu": {
     "message": "Deblocați-vă seiful"
@@ -213,25 +213,25 @@
     "message": "Schimbare parolă principală"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Continuați către aplicația web?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Explorați mai multe caracteristici ale contului Bitwarden în aplicația web."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Continuați la Centrul de Ajutor?"
   },
   "continueToHelpCenterDesc": {
-    "message": "Learn more about how to use Bitwarden on the Help Center."
+    "message": "Aflați mai multe despre cum să utilizați Bitwarden în Centrul de Ajutor."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Continue to browser extension store?"
+    "message": "Continuați la magazinul de extensii al browser-ului?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
+    "message": "Ajutați-i pe alții să afle dacă Bitwarden este potrivit pentru ei. Vizitați magazinul de extensii al browser-ului dvs. și lăsați o evaluare acum."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "Puteți schimba parola principală în aplicația web Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Fraza amprentă",
@@ -248,43 +248,43 @@
     "message": "Deconectare"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Despre Bitwarden"
   },
   "about": {
     "message": "Despre"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Mai multe de la Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Continuați la bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden pentru Business"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "Autentificator Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "Autentificatorul Bitwarden vă permite să stocați chei de autentificare și să generați coduri TOTP pentru fluxurile de verificare în doi pași. Aflați mai multe de pe site-ul bitwarden.com"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Manager de secrete Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "Stocați, gestionați și partajați în siguranță secretele dezvoltatorilor cu Bitwarden Secrets Manager. Aflați mai multe pe site-ul bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
   },
   "continueToPasswordlessDotDevPageDesc": {
-    "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
+    "message": "Creați experiențe de conectare fluide și sigure, fără parole tradiționale, cu Passwordless.dev. Aflați mai multe pe site-ul bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Bitwarden Families gratuit"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "Sunteți eligibil pentru Bitwarden Families gratuit. Răscumpărați această ofertă astăzi în aplicația web."
   },
   "version": {
     "message": "Versiune"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "Editare dosar"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
     "message": "Ștergere dosar"
@@ -345,7 +363,7 @@
     "message": "Generează automat parole unice și puternice pentru autentificările dvs."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Aplicația web Bitwarden"
   },
   "importItems": {
     "message": "Import de articole"
@@ -366,7 +384,7 @@
     "message": "Lungime"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Lungimea minimă a parolei"
   },
   "uppercase": {
     "message": "Litere mari (A-Z)"
@@ -424,7 +442,7 @@
     "message": "Parolă"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "Cheie de autentificare"
   },
   "passphrase": {
     "message": "Frază de acces"
@@ -433,13 +451,13 @@
     "message": "Favorit"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Elimină din favorite"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Item adăugat în favorite"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Item eliminat din favorite"
   },
   "notes": {
     "message": "Note"
@@ -463,7 +481,7 @@
     "message": "Lansare"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Lansați siteul web"
   },
   "website": {
     "message": "Sait web"
@@ -478,19 +496,19 @@
     "message": "Altele"
   },
   "unlockMethods": {
-    "message": "Unlock options"
+    "message": "Deblocați opțiunile"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Configurați metoda de deblocare care să schimbe acțiunea de expirare a seifului."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "Setați o metodă de deblocare in setări"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Expirarea sesiunii"
   },
   "otherOptions": {
-    "message": "Other options"
+    "message": "Alte opțiuni"
   },
   "rateExtension": {
     "message": "Evaluare extensie"
@@ -533,7 +551,7 @@
     "message": "Blocare imediată"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Blochează toate"
   },
   "immediately": {
     "message": "Imediat"
@@ -581,16 +599,16 @@
     "message": "Securitate"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "Confirmați parola principală"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Parola principală"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "Parola principală nu poate fi recuperată dacă este uitată!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Indiciu pentru parola principală"
   },
   "errorOccurred": {
     "message": "S-a produs o eroare"
@@ -624,10 +642,10 @@
     "message": "Noul dvs. cont a fost creat! Acum vă puteți autentifica."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "V-ați conectat cu succes"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Puteți închide această fereastră"
   },
   "masterPassSent": {
     "message": "V-am trimis un e-mail cu indiciul parolei principale."
@@ -636,7 +654,7 @@
     "message": "Este necesar codul de verificare."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Autentificarea a fost anulată sau a luat prea mult. Încercați din nou."
   },
   "invalidVerificationCode": {
     "message": "Cod de verificare nevalid"
@@ -655,49 +673,49 @@
     "message": "Nu se pot auto-completa datele de conectare pentru această pagină. În schimb, puteți copia și lipi aceste date."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "Nu se poate scana codul QR din pagina web curentă"
   },
   "totpCaptureSuccess": {
-    "message": "Authenticator key added"
+    "message": "Cheie autentificare adăugată"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Scanează codul QR pentru autentificator din pagina web curentă"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Faceți autentificarea in 2 pași mai ușoară"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden poate stoca și completa coduri de verificare în doi pași. Copiați și lipiți cheia în acest câmp."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden poate stoca și completa coduri de verificare în doi pași. Selectați pictograma camerei foto pentru a face o captură de ecran a codului QR de autentificare al acestui site, sau copiați și lipiți cheia în acest câmp."
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Copiați cheia de autentificare (TOTP)"
   },
   "loggedOut": {
     "message": "Deconectat"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Ați fost deconectat din contul dvs."
   },
   "loginExpired": {
     "message": "Sesiunea de autentificare a expirat."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Autentificare"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reporniți înregistrarea"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Link expirat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Vă rugăm să reporniți înregistrarea sau să încercați să vă conectați."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Este posibil să aveți deja un cont"
   },
   "logOutConfirmation": {
     "message": "Sigur doriți să vă deconectați?"
@@ -761,7 +779,7 @@
     "message": "URI nou"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Adăugați un domeniu",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -805,7 +823,7 @@
     "message": "Solicitare de adăugare cont"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Salvare în opțiuni seif"
   },
   "addLoginNotificationDesc": {
     "message": "Solicitați adăugarea unui element dacă nu se găsește unul în seif."
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Una sau mai multe politici organizaționale vă afectează setările generatorului."
   },
+  "passwordGenerator": {
+    "message": "Password generator"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Acțiune la expirarea seifului"
   },
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Eroare de cont"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
   },
   "biometricsNotEnabledTitle": {
     "message": "Datele biometrice nu sunt configurate"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Data"
   },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Assign"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Item Location"
   },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden has a new look!"
   },
@@ -4099,5 +4164,11 @@
   },
   "accountActions": {
     "message": "Account actions"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

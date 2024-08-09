@@ -170,7 +170,7 @@ Bitwarden 的端对端加密凭据管理解决方案使组织能够保护所有�
     <value>无论是在家里、工作中还是在外出时，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>从多台设备同步和访问密码库</value>
+    <value>在多个设备间同步和访问您的密码库</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>在一个安全的密码库中管理您所有的登录信息和密码</value>

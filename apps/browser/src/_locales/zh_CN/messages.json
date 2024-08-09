@@ -120,16 +120,16 @@
     "message": "复制名称"
   },
   "copyCompany": {
-    "message": "复制公司"
+    "message": "复制公司信息"
   },
   "copySSN": {
-    "message": "复制社会安全号码"
+    "message": "复制社会保障号码"
   },
   "copyPassportNumber": {
     "message": "复制护照号码"
   },
   "copyLicenseNumber": {
-    "message": "复制驾照号码"
+    "message": "复制许可证号码"
   },
   "autoFill": {
     "message": "自动填充"
@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "编辑文件夹"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "删除文件夹"
   },
@@ -345,7 +363,7 @@
     "message": "自动生成安全可靠唯一的登录密码。"
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden 网页版应用"
+    "message": "Bitwarden 网页 App"
   },
   "importItems": {
     "message": "导入项目"
@@ -652,7 +670,7 @@
     }
   },
   "autofillError": {
-    "message": "无法在此页面上自动填充所选项目。请改为手工复制并粘贴。"
+    "message": "无法在此页面上自动填充所选项目。请改为手动复制并粘贴。"
   },
   "totpCaptureError": {
     "message": "无法从当前网页扫描二维码"
@@ -1104,7 +1122,7 @@
     "message": "自动复制 TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "如果登录包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。"
+    "message": "如果登录包含验证器密钥，当自动填充此登录时，将 TOTP 验证码复制到剪贴板。"
   },
   "enableAutoBiometricsPrompt": {
     "message": "启动时要求生物识别"
@@ -1343,13 +1361,13 @@
     "message": "在侧边栏中打开密码库"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "为当前网站自动填充最后一次使用的登录信息"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "为当前网站自动填充最后一次使用的支付卡信息"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "为当前网站自动填充最后一次使用的身份信息"
   },
   "commandGeneratePasswordDesc": {
     "message": "生成一个新的随机密码并将其复制到剪贴板中。"
@@ -1510,7 +1528,7 @@
     "message": "公司"
   },
   "ssn": {
-    "message": "社会保险号码"
+    "message": "社会保障号码"
   },
   "passportNumber": {
     "message": "护照号码"
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "基础域（推荐）",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "一个或多个组织策略正在影响您的生成器设置。"
+  },
+  "passwordGenerator": {
+    "message": "密码生成器"
+  },
+  "usernameGenerator": {
+    "message": "用户名生成器"
+  },
+  "useThisPassword": {
+    "message": "使用此密码"
+  },
+  "useThisUsername": {
+    "message": "使用此用户名"
+  },
+  "securePasswordGenerated": {
+    "message": "安全密码生成好了！别忘了也在网站上更新一下您的密码。"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "使用此生成器",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "创建一个强大且唯一的密码",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "密码库超时动作"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "账户不匹配"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "生物识别解锁失败。生物识别安全钥匙解锁密码库失败。请尝试重新设置生物识别。"
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "生物识别密钥不匹配"
   },
   "biometricsNotEnabledTitle": {
     "message": "生物识别未设置"
@@ -2328,7 +2375,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -2757,7 +2804,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "您的组织策略已开启在页面加载时的自动填充。"
+    "message": "您的组织策略已开启页面加载时自动填充。"
   },
   "howToAutofill": {
     "message": "如何自动填充"
@@ -2787,16 +2834,16 @@
     "message": "更改快捷键"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "管理快捷方式"
+    "message": "管理快捷键"
   },
   "autofillShortcut": {
     "message": "自动填充键盘快捷键"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "未设置自动填充登录快捷键。请在浏览器设置中更改它。"
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "自动填充登录快捷键是 $COMMAND$。请在浏览器设置中管理所有快捷键。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2805,7 +2852,7 @@
     }
   },
   "autofillShortcutTextSafari": {
-    "message": "默认自动填充快捷方式：$COMMAND$。",
+    "message": "默认的自动填充快捷键：$COMMAND$",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3062,7 +3109,7 @@
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "页面加载时自动填充设置为默认设置。",
+    "message": "页面加载时自动填充设置为使用默认设置。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
@@ -3831,22 +3878,22 @@
     "message": "验证器密钥"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "自动填充选项"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "网站 (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "网址已添加"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "添加网站"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "删除网站"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "默认 ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "显示匹配检测 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "隐藏匹配检测 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "页面加载时自动填充吗？"
   },
   "cardDetails": {
     "message": "支付卡详情"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "数据"
+  },
+  "passkeys": {
+    "message": "通行密钥",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "密码",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "使用通行密钥登录",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "分配"
@@ -4091,13 +4150,25 @@
   "itemLocation": {
     "message": "项目位置"
   },
+  "fileSends": {
+    "message": "文件 Send"
+  },
+  "textSends": {
+    "message": "文本 Send"
+  },
   "bitwardenNewLook": {
-    "message": "Bitwarden 具有一个新的外观！"
+    "message": "Bitwarden 拥有一个新的外观！"
   },
   "bitwardenNewLookDesc": {
     "message": "从密码库标签页自动填充和搜索比以往任何时候都更简单直观。来看看吧！"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "账户操作"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Редактиране на папка"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "deleteFolder": {
     "message": "Изтриване на папка"
   },
@@ -823,7 +841,7 @@
     "message": "Показване на картите в страницата с разделите, за лесно автоматично попълване."
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identifies as Autofill suggestions on Vault view"
+    "message": "Показване на самоличности като предложения за самопопълване в изгледа на трезора"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показване на самоличности в страницата с разделите"
@@ -1489,7 +1507,7 @@
     "message": "Д-р"
   },
   "mx": {
-    "message": "Mx"
+    "message": "Госпоуи"
   },
   "firstName": {
     "message": "Собствено име"
@@ -1567,7 +1585,7 @@
     "message": "Самоличност"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "Ново $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Поне една политика на организация влияе на настройките на генерирането на паролите."
   },
+  "passwordGenerator": {
+    "message": "Генератор на пароли"
+  },
+  "usernameGenerator": {
+    "message": "Генератор на потребителски имена"
+  },
+  "useThisPassword": {
+    "message": "Използване на тази парола"
+  },
+  "useThisUsername": {
+    "message": "Използване на това потребителско име"
+  },
+  "securePasswordGenerated": {
+    "message": "Създадена е сигурна парола! Не забравяйте и да промените паролата си в уеб сайта."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Използвайте генератора",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "за да създадете сигурна и уникална парола",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Действие при изтичане на времето"
   },
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Регистрациите са различни"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Отключването чрез биометрични данни не беше успешно. Биометричният таен ключ не успя да отключи трезора. Опитайте да направите настройката на биометричните данни отново."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Несъответстващ биометричен ключ"
   },
   "biometricsNotEnabledTitle": {
     "message": "Потвърждаването с биометрични данни не е включено"
@@ -2328,7 +2375,7 @@
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Вашата организация е деактивирала шифроването чрез доверени устройства. Задайте главна парола, за да получите достъп до трезора си."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматично включване"
@@ -3264,7 +3311,7 @@
     "message": "Неправилна парола за файла. Използвайте паролата, която сте въвели при създаването на изнесения файл."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Местоназначение"
   },
   "learnAboutImportOptions": {
     "message": "Научете повече относно възможностите за внасяне"
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Показване на откритото съвпадение $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Скриване на откритото съвпадение $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Данни"
+  },
+  "passkeys": {
+    "message": "Секретни ключове",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Пароли",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Вписване със секретен ключ",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Свързване"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Местоположение на елемента"
   },
+  "fileSends": {
+    "message": "Файлови изпращания"
+  },
+  "textSends": {
+    "message": "Текстови изпращания"
+  },
   "bitwardenNewLook": {
     "message": "Биуорден има нов облик!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Сега е по-лесно и интуитивно от всякога да използвате автоматичното попълване и да търсите в раздела на трезора. Разгледайте!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Действия по регистрацията"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

@@ -117,19 +117,19 @@
     "message": "Copiar Código de Segurança"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copiar nome"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copiar empresa"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Cadastro de Pessoas Físicas"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiar número do passaporte"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiar número da CNH"
   },
   "autoFill": {
     "message": "Autopreencher"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "Editar Pasta"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
     "message": "Excluir Pasta"
@@ -814,7 +832,7 @@
     "message": "Pedir para adicionar um item se um não for encontrado no seu cofre. Aplica-se a todas as contas logadas."
   },
   "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+    "message": "Mostrar cartões como sugestões de preenchimento automático na exibição do Cofre"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar cartões em páginas com guias."
@@ -823,7 +841,7 @@
     "message": "Exibir itens de cartão em páginas com abas para simplificar o preenchimento automático"
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identifies as Autofill suggestions on Vault view"
+    "message": "Mostrar identifica como sugestões de preenchimento automático na exibição do Cofre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Exibir Identidades na Aba Atual"
@@ -1258,16 +1276,16 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Sugestões de preenchimento automático"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Mostrar sugestões de preenchimento automático nos campos de formulários"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Exibir sugestões quando o ícone for selecionado"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Aplica-se a todas as contas conectadas."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Desative as configurações do gerenciador de senhas do seu navegador para evitar conflitos."
@@ -1288,7 +1306,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Preenchimento automático ao carregar a página"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Ativar o Autopreenchimento ao Carregar a Página"
@@ -1297,7 +1315,7 @@
     "message": "Se um formulário de login for detectado, realizar automaticamente um auto-preenchimento quando a página web carregar."
   },
   "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
+    "message": "$OPENTAG$Aviso:$CLOSETAG$ Comprometido ou sites não confiáveis podem explorar o autopreenchimento ao carregar a página.",
     "placeholders": {
       "openTag": {
         "content": "$1",
@@ -1313,7 +1331,7 @@
     "message": "Sites comprometidos ou não confiáveis podem tomar vantagem do autopreenchimento ao carregar a página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "Saiba mais sobre riscos"
   },
   "learnMoreAboutAutofill": {
     "message": "Saiba mais sobre preenchimento automático"
@@ -1343,13 +1361,13 @@
     "message": "Abrir cofre na barra lateral"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Preencher automaticamente o último login utilizado para o site atual"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Preenchimento automático do último cartão utilizado para o site atual"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Autopreencher a última identidade usada para o site atual"
   },
   "commandGeneratePasswordDesc": {
     "message": "Gerar e copiar uma nova senha aleatória para a área de transferência."
@@ -1630,7 +1648,7 @@
     "message": "Credenciais"
   },
   "secureNotes": {
-    "message": "Notas Seguras"
+    "message": "Notas seguras"
   },
   "clear": {
     "message": "Limpar",
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Domínio de base (recomendado)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1678,7 +1696,7 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Detecção de Correspondência",
+    "message": "Detecção de correspondência",
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Uma ou mais políticas da organização estão afetando as suas configurações do gerador."
+  },
+  "passwordGenerator": {
+    "message": "Gerador de Senha"
+  },
+  "usernameGenerator": {
+    "message": "Gerador de usuário"
+  },
+  "useThisPassword": {
+    "message": "Use esta senha"
+  },
+  "useThisUsername": {
+    "message": "Use este nome de usuário"
+  },
+  "securePasswordGenerated": {
+    "message": "Senha segura gerada! Não se esqueça de atualizar também sua senha no site."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Usar o gerador",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "para criar uma senha única e forte",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Ação de Tempo Limite do Cofre"
@@ -2000,6 +2041,12 @@
   "nativeMessagingWrongUserTitle": {
     "message": "A conta não confere"
   },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "O desbloqueio biométrico falhou. A chave secreta biométrica não conseguiu desbloquear o cofre. Tente configurar os dados biométricos novamente."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Falta de chave biométrica"
+  },
   "biometricsNotEnabledTitle": {
     "message": "Biometria não ativada"
   },
@@ -2115,7 +2162,7 @@
     "message": "Protegido por senha"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Copiar link"
   },
   "copySendLink": {
     "message": "Copiar link do Send",
@@ -2328,7 +2375,7 @@
     "message": "A sua senha mestra não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestra agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Sua organização desativou a criptografia confiável do dispositivo. Por favor, defina uma senha mestra para acessar o seu cofre."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição Automática"
@@ -2784,19 +2831,19 @@
     "message": "Autofill shortcut"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Alterar atalho"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Gerenciar atalhos"
   },
   "autofillShortcut": {
     "message": "Atalho para autopreenchimento"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "O atalho de acesso ao preenchimento automático não está definido. Altere isso nas configurações do navegador."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "O atalho de login de preenchimento automático é $COMMAND$. Gerencie todos os atalhos nas configurações do navegador.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2980,10 +3027,10 @@
     }
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 campo precisa de sua atenção."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "Campos $COUNT$ precisam de sua atenção.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3092,7 +3139,7 @@
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
-    "message": "Unlock your account to view autofill suggestions",
+    "message": "Desbloqueie sua conta para ver as sugestões de preenchimento automático",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -3100,7 +3147,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Desbloqueie sua conta, abra em uma nova janela",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
@@ -3124,27 +3171,27 @@
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "newLogin": {
-    "message": "New login",
+    "message": "Novo login",
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Add new vault login item, opens in a new window",
+    "message": "Adicionar novo item de login no cofre, abre em uma nova janela",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Novo cartão",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
-    "message": "Add new vault card item, opens in a new window",
+    "message": "Adicione um novo item do cartão do cofre, abre em uma nova janela",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Nova identidade",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Add new vault identity item, opens in a new window",
+    "message": "Adicionar novo item de identidade do cofre, abre em uma nova janela",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -3264,7 +3311,7 @@
     "message": "Senha do arquivo inválida, por favor informe a senha utilizada quando criou o arquivo de exportação."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destino"
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre suas opções de importação"
@@ -3505,27 +3552,27 @@
     "description": "Label indicating the most common import formats"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Continue to browser settings?",
+    "message": "Continuar nas configurações do navegador?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Continue to Help Center?",
+    "message": "Continuar para o Centro de Ajuda?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Alterar as configurações de autopreenchimento e gerenciamento de senhas do seu navegador.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
   },
   "confirmContinueToHelpCenterKeyboardShortcutsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Você pode ver e definir atalhos de extensão nas configurações do seu navegador.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
   },
   "confirmContinueToBrowserPasswordManagementSettingsContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Alterar as configurações de autopreenchimento e gerenciamento de senhas do seu navegador.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
   },
   "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Você pode ver e definir atalhos de extensão nas configurações do seu navegador.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
@@ -3821,7 +3868,7 @@
     }
   },
   "cardNumberEndsWith": {
-    "message": "card number ends with",
+    "message": "o número do cartão termina com",
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
@@ -3831,22 +3878,22 @@
     "message": "Chave do autenticador"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Opções de autopreenchimento"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Site (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Site adicionado"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Adicionar site"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Excluir site"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Padrão ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Exibir detecção de correspondência $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Ocultar detecção de correspondência $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Preenchimento automático ao carregar a página?"
   },
   "cardDetails": {
     "message": "Detalhes do cartão"
@@ -3895,16 +3942,28 @@
     "message": "Carregando"
   },
   "data": {
-    "message": "Data"
+    "message": "Dado"
+  },
+  "passkeys": {
+    "message": "Senhas",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Senhas",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Iniciar sessão com a chave de acesso",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Atribuir"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Apenas membros da organização com acesso a essas coleções poderão ver o item."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Apenas membros da organização com acesso à essas coleções poderão ver os itens."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Você selecionou $TOTAL_COUNT$ itens. Você não pode atualizar $READONLY_COUNT$ destes itens porque você não tem permissão de edição.",
@@ -3943,13 +4002,13 @@
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o auto-preenchimento com um site específico."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Digite o Id html do campo, nome, nome aria-label, ou espaço reservado."
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Editar campo"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Editar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3958,7 +4017,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Excluir $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3967,7 +4026,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "$LABEL$ adicionado",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3976,7 +4035,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Reordene $LABEL$. Use a tecla de seta para mover o item para cima ou para baixo.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -3985,7 +4044,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ se moveu para cima, posição $INDEX$ de $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4002,13 +4061,13 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Selecione as coleções para atribuir"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 item será transferido permanentemente para a organização selecionada. Você não irá mais possuir este item."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "Itens $PERSONAL_ITEMS_COUNT$ serão transferidos permanentemente para a organização selecionada. Você não irá mais possuir esses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4017,7 +4076,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 item será transferido permanentemente para $ORG$. Você não irá mais possuir este item.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4026,7 +4085,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "Os itens $PERSONAL_ITEMS_COUNT$ serão transferidos permanentemente para $ORG$. Você não irá mais possuir esses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4039,13 +4098,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Coleções atribuídas com sucesso"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Você selecionou nada."
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Itens selecionados movidos para $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4054,7 +4113,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Itens movidos para $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4063,7 +4122,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Item movido para $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4072,7 +4131,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ se moveu para baixo, posição $INDEX$ de $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4091,13 +4150,25 @@
   "itemLocation": {
     "message": "Localização do Item"
   },
+  "fileSends": {
+    "message": "Arquivos enviados"
+  },
+  "textSends": {
+    "message": "Texto enviado"
+  },
   "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
+    "message": "Bitwarden tem uma nova aparência!"
   },
   "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
+    "message": "É mais fácil e mais intuitivo do que nunca autopreenchimento e pesquise na guia Cofre. Dê uma olhada ao redor!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Ações da conta"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

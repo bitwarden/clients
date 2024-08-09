@@ -117,19 +117,19 @@
     "message": "보안 코드 복사"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "이름 복사"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "회사 복사"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "주민등록번호 복사"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "여권 번호 복사"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "운전면허 번호 복사"
   },
   "autoFill": {
     "message": "자동 완성"
@@ -257,7 +257,7 @@
     "message": "More from Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "bitwarden.com 으로 이동할까요?"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden for Business"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "폴더 편집"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "No folders added"
+  },
+  "createFoldersToOrganize": {
+    "message": "Create folders to organize your vault items"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
     "message": "폴더 삭제"
@@ -685,13 +703,13 @@
     "message": "로그인 세션이 만료되었습니다."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "로그인"
   },
   "restartRegistration": {
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "만료된 링크"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -761,7 +779,7 @@
     "message": "새 URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "도메인 추가",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다."
   },
+  "passwordGenerator": {
+    "message": "Password generator"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "보관함 시간 제한 초과시 동작"
   },
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "계정이 일치하지 않음"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
   },
   "biometricsNotEnabledTitle": {
     "message": "생체 인식이 활성화되지 않음"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Data"
   },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwords",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Log in with passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Assign"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Item Location"
   },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden has a new look!"
   },
@@ -4099,5 +4164,11 @@
   },
   "accountActions": {
     "message": "Account actions"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

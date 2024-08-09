@@ -141,7 +141,7 @@
     "message": "Автозаповнення картки"
   },
   "autoFillIdentity": {
-    "message": "Автозаповнення особистих даних"
+    "message": "Автозаповнення посвідчень"
   },
   "generatePasswordCopied": {
     "message": "Генерувати пароль (з копіюванням)"
@@ -165,7 +165,7 @@
     "message": "Додати картку"
   },
   "addIdentityMenu": {
-    "message": "Додати особисті дані"
+    "message": "Додати посвідчення"
   },
   "unlockVaultMenu": {
     "message": "Розблокуйте сховище"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "Редагування"
+  },
+  "newFolder": {
+    "message": "Нова тека"
+  },
+  "folderName": {
+    "message": "Назва теки"
+  },
+  "folderHintText": {
+    "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
+  },
+  "noFoldersAdded": {
+    "message": "Немає доданих тек"
+  },
+  "createFoldersToOrganize": {
+    "message": "Створіть теки для організації записів у сховищі"
+  },
+  "deleteFolderPermanently": {
+    "message": "Ви дійсно хочете остаточно видалити цю теку?"
   },
   "deleteFolder": {
     "message": "Видалити теку"
@@ -652,7 +670,7 @@
     }
   },
   "autofillError": {
-    "message": "Не вдається заповнити пароль на цій сторінці. Скопіюйте і вставте ім'я користувача та/або пароль."
+    "message": "Не вдається заповнити вибраний запис на цій сторінці. Скопіюйте і вставте інформацію вручну."
   },
   "totpCaptureError": {
     "message": "Неможливо сканувати QR-код з поточної сторінки"
@@ -712,7 +730,7 @@
     "message": "Сталася неочікувана помилка."
   },
   "nameRequired": {
-    "message": "Потрібна назва."
+    "message": "Необхідно ввести назву."
   },
   "addedFolder": {
     "message": "Теку додано"
@@ -1349,7 +1367,7 @@
     "message": "Автозаповнення останньої використаної картки для цього вебсайту"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Автозаповнення останніх використаних особистих даних для цього вебсайту"
+    "message": "Автозаповнення останнього використаного посвідчення для цього вебсайту"
   },
   "commandGeneratePasswordDesc": {
     "message": "Генерувати і копіювати новий випадковий пароль в буфер обміну"
@@ -1504,7 +1522,7 @@
     "message": "Повне ім'я"
   },
   "identityName": {
-    "message": "Назва"
+    "message": "Назва посвідчення"
   },
   "company": {
     "message": "Компанія"
@@ -1564,7 +1582,7 @@
     "message": "Картка"
   },
   "typeIdentity": {
-    "message": "Особисті дані"
+    "message": "Посвідчення"
   },
   "newItemHeader": {
     "message": "Новий $TYPE$",
@@ -1704,7 +1722,7 @@
     "message": "Типи"
   },
   "allItems": {
-    "message": "Всі елементи"
+    "message": "Усі записи"
   },
   "noPasswordsInList": {
     "message": "Немає паролів."
@@ -1731,7 +1749,7 @@
     "message": "Ви впевнені, що ніколи не хочете блокувати? Встановивши цю опцію, ключ шифрування вашого сховища зберігатиметься на вашому пристрої. Використовуючи цю опцію, вам слід бути певними в тому, що ваш пристрій має належний захист."
   },
   "noOrganizationsList": {
-    "message": "Ви не входите до жодної організації. Організації дозволяють безпечно обмінюватися елементами з іншими користувачами."
+    "message": "Ви не входите до жодної організації. Організації дають змогу безпечно обмінюватися записами з іншими користувачами."
   },
   "noCollectionsInList": {
     "message": "Немає збірок."
@@ -1740,7 +1758,7 @@
     "message": "Власник"
   },
   "whoOwnsThisItem": {
-    "message": "Хто є власником цього елемента?"
+    "message": "Хто є власником цього запису?"
   },
   "strong": {
     "message": "Надійний",
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "На параметри генератора впливають одна чи декілька політик організації."
   },
+  "passwordGenerator": {
+    "message": "Генератор паролів"
+  },
+  "usernameGenerator": {
+    "message": "Генератор імені користувача"
+  },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
+  },
+  "securePasswordGenerated": {
+    "message": "Надійний пароль згенеровано! Обов'язково оновіть свій пароль на вебсайті."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Скористатися генератором",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "для створення надійного, унікального пароля",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
   },
@@ -1851,7 +1892,7 @@
     "message": "Запис заповнено і збережено"
   },
   "autoFillSuccess": {
-    "message": "Запис заповнено"
+    "message": "Запис заповнено "
   },
   "insecurePageWarning": {
     "message": "Попередження: це незахищена сторінка HTTP, тому будь-яка інформація, яку ви передаєте, потенційно може бути переглянута чи змінена сторонніми. Ці облікові дані було збережено на безпечній сторінці (HTTPS)."
@@ -2000,6 +2041,12 @@
   "nativeMessagingWrongUserTitle": {
     "message": "Невідповідність облікових записів"
   },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Збій біометричного розблокування. Біометричний секретний ключ не зміг розблокувати сховище. Спробуйте налаштувати біометрію знову."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Біометричний ключ відрізняється"
+  },
   "biometricsNotEnabledTitle": {
     "message": "Біометрію не налаштовано"
   },
@@ -2043,7 +2090,7 @@
     "message": "Політика організації впливає на ваші параметри власності."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Політика організації заблокувала імпортування елементів до вашого особистого сховища."
+    "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
   "domainsTitle": {
     "message": "Домени",
@@ -2328,7 +2375,7 @@
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне розгортання"
@@ -2461,7 +2508,7 @@
     "message": "Експортування сховища організації"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Елементи особистих сховищ або інших організацій не будуть включені.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи особистих сховищ або інших організацій не будуть включені.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2763,7 +2810,7 @@
     "message": "Як працює автозаповнення"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Виберіть елемент із цього екрану, скористайтеся комбінацією клавіш $COMMAND$, або дізнайтеся про інші можливості в налаштуваннях.",
+    "message": "Виберіть об'єкт із цього екрану, скористайтеся комбінацією клавіш $COMMAND$, або дізнайтеся про інші можливості в налаштуваннях.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2772,7 +2819,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Виберіть елемент із цього екрану або дізнайтеся про інші можливості в налаштуваннях."
+    "message": "Виберіть об'єкт із цього екрану або дізнайтеся про інші можливості в налаштуваннях."
   },
   "gotIt": {
     "message": "Зрозуміло"
@@ -3140,11 +3187,11 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "Особисті дані",
+    "message": "Нове посвідчення",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Додавання нового запису для особистих даних – відкриється нове вікно",
+    "message": "Додавання нового запису для посвідчення – відкриється нове вікно",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -3177,7 +3224,7 @@
     "message": "Дані успішно імпортовано"
   },
   "importSuccessNumberOfItems": {
-    "message": "Всього імпортовано $AMOUNT$ елементів.",
+    "message": "Всього імпортовано $AMOUNT$ записів.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -3286,7 +3333,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "Файл містить непризначені елементи."
+    "message": "Файл містить непризначені записи."
   },
   "selectFormat": {
     "message": "Оберіть формат імпортованого файлу"
@@ -3368,7 +3415,7 @@
     "message": "Перезаписати ключ доступу?"
   },
   "overwritePasskeyAlert": {
-    "message": "Цей елемент вже містить ключ доступу. Ви впевнені, що хочете перезаписати поточний ключ доступу?"
+    "message": "Цей запис уже містить ключ доступу. Ви впевнені, що хочете перезаписати поточний ключ доступу?"
   },
   "featureNotSupported": {
     "message": "Функція ще не підтримується"
@@ -3715,7 +3762,7 @@
     }
   },
   "itemsWithNoFolder": {
-    "message": "Елементи без теки"
+    "message": "Записи без теки"
   },
   "itemDetails": {
     "message": "Подробиці запису"
@@ -3743,7 +3790,7 @@
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
-    "message": "Елементи в деактивованих організаціях недоступні. Зверніться до власника вашої організації для отримання допомоги."
+    "message": "Записи в деактивованих організаціях недоступні. Зверніться до власника вашої організації для отримання допомоги."
   },
   "additionalInformation": {
     "message": "Додаткова інформація"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Дані"
   },
+  "passkeys": {
+    "message": "Ключі доступу",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Паролі",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Увійти з ключем доступу",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Призначити"
   },
@@ -4005,10 +4064,10 @@
     "message": "Оберіть збірки для призначення"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 елемент буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього елемента."
+    "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраної організації. Ви більше не будете власником цих записів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4017,7 +4076,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 елемент буде остаточно перенесено до $ORG$. Ви більше не будете власником цього елемента.",
+    "message": "1 запис буде остаточно перенесено до $ORG$. Ви більше не будете власником цього запису.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4026,7 +4085,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до $ORG$. Ви більше не будете власником цих записів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4054,7 +4113,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Елементи переміщено до $ORGNAME$",
+    "message": "Записи переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4063,7 +4122,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Елемент переміщено до $ORGNAME$",
+    "message": "Запис переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4089,7 +4148,13 @@
     }
   },
   "itemLocation": {
-    "message": "Розташування елемента"
+    "message": "Розташування запису"
+  },
+  "fileSends": {
+    "message": "Відправлення файлів"
+  },
+  "textSends": {
+    "message": "Відправлення тексту"
   },
   "bitwardenNewLook": {
     "message": "Bitwarden має новий вигляд!"
@@ -4098,6 +4163,12 @@
     "message": "Ще простіше автозаповнення та інтуїтивніший пошук у сховищі. Ознайомтеся!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Дії з обліковим записом"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

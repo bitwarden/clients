@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Map bewerken"
   },
+  "newFolder": {
+    "message": "Nieuwe map"
+  },
+  "folderName": {
+    "message": "Mapnaam"
+  },
+  "folderHintText": {
+    "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "noFoldersAdded": {
+    "message": "Geen mappen toegevoegd"
+  },
+  "createFoldersToOrganize": {
+    "message": "Maak mappen om je kluis items te organiseren"
+  },
+  "deleteFolderPermanently": {
+    "message": "Weet je zeker dat je deze map definitief wilt verwijderen?"
+  },
   "deleteFolder": {
     "message": "Map verwijderen"
   },
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Basisdomein (aanbevolen)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1820,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Een of meer organisatiebeleidseisen heeft invloed op de instellingen van je generator."
+  },
+  "passwordGenerator": {
+    "message": "Wachtwoordgenerator"
+  },
+  "usernameGenerator": {
+    "message": "Gebruikersnaamgenerator"
+  },
+  "useThisPassword": {
+    "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisUsername": {
+    "message": "Deze gebruikersnaam gebruiken"
+  },
+  "securePasswordGenerated": {
+    "message": "Veilig wachtwoord aangemaakt! Vergeet niet om je wachtwoord ook op de website bij te werken."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Gebruik de generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "om een sterk uniek wachtwoord te maken",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Accounts komt niet overeen"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometrische ontgrendelen mislukt. De biometrische geheime sleutel kon de kluis niet ontgrendelen. Probeer biometrische gegevens opnieuw in te stellen."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometrische sleutel discrepantie"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometrie niet ingeschakeld"
@@ -2328,7 +2375,7 @@
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Je organisatie heeft het versleutelen van vertrouwde apparaten uitgeschakeld. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische inschrijving"
@@ -3673,7 +3720,7 @@
     "message": "Notifications"
   },
   "appearance": {
-    "message": "Voorkomen"
+    "message": "Uiterlijk"
   },
   "errorAssigningTargetCollection": {
     "message": "Fout bij toewijzen doelverzameling."
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Gegevens"
   },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Wachtwoorden",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Inloggen met passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Toewijzen"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Itemlocatie"
   },
+  "fileSends": {
+    "message": "Bestand-Sends"
+  },
+  "textSends": {
+    "message": "Tekst-Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden heeft een nieuw uiterlijk!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Automatisch invullen en zoeken is makkelijker en intuïtiever dan ooit vanaf het tabblad Kluis. Kijk rond!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Accountacties"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

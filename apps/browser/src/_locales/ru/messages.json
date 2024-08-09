@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Изменить папку"
   },
+  "newFolder": {
+    "message": "Новый папка"
+  },
+  "folderName": {
+    "message": "Название папки"
+  },
+  "folderHintText": {
+    "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
+  },
+  "noFoldersAdded": {
+    "message": "Нет добавленных папок"
+  },
+  "createFoldersToOrganize": {
+    "message": "Создавайте папки для упорядочивания элементов хранилища"
+  },
+  "deleteFolderPermanently": {
+    "message": "Вы действительно хотите безвозвратно удалить эту папку?"
+  },
   "deleteFolder": {
     "message": "Удалить папку"
   },
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "На настройки генератора влияют одна или несколько политик организации."
   },
+  "passwordGenerator": {
+    "message": "Генератор паролей"
+  },
+  "usernameGenerator": {
+    "message": "Генератор имени пользователя"
+  },
+  "useThisPassword": {
+    "message": "Использовать этот пароль"
+  },
+  "useThisUsername": {
+    "message": "Использовать это имя пользователя"
+  },
+  "securePasswordGenerated": {
+    "message": "Безопасный пароль сгенерирован! Не забудьте также обновить свой пароль на сайте."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Использовать генератор",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "для создания надежного уникального пароля",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
@@ -1848,7 +1889,7 @@
     "message": "Заполнить и сохранить"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "URI элемента заполнен и сохранен"
+    "message": "Элемент заполнен, URI сохранен"
   },
   "autoFillSuccess": {
     "message": "Элемент заполнен "
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Несоответствие аккаунта"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Биометрическая разблокировка не удалась. Биометрический секретный ключ не смог разблокировать хранилище. Пожалуйста, попробуйте настроить биометрию еще раз."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Несовпадение биометрического ключа"
   },
   "biometricsNotEnabledTitle": {
     "message": "Биометрия не настроена"
@@ -2328,7 +2375,7 @@
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "В вашей организации отключено шифрование доверенных устройств. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматическое развертывание"
@@ -3897,6 +3944,18 @@
   "data": {
     "message": "Данные"
   },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Пароли",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Войти с passkey",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
   "assign": {
     "message": "Назначить"
   },
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Расположение элемента"
   },
+  "fileSends": {
+    "message": "Файловая Send"
+  },
+  "textSends": {
+    "message": "Текстовая Send"
+  },
   "bitwardenNewLook": {
     "message": "У Bitwarden новый облик!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Теперь автозаполнение и поиск на вкладке Хранилище стали проще и интуитивно понятнее, чем когда-либо. Осмотритесь!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Действия с аккаунтом"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }

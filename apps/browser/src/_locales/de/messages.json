@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Ordner bearbeiten"
   },
+  "newFolder": {
+    "message": "Neuer Ordner"
+  },
+  "folderName": {
+    "message": "Ordnername"
+  },
+  "folderHintText": {
+    "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Social/Foren"
+  },
+  "noFoldersAdded": {
+    "message": "Keine Ordner hinzugefügt"
+  },
+  "createFoldersToOrganize": {
+    "message": "Erstelle Ordner, um deine Tresor-Einträge zu organisieren"
+  },
+  "deleteFolderPermanently": {
+    "message": "Bist du sicher, dass du diesen Ordner dauerhaft löschen willst?"
+  },
   "deleteFolder": {
     "message": "Ordner löschen"
   },
@@ -1343,13 +1361,13 @@
     "message": "Tresor in der Seitenleiste öffnen"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Die zuletzt verwendeten Zugangsdaten für die aktuelle Website automatisch ausfüllen"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Die zuletzt verwendete Karte für die aktuelle Website automatisch ausfüllen"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Die zuletzt verwendete Identität für die aktuelle Website automatisch ausfüllen"
   },
   "commandGeneratePasswordDesc": {
     "message": "Ein neues zufälliges Passwort generieren und in die Zwischenablage kopieren"
@@ -1656,7 +1674,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Basis-Domain (empfohlen)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1803,6 +1821,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Generator-Einstellungen."
   },
+  "passwordGenerator": {
+    "message": "Passwort-Generator"
+  },
+  "usernameGenerator": {
+    "message": "Benutzernamen-Generator"
+  },
+  "useThisPassword": {
+    "message": "Dieses Passwort verwenden"
+  },
+  "useThisUsername": {
+    "message": "Diesen Benutzernamen verwenden"
+  },
+  "securePasswordGenerated": {
+    "message": "Sicheres Passwort generiert! Vergiss nicht, auch dein Passwort auf der Website zu aktualisieren."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Verwende den Generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": ", um ein starkes einzigartiges Passwort zu erstellen",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Aktion bei Tresor-Timeout"
   },
@@ -1842,7 +1883,7 @@
     "message": "Bestätigung der Timeout-Aktion"
   },
   "autoFillAndSave": {
-    "message": "Auto-Ausfüllen und speichern"
+    "message": "Automatisch ausfüllen und speichern"
   },
   "fillAndSave": {
     "message": "Ausfüllen und speichern"
@@ -1999,6 +2040,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Konten stimmen nicht überein"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometrische Entsperrung fehlgeschlagen. Der biometrische Geheimschlüssel konnte den Tresor nicht entsperren. Bitte versuche Biometrie erneut einzurichten."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometrische Schlüssel stimmen nicht überein"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometrie ist nicht eingerichtet"
@@ -2328,7 +2375,7 @@
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Deine Organisation hat die vertrauenswürdige Geräteverschlüsselung deaktiviert. Bitte lege ein Master-Passwort fest, um auf deinen Tresor zuzugreifen."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische Registrierung"
@@ -2757,10 +2804,10 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Deine Organisationsrichtlinien haben Auto-Ausfüllen beim Laden von Seiten aktiviert."
+    "message": "Deine Organisationsrichtlinien haben das automatische Ausfüllen beim Laden der Seite aktiviert."
   },
   "howToAutofill": {
-    "message": "So funktioniert Auto-Ausfüllen"
+    "message": "So funktioniert automatisches Ausfüllen"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Wähle einen Eintrag von dieser Bildschirmseite, verwende das Tastaturkürzel $COMMAND$ oder entdecke andere Optionen in den Einstellungen.",
@@ -2787,16 +2834,16 @@
     "message": "Tastenkombination ändern"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Tastaturkürzel verwalten"
   },
   "autofillShortcut": {
     "message": "Auto-Ausfüllen Tastaturkürzel"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "Das Tastaturkürzel zum automatischen Ausfüllen von Zugangsdaten ist nicht festgelegt. Du kannst es in den Browser-Einstellungen ändern."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "Das Tastaturkürzel zum automatischen Ausfüllen von Zugangsdaten ist $COMMAND$. Verwalte alle Tastaturkürzel in den Browser-Einstellungen.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2805,7 +2852,7 @@
     }
   },
   "autofillShortcutTextSafari": {
-    "message": "Standard-Auto-Ausfüllen Tastaturkürzel: $COMMAND$.",
+    "message": "Standard-Auto-Ausfüllen Tastenkombination: $COMMAND$.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3831,22 +3878,22 @@
     "message": "Authenticator-Schlüssel"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Auto-Ausfüllen Optionen"
   },
   "websiteUri": {
     "message": "Website (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Website hinzugefügt"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Website hinzufügen"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Website löschen"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Standard ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3903,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Übereinstimmungs-Erkennung anzeigen $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3912,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Übereinstimmungs-Erkennung verstecken $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3921,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Auto-Ausfüllen beim Laden einer Seite?"
   },
   "cardDetails": {
     "message": "Kartendetails"
@@ -3896,6 +3943,18 @@
   },
   "data": {
     "message": "Daten"
+  },
+  "passkeys": {
+    "message": "Passkeys",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Passwörter",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Mit Passkey anmelden",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Zuweisen"
@@ -4091,6 +4150,12 @@
   "itemLocation": {
     "message": "Eintrags-Standort"
   },
+  "fileSends": {
+    "message": "Datei-Sends"
+  },
+  "textSends": {
+    "message": "Text-Sends"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden hat einen neuen Look!"
   },
@@ -4098,6 +4163,12 @@
     "message": "Auto-Ausfüllen und Suchen vom Tresor-Tab ist einfacher und intuitiver als je zuvor. Schau dich um!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Konto-Aktionen"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "systemDefault": {
+    "message": "System default"
   }
 }
