@@ -951,6 +951,9 @@
   "yourVaultIsLockedV2": {
     "message": "Your vault is locked"
   },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
+  },
   "uuid":{
     "message" : "UUID"
   },
@@ -7254,6 +7257,9 @@
   },
   "or": {
     "message": "or"
+  },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
   },
   "licenseAndBillingManagement": {
     "message": "License and billing management"

@@ -18,7 +18,7 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { SetPasswordJitService } from "@bitwarden/auth/angular";
+import { LockComponentService, SetPasswordJitService } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   PinServiceAbstraction,
@@ -84,6 +84,7 @@ import { ElectronRendererStorageService } from "../../platform/services/electron
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
+import { DesktopLockComponentService } from "../../services/desktop-lock-component.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessageHandlerService } from "../../services/native-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
@@ -262,6 +263,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: NativeMessagingManifestService,
     useClass: NativeMessagingManifestService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: LockComponentService,
+    useClass: DesktopLockComponentService,
     deps: [],
   }),
   safeProvider({
