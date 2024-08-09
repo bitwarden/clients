@@ -12,11 +12,12 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 
 import { FormControlModule } from "../form-control";
+import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { CheckboxModule } from "./checkbox.module";
 
-const template = `
+const template = /*html*/ `
   <form [formGroup]="formObj">
     <bit-form-control>
       <input type="checkbox" bitCheckbox formControlName="checkbox" />
@@ -54,7 +55,7 @@ export default {
   decorators: [
     moduleMetadata({
       declarations: [ExampleComponent],
-      imports: [FormsModule, ReactiveFormsModule, FormControlModule, CheckboxModule],
+      imports: [FormsModule, ReactiveFormsModule, FormControlModule, CheckboxModule, TableModule],
       providers: [
         {
           provide: I18nService,
@@ -82,7 +83,10 @@ type Story = StoryObj<ExampleComponent>;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `<app-example [checked]="checked" [disabled]="disabled"></app-example>`,
+    template: /*html*/ `
+      <app-example></app-example>
+      <app-example [checked]="true"></app-example>
+    `,
   }),
   parameters: {
     docs: {
@@ -91,9 +95,31 @@ export const Default: Story = {
       },
     },
   },
-  args: {
-    checked: false,
-    disabled: false,
+};
+
+export const LongLabel: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        checkbox: new FormControl(false),
+      }),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" class="tw-w-96">
+        <bit-form-control>
+          <input type="checkbox" bitCheckbox formControlName="checkbox">
+          <bit-label>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur iaculis consequat enim vitae elementum.
+            Ut non odio est. </bit-label>
+        </bit-form-control>
+      </form>
+    `,
+  }),
+  parameters: {
+    docs: {
+      source: {
+        code: template,
+      },
+    },
   },
 };
 
@@ -104,7 +130,7 @@ export const Hint: Story = {
         checkbox: new FormControl(false),
       }),
     },
-    template: `
+    template: /*html*/ `
       <form [formGroup]="formObj">
         <bit-form-control>
           <input type="checkbox" bitCheckbox formControlName="checkbox" />
@@ -131,20 +157,37 @@ export const Hint: Story = {
   },
 };
 
+export const Disabled: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <app-example [disabled]="true"></app-example>
+      <app-example [checked]="true" [disabled]="true"></app-example>
+    `,
+  }),
+  parameters: {
+    docs: {
+      source: {
+        code: template,
+      },
+    },
+  },
+};
+
 export const Custom: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-w-32">
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2 tw-items-baseline">
+        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           A-Z
           <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2 tw-items-baseline">
+        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           a-z
           <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2 tw-items-baseline">
+        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           0-9
           <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
@@ -156,8 +199,51 @@ export const Custom: Story = {
 export const Indeterminate: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <input type="checkbox" bitCheckbox [indeterminate]="true">
+    `,
+  }),
+};
+
+export const InTableRow: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="checkAll"
+                class="tw-mr-2"
+              />
+              <label for="checkAll" class="tw-mb-0">
+                All
+              </label>
+            </th>
+            <th bitCell>
+              Foo
+            </th>
+            <th bitCell>
+              Bar
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          <tr bitRow>
+            <td bitCell>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="checkOne"
+              />
+            </td>
+            <td bitCell>Lorem</td>
+            <td bitCell>Ipsum</td>
+          </tr>
+        </ng-template>
+      </bit-table>
     `,
   }),
 };

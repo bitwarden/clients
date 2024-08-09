@@ -46,3 +46,31 @@ export const Default: Story = {
     selected: "all",
   },
 };
+
+export const LabelWrap: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        class="tw-max-w-[500px]"
+      >
+        <bit-toggle value="all">
+          All of the best things <span bitBadge variant="info">3</span>
+        </bit-toggle>
+
+        <bit-toggle value="invited"> Invited to a cool party </bit-toggle>
+
+        <bit-toggle value="accepted">
+          Accepted the invitation<span bitBadge variant="info">2</span>
+        </bit-toggle>
+
+        <bit-toggle value="deactivated"> Deactivated forever</bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: "all",
+  },
+};

@@ -64,26 +64,24 @@ class KitchenSinkDialog {
     </bit-callout>
 
     <div class="tw-mb-6 tw-mt-6">
-      <h1 bitTypography="h1" class="tw-text-main">
-        Bitwarden <bit-avatar text="Bit Warden"></bit-avatar>
-      </h1>
+      <h1 bitTypography="h1">Bitwarden <bit-avatar text="Bit Warden"></bit-avatar></h1>
       <a bitLink linkType="primary" href="#">Learn more</a>
     </div>
 
     <bit-tab-group label="Main content tabs" class="tw-text-main">
       <bit-tab label="Evaluation">
         <bit-section>
-          <h2 bitTypography="h2" class="tw-text-main tw-mb-6">About</h2>
+          <h2 bitTypography="h2" class="tw-mb-6">About</h2>
           <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
           <button bitButton (click)="openDefaultDialog()">Open Dialog</button>
         </bit-section>
         <bit-section>
-          <h2 bitTypography="h2" class="tw-text-main tw-mb-6">Companies using Bitwarden</h2>
+          <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
           <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
         </bit-section>
         <bit-section>
-          <h2 bitTypography="h2" class="tw-text-main tw-mb-6">Survey</h2>
+          <h2 bitTypography="h2" class="tw-mb-6">Survey</h2>
           <bit-kitchen-sink-form></bit-kitchen-sink-form>
         </bit-section>
       </bit-tab>

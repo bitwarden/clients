@@ -5,16 +5,6 @@
 ./apps/browser/store/windows/Assets
 ./bitwarden_license/README.md
 ./libs/angular/src/directives/cipherListVirtualScroll.directive.ts
-./libs/angular/src/scss/webfonts/Open_Sans-italic-700.woff
-./libs/angular/src/scss/webfonts/Open_Sans-normal-300.woff
-./libs/angular/src/scss/webfonts/Open_Sans-normal-700.woff
-./libs/angular/src/scss/webfonts/Open_Sans-italic-300.woff
-./libs/angular/src/scss/webfonts/Open_Sans-italic-600.woff
-./libs/angular/src/scss/webfonts/Open_Sans-italic-800.woff
-./libs/angular/src/scss/webfonts/Open_Sans-italic-400.woff
-./libs/angular/src/scss/webfonts/Open_Sans-normal-600.woff
-./libs/angular/src/scss/webfonts/Open_Sans-normal-800.woff
-./libs/angular/src/scss/webfonts/Open_Sans-normal-400.woff
 ./libs/admin-console/README.md
 ./libs/auth/README.md
 ./libs/billing/README.md

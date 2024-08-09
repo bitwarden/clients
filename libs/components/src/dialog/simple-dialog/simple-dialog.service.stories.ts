@@ -1,5 +1,6 @@
-import { DialogModule, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,11 +9,8 @@ import { ButtonModule } from "../../button";
 import { IconButtonModule } from "../../icon-button";
 import { SharedModule } from "../../shared/shared.module";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { DialogModule } from "../dialog.module";
 import { DialogService } from "../dialog.service";
-import { DialogCloseDirective } from "../directives/dialog-close.directive";
-import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
-
-import { SimpleDialogComponent } from "./simple-dialog.component";
 
 interface Animal {
   animal: string;
@@ -65,13 +63,14 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
-        StoryDialogContentComponent,
-        DialogCloseDirective,
-        DialogTitleContainerDirective,
-        SimpleDialogComponent,
+      declarations: [StoryDialogContentComponent],
+      imports: [
+        SharedModule,
+        IconButtonModule,
+        ButtonModule,
+        BrowserAnimationsModule,
+        DialogModule,
       ],
-      imports: [SharedModule, IconButtonModule, ButtonModule, DialogModule],
       providers: [
         DialogService,
         {

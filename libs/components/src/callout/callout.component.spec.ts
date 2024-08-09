@@ -12,7 +12,7 @@ describe("Callout", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CalloutComponent],
+      imports: [CalloutComponent],
       providers: [
         {
           provide: I18nService,

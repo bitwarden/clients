@@ -83,9 +83,9 @@ a:not(popup-page a, popup-tab-navigation a) {
   }
 }
 
-input,
-select,
-textarea {
+input:not(bit-form-field input),
+select:not(bit-form-field select),
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");
@@ -286,7 +286,7 @@ header:not(bit-callout header, bit-dialog header, popup-page header) {
       }
     }
 
-    input {
+    input:not(bit-form-field input) {
       width: 100%;
       margin: 0;
       border: none;

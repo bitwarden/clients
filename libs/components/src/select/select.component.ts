@@ -57,7 +57,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
   }
 
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full"];
+  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
 
   // Usings a separate getter for the HostBinding to get around an unexplained angular error
   @HostBinding("attr.disabled")

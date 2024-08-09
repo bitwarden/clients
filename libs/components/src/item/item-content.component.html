@@ -11,6 +11,6 @@
   </div>
 </div>
 
-<div class="tw-flex tw-gap-2 tw-items-center">
+<div class="tw-flex tw-gap-2 tw-items-center" #endSlot [hidden]="!endSlotHasChildren()">
   <ng-content select="[slot=end]"></ng-content>
 </div>
