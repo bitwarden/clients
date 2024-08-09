@@ -35,6 +35,12 @@ export abstract class SyncService {
   abstract lastSync$(userId: UserId): Observable<Date | null>;
 
   /**
+   * Retrieves a stream of the currently active user's last sync date.
+   * Or null if there is no current active user or the active user has not synced before.
+   */
+  abstract activeUserLastSync$(): Observable<Date | null>;
+
+  /**
    * Optionally does a full sync operation including going to the server to gather the source
    * of truth and set that data to state.
    * @param forceSync A boolean dictating if a sync should be forced. If `true` a sync will happen

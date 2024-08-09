@@ -9,6 +9,7 @@ import {
   from,
   map,
   merge,
+  MonoTypeOperatorFunction,
   Observable,
   of,
   shareReplay,
@@ -31,6 +32,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
+import { waitUntil } from "../../util";
 import { PopupCipherView } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
@@ -80,8 +82,7 @@ export class VaultPopupItemsService {
   ).pipe(
     runInsideAngular(inject(NgZone)), // Workaround to ensure cipher$ state provider emissions are run inside Angular
     tap(() => this._ciphersLoading$.next()),
-    switchMap(() => Utils.asyncToObservable(() => this.syncService.getLastSync())),
-    filter((lastSync) => lastSync !== null), // Only attempt to load ciphers if we performed a sync
+    waitUntilSync(this.syncService),
     switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted())),
     switchMap((ciphers) =>
       combineLatest([
@@ -270,3 +271,11 @@ export class VaultPopupItemsService {
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
 }
+
+/**
+ * Operator that waits until the active account has synced at least once before allowing the source to continue emission.
+ * @param syncService
+ */
+const waitUntilSync = <T>(syncService: SyncService): MonoTypeOperatorFunction<T> => {
+  return waitUntil(syncService.activeUserLastSync$().pipe(filter((lastSync) => lastSync != null)));
+};

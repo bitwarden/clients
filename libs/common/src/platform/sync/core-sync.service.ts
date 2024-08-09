@@ -1,4 +1,4 @@
-import { firstValueFrom, map, of, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -65,6 +65,17 @@ export abstract class CoreSyncService implements SyncService {
 
   lastSync$(userId: UserId) {
     return this.stateProvider.getUser(userId, LAST_SYNC_DATE).state$;
+  }
+
+  activeUserLastSync$(): Observable<Date | null> {
+    return this.accountService.activeAccount$.pipe(
+      switchMap((a) => {
+        if (a == null) {
+          return of(null);
+        }
+        return this.lastSync$(a.id);
+      }),
+    );
   }
 
   async setLastSync(date: Date, userId: UserId): Promise<void> {
