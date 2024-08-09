@@ -151,6 +151,24 @@ export class AccountSwitcherComponent {
     );
   }
 
+  async ngOnInit() {
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active == null) {
+      return;
+    }
+    const authStatus = await firstValueFrom(
+      this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+    );
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+      if (nextUpAccount != null) {
+        await this.switch(nextUpAccount.id);
+      } else {
+        await this.addAccount();
+      }
+    }
+  }
+
   toggle() {
     this.isOpen = !this.isOpen;
   }

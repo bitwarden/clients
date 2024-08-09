@@ -1217,6 +1217,18 @@ export default class MainBackground {
       );
     }
 
+    // If the user is logged out, switch to the next account
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active == null) {
+      return;
+    }
+    const authStatus = await firstValueFrom(
+      this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+    );
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+      await this.switchAccount(nextUpAccount?.id);
+    }
     await this.initOverlayAndTabsBackground();
 
     return new Promise<void>((resolve) => {
