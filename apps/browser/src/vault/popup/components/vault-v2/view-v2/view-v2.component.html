@@ -1,5 +1,7 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="headerText" showBackButton> </popup-header>
+  <popup-header slot="header" [pageTitle]="headerText" showBackButton>
+    <app-pop-out slot="end" />
+  </popup-header>
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
 

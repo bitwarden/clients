@@ -22,7 +22,12 @@
       <p class="tw-pl-1">
         {{ "onboardingImportDataDetailsPartOne" | i18n }}
         <button type="button" bitLink (click)="emitToAddCipher()">
-          {{ "onboardingImportDataDetailsLink" | i18n }}
+          {{
+            (extensionRefreshEnabled
+              ? "onboardingImportDataDetailsLoginLink"
+              : "onboardingImportDataDetailsLink"
+            ) | i18n
+          }}
         </button>
         <span>
           {{ "onboardingImportDataDetailsPartTwoNoOrgs" | i18n }}

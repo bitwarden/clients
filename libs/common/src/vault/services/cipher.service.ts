@@ -571,7 +571,7 @@ export class CipherService implements CipherServiceAbstraction {
     return this.sortedCiphersCache.getNext(cacheKey);
   }
 
-  async getNextIdentityCipher() {
+  async getNextIdentityCipher(): Promise<CipherView> {
     const cacheKey = "identityCiphers";
 
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
@@ -926,7 +926,7 @@ export class CipherService implements CipherServiceAbstraction {
     return updatedCiphers;
   }
 
-  async clear(userId?: UserId): Promise<any> {
+  async clear(userId?: UserId): Promise<void> {
     userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     await this.clearEncryptedCiphersState(userId);
     await this.clearCache(userId);

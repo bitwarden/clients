@@ -1,6 +1,7 @@
 import { Component, HostListener, Input, booleanAttribute, signal } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
+import { compareValues } from "../../../common/src/platform/misc/compare-values";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuModule } from "../menu";
@@ -108,7 +109,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
    */
   private findOption(tree: ChipSelectOption<T>, value: T): ChipSelectOption<T> | null {
     let result = null;
-    if (tree.value !== null && tree.value === value) {
+    if (tree.value !== null && compareValues(tree.value, value)) {
       return tree;
     }
 

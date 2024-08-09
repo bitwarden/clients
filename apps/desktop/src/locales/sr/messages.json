@@ -552,10 +552,10 @@
     "message": "Савет главне лозинке"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Придружи Организацију"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Завршите придруживање овој организацији постављањем главне лозинке."
   },
   "settings": {
     "message": "Подешавања"
@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Додатна подешавања Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with system authentication"
+  },
   "windowsHelloConsentMessage": {
     "message": "Потврди за Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Откључај са Touch ID"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Захтевај Windows Hello при покретању"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for system authentication on launch"
   },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Биометрија прегледача захтева да у поставкама прво буде омогућена биометрија desktop-а."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Autometic setup not available"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Због смерница за предузећа, ограничено вам је чување предмета у вашем личном трезору. Промените опцију власништва у организацију и изаберите из доступних колекција."
   },
@@ -2015,6 +2030,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Ваша организација је онемогућила шифровање поузданог уређаја. Поставите главну лозинку за приступ вашем трезору."
+  },
   "tryAgain": {
     "message": "Покушајте поново"
   },
@@ -2100,7 +2118,7 @@
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Позив прихваћен"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Аутоматска пријава"
@@ -2827,7 +2845,7 @@
     "message": "Неважећа лозинка за датотеку, користите лозинку коју сте унели када сте креирали датотеку за извоз."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Одредиште"
   },
   "learnAboutImportOptions": {
     "message": "Сазнајте више о опцијама увоза"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Подаци"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   }
 }

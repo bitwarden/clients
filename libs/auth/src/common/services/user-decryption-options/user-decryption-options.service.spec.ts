@@ -8,6 +8,8 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { UserDecryptionOptions } from "../../models/domain/user-decryption-options";
+
 import {
   USER_DECRYPTION_OPTIONS,
   UserDecryptionOptionsService,
@@ -27,12 +29,13 @@ describe("UserDecryptionOptionsService", () => {
     sut = new UserDecryptionOptionsService(fakeStateProvider);
   });
 
-  const userDecryptionOptions = {
+  const userDecryptionOptions: UserDecryptionOptions = {
     hasMasterPassword: true,
     trustedDeviceOption: {
       hasAdminApproval: false,
       hasLoginApprovingDevice: false,
       hasManageResetPasswordPermission: true,
+      isTdeOffboarding: false,
     },
     keyConnectorOption: {
       keyConnectorUrl: "https://keyconnector.bitwarden.com",

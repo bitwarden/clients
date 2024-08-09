@@ -56,6 +56,8 @@ export const NOTIFICATION_BAR_LIFESPAN_MS = 150000; // 150 seconds
 
 export const AUTOFILL_OVERLAY_HANDLE_REPOSITION = "autofill-overlay-handle-reposition-event";
 
+export const UPDATE_PASSKEYS_HEADINGS_ON_SCROLL = "update-passkeys-headings-on-scroll";
+
 export const AutofillOverlayVisibility = {
   Off: 0,
   OnButtonClick: 1,

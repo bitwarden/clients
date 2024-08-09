@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { SetPasswordComponent as BaseSetPasswordComponent } from "@bitwarden/angular/auth/components/set-password.component";
@@ -30,7 +30,7 @@ const BroadcasterSubscriptionId = "SetPasswordComponent";
   selector: "app-set-password",
   templateUrl: "set-password.component.html",
 })
-export class SetPasswordComponent extends BaseSetPasswordComponent implements OnDestroy {
+export class SetPasswordComponent extends BaseSetPasswordComponent implements OnInit, OnDestroy {
   constructor(
     accountService: AccountService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,

@@ -11,39 +11,40 @@
         <h2 bitTypography="h6">{{ "vaultSaveOptionsTitle" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
-        <div>
+        <bit-form-control>
           <input
-            type="checkbox"
             bitCheckbox
             id="use-passkeys"
             type="checkbox"
             (change)="updateEnablePasskeys()"
             [(ngModel)]="enablePasskeys"
           />
-          <label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</label>
-        </div>
-        <div>
+          <bit-label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
           <input
+            bitCheckbox
             id="addlogin-notification-bar"
             type="checkbox"
-            bitCheckbox
             (change)="updateAddLoginNotification()"
             [(ngModel)]="enableAddLoginNotification"
           />
-          <label for="addlogin-notification-bar">{{ "enableAddLoginNotification" | i18n }}</label>
-        </div>
-        <div>
+          <bit-label for="addlogin-notification-bar">{{
+            "enableAddLoginNotification" | i18n
+          }}</bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
           <input
+            bitCheckbox
             id="changedpass-notification-bar"
             type="checkbox"
-            bitCheckbox
             (change)="updateChangedPasswordNotification()"
             [(ngModel)]="enableChangedPasswordNotification"
           />
-          <label for="changedpass-notification-bar">{{
+          <bit-label for="changedpass-notification-bar">{{
             "enableChangedPasswordNotification" | i18n
-          }}</label>
-        </div>
+          }}</bit-label>
+        </bit-form-control>
       </bit-card>
     </bit-section>
     <bit-section>

@@ -166,6 +166,35 @@ body {
   }
 }
 
+.inline-menu-list-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: 0.025rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  will-change: transform;
+  border-bottom: 0.1rem solid;
+
+  @include themify($themes) {
+    color: themed("textColor");
+    background-color: themed("backgroundColor");
+    border-bottom-color: themed("backgroundColor");
+  }
+
+  &--bordered {
+    transition: border-bottom-color 0.15s ease;
+
+    @include themify($themes) {
+      border-bottom-color: themed("borderColor");
+    }
+  }
+}
+
 .inline-menu-list-container--with-new-item-button {
   .inline-menu-list-actions {
     max-height: 13.8rem;
@@ -339,6 +368,29 @@ body {
 
     @include themify($themes) {
       color: themed("mutedTextColor");
+    }
+
+    &--passkey {
+      display: flex;
+      align-content: center;
+      align-items: center;
+      justify-content: flex-start;
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 0.2rem;
+
+        @include themify($themes) {
+          fill: themed("mutedTextColor") !important;
+        }
+
+        path {
+          @include themify($themes) {
+            fill: themed("mutedTextColor") !important;
+          }
+        }
+      }
     }
   }
 }

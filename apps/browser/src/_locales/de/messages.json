@@ -116,8 +116,23 @@
   "copySecurityCode": {
     "message": "Sicherheitscode kopieren"
   },
+  "copyName": {
+    "message": "Name kopieren"
+  },
+  "copyCompany": {
+    "message": "Unternehmen kopieren"
+  },
+  "copySSN": {
+    "message": "Sozialversicherungsnummer kopieren"
+  },
+  "copyPassportNumber": {
+    "message": "Passnummer kopieren"
+  },
+  "copyLicenseNumber": {
+    "message": "Lizenznummer kopieren"
+  },
   "autoFill": {
-    "message": "Automatisch ausfüllen"
+    "message": "Auto-Ausfüllen"
   },
   "autoFillLogin": {
     "message": "Zugangsdaten automatisch ausfüllen"
@@ -871,10 +886,10 @@
   },
   "defaultUriMatchDetection": {
     "message": "Standard URI-Übereinstimmungserkennung",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Wähle die Standardmethode, mit der die URI-Match-Erkennung für Anmeldungen bei Aktionen wie dem automatischen Ausfüllen behandelt wird."
+    "message": "Wählen Sie die Standardmethode, mit der die URI-Match-Erkennung für Anmeldungen bei Aktionen wie dem automatischen Ausfüllen behandelt wird."
   },
   "theme": {
     "message": "Design"
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Auto-Ausfüllen Menü in Formularfeldern anzeigen",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Vorschläge zum Auto-Ausfüllen"
@@ -1276,7 +1291,7 @@
     "message": "Auto-Ausfüllen beim Laden einer Seite"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Auto-Ausfüllen beim Laden einer Seite aktivieren"
+    "message": "Auto-Ausfüllen beim Laden der Seite"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Wenn eine Anmeldemaske erkannt wird, die Zugangsdaten automatisch ausfüllen während die Webseite lädt."
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Tresor in der Seitenleiste öffnen"
   },
-  "commandAutofillDesc": {
-    "message": "Die zuletzt verwendeten Zugangsdaten für die aktuelle Website automatisch ausfüllen lassen"
+  "commandAutofillLoginDesc": {
+    "message": "Autofill the last used login for the current website"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Autofill the last used card for the current website"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Autofill the last used identity for the current website"
   },
   "commandGeneratePasswordDesc": {
     "message": "Ein neues zufälliges Passwort generieren und in die Zwischenablage kopieren"
@@ -1634,6 +1655,10 @@
     "message": "Basis-Domäne",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Domain-Name",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Übereinstimmungserkennung",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Standard-Match-Erkennung",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Optionen umschalten"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische Registrierung"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Tastenkombination ändern"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Manage shortcuts"
+  },
   "autofillShortcut": {
     "message": "Auto-Ausfüllen Tastaturkürzel"
   },
-  "autofillShortcutNotSet": {
-    "message": "Das Auto-Ausfüllen Tastaturkürzel ist nicht gesetzt. Du kannst eines in den Browser-Einstellungen festlegen."
+  "autofillLoginShortcutNotSet": {
+    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
   },
-  "autofillShortcutText": {
-    "message": "Das Auto-Ausfüllen Tastaturkürzel ist: $COMMAND$. Du kannst es in den Browser-Einstellungen ändern.",
+  "autofillLoginShortcutText": {
+    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 Feld erfordert deine Aufmerksamkeit."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ Felder erfordern deine Aufmerksamkeit.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Auswählen --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Einträge, die eine erneuten Abfrage des Master-Passworts verlangen, können nicht beim Laden einer Seite automatisch ausgefüllt werden. Auto-Ausfüllen beim Laden einer Seite deaktiviert.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-Ausfüllen beim Lader einer Seite wurde auf die Standardeinstellung gesetzt.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Deaktiviere die erneute Abfrage des Master-Passworts, um dieses Feld zu bearbeiten",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Auto-Ausfüllen - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Authenticator-Schlüssel"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "Kartendetails"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Eintrags-Standort"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden hat einen neuen Look!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Auto-Ausfüllen und Suchen vom Tresor-Tab ist einfacher und intuitiver als je zuvor. Schau dich um!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

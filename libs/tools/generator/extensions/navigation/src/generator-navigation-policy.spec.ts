@@ -38,26 +38,26 @@ describe("leastPrivilege", () => {
   });
 
   it("should take the %p from the policy", () => {
-    const policy = createPolicy({ defaultType: "passphrase" });
+    const policy = createPolicy({ overridePasswordType: "passphrase" });
 
     const result = preferPassword({ ...DisabledGeneratorNavigationPolicy }, policy);
 
-    expect(result).toEqual({ defaultType: "passphrase" });
+    expect(result).toEqual({ overridePasswordType: "passphrase" });
   });
 
   it("should override passphrase with password", () => {
-    const policy = createPolicy({ defaultType: "password" });
+    const policy = createPolicy({ overridePasswordType: "password" });
 
-    const result = preferPassword({ defaultType: "passphrase" }, policy);
+    const result = preferPassword({ overridePasswordType: "passphrase" }, policy);
 
-    expect(result).toEqual({ defaultType: "password" });
+    expect(result).toEqual({ overridePasswordType: "password" });
   });
 
   it("should not override password", () => {
-    const policy = createPolicy({ defaultType: "passphrase" });
+    const policy = createPolicy({ overridePasswordType: "passphrase" });
 
-    const result = preferPassword({ defaultType: "password" }, policy);
+    const result = preferPassword({ overridePasswordType: "password" }, policy);
 
-    expect(result).toEqual({ defaultType: "password" });
+    expect(result).toEqual({ overridePasswordType: "password" });
   });
 });

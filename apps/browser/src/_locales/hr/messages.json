@@ -116,17 +116,32 @@
   "copySecurityCode": {
     "message": "Kopiraj kontrolni broj"
   },
+  "copyName": {
+    "message": "Kopiraj naziv"
+  },
+  "copyCompany": {
+    "message": "Kopiraj tvrtku"
+  },
+  "copySSN": {
+    "message": "Kopiraj OIB"
+  },
+  "copyPassportNumber": {
+    "message": "Kopiraj broj putovnice"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopiraj OIB"
+  },
   "autoFill": {
     "message": "Auto-ispuna"
   },
   "autoFillLogin": {
-    "message": "Auto-ispuna prijave"
+    "message": "Automatsko popunjavanje prijave"
   },
   "autoFillCard": {
-    "message": "Auto-ispuna kartice"
+    "message": "Automatsko popunjavanje kartice"
   },
   "autoFillIdentity": {
-    "message": "Auto-ispuna identiteta"
+    "message": "Automatsko popunjavanje identiteta"
   },
   "generatePasswordCopied": {
     "message": "Generiraj lozinku (i kopiraj)"
@@ -254,7 +269,7 @@
     "message": "Bitwarden autentifikator omogućuje pohranu ključeva za autentifikaciju i generiranje TOTP kodova za dvostruku autentifikaciju. Saznaj više na web stranici bitwarden.com"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Upravitelj tajni"
+    "message": "Bitwarden Secrets Manager"
   },
   "continueToSecretsManagerPageDesc": {
     "message": "Sigurno pohrani, upravljaj i dijeli programerske tajne s Bitwarden Secrets Managerom. Saznajte više na web stranici bitwarden.com."
@@ -345,7 +360,7 @@
     "message": "Ponovno generiraj lozinku"
   },
   "options": {
-    "message": "Opcije"
+    "message": "Mogućnosti"
   },
   "length": {
     "message": "Duljina"
@@ -463,7 +478,7 @@
     "message": "Ostalo"
   },
   "unlockMethods": {
-    "message": "Opcije otključavanja"
+    "message": "Mogućnosti otključavanja"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Za promjenu vremena isteka trezora, odredi način otključavanja."
@@ -606,7 +621,7 @@
     "message": "Potvrda glavne lozinke se ne podudara."
   },
   "newAccountCreated": {
-    "message": "Tvoj novi račun je kreiran! Sada se možeš prijaviti."
+    "message": "Tvoj novi račun je stvoren! Sada se možeš prijaviti."
   },
   "youSuccessfullyLoggedIn": {
     "message": "Prijava uspješna"
@@ -637,7 +652,7 @@
     }
   },
   "autofillError": {
-    "message": "Nije moguće auto-ispuniti odabranu prijavu na ovoj stranici. Umjesto toga kopiraj/zalijepi podatke."
+    "message": "Nije moguće automatski ispuniti odabranu stavku na ovoj stranici. Umjesto toga kopirajte i zalijepite podatke."
   },
   "totpCaptureError": {
     "message": "Nije moguće skenirati QR kod s trenutne web stranice"
@@ -840,7 +855,7 @@
     "message": "Pitaj za ažuriranje lozinke za prijavu kada se otkrije promjena na web stranici. Primjenjuje se na sve prijavljene račune."
   },
   "enableUsePasskeys": {
-    "message": "Pitaj za spremanje i korištenje pristupnih ključeva"
+    "message": "Pitaj za spremanje/korištenje pristupnih ključeva"
   },
   "usePasskeysDesc": {
     "message": "Pitaj za spremanje novih pristupnih ključeva ili se prijavi pomoću pristupnih ključeva pohranjenih u tvojem trezoru. Primjenjuje se na sve prijavljene račune."
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Zadano otkrivanje URI podudaranja",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Odaberi zadani način na koji će se riješavati otkrivanje URI-ja za prijavu pri izvođenju radnji kao što je auto-ispuna."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Prikaži izbornik za auto-ispunu u poljima obrasca",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Prijedlozi auto-ispune"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Otvori trezor u bočnoj traci"
   },
-  "commandAutofillDesc": {
-    "message": "Auto-ispuni zadnju korištenu prijavu za trenutnu web stranicu."
+  "commandAutofillLoginDesc": {
+    "message": "Auto-ispuni zadnje korištenu prijavu za trenutnu web stranicu"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Auto-ispuni zadnje korištenu karticu za trenutnu web stranicu"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Auto-ispuni zadnje korišteni identitet za trenutnu web stranicu"
   },
   "commandGeneratePasswordDesc": {
     "message": "Generiraj i kopiraj novu nasumičnu lozinku u međuspremnik."
@@ -1489,13 +1510,13 @@
     "message": "Tvrtka"
   },
   "ssn": {
-    "message": "Broj zdravstvenog osiguranja"
+    "message": "OIB"
   },
   "passportNumber": {
     "message": "Broj putovnice"
   },
   "licenseNumber": {
-    "message": "Broj vozačke dozvole"
+    "message": "Broj osobne iskaznice"
   },
   "email": {
     "message": "E-pošta"
@@ -1634,6 +1655,10 @@
     "message": "Primarna domena",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Naziv domene",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Otkrivanje podudaranja",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Zadano otkrivanje podudaranja",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Uključi/isključi opcije"
@@ -1796,7 +1821,7 @@
     "message": "Trajno izbriši stavku"
   },
   "permanentlyDeleteItemConfirmation": {
-    "message": "Želiš li zaista trajno izbrisati ovu stavku?"
+    "message": "Sigurno želiš trajno izbrisati ovu stavku?"
   },
   "permanentlyDeletedItem": {
     "message": "Stavka trajno izbrisana"
@@ -1826,7 +1851,7 @@
     "message": "Auto-ispunjena stavka i spremanje URI"
   },
   "autoFillSuccess": {
-    "message": "Auto-ispunjena stavka"
+    "message": "Stavka je automatski popunjena"
   },
   "insecurePageWarning": {
     "message": "Upozorenje: Ovo je nezaštićena HTTP stranica i svi podaci koje preko nje pošalješ drugi mogu vidjeti i izmijeniti. Ova prijava je prvotno bila spremljena za sigurnu (HTTPS) stranicu."
@@ -2031,7 +2056,7 @@
     "message": "Bitwarden neće pitati treba li spremiti prijavne podatke za ove domene. Za primjenu promjena, potrebno je osvježiti stranicu."
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden neće tražiti spremanje podataka za prijavu za ove domene za sve prijavljene račune. Moraš osvježiti stranicu kako bi promjene stupile na snagu."
+    "message": "Bitwarden neće nuditi spremanje podataka za prijavu za ove domene za sve prijavljene račune. Moraš osvježiti stranicu kako bi promjene stupile na snagu."
   },
   "websiteItemLabel": {
     "message": "Web stranica $number$ (URI)",
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatsko učlanjenje"
   },
@@ -2509,7 +2537,7 @@
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Generirao Bitwarden",
+    "message": "Web: $WEBSITE$. Generirao Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Promijeni prečac"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Upravljaj prečacima"
+  },
   "autofillShortcut": {
     "message": "Tipkovnički precač auto-ispune"
   },
-  "autofillShortcutNotSet": {
-    "message": "Prečac auto-ispune nije postavljen. Promijeni u postavkama preglednika."
+  "autofillLoginShortcutNotSet": {
+    "message": "Prečac auto-ispune prijave nije postavljen. Promijeni u postavkama preglednika."
   },
-  "autofillShortcutText": {
-    "message": "Prečac auto-ispune je: $COMMAND$. Promijeni u postavkama preglednika.",
+  "autofillLoginShortcutText": {
+    "message": "Prečac auto-ispune prijave je: $COMMAND$. Promijeni u postavkama preglednika.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 polje treba tvoju pažnju."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ polja treba tvoju pažnju.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Odaberi --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Stavke za koje je potrebna glavna lozinka neće se auto-ispuniti kod učitavanja stranice. Auto-ispuna pri učitavanju stranice je isključena.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Isključi traženje glavne lozinke za promjenu ovog polja",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Auto-ispuna - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3748,7 +3791,7 @@
     }
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Sigurno želiš trajno obrisati ovaj privitak?"
+    "message": "Sigurno želiš trajno izbrisati ovaj privitak?"
   },
   "premium": {
     "message": "Premium"
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Kôd za provjeru"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "Detalji kartice"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Lokacija stavke"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden ima novi izgled!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Auto-ispuna i pretraga iz kartice Trezor je lakša i intuitivnija nego ikad prije. Razgledaj!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

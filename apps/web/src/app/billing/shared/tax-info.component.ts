@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -31,7 +31,7 @@ type CountryList = {
   imports: [SharedModule],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TaxInfoComponent {
+export class TaxInfoComponent implements OnInit {
   @Input() trialFlow = false;
   @Output() onCountryChanged = new EventEmitter();
   private destroy$ = new Subject<void>();

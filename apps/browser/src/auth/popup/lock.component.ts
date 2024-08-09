@@ -1,4 +1,4 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -36,7 +36,7 @@ import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-se
   selector: "app-lock",
   templateUrl: "lock.component.html",
 })
-export class LockComponent extends BaseLockComponent {
+export class LockComponent extends BaseLockComponent implements OnInit {
   private isInitialLockScreen: boolean;
 
   biometricError: string;

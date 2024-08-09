@@ -40,6 +40,17 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
     Ok(result)
 }
 
+pub fn is_available() -> Result<bool> {
+    let result = password_clear_sync(Some(&get_schema()), build_attributes("bitwardenSecretsAvailabilityTest", "test"), gio::Cancellable::NONE);
+    match result {
+        Ok(_) => Ok(true),
+        Err(_) => {
+            println!("secret-service unavailable: {:?}", result);
+            Ok(false)
+        }
+    }
+}
+
 fn get_schema() -> Schema {
     let mut attributes = std::collections::HashMap::new();
     attributes.insert("service", libsecret::SchemaAttributeType::String);

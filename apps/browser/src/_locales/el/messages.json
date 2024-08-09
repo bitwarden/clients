@@ -66,7 +66,7 @@
     }
   },
   "reTypeMasterPass": {
-    "message": "Πληκτρολογήστε ξανά τον Κύριο Κωδικό"
+    "message": "Εισάγετε ξανά τον κύριο κωδικό πρόσβασης"
   },
   "masterPassHint": {
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης (προαιρετικό)"
@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Αντιγραφή κωδικού ασφαλείας"
   },
+  "copyName": {
+    "message": "Αντιγραφή ονόματος"
+  },
+  "copyCompany": {
+    "message": "Αντιγραφή εταιρείας"
+  },
+  "copySSN": {
+    "message": "Αντιγραφή ΑΜΚΑ"
+  },
+  "copyPassportNumber": {
+    "message": "Αντιγραφή αριθμού διαβατηρίου"
+  },
+  "copyLicenseNumber": {
+    "message": "Αντιγραφή αριθμού άδειας"
+  },
   "autoFill": {
     "message": "Αυτόματη συμπλήρωση"
   },
@@ -135,7 +150,7 @@
     "message": "Αντιγραφή ονόματος προσαρμοσμένου πεδίου"
   },
   "noMatchingLogins": {
-    "message": "Δεν υπάρχουν αντιστοιχίσεις σύνδεσης."
+    "message": "Καμία σύνδεση δεν ταιριάζει"
   },
   "noCards": {
     "message": "Δεν υπάρχουν κάρτες"
@@ -159,7 +174,7 @@
     "message": "Συνδεθείτε στο vault σας"
   },
   "autoFillInfo": {
-    "message": "Δεν υπάρχουν διαθέσιμες συνδέσεις για την αυτόματη συμπλήρωση, στην τρέχουσα καρτέλα του προγράμματος περιήγησης."
+    "message": "Δεν υπάρχουν διαθέσιμες συνδέσεις για αυτόματη συμπλήρωση στην τρέχουσα καρτέλα του περιηγητή."
   },
   "addLogin": {
     "message": "Προσθήκη μίας σύνδεσης"
@@ -637,7 +652,7 @@
     }
   },
   "autofillError": {
-    "message": "Δεν είναι δυνατή η αυτόματη συμπλήρωση του επιλεγμένου στοιχείου σε αυτήν τη σελίδα. Αντιγράψτε και επικολλήστε τις πληροφορίες."
+    "message": "Δεν είναι δυνατή η αυτόματη συμπλήρωση του επιλεγμένου αντικειμένου σ' αυτήν τη σελίδα. Αντιγράψτε και επικολλήστε τις πληροφορίες."
   },
   "totpCaptureError": {
     "message": "Αδυναμία σάρωσης του κωδικού QR από την τρέχουσα ιστοσελίδα"
@@ -805,7 +820,7 @@
     "message": "Εμφάνιση καρτών στη σελίδα Καρτέλας"
   },
   "showCardsCurrentTabDesc": {
-    "message": "Λίστα αντικειμένων καρτών στη σελίδα Καρτέλας για εύκολη αυτόματη συμπλήρωση."
+    "message": "Εμφάνισε τα αντικείμενα κάρτες στη σελίδα Καρτέλα για εύκολη αυτόματη συμπλήρωση."
   },
   "showIdentitiesInVaultView": {
     "message": "Εμφάνιση ταυτοτήτων ως προτάσεις αυτόματης συμπλήρωσης στην προβολή Θησαυ/κίου"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Προεπιλεγμένη ανίχνευση αντιστοιχίας URI",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Επιλέξτε τον προκαθορισμένο τρόπο με τον οποίο αντιμετωπίζεται η ανίχνευση αντιστοίχισης URI για τις συνδέσεις κατά την εκτέλεση ενεργειών όπως η αυτόματη συμπλήρωση."
@@ -904,7 +919,7 @@
     "message": "Εξαγωγή Vault"
   },
   "fileFormat": {
-    "message": "Μορφή αρχείου"
+    "message": "Τύπος αρχείου"
   },
   "fileEncryptedExportWarningDesc": {
     "message": "Αυτή η εξαγωγή αρχείου θα προστατεύεται με κωδικό πρόσβασης και θα απαιτείται ο κωδικός πρόσβασης του αρχείου για αποκρυπτογράφηση."
@@ -1020,7 +1035,7 @@
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB."
   },
   "featureUnavailable": {
-    "message": "Μη διαθέσιμο χαρακτηριστικό"
+    "message": "Μη διαθέσιμη λειτουργία"
   },
   "encryptionKeyMigrationRequired": {
     "message": "Απαιτείται μεταφορά κλειδιού κρυπτογράφησης. Παρακαλούμε συνδεθείτε μέσω του διαδικτυακού θησαυ/κίου για να ενημερώσετε το κλειδί κρυπτογράφησης."
@@ -1065,10 +1080,10 @@
     "message": "Αγορά Premium έκδοσης"
   },
   "premiumPurchaseAlert": {
-    "message": "Μπορείτε να αγοράσετε συνδρομή Premium στο web vault του bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
+    "message": "Μπορείτε να αγοράσετε συνδρομή Premium στο διαδικτυακό θησαυ/κιο του bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
   },
   "premiumCurrentMember": {
-    "message": "Είστε μέλος Premium!"
+    "message": "Είστε Premium μέλος!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Ευχαριστούμε που υποστηρίζετε το Bitwarden."
@@ -1095,7 +1110,7 @@
     "message": "Ζητήστε βιομετρικά κατά την εκκίνηση"
   },
   "premiumRequired": {
-    "message": "Απαιτείται έκδοση Premium"
+    "message": "Απαιτείται το Premium"
   },
   "premiumRequiredDesc": {
     "message": "Για να χρησιμοποιήσετε αυτή τη λειτουργία, απαιτείται συνδρομή Premium."
@@ -1197,7 +1212,7 @@
     "message": "Εισάγετε τον κωδικό που σας στάλθηκε στο ηλ. ταχυδρομείο."
   },
   "selfHostedEnvironment": {
-    "message": "Αυτο-εξυπηρετούμενο περιβάλλον"
+    "message": "Αυτο-φιλοξενούμενο περιβάλλον"
   },
   "selfHostedEnvironmentFooter": {
     "message": "Καθορίστε τη βασική διεύθυνση URL, της εγκατάστασης του Bitwarden που φιλοξενείται στο χώρο σας."
@@ -1224,7 +1239,7 @@
     "message": "URL διακομιστή API"
   },
   "webVaultUrl": {
-    "message": "Web Vault Server URL"
+    "message": "URL διακομιστή διαδικτυακού θησαυ/κίου"
   },
   "identityUrl": {
     "message": "URL διακομιστή ταυτότητας"
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Εμφάνιση μενού αυτόματης συμπλήρωσης στα πεδία της φόρμας",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Πρόταση αυτόματης συμπλήρωσης"
@@ -1276,10 +1291,10 @@
     "message": "Αυτόματη συμπλήρωση κατά την φόρτωση της σελίδας"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Ενεργοποίηση αυτόματης συμπλήρωσης κατά την φόρτωση της σελίδας"
+    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Εάν εντοπιστεί μια φόρμα σύνδεσης, πραγματοποιείται αυτόματα μια αυτόματη συμπλήρωση όταν φορτώνεται η ιστοσελίδα."
+    "message": "Εάν εντοπιστεί φόρμα σύνδεσης, θα συμπληρωθεί αυτόματα κατά τη φόρτωση της σελίδας."
   },
   "autofillOnPageLoadWarning": {
     "message": "$OPENTAG$Προειδοποίηση:$CLOSETAG$ Οι παραβιασμένες ή μη αξιόπιστες ιστοσελίδες μπορούν να εκμεταλλευτούν την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας.",
@@ -1307,19 +1322,19 @@
     "message": "Προεπιλεγμένη ρύθμιση αυτόματης συμπλήρωσης για στοιχεία σύνδεσης"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Μπορείτε να απενεργοποιήσετε την αυτόματη συμπλήρωση φόρτωσης σελίδας για μεμονωμένα στοιχεία σύνδεσης από την προβολή Επεξεργασία στοιχείου."
+    "message": "Μπορείτε να απενεργοποιήσετε την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας για μεμονωμένα αντικείμενα σύνδεσης από την προβολή Επεξεργασία αντικειμένου."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας (αν έχει ενεργοποιηθεί στις Ρυθμίσεις)"
+    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας (αν έχει ενεργοποιηθεί στις Επιλογές)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Χρήση προεπιλεγμένης ρύθμισης"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Αυτόματη συμπλήρωση κατά την φόρτωση της σελίδας"
+    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Μη αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας"
+    "message": "Μη συμπληρώνεις αυτόματα κατά τη φόρτωση της σελίδας"
   },
   "commandOpenPopup": {
     "message": "Άνοιγμα αναδυόμενου vault"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Άνοιγμα αναδυόμενου vault στην πλευρική μπάρα"
   },
-  "commandAutofillDesc": {
-    "message": "Αυτόματη συμπλήρωση της τελευταίας χρησιμοποιούμενης σύνδεσης για αυτόν τον ιστότοπο"
+  "commandAutofillLoginDesc": {
+    "message": "Αυτόματη συμπλήρωση της τελευταίας σύνδεσης που χρησιμοποιήθηκε για τον τρέχοντα ιστότοπο"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Αυτόματη συμπλήρωση της τελευταίας κάρτας που χρησιμοποιήθηκε για τον τρέχοντα ιστότοπο"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Αυτόματη συμπλήρωση της τελευταίας ταυτότητας που χρησιμοποιήθηκε για τον τρέχοντα ιστότοπο"
   },
   "commandGeneratePasswordDesc": {
     "message": "Δημιουργήστε και αντιγράψτε έναν νέο τυχαίο κωδικό πρόσβασης στο πρόχειρο"
@@ -1634,6 +1655,10 @@
     "message": "Βασικός τομέας",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Βασικός τομέας (συνιστάται)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Όνομα τομέα",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Εντοπισμός αντιστοίχισης",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Προεπιλεγμένος εντοπισμός αντιστοίχισης",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Επιλογές εναλλαγής"
@@ -1823,10 +1848,10 @@
     "message": "Συμπλήρωση και αποθήκευση"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "Αυτόματη συμπλήρωση στοιχείου και αποθηκευμένο URI"
+    "message": "Το αντικείμενο συμπληρώθηκε αυτόματα και το URI αποθηκεύτηκε"
   },
   "autoFillSuccess": {
-    "message": "Αυτόματη συμπλήρωση αντικειμένου"
+    "message": "Το αντικείμενο συμπληρώθηκε αυτόματα "
   },
   "insecurePageWarning": {
     "message": "Προειδοποίηση: Αυτή είναι μια μη ασφαλή σελίδα HTTP και οποιαδήποτε πληροφορία υποβάλλετε μπορεί να γίνει ορατή και επεμβάσιμη από άλλους. Αυτή η σύνδεση αποθηκεύτηκε αρχικά σε μια ασφαλή (HTTPS) σελίδα."
@@ -1946,10 +1971,10 @@
     "message": "Παρακαλώ επιβεβαιώστε ότι η εφαρμογή επιφάνειας εργασίας εμφανίζει αυτό το αποτύπωμα: "
   },
   "desktopIntegrationDisabledTitle": {
-    "message": "Η ενσωμάτωση του περιηγητή δεν είναι ενεργοποιημένη"
+    "message": "Η ενσωμάτωση περιηγητή δεν έχει οριστεί"
   },
   "desktopIntegrationDisabledDesc": {
-    "message": "Η ενσωμάτωση του προγράμματος περιήγησης δεν είναι ενεργοποιημένη στην εφαρμογή Bitwarden Desktop. Παρακαλώ ενεργοποιήστε την στις ρυθμίσεις της εφαρμογής desktop."
+    "message": "Η ενσωμάτωση περιηγητή δεν έχει οριστεί στην εφαρμογή Bitwarden Desktop. Παρακαλώ ορίστε την στις ρυθμίσεις της εφαρμογής desktop."
   },
   "startDesktopTitle": {
     "message": "Ξεκινήστε την εφαρμογή Bitwarden Επιφάνεια εργασίας"
@@ -2090,7 +2115,7 @@
     "message": "Προστατευμένο με κωδικό"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Αντιγραφή συνδέσμου"
   },
   "copySendLink": {
     "message": "Αντιγραφή συνδέσμου Send",
@@ -2301,6 +2326,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ο Κύριος κωδικός πρόσβασης δεν πληροί τις απαιτήσεις πολιτικής αυτού του οργανισμού. Για να έχετε πρόσβαση στο vault, πρέπει να ενημερώσετε τον Κύριο σας κωδικό άμεσα. Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία σας, απαιτώντας από εσάς να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να συνεχίσουν να είναι ενεργές για μία ώρα."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Αυτόματη εγγραφή"
@@ -2609,7 +2637,7 @@
     "message": "Απαιτείται συνδρομή Premium"
   },
   "organizationIsDisabled": {
-    "message": "Ο οργανισμός είναι απενεργοποιημένος."
+    "message": "Ο οργανισμός αναστάλθηκε."
   },
   "disabledOrganizationFilterError": {
     "message": "Δεν είναι δυνατή η πρόσβαση σε αντικείμενα σε απενεργοποιημένους οργανισμούς. Επικοινωνήστε με τον ιδιοκτήτη του Οργανισμού για βοήθεια."
@@ -2678,7 +2706,7 @@
     "message": "Σύνδεση με τη χρήση συσκευής"
   },
   "loginWithDeviceEnabledInfo": {
-    "message": "Η σύνδεση με τη χρήση συσκευής πρέπει να έχει ρυθμιστεί στις ρυθμίσεις της εφαρμογής Bitwarden. Χρειάζεστε κάποια άλλη επιλογή;"
+    "message": "Η σύνδεση με τη χρήση συσκευής πρέπει να οριστεί στις ρυθμίσεις της εφαρμογής Bitwarden. Χρειάζεστε κάποια άλλη επιλογή;"
   },
   "fingerprintPhraseHeader": {
     "message": "Φράση δακτυλικού αποτυπώματος"
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Αλλαγή συντόμευσης"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Διαχείριση συντομεύσεων"
+  },
   "autofillShortcut": {
     "message": "Συντόμευση πληκτρολογίου αυτόματης συμπλήρωσης"
   },
-  "autofillShortcutNotSet": {
-    "message": "Η συντόμευση αυτόματης συμπλήρωσης δεν έχει οριστεί. Αλλάξτε τη στις ρυθμίσεις του περιηγητή."
+  "autofillLoginShortcutNotSet": {
+    "message": "Η συντόμευση αυτόματης συμπλήρωσης σύνδεσης δεν έχει οριστεί. Αλλάξτε το αυτό στις ρυθμίσεις του περιηγητή."
   },
-  "autofillShortcutText": {
-    "message": "Η συντόμευση αυτόματης συμπλήρωσης είναι: $COMMAND$. Αλλάξτε τη στις ρυθμίσεις του περιηγητή.",
+  "autofillLoginShortcutText": {
+    "message": "Η συντόμευση αυτόματης συμπλήρωσης σύνδεσης είναι $COMMAND$. Διαχειριστείτε όλες τις συντομεύσεις στις ρυθμίσεις του περιηγητή.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2912,7 +2943,7 @@
     }
   },
   "inputMinValue": {
-    "message": "Η τιμή καταχώρησης πρέπει να είναι τουλάχιστον $MIN$",
+    "message": "Η τιμή καταχώρησης πρέπει να είναι τουλάχιστον $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -2940,11 +2971,23 @@
     "message": "Η καταχώρηση δεν είναι διεύθυνση ηλ. ταχυδρομείου."
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ Το/α παραπάνω πεδίo/α χρειάζονται την προσοχή σας.",
+    "message": "Το/α $COUNT$ παραπάνω πεδίo/α χρειάζονται την προσοχή σας.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "4"
+      }
+    }
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 πεδίο χρειάζεται την προσοχή σας."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ πεδία χρειάζονται την προσοχή σας.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
       }
     }
   },
@@ -3012,15 +3055,15 @@
     "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
-    "message": "Συνώνυμο domain"
+    "message": "Ψευδώνυμο τομέα"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Τα αντικείμενα με υπόδειξη κύριου κωδικού πρόσβασης δεν μπορούν να συμπληρωθούν αυτόματα κατά τη φόρτωση της σελίδας. Η αυτόματη συμπλήρωση έχει απενεργοποιηθεί κατά τη φόρτωση της σελίδας.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Η αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας ορίστηκε να χρησιμοποιεί τις προεπιλεγμένες ρυθμίσεις.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Απενεργοποιήστε την υπόδειξη κύριου κωδικού πρόσβασης για να επεξεργαστείτε αυτό το πεδίο",
@@ -3049,7 +3092,7 @@
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
-    "message": "Unlock your account to view autofill suggestions",
+    "message": "Ξεκλειδώστε τον λογαριασμό σας για να δείτε προτάσεις αυτόματης συμπλήρωσης",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -3057,7 +3100,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Ξεκλείδωμα του λογαριασμού σας, ανοίγει σε νέο παράθυρο",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
@@ -3081,27 +3124,27 @@
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "newLogin": {
-    "message": "New login",
+    "message": "Νέα σύνδεση",
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Add new vault login item, opens in a new window",
+    "message": "Προσθήκη νέου αντικειμένου σύνδεσης θησαυ/κίου, ανοίγει σε νέο παράθυρο",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Νέα κάρτα",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
-    "message": "Add new vault card item, opens in a new window",
+    "message": "Προσθήκη νέου αντικειμένου κάρτας θησαυ/κίου, ανοίγει σε νέο παράθυρο",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Νέα ταυτότητα",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Add new vault identity item, opens in a new window",
+    "message": "Προσθήκη νέου αντικειμένου ταυτότητας θησαυ/κίου, ανοίγει σε νέο παράθυρο",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -3388,7 +3431,7 @@
     "message": "Παρακαλούμε συνεχίστε τη σύνδεση χρησιμοποιώντας τα στοιχεία της εταιρείας σας."
   },
   "seeDetailedInstructions": {
-    "message": "Δείτε λεπτομερείς οδηγίες στην ιστοσελίδα βοήθειας μας στο",
+    "message": "Δείτε λεπτομερείς οδηγίες στη βοηθητική ιστοσελίδα μας στο",
     "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Αυτόματη συμπλήρωση - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3778,7 +3821,7 @@
     }
   },
   "cardNumberEndsWith": {
-    "message": "card number ends with",
+    "message": "ο αριθμός κάρτας τελειώνει σε",
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Κλειδί αυθεντικοποίησης"
+  },
+  "autofillOptions": {
+    "message": "Επιλογές αυτόματης συμπλήρωσης"
+  },
+  "websiteUri": {
+    "message": "Ιστοσελίδα (URI)"
+  },
+  "websiteAdded": {
+    "message": "Η ιστοσελίδα προστέθηκε"
+  },
+  "addWebsite": {
+    "message": "Προσθήκη ιστοσελίδας"
+  },
+  "deleteWebsite": {
+    "message": "Διαγραφή ιστοσελίδας"
+  },
+  "defaultLabel": {
+    "message": "Προεπιλογή ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας;"
   },
   "cardDetails": {
     "message": "Στοιχεία κάρτας"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Τοποθεσία Αντικειμένου"
+  },
+  "bitwardenNewLook": {
+    "message": "Το Bitwarden έχει μια νέα εμφάνιση!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Είναι πιο ευκολότερο και πιο διαισθητικό από ποτέ στην αυτόματη συμπλήρωση και αναζήτηση από την καρτέλα Θησαυ/κιο. Ρίξτε μια ματιά τριγύρω!"
+  },
+  "accountActions": {
+    "message": "Ενέργειες λογαριασμού"
   }
 }

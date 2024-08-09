@@ -5,7 +5,7 @@ import {
   createCredentialRequestOptionsMock,
   setupMockedWebAuthnSupport,
 } from "../../../autofill/spec/fido2-testing-utils";
-import { WebauthnUtils } from "../../../vault/fido2/webauthn-utils";
+import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageType } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
@@ -41,7 +41,7 @@ jest.mock("./messaging/messenger", () => {
     },
   };
 });
-jest.mock("../../../vault/fido2/webauthn-utils");
+jest.mock("../utils/webauthn-utils");
 
 describe("Fido2 page script with native WebAuthn support", () => {
   (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
@@ -124,6 +124,17 @@ describe("Fido2 page script with native WebAuthn support", () => {
         mockCredentialRequestOptions,
         true,
       );
+      expect(WebauthnUtils.mapCredentialAssertResult).toHaveBeenCalledWith(
+        mockCredentialAssertResult,
+      );
+    });
+
+    it("initiates a conditional mediated webauth request", async () => {
+      mockCredentialRequestOptions.mediation = "conditional";
+      mockCredentialRequestOptions.signal = new AbortController().signal;
+
+      await navigator.credentials.get(mockCredentialRequestOptions);
+
       expect(WebauthnUtils.mapCredentialAssertResult).toHaveBeenCalledWith(
         mockCredentialAssertResult,
       );

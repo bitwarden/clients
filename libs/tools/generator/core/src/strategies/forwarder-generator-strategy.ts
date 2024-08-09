@@ -1,4 +1,4 @@
-import { map } from "rxjs";
+import { filter, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -84,7 +84,10 @@ export class ForwarderGeneratorStrategy<
   private getUserSecrets(userId: UserId): SingleUserState<Options> {
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    const encryptor = new UserKeyEncryptor(this.encryptService, this.keyService, packer);
+    const encryptor$ = this.keyService.userKey$(userId).pipe(
+      map((key) => (key ? new UserKeyEncryptor(userId, this.encryptService, key, packer) : null)),
+      filter((encryptor) => !!encryptor),
+    );
 
     // always exclude request properties
     const classifier = new OptionsClassifier<Settings, Options>();
@@ -106,13 +109,11 @@ export class ForwarderGeneratorStrategy<
       userId,
       key,
       this.stateProvider,
-      encryptor,
+      encryptor$,
     );
 
     // rollover should occur once the user key is available for decryption
-    const canDecrypt$ = this.keyService
-      .getInMemoryUserKeyFor$(userId)
-      .pipe(map((key) => key !== null));
+    const canDecrypt$ = this.keyService.userKey$(userId).pipe(map((key) => key !== null));
     const rolloverState = new BufferedState(
       this.stateProvider,
       this.rolloverKey,

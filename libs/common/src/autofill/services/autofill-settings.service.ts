@@ -146,9 +146,8 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.autofillOnPageLoadPolicyToastHasDisplayedState = this.stateProvider.getActive(
       AUTOFILL_ON_PAGE_LOAD_POLICY_TOAST_HAS_DISPLAYED,
     );
-    this.autofillOnPageLoadPolicyToastHasDisplayed$ = this.autofillOnPageLoadState.state$.pipe(
-      map((x) => x ?? false),
-    );
+    this.autofillOnPageLoadPolicyToastHasDisplayed$ =
+      this.autofillOnPageLoadPolicyToastHasDisplayedState.state$.pipe(map((x) => x ?? false));
 
     this.autoCopyTotpState = this.stateProvider.getActive(AUTO_COPY_TOTP);
     this.autoCopyTotp$ = this.autoCopyTotpState.state$.pipe(map((x) => x ?? true));

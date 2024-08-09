@@ -20,9 +20,11 @@ export class InlineMenuFieldQualificationService
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
   private usernameAutocompleteValue = "username";
   private emailAutocompleteValue = "email";
+  private webAuthnAutocompleteValue = "webauthn";
   private loginUsernameAutocompleteValues = new Set([
     this.usernameAutocompleteValue,
     this.emailAutocompleteValue,
+    this.webAuthnAutocompleteValue,
   ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
@@ -209,10 +211,7 @@ export class InlineMenuFieldQualificationService
         return false;
       }
 
-      return (
-        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-        this.keywordsFoundInFieldData(field, this.creditCardFieldKeywords)
-      );
+      return this.keywordsFoundInFieldData(field, this.creditCardFieldKeywords);
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -232,10 +231,7 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
-    );
+    return this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]);
   }
 
   /** Validates the provided field as a field for an account creation form.
@@ -264,10 +260,7 @@ export class InlineMenuFieldQualificationService
 
       // If no password fields are found on the page, check for keywords that indicate the field is
       // part of an account creation form.
-      return (
-        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-        this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-      );
+      return this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords);
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -277,10 +270,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-    );
+    return this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords);
   }
 
   /**
@@ -480,9 +470,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardHolderFieldNames,
+      false,
     );
   };
 
@@ -496,9 +487,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardNumberFieldNames,
+      false,
     );
   };
 
@@ -514,9 +506,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardExpiryFieldNames,
+      false,
     );
   };
 
@@ -532,9 +525,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+      false,
     );
   };
 
@@ -550,9 +544,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.ExpiryYearFieldNames,
+      false,
     );
   };
 
@@ -566,10 +561,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false);
   };
 
   /**
@@ -584,10 +576,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false);
   };
 
   /**
@@ -600,9 +589,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FirstnameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.FirstnameFieldNames,
+      false,
     );
   };
 
@@ -616,9 +606,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.MiddlenameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.MiddlenameFieldNames,
+      false,
     );
   };
 
@@ -632,9 +623,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.LastnameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.LastnameFieldNames,
+      false,
     );
   };
 
@@ -648,9 +640,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FullNameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.FullNameFieldNames,
+      false,
     );
   };
 
@@ -664,16 +657,13 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(
-        field,
-        [
-          ...IdentityAutoFillConstants.AddressFieldNames,
-          ...IdentityAutoFillConstants.Address1FieldNames,
-        ],
-        false,
-      )
+    return this.keywordsFoundInFieldData(
+      field,
+      [
+        ...IdentityAutoFillConstants.AddressFieldNames,
+        ...IdentityAutoFillConstants.Address1FieldNames,
+      ],
+      false,
     );
   };
 
@@ -687,9 +677,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address2FieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.Address2FieldNames,
+      false,
     );
   };
 
@@ -703,9 +694,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address3FieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.Address3FieldNames,
+      false,
     );
   };
 
@@ -719,10 +711,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false);
   };
 
   /**
@@ -735,10 +724,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.StateFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.StateFieldNames, false);
   };
 
   /**
@@ -751,9 +737,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PostalCodeFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.PostalCodeFieldNames,
+      false,
     );
   };
 
@@ -767,10 +754,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false);
   };
 
   /**
@@ -783,10 +767,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false);
   };
 
   /**
@@ -799,10 +780,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false);
   };
 
   /**
@@ -818,10 +796,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false);
   };
 
   /**
@@ -834,9 +809,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.UserNameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.UserNameFieldNames,
+      false,
     );
   };
 
@@ -1039,11 +1015,13 @@ export class InlineMenuFieldQualificationService
     fuzzyMatchKeywords = true,
   ) {
     const searchedValues = this.getAutofillFieldDataKeywords(autofillFieldData, fuzzyMatchKeywords);
+    const parsedKeywords = keywords.map((keyword) => keyword.replace(/-/g, ""));
+
     if (typeof searchedValues === "string") {
-      return keywords.some((keyword) => searchedValues.indexOf(keyword) > -1);
+      return parsedKeywords.some((keyword) => searchedValues.indexOf(keyword) > -1);
     }
 
-    return keywords.some((keyword) => searchedValues.has(keyword));
+    return parsedKeywords.some((keyword) => searchedValues.has(keyword));
   }
 
   /**
@@ -1072,8 +1050,19 @@ export class InlineMenuFieldQualificationService
         autofillFieldData["label-tag"],
         autofillFieldData["label-top"],
       ];
-      const keywordsSet = new Set<string>(keywords);
-      const stringValue = keywords.join(",").toLowerCase();
+      const keywordsSet = new Set<string>();
+      for (let i = 0; i < keywords.length; i++) {
+        if (typeof keywords[i] === "string") {
+          keywords[i]
+            .toLowerCase()
+            .replace(/-/g, "")
+            .replace(/[^a-zA-Z0-9]+/g, "|")
+            .split("|")
+            .forEach((keyword) => keywordsSet.add(keyword));
+        }
+      }
+
+      const stringValue = Array.from(keywordsSet).join(",");
       this.autofillFieldKeywordsMap.set(autofillFieldData, { keywordsSet, stringValue });
     }
 

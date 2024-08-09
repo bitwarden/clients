@@ -16,6 +16,8 @@ export class PolicyApiServiceAbstraction {
     organizationUserId: string,
   ) => Promise<Policy[] | undefined>;
 
-  getMasterPasswordPolicyOptsForOrgUser: (orgId: string) => Promise<MasterPasswordPolicyOptions>;
+  getMasterPasswordPolicyOptsForOrgUser: (
+    orgId: string,
+  ) => Promise<MasterPasswordPolicyOptions | null>;
   putPolicy: (organizationId: string, type: PolicyType, request: PolicyRequest) => Promise<any>;
 }

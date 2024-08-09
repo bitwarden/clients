@@ -64,13 +64,15 @@ import { PasswordOptionsMigrator } from "./migrations/63-migrate-password-settin
 import { GeneratorHistoryMigrator } from "./migrations/64-migrate-generator-history";
 import { ForwarderOptionsMigrator } from "./migrations/65-migrate-forwarder-settings";
 import { MoveFinalDesktopSettingsMigrator } from "./migrations/66-move-final-desktop-settings";
+import { RemoveUnassignedItemsBannerDismissed } from "./migrations/67-remove-unassigned-items-banner-dismissed";
+import { MoveLastSyncDate } from "./migrations/68-move-last-sync-date";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 66;
+export const CURRENT_VERSION = 68;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -138,7 +140,9 @@ export function createMigrationBuilder() {
     .with(PasswordOptionsMigrator, 62, 63)
     .with(GeneratorHistoryMigrator, 63, 64)
     .with(ForwarderOptionsMigrator, 64, 65)
-    .with(MoveFinalDesktopSettingsMigrator, 65, CURRENT_VERSION);
+    .with(MoveFinalDesktopSettingsMigrator, 65, 66)
+    .with(RemoveUnassignedItemsBannerDismissed, 66, 67)
+    .with(MoveLastSyncDate, 67, CURRENT_VERSION);
 }
 
 export async function currentVersion(

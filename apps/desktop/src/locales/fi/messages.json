@@ -1510,8 +1510,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Windows Hello -lisäasetukset."
   },
+  "unlockWithPolkit": {
+    "message": "Avaa järjestelmän tunnistautumisella"
+  },
   "windowsHelloConsentMessage": {
     "message": "Vahvista Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Todenna avataksesi Bitwardenin lukitus."
   },
   "unlockWithTouchId": {
     "message": "Avaa Touch ID:llä"
@@ -1524,6 +1530,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Pyydä Windows Hello -todennusta käynnistettäessä"
+  },
+  "autoPromptPolkit": {
+    "message": "Pyydä järjestelmän tunnistautumista käynnistettäessä"
   },
   "autoPromptTouchId": {
     "message": "Pyydä Touch ID -todennusta käynnistettäessä"
@@ -1804,6 +1813,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Biometria selaimissa edellyttää sen määritystä työpöytäsovelluksen asetuksista."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automaattinen määritys ei ole käytettävissä"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Biometriatukea ei voitu ottaa automaattisesti käyttöön asennustavan vuoksi. Haluatko avata ohjeet tämän tekemiseksi manuaalisesti?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Yrityskäytännön johdosta kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
   },
@@ -2014,6 +2029,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Pääsalasanasi ei täytä yhden tai useamman organisaatiokäytännön vaatimuksia ja holvin käyttämiseksi sinun on vaihdettava se nyt. Tämä uloskirjaa kaikki nykyiset istunnot pakottaen uudelleenkirjautumisen. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Organisaatiosi on estänyt luotettavan laitesalauksen. Käytä holviasi asettamalla pääsalasana."
   },
   "tryAgain": {
     "message": "Yritä uudelleen"
@@ -3025,5 +3043,11 @@
   },
   "data": {
     "message": "Tiedot"
+  },
+  "fileSends": {
+    "message": "Tiedosto-Sendit"
+  },
+  "textSends": {
+    "message": "Teksti-Sendit"
   }
 }

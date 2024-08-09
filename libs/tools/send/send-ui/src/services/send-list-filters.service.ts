@@ -4,7 +4,7 @@ import { map, Observable, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ChipSelectOption } from "@bitwarden/components";
 
@@ -38,11 +38,11 @@ export class SendListFiltersService {
   ) {}
 
   /**
-   * Observable whose value is a function that filters an array of `Send` objects based on the current filters
+   * Observable whose value is a function that filters an array of `SendView` objects based on the current filters
    */
-  filterFunction$: Observable<(send: Send[]) => Send[]> = this.filters$.pipe(
+  filterFunction$: Observable<(send: SendView[]) => SendView[]> = this.filters$.pipe(
     map(
-      (filters) => (sends: Send[]) =>
+      (filters) => (sends: SendView[]) =>
         sends.filter((send) => {
           // do not show disabled sends
           if (send.disabled) {
@@ -64,12 +64,12 @@ export class SendListFiltersService {
   readonly sendTypes: ChipSelectOption<SendType>[] = [
     {
       value: SendType.File,
-      label: this.i18nService.t("file"),
+      label: this.i18nService.t("sendTypeFile"),
       icon: "bwi-file",
     },
     {
       value: SendType.Text,
-      label: this.i18nService.t("text"),
+      label: this.i18nService.t("sendTypeText"),
       icon: "bwi-file-text",
     },
   ];

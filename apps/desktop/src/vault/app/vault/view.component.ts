@@ -5,6 +5,8 @@ import {
   EventEmitter,
   NgZone,
   OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
 } from "@angular/core";
 
@@ -35,7 +37,7 @@ const BroadcasterSubscriptionId = "ViewComponent";
   selector: "app-vault-view",
   templateUrl: "view.component.html",
 })
-export class ViewComponent extends BaseViewComponent implements OnChanges {
+export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
 
   constructor(

@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Копіювати код безпеки"
   },
+  "copyName": {
+    "message": "Копіювати ім'я"
+  },
+  "copyCompany": {
+    "message": "Копіювати компанію"
+  },
+  "copySSN": {
+    "message": "Копіювати номер соціального страхування"
+  },
+  "copyPassportNumber": {
+    "message": "Копіювати номер паспорта"
+  },
+  "copyLicenseNumber": {
+    "message": "Копіювати номер ліцензії"
+  },
   "autoFill": {
     "message": "Автозаповнення"
   },
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Типове виявлення збігів URI",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Оберіть типовий спосіб виявлення збігів URI для виконання автозаповнення під час входу."
@@ -1200,10 +1215,10 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
   },
   "selfHostedBaseUrlHint": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden. Зразок: https://bitwarden.company.com"
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Меню автозаповнення на полях форм",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Пропозиції автозаповнення"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Відкрити сховище у бічній панелі"
   },
-  "commandAutofillDesc": {
+  "commandAutofillLoginDesc": {
     "message": "Автозаповнення останнього використаного запису для цього вебсайту"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Автозаповнення останньої використаної картки для цього вебсайту"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Автозаповнення останніх використаних особистих даних для цього вебсайту"
   },
   "commandGeneratePasswordDesc": {
     "message": "Генерувати і копіювати новий випадковий пароль в буфер обміну"
@@ -1634,6 +1655,10 @@
     "message": "Основний домен",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Основний домен (рекомендовано)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Ім'я домену",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Виявлення збігів",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Типове виявлення збігів",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Перемкнути налаштування"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне розгортання"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Змінити комбінацію клавіш"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Керувати комбінаціями клавіш"
+  },
   "autofillShortcut": {
     "message": "Комбінації клавіш автозаповнення"
   },
-  "autofillShortcutNotSet": {
+  "autofillLoginShortcutNotSet": {
     "message": "Комбінацію клавіш для автозаповнення не встановлено. Змініть це в налаштуваннях браузера."
   },
-  "autofillShortcutText": {
-    "message": "Комбінація клавіш автозаповнення: $COMMAND$. Змініть це в налаштуваннях браузера.",
+  "autofillLoginShortcutText": {
+    "message": "Комбінація клавіш автозаповнення: $COMMAND$. Керуйте всіма комбінаціями клавіш у налаштуваннях браузера.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 поле потребує вашої уваги."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ полів потребують вашої уваги.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Оберіть--"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Записи з повторним запитом головного пароля не можна автоматично заповнювати під час завантаження сторінки. Автозаповнення на сторінці вимкнено.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Вимкніть повторний запит головного пароля, щоб редагувати це поле",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Автозаповнення – $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Ключ автентифікації"
+  },
+  "autofillOptions": {
+    "message": "Параметри автозаповнення"
+  },
+  "websiteUri": {
+    "message": "Вебсайт (URI)"
+  },
+  "websiteAdded": {
+    "message": "Вебсайт додано"
+  },
+  "addWebsite": {
+    "message": "Додати вебсайт"
+  },
+  "deleteWebsite": {
+    "message": "Видалити вебсайт"
+  },
+  "defaultLabel": {
+    "message": "Типово ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Показати виявлення збігів $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Приховати виявлення збігів $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Автоматично заповнювати під час завантаження сторінки?"
   },
   "cardDetails": {
     "message": "Подробиці картки"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Розташування елемента"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden має новий вигляд!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Ще простіше автозаповнення та інтуїтивніший пошук у сховищі. Ознайомтеся!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

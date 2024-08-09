@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -32,7 +32,10 @@ import { TypographyModule } from "../../../../../libs/components/src/typography"
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthDuoComponent extends TwoFactorAuthDuoBaseComponent {
+export class TwoFactorAuthDuoComponent
+  extends TwoFactorAuthDuoBaseComponent
+  implements OnInit, OnDestroy
+{
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
   }

@@ -1,24 +1,31 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { mergeMap, Subject, takeUntil } from "rxjs";
+import { combineLatest } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { ButtonModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
   NoSendsIcon,
   NewSendDropdownComponent,
   SendListItemsContainerComponent,
+  SendItemsService,
+  SendSearchComponent,
   SendListFiltersComponent,
+  SendListFiltersService,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+
+export enum SendState {
+  Empty,
+  NoResults,
+}
 
 @Component({
   templateUrl: "send-v2.component.html",
@@ -36,29 +43,56 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     NewSendDropdownComponent,
     SendListItemsContainerComponent,
     SendListFiltersComponent,
+    SendSearchComponent,
   ],
 })
 export class SendV2Component implements OnInit, OnDestroy {
   sendType = SendType;
 
-  private destroy$ = new Subject<void>();
+  sendState = SendState;
 
-  sends: SendView[] = [];
+  protected listState: SendState | null = null;
+
+  protected sends$ = this.sendItemsService.filteredAndSortedSends$;
+
+  protected title: string = "allSends";
 
   protected noItemIcon = NoSendsIcon;
 
-  constructor(protected sendService: SendService) {}
+  protected noResultsIcon = Icons.NoResults;
 
-  async ngOnInit() {
-    this.sendService.sendViews$
-      .pipe(
-        mergeMap(async (sends) => {
-          this.sends = sends.sort((a, b) => a.name.localeCompare(b.name));
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+  constructor(
+    protected sendItemsService: SendItemsService,
+    protected sendListFiltersService: SendListFiltersService,
+  ) {
+    combineLatest([
+      this.sendItemsService.emptyList$,
+      this.sendItemsService.noFilteredResults$,
+      this.sendListFiltersService.filters$,
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
+        if (currentFilter?.sendType !== null) {
+          this.title = `${this.sendType[currentFilter.sendType].toLowerCase()}Sends`;
+        } else {
+          this.title = "allSends";
+        }
+
+        if (emptyList) {
+          this.listState = SendState.Empty;
+          return;
+        }
+
+        if (noFilteredResults) {
+          this.listState = SendState.NoResults;
+          return;
+        }
+
+        this.listState = null;
+      });
   }
+
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {}
 }

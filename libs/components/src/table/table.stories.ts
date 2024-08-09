@@ -44,7 +44,7 @@ export const Default: Story = {
         <ng-template body>
           <tr bitRow [alignContent]="alignRowContent">
             <td bitCell>Cell 1</td>
-            <td bitCell>Cell 2 <br> Multiline Cell</td>
+            <td bitCell>Cell 2 <br /> Multiline Cell</td>
             <td bitCell>Cell 3</td>
           </tr>
           <tr bitRow [alignContent]="alignRowContent">
@@ -53,7 +53,7 @@ export const Default: Story = {
             <td bitCell>Cell 6</td>
           </tr>
           <tr bitRow [alignContent]="alignRowContent">
-            <td bitCell>Cell 7 <br> Multiline Cell</td>
+            <td bitCell>Cell 7 <br /> Multiline Cell</td>
             <td bitCell>Cell 8</td>
             <td bitCell>Cell 9</td>
           </tr>

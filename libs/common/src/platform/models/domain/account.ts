@@ -95,7 +95,6 @@ export class AccountProfile {
   name?: string;
   email?: string;
   emailVerified?: boolean;
-  lastSync?: string;
   userId?: string;
 
   static fromJSON(obj: Jsonify<AccountProfile>): AccountProfile {

@@ -3,11 +3,11 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden – Bezplatný správca hesiel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -115,6 +115,21 @@
   },
   "copySecurityCode": {
     "message": "Kopírovať bezpečnostný kód"
+  },
+  "copyName": {
+    "message": "Kopírovať názov"
+  },
+  "copyCompany": {
+    "message": "Kopírovať spoločnosť"
+  },
+  "copySSN": {
+    "message": "Kopírovať číslo poistenca sociálnej poisťovne"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovať číslo pasu"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovať číslo licencie"
   },
   "autoFill": {
     "message": "Automatické vypĺňanie"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "Predvolené mapovanie",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Vyberte si predvolený spôsob mapovania, ktorý bude použitý pre prihlasovacie údaje pri využití funkcí ako je napríklad automatické vypĺňanie hesiel."
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Zobraziť ponuku automatického vypĺňania na poliach formulára",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Návrhy automatického vypĺňania"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Otvoriť trezor v bočnom paneli"
   },
-  "commandAutofillDesc": {
+  "commandAutofillLoginDesc": {
     "message": "Automaticky vyplniť naposledy použité prihlasovacie údaje pre túto stránku"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Automaticky vyplniť naposledy použitú kartu pre túto stránku"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Automaticky vyplniť naposledy použitú identitu pre túto stránku"
   },
   "commandGeneratePasswordDesc": {
     "message": "Vygenerovať a skopírovať nové náhodné heslo do schránky"
@@ -1634,6 +1655,10 @@
     "message": "Základná doména",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Základná doména (odporúčané)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Názov domény",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Spôsob mapovania",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Predvolené mapovanie",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Voľby prepínača"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatická registrácia"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Zmeniť skratku"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Spravovať skratky"
+  },
   "autofillShortcut": {
     "message": "Klávesová skratka automatického vypĺňania"
   },
-  "autofillShortcutNotSet": {
-    "message": "Skratka automatického vypĺňania nie je nastavená. Zmeníte ju v nastaveniach prehliadača."
+  "autofillLoginShortcutNotSet": {
+    "message": "Skratka automatického vypĺňania prihlasovacích údajov nie je nastavená. Zmeníte ju v nastaveniach prehliadača."
   },
-  "autofillShortcutText": {
-    "message": "Skratka automatického vypĺňania je: $COMMAND$. Zmeníte ju v nastaveniach prehliadača.",
+  "autofillLoginShortcutText": {
+    "message": "Skratka automatického vypĺňania prihlasovacích údajov je: $COMMAND$. Zmeníte ju v nastaveniach prehliadača.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "Jedno pole vyžaduje vašu pozornosť."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "Niektoré polia ($COUNT$) vyžadujú vašu pozornosť.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Vyberte --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Položky, ktoré vyžadujú opätovné zadanie hlavného hesla sa nedajú automaticky vyplniť pri načítaní stránky. Automatické vypĺňanie pri načítaní stránky je vypnuté.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodnú predvoľbu.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Vypnite výzvu na opätovné zadanie hlavného hesla na úpravu tohto poľa",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Automatické vyplnenie - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "Kľúč overovacej aplikácie"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "Podrobnosti o karte"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Umiestnenie položky"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden má nový vzhľad!"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Automatické vypĺňanie a vyhľadávanie na karte Trezor je jednoduchšie a intuitívnejšie ako kedykoľvek predtým. Poobzerajte sa!"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

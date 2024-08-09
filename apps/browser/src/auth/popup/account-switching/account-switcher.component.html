@@ -1,6 +1,6 @@
 <ng-container *ngIf="extensionRefreshFlag">
   <popup-page [loading]="loading">
-    <popup-header slot="header" pageTitle="{{ 'switchAccounts' | i18n }}" showBackButton>
+    <popup-header slot="header" pageTitle="{{ 'accountActions' | i18n }}" showBackButton>
       <ng-container slot="end">
         <app-pop-out></app-pop-out>
         <app-current-account></app-current-account>
@@ -8,9 +8,9 @@
     </popup-header>
 
     <ng-container *ngIf="availableAccounts$ | async as availableAccounts">
-      <bit-section>
+      <bit-section [disableMargin]="!enableAccountSwitching">
         <ng-container *ngFor="let availableAccount of availableAccounts; first as isFirst">
-          <div *ngIf="availableAccount.isActive" class="tw-mb-6">
+          <div *ngIf="availableAccount.isActive" [ngClass]="{ 'tw-mb-6': enableAccountSwitching }">
             <auth-account
               [account]="availableAccount"
               [extensionRefreshFlag]="extensionRefreshFlag"
@@ -18,17 +18,19 @@
             ></auth-account>
           </div>
 
-          <bit-section-header *ngIf="isFirst">
-            <h2 bitTypography="h6" class="tw-font-semibold">{{ "availableAccounts" | i18n }}</h2>
-          </bit-section-header>
+          <ng-container *ngIf="enableAccountSwitching">
+            <bit-section-header *ngIf="isFirst">
+              <h2 bitTypography="h6" class="tw-font-semibold">{{ "availableAccounts" | i18n }}</h2>
+            </bit-section-header>
 
-          <div *ngIf="!availableAccount.isActive">
-            <auth-account
-              [account]="availableAccount"
-              [extensionRefreshFlag]="extensionRefreshFlag"
-              (loading)="loading = $event"
-            ></auth-account>
-          </div>
+            <div *ngIf="!availableAccount.isActive">
+              <auth-account
+                [account]="availableAccount"
+                [extensionRefreshFlag]="extensionRefreshFlag"
+                (loading)="loading = $event"
+              ></auth-account>
+            </div>
+          </ng-container>
         </ng-container>
 
         <!--
@@ -78,7 +80,7 @@
             {{ "logOut" | i18n }}
           </button>
         </bit-item>
-        <bit-item>
+        <bit-item *ngIf="showLockAll$ | async">
           <button type="button" bit-item-content (click)="lockAll()">
             <i slot="start" class="bwi bwi-lock tw-text-2xl tw-text-main" aria-hidden="true"></i>
             {{ "lockAll" | i18n }}
@@ -114,15 +116,17 @@
                 (loading)="loading = $event"
               ></auth-account>
             </li>
-            <div *ngIf="isFirst" class="tw-uppercase tw-text-muted">
-              {{ "availableAccounts" | i18n }}
-            </div>
-            <li *ngIf="!availableAccount.isActive" role="option">
-              <auth-account
-                [account]="availableAccount"
-                (loading)="loading = $event"
-              ></auth-account>
-            </li>
+            <ng-container *ngIf="enableAccountSwitching">
+              <div *ngIf="isFirst" class="tw-uppercase tw-text-muted">
+                {{ "availableAccounts" | i18n }}
+              </div>
+              <li *ngIf="!availableAccount.isActive" role="option">
+                <auth-account
+                  [account]="availableAccount"
+                  (loading)="loading = $event"
+                ></auth-account>
+              </li>
+            </ng-container>
           </ng-container>
         </ul>
         <!--
@@ -166,6 +170,7 @@
             type="button"
             class="account-switcher-row tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-p-3"
             (click)="lockAll()"
+            *ngIf="showLockAll$ | async"
           >
             <i class="bwi bwi-lock tw-text-2xl" aria-hidden="true"></i>
             {{ "lockAll" | i18n }}

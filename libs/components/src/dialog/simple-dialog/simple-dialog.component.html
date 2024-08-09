@@ -9,11 +9,16 @@
     <ng-template #elseBlock>
       <i class="bwi bwi-exclamation-triangle tw-text-3xl tw-text-warning" aria-hidden="true"></i>
     </ng-template>
-    <h1 bitDialogTitleContainer class="tw-mb-0 tw-text-base tw-font-semibold">
+    <h1
+      bitDialogTitleContainer
+      class="tw-mb-0 tw-text-base tw-font-semibold tw-w-full tw-break-words tw-hyphens-auto"
+    >
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h1>
   </div>
-  <div class="tw-overflow-y-auto tw-px-4 tw-pb-4 tw-pt-2 tw-text-center tw-text-base">
+  <div
+    class="tw-overflow-y-auto tw-px-4 tw-pb-4 tw-pt-2 tw-text-center tw-text-base tw-break-words tw-hyphens-auto"
+  >
     <ng-content select="[bitDialogContent]"></ng-content>
   </div>
   <div

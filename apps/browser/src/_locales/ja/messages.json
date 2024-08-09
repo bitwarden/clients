@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "セキュリティコードをコピー"
   },
+  "copyName": {
+    "message": "名前をコピー"
+  },
+  "copyCompany": {
+    "message": "会社名をコピー"
+  },
+  "copySSN": {
+    "message": "社会保障番号をコピー"
+  },
+  "copyPassportNumber": {
+    "message": "パスポート番号をコピー"
+  },
+  "copyLicenseNumber": {
+    "message": "免許証番号をコピー"
+  },
   "autoFill": {
     "message": "自動入力"
   },
@@ -159,7 +174,7 @@
     "message": "保管庫にログイン"
   },
   "autoFillInfo": {
-    "message": "現在のブラウザタブに自動入力するログイン情報はありません。"
+    "message": "現在のブラウザタブに自動入力するログインはありません。"
   },
   "addLogin": {
     "message": "ログイン情報を追加"
@@ -871,7 +886,7 @@
   },
   "defaultUriMatchDetection": {
     "message": "デフォルトの URI 一致検出方法",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "自動入力などのアクションをする時に、デフォルトでどの方法で URI の一致を検出するか選択します。"
@@ -1240,7 +1255,7 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "フォーム項目に自動入力メニューを表示",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "自動入力の候補"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "サイドバーで保管庫を開く"
   },
-  "commandAutofillDesc": {
-    "message": "現在のウェブサイトで前回使用されたログイン情報を自動入力します。"
+  "commandAutofillLoginDesc": {
+    "message": "現在のウェブサイトで前回使用されたログイン情報を自動入力します"
+  },
+  "commandAutofillCardDesc": {
+    "message": "現在のウェブサイトで最後に使用されたカード情報を自動入力する"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "現在のウェブサイトで最後に使用された ID を自動入力する"
   },
   "commandGeneratePasswordDesc": {
     "message": "ランダムなパスワードを生成してクリップボードにコピーします。"
@@ -1634,6 +1655,10 @@
     "message": "ベースドメイン",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "ドメイン名",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "一致検出方法",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "デフォルトの一致検出方法",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "オプションの切り替え"
@@ -2302,6 +2327,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "あなたのマスターパスワードは、組織のポリシーを満たしていません。保管庫にアクセスするには、今すぐマスターパスワードを更新する必要があります。この操作を続けると、現在のセッションがログアウトされ、再ログインする必要があります。他のデバイスでのアクティブなセッションは最大1時間継続する場合があります。"
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動登録"
   },
@@ -2758,14 +2786,17 @@
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "ショートカットの変更"
   },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "ショートカットを管理"
+  },
   "autofillShortcut": {
     "message": "自動入力キーボードショートカット"
   },
-  "autofillShortcutNotSet": {
+  "autofillLoginShortcutNotSet": {
     "message": "自動入力のショートカットが設定されていません。ブラウザの設定で変更してください。"
   },
-  "autofillShortcutText": {
-    "message": "自動入力のショートカットは $COMMAND$ です。ブラウザの設定でこれを変更してください。",
+  "autofillLoginShortcutText": {
+    "message": "自動入力のショートカットは $COMMAND$ です。ブラウザの設定ですべてのショートカットを管理できます。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1フィールドは注意が必要です。"
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ フィールドは注意が必要です。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- 選択 --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "マスターパスワードの再入力を促すアイテムは、ページ読み込み時に自動入力できません。ページ読み込み時の自動入力をオフにしました。",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "ページ読み込み時の自動入力はデフォルトの設定を使うよう設定しました。",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "このフィールドを編集するには、マスターパスワードの再入力をオフにしてください",
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "自動入力 - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3786,6 +3829,52 @@
   },
   "authenticatorKey": {
     "message": "認証キー"
+  },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
   },
   "cardDetails": {
     "message": "カード情報"
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "アイテムの場所"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden が新しい外観になりました。"
+  },
+  "bitwardenNewLookDesc": {
+    "message": "保管庫タブからの自動入力と検索がこれまで以上に簡単で直感的になりました。"
+  },
+  "accountActions": {
+    "message": "Account actions"
   }
 }

@@ -32,7 +32,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     private organizationService: OrganizationService,
   ) {}
 
-  get$(policyType: PolicyType) {
+  get$(policyType: PolicyType): Observable<Policy> {
     const filteredPolicies$ = this.activeUserPolicies$.pipe(
       map((policies) => policies.filter((p) => p.type === policyType)),
     );

@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -34,7 +34,7 @@ const BroadcasterSubscriptionId = "LoginComponent";
   selector: "app-login",
   templateUrl: "login.component.html",
 })
-export class LoginComponent extends BaseLoginComponent implements OnDestroy {
+export class LoginComponent extends BaseLoginComponent implements OnInit, OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
 

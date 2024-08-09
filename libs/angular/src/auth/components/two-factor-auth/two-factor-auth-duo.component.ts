@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -34,7 +34,7 @@ import {
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthDuoComponent {
+export class TwoFactorAuthDuoComponent implements OnInit {
   @Output() token = new EventEmitter<string>();
   @Input() providerData: any;
 

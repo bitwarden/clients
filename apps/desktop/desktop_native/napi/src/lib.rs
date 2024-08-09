@@ -33,6 +33,12 @@ pub mod passwords {
         desktop_core::password::delete_password(&service, &account)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    // Checks if the os secure storage is available
+    #[napi]
+    pub async fn is_available() -> napi::Result<bool> {
+        desktop_core::password::is_available().map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
 }
 
 #[napi]
@@ -45,12 +51,12 @@ pub mod biometrics {
         hwnd: napi::bindgen_prelude::Buffer,
         message: String,
     ) -> napi::Result<bool> {
-        Biometric::prompt(hwnd.into(), message).map_err(|e| napi::Error::from_reason(e.to_string()))
+        Biometric::prompt(hwnd.into(), message).await.map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
     pub async fn available() -> napi::Result<bool> {
-        Biometric::available().map_err(|e| napi::Error::from_reason(e.to_string()))
+        Biometric::available().await.map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
@@ -138,6 +144,25 @@ pub mod clipboards {
     #[napi]
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         desktop_core::clipboard::write(&text, password)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
+pub mod processisolations {
+    #[napi]
+    pub async fn disable_coredumps() -> napi::Result<()> {
+        desktop_core::process_isolation::disable_coredumps()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+    #[napi]
+    pub async fn is_core_dumping_disabled() -> napi::Result<bool> {
+        desktop_core::process_isolation::is_core_dumping_disabled()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+    #[napi]
+    pub async fn disable_memory_access() -> napi::Result<()> {
+        desktop_core::process_isolation::disable_memory_access()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }

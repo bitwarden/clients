@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use aes::cipher::generic_array::GenericArray;
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use rand::RngCore;
@@ -30,14 +29,16 @@ use windows::{
 
 use crate::{
     biometric::{KeyMaterial, OsDerivedKey},
-    crypto::{self, CipherString},
+    crypto::CipherString,
 };
+
+use super::{decrypt, encrypt};
 
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
 
 impl super::BiometricTrait for Biometric {
-    fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
+    async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
         let h = isize::from_le_bytes(hwnd.clone().try_into().unwrap());
         let window = HWND(h);
 
@@ -56,7 +57,7 @@ impl super::BiometricTrait for Biometric {
         }
     }
 
-    fn available() -> Result<bool> {
+    async fn available() -> Result<bool> {
         let ucv_available = UserConsentVerifier::CheckAvailabilityAsync()?.get()?;
 
         match ucv_available {
@@ -159,26 +160,6 @@ impl super::BiometricTrait for Biometric {
     }
 }
 
-fn encrypt(secret: &str, key_material: &KeyMaterial, iv_b64: &str) -> Result<String> {
-    let iv = base64_engine
-        .decode(iv_b64)?
-        .try_into()
-        .map_err(|e: Vec<_>| anyhow!("Expected length {}, got {}", 16, e.len()))?;
-
-    let encrypted = crypto::encrypt_aes256(secret.as_bytes(), iv, key_material.derive_key()?)?;
-
-    Ok(encrypted.to_string())
-}
-
-fn decrypt(secret: &CipherString, key_material: &KeyMaterial) -> Result<String> {
-    if let CipherString::AesCbc256_B64 { iv, data } = secret {
-        let decrypted = crypto::decrypt_aes256(&iv, &data, key_material.derive_key()?)?;
-
-        Ok(String::from_utf8(decrypted)?)
-    } else {
-        Err(anyhow!("Invalid cipher string"))
-    }
-}
 
 fn random_challenge() -> [u8; 16] {
     let mut challenge = [0u8; 16];
@@ -237,26 +218,11 @@ fn set_focus(window: HWND) {
     }
 }
 
-impl KeyMaterial {
-    fn digest_material(&self) -> String {
-        match self.client_key_part_b64.as_deref() {
-            Some(client_key_part_b64) => {
-                format!("{}|{}", self.os_key_part_b64, client_key_part_b64)
-            }
-            None => self.os_key_part_b64.clone(),
-        }
-    }
-
-    pub fn derive_key(&self) -> Result<GenericArray<u8, typenum::U32>> {
-        Ok(Sha256::digest(self.digest_material()))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    use crate::biometric::BiometricTrait;
+    use crate::biometric::{encrypt, BiometricTrait};
 
     #[test]
     #[cfg(feature = "manual_test")]

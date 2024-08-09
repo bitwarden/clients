@@ -21,6 +21,12 @@ export class CopyClickDirective {
   @Input("appCopyClick") valueToCopy = "";
 
   /**
+   * When set, the toast displayed will show `<valueLabel> copied`
+   * instead of the default messaging.
+   */
+  @Input() valueLabel: string;
+
+  /**
    * When set without a value, a success toast will be shown when the value is copied
    * @example
    * ```html
@@ -47,10 +53,14 @@ export class CopyClickDirective {
     this.platformUtilsService.copyToClipboard(this.valueToCopy);
 
     if (this._showToast) {
+      const message = this.valueLabel
+        ? this.i18nService.t("valueCopied", this.valueLabel)
+        : this.i18nService.t("copySuccessful");
+
       this.toastService.showToast({
         variant: this.toastVariant,
         title: null,
-        message: this.i18nService.t("copySuccessful"),
+        message,
       });
     }
   }

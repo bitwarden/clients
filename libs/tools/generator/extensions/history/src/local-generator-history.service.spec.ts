@@ -25,7 +25,7 @@ describe("LocalGeneratorHistoryService", () => {
     encryptService.encrypt.mockImplementation((p) => Promise.resolve(p as unknown as EncString));
     encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
     keyService.getUserKey.mockImplementation(() => Promise.resolve(userKey));
-    keyService.getInMemoryUserKeyFor$.mockImplementation(() => of(true as unknown as UserKey));
+    keyService.userKey$.mockImplementation(() => of(true as unknown as UserKey));
   });
 
   afterEach(() => {

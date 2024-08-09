@@ -5,9 +5,11 @@ import { Subject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
@@ -24,6 +26,7 @@ describe("VaultOnboardingComponent", () => {
   let mockStateProvider: Partial<StateProvider>;
   let setInstallExtLinkSpy: any;
   let individualVaultPolicyCheckSpy: any;
+  let mockConfigService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     mockPolicyService = mock<PolicyService>();
@@ -42,6 +45,7 @@ describe("VaultOnboardingComponent", () => {
         }),
       ),
     };
+    mockConfigService = mock<ConfigService>();
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
@@ -54,6 +58,7 @@ describe("VaultOnboardingComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
         { provide: StateProvider, useValue: mockStateProvider },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
@@ -176,6 +181,16 @@ describe("VaultOnboardingComponent", () => {
       await component.getMessages(eventData);
 
       expect(saveCompletedTasksSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("emitToAddCipher", () => {
+    it("always emits the `CipherType.Login` type when called", () => {
+      const emitSpy = jest.spyOn(component.onAddCipher, "emit");
+
+      component.emitToAddCipher();
+
+      expect(emitSpy).toHaveBeenCalledWith(CipherType.Login);
     });
   });
 });

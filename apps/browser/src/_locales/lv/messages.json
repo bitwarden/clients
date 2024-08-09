@@ -116,6 +116,21 @@
   "copySecurityCode": {
     "message": "Ievietot drošības kodu starpliktuvē"
   },
+  "copyName": {
+    "message": "Ievietot nosaukumu starpliktuvē"
+  },
+  "copyCompany": {
+    "message": "Ievietot uzņēmumu starpliktuvē"
+  },
+  "copySSN": {
+    "message": "Ievietot sociālās nodrošināšanas numuru starpliktuvē"
+  },
+  "copyPassportNumber": {
+    "message": "Ievietot pases numuru starpliktuvē"
+  },
+  "copyLicenseNumber": {
+    "message": "Ievietot licences numuru starpliktuvē"
+  },
   "autoFill": {
     "message": "Automātiskā aizpilde"
   },
@@ -796,10 +811,10 @@
     "message": "Vaicāt pievienot vienumu, ja tāds nav atrodams glabātavā."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem pieslēgtajiem kontiem."
+    "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+    "message": "Rādīt kartes kā automātiskās aizpildes ieteikumus glabātavas skatā"
   },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
@@ -808,7 +823,7 @@
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identifies as Autofill suggestions on Vault view"
+    "message": "Rādīt identitātes kā automātiskās aizpildes ieteikumus glabātavas skatā"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"
@@ -837,13 +852,13 @@
     "message": "Vaicāt atjaunināt pieteikšanās vienuma paroli, ja tīmekļvietnē ir noteiktas tās izmaiņas."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Vaicāt, vai atjaunināt pieteikšanās vienuma paroli, kad tīmekļvietnē ir noteikta atšķirība. Attiecas uzvisiem pieslēgtajiem kontiem."
+    "message": "Vaicāt, vai atjaunināt pieteikšanās vienuma paroli, kad tīmekļvietnē ir noteikta atšķirība. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "enableUsePasskeys": {
     "message": "Vaicāt, vai saglabāt un izmantot piekļuves atslēgas"
   },
   "usePasskeysDesc": {
-    "message": "Vaicāt, vai saglabāt jaunas piekļuves atslēgas vai pieteikties ar glabātavā esošajām piekļuves atslēgām. Attiecas uz visiem pieslēgtajiem kontiem."
+    "message": "Vaicāt, vai saglabāt jaunas piekļuves atslēgas vai pieteikties ar glabātavā esošajām piekļuves atslēgām. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "notificationChangeDesc": {
     "message": "Vai atjaunināt šo paroli Bitwarden?"
@@ -867,11 +882,11 @@
     "message": "Izmantot otrējo klikšķi, lai piekļūtu paroļu veidošanai un tīmekļvietnei atbilstošajiem pieteikšanās vienumiem."
   },
   "contextMenuItemDescAlt": {
-    "message": "Izmantot otrējo klikšķi, lai piekļūtu paroļu veidošanai un tīmekļvietnei atbilstošajiem pieteikšanās vienumiem. Attiecas uz visiem pieslēgtajiem kontiem."
+    "message": "Izmantot otrējo klikšķi, lai piekļūtu paroļu veidošanai un tīmekļvietnei atbilstošajiem pieteikšanās vienumiem. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "defaultUriMatchDetection": {
     "message": "Noklusējuma URI atbilstības noteikšana",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
     "message": "Izvēlēties noklusējuma veidu, kādā tiek apstrādāta pieteikšanās vienumu URI atbilstības noteikšana, kad tiek veiktas tādas darbības kā automātiska aizpilde."
@@ -883,7 +898,7 @@
     "message": "Mainīt lietotnes izskata krāsas."
   },
   "themeDescAlt": {
-    "message": "Mainīt lietotnes izskata krāsas. Attiecas uz visiem pieslēgtajiem kontiem."
+    "message": "Mainīt lietotnes izskata krāsas. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "dark": {
     "message": "Tumšs",
@@ -1240,19 +1255,19 @@
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Rādīt automātiskās aizpildes izvēlni veidlapu laukos",
-    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Automātiskās aizpildes ieteikumi"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Rādīt automātiskās aizpildes ieteikumuis veidlapu laukos"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Attēlot ieteikumus, kad tiek atlasīta ikona"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Jāizslēdz sava pārlūka iebūvētā paroļu pārvaldnieka iestatījumi, lai izvairītos no nesaderībām."
@@ -1273,7 +1288,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Automātiski aizpildīt lapas ielādes brīdī"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī"
@@ -1282,7 +1297,7 @@
     "message": "Ja tiek noteikta pieteikšanās veidne, tā tiks aizpildīta lapas ielādes brīdī."
   },
   "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
+    "message": "$OPENTAG$Brīdinājums:$CLOSETAG$ pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota.",
     "placeholders": {
       "openTag": {
         "content": "$1",
@@ -1298,7 +1313,7 @@
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "Uzzināt vairāk par iespējamām bīstamībām"
   },
   "learnMoreAboutAutofill": {
     "message": "Uzzināt vairāk par automātisko aizpildi"
@@ -1327,8 +1342,14 @@
   "commandOpenSidebar": {
     "message": "Atvērt glabātavu sānu joslā"
   },
-  "commandAutofillDesc": {
-    "message": "Automātiski aizpildīt ar iepriekš izmantoto pieteikšanās vienumu pašreizējā tīmekļvietnē"
+  "commandAutofillLoginDesc": {
+    "message": "Autofill the last used login for the current website"
+  },
+  "commandAutofillCardDesc": {
+    "message": "Autofill the last used card for the current website"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "Autofill the last used identity for the current website"
   },
   "commandGeneratePasswordDesc": {
     "message": "Izveidot jaunu nejaušu paroli un ievietot to starpliktuvē"
@@ -1634,6 +1655,10 @@
     "message": "Pamata domēns",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "Base domain (recommended)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
     "message": "Domēna vārds",
     "description": "Domain name. Ex. website.com"
@@ -1654,11 +1679,11 @@
   },
   "matchDetection": {
     "message": "Atbilstības noteikšana",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "Noklusētā atbilstības noteikšana",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
     "message": "Pārslēgt iespējas"
@@ -2031,7 +2056,7 @@
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem. Ir jāpārlādē lapa, lai izmaiņas iedarbotos."
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem visiem pieslēgtajiem kontiem. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
+    "message": "Bitwarden nevaicās saglabāt pieteikšanās datus visiem šī domēna kontiem, kuri ir pieteikušies. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -2301,6 +2326,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"
@@ -2753,19 +2781,22 @@
     "message": "Automātiskās aizpildes iestatījumi"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Automātiskās aizpildes īsinājumtaustiņi"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Mainīt īsinājumtaustiņus"
+  },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "Manage shortcuts"
   },
   "autofillShortcut": {
     "message": "Automātiskās aizpildes īsinājumtaustiņi"
   },
-  "autofillShortcutNotSet": {
-    "message": "Automātiskās aizpildes īsceļš nav uzstādīts. To var izdarīt pārlūka iestatījumos."
+  "autofillLoginShortcutNotSet": {
+    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
   },
-  "autofillShortcutText": {
-    "message": "Automātiskās aizpildes īsceļš ir: $COMMAND$. To var mainīt pārlūka iestatījumos.",
+  "autofillLoginShortcutText": {
+    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2948,6 +2979,18 @@
       }
     }
   },
+  "singleFieldNeedsAttention": {
+    "message": "1 laukam jāpievērš uzmanība."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ laukiem ir jāpievērš uzmanība.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "selectPlaceholder": {
     "message": "-- Atlasīt --"
   },
@@ -3016,11 +3059,11 @@
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
     "message": "Vienumus ar galvenās paroles pārvaicāšanu nevar automātiski aizpildīt lapas ielādes brīdī. Automātiskā aizpilde lapas ielādes brīdī ir izslēgta.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
@@ -3462,27 +3505,27 @@
     "description": "Label indicating the most common import formats"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Continue to browser settings?",
+    "message": "Pāriet uz pārlūka iestatījumiem?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Continue to Help Center?",
+    "message": "Pāriet uz palīdzības centru?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Jāmaina sava pārlūka automātiskās aizpildes un paroļu pārvaldības iestatījumi.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
   },
   "confirmContinueToHelpCenterKeyboardShortcutsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Paplašinājuma īsinājumtaustiņus skatīt un iestatīt var pārlūka iestatījumos.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
   },
   "confirmContinueToBrowserPasswordManagementSettingsContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Jāmaina sava pārlūka automātiskās aizpildes un paroļu pārvaldības iestatījumi.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
   },
   "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Paplašinājuma īsinājumtaustiņus skatīt un iestatīt var pārlūka iestatījumos.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
@@ -3597,7 +3640,7 @@
   },
   "autofillTitle": {
     "message": "Automātiski aizpildīt - $ITEMNAME$",
-    "description": "Title for a button that auto-fills a login item.",
+    "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3609,7 +3652,7 @@
     "message": "Nav vērtību, ko ievietot starpliktuvē"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Piešķirt krājumiem"
   },
   "copyEmail": {
     "message": "Ievietot starpliktuvē e-pasta adresi"
@@ -3787,6 +3830,52 @@
   "authenticatorKey": {
     "message": "Authenticator key"
   },
+  "autofillOptions": {
+    "message": "Automātiskās aizpildes iespējas"
+  },
+  "websiteUri": {
+    "message": "Tīmekļvietne (URI)"
+  },
+  "websiteAdded": {
+    "message": "Tīmekļvietne pievienota"
+  },
+  "addWebsite": {
+    "message": "Pievient tīmekļvietni"
+  },
+  "deleteWebsite": {
+    "message": "Izdzēst tīmekļvietni"
+  },
+  "defaultLabel": {
+    "message": "Noklusējums ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Rādīt atbilstības noteikšanu $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Paslēpt atbilstības noteikšanu $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Automātiski aizpildīt lapas ielādes brīdī?"
+  },
   "cardDetails": {
     "message": "Kartes dati"
   },
@@ -3916,10 +4005,10 @@
     "message": "Select collections to assign"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 vienums tiks neatgriezeniski nodots atlasītajai apvienībai. Šis vienums Tev vairs nepiederēs."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ vienumi tiks neatgriezeniski nodoti atlasītajai apvienībai. Šie vienumi Tev vairs nepiederēs.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3928,7 +4017,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 vienums tiks neatgriezeniski nodots $ORG$. Šis vienums Tev vairs nepiederēs.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -3937,7 +4026,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ vienumi tiks neatgriezeniski nodoti $ORG$. Šie vienumi Tev vairs nepiederēs.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3965,7 +4054,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Vienumi pārvietoti uz $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3974,7 +4063,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Vienums pārvietots uz $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4001,5 +4090,14 @@
   },
   "itemLocation": {
     "message": "Vienuma atrašanās vieta"
+  },
+  "bitwardenNewLook": {
+    "message": "Bitwarden ir jauns izskats."
+  },
+  "bitwardenNewLookDesc": {
+    "message": "Veikt automātisko aizpildi un meklēšanu glabātavas cilnē ir vienkāršāk un izprotamāk kā jebkad. Apskati izmaiņas!"
+  },
+  "accountActions": {
+    "message": "Konta darbības"
   }
 }

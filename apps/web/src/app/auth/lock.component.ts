@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
@@ -11,7 +11,7 @@ import { SharedModule } from "../shared";
   standalone: true,
   imports: [SharedModule],
 })
-export class LockComponent extends BaseLockComponent {
+export class LockComponent extends BaseLockComponent implements OnInit {
   formBuilder = inject(FormBuilder);
 
   formGroup = this.formBuilder.group({

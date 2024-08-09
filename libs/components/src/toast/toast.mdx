@@ -1,0 +1,30 @@
+import { Meta, Canvas, Source, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./toast.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ToastService } from "@bitwarden/components";
+```
+
+# Toast
+
+<Primary />
+<Controls />
+
+## Stories
+
+### Default
+
+<Canvas of={stories.Default} />
+
+### Long Content
+
+Avoid using long messages in toasts.
+
+<Canvas of={stories.LongContent} />
+
+### Service
+
+<Canvas of={stories.Service} />

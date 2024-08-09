@@ -5,7 +5,7 @@ import Domain from "../../../platform/models/domain/domain-base";
  */
 export class PasswordGeneratorPolicyOptions extends Domain {
   /** The default kind of credential to generate */
-  defaultType: "password" | "passphrase" | "" = "";
+  overridePasswordType: "password" | "passphrase" | "" = "";
 
   /** The minimum length of generated passwords.
    *  When this is less than or equal to zero, it is ignored.
@@ -70,7 +70,7 @@ export class PasswordGeneratorPolicyOptions extends Domain {
    */
   inEffect() {
     return (
-      this.defaultType ||
+      this.overridePasswordType ||
       this.minLength > 0 ||
       this.numberCount > 0 ||
       this.specialCount > 0 ||

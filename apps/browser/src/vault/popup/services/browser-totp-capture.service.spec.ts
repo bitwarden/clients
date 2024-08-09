@@ -13,10 +13,15 @@ describe("BrowserTotpCaptureService", () => {
   let testBed: TestBed;
   let service: BrowserTotpCaptureService;
   let mockCaptureVisibleTab: jest.SpyInstance;
+  let createNewTabSpy: jest.SpyInstance;
 
   const validTotpUrl = "otpauth://totp/label?secret=123";
 
   beforeEach(() => {
+    const tabReturn = new Promise<chrome.tabs.Tab>((resolve) =>
+      resolve({ url: "google.com", active: true } as chrome.tabs.Tab),
+    );
+    createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockReturnValue(tabReturn);
     mockCaptureVisibleTab = jest.spyOn(BrowserApi, "captureVisibleTab");
     mockCaptureVisibleTab.mockResolvedValue("screenshot");
 
@@ -65,5 +70,11 @@ describe("BrowserTotpCaptureService", () => {
     const result = await service.captureTotpSecret();
 
     expect(result).toBeNull();
+  });
+
+  it("should call BrowserApi.createNewTab with a given loginURI", async () => {
+    await service.openAutofillNewTab("www.google.com");
+
+    expect(createNewTabSpy).toHaveBeenCalledWith("www.google.com");
   });
 });

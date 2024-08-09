@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "認証キー"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "番号"
   },
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "保管庫のタイムアウト"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "デバイスの承認を要求しました。"
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "$ORG$ 向けの Bitwarden 7日間無料トライアルを開始",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "アイテム"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "プロバイダーポータルからの請求を管理"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Bitwarden の 7 日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Bitwarden チームの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Bitwarden ファミリーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Bitwarden エンタープライズの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Bitwarden シークレットマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "チーム向け Bitwarden シークレットマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "ファミリー向け Bitwarden シークレットマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "エンタープライズ向け Bitwarden シークレットマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Bitwarden パスワードマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "チーム向け Bitwarden パスワードマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "ファミリー向け Bitwarden パスワードマネージャーの7日間無料トライアルを開始"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "エンタープライズ向け Bitwarden パスワードマネージャーの7日間無料トライアルを開始"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "チームの組織情報を入力してください"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "ファミリーの組織情報を入力してください"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "エンタープライズの組織情報を入力してください"
+  },
   "viewItemsIn": {
     "message": "$NAME$ のアイテムを表示",
     "description": "Button to view the contents of a folder or collection",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "購入済みシートが削除されました"
+  },
+  "includesXMembers": {
+    "message": "$COUNT$ メンバー向け",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "オンプレミスホスティングのオプション"
+  },
+  "upgradeFreeOrganization": {
+    "message": "$NAME$ 組織をアップグレード ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO 認証"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "ファミリーの組織では最大 $SEATCOUNT$ 人のメンバーまでです。より多くのメンバーを招待するには有料プランにアップグレードしてください。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "ファミリーの組織では最大 $SEATCOUNT$ 人のメンバーまでです。アップグレードするには組織の所有者に連絡してください。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "より多くのメンバーを招待し、Bitwarden の追加機能にアクセスするには、プランをアップグレードしてください。"
+  },
+  "upgradeDiscount": {
+    "message": "$AMOUNT$ %割引",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "大企業向けの高度な機能"
+  },
+  "upgradeTeamsMessage": {
+    "message": "強力なセキュリティを求めている企業"
+  },
+  "teamsInviteMessage": {
+    "message": "無制限のメンバー招待"
+  },
+  "accessToCreateGroups": {
+    "message": "グループの作成"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "ディレクトリからグループとユーザーを同期"
+  },
+  "upgradeFamilyMessage": {
+    "message": "家族や友達と共有"
+  },
+  "accessToPremiumFeatures": {
+    "message": "プレミアム機能へのアクセス"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB の追加ストレージ"
   }
 }

@@ -1,3 +1,5 @@
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
+
 /**
  * This class represents an abstraction of the WebAuthn Authenticator model as described by W3C:
  * https://www.w3.org/TR/webauthn-3/#sctn-authenticator-model
@@ -32,6 +34,14 @@ export abstract class Fido2AuthenticatorService {
     tab: chrome.tabs.Tab,
     abortController?: AbortController,
   ) => Promise<Fido2AuthenticatorGetAssertionResult>;
+
+  /**
+   * Discover credentials for a given Relying Party
+   *
+   * @param rpId The Relying Party's ID
+   * @returns A promise that resolves with an array of discoverable credentials
+   */
+  silentCredentialDiscovery: (rpId: string) => Promise<Fido2CredentialView[]>;
 }
 
 export enum Fido2AlgorithmIdentifier {
@@ -132,6 +142,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
   extensions: unknown;
   /** Forwarded to user interface */
   fallbackSupported: boolean;
+
+  // Bypass the UI and assume that the user has already interacted with the authenticator
+  assumeUserPresence?: boolean;
 }
 
 export interface Fido2AuthenticatorGetAssertionResult {

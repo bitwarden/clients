@@ -21,6 +21,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
+import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectListView } from "../models/view/project-list.view";
 import { SecretListView } from "../models/view/secret-list.view";
 import {
@@ -51,6 +52,7 @@ import {
   ServiceAccountOperation,
 } from "../service-accounts/dialog/service-account-dialog.component";
 import { ServiceAccountService } from "../service-accounts/service-account.service";
+import { CountService } from "../shared/counts/count.service";
 import { SecretsListComponent } from "../shared/secrets-list.component";
 
 import { SMOnboardingTasks, SMOnboardingTasksService } from "./sm-onboarding-tasks.service";
@@ -87,11 +89,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
     latestProjects: ProjectListView[];
     latestSecrets: SecretListView[];
     tasks: OrganizationTasks;
+    counts: OrganizationCounts;
   }>;
 
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
+    private countService: CountService,
     private secretService: SecretService,
     private serviceAccountService: ServiceAccountService,
     private dialogService: DialogService,
@@ -148,10 +152,19 @@ export class OverviewComponent implements OnInit, OnDestroy {
       share(),
     );
 
+    const counts$ = combineLatest([
+      orgId$,
+      this.secretService.secret$.pipe(startWith(null)),
+      this.projectService.project$.pipe(startWith(null)),
+    ]).pipe(
+      switchMap(([orgId]) => this.countService.getOrganizationCounts(orgId)),
+      share(),
+    );
+
     this.view$ = orgId$.pipe(
       switchMap((orgId) =>
-        combineLatest([projects$, secrets$, serviceAccounts$]).pipe(
-          switchMap(async ([projects, secrets, serviceAccounts]) => ({
+        combineLatest([projects$, secrets$, serviceAccounts$, counts$]).pipe(
+          switchMap(async ([projects, secrets, serviceAccounts, counts]) => ({
             latestProjects: this.getRecentItems(projects, this.tableSize),
             latestSecrets: this.getRecentItems(secrets, this.tableSize),
             allProjects: projects,
@@ -162,6 +175,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
               createProject: projects.length > 0,
               createServiceAccount: serviceAccounts.length > 0,
             }),
+            counts: {
+              projects: counts.projects,
+              secrets: counts.secrets,
+              serviceAccounts: counts.serviceAccounts,
+            },
           })),
         ),
       ),

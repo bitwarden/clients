@@ -127,12 +127,12 @@ describe("TwoFactorComponent", () => {
       }),
       withMasterPasswordAndTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndKeyConnector: new UserDecryptionOptions({
@@ -142,12 +142,12 @@ describe("TwoFactorComponent", () => {
       }),
       noMasterPasswordWithTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithKeyConnector: new UserDecryptionOptions({

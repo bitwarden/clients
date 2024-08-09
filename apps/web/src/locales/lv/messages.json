@@ -48,6 +48,52 @@
   "authenticatorKey": {
     "message": "Authenticator key"
   },
+  "autofillOptions": {
+    "message": "Auto-fill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "defaultLabel": {
+    "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Autofill on page load?"
+  },
   "number": {
     "message": "Numurs"
   },
@@ -571,7 +617,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Vienumi pārvietoti uz $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -580,7 +626,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Vienums pārvietots uz $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5276,6 +5322,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Glabātavas noildze"
   },
@@ -7628,6 +7677,9 @@
   "requestedDeviceApproval": {
     "message": "Pieprasīts ierīces apstiprinājums."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden izmēģinājumu $ORG$!",
     "placeholders": {
@@ -8024,6 +8076,9 @@
       }
     }
   },
+  "addField": {
+    "message": "Add field"
+  },
   "items": {
     "message": "Vienumi"
   },
@@ -8414,6 +8469,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Norēķinus var pārvaldīt Nodrošinātāju portālā"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden komandām izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden ģimenēm izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden uzņēmējdarbībai izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden noslēpumu pārvaldnieka izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden noslēpumu pārvaldnieka komandām izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden noslēpumu pārvaldnieka ģimenēm izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden noslēpumu pārvaldnieka uzņēmējdarbībai izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden paroļu pārvaldnieka izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden paroļu pārvaldnieka komandām izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden paroļu pārvaldnieka ģimenēm izmēģinājumu"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Uzsāc savu 7 dienu bezmaksas Bitwarden paroļu pārvaldnieka uzņēmējdarbībai izmēģinājumu"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Jāievada informācija par savas komandas apvienību"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Jāievada informācija par savas ģimenes apvienību"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Jāievada informācija par sava uzņēmuma apvienību"
+  },
   "viewItemsIn": {
     "message": "Skatīt $NAME$ vienumus",
     "description": "Button to view the contents of a folder or collection",
@@ -8655,10 +8755,10 @@
     "message": "Atlasīt mapi"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 vienums tiks neatgriezeniski nodots atlasītajai apvienībai. Šis vienums Tev vairs nepiederēs."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ vienumi tiks neatgriezeniski nodoti atlasītajai apvienībai. Šie vienumi Tev vairs nepiederēs.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8667,7 +8767,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 vienums tiks neatgriezeniski nodots $ORG$. Šis vienums Tev vairs nepiederēs.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -8676,7 +8776,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ vienumi tiks neatgriezeniski nodoti $ORG$. Šie vienumi Tev vairs nepiederēs.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8693,5 +8793,92 @@
   },
   "purchasedSeatsRemoved": {
     "message": "iegādātās vietas noņemtas"
+  },
+  "includesXMembers": {
+    "message": "$COUNT$ dalībniekiem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Optional on-premises hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Upgrade your $NAME$ organization ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO Authentication"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlan": {
+    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+  },
+  "upgradeDiscount": {
+    "message": "Ietaupi $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Izvērstas spējas lielākiem uzņēmumiem"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Uzņēmumiem, kuri meklē spēcīgu drošibu"
+  },
+  "teamsInviteMessage": {
+    "message": "Neierobežota dalībnieku skaita uzaicināšana"
+  },
+  "accessToCreateGroups": {
+    "message": "Piekļuve izveidot kopas"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Kopu un lietotāju sinhronizēšana no direktorija"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Kopīgošana ar ģimeni un draugiem"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Piekļuve Premium iespējām"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB papildu krātuves"
   }
 }

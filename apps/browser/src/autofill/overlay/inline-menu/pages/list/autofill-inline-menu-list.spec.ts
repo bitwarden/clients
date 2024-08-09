@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import {
   createAutofillOverlayCipherDataMock,
   createInitAutofillInlineMenuListMessageMock,
@@ -236,7 +237,12 @@ describe("AutofillInlineMenuList", () => {
           fillCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillAutofillInlineMenuCipher", inlineMenuCipherId: "1", portKey },
+            {
+              command: "fillAutofillInlineMenuCipher",
+              inlineMenuCipherId: "1",
+              usePasskey: false,
+              portKey,
+            },
             "*",
           );
         });
@@ -502,6 +508,178 @@ describe("AutofillInlineMenuList", () => {
 
             expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
           });
+        });
+      });
+
+      describe("creating a list of passkeys", () => {
+        let passkeyCipher1: InlineMenuCipherData;
+        let passkeyCipher2: InlineMenuCipherData;
+        let passkeyCipher3: InlineMenuCipherData;
+        let loginCipher1: InlineMenuCipherData;
+        let loginCipher2: InlineMenuCipherData;
+        let loginCipher3: InlineMenuCipherData;
+        let loginCipher4: InlineMenuCipherData;
+        const borderClass = "inline-menu-list-heading--bordered";
+
+        beforeEach(() => {
+          passkeyCipher1 = createAutofillOverlayCipherDataMock(1, {
+            name: "https://example.com",
+            login: {
+              username: "username1",
+              passkey: {
+                rpName: "https://example.com",
+                userName: "username1",
+              },
+            },
+          });
+          passkeyCipher2 = createAutofillOverlayCipherDataMock(2, {
+            name: "https://example.com",
+            login: {
+              username: "",
+              passkey: {
+                rpName: "https://example.com",
+                userName: "username2",
+              },
+            },
+          });
+          passkeyCipher3 = createAutofillOverlayCipherDataMock(3, {
+            login: {
+              username: "username3",
+              passkey: {
+                rpName: "https://example.com",
+                userName: "username3",
+              },
+            },
+          });
+          loginCipher1 = createAutofillOverlayCipherDataMock(1, {
+            login: {
+              username: "username1",
+              passkey: null,
+            },
+          });
+          loginCipher2 = createAutofillOverlayCipherDataMock(2, {
+            login: {
+              username: "username2",
+              passkey: null,
+            },
+          });
+          loginCipher3 = createAutofillOverlayCipherDataMock(3, {
+            login: {
+              username: "username3",
+              passkey: null,
+            },
+          });
+          loginCipher4 = createAutofillOverlayCipherDataMock(4, {
+            login: {
+              username: "username4",
+              passkey: null,
+            },
+          });
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({
+              ciphers: [
+                passkeyCipher1,
+                passkeyCipher2,
+                passkeyCipher3,
+                loginCipher1,
+                loginCipher2,
+                loginCipher3,
+                loginCipher4,
+              ],
+              showPasskeysLabels: true,
+              portKey,
+            }),
+          );
+        });
+
+        it("renders the passkeys list item views", () => {
+          expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+        });
+
+        describe("passkeys headings on scroll", () => {
+          it("adds a border class to the passkeys and login headings when the user scrolls the cipher list container", () => {
+            autofillInlineMenuList["ciphersList"].scrollTop = 300;
+
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+
+            expect(
+              autofillInlineMenuList["passkeysHeadingElement"].classList.contains(borderClass),
+            ).toBe(true);
+            expect(autofillInlineMenuList["passkeysHeadingElement"].style.position).toBe(
+              "relative",
+            );
+            expect(
+              autofillInlineMenuList["loginHeadingElement"].classList.contains(borderClass),
+            ).toBe(true);
+          });
+
+          it("removes the border class from the passkeys and login headings when the user scrolls the cipher list container to the top", () => {
+            jest.useFakeTimers();
+            autofillInlineMenuList["ciphersList"].scrollTop = 300;
+
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+            jest.advanceTimersByTime(75);
+
+            autofillInlineMenuList["ciphersList"].scrollTop = -1;
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+
+            expect(
+              autofillInlineMenuList["passkeysHeadingElement"].classList.contains(borderClass),
+            ).toBe(false);
+            expect(autofillInlineMenuList["passkeysHeadingElement"].style.position).toBe("");
+            expect(
+              autofillInlineMenuList["loginHeadingElement"].classList.contains(borderClass),
+            ).toBe(false);
+          });
+
+          it("loads each page of ciphers until the list of updated ciphers is exhausted", () => {
+            jest.useFakeTimers();
+            autofillInlineMenuList["ciphersList"].scrollTop = 10;
+            jest.spyOn(autofillInlineMenuList as any, "loadPageOfCiphers");
+
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+            jest.advanceTimersByTime(1000);
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+            jest.runAllTimers();
+
+            expect(autofillInlineMenuList["loadPageOfCiphers"]).toHaveBeenCalledTimes(1);
+          });
+        });
+
+        it("skips the logins heading when the user presses ArrowDown to focus the next list item", () => {
+          const cipherContainerElements =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll("li");
+          const viewCipherButton = cipherContainerElements[3].querySelector(".view-cipher-button");
+          const fillCipherButton = cipherContainerElements[5].querySelector(".fill-cipher-button");
+          jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("skips the passkeys heading when the user presses ArrowDown to focus the first list item", () => {
+          const cipherContainerElements =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll("li");
+          const viewCipherButton = cipherContainerElements[7].querySelector(".view-cipher-button");
+          const fillCipherButton = cipherContainerElements[1].querySelector(".fill-cipher-button");
+          jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("skips the logins heading when the user presses ArrowUp to focus the previous list item", () => {
+          const cipherContainerElements =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll("li");
+          const viewCipherButton = cipherContainerElements[5].querySelector(".view-cipher-button");
+          const fillCipherButton = cipherContainerElements[3].querySelector(".fill-cipher-button");
+          jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
         });
       });
     });

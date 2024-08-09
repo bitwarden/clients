@@ -269,7 +269,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  async getEnvironment(userId?: UserId) {
+  async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
     if (userId == null) {
       return await firstValueFrom(this.environment$);
     }

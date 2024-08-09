@@ -1,4 +1,4 @@
-import { map } from "rxjs";
+import { filter, map } from "rxjs";
 
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -110,7 +110,10 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
   private createSecretState(userId: UserId): SingleUserState<GeneratedCredential[]> {
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    const encryptor = new UserKeyEncryptor(this.encryptService, this.keyService, packer);
+    const encryptor$ = this.keyService.userKey$(userId).pipe(
+      map((key) => (key ? new UserKeyEncryptor(userId, this.encryptService, key, packer) : null)),
+      filter((encryptor) => !!encryptor),
+    );
 
     // construct the durable state
     const state = SecretState.from<
@@ -119,7 +122,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       GeneratedCredential,
       Record<keyof GeneratedCredential, never>,
       GeneratedCredential
-    >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor);
+    >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor$);
 
     // decryptor is just an algorithm, but it can't run until the key is available;
     // providing it via an observable makes running it early impossible
@@ -128,9 +131,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       this.keyService,
       this.encryptService,
     );
-    const decryptor$ = this.keyService
-      .getInMemoryUserKeyFor$(userId)
-      .pipe(map((key) => key && decryptor));
+    const decryptor$ = this.keyService.userKey$(userId).pipe(map((key) => key && decryptor));
 
     // move data from the old password history once decryptor is available
     const buffer = new BufferedState(

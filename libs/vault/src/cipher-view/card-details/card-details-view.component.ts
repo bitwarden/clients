@@ -13,8 +13,6 @@ import {
   IconButtonModule,
 } from "@bitwarden/components";
 
-import { OrgIconDirective } from "../../components/org-icon.directive";
-
 @Component({
   selector: "app-card-details-view",
   templateUrl: "card-details-view.component.html",
@@ -26,7 +24,6 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
-    OrgIconDirective,
     FormFieldModule,
     IconButtonModule,
   ],

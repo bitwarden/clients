@@ -1,3 +1,7 @@
+import { Observable } from "rxjs";
+
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
+
 export const UserRequestedFallbackAbortReason = "UserRequestedFallback";
 
 export type UserVerification = "discouraged" | "preferred" | "required";
@@ -15,6 +19,10 @@ export type UserVerification = "discouraged" | "preferred" | "required";
  */
 export abstract class Fido2ClientService {
   isFido2FeatureEnabled: (hostname: string, origin: string) => Promise<boolean>;
+
+  availableAutofillCredentials$: (tabId: number) => Observable<Fido2CredentialView[]>;
+
+  autofillCredential: (tabId: number, credentialId: string) => Promise<void>;
 
   /**
    * Allows WebAuthn Relying Party scripts to request the creation of a new public key credential source.
@@ -142,6 +150,7 @@ export interface AssertCredentialParams {
   userVerification?: UserVerification;
   timeout: number;
   sameOriginWithAncestors: boolean;
+  mediation?: "silent" | "optional" | "required" | "conditional";
   fallbackSupported: boolean;
 }
 

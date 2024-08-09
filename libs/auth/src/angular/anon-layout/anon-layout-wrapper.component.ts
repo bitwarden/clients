@@ -10,7 +10,12 @@ import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service
 
 export interface AnonLayoutWrapperData {
   pageTitle?: string;
-  pageSubtitle?: string;
+  pageSubtitle?:
+    | string
+    | {
+        subtitle: string;
+        translate: boolean;
+      };
   pageIcon?: Icon;
   showReadonlyHostname?: boolean;
   maxWidth?: "md" | "3xl";
@@ -99,14 +104,22 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     }
 
     if (data.pageSubtitle) {
-      this.pageSubtitle = this.i18nService.t(data.pageSubtitle);
+      // If you pass just a string, we translate it by default
+      if (typeof data.pageSubtitle === "string") {
+        this.pageSubtitle = this.i18nService.t(data.pageSubtitle);
+      } else {
+        // if you pass an object, you can specify if you want to translate it or not
+        this.pageSubtitle = data.pageSubtitle.translate
+          ? this.i18nService.t(data.pageSubtitle.subtitle)
+          : data.pageSubtitle.subtitle;
+      }
     }
 
     if (data.pageIcon) {
       this.pageIcon = data.pageIcon;
     }
 
-    if (data.showReadonlyHostname) {
+    if (data.showReadonlyHostname != null) {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
   }

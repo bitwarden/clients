@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -13,7 +12,6 @@ import { UserKeyEncryptor } from "./user-key-encryptor";
 
 describe("UserKeyEncryptor", () => {
   const encryptService = mock<EncryptService>();
-  const keyService = mock<CryptoService>();
   const dataPacker = mock<DataPacker>();
   const userKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
   const anyUserId = "foo" as UserId;
@@ -23,10 +21,9 @@ describe("UserKeyEncryptor", () => {
     // objects, so its tests focus on how data flows between components. The defaults rely
     // on this property--that the facade treats its data like a opaque objects--to trace
     // the data through several function calls. Should the encryptor interact with the
-    // objects themselves, it will break.
+    // objects themselves, these mocks will break.
     encryptService.encrypt.mockImplementation((p) => Promise.resolve(p as unknown as EncString));
     encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c as unknown as string));
-    keyService.getUserKey.mockImplementation(() => Promise.resolve(userKey));
     dataPacker.pack.mockImplementation((v) => v as string);
     dataPacker.unpack.mockImplementation(<T>(v: string) => v as T);
   });
@@ -35,37 +32,68 @@ describe("UserKeyEncryptor", () => {
     jest.resetAllMocks();
   });
 
-  describe("encrypt", () => {
-    it("should throw if value was not supplied", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
-
-      await expect(encryptor.encrypt<Record<string, never>>(null, anyUserId)).rejects.toThrow(
-        "secret cannot be null or undefined",
-      );
-      await expect(encryptor.encrypt<Record<string, never>>(undefined, anyUserId)).rejects.toThrow(
-        "secret cannot be null or undefined",
-      );
+  describe("constructor", () => {
+    it("should set userId", async () => {
+      const encryptor = new UserKeyEncryptor(anyUserId, encryptService, userKey, dataPacker);
+      expect(encryptor.userId).toEqual(anyUserId);
     });
 
     it("should throw if userId was not supplied", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
-
-      await expect(encryptor.encrypt({}, null)).rejects.toThrow(
+      expect(() => new UserKeyEncryptor(null, encryptService, userKey, dataPacker)).toThrow(
         "userId cannot be null or undefined",
       );
-      await expect(encryptor.encrypt({}, undefined)).rejects.toThrow(
+      expect(() => new UserKeyEncryptor(null, encryptService, userKey, dataPacker)).toThrow(
         "userId cannot be null or undefined",
+      );
+    });
+
+    it("should throw if encryptService was not supplied", async () => {
+      expect(() => new UserKeyEncryptor(anyUserId, null, userKey, dataPacker)).toThrow(
+        "encryptService cannot be null or undefined",
+      );
+      expect(() => new UserKeyEncryptor(anyUserId, null, userKey, dataPacker)).toThrow(
+        "encryptService cannot be null or undefined",
+      );
+    });
+
+    it("should throw if key was not supplied", async () => {
+      expect(() => new UserKeyEncryptor(anyUserId, encryptService, null, dataPacker)).toThrow(
+        "key cannot be null or undefined",
+      );
+      expect(() => new UserKeyEncryptor(anyUserId, encryptService, null, dataPacker)).toThrow(
+        "key cannot be null or undefined",
+      );
+    });
+
+    it("should throw if dataPacker was not supplied", async () => {
+      expect(() => new UserKeyEncryptor(anyUserId, encryptService, userKey, null)).toThrow(
+        "dataPacker cannot be null or undefined",
+      );
+      expect(() => new UserKeyEncryptor(anyUserId, encryptService, userKey, null)).toThrow(
+        "dataPacker cannot be null or undefined",
+      );
+    });
+  });
+
+  describe("encrypt", () => {
+    it("should throw if value was not supplied", async () => {
+      const encryptor = new UserKeyEncryptor(anyUserId, encryptService, userKey, dataPacker);
+
+      await expect(encryptor.encrypt<Record<string, never>>(null)).rejects.toThrow(
+        "secret cannot be null or undefined",
+      );
+      await expect(encryptor.encrypt<Record<string, never>>(undefined)).rejects.toThrow(
+        "secret cannot be null or undefined",
       );
     });
 
     it("should encrypt a packed value using the user's key", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
+      const encryptor = new UserKeyEncryptor(anyUserId, encryptService, userKey, dataPacker);
       const value = { foo: true };
 
-      const result = await encryptor.encrypt(value, anyUserId);
+      const result = await encryptor.encrypt(value);
 
       // these are data flow expectations; the operations all all pass-through mocks
-      expect(keyService.getUserKey).toHaveBeenCalledWith(anyUserId);
       expect(dataPacker.pack).toHaveBeenCalledWith(value);
       expect(encryptService.encrypt).toHaveBeenCalledWith(value, userKey);
       expect(result).toBe(value);
@@ -74,35 +102,21 @@ describe("UserKeyEncryptor", () => {
 
   describe("decrypt", () => {
     it("should throw if secret was not supplied", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
+      const encryptor = new UserKeyEncryptor(anyUserId, encryptService, userKey, dataPacker);
 
-      await expect(encryptor.decrypt(null, anyUserId)).rejects.toThrow(
+      await expect(encryptor.decrypt(null)).rejects.toThrow("secret cannot be null or undefined");
+      await expect(encryptor.decrypt(undefined)).rejects.toThrow(
         "secret cannot be null or undefined",
-      );
-      await expect(encryptor.decrypt(undefined, anyUserId)).rejects.toThrow(
-        "secret cannot be null or undefined",
-      );
-    });
-
-    it("should throw if userId was not supplied", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
-
-      await expect(encryptor.decrypt({} as any, null)).rejects.toThrow(
-        "userId cannot be null or undefined",
-      );
-      await expect(encryptor.decrypt({} as any, undefined)).rejects.toThrow(
-        "userId cannot be null or undefined",
       );
     });
 
     it("should declassify a decrypted packed value using the user's key", async () => {
-      const encryptor = new UserKeyEncryptor(encryptService, keyService, dataPacker);
+      const encryptor = new UserKeyEncryptor(anyUserId, encryptService, userKey, dataPacker);
       const secret = "encrypted" as any;
 
-      const result = await encryptor.decrypt(secret, anyUserId);
+      const result = await encryptor.decrypt(secret);
 
       // these are data flow expectations; the operations all all pass-through mocks
-      expect(keyService.getUserKey).toHaveBeenCalledWith(anyUserId);
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(secret, userKey);
       expect(dataPacker.unpack).toHaveBeenCalledWith(secret);
       expect(result).toBe(secret);

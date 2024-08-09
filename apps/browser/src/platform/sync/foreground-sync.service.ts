@@ -11,6 +11,7 @@ import {
   MessageSender,
 } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CoreSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -40,6 +41,7 @@ export class ForegroundSyncService extends CoreSyncService {
     sendService: InternalSendService,
     sendApiService: SendApiService,
     private readonly messageListener: MessageListener,
+    stateProvider: StateProvider,
   ) {
     super(
       stateService,
@@ -54,6 +56,7 @@ export class ForegroundSyncService extends CoreSyncService {
       authService,
       sendService,
       sendApiService,
+      stateProvider,
     );
   }
 

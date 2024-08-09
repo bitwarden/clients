@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, Subscription, firstValueFrom } from "rxjs";
 import { filter, first, takeUntil } from "rxjs/operators";
@@ -37,7 +37,7 @@ import { closeTwoFactorAuthPopout } from "./utils/auth-popout-window";
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
-export class TwoFactorComponent extends BaseTwoFactorComponent {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   inPopout = BrowserPopupUtils.inPopout(window);
 

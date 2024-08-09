@@ -23,6 +23,6 @@ export abstract class CollectionService {
   getNested: (id: string) => Promise<TreeNode<CollectionView>>;
   upsert: (collection: CollectionData | CollectionData[]) => Promise<any>;
   replace: (collections: { [id: string]: CollectionData }) => Promise<any>;
-  clear: (userId: string) => Promise<any>;
+  clear: (userId?: string) => Promise<void>;
   delete: (id: string | string[]) => Promise<any>;
 }

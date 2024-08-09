@@ -129,7 +129,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   upsert: (cipher: CipherData | CipherData[]) => Promise<Record<CipherId, CipherData>>;
   replace: (ciphers: { [id: string]: CipherData }) => Promise<any>;
-  clear: (userId: string) => Promise<any>;
+  clear: (userId?: string) => Promise<void>;
   moveManyWithServer: (ids: string[], folderId: string) => Promise<any>;
   delete: (id: string | string[]) => Promise<any>;
   deleteWithServer: (id: string, asAdmin?: boolean) => Promise<any>;

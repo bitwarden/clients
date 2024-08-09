@@ -53,6 +53,11 @@ export class LoginDetailsSectionComponent implements OnInit {
   });
 
   /**
+   * Flag indicating whether a new password has been generated for the current form.
+   */
+  newPasswordGenerated: boolean;
+
+  /**
    * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
    */
   get canCaptureTotp() {
@@ -148,7 +153,7 @@ export class LoginDetailsSectionComponent implements OnInit {
   private async initNewCipher() {
     this.loginDetailsForm.patchValue({
       username: this.cipherFormContainer.config.initialValues?.username || "",
-      password: await this.generationService.generateInitialPassword(),
+      password: "",
     });
   }
 
@@ -193,6 +198,7 @@ export class LoginDetailsSectionComponent implements OnInit {
 
     if (newPassword) {
       this.loginDetailsForm.controls.password.patchValue(newPassword);
+      this.newPasswordGenerated = true;
     }
   };
 
