@@ -26,7 +26,6 @@ import { SsoConfigApi } from "@bitwarden/common/auth/models/api/sso-config.api";
 import { OrganizationSsoRequest } from "@bitwarden/common/auth/models/request/organization-sso.request";
 import { OrganizationSsoResponse } from "@bitwarden/common/auth/models/response/organization-sso.response";
 import { SsoConfigView } from "@bitwarden/common/auth/models/view/sso-config.view";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -60,6 +59,10 @@ export class SsoComponent implements OnInit, OnDestroy {
     "http://www.w3.org/2000/09/xmldsig#rsa-sha384",
     "http://www.w3.org/2000/09/xmldsig#rsa-sha512",
   ];
+
+  readonly samlSigningAlgorithmOptions: SelectOptions[] = this.samlSigningAlgorithms.map(
+    (algorithm) => ({ name: algorithm, value: algorithm }),
+  );
 
   readonly saml2SigningBehaviourOptions: SelectOptions[] = [
     {
@@ -186,7 +189,6 @@ export class SsoComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -328,10 +330,6 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   get keyConnectorUrl() {
     return this.ssoConfigForm.get("keyConnectorUrl");
-  }
-
-  get samlSigningAlgorithmOptions(): SelectOptions[] {
-    return this.samlSigningAlgorithms.map((algorithm) => ({ name: algorithm, value: algorithm }));
   }
 
   /**
