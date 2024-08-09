@@ -106,18 +106,17 @@ apps/web/src/app/layouts @bitwarden/team-design-system
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 
-## DevOps team files ##
-/.github/workflows @bitwarden/dept-devops
-
-# DevOps for Docker changes.
-**/Dockerfile @bitwarden/dept-devops
-**/*.Dockerfile @bitwarden/dept-devops
-**/.dockerignore @bitwarden/dept-devops
-**/entrypoint.sh @bitwarden/dept-devops
-
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
 apps/browser/store/locales/en
 apps/cli/src/locales/en/messages.json
 apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
+
+# BRE for release workflow changes
+.github/workflows/release-desktop-beta.yml @bitwarden/dept-bre
+.github/workflows/release-web.yml @bitwarden/dept-bre
+.github/workflows/release-desktop.yml @bitwarden/dept-bre
+.github/workflows/release-cli.yml @bitwarden/dept-bre
+.github/workflows/release-browser.yml @bitwarden/dept-bre
+.github/workflows/staged-rollout-desktop.yml @bitwarden/dept-bre
