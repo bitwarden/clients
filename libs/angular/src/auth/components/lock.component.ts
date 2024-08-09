@@ -316,10 +316,7 @@ export class LockComponent implements OnInit, OnDestroy {
   private async load(userId: UserId) {
     this.pinLockType = await this.pinService.getPinLockType(userId);
 
-    const ephemeralPinSet = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
-
-    this.pinEnabled =
-      (this.pinLockType === "EPHEMERAL" && !!ephemeralPinSet) || this.pinLockType === "PERSISTENT";
+    this.pinEnabled = await this.pinService.isPinDecryptionAvailable(userId);
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 

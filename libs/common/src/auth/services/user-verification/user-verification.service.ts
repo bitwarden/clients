@@ -57,13 +57,17 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   ): Promise<UserVerificationOptions> {
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (verificationType === "client") {
-      const [userHasMasterPassword, pinLockType, biometricsLockSet, biometricsUserKeyStored] =
-        await Promise.all([
-          this.hasMasterPasswordAndMasterKeyHash(userId),
-          this.pinService.getPinLockType(userId),
-          this.vaultTimeoutSettingsService.isBiometricLockSet(userId),
-          this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
-        ]);
+      const [
+        userHasMasterPassword,
+        isPinDecryptionAvailable,
+        biometricsLockSet,
+        biometricsUserKeyStored,
+      ] = await Promise.all([
+        this.hasMasterPasswordAndMasterKeyHash(userId),
+        this.pinService.isPinDecryptionAvailable(userId),
+        this.vaultTimeoutSettingsService.isBiometricLockSet(userId),
+        this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
+      ]);
 
       // note: we do not need to check this.platformUtilsService.supportsBiometric() because
       // we can just use the logic below which works for both desktop & the browser extension.
@@ -71,7 +75,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       return {
         client: {
           masterPassword: userHasMasterPassword,
-          pin: pinLockType !== "DISABLED",
+          pin: isPinDecryptionAvailable,
           biometrics:
             biometricsLockSet &&
             (biometricsUserKeyStored || !this.platformUtilsService.supportsSecureStorage()),

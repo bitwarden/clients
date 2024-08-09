@@ -113,8 +113,16 @@ export abstract class PinServiceAbstraction {
 
   /**
    * Declares whether or not the user has a PIN set (either persistent or ephemeral).
+   * Note: for ephemeral, this does not check if we actual have an ephemeral PIN-encrypted UserKey stored in memory.
+   * Decryption might not be possible even if this returns true. Use {@link isPinDecryptionAvailable} if decryption is required.
    */
   abstract isPinSet: (userId: UserId) => Promise<boolean>;
+
+  /**
+   * Checks if PIN-encrypted keys are stored for the user.
+   * Used for unlock / user verification scenarios where we will need to decrypt the UserKey with the PIN.
+   */
+  abstract isPinDecryptionAvailable: (userId: UserId) => Promise<boolean>;
 
   /**
    * Decrypts the UserKey with the provided PIN.
