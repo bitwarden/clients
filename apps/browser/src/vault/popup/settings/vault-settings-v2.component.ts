@@ -5,7 +5,7 @@ import { Router, RouterModule } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
+import { AsyncActionsModule, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
@@ -26,6 +26,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
+    AsyncActionsModule,
   ],
 })
 export class VaultSettingsV2Component implements OnInit {
@@ -49,7 +50,7 @@ export class VaultSettingsV2Component implements OnInit {
     }
   }
 
-  async sync() {
+  sync = async () => {
     let toastConfig: ToastOptions;
     const success = await this.syncService.fullSync(true);
     if (success) {
@@ -63,7 +64,7 @@ export class VaultSettingsV2Component implements OnInit {
       toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
     }
     this.toastService.showToast(toastConfig);
-  }
+  };
 
   private async setLastSync() {
     const last = await this.syncService.getLastSync();

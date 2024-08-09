@@ -25,10 +25,21 @@
       </a>
     </bit-item>
     <bit-item>
-      <button type="button" bit-item-content (click)="sync()">
+      <button
+        type="button"
+        bit-item-content
+        [disabled]="syncButton.disabled"
+        #syncButton
+        [bitAction]="sync"
+      >
         {{ "syncVaultNow" | i18n }}
         <span slot="secondary">{{ lastSync }}</span>
-        <i slot="end" class="bwi bwi-refresh" aria-hidden="true"></i>
+        <i
+          slot="end"
+          [ngClass]="syncButton.loading ? 'bwi-spinner' : 'bwi-refresh'"
+          class="bwi"
+          aria-hidden="true"
+        ></i>
       </button>
     </bit-item>
   </bit-item-group>
