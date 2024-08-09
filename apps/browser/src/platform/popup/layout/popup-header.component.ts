@@ -1,5 +1,5 @@
 import { BooleanInput, coerceBooleanProperty } from "@angular/cdk/coercion";
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, Input, Signal, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -10,6 +10,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
+
 import { PopupPageComponent } from "./popup-page.component";
 
 @Component({
@@ -19,6 +21,7 @@ import { PopupPageComponent } from "./popup-page.component";
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {
+  private popupRouterCacheService = inject(PopupRouterCacheService);
   protected pageContentScrolled: Signal<boolean> = inject(PopupPageComponent).isScrolled;
 
   /** Background color */
@@ -46,8 +49,6 @@ export class PopupHeaderComponent {
    **/
   @Input()
   backAction: FunctionReturningAwaitable = async () => {
-    this.location.back();
+    return this.popupRouterCacheService.back();
   };
-
-  constructor(private location: Location) {}
 }

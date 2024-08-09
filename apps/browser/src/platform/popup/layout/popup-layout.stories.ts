@@ -16,6 +16,8 @@ import {
   SectionComponent,
 } from "@bitwarden/components";
 
+import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
+
 import { PopupFooterComponent } from "./popup-footer.component";
 import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
@@ -334,6 +336,12 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: PopupRouterCacheService,
+          useValue: {
+            back() {},
+          } as Partial<PopupRouterCacheService>,
+        },
       ],
     }),
   ],

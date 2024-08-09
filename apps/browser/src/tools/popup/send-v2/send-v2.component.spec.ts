@@ -16,6 +16,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -102,6 +103,7 @@ describe("SendV2Component", () => {
         { provide: SendItemsService, useValue: sendItemsService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
+        { provide: GlobalStateProvider, useValue: mock<GlobalStateProvider>() },
       ],
     }).compileComponents();
 

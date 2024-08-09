@@ -5,6 +5,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import {
@@ -39,6 +40,7 @@ describe("VaultGeneratorDialogComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: DialogRef, useValue: mockDialogRef },
+        { provide: GlobalStateProvider, useValue: mock<GlobalStateProvider>() },
       ],
     })
       .overrideComponent(VaultGeneratorDialogComponent, {

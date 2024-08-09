@@ -28,6 +28,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, I18nMockService } from "@bitwarden/components";
 
 import { RegistrationCheckEmailIcon } from "../../../../../../libs/auth/src/angular/icons/registration-check-email.icon";
+import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 import { ExtensionAnonLayoutWrapperDataService } from "./extension-anon-layout-wrapper-data.service";
 import {
@@ -145,7 +146,15 @@ const decorators = (options: {
       ],
     }),
     applicationConfig({
-      providers: [importProvidersFrom(RouterModule.forRoot(options.routes))],
+      providers: [
+        importProvidersFrom(RouterModule.forRoot(options.routes)),
+        {
+          provide: PopupRouterCacheService,
+          useValue: {
+            back() {},
+          } as Partial<PopupRouterCacheService>,
+        },
+      ],
     }),
   ];
 };
