@@ -19,7 +19,7 @@
       class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
       [disabled]="disabled"
       [routerLink]="[]"
-      [queryParams]="{ itemId: cipher.id }"
+      [queryParams]="{ itemId: cipher.id, action: 'view' }"
       queryParamsHandling="merge"
       title="{{ 'editItemWithName' | i18n: cipher.name }}"
       type="button"

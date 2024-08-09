@@ -462,6 +462,15 @@
   "viewItem": {
     "message": "View item"
   },
+  "viewItemType": {
+    "message": "View $ITEMTYPE$",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
   "new": {
     "message": "New",
     "description": "for adding new items"

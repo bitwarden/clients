@@ -89,6 +89,11 @@ import {
   RoutedVaultFilterModel,
   Unassigned,
 } from "../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import {
+  openViewCipherDialog,
+  ViewCipherDialogResult,
+  ViewComponent,
+} from "../individual-vault/view.component";
 import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.component";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
@@ -121,6 +126,7 @@ enum AddAccessStatusType {
     VaultItemsModule,
     SharedModule,
     NoItemsModule,
+    ViewComponent,
   ],
   providers: [RoutedVaultFilterService, RoutedVaultFilterBridgeService],
 })
@@ -589,7 +595,11 @@ export class VaultComponent implements OnInit, OnDestroy {
           }
 
           if (canEditCipher) {
-            await this.editCipherId(cipherId);
+            if (qParams.action === "view") {
+              await this.viewCipherId(cipherId);
+            } else {
+              await this.editCipherId(cipherId);
+            }
           } else {
             this.toastService.showToast({
               variant: "error",
@@ -933,10 +943,41 @@ export class VaultComponent implements OnInit, OnDestroy {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     modal.onClosedPromise().then(() => {
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null, action: null });
     });
 
     return childComponent;
+  }
+
+  async viewCipher(cipher: CipherView) {
+    return this.viewCipherId(cipher.id);
+  }
+
+  async viewCipherId(id: string) {
+    const cipher = await this.cipherService.get(id);
+    if (
+      cipher &&
+      cipher.reprompt !== 0 &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
+
+    const cipherView = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher),
+    );
+    const cipherTypeString = ViewComponent.getCipherViewTypeString(cipherView, this.i18nService);
+    const dialog = openViewCipherDialog(this.dialogService, {
+      data: { cipher: cipherView, cipherTypeString },
+    });
+    const result = await lastValueFrom(dialog.closed);
+    if (result.action === ViewCipherDialogResult.deleted) {
+      this.refresh();
+    }
+    if (!result.action) {
+      this.go({ cipherId: null, itemId: null, action: null });
+    }
   }
 
   async cloneCipher(cipher: CipherView) {
