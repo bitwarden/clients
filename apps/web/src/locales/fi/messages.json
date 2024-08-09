@@ -49,22 +49,22 @@
     "message": "Todennusavain"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Automaattitäytön asetukset"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Verkkosivusto (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Verkkosivusto lisättiin"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Lisää verkkosivusto"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Poista verkkosivusto"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Oletus ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Näytä vastaavuuden tunnistus $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Piilota vastaavuuden tunnistus $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automaattitäytetäänkö sivun avautuessa?"
   },
   "number": {
     "message": "Numero"
@@ -1100,7 +1100,7 @@
     "message": "Suojausavain"
   },
   "webAuthnDesc": {
-    "message": "Vahvista kirjautuminen WebAuthn-todennuslaitteella."
+    "message": "Vahvista kirjautuminen WebAuthn-suojausavaimella."
   },
   "webAuthnMigrated": {
     "message": "(siirretty FIDO:sta)"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Sanojen vähimmäismäärä"
   },
-  "defaultType": {
-    "message": "Oletustyyppi"
+  "overridePasswordTypePolicy": {
+    "message": "Salasanan tyyppi",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Käyttäjän asetus"
@@ -5323,7 +5324,7 @@
     "message": "Pääsalasanasi ei täytä yhden tai useamman organisaatiokäytännön vaatimuksia ja holvin käyttämiseksi sinun on vaihdettava se nyt. Tämä uloskirjaa kaikki nykyiset istunnot pakottaen uudelleenkirjautumisen. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Organisaatiosi on päivittänyt salauksen purkuasetukset. Käytä holviasi asettamalla pääsalasana."
   },
   "maximumVaultTimeout": {
     "message": "Holvin aikakatkaisu"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Satunnainen sana"
+  },
+  "usernameGenerator": {
+    "message": "Käyttäjätunnusgeneraattori"
+  },
+  "useThisPassword": {
+    "message": "Käytä tätä salasanaa"
+  },
+  "useThisUsername": {
+    "message": "Käytä tätä käyttäjätunnusta"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Käytä generaattoria",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Palvelu"
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Lisää kenttä"
   },
   "items": {
     "message": "Kohteet"
@@ -8794,6 +8815,12 @@
   "purchasedSeatsRemoved": {
     "message": "ostetut käyttäpaikat poistettiin"
   },
+  "fileSends": {
+    "message": "Tiedosto-Sendit"
+  },
+  "textSends": {
+    "message": "Teksti-Sendit"
+  },
   "includesXMembers": {
     "message": "$COUNT$ jäsenelle",
     "placeholders": {
@@ -8846,7 +8873,7 @@
     }
   },
   "upgradePlan": {
-    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+    "message": "Päivitä tilauksesi kutsuaksesi lisää jäseniä ja saadaksesi käyttöösi Bitwardenin lisäominaisuuksia"
   },
   "upgradeDiscount": {
     "message": "Säästä $AMOUNT$%",
@@ -8858,7 +8885,7 @@
     }
   },
   "upgradeEnterpriseMessage": {
-    "message": "Advanced capabilities for larger businesses"
+    "message": "Kehittyneet ominaisuudet suuremmille yrityksille"
   },
   "upgradeTeamsMessage": {
     "message": "Vahvaa suojausta etsiville yrityksille"

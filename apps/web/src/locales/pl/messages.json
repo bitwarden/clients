@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Minimalna liczba słów"
   },
-  "defaultType": {
-    "message": "Domyślny rodzaj"
+  "overridePasswordTypePolicy": {
+    "message": "Rodzaj hasła",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Ustawienie użytkownika"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Losowe słowo"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Usługa"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "zakupione miejsca usunięte"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",

@@ -49,22 +49,22 @@
     "message": "Ключ автентифікації"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Параметри автозаповнення"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Вебсайт (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Вебсайт додано"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Додати вебсайт"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Видалити вебсайт"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Типово ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Показати виявлення збігів $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Приховати виявлення збігів $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Автоматично заповнювати під час завантаження сторінки?"
   },
   "number": {
     "message": "Номер"
@@ -107,7 +107,7 @@
     "message": "Код безпеки (CVV)"
   },
   "identityName": {
-    "message": "Назва"
+    "message": "Назва посвідчення"
   },
   "company": {
     "message": "Компанія"
@@ -336,7 +336,7 @@
     "message": "Шукати в обраному"
   },
   "searchLogin": {
-    "message": "Шукати записи входу",
+    "message": "Шукати записи",
     "description": "Search Login type"
   },
   "searchCard": {
@@ -344,7 +344,7 @@
     "description": "Search Card type"
   },
   "searchIdentity": {
-    "message": "Шукати особисті дані",
+    "message": "Шукати посвідчення",
     "description": "Search Identity type"
   },
   "searchSecureNote": {
@@ -367,7 +367,7 @@
     "message": "Пошук в групах"
   },
   "allItems": {
-    "message": "Всі елементи"
+    "message": "Усі записи"
   },
   "favorites": {
     "message": "Обране"
@@ -382,7 +382,7 @@
     "message": "Картка"
   },
   "typeIdentity": {
-    "message": "Особисті дані"
+    "message": "Посвідчення"
   },
   "typeSecureNote": {
     "message": "Захищена нотатка"
@@ -394,7 +394,7 @@
     "message": "Картки"
   },
   "typeIdentityPlural": {
-    "message": "Особисті дані"
+    "message": "Посвідчення"
   },
   "typeSecureNotePlural": {
     "message": "Захищені нотатки"
@@ -544,7 +544,7 @@
     "message": "Сховища"
   },
   "vaultItems": {
-    "message": "Елементи сховища"
+    "message": "Записи сховища"
   },
   "filter": {
     "message": "Фільтр"
@@ -617,7 +617,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Елементи переміщено до $ORGNAME$",
+    "message": "Записи переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -626,7 +626,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Елемент переміщено до $ORGNAME$",
+    "message": "Запис переміщено до $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1001,7 +1001,7 @@
     "message": "Нова організація"
   },
   "noOrganizationsList": {
-    "message": "Ви не входите до жодної організації. Організації дозволяють безпечно обмінюватися елементами з іншими користувачами."
+    "message": "Ви не входите до жодної організації. Організації дають змогу безпечно обмінюватися записами з іншими користувачами."
   },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
@@ -1502,7 +1502,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "новий елемент",
+    "message": "новий запис",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -1523,7 +1523,7 @@
     "message": "Дані успішно імпортовано"
   },
   "importSuccessNumberOfItems": {
-    "message": "Всього імпортовано $AMOUNT$ елементів.",
+    "message": "Всього імпортовано $AMOUNT$ записів.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -1575,7 +1575,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "Файл містить непризначені елементи."
+    "message": "Файл містить непризначені записи."
   },
   "selectFormat": {
     "message": "Оберіть формат імпортованого файлу"
@@ -2921,7 +2921,7 @@
     "message": "Користувач"
   },
   "userDesc": {
-    "message": "Доступ та додавання елементів до призначених збірок"
+    "message": "Доступ та додавання записів до призначених збірок"
   },
   "all": {
     "message": "Усі"
@@ -3020,7 +3020,7 @@
     }
   },
   "editedItemId": {
-    "message": "Змінений елемент $ID$.",
+    "message": "Змінений запис $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3077,7 +3077,7 @@
     }
   },
   "viewedCardNumberItemId": {
-    "message": "Переглянуто номер картки для елемента $ID$.",
+    "message": "Переглянуто номер картки для запису $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3104,7 +3104,7 @@
     }
   },
   "editItemWithName": {
-    "message": "Редагувати елемент - $NAME$",
+    "message": "Редагувати запис - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3269,7 +3269,7 @@
     }
   },
   "createdAttachmentForItem": {
-    "message": "Створено вкладення для елемента $ID$.",
+    "message": "Створено вкладення для запису $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3278,7 +3278,7 @@
     }
   },
   "deletedAttachmentForItem": {
-    "message": "Видалено вкладення для елемента $ID$.",
+    "message": "Видалено вкладення для запису $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3287,7 +3287,7 @@
     }
   },
   "editedCollectionsForItem": {
-    "message": "Змінена збірка для елемента $ID$.",
+    "message": "Змінено збірку для запису $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3968,7 +3968,7 @@
     "message": "Власник"
   },
   "whoOwnsThisItem": {
-    "message": "Хто є власником цього елемента?"
+    "message": "Хто є власником цього запису?"
   },
   "strong": {
     "message": "Надійний",
@@ -4002,7 +4002,7 @@
     "message": "Ви справді хочете оновити ключ шифрування облікового запису?"
   },
   "attachmentsNeedFix": {
-    "message": "Цей елемент має старі вкладені файли, які необхідно виправити."
+    "message": "Цей запис має старі вкладені файли, які необхідно виправити."
   },
   "attachmentFixDescription": {
     "message": "Це вкладення використовує застаріле шифрування. Виберіть \"Виправити\", щоб завантажити, повторно зашифрувати та вивантажити вкладення."
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Мінімальна кількість слів"
   },
-  "defaultType": {
-    "message": "Стандартний тип"
+  "overridePasswordTypePolicy": {
+    "message": "Тип пароля",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Налаштовано користувачем"
@@ -4793,7 +4794,7 @@
     "message": "Політика організації впливає на ваші параметри власності."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Політика організації заблокувала імпортування елементів до вашого особистого сховища."
+    "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Вилучити особисту власність для учасників організації"
@@ -5090,10 +5091,10 @@
     "message": "Порожня відповідь на скидання пароля"
   },
   "trashCleanupWarning": {
-    "message": "Елементи, що знаходяться в смітнику понад 30 днів, автоматично видалятимуться."
+    "message": "Записи, що знаходяться в смітнику понад 30 днів, автоматично видалятимуться."
   },
   "trashCleanupWarningSelfHosted": {
-    "message": "Елементи, що знаходяться в смітнику деякий час, автоматично видалятимуться."
+    "message": "Записи, що знаходяться в смітнику деякий час, автоматично видалятимуться."
   },
   "passwordPrompt": {
     "message": "Повторний запит головного пароля"
@@ -5323,7 +5324,7 @@
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Ваша організація оновила параметри дешифрування. Встановіть головний пароль для доступу до сховища."
   },
   "maximumVaultTimeout": {
     "message": "Час очікування сховища"
@@ -5431,7 +5432,7 @@
     "message": "Конфігурація провайдера послуг SAML"
   },
   "samlIdpConfig": {
-    "message": "Конфігурація провайдера облікових даних SAML"
+    "message": "Конфігурація провайдера ідентифікації SAML"
   },
   "callbackPath": {
     "message": "Шлях до зворотного виклику"
@@ -5936,7 +5937,7 @@
     }
   },
   "idpSingleSignOnServiceUrlRequired": {
-    "message": "Обов'язково, якщо ID елемента не є URL."
+    "message": "Обов'язково, якщо ID об'єкта не є URL."
   },
   "openIdOptionalCustomizations": {
     "message": "Додаткові налаштування"
@@ -5966,7 +5967,7 @@
     }
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Елементи особистих сховищ або інших організацій не будуть включені.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи особистих сховищ або інших організацій не будуть включені.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6049,11 +6050,31 @@
   "randomWord": {
     "message": "Випадкове слово"
   },
+  "usernameGenerator": {
+    "message": "Генератор імені користувача"
+  },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
+  },
+  "securePasswordGenerated": {
+    "message": "Надійний пароль згенеровано! Обов'язково оновіть свій пароль на вебсайті."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Скористатися генератором",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "для створення надійного, унікального пароля",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "service": {
     "message": "Послуга"
   },
   "unknownCipher": {
-    "message": "Невідомий елемент. Можливо, вам необхідно запитати дозвіл для доступу до нього."
+    "message": "Невідомий запис. Можливо, вам необхідно запитати дозвіл для доступу до нього."
   },
   "cannotSponsorSelf": {
     "message": "Ви не можете отримати для активного облікового запису. Введіть іншу адресу е-пошти."
@@ -6249,7 +6270,7 @@
     "description": "The text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimDescription": {
-    "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером облікових даних через SCIM",
+    "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM",
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -6257,7 +6278,7 @@
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
-    "message": "Налаштуйте бажаного провайдера облікових даних, вказавши URL-адресу та ключ API для SCIM",
+    "message": "Налаштуйте бажаного провайдера ідентифікації, вказавши URL-адресу та ключ API для SCIM",
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "scimApiKeyHelperText": {
@@ -7207,7 +7228,7 @@
     "message": "Експорт секретних даних організації"
   },
   "exportingOrganizationSecretDataDescription": {
-    "message": "Будуть експортовані лише дані менеджера секретів, пов'язані з $ORGANIZATION$. Елементи інших продуктів чи інших організацій не будуть включені.",
+    "message": "Будуть експортовані лише дані менеджера секретів, пов'язані з $ORGANIZATION$. Записи інших продуктів чи інших організацій не будуть включені.",
     "placeholders": {
       "ORGANIZATION": {
         "content": "$1",
@@ -7678,7 +7699,7 @@
     "message": "Запит підтвердження пристрою."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Користувач встановив головний пароль під час деактивації TDE."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Розпочніть 7-денний пробний період Bitwarden для $ORG$",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Додати поле"
   },
   "items": {
     "message": "Записи"
@@ -8461,10 +8482,10 @@
     "message": "Перемкнути меню організації"
   },
   "vaultItemSelect": {
-    "message": "Вибрати елемент сховища"
+    "message": "Вибрати запис сховища"
   },
   "collectionItemSelect": {
-    "message": "Вибрати елемент збірки"
+    "message": "Вибрати запис збірки"
   },
   "manageBillingFromProviderPortalMessage": {
     "message": "Керування рахунками на порталі провайдера"
@@ -8646,7 +8667,7 @@
     "message": "Переконайтеся, що учасники мають доступ до належних облікових даних і їхні облікові записи надійні. Використовуйте цей звіт, щоб отримати файл CSV з даними про доступ учасників та конфігурації облікових записів."
   },
   "memberAccessReportPageDesc": {
-    "message": "Аудит доступу учасника організації до груп, збірок та елементів збірок. Експорт CSV надає детальну розбивку для кожного учасника, зокрема інформацію про дозволи для збірок та конфігурації облікового запису."
+    "message": "Аудит доступу учасника організації до груп, збірок та записів збірок. Експорт CSV надає детальну розбивку для кожного учасника, зокрема інформацію про дозволи для збірок та конфігурації облікового запису."
   },
   "higherKDFIterations": {
     "message": "Вищі значення KDF-ітерацій можуть допомогти захистити ваш головний пароль від грубого зламу зловмисником."
@@ -8735,7 +8756,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "Повідомлення: пізніше цього місяця приватність клієнтського сховища буде поліпшено й учасники провайдера більше не матимуть прямого доступу до елементів клієнтських сховищ. Для отримання відповідей на запитання,",
+    "message": "Повідомлення: пізніше цього місяця приватність клієнтського сховища буде поліпшено й учасники провайдера більше не матимуть прямого доступу до записів клієнтських сховищ. Для отримання відповідей на запитання,",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -8755,10 +8776,10 @@
     "message": "Вибрати теку"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 елемент буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього елемента."
+    "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраної організації. Ви більше не будете власником цих записів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8767,7 +8788,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 елемент буде остаточно перенесено до $ORG$. Ви більше не будете власником цього елемента.",
+    "message": "1 запис буде остаточно перенесено до $ORG$. Ви більше не будете власником цього запису.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -8776,7 +8797,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ елементи буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до $ORG$. Ви більше не будете власником цих записів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "куплених місць вилучено"
+  },
+  "fileSends": {
+    "message": "Відправлення файлів"
+  },
+  "textSends": {
+    "message": "Відправлення тексту"
   },
   "includesXMembers": {
     "message": "за $COUNT$ учасника",

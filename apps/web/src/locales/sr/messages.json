@@ -49,22 +49,22 @@
     "message": "Кључ аутентификатора"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Опције Ауто-пуњења"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Вебсајт (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Вебсајт додат"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Додај вебсајт"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Обриши вебсајт"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Подразумевано ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Прикажи откривање подударања $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Сакриј откривање подударања $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Ауто-попуњавање при учитавању странице?"
   },
   "number": {
     "message": "Број"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Минимални број речи"
   },
-  "defaultType": {
-    "message": "Подразумевани тип"
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Подешавање Корисника"
@@ -5323,7 +5324,7 @@
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Ваша организација је ажурирала опције дешифровања. Поставите главну лозинку за приступ вашем сефу."
   },
   "maximumVaultTimeout": {
     "message": "Тајмаут сефа"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Случајна реч"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Сервис"
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Додај поље"
   },
   "items": {
     "message": "Ставке"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "купљена места уклоњена"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",

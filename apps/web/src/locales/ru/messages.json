@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "defaultType": {
-    "message": "Тип по умолчанию"
+  "overridePasswordTypePolicy": {
+    "message": "Тип пароля",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Предпочтения пользователя"
@@ -5323,7 +5324,7 @@
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Ваша организация обновила параметры расшифровки. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
   },
   "maximumVaultTimeout": {
     "message": "Тайм-аут хранилища"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Случайное слово"
+  },
+  "usernameGenerator": {
+    "message": "Генератор имени пользователя"
+  },
+  "useThisPassword": {
+    "message": "Использовать этот пароль"
+  },
+  "useThisUsername": {
+    "message": "Использовать это имя пользователя"
+  },
+  "securePasswordGenerated": {
+    "message": "Безопасный пароль сгенерирован! Не забудьте также обновить свой пароль на сайте."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Использовать генератор",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "для создания надежного уникального пароля",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Служба"
@@ -7678,7 +7699,7 @@
     "message": "Запрошено одобрение устройства."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Пользователь установил мастер-пароль во время регистрации в TDE."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Начните 7-дневную бесплатную пробную версию Bitwarden для $ORG$",
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "купленные места удалены"
+  },
+  "fileSends": {
+    "message": "Файловая Send"
+  },
+  "textSends": {
+    "message": "Текстовая Send"
   },
   "includesXMembers": {
     "message": "для участников: $COUNT$",

@@ -52,19 +52,19 @@
     "message": "Auto-fill options"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webbplats (URI)"
   },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Lägg till webbplats"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Radera webbplats"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Standard ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Minsta antal ord"
   },
-  "defaultType": {
-    "message": "Standardtyp"
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Användarpreferens"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Slumpmässigt ord"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Tjänst"
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Lägg till fält"
   },
   "items": {
     "message": "Objekt"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "för $COUNT$ medlem",

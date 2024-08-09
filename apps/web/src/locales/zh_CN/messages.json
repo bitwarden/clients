@@ -49,22 +49,22 @@
     "message": "验证器密钥"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "自动填充选项"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "网站 (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "网址已添加"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "添加网站"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "删除网站"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "默认 ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "显示匹配检测 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "隐藏匹配检测 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "页面加载时自动填充吗？"
   },
   "number": {
     "message": "号码"
@@ -113,7 +113,7 @@
     "message": "公司"
   },
   "ssn": {
-    "message": "社会保险号码"
+    "message": "社会保障号码"
   },
   "passportNumber": {
     "message": "护照号码"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "单词最少个数"
   },
-  "defaultType": {
-    "message": "默认类型"
+  "overridePasswordTypePolicy": {
+    "message": "密码类型",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "用户偏好设置"
@@ -5323,7 +5324,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "您的组织更新了您的解密选项。要访问您的密码库，请设置一个主密码。"
   },
   "maximumVaultTimeout": {
     "message": "密码库超时时间"
@@ -5413,7 +5414,7 @@
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时的自动填充设置。"
   },
   "experimentalFeature": {
-    "message": "不完整或不信任的网站可以在页面加载时自动填充。"
+    "message": "不完整或不信任的网站可以使用页面加载时自动填充。"
   },
   "learnMoreAboutAutofill": {
     "message": "了解更多关于自动填充的信息"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "随机单词"
+  },
+  "usernameGenerator": {
+    "message": "用户名生成器"
+  },
+  "useThisPassword": {
+    "message": "使用此密码"
+  },
+  "useThisUsername": {
+    "message": "使用此用户名"
+  },
+  "securePasswordGenerated": {
+    "message": "安全密码生成好了！别忘了也在网站上更新一下您的密码。"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "使用此生成器",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "创建一个强大且唯一的密码",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "服务"
@@ -7144,7 +7165,7 @@
     "message": "切换产品"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。升级到付费计划以邀请更多成员。",
+    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费计划。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7162,7 +7183,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。升级您的计划并以邀请更多成员。",
+    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级您的计划。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7171,7 +7192,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级您的计划以邀请更多成员。",
+    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要升级您的计划及邀请更多成员，请联系您的组织所有者。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7678,7 +7699,7 @@
     "message": "请求了设备批准。"
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "用户在 TDE 卸载期间设置了主密码。"
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "开始 $ORG$ 的 Bitwarden 7 天免费试用",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "添加字段"
   },
   "items": {
     "message": "项目"
@@ -8794,8 +8815,14 @@
   "purchasedSeatsRemoved": {
     "message": "购买的席位已移除"
   },
+  "fileSends": {
+    "message": "文件 Send"
+  },
+  "textSends": {
+    "message": "文本 Send"
+  },
   "includesXMembers": {
-    "message": "for $COUNT$ member",
+    "message": "适用于 $COUNT$ 位成员",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8813,7 +8840,7 @@
     }
   },
   "optionalOnPremHosting": {
-    "message": "可选本地托管"
+    "message": "可选的本地托管"
   },
   "upgradeFreeOrganization": {
     "message": "升级您的 $NAME$ 组织 ",
@@ -8828,7 +8855,7 @@
     "message": "SSO 身份验证"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。升级到付费计划以邀请更多成员。",
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费计划。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8837,7 +8864,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。联系您的组织所有者以升级。",
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。要升级，请联系您的组织所有者。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8846,7 +8873,7 @@
     }
   },
   "upgradePlan": {
-    "message": "升级您的计划以邀请更多成员并获得附加的 Bitwarden 功能"
+    "message": "要邀请更多成员并获得附加的 Bitwarden 功能，请升级您的计划"
   },
   "upgradeDiscount": {
     "message": "节省 $AMOUNT$%",
@@ -8861,7 +8888,7 @@
     "message": "适用于大型企业的高级功能"
   },
   "upgradeTeamsMessage": {
-    "message": "企业寻求的强大安全保障"
+    "message": "企业寻求的强大安全性"
   },
   "teamsInviteMessage": {
     "message": "邀请不限数量的成员"

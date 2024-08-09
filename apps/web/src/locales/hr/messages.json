@@ -49,22 +49,22 @@
     "message": "Kôd za provjeru"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Postavke auto-ispune"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Web stranica (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Web stranica dodana"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Dodaj web stranicu"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Izbriši web stranicu"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Zadano ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Prikaži otkrivanje podudaranja $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Sakrij otkrivanje podudaranja $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Auto-ispuna kod učitavanja"
   },
   "number": {
     "message": "Broj"
@@ -176,7 +176,7 @@
     "message": "gđica."
   },
   "mx": {
-    "message": "Mx"
+    "message": "gx."
   },
   "dr": {
     "message": "dr."
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Najmanji broj riječi"
   },
-  "defaultType": {
-    "message": "Zadana vrsta"
+  "overridePasswordTypePolicy": {
+    "message": "Vrsta lozinke",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Korisnički definirano"
@@ -5323,7 +5324,7 @@
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Tvoja je organizacija ažurirala tvoje opcije dešifriranja. Postavi glavnu lozinku za pristup svom trezoru."
   },
   "maximumVaultTimeout": {
     "message": "Istek trezora"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Nasumična riječ"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Usluga"
@@ -7678,7 +7699,7 @@
     "message": "Zatraži odobrenje uređaja."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Korisnik je postavio glavnu lozinku tijekom TDE offboardinga."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Pokreni besplatnih 7 dana Bitwardena za $ORG$",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Dodaj polje"
   },
   "items": {
     "message": "Stavke"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "kupljenih mjesta uklonjeno"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "za ovoliko članova: $COUNT$",

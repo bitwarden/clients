@@ -43,28 +43,28 @@
     "message": "Nom del titular de la targeta"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Credencials d'inici de sessió"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Clau autenticadora"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Opcions d'emplenament automàtic"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Lloc web (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Lloc web afegit"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Afig un lloc web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Suprimeix el lloc web"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Per defecte ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Habilita l'emplenament automàtic en carregar la pàgina?"
   },
   "number": {
     "message": "Número"
@@ -191,10 +191,10 @@
     "message": "Clau d'autenticació (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Feu que la verificació en dos passos siga perfecta"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Copieu i enganxeu la clau en aquest camp."
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
@@ -235,7 +235,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Tu",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -467,10 +467,10 @@
     "message": "Element"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Detalls de l'element"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Nom d'element"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -695,13 +695,13 @@
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "És possible que ja tingueu un compte"
   },
   "logOutConfirmation": {
     "message": "Segur que voleu tancar la sessió?"
@@ -824,10 +824,10 @@
     "message": "Crea un compte"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Estableix una contrasenya segura"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Acabeu de crear el vostre compte establint una contrasenya"
   },
   "newAroundHere": {
     "message": "Nou per ací?"
@@ -839,7 +839,7 @@
     "message": "Inicia sessió"
   },
   "verifyIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verificació de la vostra identitat"
   },
   "logInInitiated": {
     "message": "S'ha iniciat la sessió"
@@ -878,7 +878,7 @@
     "message": "Pista de la contrasenya mestra"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Si oblideu la contrasenya, la pista de contrasenya es pot enviar al vostre correu electrònic. $CURRENT$/$MAXIMUM$ caràcters màxim.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -946,7 +946,7 @@
     "message": "Adreça electrònica"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "La caixa forta està bloquejada"
   },
   "uuid": {
     "message": "UUID"
@@ -1077,7 +1077,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP security key"
+    "message": "Clau de seguretat OTP de Yubico"
   },
   "yubiKeyDesc": {
     "message": "Utilitzeu una YubiKey per accedir al vostre compte. Funciona amb els dispositius YubiKey 4, 4 Nano, 4C i NEO."
@@ -1151,7 +1151,7 @@
     "message": "Esteu segur que voleu continuar?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Trieu una carpeta a la que vulgueu afegir els $COUNT$ elements seleccionats.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1486,7 +1486,7 @@
     "message": "El vostre compte s'ha tancat i s'han eliminat totes les dades associades."
   },
   "deleteOrganizationWarning": {
-    "message": "Deleting your organization is permanent. It cannot be undone."
+    "message": "La supressió de l'organització és permanent. No es pot desfer."
   },
   "myAccount": {
     "message": "El meu compte"
@@ -1553,7 +1553,7 @@
     "message": "Error en desxifrar el fitxer exportat. La vostra clau de xifratge no coincideix amb la clau de xifratge utilitzada per exportar les dades."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destinació"
   },
   "learnAboutImportOptions": {
     "message": "Obteniu informació sobre les opcions d'importació"
@@ -1762,7 +1762,7 @@
     "message": "."
   },
   "continueToExternalUrlTitle": {
-    "message": "Continue to $URL$?",
+    "message": "Voleu continuar cap a $URL$?",
     "placeholders": {
       "url": {
         "content": "$1",
@@ -1774,10 +1774,10 @@
     "message": "You are leaving Bitwarden and launching an external website in a new window."
   },
   "twoStepContinueToBitwardenUrlTitle": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Voleu continuar cap a bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website."
+    "message": "L'autenticador Bitwarden us permet emmagatzemar claus d'autenticació i generar codis TOTP per a fluxos de verificació en dos passos. Més informació al lloc web bitwarden.com."
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Scan the QR code below with your authenticator app or enter the key."
@@ -1789,7 +1789,7 @@
     "message": "Clau"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Verification code"
+    "message": "Codi de verificació"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "En cas que hàgeu d'afegir-lo a un altre dispositiu, a continuació teniu el codi QR (o clau) requerit per l'aplicació autenticadora."
@@ -1870,7 +1870,7 @@
     "message": "Introduïu la informació de l'aplicació Bitwarden des del vostre tauler d'Administrador de Duo."
   },
   "twoFactorDuoClientId": {
-    "message": "Client Id"
+    "message": "ID de client"
   },
   "twoFactorDuoClientSecret": {
     "message": "Client Secret"
@@ -3395,7 +3395,7 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "Torna arrere"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
@@ -3869,10 +3869,10 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Anul·la subscripció"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "en qualsevol moment."
   },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Número mínim de paraules"
   },
-  "defaultType": {
-    "message": "Tipus per defecte"
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Preferència d'usuari"
@@ -4878,16 +4879,16 @@
     "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Prova-ho ara"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Envia una sol·licitud"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Afig una nota"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Administrador de secrets de Bitwarden"
   },
   "moreProductsFromBitwarden": {
     "message": "More products from Bitwarden"
@@ -4902,7 +4903,7 @@
     "message": "Access request for secrets manager email sent to admins."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "Hola,\n\nEstem sol·licitant una subscripció a Bitwarden Secrets Manager per al nostre equip. El vostre suport significaria molt!\n\nBitwarden Secrets Manager és una solució de gestió de secrets xifrats d'extrem a extrem per emmagatzemar, compartir i desplegar de manera segura les credencials de la màquina, com ara claus API, contrasenyes de bases de dades i certificats d'autenticació.\n\nSecrets Manager ens ajudarà a:\n\n- Millorar la seguretat\n- Agilitar les operacions\n- Evitar costoses filtracions de secrets\n\nPer sol·licitar una prova gratuïta per al nostre equip, poseu-vos en contacte amb Bitwarden.\n\nGràcies per la vostra ajuda!"
   },
   "giveMembersAccess": {
     "message": "Give members access:"
@@ -5821,10 +5822,10 @@
     "message": "Girar el token de sincronització de facturació invalidarà el token anterior."
   },
   "selfHostedServer": {
-    "message": "self-hosted"
+    "message": "autoallotjat"
   },
   "customEnvironment": {
-    "message": "Custom environment"
+    "message": "Entorn personalitzat"
   },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
@@ -5836,22 +5837,22 @@
     "message": "You must add either the base Server URL or at least one custom environment."
   },
   "apiUrl": {
-    "message": "API server URL"
+    "message": "URL del servidor API"
   },
   "webVaultUrl": {
-    "message": "Web vault server URL"
+    "message": "URL del servidor de la caixa forta web"
   },
   "identityUrl": {
-    "message": "Identity server URL"
+    "message": "URL del servidor d'identitat"
   },
   "notificationsUrl": {
-    "message": "Notifications server URL"
+    "message": "URL del servidor de notificacions"
   },
   "iconsUrl": {
-    "message": "Icons server URL"
+    "message": "URL del servidor d'icones"
   },
   "environmentSaved": {
-    "message": "Environment URLs saved"
+    "message": "S'han guardat les URL de l'entorn"
   },
   "selfHostingTitle": {
     "message": "Autoallotjat"
@@ -6049,6 +6050,26 @@
   "randomWord": {
     "message": "Paraula aleatòria"
   },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "service": {
     "message": "Servei"
   },
@@ -6126,11 +6147,11 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Generated by Bitwarden.",
+    "message": "Generat per Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "message": "Lloc web: $WEBSITE$. Generat per Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Afig un camp"
   },
   "items": {
     "message": "Elements"
@@ -8470,34 +8491,34 @@
     "message": "Gestioneu la facturació des del portal de proveïdors"
   },
   "startYour7DayFreeTrialOfBitwarden": {
-    "message": "Start your 7-Day free trial of Bitwarden"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a Equips"
   },
   "startYour7DayFreeTrialOfBitwardenForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden for Families"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a Famílies"
   },
   "startYour7DayFreeTrialOfBitwardenForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a Empresa"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de l'Administrador de secrets de Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de l'Administrador de secrets de Bitwarden per a Equips"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de l'Administrador de secrets de Bitwarden per a Famílies"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de l'Administrador de secrets de Bitwarden per a Empresa"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies del Gestor de contrasenyes de Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
+    "message": "Inicieu la vostra prova gratuïta de 7 dies del Gestor de contrasenyes de Bitwarden per a Equips"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
     "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
@@ -8634,7 +8655,7 @@
     "message": "Quickly view member access across the organization by upgrading to an Enterprise plan."
   },
   "date": {
-    "message": "Date"
+    "message": "Data"
   },
   "exportClientReport": {
     "message": "Export client report"
@@ -8691,7 +8712,7 @@
     "message": "This action will remove your access to this secret."
   },
   "invoice": {
-    "message": "Invoice"
+    "message": "Factura"
   },
   "unassignedSeatsAvailable": {
     "message": "You have $SEATS$ unassigned seats available.",
@@ -8707,7 +8728,7 @@
     "message": "Contact your provider admin to purchase additional seats."
   },
   "open": {
-    "message": "Open",
+    "message": "Obri",
     "description": "The status of an invoice."
   },
   "uncollectible": {
@@ -8731,7 +8752,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "noInvoicesToList": {
-    "message": "There are no invoices to list",
+    "message": "No hi ha cap factura per llistar",
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
@@ -8749,10 +8770,10 @@
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Afig a la carpeta"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Selecciona carpeta"
   },
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
@@ -8789,10 +8810,16 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Dades"
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",
@@ -8849,7 +8876,7 @@
     "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
   },
   "upgradeDiscount": {
-    "message": "Save $AMOUNT$%",
+    "message": "Guarda $AMOUNT$%",
     "placeholders": {
       "amount": {
         "content": "$1",

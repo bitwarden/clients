@@ -49,22 +49,22 @@
     "message": "認証キー"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "自動入力オプション"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "ウェブサイト (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "ウェブサイトを追加しました"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "ウェブサイトを追加"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "ウェブサイトを削除"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "デフォルト ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "一致検出 $WEBSITE$を表示",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "一致検出 $WEBSITE$を非表示",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "ページ読み込み時に自動入力する"
   },
   "number": {
     "message": "番号"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "文字の最小数"
   },
-  "defaultType": {
-    "message": "デフォルトのタイプ"
+  "overridePasswordTypePolicy": {
+    "message": "パスワードの種類",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "ユーザー設定"
@@ -5323,7 +5324,7 @@
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "組織が復号オプションを更新しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
   },
   "maximumVaultTimeout": {
     "message": "保管庫のタイムアウト"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "ランダムな単語"
+  },
+  "usernameGenerator": {
+    "message": "ユーザー名生成"
+  },
+  "useThisPassword": {
+    "message": "このパスワードを使用する"
+  },
+  "useThisUsername": {
+    "message": "このユーザー名を使用する"
+  },
+  "securePasswordGenerated": {
+    "message": "安全なパスワードを生成しました! ウェブサイト上でパスワードを更新することを忘れないでください。"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "生成機能",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "を使うと強力で一意なパスワードを作れます",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "サービス"
@@ -7678,7 +7699,7 @@
     "message": "デバイスの承認を要求しました。"
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "ユーザーは、TDE オフボーディング中にマスターパスワードを設定しました。"
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "$ORG$ 向けの Bitwarden 7日間無料トライアルを開始",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "フィールドを追加"
   },
   "items": {
     "message": "アイテム"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "購入済みシートが削除されました"
+  },
+  "fileSends": {
+    "message": "ファイル Send"
+  },
+  "textSends": {
+    "message": "テキスト Send"
   },
   "includesXMembers": {
     "message": "$COUNT$ メンバー向け",

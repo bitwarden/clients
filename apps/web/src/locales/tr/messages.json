@@ -2927,7 +2927,7 @@
     "message": "Tümü"
   },
   "addAccess": {
-    "message": "Add Access"
+    "message": "Erişim ekle"
   },
   "addAccessFilter": {
     "message": "Add Access Filter"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "defaultType": {
-    "message": "Varsayılan tür"
+  "overridePasswordTypePolicy": {
+    "message": "Parola türü",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Kullanıcı tercihi"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Rastgele kelime"
+  },
+  "usernameGenerator": {
+    "message": "Kullanıcı adı üreteci"
+  },
+  "useThisPassword": {
+    "message": "Bu parolayı kullan"
+  },
+  "useThisUsername": {
+    "message": "Bu kullanıcı adını kullan"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Servis"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "fileSends": {
+    "message": "Dosya Send'leri"
+  },
+  "textSends": {
+    "message": "Metin Send'leri"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",

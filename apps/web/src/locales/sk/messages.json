@@ -49,22 +49,22 @@
     "message": "Kľúč overovacej aplikácie"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Možnosti automatického vypĺňania"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webová stránka (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Webová stránka pridaná"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Pridať webovú stránku"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Odstrániť webovú stránku"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Predvolené ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Zobraziť spôsob mapovania $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Skryť spôsob mapovania $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automaticky vyplniť pri načítaní stránky?"
   },
   "number": {
     "message": "Číslo"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Minimálny počet slov"
   },
-  "defaultType": {
-    "message": "Východzí typ"
+  "overridePasswordTypePolicy": {
+    "message": "Typ hesla",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Nastaví používateľ"
@@ -5323,7 +5324,7 @@
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Vaša organizácia aktualizovala možnosti dešifrovania. Na prístup k trezoru nastavte hlavné heslo."
   },
   "maximumVaultTimeout": {
     "message": "Časový limit pre trezor"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Náhodné slovo"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Služba"
@@ -7678,7 +7699,7 @@
     "message": "Požaduje sa schválenie zariadenia."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Používateľ nastavil hlavné heslo počas odhlasovania z TDE."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Začnite 7-dňovú skúšobnú dobu Bitwardenu zadarmo pre $ORG$",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Pridať pole"
   },
   "items": {
     "message": "Položky"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "zakúpené sedenia boli odstránené"
+  },
+  "fileSends": {
+    "message": "Sendy so súborom"
+  },
+  "textSends": {
+    "message": "Textové Sendy"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",

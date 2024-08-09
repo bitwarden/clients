@@ -49,22 +49,22 @@
     "message": "Chave do autenticador"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Opções de autopreenchimento"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Site (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Site adicionado"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Adicionar site"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Excluir site"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Padrão ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Exibir detecção de correspondência $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Ocultar detecção de correspondência $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Preenchimento automático ao carregar a página?"
   },
   "number": {
     "message": "Número"
@@ -1681,7 +1681,7 @@
     "message": "Ative o login em duas etapas para sua organização."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Forçar as opções de login em duas etapas do Bitwarden para membros usando o ",
+    "message": "Reforçar as opções de login em duas etapas do Bitwarden para membros usando o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1694,7 +1694,7 @@
     "message": "Se você tem SSO configurado ou planeja ter, o Login em Duas Etapas já pode ser requerido por meio do seu Provedor de Identidade."
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "Ativar o login em duas etapas pode bloquear você permanentemente da sua conta no Bitwarden. Um código de recuperação permite que você acesse sua conta no caso de não poder mais usar seu provedor de login em duas etapas normalmente (por exemplo, você perde seu dispositivo). O suporte do Bitwarden não poderá ajudá-lo se você perder o acesso à sua conta. Recomendamos que você anote ou imprima o código de recuperação e mantenha-o em um local seguro."
+    "message": "A configuração de login em duas etapas pode bloqueá-lo permanentemente da sua conta no Bitwarden. Um código de recuperação permite que você acesse sua conta no caso de não poder mais usar seu provedor de login em duas etapas normalmente (exemplo: você perde seu dispositivo). O suporte do Bitwarden não será capaz de ajudá-lo se você perder o acesso à sua conta. Recomendamos que você anote ou imprima o código de recuperação e o mantenha em um lugar seguro."
   },
   "viewRecoveryCode": {
     "message": "Ver código de recuperação"
@@ -1780,7 +1780,7 @@
     "message": "O Bitwarden Authenticator permite que você armazene as chaves de autenticador e gera códigos TOTP para fluxos de verificação de 2 etapas. Saiba mais no site bitwarden.com."
   },
   "twoStepAuthenticatorScanCodeV2": {
-    "message": "Leia o código QR abaixo com o seu app de autenticação ou insira a chave."
+    "message": "Escaneie o código QR abaixo com o seu aplicativo de autenticação ou insira a chave."
   },
   "twoStepAuthenticatorQRCanvasError": {
     "message": "Não foi possível carregar o código QR. Tente novamente ou use a chave abaixo."
@@ -1888,7 +1888,7 @@
     "message": "Insira o código de verificação de 6 dígitos que foi enviado pro seu e-mail"
   },
   "sendEmail": {
-    "message": "Enviar E-mail"
+    "message": "Enviar e-mail"
   },
   "twoFactorU2fAdd": {
     "message": "Adicione uma chave de segurança FIDO U2F à sua conta"
@@ -1918,7 +1918,7 @@
     "message": "Salvar o formulário."
   },
   "twoFactorU2fWarning": {
-    "message": "Devido as limitações da plataforma, o FIDO U2F não pode ser usado em todas os aplicativos do Bitwarden. Você deve habilitar outro provedor de login em duas etapas para poder acessar sua conta quando o FIDO U2F não puder ser usado. Plataformas Suportadas:"
+    "message": "Devido as limitações da plataforma, o FIDO U2F não pode ser usado em todas as aplicações do Bitwarden. Deve configurar outro provedor de login em duas etapas para poder acessar a sua conta quando o FIDO U2F não puder ser usado. Plataformas suportadas:"
   },
   "twoFactorU2fSupportWeb": {
     "message": "Cofre web e extensões de navegador em um desktop/laptop com um navegador habilitado para U2F (Chrome, Opera, Vivaldi ou Firefox com o FIDO U2F ativado)."
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Número Mínimo de Palavras"
   },
-  "defaultType": {
-    "message": "Tipo Padrão"
+  "overridePasswordTypePolicy": {
+    "message": "Tipo de senha",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Preferência do Usuário"
@@ -4851,73 +4852,73 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+    "message": "Desenvolvimento, DevOps e equipes de TI escolhem o Gerenciador de Segredos do Bitwarden para gerenciar e implantar seus segredos de infraestrutura e máquina de forma segura."
   },
   "centralizeSecretsManagement": {
-    "message": "Centralize secrets management."
+    "message": "Centralize o gerenciamento de segredos."
   },
   "centralizeSecretsManagementDescription": {
-    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+    "message": "Armazene e gerencie com segurança segredos em um único local para impedir sprawl secreto em sua organização."
   },
   "preventSecretLeaks": {
-    "message": "Prevent secret leaks."
+    "message": "Prevenir fugas secretas."
   },
   "preventSecretLeaksDescription": {
-    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+    "message": "Proteja segredos com criptografia de ponta a ponta. Não há mais segredos de codificação rígida ou compartilhamento através de arquivos .env."
   },
   "enhanceDeveloperProductivity": {
-    "message": "Enhance developer productivity."
+    "message": "Melhorar a produtividade do desenvolvedor."
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+    "message": "Recuperar e implantar segredos programaticamente em tempo de execução para que os desenvolvedores possam se concentrar no que mais importa, como melhorar a qualidade do código."
   },
   "strengthenBusinessSecurity": {
-    "message": "Strengthen business security."
+    "message": "Fortalecer a segurança do negócio."
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+    "message": "Mantenha controle apertado sobre o acesso de máquina e humano a segredos com integrações SSO, logs de eventos e rotação de acesso."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Experimente agora"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Enviar solicitação"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Adicione uma anotação"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Gerenciador de Segredos Bitwarden"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "Mais produtos do Bitwarden"
   },
   "requestAccessToSecretsManager": {
-    "message": "Request access to Secrets Manager"
+    "message": "Solicitar acesso ao gerente secreto"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "You need approval from your administrator to try Secrets Manager."
+    "message": "Você precisa de aprovação do seu administrador para testar o Gerenciador de Segredos."
   },
   "smAccessRequestEmailSent": {
-    "message": "Access request for secrets manager email sent to admins."
+    "message": "Solicitação de acesso ao e-mail gerente de segredos enviada aos administradores."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "Olá,\n\nestou solicitando uma assinatura do Bitwarden Secrets Manager para a nossa equipe. O vosso apoio significaria muito!\n\nO Gerenciador de Segredos do Bitwarden é uma solução de gerenciamento de segredos criptografados de ponta a ponta para armazenamento seguro, Compartilhar e implantar credenciais de máquina como chaves API, senhas de banco de dados e certificados de autenticação.\n\nGerenciador de segredos nos ajudará a:\n\n- Melhorar a segurança\n- Operações de streaming\n- Evitar fugas de segredos dispendiosas\n\nPara solicitar uma avaliação gratuita para nossa equipe, por favor, entre em contato com o Bitwarden.\n\nObrigado pela sua ajuda!"
   },
   "giveMembersAccess": {
-    "message": "Give members access:"
+    "message": "Dar acesso aos membros:"
   },
   "viewAndSelectTheMembers": {
-    "message": "view and select the members you want to give access to Secrets Manager."
+    "message": "veja e selecione os membros que você deseja dar acesso ao Gerenciador de Segredos."
   },
   "openYourOrganizations": {
-    "message": "Open your organization's"
+    "message": "Abrir sua organização"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "Usando o menu, selecione"
   },
   "toGrantAccessToSelectedMembers": {
-    "message": "to grant access to selected members."
+    "message": "para conceder acesso aos membros selecionados."
   },
   "sendVaultCardTryItNow": {
     "message": "teste agora",
@@ -5323,7 +5324,7 @@
     "message": "A sua senha mestra não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestra agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Sua organização atualizou suas opções de descriptografia. Por favor, defina uma senha mestra para acessar seu cofre."
   },
   "maximumVaultTimeout": {
     "message": "Tempo Limite do Cofre"
@@ -5605,7 +5606,7 @@
     "message": "Resgatado"
   },
   "redeemedAccount": {
-    "message": "Conta Resgatada"
+    "message": "Conta resgatada"
   },
   "revokeAccount": {
     "message": "Revogar conta $NAME$",
@@ -5626,10 +5627,10 @@
     }
   },
   "freeFamiliesPlan": {
-    "message": "Plano Familiar Gratuito"
+    "message": "Plano de famílias gratuitas"
   },
   "redeemNow": {
-    "message": "Resgatar Agora"
+    "message": "Resgatar agora"
   },
   "recipient": {
     "message": "Destinatário"
@@ -5638,13 +5639,13 @@
     "message": "Remover Patrocínio"
   },
   "removeSponsorshipConfirmation": {
-    "message": "Depois de remover um patrocínio, você será responsável por essa assinatura e faturas relacionadas. Tem certeza de que quer continuar?"
+    "message": "Após remover um patrocínio, você será responsável por esta assinatura e faturas relacionadas. Você tem certeza que deseja continuar?"
   },
   "sponsorshipCreated": {
-    "message": "Patrocínio Criado"
+    "message": "Patrocínio criado"
   },
   "emailSent": {
-    "message": "E-mail Enviado"
+    "message": "E-mail enviado"
   },
   "revokeSponsorshipConfirmation": {
     "message": "Depois de remover esta conta, o proprietário da organização das Famílias será responsável por essa assinatura e faturas relacionadas. Tem certeza de que quer continuar?"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Palavra Aleatória"
+  },
+  "usernameGenerator": {
+    "message": "Gerador de usuário"
+  },
+  "useThisPassword": {
+    "message": "Use esta senha"
+  },
+  "useThisUsername": {
+    "message": "Use este nome de usuário"
+  },
+  "securePasswordGenerated": {
+    "message": "Senha segura gerada! Não se esqueça de atualizar também sua senha no site."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Usar o gerador",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "para criar uma senha única e forte",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Serviço"
@@ -7678,7 +7699,7 @@
     "message": "Aprovação do dispositivo solicitada."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Usuário definiu uma senha mestra durante o offboard TDE."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Comece o seu período de teste gratuito de 7 dias do Bitwarden para $ORG$",
@@ -8049,10 +8070,10 @@
     "message": "Atribuir a estas coleções"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Apenas membros da organização com acesso a essas coleções poderão ver o item."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Apenas membros da organização com acesso à essas coleções poderão ver os itens."
   },
   "selectCollectionsToAssign": {
     "message": "Selecione as coleções para atribuir"
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Adicionar campo"
   },
   "items": {
     "message": "Itens"
@@ -8470,49 +8491,49 @@
     "message": "Gerenciar faturamento a partir do Portal do Provedor"
   },
   "startYour7DayFreeTrialOfBitwarden": {
-    "message": "Start your 7-Day free trial of Bitwarden"
+    "message": "Comece o seu teste grátis de 7 dias do Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden para Equipes"
   },
   "startYour7DayFreeTrialOfBitwardenForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden for Families"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden para as Famílias"
   },
   "startYour7DayFreeTrialOfBitwardenForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden para Empresas"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
+    "message": "Inicie o seu teste gratuito de 7 dias do Gerenciador de Segredos do Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
+    "message": "Comece o seu teste gratuito de 7 dias do Gerenciador de Segredos do Bitwarden para equipes"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden Secrets Manager para famílias"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden Secrets Manager para a Empresa"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden Password Manager"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
+    "message": "Comece o seu teste gratuito de 7 dias do Gerenciador de Senhas do Bitwarden para Equipes"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden Password Manager para Famílias"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+    "message": "Comece o seu teste gratuito de 7 dias do Bitwarden Password Manager para a Empresa"
   },
   "enterTeamsOrgInfo": {
-    "message": "Enter your Teams organization information"
+    "message": "Insira as informações da organização de suas equipes"
   },
   "enterFamiliesOrgInfo": {
-    "message": "Enter your Families organization information"
+    "message": "Digite as informações da organização das suas famílias"
   },
   "enterEnterpriseOrgInfo": {
-    "message": "Enter your Enterprise organization information"
+    "message": "Insira suas informações da organização empresarial"
   },
   "viewItemsIn": {
     "message": "Visualizar itens em $NAME$",
@@ -8721,44 +8742,44 @@
     "message": "Baixar CSV"
   },
   "monthlySubscriptionUserSeatsMessage": {
-    "message": "Adjustments to your subscription will result in prorated charges to your billing totals on your next billing period. "
+    "message": "Os ajustes à sua assinatura resultarão em cobranças rateadas no total de seu próximo período de faturamento. "
   },
   "annualSubscriptionUserSeatsMessage": {
-    "message": "Adjustments to your subscription will result in prorated charges on a monthly billing cycle. "
+    "message": "Os ajustes à sua assinatura resultarão em cobranças rateadas em um ciclo de faturamento mensal. "
   },
   "billingHistoryDescription": {
-    "message": "Download a CSV to obtain client details for each billing date. Prorated charges are not included in the CSV and may vary from the linked invoice. For the most accurate billing details, refer to your monthly invoices.",
+    "message": "Baixe um CSV para obter detalhes do cliente para cada data de faturamento. As taxas pagas não estão incluídas no CSV e podem variar da factura vinculada. Para obter dados de faturamento mais precisos, consulte suas faturas mensais.",
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "noInvoicesToList": {
-    "message": "There are no invoices to list",
+    "message": "Não há itens para listar",
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions,",
+    "message": "Aviso: No final deste mês, a privacidade do cofre cliente será melhorada e os membros do provedor não terão mais acesso direto aos itens do cofre do cliente. Para dúvidas,",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
-    "message": "contact Bitwarden support.",
+    "message": "entre em contato com o suporte do Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
   "sponsored": {
-    "message": "Sponsored"
+    "message": "Patrocinado"
   },
   "licenseAndBillingManagementDesc": {
-    "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
+    "message": "Após fazer atualizações no servidor da nuvem do Bitwarden, envie o arquivo de licença para aplicar as alterações mais recentes."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Adicionar à pasta"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Selecionar pastas"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 item será transferido permanentemente para a organização selecionada. Você não irá mais possuir este item."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "Itens $PERSONAL_ITEMS_COUNT$ serão transferidos permanentemente para a organização selecionada. Você não irá mais possuir esses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8767,7 +8788,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 item será transferido permanentemente para $ORG$. Você não irá mais possuir este item.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -8776,7 +8797,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "Os itens $PERSONAL_ITEMS_COUNT$ serão transferidos permanentemente para $ORG$. Você não irá mais possuir esses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -8789,13 +8810,19 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Dado"
   },
   "purchasedSeatsRemoved": {
-    "message": "purchased seats removed"
+    "message": "assentos comprados removidos"
+  },
+  "fileSends": {
+    "message": "Arquivos enviados"
+  },
+  "textSends": {
+    "message": "Texto enviado"
   },
   "includesXMembers": {
-    "message": "for $COUNT$ member",
+    "message": "para $COUNT$ membro",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8813,10 +8840,10 @@
     }
   },
   "optionalOnPremHosting": {
-    "message": "Optional on-premises hosting"
+    "message": "Hospedagem local opcional"
   },
   "upgradeFreeOrganization": {
-    "message": "Upgrade your $NAME$ organization ",
+    "message": "Atualize sua organização $NAME$ ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -8825,10 +8852,10 @@
     }
   },
   "includeSsoAuthenticationMessage": {
-    "message": "SSO Authentication"
+    "message": "Autenticação SSO"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "Organizações familiares podem ter até membros da $SEATCOUNT$. Faça o upgrade para um plano pago para convidar mais membros.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8837,7 +8864,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Organizações familiares podem ter até membros $SEATCOUNT$. Entre em contato com o proprietário da sua organização para atualizar.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8846,10 +8873,10 @@
     }
   },
   "upgradePlan": {
-    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+    "message": "Atualize o seu plano para convidar mais membros e ganhar acesso a recursos adicionais do Bitwarden"
   },
   "upgradeDiscount": {
-    "message": "Save $AMOUNT$%",
+    "message": "Economize $AMOUNT$%",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -8858,27 +8885,27 @@
     }
   },
   "upgradeEnterpriseMessage": {
-    "message": "Advanced capabilities for larger businesses"
+    "message": "Recursos avançados para empresas maiores"
   },
   "upgradeTeamsMessage": {
-    "message": "Businesses looking for powerful security"
+    "message": "Empresas que procuram segurança poderosa"
   },
   "teamsInviteMessage": {
-    "message": "Invite unlimited members"
+    "message": "Convide membros ilimitados"
   },
   "accessToCreateGroups": {
-    "message": "Access to create groups"
+    "message": "Acesso para criar grupos"
   },
   "syncGroupsAndUsersFromDirectory": {
-    "message": "Sync groups and users from a directory"
+    "message": "Sincronizar grupos e usuários de um diretório"
   },
   "upgradeFamilyMessage": {
-    "message": "Share with families and friends"
+    "message": "Compartilhar com famílias e amigos"
   },
   "accessToPremiumFeatures": {
-    "message": "Access to Premium features"
+    "message": "Acesso às funcionalidades Premium"
   },
   "additionalStorageGbMessage": {
-    "message": "GB additional storage"
+    "message": "GB de armazenamento adicional"
   }
 }

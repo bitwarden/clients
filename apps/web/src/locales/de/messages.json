@@ -49,22 +49,22 @@
     "message": "Authenticator-Schlüssel"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Auto-Ausfüllen Optionen"
   },
   "websiteUri": {
     "message": "Website (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Website hinzugefügt"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Website hinzufügen"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Website löschen"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Standard ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Übereinstimmungs-Erkennung anzeigen $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Übereinstimmungs-Erkennung verstecken $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Auto-Ausfüllen beim Laden einer Seite?"
   },
   "number": {
     "message": "Nummer"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Mindestanzahl an Wörtern"
   },
-  "defaultType": {
-    "message": "Standardtyp"
+  "overridePasswordTypePolicy": {
+    "message": "Passworttyp",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Benutzereinstellung"
@@ -5323,7 +5324,7 @@
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Deine Organisation hat deine Entschlüsselungsoptionen aktualisiert. Bitte lege ein Master-Passwort fest, um auf deinen Tresor zuzugreifen."
   },
   "maximumVaultTimeout": {
     "message": "Tresor-Timeout"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Zufälliges Wort"
+  },
+  "usernameGenerator": {
+    "message": "Benutzernamen-Generator"
+  },
+  "useThisPassword": {
+    "message": "Dieses Passwort verwenden"
+  },
+  "useThisUsername": {
+    "message": "Diesen Benutzernamen verwenden"
+  },
+  "securePasswordGenerated": {
+    "message": "Sicheres Passwort generiert! Vergiss nicht, auch dein Passwort auf der Website zu aktualisieren."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Verwende den Generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": ", um ein starkes einzigartiges Passwort zu erstellen",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Dienst"
@@ -7678,7 +7699,7 @@
     "message": "Geräte-Genehmigung anfragen."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Benutzer hat ein Master-Passwort während der VGV-Abmeldung festgelegt."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Starte deine 7-tägige kostenlose Testversion von Bitwarden für $ORG$",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Feld hinzufügen"
   },
   "items": {
     "message": "Einträge"
@@ -8470,49 +8491,49 @@
     "message": "Rechnungen über das Anbieter-Portal verwalten"
   },
   "startYour7DayFreeTrialOfBitwarden": {
-    "message": "Start your 7-Day free trial of Bitwarden"
+    "message": "Starte deine 7-tägige kostenlose Testversion von Bitwarden"
   },
   "startYour7DayFreeTrialOfBitwardenForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+    "message": "Starte deine 7-tägige kostenlose Testversion des Bitwarden Teams-Tarifs"
   },
   "startYour7DayFreeTrialOfBitwardenForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden for Families"
+    "message": "Starte deine 7-tägige kostenlose Testversion des Bitwarden Families-Tarifs"
   },
   "startYour7DayFreeTrialOfBitwardenForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+    "message": "Starte deine 7-tägige kostenlose Testversion des Bitwarden Enterprise-Tarifs"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
+    "message": "Starte deine 7-tägige kostenlose Testversion vom Bitwarden Secrets Manager"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Teams-Tarif des Bitwarden Secrets Managers"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Families-Tarif des Bitwarden Secrets Managers"
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Enterprise-Tarif des Bitwarden Secrets Managers"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
+    "message": "Starte deine 7-tägige kostenlose Testversion vom Bitwarden Password Manager"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Teams-Tarif des Bitwarden Password Managers"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Families-Tarif des Bitwarden Password Managers"
   },
   "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+    "message": "Starte deine 7-tägige kostenlose Testversion im Enterprise-Tarif des Bitwarden Password Managers"
   },
   "enterTeamsOrgInfo": {
-    "message": "Enter your Teams organization information"
+    "message": "Gib die Informationen deiner Teams-Organisation ein"
   },
   "enterFamiliesOrgInfo": {
-    "message": "Enter your Families organization information"
+    "message": "Gib die Informationen deiner Families-Organisation ein"
   },
   "enterEnterpriseOrgInfo": {
-    "message": "Enter your Enterprise organization information"
+    "message": "Gib die Informationen deiner Enterprise-Organisation ein"
   },
   "viewItemsIn": {
     "message": "Einträge in $NAME$ anzeigen",
@@ -8794,6 +8815,12 @@
   "purchasedSeatsRemoved": {
     "message": "erworbene Benutzerplätze entfernt"
   },
+  "fileSends": {
+    "message": "Datei-Sends"
+  },
+  "textSends": {
+    "message": "Text-Sends"
+  },
   "includesXMembers": {
     "message": "for $COUNT$ member",
     "placeholders": {
@@ -8813,10 +8840,10 @@
     }
   },
   "optionalOnPremHosting": {
-    "message": "Optional on-premises hosting"
+    "message": "Optionales Hosten vor Ort"
   },
   "upgradeFreeOrganization": {
-    "message": "Upgrade your $NAME$ organization ",
+    "message": "Upgrade deine $NAME$-Organisation ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -8828,7 +8855,7 @@
     "message": "SSO-Authentifizierung"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade auf einen kostenpflichtigen Tarif, um mehr Mitglieder einzuladen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8837,7 +8864,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8846,10 +8873,10 @@
     }
   },
   "upgradePlan": {
-    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+    "message": "Upgrade deinen Tarif, um mehr Mitglieder einzuladen und Zugriff auf zusätzliche Bitwarden-Funktionen zu erhalten"
   },
   "upgradeDiscount": {
-    "message": "Save $AMOUNT$%",
+    "message": "$AMOUNT$% sparen",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -8858,27 +8885,27 @@
     }
   },
   "upgradeEnterpriseMessage": {
-    "message": "Advanced capabilities for larger businesses"
+    "message": "Erweiterte Möglichkeiten für größere Unternehmen"
   },
   "upgradeTeamsMessage": {
-    "message": "Businesses looking for powerful security"
+    "message": "Unternehmen auf der Suche nach leistungsstarker Sicherheit"
   },
   "teamsInviteMessage": {
-    "message": "Invite unlimited members"
+    "message": "Unbegrenzte Mitglieder einladen"
   },
   "accessToCreateGroups": {
-    "message": "Access to create groups"
+    "message": "Zugang zum Erstellen von Gruppen"
   },
   "syncGroupsAndUsersFromDirectory": {
-    "message": "Sync groups and users from a directory"
+    "message": "Gruppen und Benutzer aus einem Verzeichnis synchronisieren"
   },
   "upgradeFamilyMessage": {
-    "message": "Share with families and friends"
+    "message": "Mit Familien und Freunden teilen"
   },
   "accessToPremiumFeatures": {
-    "message": "Access to Premium features"
+    "message": "Zugriff auf Premium Funktionen"
   },
   "additionalStorageGbMessage": {
-    "message": "GB additional storage"
+    "message": "GB zusätzlicher Speicher"
   }
 }

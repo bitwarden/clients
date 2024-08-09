@@ -49,22 +49,22 @@
     "message": "Hitelesítő kulcs"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Automatikus kitöltés opciók"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webhely (URI)"
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "A webhely hozzáadásra került."
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Webhely hozzáadása"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Webhely törlése"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Alapértelmezés ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -74,7 +74,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "$WEBSITE$ egyező érzékelés megjelenítése",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -83,7 +83,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "$WEBSITE$ egyező érzékelés elrejtése",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -92,7 +92,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automatikus kitöltés oldalbetöltésnél?"
   },
   "number": {
     "message": "Szám"
@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Szavak minimális száma"
   },
-  "defaultType": {
-    "message": "Alapértelmezett típus"
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Felhasználói előbeállítás"
@@ -5323,7 +5324,7 @@
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "A szervezete frissítette a visszafejtési beállításokat. Állítsunk be egy mestarjelszót a széf eléréséhez."
   },
   "maximumVaultTimeout": {
     "message": "Széf időkifutás"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Véletlenszerű szó"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Szolgáltatás"
@@ -7678,7 +7699,7 @@
     "message": "A kért eszköz jóváhagyása."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "A felhasználó beállított egy mesterjelszót a TDE kilptetés során."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Kezdjük el a Bitwarden 7 napos ingyenes próbaverzió használatát $ORG$ áron",
@@ -8077,7 +8098,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Mező hozzáadása"
   },
   "items": {
     "message": "Elemek"
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "megvásárolt hely eltávolításra került."
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "$COUNT$ member részére",

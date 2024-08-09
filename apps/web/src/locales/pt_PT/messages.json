@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
   },
-  "defaultType": {
-    "message": "Tipo predefinido"
+  "overridePasswordTypePolicy": {
+    "message": "Tipo de palavra-passe",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Preferência do utilizador"
@@ -5323,7 +5324,7 @@
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "A sua organização atualizou as opções de desencriptação. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
   },
   "maximumVaultTimeout": {
     "message": "Tempo limite do cofre"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Palavra aleatória"
+  },
+  "usernameGenerator": {
+    "message": "Gerador de nomes de utilizador"
+  },
+  "useThisPassword": {
+    "message": "Utilizar esta palavra-passe"
+  },
+  "useThisUsername": {
+    "message": "Utilizar este nome de utilizador"
+  },
+  "securePasswordGenerated": {
+    "message": "Palavra-passe segura gerada! Não se esqueça de atualizar também a sua palavra-passe no site."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Utilize o gerador",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "para criar uma palavra-passe forte e única",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Serviço"
@@ -7678,7 +7699,7 @@
     "message": "Aprovação de dispositivo pedida."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "O utilizador definiu uma palavra-passe mestra durante o TDE offboarding."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Inicie o seu período experimental gratuito de 7 dias do Bitwarden para $ORG$",
@@ -8793,6 +8814,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "lugares adquiridos removidos"
+  },
+  "fileSends": {
+    "message": "Sends de ficheiros"
+  },
+  "textSends": {
+    "message": "Sends de texto"
   },
   "includesXMembers": {
     "message": "para $COUNT$ membro(s)",

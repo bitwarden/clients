@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Минимален брой думи"
   },
-  "defaultType": {
-    "message": "Стандартен вид"
+  "overridePasswordTypePolicy": {
+    "message": "Тип парола",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Потребителски настройки"
@@ -5323,7 +5324,7 @@
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+    "message": "Вашата организация е променила настройките за шифроване. Задайте главна парола, за да получите достъп до трезора си."
   },
   "maximumVaultTimeout": {
     "message": "Време за достъп"
@@ -6048,6 +6049,26 @@
   },
   "randomWord": {
     "message": "Произволна дума"
+  },
+  "usernameGenerator": {
+    "message": "Генератор на потребителски имена"
+  },
+  "useThisPassword": {
+    "message": "Използване на тази парола"
+  },
+  "useThisUsername": {
+    "message": "Използване на това потребителско име"
+  },
+  "securePasswordGenerated": {
+    "message": "Създадена е сигурна парола! Не забравяйте и да промените паролата си в уеб сайта."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Използвайте генератора",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "за да създадете сигурна и уникална парола",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Услуга"
@@ -6785,7 +6806,7 @@
     "description": "Message to be displayed when there is an error during bulk project deletion."
   },
   "softDeleteSuccessToast": {
-    "message": "Secret sent to trash",
+    "message": "Тайната е преместена в кошчето",
     "description": "Notification to be displayed when a secret is successfully sent to the trash."
   },
   "hardDeleteSuccessToast": {
@@ -7678,7 +7699,7 @@
     "message": "Заявено е одобрение на устройство."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "User set a master password during TDE offboarding."
+    "message": "Потребителят е задал главна парола в следствие на деактивирането на шифроването чрез доверени устройства."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Започнете свой безплатен 7-дневен пробен период на Битуорден за $ORG$",
@@ -8794,6 +8815,12 @@
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
   },
+  "fileSends": {
+    "message": "Файлови изпращания"
+  },
+  "textSends": {
+    "message": "Текстови изпращания"
+  },
   "includesXMembers": {
     "message": "for $COUNT$ member",
     "placeholders": {
@@ -8870,7 +8897,7 @@
     "message": "Достъп до създаване на групи"
   },
   "syncGroupsAndUsersFromDirectory": {
-    "message": "Синхронизиране на групите и потребителите от директория"
+    "message": "Синхронизиране на групите и потребителите с директорийни услуги"
   },
   "upgradeFamilyMessage": {
     "message": "Споделяне със семейство и приятели"
