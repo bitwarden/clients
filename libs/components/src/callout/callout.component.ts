@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-type CalloutTypes = "success" | "info" | "warning" | "danger";
+export type CalloutTypes = "success" | "info" | "warning" | "danger";
 
 const defaultIcon: Record<CalloutTypes, string> = {
   success: "bwi-check",

@@ -2,16 +2,19 @@ import { Component, Input, OnInit } from "@angular/core";
 
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CalloutTypes } from "@bitwarden/components";
 
+/**
+ * @deprecated use the CL's `CalloutComponent` instead
+ */
 @Component({
   selector: "app-callout",
   templateUrl: "callout.component.html",
 })
-export class CalloutComponent implements OnInit {
-  @Input() type = "info";
+export class DeprecatedCalloutComponent implements OnInit {
+  @Input() type: CalloutTypes = "info";
   @Input() icon: string;
   @Input() title: string;
-  @Input() clickable: boolean;
   @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions;
   @Input() enforcedPolicyMessage: string;
   @Input() useAlertRole = false;
@@ -25,34 +28,6 @@ export class CalloutComponent implements OnInit {
 
     if (this.enforcedPolicyMessage === undefined) {
       this.enforcedPolicyMessage = this.i18nService.t("masterPasswordPolicyInEffect");
-    }
-
-    if (this.type === "warning" || this.type === "danger") {
-      if (this.type === "danger") {
-        this.calloutStyle = "danger";
-      }
-      if (this.title === undefined) {
-        this.title = this.i18nService.t("warning");
-      }
-      if (this.icon === undefined) {
-        this.icon = "bwi-exclamation-triangle";
-      }
-    } else if (this.type === "error") {
-      this.calloutStyle = "danger";
-      if (this.title === undefined) {
-        this.title = this.i18nService.t("error");
-      }
-      if (this.icon === undefined) {
-        this.icon = "bwi-error";
-      }
-    } else if (this.type === "tip") {
-      this.calloutStyle = "success";
-      if (this.title === undefined) {
-        this.title = this.i18nService.t("tip");
-      }
-      if (this.icon === undefined) {
-        this.icon = "bwi-lightbulb";
-      }
     }
   }
 

@@ -89,7 +89,7 @@
       <p class="text-center" *ngIf="!fido2Data.isFido2Session">
         <button type="button" appStopClick (click)="logOut()">{{ "logOut" | i18n }}</button>
       </p>
-      <app-callout *ngIf="biometricError" type="error">{{ biometricError }}</app-callout>
+      <app-callout *ngIf="biometricError" type="danger">{{ biometricError }}</app-callout>
       <p class="text-center text-muted" *ngIf="pendingBiometric">
         <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i> {{ "awaitDesktop" | i18n }}
       </p>
