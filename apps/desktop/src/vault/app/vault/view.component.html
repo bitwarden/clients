@@ -5,7 +5,7 @@
         {{ "itemInformation" | i18n }}
       </h2>
       <div class="box-content">
-        <div class="box-content-row">
+        <div class="box-content-row" [appCopyText]="cipher.name">
           <span
             class="row-label draggable"
             draggable="true"
