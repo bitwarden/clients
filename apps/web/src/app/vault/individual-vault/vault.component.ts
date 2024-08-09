@@ -157,9 +157,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
-  protected flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollectionsV1,
-  );
   protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultBulkManagementAction,
   );
@@ -552,7 +549,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async shareCipher(cipher: CipherView) {
-    if ((await this.flexibleCollectionsV1Enabled()) && cipher.organizationId != null) {
+    if (cipher.organizationId != null) {
       // You cannot move ciphers between organizations
       this.showMissingPermissionsError();
       return;
@@ -712,8 +709,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async deleteCollection(collection: CollectionView): Promise<void> {
     const organization = await this.organizationService.get(collection.organizationId);
-    const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
-    if (!collection.canDelete(organization, flexibleCollectionsV1Enabled)) {
+    if (!collection.canDelete(organization)) {
       this.showMissingPermissionsError();
       return;
     }
@@ -811,7 +807,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if ((await this.flexibleCollectionsV1Enabled()) && !c.edit) {
+    if (!c.edit) {
       this.showMissingPermissionsError();
       return;
     }
@@ -834,7 +830,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async bulkRestore(ciphers: CipherView[]) {
-    if ((await this.flexibleCollectionsV1Enabled()) && ciphers.some((c) => !c.edit)) {
+    if (ciphers.some((c) => !c.edit)) {
       this.showMissingPermissionsError();
       return;
     }
@@ -887,7 +883,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if ((await this.flexibleCollectionsV1Enabled()) && !c.edit) {
+    if (!c.edit) {
       this.showMissingPermissionsError();
       return;
     }
@@ -936,19 +932,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const flexibleCollectionsV1Enabled = await this.flexibleCollectionsV1Enabled();
-
     const canDeleteCollections =
       collections == null ||
-      collections.every((c) =>
-        c.canDelete(
-          organizations.find((o) => o.id == c.organizationId),
-          flexibleCollectionsV1Enabled,
-        ),
-      );
+      collections.every((c) => c.canDelete(organizations.find((o) => o.id == c.organizationId)));
     const canDeleteCiphers = ciphers == null || ciphers.every((c) => c.edit);
 
-    if (flexibleCollectionsV1Enabled && (!canDeleteCollections || !canDeleteCiphers)) {
+    if (!canDeleteCollections || !canDeleteCiphers) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1052,10 +1041,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (
-      (await this.flexibleCollectionsV1Enabled()) &&
-      ciphers.some((c) => c.organizationId != null)
-    ) {
+    if (ciphers.some((c) => c.organizationId != null)) {
       // You cannot move ciphers between organizations
       this.showMissingPermissionsError();
       return;
@@ -1099,10 +1085,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       return true;
     }
 
-    const flexibleCollectionsV1Enabled = await this.flexibleCollectionsV1Enabled();
-
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return organization.canEditAllCiphers(flexibleCollectionsV1Enabled, false);
+    return organization.canEditAllCiphers(false);
   }
 
   private go(queryParams: any = null) {
@@ -1130,10 +1114,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("missingPermissions"),
     });
-  }
-
-  private flexibleCollectionsV1Enabled() {
-    return firstValueFrom(this.flexibleCollectionsV1Enabled$);
   }
 }
 

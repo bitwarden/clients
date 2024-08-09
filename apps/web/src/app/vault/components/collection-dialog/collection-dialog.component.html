@@ -80,13 +80,9 @@
               <span *ngIf="!organization.useGroups">{{
                 "grantCollectionAccessMembersOnly" | i18n
               }}</span>
-              <span
-                *ngIf="
-                  (flexibleCollectionsV1Enabled$ | async) &&
-                  organization.allowAdminAccessToAllCollectionItems
-                "
-                >{{ " " + ("adminCollectionAccess" | i18n) }}</span
-              >
+              <span *ngIf="organization.allowAdminAccessToAllCollectionItems">
+                {{ " " + ("adminCollectionAccess" | i18n) }}
+              </span>
             </ng-container>
           </div>
           <div

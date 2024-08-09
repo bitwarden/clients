@@ -24,7 +24,6 @@ export class CollectionsComponent implements OnInit {
   collectionIds: string[];
   collections: CollectionView[] = [];
   organization: Organization;
-  flexibleCollectionsV1Enabled: boolean;
   restrictProviderAccess: boolean;
 
   protected cipherDomain: Cipher;
@@ -40,9 +39,6 @@ export class CollectionsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.flexibleCollectionsV1Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollectionsV1,
-    );
     this.restrictProviderAccess = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
@@ -72,12 +68,7 @@ export class CollectionsComponent implements OnInit {
   async submit(): Promise<boolean> {
     const selectedCollectionIds = this.collections
       .filter((c) => {
-        if (
-          this.organization.canEditAllCiphers(
-            this.flexibleCollectionsV1Enabled,
-            this.restrictProviderAccess,
-          )
-        ) {
+        if (this.organization.canEditAllCiphers(this.restrictProviderAccess)) {
           return !!(c as any).checked;
         } else {
           return !!(c as any).checked && c.readOnly == null;

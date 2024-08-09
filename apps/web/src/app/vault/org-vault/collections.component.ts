@@ -61,10 +61,7 @@ export class CollectionsComponent extends BaseCollectionsComponent {
   protected async loadCipher() {
     // if cipher is unassigned use apiService. We can see this by looking at this.collectionIds
     if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) &&
+      !this.organization.canEditAllCiphers(this.restrictProviderAccess) &&
       this.collectionIds.length !== 0
     ) {
       return await super.loadCipher();
@@ -89,10 +86,7 @@ export class CollectionsComponent extends BaseCollectionsComponent {
 
   protected saveCollections() {
     if (
-      this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) ||
+      this.organization.canEditAllCiphers(this.restrictProviderAccess) ||
       this.collectionIds.length === 0
     ) {
       const request = new CipherCollectionsRequest(this.cipherDomain.collectionIds);

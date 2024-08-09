@@ -87,7 +87,6 @@ export class VaultHeaderComponent implements OnInit {
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected organizations$ = this.organizationService.organizations$;
 
-  protected flexibleCollectionsV1Enabled = false;
   protected restrictProviderAccessFlag = false;
 
   constructor(
@@ -100,9 +99,6 @@ export class VaultHeaderComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.flexibleCollectionsV1Enabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.FlexibleCollectionsV1),
-    );
     this.restrictProviderAccessFlag = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
@@ -195,7 +191,7 @@ export class VaultHeaderComponent implements OnInit {
     }
 
     // Otherwise, check if we can edit the specified collection
-    return this.collection.node.canEdit(this.organization, this.flexibleCollectionsV1Enabled);
+    return this.collection.node.canEdit(this.organization);
   }
 
   addCipher() {
@@ -225,14 +221,11 @@ export class VaultHeaderComponent implements OnInit {
     }
 
     // Otherwise, check if we can delete the specified collection
-    return this.collection.node.canDelete(this.organization, this.flexibleCollectionsV1Enabled);
+    return this.collection.node.canDelete(this.organization);
   }
 
   get canViewCollectionInfo(): boolean {
-    return this.collection.node.canViewCollectionInfo(
-      this.organization,
-      this.flexibleCollectionsV1Enabled,
-    );
+    return this.collection.node.canViewCollectionInfo(this.organization);
   }
 
   get canCreateCollection(): boolean {

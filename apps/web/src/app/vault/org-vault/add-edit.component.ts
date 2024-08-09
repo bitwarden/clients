@@ -82,12 +82,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected loadCollections() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!this.organization.canEditAllCiphers(this.restrictProviderAccess)) {
       return super.loadCollections();
     }
     return Promise.resolve(this.collections);
@@ -98,10 +93,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     const firstCipherCheck = await super.loadCipher();
 
     if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) &&
+      !this.organization.canEditAllCiphers(this.restrictProviderAccess) &&
       firstCipherCheck != null
     ) {
       return firstCipherCheck;
@@ -116,24 +108,14 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected encryptCipher() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!this.organization.canEditAllCiphers(this.restrictProviderAccess)) {
       return super.encryptCipher();
     }
     return this.cipherService.encrypt(this.cipher, null, null, this.originalCipher);
   }
 
   protected async deleteCipher() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!this.organization.canEditAllCiphers(this.restrictProviderAccess)) {
       return super.deleteCipher();
     }
     return this.cipher.isDeleted

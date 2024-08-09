@@ -41,61 +41,44 @@ export class CollectionAdminView extends CollectionView {
   /**
    * Returns true if the user can edit a collection (including user and group access) from the Admin Console.
    */
-  override canEdit(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
+  override canEdit(org: Organization): boolean {
     return (
-      org?.canEditAnyCollection(flexibleCollectionsV1Enabled) ||
-      (flexibleCollectionsV1Enabled && this.unmanaged && org?.canEditUnmanagedCollections()) ||
-      super.canEdit(org, flexibleCollectionsV1Enabled)
+      org?.canEditAnyCollection ||
+      (this.unmanaged && org?.canEditUnmanagedCollections) ||
+      super.canEdit(org)
     );
   }
 
   /**
    * Returns true if the user can delete a collection from the Admin Console.
    */
-  override canDelete(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
-    return (
-      org?.canDeleteAnyCollection(flexibleCollectionsV1Enabled) ||
-      super.canDelete(org, flexibleCollectionsV1Enabled)
-    );
+  override canDelete(org: Organization): boolean {
+    return org?.canDeleteAnyCollection || super.canDelete(org);
   }
 
   /**
    * Whether the user can modify user access to this collection
    */
-  canEditUserAccess(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
-    const allowAdminAccessToAllCollectionItems =
-      !flexibleCollectionsV1Enabled || org.allowAdminAccessToAllCollectionItems;
-
+  canEditUserAccess(org: Organization): boolean {
     return (
-      (org.permissions.manageUsers && allowAdminAccessToAllCollectionItems) ||
-      this.canEdit(org, flexibleCollectionsV1Enabled)
+      (org.permissions.manageUsers && org.allowAdminAccessToAllCollectionItems) || this.canEdit(org)
     );
   }
 
   /**
    * Whether the user can modify group access to this collection
    */
-  canEditGroupAccess(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
-    const allowAdminAccessToAllCollectionItems =
-      !flexibleCollectionsV1Enabled || org.allowAdminAccessToAllCollectionItems;
-
+  canEditGroupAccess(org: Organization): boolean {
     return (
-      (org.permissions.manageGroups && allowAdminAccessToAllCollectionItems) ||
-      this.canEdit(org, flexibleCollectionsV1Enabled)
+      (org.permissions.manageGroups && org.allowAdminAccessToAllCollectionItems) ||
+      this.canEdit(org)
     );
   }
 
   /**
    * Returns true if the user can view collection info and access in a read-only state from the Admin Console
    */
-  override canViewCollectionInfo(
-    org: Organization | undefined,
-    flexibleCollectionsV1Enabled: boolean,
-  ): boolean {
-    if (!flexibleCollectionsV1Enabled) {
-      return false;
-    }
-
+  override canViewCollectionInfo(org: Organization | undefined): boolean {
     if (this.isUnassignedCollection) {
       return false;
     }

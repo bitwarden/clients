@@ -150,12 +150,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected collections: CollectionAdminView[];
   protected selectedCollection: TreeNode<CollectionAdminView> | undefined;
   protected isEmpty: boolean;
-  /**
-   * Used to show an old missing permission message for custom users with DeleteAnyCollection
-   * @deprecated Replaced with showCollectionAccessRestricted$ and this should be removed after flexible collections V1
-   * is released
-   */
-  protected showMissingCollectionPermissionMessage: boolean;
   protected showCollectionAccessRestricted: boolean;
   protected currentSearchText$: Observable<string>;
   /**
@@ -164,16 +158,12 @@ export class VaultComponent implements OnInit, OnDestroy {
    */
   protected editableCollections$: Observable<CollectionAdminView[]>;
   protected allCollectionsWithoutUnassigned$: Observable<CollectionAdminView[]>;
-  private _flexibleCollectionsV1FlagEnabled: boolean;
 
-  protected get flexibleCollectionsV1Enabled(): boolean {
-    return this._flexibleCollectionsV1FlagEnabled;
-  }
   protected orgRevokedUsers: OrganizationUserUserDetailsResponse[];
 
   private _restrictProviderAccessFlagEnabled: boolean;
   protected get restrictProviderAccessEnabled(): boolean {
-    return this._restrictProviderAccessFlagEnabled && this.flexibleCollectionsV1Enabled;
+    return this._restrictProviderAccessFlagEnabled;
   }
 
   protected get hideVaultFilters(): boolean {
@@ -228,10 +218,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         : "trashCleanupWarning",
     );
 
-    this._flexibleCollectionsV1FlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollectionsV1,
-    );
-
     this._restrictProviderAccessFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
@@ -254,7 +240,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       switchMap(async ([organization]) => {
         this.organization = organization;
 
-        if (!organization.canEditAnyCollection(this.flexibleCollectionsV1Enabled)) {
+        if (!organization.canEditAnyCollection) {
           await this.syncService.fullSync(false);
         }
 
@@ -327,12 +313,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.editableCollections$ = this.allCollectionsWithoutUnassigned$.pipe(
       map((collections) => {
         // Users that can edit all ciphers can implicitly add to / edit within any collection
-        if (
-          this.organization.canEditAllCiphers(
-            this.flexibleCollectionsV1Enabled,
-            this.restrictProviderAccessEnabled,
-          )
-        ) {
+        if (this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
           return collections;
         }
         // The user is only allowed to add/edit items to assigned collections that are not readonly
@@ -377,34 +358,12 @@ export class VaultComponent implements OnInit, OnDestroy {
           return [];
         }
 
-        if (this.flexibleCollectionsV1Enabled) {
-          // Flexible collections V1 logic.
-          // If the user can edit all ciphers for the organization then fetch them ALL.
-          if (
-            organization.canEditAllCiphers(
-              this.flexibleCollectionsV1Enabled,
-              this.restrictProviderAccessEnabled,
-            )
-          ) {
-            ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          } else {
-            // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-            ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
-          }
+        // If the user can edit all ciphers for the organization then fetch them ALL.
+        if (organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
+          ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
         } else {
-          // Pre-flexible collections logic, to be removed after flexible collections is fully released
-          if (
-            organization.canEditAllCiphers(
-              this.flexibleCollectionsV1Enabled,
-              this.restrictProviderAccessEnabled,
-            )
-          ) {
-            ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          } else {
-            ciphers = (await this.cipherService.getAllDecrypted()).filter(
-              (c) => c.organizationId === organization.id,
-            );
-          }
+          // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
+          ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
 
         await this.searchService.indexCiphers(ciphers, organization.id);
@@ -469,9 +428,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         // Add access toggle is only shown if allowAdminAccessToAllCollectionItems is false and there are unmanaged collections the user can edit
         this.showAddAccessToggle =
-          this.flexibleCollectionsV1Enabled &&
           !this.organization.allowAdminAccessToAllCollectionItems &&
-          this.organization.canEditUnmanagedCollections() &&
+          this.organization.canEditUnmanagedCollections &&
           collectionsToReturn.some((c) => c.unmanaged);
 
         if (addAccessStatus === 1 && this.showAddAccessToggle) {
@@ -508,10 +466,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         return (
           (filter.collectionId === Unassigned &&
             !organization.canEditUnassignedCiphers(this.restrictProviderAccessEnabled)) ||
-          (!organization.canEditAllCiphers(
-            this.flexibleCollectionsV1Enabled,
-            this.restrictProviderAccessEnabled,
-          ) &&
+          (!organization.canEditAllCiphers(this.restrictProviderAccessEnabled) &&
             collection != undefined &&
             !collection.node.assigned)
         );
@@ -531,7 +486,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           return [];
         }
 
-        if (this.flexibleCollectionsV1Enabled && showCollectionAccessRestricted) {
+        if (showCollectionAccessRestricted) {
           // Do not show ciphers for restricted collections
           // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
           return [];
@@ -548,25 +503,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    const showMissingCollectionPermissionMessage$ = combineLatest([
-      filter$,
-      selectedCollection$,
-      organization$,
-    ]).pipe(
-      map(([filter, collection, organization]) => {
-        return (
-          // Filtering by unassigned, show message if not admin
-          (filter.collectionId === Unassigned &&
-            !organization.canEditUnassignedCiphers(this.restrictProviderAccessEnabled)) ||
-          // Filtering by a collection, so show message if user is not assigned
-          (collection != undefined &&
-            !collection.node.assigned &&
-            !organization.canEditAnyCollection(this.flexibleCollectionsV1Enabled))
-        );
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
-
     firstSetup$
       .pipe(
         switchMap(() => combineLatest([this.route.queryParams, organization$])),
@@ -576,17 +512,9 @@ export class VaultComponent implements OnInit, OnDestroy {
             return;
           }
 
-          let canEditCipher: boolean;
-
-          if (this.flexibleCollectionsV1Enabled) {
-            canEditCipher =
-              organization.canEditAllCiphers(true, this.restrictProviderAccessEnabled) ||
-              (await firstValueFrom(allCipherMap$))[cipherId] != undefined;
-          } else {
-            canEditCipher =
-              organization.canEditAnyCollection(this.flexibleCollectionsV1Enabled) ||
-              (await this.cipherService.get(cipherId)) != null;
-          }
+          const canEditCipher =
+            organization.canEditAllCiphers(this.restrictProviderAccessEnabled) ||
+            (await firstValueFrom(allCipherMap$))[cipherId] != undefined;
 
           if (canEditCipher) {
             await this.editCipherId(cipherId);
@@ -646,7 +574,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             ciphers$,
             collections$,
             selectedCollection$,
-            showMissingCollectionPermissionMessage$,
             showCollectionAccessRestricted$,
           ]),
         ),
@@ -661,7 +588,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           ciphers,
           collections,
           selectedCollection,
-          showMissingCollectionPermissionMessage,
           showCollectionAccessRestricted,
         ]) => {
           this.organization = organization;
@@ -671,7 +597,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.ciphers = ciphers;
           this.collections = collections;
           this.selectedCollection = selectedCollection;
-          this.showMissingCollectionPermissionMessage = showMissingCollectionPermissionMessage;
           this.showCollectionAccessRestricted = showCollectionAccessRestricted;
 
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
@@ -812,32 +737,28 @@ export class VaultComponent implements OnInit, OnDestroy {
   async editCipherCollections(cipher: CipherView) {
     let collections: CollectionAdminView[] = [];
 
-    if (this.flexibleCollectionsV1Enabled) {
-      // V1 limits admins to only adding items to collections they have access to.
-      collections = await firstValueFrom(
-        this.allCollectionsWithoutUnassigned$.pipe(
-          map((c) => {
-            return c.sort((a, b) => {
-              if (
-                a.canEditItems(this.organization, true, this.restrictProviderAccessEnabled) &&
-                !b.canEditItems(this.organization, true, this.restrictProviderAccessEnabled)
-              ) {
-                return -1;
-              } else if (
-                !a.canEditItems(this.organization, true, this.restrictProviderAccessEnabled) &&
-                b.canEditItems(this.organization, true, this.restrictProviderAccessEnabled)
-              ) {
-                return 1;
-              } else {
-                return a.name.localeCompare(b.name);
-              }
-            });
-          }),
-        ),
-      );
-    } else {
-      collections = await firstValueFrom(this.allCollectionsWithoutUnassigned$);
-    }
+    // Admins limited to only adding items to collections they have access to.
+    collections = await firstValueFrom(
+      this.allCollectionsWithoutUnassigned$.pipe(
+        map((c) => {
+          return c.sort((a, b) => {
+            if (
+              a.canEditItems(this.organization, this.restrictProviderAccessEnabled) &&
+              !b.canEditItems(this.organization, this.restrictProviderAccessEnabled)
+            ) {
+              return -1;
+            } else if (
+              !a.canEditItems(this.organization, this.restrictProviderAccessEnabled) &&
+              b.canEditItems(this.organization, this.restrictProviderAccessEnabled)
+            ) {
+              return 1;
+            } else {
+              return a.name.localeCompare(b.name);
+            }
+          });
+        }),
+      ),
+    );
     const dialog = openOrgVaultCollectionsDialog(this.dialogService, {
       data: {
         collectionIds: cipher.collectionIds,
@@ -855,14 +776,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   async addCipher() {
     let collections: CollectionView[] = [];
 
-    if (this.flexibleCollectionsV1Enabled) {
-      // V1 limits admins to only adding items to collections they have access to.
-      collections = await firstValueFrom(this.editableCollections$);
-    } else {
-      collections = (await firstValueFrom(this.vaultFilterService.filteredCollections$)).filter(
-        (c) => !c.readOnly && c.id != Unassigned,
-      );
-    }
+    // Admins limited to only adding items to collections they have access to.
+    collections = await firstValueFrom(this.editableCollections$);
 
     await this.editCipher(null, (comp) => {
       comp.type = this.activeFilter.cipherType;
@@ -954,14 +869,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     let collections: CollectionView[] = [];
 
-    if (this.flexibleCollectionsV1Enabled) {
-      // V1 limits admins to only adding items to collections they have access to.
-      collections = await firstValueFrom(this.editableCollections$);
-    } else {
-      collections = (await firstValueFrom(this.vaultFilterService.filteredCollections$)).filter(
-        (c) => !c.readOnly && c.id != Unassigned,
-      );
-    }
+    // Admins limited to only adding items to collections they have access to.
+    collections = await firstValueFrom(this.editableCollections$);
 
     await this.editCipher(cipher, (comp) => {
       comp.cloneMode = true;
@@ -977,7 +886,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     if (
       !this.organization.permissions.editAnyCollection &&
-      this.flexibleCollectionsV1Enabled &&
       !c.edit &&
       !this.organization.allowAdminAccessToAllCollectionItems
     ) {
@@ -991,9 +899,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      const asAdmin =
-        this.organization?.canEditAnyCollection(this.flexibleCollectionsV1Enabled) ||
-        c.isUnassigned;
+      const asAdmin = this.organization?.canEditAnyCollection || c.isUnassigned;
       await this.cipherService.restoreWithServer(c.id, asAdmin);
       this.toastService.showToast({
         variant: "success",
@@ -1009,7 +915,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   async bulkRestore(ciphers: CipherView[]) {
     if (
       !this.organization.permissions.editAnyCollection &&
-      this.flexibleCollectionsV1Enabled &&
       ciphers.some((c) => !c.edit && !this.organization.allowAdminAccessToAllCollectionItems)
     ) {
       this.showMissingPermissionsError();
@@ -1025,10 +930,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const unassignedCiphers: string[] = [];
 
     // If user has edit all Access no need to check for unassigned ciphers
-    const canEditAll = this.organization.canEditAllCiphers(
-      this.flexibleCollectionsV1Enabled,
-      this.restrictProviderAccessEnabled,
-    );
+    const canEditAll = this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled);
 
     if (canEditAll) {
       ciphers.map((cipher) => {
@@ -1069,14 +971,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async deleteCipher(c: CipherView): Promise<boolean> {
-    if (
-      this.flexibleCollectionsV1Enabled &&
-      !c.edit &&
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccessEnabled,
-      )
-    ) {
+    if (!c.edit && !this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1111,7 +1006,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async deleteCollection(collection: CollectionAdminView): Promise<void> {
-    if (!collection.canDelete(this.organization, this.flexibleCollectionsV1Enabled)) {
+    if (!collection.canDelete(this.organization)) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1178,17 +1073,13 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const canDeleteCollections =
-      collections == null ||
-      collections.every((c) => c.canDelete(organization, this.flexibleCollectionsV1Enabled));
+      collections == null || collections.every((c) => c.canDelete(organization));
     const canDeleteCiphers =
       ciphers == null ||
       ciphers.every((c) => c.edit) ||
-      this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccessEnabled,
-      );
+      this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled);
 
-    if (this.flexibleCollectionsV1Enabled && (!canDeleteCiphers || !canDeleteCollections)) {
+    if (!canDeleteCiphers || !canDeleteCollections) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1268,9 +1159,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       data: {
         organizationId: this.organization?.id,
         parentCollectionId: this.selectedCollection?.node.id,
-        limitNestedCollections: !this.organization.canEditAnyCollection(
-          this.flexibleCollectionsV1Enabled,
-        ),
+        limitNestedCollections: !this.organization.canEditAnyCollection,
       },
     });
 
@@ -1295,9 +1184,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         initialTab: tab,
         readonly: readonly,
         isAddAccessCollection: c.unmanaged,
-        limitNestedCollections: !this.organization.canEditAnyCollection(
-          this.flexibleCollectionsV1Enabled,
-        ),
+        limitNestedCollections: !this.organization.canEditAnyCollection,
       },
     });
 
@@ -1335,10 +1222,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (
-      this.flexibleCollectionsV1Enabled &&
-      collections.some((c) => !c.canEdit(organization, this.flexibleCollectionsV1Enabled))
-    ) {
+    if (collections.some((c) => !c.canEdit(organization))) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1366,15 +1250,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let availableCollections: CollectionView[];
-
-    if (this.flexibleCollectionsV1Enabled) {
-      availableCollections = await firstValueFrom(this.editableCollections$);
-    } else {
-      availableCollections = (
-        await firstValueFrom(this.vaultFilterService.filteredCollections$)
-      ).filter((c) => c.id != Unassigned);
-    }
+    const availableCollections = await firstValueFrom(this.editableCollections$);
 
     const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
       data: {
@@ -1405,10 +1281,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected deleteCipherWithServer(id: string, permanent: boolean, isUnassigned: boolean) {
     const asAdmin =
-      this.organization?.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccessEnabled,
-      ) || isUnassigned;
+      this.organization?.canEditAllCiphers(this.restrictProviderAccessEnabled) || isUnassigned;
     return permanent
       ? this.cipherService.deleteWithServer(id, asAdmin)
       : this.cipherService.softDeleteWithServer(id, asAdmin);

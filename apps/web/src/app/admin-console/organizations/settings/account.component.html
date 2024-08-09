@@ -56,7 +56,7 @@
   >
     <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "collectionManagement" | i18n }}</h1>
     <p bitTypography="body1">{{ "collectionManagementDesc" | i18n }}</p>
-    <bit-form-control *ngIf="flexibleCollectionsV1Enabled$ | async">
+    <bit-form-control>
       <bit-label>{{ "allowAdminAccessToAllCollectionItemsDesc" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="allowAdminAccessToAllCollectionItems" />
     </bit-form-control>

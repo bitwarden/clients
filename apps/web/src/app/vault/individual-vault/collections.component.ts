@@ -50,13 +50,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
   }
 
   check(c: CollectionView, select?: boolean) {
-    if (
-      !c.canEditItems(
-        this.organization,
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!c.canEditItems(this.organization, this.restrictProviderAccess)) {
       return;
     }
     (c as any).checked = select == null ? !(c as any).checked : select;

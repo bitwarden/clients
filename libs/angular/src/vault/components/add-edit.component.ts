@@ -90,7 +90,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
 
-  protected flexibleCollectionsV1Enabled = false;
   protected restrictProviderAccess = false;
 
   get fido2CredentialCreationDateValue(): string {
@@ -181,9 +180,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.flexibleCollectionsV1Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollectionsV1,
-    );
     this.restrictProviderAccess = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
@@ -674,10 +670,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   protected saveCipher(cipher: Cipher) {
     const isNotClone = this.editMode && !this.cloneMode;
-    let orgAdmin = this.organization?.canEditAllCiphers(
-      this.flexibleCollectionsV1Enabled,
-      this.restrictProviderAccess,
-    );
+    let orgAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
     if (!cipher.collectionIds) {
@@ -690,20 +683,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   protected deleteCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers(
-      this.flexibleCollectionsV1Enabled,
-      this.restrictProviderAccess,
-    );
+    const asAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
     return this.cipher.isDeleted
       ? this.cipherService.deleteWithServer(this.cipher.id, asAdmin)
       : this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
   }
 
   protected restoreCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers(
-      this.flexibleCollectionsV1Enabled,
-      this.restrictProviderAccess,
-    );
+    const asAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
     return this.cipherService.restoreWithServer(this.cipher.id, asAdmin);
   }
 

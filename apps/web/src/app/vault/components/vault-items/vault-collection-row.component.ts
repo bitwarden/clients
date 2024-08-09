@@ -71,7 +71,7 @@ export class VaultCollectionRowComponent {
       return (
         !this.organization?.allowAdminAccessToAllCollectionItems &&
         this.collection.unmanaged &&
-        this.organization?.canEditUnmanagedCollections()
+        this.organization?.canEditUnmanagedCollections
       );
     }
 

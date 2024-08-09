@@ -175,7 +175,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   ) {}
 
   async ngOnInit() {
-    const v1FCEnabled = await this.configService.getFeatureFlag(FeatureFlag.FlexibleCollectionsV1);
     const restrictProviderAccess = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
@@ -186,7 +185,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.showOrgSelector = true;
     }
 
-    await this.initializeItems(this.selectedOrgId, v1FCEnabled, restrictProviderAccess);
+    await this.initializeItems(this.selectedOrgId, restrictProviderAccess);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
       await this.handleOrganizationCiphers();
@@ -332,11 +331,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     }
   }
 
-  private async initializeItems(
-    organizationId: OrganizationId,
-    v1FCEnabled: boolean,
-    restrictProviderAccess: boolean,
-  ) {
+  private async initializeItems(organizationId: OrganizationId, restrictProviderAccess: boolean) {
     this.totalItemCount = this.params.ciphers.length;
 
     // If organizationId is not present or organizationId is MyVault, then all ciphers are considered personal items
@@ -351,7 +346,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     const org = await this.organizationService.get(organizationId);
     this.orgName = org.name;
 
-    this.editableItems = org.canEditAllCiphers(v1FCEnabled, restrictProviderAccess)
+    this.editableItems = org.canEditAllCiphers(restrictProviderAccess)
       ? this.params.ciphers
       : this.params.ciphers.filter((c) => c.edit);
 

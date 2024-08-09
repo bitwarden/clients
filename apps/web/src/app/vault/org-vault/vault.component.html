@@ -68,39 +68,12 @@
       [showBulkEditCollectionAccess]="true"
       [showBulkAddToCollections]="true"
       [viewingOrgVault]="true"
-      [flexibleCollectionsV1Enabled]="flexibleCollectionsV1Enabled"
       [addAccessStatus]="addAccessStatus$ | async"
       [addAccessToggle]="showAddAccessToggle"
       [restrictProviderAccess]="restrictProviderAccessEnabled"
     >
     </app-vault-items>
-    <ng-container *ngIf="!flexibleCollectionsV1Enabled">
-      <div
-        class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-        *ngIf="showMissingCollectionPermissionMessage"
-      >
-        <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-        <p>{{ "noPermissionToViewAllCollectionItems" | i18n }}</p>
-      </div>
-      <div
-        class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-        *ngIf="isEmpty && !showMissingCollectionPermissionMessage && !performingInitialLoad"
-      >
-        <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-        <p>{{ "noItemsInList" | i18n }}</p>
-        <button
-          type="button"
-          buttonType="primary"
-          bitButton
-          (click)="addCipher()"
-          *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned"
-        >
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-          {{ "newItem" | i18n }}
-        </button>
-      </div></ng-container
-    >
-    <ng-container *ngIf="flexibleCollectionsV1Enabled && !performingInitialLoad && isEmpty">
+    <ng-container *ngIf="!performingInitialLoad && isEmpty">
       <bit-no-items *ngIf="!showCollectionAccessRestricted">
         <span slot="title" class="tw-mt-4 tw-block">{{ "noItemsInList" | i18n }}</span>
         <button
@@ -116,15 +89,8 @@
       </bit-no-items>
       <collection-access-restricted
         *ngIf="showCollectionAccessRestricted"
-        [canEditCollection]="
-          selectedCollection?.node?.canEdit(organization, flexibleCollectionsV1Enabled)
-        "
-        [canViewCollectionInfo]="
-          selectedCollection?.node?.canViewCollectionInfo(
-            organization,
-            flexibleCollectionsV1Enabled
-          )
-        "
+        [canEditCollection]="selectedCollection?.node?.canEdit(organization)"
+        [canViewCollectionInfo]="selectedCollection?.node?.canViewCollectionInfo(organization)"
         (viewCollectionClicked)="
           editCollection(selectedCollection.node, $event.tab, $event.readonly)
         "

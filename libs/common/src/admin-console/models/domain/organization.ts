@@ -168,13 +168,8 @@ export class Organization {
     );
   }
 
-  canEditAnyCollection(flexibleCollectionsV1Enabled: boolean) {
-    if (!flexibleCollectionsV1Enabled) {
-      // Pre-Flexible Collections v1 logic
-      return this.isAdmin || this.permissions.editAnyCollection;
-    }
-
-    // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
+  get canEditAnyCollection() {
+    // The allowAdminAccessToAllCollectionItems flag can restrict admins
     // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
       this.isProviderUser ||
@@ -183,7 +178,7 @@ export class Organization {
     );
   }
 
-  canEditUnmanagedCollections() {
+  get canEditUnmanagedCollections() {
     // Any admin or custom user with editAnyCollection permission can edit unmanaged collections
     return this.isAdmin || this.permissions.editAnyCollection;
   }
@@ -203,15 +198,7 @@ export class Organization {
     );
   }
 
-  canEditAllCiphers(
-    flexibleCollectionsV1Enabled: boolean,
-    restrictProviderAccessFlagEnabled: boolean,
-  ) {
-    // Before Flexible Collections V1, any admin or anyone with editAnyCollection permission could edit all ciphers
-    if (!flexibleCollectionsV1Enabled) {
-      return this.isAdmin || this.permissions.editAnyCollection;
-    }
-
+  canEditAllCiphers(restrictProviderAccessFlagEnabled: boolean) {
     // Providers can access items until the restrictProviderAccess flag is enabled
     // After the flag is enabled and removed, this block will be deleted
     // so that they permanently lose access to items
@@ -219,7 +206,7 @@ export class Organization {
       return true;
     }
 
-    // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
+    // The allowAdminAccessToAllCollectionItems flag can restrict admins
     // Custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
       (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
@@ -229,10 +216,9 @@ export class Organization {
   }
 
   /**
-   * @param flexibleCollectionsV1Enabled - Whether or not the V1 Flexible Collection feature flag is enabled
    * @returns True if the user can delete any collection
    */
-  canDeleteAnyCollection(flexibleCollectionsV1Enabled: boolean) {
+  get canDeleteAnyCollection() {
     // Providers and Users with DeleteAnyCollection permission can always delete collections
     if (this.isProviderUser || this.permissions.deleteAnyCollection) {
       return true;
@@ -240,7 +226,7 @@ export class Organization {
 
     // If AllowAdminAccessToAllCollectionItems is true, Owners and Admins can delete any collection, regardless of LimitCollectionCreationDeletion setting
     // Using explicit type checks because provider users are handled above and this mimics the server's permission checks closely
-    if (!flexibleCollectionsV1Enabled || this.allowAdminAccessToAllCollectionItems) {
+    if (this.allowAdminAccessToAllCollectionItems) {
       return this.type == OrganizationUserType.Owner || this.type == OrganizationUserType.Admin;
     }
 
