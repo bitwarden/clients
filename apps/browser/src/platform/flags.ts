@@ -8,8 +8,6 @@ import {
 
 import { GroupPolicyEnvironment } from "../admin-console/types/group-policy-environment";
 
-import { BrowserApi } from "./browser/browser-api";
-
 // required to avoid linting errors when there are no flags
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Flags = {
@@ -39,8 +37,5 @@ export function devFlagValue(flag: keyof DevFlags) {
  * Not by expanding these flag getters.
  */
 export function enableAccountSwitching(): boolean {
-  if (BrowserApi.isSafariApi) {
-    return false;
-  }
   return flagEnabled("accountSwitching");
 }
