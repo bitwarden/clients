@@ -6,7 +6,7 @@ import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential
  *
  * The authenticator provides key management and cryptographic signatures.
  */
-export abstract class Fido2AuthenticatorService {
+export abstract class Fido2AuthenticatorService<ParentWindowReference> {
   /**
    * Create and save a new credential as described in:
    * https://www.w3.org/TR/webauthn-3/#sctn-op-make-cred
@@ -17,7 +17,7 @@ export abstract class Fido2AuthenticatorService {
    **/
   makeCredential: (
     params: Fido2AuthenticatorMakeCredentialsParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<Fido2AuthenticatorMakeCredentialResult>;
 
@@ -31,7 +31,7 @@ export abstract class Fido2AuthenticatorService {
    */
   getAssertion: (
     params: Fido2AuthenticatorGetAssertionParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<Fido2AuthenticatorGetAssertionResult>;
 

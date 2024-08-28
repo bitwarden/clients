@@ -13,7 +13,7 @@ export type UserVerification = "discouraged" | "preferred" | "required";
  * It is responsible for both marshalling the inputs for the underlying authenticator operations,
  * and for returning the results of the latter operations to the Web Authentication API's callers.
  */
-export abstract class Fido2ClientService {
+export abstract class Fido2ClientService<ParentWindowReference> {
   isFido2FeatureEnabled: (hostname: string, origin: string) => Promise<boolean>;
 
   /**
@@ -26,7 +26,7 @@ export abstract class Fido2ClientService {
    */
   createCredential: (
     params: CreateCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<CreateCredentialResult>;
 
@@ -41,7 +41,7 @@ export abstract class Fido2ClientService {
    */
   assertCredential: (
     params: AssertCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<AssertCredentialResult>;
 }
