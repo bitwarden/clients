@@ -175,39 +175,66 @@ export class WindowMain {
     });
   }
 
-  async createWindow(): Promise<void> {
-    this.windowStates[mainWindowSizeKey] = await this.getWindowState(
-      this.defaultWidth,
-      this.defaultHeight,
-    );
-    this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
+  async createWindow(template: "full-app" | "minimal-app" = "full-app"): Promise<void> {
+    if (template === "full-app") {
+      this.windowStates[mainWindowSizeKey] = await this.getWindowState(
+        this.defaultWidth,
+        this.defaultHeight,
+      );
+      this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
-    this.session = session.fromPartition("persist:bitwarden", { cache: false });
+      this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
-    // Create the browser window.
-    this.win = new BrowserWindow({
-      width: this.windowStates[mainWindowSizeKey].width,
-      height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 680,
-      minHeight: 500,
-      x: this.windowStates[mainWindowSizeKey].x,
-      y: this.windowStates[mainWindowSizeKey].y,
-      title: app.name,
-      icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
-      titleBarStyle: isMac() ? "hiddenInset" : undefined,
-      show: false,
-      backgroundColor: await this.getBackgroundColor(),
-      alwaysOnTop: this.enableAlwaysOnTop,
-      webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
-        spellcheck: false,
-        nodeIntegration: false,
-        backgroundThrottling: false,
-        contextIsolation: true,
-        session: this.session,
-        devTools: isDev(),
-      },
-    });
+      // Create the browser window.
+      this.win = new BrowserWindow({
+        width: this.windowStates[mainWindowSizeKey].width,
+        height: this.windowStates[mainWindowSizeKey].height,
+        minWidth: 680,
+        minHeight: 500,
+        x: this.windowStates[mainWindowSizeKey].x,
+        y: this.windowStates[mainWindowSizeKey].y,
+        title: app.name,
+        icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
+        titleBarStyle: isMac() ? "hiddenInset" : undefined,
+        show: false,
+        backgroundColor: await this.getBackgroundColor(),
+        alwaysOnTop: this.enableAlwaysOnTop,
+        webPreferences: {
+          preload: path.join(__dirname, "preload.js"),
+          spellcheck: false,
+          nodeIntegration: false,
+          backgroundThrottling: false,
+          contextIsolation: true,
+          session: this.session,
+          devTools: isDev(),
+        },
+      });
+    } else {
+      //
+      this.win = new BrowserWindow({
+        width: 400,
+        height: 600,
+        resizable: false,
+        icon: null,
+        center: true,
+        titleBarStyle: "hiddenInset",
+        frame: false,
+        alwaysOnTop: true,
+        backgroundColor: await this.getBackgroundColor(),
+        show: true,
+        webPreferences: {
+          preload: path.join(__dirname, "preload.js"),
+          spellcheck: false,
+          nodeIntegration: false,
+          backgroundThrottling: false,
+          contextIsolation: true,
+          session: this.session,
+          devTools: isDev(),
+        },
+      });
+
+      this.win.setWindowButtonVisibility(false);
+    }
 
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
@@ -220,19 +247,37 @@ export class WindowMain {
     // Show it later since it might need to be maximized.
     this.win.show();
 
-    // and load the index.html of the app.
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-      }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
+    if (template === "full-app") {
+      // and load the index.html of the app.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    } else {
+      await this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          //pathname: `${__dirname}/index.html`,
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+          hash: "/passkeys",
+          query: {
+            redirectUrl: "/passkeys",
+          },
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    }
 
     // Open the DevTools.
     if (isDev()) {

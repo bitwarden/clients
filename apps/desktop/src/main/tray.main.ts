@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as path from "path";
+import * as url from "url";
 
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
 import { firstValueFrom } from "rxjs";
@@ -9,6 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { cleanUserAgent } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -48,6 +50,10 @@ export class TrayMain {
       {
         label: this.i18nService.t("showHide"),
         click: () => this.toggleWindow(),
+      },
+      {
+        label: "Fake Popup",
+        click: () => this.fakePopup(),
       },
       { type: "separator" },
       {
@@ -202,5 +208,48 @@ export class TrayMain {
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
     }
+  }
+
+  private async fakePopup() {
+    if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
+      await this.windowMain.createWindow("minimal-app");
+      return;
+    }
+
+    // Restyle existing
+    const existingWin = this.windowMain.win;
+
+    existingWin.setBounds({
+      width: 400,
+      height: 600,
+    });
+    existingWin.setSize(400, 600, true);
+    existingWin.setWindowButtonVisibility(false);
+    existingWin.resizable = false;
+    await existingWin.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: "/passkeys",
+        query: {
+          redirectUrl: "/passkeys",
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(existingWin.webContents.userAgent),
+      },
+    );
+    existingWin.center();
+    existingWin.setAlwaysOnTop(true);
+    existingWin.show();
+    // TODO: Do things
+    // ?? Enqueue the browser location
+    // Change browser location and styling to minimal
+
+    // Show popup
+    // Change styling back to full
+    // ?? Dequeue browser location
   }
 }
