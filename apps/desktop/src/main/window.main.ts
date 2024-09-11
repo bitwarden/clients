@@ -189,8 +189,8 @@ export class WindowMain {
       this.win = new BrowserWindow({
         width: this.windowStates[mainWindowSizeKey].width,
         height: this.windowStates[mainWindowSizeKey].height,
-        minWidth: 680,
-        minHeight: 500,
+        minWidth: 400,
+        minHeight: 400,
         x: this.windowStates[mainWindowSizeKey].x,
         y: this.windowStates[mainWindowSizeKey].y,
         title: app.name,
@@ -212,8 +212,8 @@ export class WindowMain {
     } else {
       //
       this.win = new BrowserWindow({
-        width: 400,
-        height: 600,
+        width: 450,
+        height: 450,
         resizable: false,
         icon: null,
         center: true,
