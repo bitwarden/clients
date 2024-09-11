@@ -212,10 +212,10 @@ export class TrayMain {
     const existingWin = this.windowMain.win;
 
     existingWin.setBounds({
-      width: 400,
-      height: 600,
+      width: 500,
+      height: 400,
     });
-    existingWin.setSize(400, 600, true);
+    existingWin.setSize(450, 450, true);
     existingWin.setWindowButtonVisibility(false);
     existingWin.resizable = false;
     await existingWin.loadURL(

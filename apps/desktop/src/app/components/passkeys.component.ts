@@ -9,13 +9,15 @@ export type BrowserSyncVerificationDialogParams = {
 @Component({
   standalone: true,
   template: `
-    <img
-      src="../resources/passkeys.png"
-      class="mb-4 logo"
-      alt="Bitwarden"
-      width="660"
-      height="580"
-    />
+    <div style="background:white; display:flex; justify-content: center; align-items: center;">
+      <img
+        src="../resources/Frame2101.svg"
+        class="mb-4 logo"
+        alt="Bitwarden"
+        width="440"
+        height="400"
+      />
+    </div>
   `,
   imports: [JslibModule],
 })
