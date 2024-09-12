@@ -75,6 +75,10 @@ const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "
   clearOn: [], // User setting, no need to clear
 });
 
+const IN_MODAL_MODE = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "inModalMode", {
+  deserializer: (b) => b,
+});
+
 /**
  * Various settings for controlling application behavior specific to the desktop client.
  */
@@ -154,6 +158,10 @@ export class DesktopSettingsService {
    * when a value is copied to the clipboard.
    */
   minimizeOnCopy$ = this.minimizeOnCopyState.state$.pipe(map(Boolean));
+
+  private readonly inModalModeState = this.stateProvider.getGlobal(IN_MODAL_MODE);
+
+  inModalMode$ = this.inModalModeState.state$.pipe(map(Boolean));
 
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
@@ -269,5 +277,8 @@ export class DesktopSettingsService {
    */
   async setMinimizeOnCopy(value: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
+  }
+  async setInModalMode(value: boolean) {
+    await this.inModalModeState.update(() => value);
   }
 }

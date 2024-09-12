@@ -219,6 +219,8 @@ export class TrayMain {
     // Restyle existing
     const existingWin = this.windowMain.win;
 
+    await this.desktopSettingsService.setInModalMode(true);
+
     existingWin.setBounds({
       width: 500,
       height: 400,
