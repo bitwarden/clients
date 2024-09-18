@@ -188,7 +188,7 @@ export class TrayMain {
         this.hideDock();
       }
     } else {
-      this.windowMain.win.show();
+      this.windowMain.show();
       if (this.isDarwin()) {
         this.showDock();
       }
@@ -212,14 +212,6 @@ export class TrayMain {
     const existingWin = this.windowMain.win;
 
     await this.desktopSettingsService.setInModalMode(true);
-
-    existingWin.setBounds({
-      width: 500,
-      height: 400,
-    });
-    existingWin.setSize(450, 450, true);
-    existingWin.setWindowButtonVisibility(false);
-    existingWin.resizable = false;
     await existingWin.loadURL(
       url.format({
         protocol: "file:",
@@ -235,15 +227,8 @@ export class TrayMain {
         userAgent: cleanUserAgent(existingWin.webContents.userAgent),
       },
     );
-    existingWin.center();
-    existingWin.setAlwaysOnTop(true);
-    existingWin.show();
-    // TODO: Do things
-    // ?? Enqueue the browser location
-    // Change browser location and styling to minimal
-
-    // Show popup
-    // Change styling back to full
-    // ?? Dequeue browser location
+    existingWin.once("ready-to-show", () => {
+      existingWin.show();
+    });
   }
 }
