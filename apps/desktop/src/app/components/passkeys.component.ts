@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-
+import { Router } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -28,10 +28,13 @@ export type BrowserSyncVerificationDialogParams = {
   imports: [JslibModule],
 })
 export class PasskeysComponent {
-  constructor(private readonly desktopSettingsService: DesktopSettingsService) {}
+  constructor(
+    private readonly desktopSettingsService: DesktopSettingsService,
+    private readonly router: Router,
+  ) {}
 
   async closeModal() {
-    console.log("closing modal");
+    this.router.navigate(["/"]);
     await this.desktopSettingsService.setInModalMode(false);
   }
 }
