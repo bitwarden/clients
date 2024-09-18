@@ -13,7 +13,7 @@ import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
-import { applyMainWindowStyles } from "../platform/popup-modal-styles";
+import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
 
@@ -80,9 +80,11 @@ export class WindowMain {
       .pipe(
         pairwise(),
         concatMap(async ([lastValue, newValue]) => {
-          console.log("inModalMode updated", { lastValue, newValue });
           if (lastValue && !newValue) {
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+            this.win.hide();
+          } else if (!lastValue && newValue) {
+            applyPopupModalStyles(this.win);
           }
         }),
       )
@@ -187,64 +189,52 @@ export class WindowMain {
     });
   }
 
+  /// Show the window with main window styles
+  show() {
+    if (this.win != null) {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      this.win.show();
+    }
+  }
+
   async createWindow(template: "full-app" | "minimal-app" = "full-app"): Promise<void> {
-    if (template === "full-app") {
-      this.windowStates[mainWindowSizeKey] = await this.getWindowState(
-        this.defaultWidth,
-        this.defaultHeight,
-      );
-      this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
+    this.windowStates[mainWindowSizeKey] = await this.getWindowState(
+      this.defaultWidth,
+      this.defaultHeight,
+    );
+    this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
-      this.session = session.fromPartition("persist:bitwarden", { cache: false });
+    this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
-      // Create the browser window.
-      this.win = new BrowserWindow({
-        width: this.windowStates[mainWindowSizeKey].width,
-        height: this.windowStates[mainWindowSizeKey].height,
-        minWidth: 400,
-        minHeight: 400,
-        x: this.windowStates[mainWindowSizeKey].x,
-        y: this.windowStates[mainWindowSizeKey].y,
-        title: app.name,
-        icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
-        titleBarStyle: isMac() ? "hiddenInset" : undefined,
-        show: false,
-        backgroundColor: await this.getBackgroundColor(),
-        alwaysOnTop: this.enableAlwaysOnTop,
-        webPreferences: {
-          preload: path.join(__dirname, "preload.js"),
-          spellcheck: false,
-          nodeIntegration: false,
-          backgroundThrottling: false,
-          contextIsolation: true,
-          session: this.session,
-          devTools: isDev(),
-        },
-      });
+    // Create the browser window.
+    this.win = new BrowserWindow({
+      width: this.windowStates[mainWindowSizeKey].width,
+      height: this.windowStates[mainWindowSizeKey].height,
+      minWidth: 400,
+      minHeight: 400,
+      x: this.windowStates[mainWindowSizeKey].x,
+      y: this.windowStates[mainWindowSizeKey].y,
+      title: app.name,
+      icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
+      titleBarStyle: isMac() ? "hiddenInset" : undefined,
+      show: false,
+      backgroundColor: await this.getBackgroundColor(),
+      alwaysOnTop: this.enableAlwaysOnTop,
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
+        spellcheck: false,
+        nodeIntegration: false,
+        backgroundThrottling: false,
+        contextIsolation: true,
+        session: this.session,
+        devTools: isDev(),
+      },
+    });
+
+    if (template === "minimal-app") {
+      applyPopupModalStyles(this.win);
     } else {
-      this.win = new BrowserWindow({
-        width: 450,
-        height: 450,
-        resizable: false,
-        icon: null,
-        center: true,
-        titleBarStyle: "hiddenInset",
-        frame: false,
-        alwaysOnTop: true,
-        backgroundColor: await this.getBackgroundColor(),
-        show: true,
-        webPreferences: {
-          preload: path.join(__dirname, "preload.js"),
-          spellcheck: false,
-          nodeIntegration: false,
-          backgroundThrottling: false,
-          contextIsolation: true,
-          session: this.session,
-          devTools: isDev(),
-        },
-      });
-
-      this.win.setWindowButtonVisibility(false);
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
     }
 
     this.win.webContents.on("dom-ready", () => {
@@ -256,7 +246,10 @@ export class WindowMain {
     }
 
     // Show it later since it might need to be maximized.
-    this.win.show();
+    // use once event to avoid flash on unstyled content.
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
 
     if (template === "full-app") {
       // and load the index.html of the app.
@@ -371,16 +364,13 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    console.log("updateWindowState");
     if (win == null || win.isDestroyed()) {
-      console.log("no window/destroyed");
       return;
     }
 
     const inModalMode = await firstValueFrom(this.desktopSettingsService.inModalMode$);
 
     if (inModalMode) {
-      console.log("in modal mode, ignore");
       return;
     }
 
@@ -394,7 +384,8 @@ export class WindowMain {
         }
       }
 
-      this.windowStates[configKey].isMaximized = win.isMaximized();
+      // We're treating fullscreen as maximized
+      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
 
       if (!win.isMaximized() && !win.isMinimized() && !win.isFullScreen()) {
