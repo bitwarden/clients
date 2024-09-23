@@ -32,6 +32,9 @@ export class OrganizationResponse extends BaseResponse {
   smServiceAccounts?: number;
   maxAutoscaleSmSeats?: number;
   maxAutoscaleSmServiceAccounts?: number;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+  // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
   limitCollectionCreationDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
 
@@ -69,6 +72,9 @@ export class OrganizationResponse extends BaseResponse {
     this.smServiceAccounts = this.getResponseProperty("SmServiceAccounts");
     this.maxAutoscaleSmSeats = this.getResponseProperty("MaxAutoscaleSmSeats");
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
     this.limitCollectionCreationDeletion = this.getResponseProperty(
       "LimitCollectionCreationDeletion",
     );

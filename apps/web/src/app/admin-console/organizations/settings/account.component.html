@@ -60,10 +60,22 @@
       <bit-label>{{ "allowAdminAccessToAllCollectionItemsDesc" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="allowAdminAccessToAllCollectionItems" />
     </bit-form-control>
-    <bit-form-control>
-      <bit-label>{{ "limitCollectionCreationDeletionDesc" | i18n }}</bit-label>
-      <input type="checkbox" bitCheckbox formControlName="limitCollectionCreationDeletion" />
-    </bit-form-control>
+    <ng-container *ngIf="limitCollectionCreationDeletionSplitFeatureFlagIsEnabled">
+      <bit-form-control>
+        <bit-label>{{ "limitCollectionCreationDesc" | i18n }}</bit-label>
+        <input type="checkbox" bitCheckbox formControlName="limitCollectionCreation" />
+      </bit-form-control>
+      <bit-form-control>
+        <bit-label>{{ "limitCollectionDeletionDesc" | i18n }}</bit-label>
+        <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
+      </bit-form-control>
+    </ng-container>
+    <ng-container *ngIf="!limitCollectionCreationDeletionSplitFeatureFlagIsEnabled">
+      <bit-form-control>
+        <bit-label>{{ "limitCollectionCreationDeletionDesc" | i18n }}</bit-label>
+        <input type="checkbox" bitCheckbox formControlName="limitCollectionCreationDeletion" />
+      </bit-form-control>
+    </ng-container>
     <button
       *ngIf="!selfHosted"
       type="submit"
