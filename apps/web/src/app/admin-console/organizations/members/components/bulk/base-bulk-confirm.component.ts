@@ -7,11 +7,11 @@ import {
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -31,7 +31,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
   protected error: string;
 
   protected constructor(
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
   ) {}
@@ -48,7 +48,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
 
     for (const entry of publicKeysResponse.data) {
       const publicKey = Utils.fromB64ToArray(entry.key);
-      const fingerprint = await this.cryptoService.getFingerprint(entry.userId, publicKey);
+      const fingerprint = await this.keyService.getFingerprint(entry.userId, publicKey);
       if (fingerprint != null) {
         this.publicKeys.set(entry.id, publicKey);
         this.fingerprints.set(entry.id, fingerprint.join("-"));

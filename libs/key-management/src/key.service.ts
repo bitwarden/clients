@@ -10,20 +10,39 @@ import {
   switchMap,
 } from "rxjs";
 
-import { PinServiceAbstraction } from "../../../../auth/src/common/abstractions";
-import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
-import { BaseEncryptedOrganizationKey } from "../../admin-console/models/domain/encrypted-organization-key";
-import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
-import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
-import { AccountService } from "../../auth/abstractions/account.service";
-import { KdfConfigService } from "../../auth/abstractions/kdf-config.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
-import { KdfConfig } from "../../auth/models/domain/kdf-config";
-import { Utils } from "../../platform/misc/utils";
-import { VAULT_TIMEOUT } from "../../services/vault-timeout/vault-timeout-settings.state";
-import { CsprngArray } from "../../types/csprng";
-import { OrganizationId, ProviderId, UserId } from "../../types/guid";
+import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
+import { EncryptedOrganizationKeyData } from "../../common/src/admin-console/models/data/encrypted-organization-key.data";
+import { BaseEncryptedOrganizationKey } from "../../common/src/admin-console/models/domain/encrypted-organization-key";
+import { ProfileOrganizationResponse } from "../../common/src/admin-console/models/response/profile-organization.response";
+import { ProfileProviderOrganizationResponse } from "../../common/src/admin-console/models/response/profile-provider-organization.response";
+import { ProfileProviderResponse } from "../../common/src/admin-console/models/response/profile-provider.response";
+import { AccountService } from "../../common/src/auth/abstractions/account.service";
+import { KdfConfigService } from "../../common/src/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
+import { KdfConfig } from "../../common/src/auth/models/domain/kdf-config";
+import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
+import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
+import { LogService } from "../../common/src/platform/abstractions/log.service";
+import { PlatformUtilsService } from "../../common/src/platform/abstractions/platform-utils.service";
+import { StateService } from "../../common/src/platform/abstractions/state.service";
+import { KeySuffixOptions, HashPurpose } from "../../common/src/platform/enums";
+import { convertValues } from "../../common/src/platform/misc/convert-values";
+import { Utils } from "../../common/src/platform/misc/utils";
+import { EFFLongWordList } from "../../common/src/platform/misc/wordlist";
+import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
+import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";
+import { USER_ENCRYPTED_PROVIDER_KEYS } from "../../common/src/platform/services/key-state/provider-keys.state";
+import {
+  USER_ENCRYPTED_PRIVATE_KEY,
+  USER_EVER_HAD_USER_KEY,
+  USER_KEY,
+} from "../../common/src/platform/services/key-state/user-key.state";
+import { ActiveUserState, StateProvider } from "../../common/src/platform/state";
+import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
+import { CsprngArray } from "../../common/src/types/csprng";
+import { OrganizationId, ProviderId, UserId } from "../../common/src/types/guid";
 import {
   OrgKey,
   UserKey,
@@ -32,35 +51,16 @@ import {
   CipherKey,
   UserPrivateKey,
   UserPublicKey,
-} from "../../types/key";
-import { VaultTimeoutStringType } from "../../types/vault-timeout.type";
-import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+} from "../../common/src/types/key";
+import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
+
 import {
   CipherDecryptionKeys,
-  CryptoService as CryptoServiceAbstraction,
+  KeyService as KeyServiceAbstraction,
   UserPrivateKeyDecryptionFailedError,
-} from "../abstractions/crypto.service";
-import { EncryptService } from "../abstractions/encrypt.service";
-import { KeyGenerationService } from "../abstractions/key-generation.service";
-import { LogService } from "../abstractions/log.service";
-import { PlatformUtilsService } from "../abstractions/platform-utils.service";
-import { StateService } from "../abstractions/state.service";
-import { KeySuffixOptions, HashPurpose } from "../enums";
-import { convertValues } from "../misc/convert-values";
-import { EFFLongWordList } from "../misc/wordlist";
-import { EncString, EncryptedString } from "../models/domain/enc-string";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
-import { ActiveUserState, StateProvider } from "../state";
+} from "./abstractions/key.service";
 
-import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "./key-state/org-keys.state";
-import { USER_ENCRYPTED_PROVIDER_KEYS } from "./key-state/provider-keys.state";
-import {
-  USER_ENCRYPTED_PRIVATE_KEY,
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "./key-state/user-key.state";
-
-export class CryptoService implements CryptoServiceAbstraction {
+export class DefaultKeyService implements KeyServiceAbstraction {
   private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
 
   readonly everHadUserKey$: Observable<boolean>;

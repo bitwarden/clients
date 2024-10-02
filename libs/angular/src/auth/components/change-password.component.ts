@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -17,6 +16,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordColorText } from "../../tools/password-strength/password-strength.component";
 
@@ -39,7 +39,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
 
   constructor(
     protected i18nService: I18nService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected messagingService: MessagingService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
@@ -91,22 +91,19 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     }
 
     // Create new master key
-    const newMasterKey = await this.cryptoService.makeMasterKey(
+    const newMasterKey = await this.keyService.makeMasterKey(
       this.masterPassword,
       email.trim().toLowerCase(),
       this.kdfConfig,
     );
-    const newMasterKeyHash = await this.cryptoService.hashMasterKey(
-      this.masterPassword,
-      newMasterKey,
-    );
+    const newMasterKeyHash = await this.keyService.hashMasterKey(this.masterPassword, newMasterKey);
 
     let newProtectedUserKey: [UserKey, EncString] = null;
-    const userKey = await this.cryptoService.getUserKey();
+    const userKey = await this.keyService.getUserKey();
     if (userKey == null) {
-      newProtectedUserKey = await this.cryptoService.makeUserKey(newMasterKey);
+      newProtectedUserKey = await this.keyService.makeUserKey(newMasterKey);
     } else {
-      newProtectedUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey);
+      newProtectedUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey);
     }
 
     await this.performSubmitActions(newMasterKeyHash, newMasterKey, newProtectedUserKey);

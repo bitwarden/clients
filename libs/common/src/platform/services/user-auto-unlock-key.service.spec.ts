@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { DefaultKeyService } from "../../../../key-management/src/key.service";
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
@@ -7,7 +8,6 @@ import { KeySuffixOptions } from "../enums";
 import { Utils } from "../misc/utils";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
-import { CryptoService } from "./crypto.service";
 import { UserAutoUnlockKeyService } from "./user-auto-unlock-key.service";
 
 describe("UserAutoUnlockKeyService", () => {
@@ -15,10 +15,10 @@ describe("UserAutoUnlockKeyService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
 
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<DefaultKeyService>();
 
   beforeEach(() => {
-    userAutoUnlockKeyService = new UserAutoUnlockKeyService(cryptoService);
+    userAutoUnlockKeyService = new UserAutoUnlockKeyService(keyService);
   });
 
   describe("setUserKeyInMemoryIfAutoUserKeySet", () => {
@@ -27,25 +27,22 @@ describe("UserAutoUnlockKeyService", () => {
       await (userAutoUnlockKeyService as any).setUserKeyInMemoryIfAutoUserKeySet(null);
 
       // Assert
-      expect(cryptoService.getUserKeyFromStorage).not.toHaveBeenCalled();
-      expect(cryptoService.setUserKey).not.toHaveBeenCalled();
+      expect(keyService.getUserKeyFromStorage).not.toHaveBeenCalled();
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
     });
 
     it("does nothing if the autoUserKey is null", async () => {
       // Arrange
       const userId = mockUserId;
 
-      cryptoService.getUserKeyFromStorage.mockResolvedValue(null);
+      keyService.getUserKeyFromStorage.mockResolvedValue(null);
 
       // Act
       await (userAutoUnlockKeyService as any).setUserKeyInMemoryIfAutoUserKeySet(userId);
 
       // Assert
-      expect(cryptoService.getUserKeyFromStorage).toHaveBeenCalledWith(
-        KeySuffixOptions.Auto,
-        userId,
-      );
-      expect(cryptoService.setUserKey).not.toHaveBeenCalled();
+      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(KeySuffixOptions.Auto, userId);
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
     });
 
     it("sets the user key in memory if the autoUserKey is not null", async () => {
@@ -55,17 +52,14 @@ describe("UserAutoUnlockKeyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockAutoUserKey: UserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
 
-      cryptoService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
+      keyService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
 
       // Act
       await (userAutoUnlockKeyService as any).setUserKeyInMemoryIfAutoUserKeySet(userId);
 
       // Assert
-      expect(cryptoService.getUserKeyFromStorage).toHaveBeenCalledWith(
-        KeySuffixOptions.Auto,
-        userId,
-      );
-      expect(cryptoService.setUserKey).toHaveBeenCalledWith(mockAutoUserKey, userId);
+      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(KeySuffixOptions.Auto, userId);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockAutoUserKey, userId);
     });
   });
 });

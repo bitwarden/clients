@@ -10,7 +10,6 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,6 +23,7 @@ import {
   InputModule,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { InputsFieldMatch } from "../../../../angular/src/auth/validators/inputs-field-match.validator";
 import { SharedModule } from "../../../../components/src/shared";
@@ -96,7 +96,7 @@ export class InputPasswordComponent {
 
   constructor(
     private auditService: AuditService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
@@ -146,15 +146,15 @@ export class InputPasswordComponent {
       throw new Error("Email is required to create master key.");
     }
 
-    const masterKey = await this.cryptoService.makeMasterKey(
+    const masterKey = await this.keyService.makeMasterKey(
       password,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
 
-    const masterKeyHash = await this.cryptoService.hashMasterKey(password, masterKey);
+    const masterKeyHash = await this.keyService.hashMasterKey(password, masterKey);
 
-    const localMasterKeyHash = await this.cryptoService.hashMasterKey(
+    const localMasterKeyHash = await this.keyService.hashMasterKey(
       password,
       masterKey,
       HashPurpose.LocalAuthorization,

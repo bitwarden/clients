@@ -100,7 +100,7 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (url: string, options: OptionValues) => {
         const cmd = new SendReceiveCommand(
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.cryptoFunctionService,
           this.serviceContainer.platformUtilsService,
@@ -142,7 +142,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.collectionService,
           this.serviceContainer.totpService,
           this.serviceContainer.auditService,
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.stateService,
           this.serviceContainer.searchService,

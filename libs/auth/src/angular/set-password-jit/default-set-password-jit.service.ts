@@ -13,13 +13,13 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   SetPasswordCredentials,
@@ -29,7 +29,7 @@ import {
 export class DefaultSetPasswordJitService implements SetPasswordJitService {
   constructor(
     protected apiService: ApiService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
@@ -85,7 +85,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     // User now has a password so update account decryption options in state
     await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
 
-    await this.cryptoService.setPrivateKey(keyPair[1].encryptedString, userId);
+    await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
 
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
 
@@ -100,12 +100,12 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
   ): Promise<[UserKey, EncString]> {
     let protectedUserKey: [UserKey, EncString] = null;
 
-    const userKey = await firstValueFrom(this.cryptoService.userKey$(userId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
-      protectedUserKey = await this.cryptoService.makeUserKey(masterKey);
+      protectedUserKey = await this.keyService.makeUserKey(masterKey);
     } else {
-      protectedUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(masterKey);
+      protectedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
     }
 
     return protectedUserKey;
@@ -114,7 +114,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
   private async makeKeyPairAndRequest(
     protectedUserKey: [UserKey, EncString],
   ): Promise<[[string, EncString], KeysRequest]> {
-    const keyPair = await this.cryptoService.makeKeyPair(protectedUserKey[0]);
+    const keyPair = await this.keyService.makeKeyPair(protectedUserKey[0]);
     if (keyPair == null) {
       throw new Error("keyPair not found. Could not set password.");
     }
@@ -136,7 +136,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.cryptoService.setUserKey(protectedUserKey[0], userId);
+    await this.keyService.setUserKey(protectedUserKey[0], userId);
   }
 
   private async handleResetPasswordAutoEnroll(
@@ -153,7 +153,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const publicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
 
     // RSA Encrypt user key with organization public key
-    const userKey = await firstValueFrom(this.cryptoService.userKey$(userId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");

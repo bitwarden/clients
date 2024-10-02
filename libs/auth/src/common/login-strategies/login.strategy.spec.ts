@@ -21,7 +21,6 @@ import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/maste
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -39,6 +38,7 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -104,7 +104,7 @@ describe("LoginStrategy", () => {
   let masterPasswordService: FakeMasterPasswordService;
 
   let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -129,7 +129,7 @@ describe("LoginStrategy", () => {
     masterPasswordService = new FakeMasterPasswordService();
 
     loginStrategyService = mock<LoginStrategyServiceAbstraction>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -158,7 +158,7 @@ describe("LoginStrategy", () => {
       loginStrategyService,
       accountService,
       masterPasswordService,
-      cryptoService,
+      keyService,
       encryptService,
       apiService,
       tokenService,
@@ -321,7 +321,7 @@ describe("LoginStrategy", () => {
     it("makes a new public and private key for an old account", async () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
-      cryptoService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
+      keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -330,10 +330,10 @@ describe("LoginStrategy", () => {
       await passwordLoginStrategy.logIn(credentials);
 
       // User symmetric key must be set before the new RSA keypair is generated
-      expect(cryptoService.setUserKey).toHaveBeenCalled();
-      expect(cryptoService.makeKeyPair).toHaveBeenCalled();
-      expect(cryptoService.setUserKey.mock.invocationCallOrder[0]).toBeLessThan(
-        cryptoService.makeKeyPair.mock.invocationCallOrder[0],
+      expect(keyService.setUserKey).toHaveBeenCalled();
+      expect(keyService.makeKeyPair).toHaveBeenCalled();
+      expect(keyService.setUserKey.mock.invocationCallOrder[0]).toBeLessThan(
+        keyService.makeKeyPair.mock.invocationCallOrder[0],
       );
 
       expect(apiService.postAccountKeys).toHaveBeenCalled();
@@ -470,7 +470,7 @@ describe("LoginStrategy", () => {
         loginStrategyService,
         accountService,
         masterPasswordService,
-        cryptoService,
+        keyService,
         encryptService,
         apiService,
         tokenService,

@@ -3,13 +3,13 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../shared";
 import { UserKeyRotationModule } from "../key-rotation/user-key-rotation.module";
@@ -31,7 +31,7 @@ export class MigrateFromLegacyEncryptionComponent {
     private accountService: AccountService,
     private keyRotationService: UserKeyRotationService,
     private i18nService: I18nService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private messagingService: MessagingService,
     private logService: LogService,
     private syncService: SyncService,
@@ -49,7 +49,7 @@ export class MigrateFromLegacyEncryptionComponent {
 
     const activeUser = await firstValueFrom(this.accountService.activeAccount$);
 
-    const hasUserKey = await this.cryptoService.hasUserKey(activeUser.id);
+    const hasUserKey = await this.keyService.hasUserKey(activeUser.id);
     if (hasUserKey) {
       this.messagingService.send("logout");
       throw new Error("User key already exists, cannot migrate legacy encryption.");

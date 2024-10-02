@@ -1,10 +1,13 @@
 import { Observable } from "rxjs";
 
-import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
-import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
-import { KdfConfig } from "../../auth/models/domain/kdf-config";
-import { OrganizationId, UserId } from "../../types/guid";
+import { ProfileOrganizationResponse } from "../../../common/src/admin-console/models/response/profile-organization.response";
+import { ProfileProviderOrganizationResponse } from "../../../common/src/admin-console/models/response/profile-provider-organization.response";
+import { ProfileProviderResponse } from "../../../common/src/admin-console/models/response/profile-provider.response";
+import { KdfConfig } from "../../../common/src/auth/models/domain/kdf-config";
+import { KeySuffixOptions, HashPurpose } from "../../../common/src/platform/enums";
+import { EncString } from "../../../common/src/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "../../../common/src/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId, UserId } from "../../../common/src/types/guid";
 import {
   UserKey,
   MasterKey,
@@ -13,10 +16,7 @@ import {
   CipherKey,
   UserPrivateKey,
   UserPublicKey,
-} from "../../types/key";
-import { KeySuffixOptions, HashPurpose } from "../enums";
-import { EncString } from "../models/domain/enc-string";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+} from "../../../common/src/types/key";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -39,7 +39,7 @@ export type CipherDecryptionKeys = {
   orgKeys: Record<OrganizationId, OrgKey>;
 };
 
-export abstract class CryptoService {
+export abstract class KeyService {
   /**
    * Retrieves a stream of the given users {@see UserKey} values. Can emit null if the user does not have a user key, e.g. the user
    * is in a locked or logged out state.

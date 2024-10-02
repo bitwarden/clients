@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
@@ -14,7 +15,6 @@ import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
@@ -97,7 +97,7 @@ export class CipherService implements CipherServiceAbstraction {
   private addEditCipherInfoState: ActiveUserState<AddEditCipherInfo>;
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private domainSettingsService: DomainSettingsService,
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -379,7 +379,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async decryptCiphers(ciphers: Cipher[], userId: UserId) {
-    const keys = await firstValueFrom(this.cryptoService.cipherDecryptionKeys$(userId, true));
+    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId, true));
 
     if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
       // return early if there are no keys to decrypt with
@@ -529,7 +529,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const key = await this.cryptoService.getOrgKey(organizationId);
+    const key = await this.keyService.getOrgKey(organizationId);
     let decCiphers: CipherView[] = [];
     if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
       decCiphers = await this.bulkEncryptService.decryptItems(ciphers, key);
@@ -826,7 +826,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     const encFileName = await this.encryptService.encrypt(filename, cipherEncKey);
 
-    const dataEncKey = await this.cryptoService.makeDataEncKey(cipherEncKey);
+    const dataEncKey = await this.keyService.makeDataEncKey(cipherEncKey);
     const encData = await this.encryptService.encryptToBytes(new Uint8Array(data), dataEncKey[0]);
 
     const response = await this.cipherFileUploadService.upload(
@@ -1220,8 +1220,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
     return (
-      (await this.cryptoService.getOrgKey(cipher.organizationId)) ||
-      ((await this.cryptoService.getUserKeyWithLegacySupport(userId)) as UserKey)
+      (await this.keyService.getOrgKey(cipher.organizationId)) ||
+      ((await this.keyService.getUserKeyWithLegacySupport(userId)) as UserKey)
     );
   }
 
@@ -1269,7 +1269,7 @@ export class CipherService implements CipherServiceAbstraction {
   // In the case of a cipher that is being shared with an organization, we want to decrypt the
   // cipher key with the user's key and then re-encrypt it with the organization's key.
   private async encryptSharedCipher(model: CipherView, userId: UserId): Promise<Cipher> {
-    const keyForCipherKeyDecryption = await this.cryptoService.getUserKeyWithLegacySupport(userId);
+    const keyForCipherKeyDecryption = await this.keyService.getUserKeyWithLegacySupport(userId);
     return await this.encrypt(model, userId, null, keyForCipherKeyDecryption);
   }
 
@@ -1346,14 +1346,14 @@ export class CipherService implements CipherServiceAbstraction {
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-    const userKey = await this.cryptoService.getUserKeyWithLegacySupport(activeUserId.id);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId.id);
     const decBuf = await this.encryptService.decryptToBytes(encBuf, userKey);
 
     let encKey: UserKey | OrgKey;
-    encKey = await this.cryptoService.getOrgKey(organizationId);
-    encKey ||= (await this.cryptoService.getUserKeyWithLegacySupport()) as UserKey;
+    encKey = await this.keyService.getOrgKey(organizationId);
+    encKey ||= (await this.keyService.getUserKeyWithLegacySupport()) as UserKey;
 
-    const dataEncKey = await this.cryptoService.makeDataEncKey(encKey);
+    const dataEncKey = await this.keyService.makeDataEncKey(encKey);
 
     const encFileName = await this.encryptService.encrypt(attachmentView.fileName, encKey);
     const encData = await this.encryptService.encryptToBytes(new Uint8Array(decBuf), dataEncKey[0]);
@@ -1654,7 +1654,7 @@ export class CipherService implements CipherServiceAbstraction {
     // First, we get the key for cipher key encryption, in its decrypted form
     let decryptedCipherKey: SymmetricCryptoKey;
     if (cipher.key == null) {
-      decryptedCipherKey = await this.cryptoService.makeCipherKey();
+      decryptedCipherKey = await this.keyService.makeCipherKey();
     } else {
       decryptedCipherKey = new SymmetricCryptoKey(
         await this.encryptService.decryptToBytes(cipher.key, keyForCipherKeyDecryption),

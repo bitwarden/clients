@@ -19,7 +19,6 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -34,6 +33,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
@@ -57,7 +57,7 @@ export class GetCommand extends DownloadCommand {
     private collectionService: CollectionService,
     private totpService: TotpService,
     private auditService: AuditService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     encryptService: EncryptService,
     private stateService: StateService,
     private searchService: SearchService,
@@ -378,7 +378,7 @@ export class GetCommand extends DownloadCommand {
     const key =
       attachments[0].key != null
         ? attachments[0].key
-        : await this.cryptoService.getOrgKey(cipher.organizationId);
+        : await this.keyService.getOrgKey(cipher.organizationId);
     return await this.saveAttachmentToFile(url, key, attachments[0].fileName, options.output);
   }
 
@@ -412,7 +412,7 @@ export class GetCommand extends DownloadCommand {
     if (Utils.isGuid(id)) {
       const collection = await this.collectionService.get(id);
       if (collection != null) {
-        const orgKeys = await firstValueFrom(this.cryptoService.activeUserOrgKeys$);
+        const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
           orgKeys[collection.organizationId as OrganizationId],
         );
@@ -446,7 +446,7 @@ export class GetCommand extends DownloadCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.cryptoService.getOrgKey(options.organizationId);
+      const orgKey = await this.keyService.getOrgKey(options.organizationId);
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
@@ -551,12 +551,12 @@ export class GetCommand extends DownloadCommand {
   private async getFingerprint(id: string) {
     let fingerprint: string[] = null;
     if (id === "me") {
-      fingerprint = await this.cryptoService.getFingerprint(await this.stateService.getUserId());
+      fingerprint = await this.keyService.getFingerprint(await this.stateService.getUserId());
     } else if (Utils.isGuid(id)) {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.cryptoService.getFingerprint(id, pubKey);
+        fingerprint = await this.keyService.getFingerprint(id, pubKey);
       } catch {
         // eslint-disable-next-line
       }

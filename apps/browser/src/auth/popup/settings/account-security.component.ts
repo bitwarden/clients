@@ -27,7 +27,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -52,7 +51,7 @@ import {
   TypographyModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -127,7 +126,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private stateService: StateService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
@@ -436,7 +435,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.cryptoService.refreshAdditionalKeys();
+      await this.keyService.refreshAdditionalKeys();
 
       const successful = await this.trySetupBiometrics();
       this.form.controls.biometric.setValue(successful);
@@ -559,9 +558,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async fingerprint() {
-    const fingerprint = await this.cryptoService.getFingerprint(
-      await this.stateService.getUserId(),
-    );
+    const fingerprint = await this.keyService.getFingerprint(await this.stateService.getUserId());
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,

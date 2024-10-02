@@ -6,13 +6,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CollectionRequest } from "@bitwarden/common/vault/models/request/collection.request";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
@@ -25,7 +25,7 @@ export class EditCommand {
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
@@ -143,7 +143,7 @@ export class EditCommand {
     folderView = FolderExport.toView(req, folderView);
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-    const userKey = await this.cryptoService.getUserKeyWithLegacySupport(activeUserId.id);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId.id);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       await this.folderApiService.save(encFolder);
@@ -174,7 +174,7 @@ export class EditCommand {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
     try {
-      const orgKey = await this.cryptoService.getOrgKey(req.organizationId);
+      const orgKey = await this.keyService.getOrgKey(req.organizationId);
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }

@@ -11,9 +11,9 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -22,14 +22,14 @@ export class WebRegistrationFinishService
   implements RegistrationFinishService
 {
   constructor(
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected accountApiService: AccountApiService,
     private acceptOrgInviteService: AcceptOrganizationInviteService,
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
   ) {
-    super(cryptoService, accountApiService);
+    super(keyService, accountApiService);
   }
 
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {

@@ -3,7 +3,7 @@ import { BehaviorSubject, filter, from, map, Observable, shareReplay, switchMap,
 
 import { PrfKeySet, UserKeyRotationDataProvider } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
@@ -51,7 +51,7 @@ export class WebauthnLoginAdminService
     private apiService: WebAuthnLoginAdminApiService,
     private userVerificationService: UserVerificationService,
     private rotateableKeySetService: RotateableKeySetService,
-    private webAuthnLoginPrfCryptoService: WebAuthnLoginPrfCryptoServiceAbstraction,
+    private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     @Optional() navigatorCredentials?: CredentialsContainer,
     @Optional() private logService?: LogService,
   ) {
@@ -143,7 +143,7 @@ export class WebauthnLoginAdminService
           pendingCredential.createOptions.options.authenticatorSelection.userVerification,
         // TODO: Remove `any` when typescript typings add support for PRF
         extensions: {
-          prf: { eval: { first: await this.webAuthnLoginPrfCryptoService.getLoginWithPrfSalt() } },
+          prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
         } as any,
       },
     };
@@ -162,7 +162,7 @@ export class WebauthnLoginAdminService
       }
 
       const symmetricPrfKey =
-        await this.webAuthnLoginPrfCryptoService.createSymmetricKeyFromPrf(prfResult);
+        await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
       return await this.rotateableKeySetService.createKeySet(symmetricPrfKey);
     } catch (error) {
       this.logService?.error(error);

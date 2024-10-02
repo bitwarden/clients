@@ -10,12 +10,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { I18nService } from "../../core/i18n.service";
 
@@ -29,7 +29,7 @@ describe("AcceptOrganizationInviteService", () => {
   let sut: AcceptOrganizationInviteService;
   let apiService: MockProxy<ApiService>;
   let authService: MockProxy<AuthService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -43,7 +43,7 @@ describe("AcceptOrganizationInviteService", () => {
   beforeEach(() => {
     apiService = mock();
     authService = mock();
-    cryptoService = mock();
+    keyService = mock();
     encryptService = mock();
     policyApiService = mock();
     policyService = mock();
@@ -57,7 +57,7 @@ describe("AcceptOrganizationInviteService", () => {
     sut = new AcceptOrganizationInviteService(
       apiService,
       authService,
-      cryptoService,
+      keyService,
       encryptService,
       policyApiService,
       policyService,
@@ -71,11 +71,11 @@ describe("AcceptOrganizationInviteService", () => {
 
   describe("validateAndAcceptInvite", () => {
     it("initializes an organization when given an invite where initOrganization is true", async () => {
-      cryptoService.makeOrgKey.mockResolvedValue([
+      keyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "string" } as EncString,
         "orgPrivateKey" as unknown as OrgKey,
       ]);
-      cryptoService.makeKeyPair.mockResolvedValue([
+      keyService.makeKeyPair.mockResolvedValue([
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);

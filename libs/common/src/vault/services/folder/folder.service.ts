@@ -2,7 +2,7 @@ import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -26,7 +26,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
   private decryptedFoldersState: DerivedState<FolderView[]>;
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private cipherService: CipherService,
@@ -36,7 +36,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     this.decryptedFoldersState = this.stateProvider.getDerived(
       this.encryptedFoldersState.state$,
       FOLDER_DECRYPTED_FOLDERS,
-      { folderService: this, cryptoService: this.cryptoService },
+      { folderService: this, keyService: this.keyService },
     );
 
     this.folders$ = this.encryptedFoldersState.state$.pipe(

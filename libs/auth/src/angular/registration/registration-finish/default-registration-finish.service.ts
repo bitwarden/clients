@@ -2,8 +2,8 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -11,7 +11,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 
 export class DefaultRegistrationFinishService implements RegistrationFinishService {
   constructor(
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected accountApiService: AccountApiService,
   ) {}
 
@@ -27,14 +27,14 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
   ): Promise<string> {
-    const [newUserKey, newEncUserKey] = await this.cryptoService.makeUserKey(
+    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
       passwordInputResult.masterKey,
     );
 
     if (!newUserKey || !newEncUserKey) {
       throw new Error("User key could not be created");
     }
-    const userAsymmetricKeys = await this.cryptoService.makeKeyPair(newUserKey);
+    const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
       email,

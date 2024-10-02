@@ -68,10 +68,10 @@ export class Attachment extends Domain {
   }
 
   private async getKeyForDecryption(orgId: string) {
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
-      ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getUserKeyWithLegacySupport();
+      ? await keyService.getOrgKey(orgId)
+      : await keyService.getUserKeyWithLegacySupport();
   }
 
   toAttachmentData(): AttachmentData {

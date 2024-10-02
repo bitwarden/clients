@@ -8,12 +8,12 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 import { OrganizationInvite } from "../../../organization-invite/organization-invite";
@@ -23,7 +23,7 @@ import { WebRegistrationFinishService } from "./web-registration-finish.service"
 describe("DefaultRegistrationFinishService", () => {
   let service: WebRegistrationFinishService;
 
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let accountApiService: MockProxy<AccountApiService>;
   let acceptOrgInviteService: MockProxy<AcceptOrganizationInviteService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
@@ -31,7 +31,7 @@ describe("DefaultRegistrationFinishService", () => {
   let policyService: MockProxy<PolicyService>;
 
   beforeEach(() => {
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     accountApiService = mock<AccountApiService>();
     acceptOrgInviteService = mock<AcceptOrganizationInviteService>();
     policyApiService = mock<PolicyApiServiceAbstraction>();
@@ -39,7 +39,7 @@ describe("DefaultRegistrationFinishService", () => {
     policyService = mock<PolicyService>();
 
     service = new WebRegistrationFinishService(
-      cryptoService,
+      keyService,
       accountApiService,
       acceptOrgInviteService,
       policyApiService,
@@ -163,7 +163,7 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("throws an error if the user key cannot be created", async () => {
-      cryptoService.makeUserKey.mockResolvedValue([null, null]);
+      keyService.makeUserKey.mockResolvedValue([null, null]);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -171,8 +171,8 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("registers the user and returns a captcha bypass token when given valid email verification input", async () => {
-      cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-      cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
+      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
 
@@ -184,8 +184,8 @@ describe("DefaultRegistrationFinishService", () => {
 
       expect(result).toEqual(capchaBypassToken);
 
-      expect(cryptoService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(cryptoService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
@@ -208,8 +208,8 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("it registers the user and returns a captcha bypass token when given an org invite", async () => {
-      cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-      cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
+      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
@@ -217,8 +217,8 @@ describe("DefaultRegistrationFinishService", () => {
 
       expect(result).toEqual(capchaBypassToken);
 
-      expect(cryptoService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(cryptoService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,

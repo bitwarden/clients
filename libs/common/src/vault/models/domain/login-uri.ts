@@ -47,8 +47,8 @@ export class LoginUri extends Domain {
       return false;
     }
 
-    const cryptoService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await cryptoService.hash(clearTextUri, "sha256");
+    const keyService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await keyService.hash(clearTextUri, "sha256");
 
     const remoteChecksum = await this.uriChecksum.decrypt(orgId, encKey);
     return remoteChecksum === localChecksum;

@@ -1,11 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -22,7 +22,7 @@ import { FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
 describe("Folder Service", () => {
   let folderService: FolderService;
 
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
@@ -33,7 +33,7 @@ describe("Folder Service", () => {
   let folderState: FakeActiveUserState<Record<string, FolderData>>;
 
   beforeEach(() => {
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
@@ -43,14 +43,14 @@ describe("Folder Service", () => {
 
     i18nService.collator = new Intl.Collator("en");
 
-    cryptoService.hasUserKey.mockResolvedValue(true);
-    cryptoService.getUserKeyWithLegacySupport.mockResolvedValue(
+    keyService.hasUserKey.mockResolvedValue(true);
+    keyService.getUserKeyWithLegacySupport.mockResolvedValue(
       new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
     );
     encryptService.decryptToUtf8.mockResolvedValue("DEC");
 
     folderService = new FolderService(
-      cryptoService,
+      keyService,
       encryptService,
       i18nService,
       cipherService,

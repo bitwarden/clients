@@ -3,9 +3,9 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 export type UserConfirmDialogData = {
   name: string;
@@ -34,7 +34,7 @@ export class UserConfirmComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected data: UserConfirmDialogData,
     private dialogRef: DialogRef,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private logService: LogService,
     private organizationManagementPreferencesService: OrganizationManagementPreferencesService,
   ) {
@@ -46,7 +46,7 @@ export class UserConfirmComponent implements OnInit {
   async ngOnInit() {
     try {
       if (this.publicKey != null) {
-        const fingerprint = await this.cryptoService.getFingerprint(this.userId, this.publicKey);
+        const fingerprint = await this.keyService.getFingerprint(this.userId, this.publicKey);
         if (fingerprint != null) {
           this.fingerprint = fingerprint.join("-");
         }

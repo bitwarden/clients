@@ -1,11 +1,11 @@
 import { mock } from "jest-mock-extended";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { KeyService } from "@bitwarden/key-management";
 
-import { CryptoServiceRandomizer } from "./crypto-service-randomizer";
+import { KeyServiceRandomizer } from "./crypto-service-randomizer";
 
-describe("CryptoServiceRandomizer", () => {
-  const cryptoService = mock<CryptoService>();
+describe("KeyServiceRandomizer", () => {
+  const keyService = mock<KeyService>();
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -13,7 +13,7 @@ describe("CryptoServiceRandomizer", () => {
 
   describe("pick", () => {
     it.each([[null], [undefined], [[]]])("throws when the list is %p", async (list) => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
+      const randomizer = new KeyServiceRandomizer(keyService);
 
       await expect(() => randomizer.pick(list)).rejects.toBeInstanceOf(Error);
 
@@ -21,8 +21,8 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("picks an item from the list", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValue(1);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValue(1);
 
       const result = await randomizer.pick([0, 1]);
 
@@ -32,7 +32,7 @@ describe("CryptoServiceRandomizer", () => {
 
   describe("pickWord", () => {
     it.each([[null], [undefined], [[]]])("throws when the list is %p", async (list) => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
+      const randomizer = new KeyServiceRandomizer(keyService);
 
       await expect(() => randomizer.pickWord(list)).rejects.toBeInstanceOf(Error);
 
@@ -40,8 +40,8 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("picks a word from the list", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValue(1);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValue(1);
 
       const result = await randomizer.pickWord(["foo", "bar"]);
 
@@ -49,8 +49,8 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("capitalizes the word when options.titleCase is true", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValue(1);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValue(1);
 
       const result = await randomizer.pickWord(["foo", "bar"], { titleCase: true });
 
@@ -58,9 +58,9 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("appends a random number when options.number is true", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(1);
-      cryptoService.randomNumber.mockResolvedValueOnce(2);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(1);
+      keyService.randomNumber.mockResolvedValueOnce(2);
 
       const result = await randomizer.pickWord(["foo", "bar"], { number: true });
 
@@ -70,7 +70,7 @@ describe("CryptoServiceRandomizer", () => {
 
   describe("shuffle", () => {
     it.each([[null], [undefined], [[]]])("throws when the list is %p", async (list) => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
+      const randomizer = new KeyServiceRandomizer(keyService);
 
       await expect(() => randomizer.shuffle(list)).rejects.toBeInstanceOf(Error);
 
@@ -78,18 +78,18 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("returns a copy of the list without shuffling it when theres only one entry", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
+      const randomizer = new KeyServiceRandomizer(keyService);
 
       const result = await randomizer.shuffle(["foo"]);
 
       expect(result).toEqual(["foo"]);
       expect(result).not.toBe(["foo"]);
-      expect(cryptoService.randomNumber).not.toHaveBeenCalled();
+      expect(keyService.randomNumber).not.toHaveBeenCalled();
     });
 
     it("shuffles the tail of the list", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(0);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(0);
 
       const result = await randomizer.shuffle(["bar", "foo"]);
 
@@ -97,9 +97,9 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("shuffles the list", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(0);
-      cryptoService.randomNumber.mockResolvedValueOnce(1);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(0);
+      keyService.randomNumber.mockResolvedValueOnce(1);
 
       const result = await randomizer.shuffle(["baz", "bar", "foo"]);
 
@@ -107,8 +107,8 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("returns the input list when options.copy is false", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(0);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(0);
 
       const expectedResult = ["foo"];
       const result = await randomizer.shuffle(expectedResult, { copy: false });
@@ -119,7 +119,7 @@ describe("CryptoServiceRandomizer", () => {
 
   describe("chars", () => {
     it("returns an empty string when the length is 0", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
+      const randomizer = new KeyServiceRandomizer(keyService);
 
       const result = await randomizer.chars(0);
 
@@ -127,8 +127,8 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("returns an arbitrary lowercase ascii character", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(0);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(0);
 
       const result = await randomizer.chars(1);
 
@@ -136,38 +136,38 @@ describe("CryptoServiceRandomizer", () => {
     });
 
     it("returns a number of ascii characters based on the length", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValue(0);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValue(0);
 
       const result = await randomizer.chars(2);
 
       expect(result).toEqual("aa");
-      expect(cryptoService.randomNumber).toHaveBeenCalledTimes(2);
+      expect(keyService.randomNumber).toHaveBeenCalledTimes(2);
     });
 
     it("returns a new random character each time its called", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValueOnce(0);
-      cryptoService.randomNumber.mockResolvedValueOnce(1);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValueOnce(0);
+      keyService.randomNumber.mockResolvedValueOnce(1);
 
       const resultA = await randomizer.chars(1);
       const resultB = await randomizer.chars(1);
 
       expect(resultA).toEqual("a");
       expect(resultB).toEqual("b");
-      expect(cryptoService.randomNumber).toHaveBeenCalledTimes(2);
+      expect(keyService.randomNumber).toHaveBeenCalledTimes(2);
     });
   });
 
   describe("uniform", () => {
     it("forwards requests to the crypto service", async () => {
-      const randomizer = new CryptoServiceRandomizer(cryptoService);
-      cryptoService.randomNumber.mockResolvedValue(5);
+      const randomizer = new KeyServiceRandomizer(keyService);
+      keyService.randomNumber.mockResolvedValue(5);
 
       const result = await randomizer.uniform(0, 5);
 
       expect(result).toBe(5);
-      expect(cryptoService.randomNumber).toHaveBeenCalledWith(0, 5);
+      expect(keyService.randomNumber).toHaveBeenCalledWith(0, 5);
     });
   });
 });

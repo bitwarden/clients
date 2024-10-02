@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { DeriveDefinition, FOLDER_DISK, UserKeyDefinition } from "../../../platform/state";
 import { FolderService } from "../../abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../models/data/folder.data";
@@ -19,13 +19,13 @@ export const FOLDER_ENCRYPTED_FOLDERS = UserKeyDefinition.record<FolderData>(
 export const FOLDER_DECRYPTED_FOLDERS = DeriveDefinition.from<
   Record<string, FolderData>,
   FolderView[],
-  { folderService: FolderService; cryptoService: CryptoService }
+  { folderService: FolderService; keyService: KeyService }
 >(FOLDER_ENCRYPTED_FOLDERS, {
   deserializer: (obj) => obj.map((f) => FolderView.fromJSON(f)),
-  derive: async (from, { folderService, cryptoService }) => {
+  derive: async (from, { folderService, keyService }) => {
     const folders = Object.values(from || {}).map((f) => new Folder(f));
 
-    if (await cryptoService.hasUserKey()) {
+    if (await keyService.hasUserKey()) {
       return await folderService.decryptFolders(folders);
     } else {
       return [];

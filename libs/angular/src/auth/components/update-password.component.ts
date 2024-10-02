@@ -11,7 +11,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { Verification } from "@bitwarden/common/auth/types/verification";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -21,6 +20,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KeyService } from "@bitwarden/key-management";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
 
@@ -40,7 +40,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     platformUtilsService: PlatformUtilsService,
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     policyService: PolicyService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     messagingService: MessagingService,
     private apiService: ApiService,
     stateService: StateService,
@@ -54,7 +54,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
   ) {
     super(
       i18nService,
-      cryptoService,
+      keyService,
       messagingService,
       passwordGenerationService,
       platformUtilsService,
@@ -114,9 +114,9 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     try {
       // Create Request
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(
+      request.masterPasswordHash = await this.keyService.hashMasterKey(
         this.currentMasterPassword,
-        await this.cryptoService.getOrDeriveMasterKey(this.currentMasterPassword),
+        await this.keyService.getOrDeriveMasterKey(this.currentMasterPassword),
       );
       request.newMasterPasswordHash = newMasterKeyHash;
       request.key = newUserKey[1].encryptedString;

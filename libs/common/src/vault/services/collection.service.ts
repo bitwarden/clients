@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 
-import { CryptoService } from "../../platform/abstractions/crypto.service";
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
 import {
@@ -62,7 +62,7 @@ export class CollectionService implements CollectionServiceAbstraction {
   }
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
@@ -95,7 +95,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     if (model.organizationId == null) {
       throw new Error("Collection has no organization id.");
     }
-    const key = await this.cryptoService.getOrgKey(model.organizationId);
+    const key = await this.keyService.getOrgKey(model.organizationId);
     if (key == null) {
       throw new Error("No key for this collection's organization.");
     }
@@ -114,7 +114,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     }
     const decCollections: CollectionView[] = [];
 
-    const organizationKeys = await firstValueFrom(this.cryptoService.activeUserOrgKeys$);
+    const organizationKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
 
     const promises: Promise<any>[] = [];
     collections.forEach((collection) => {

@@ -17,7 +17,6 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -29,7 +28,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PolicyListService } from "./admin-console/core/policy-list.service";
 import {
@@ -71,7 +70,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
     private vaultTimeoutService: VaultTimeoutService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private collectionService: CollectionService,
     private searchService: SearchService,
     private notificationsService: NotificationsService,
@@ -292,7 +291,7 @@ export class AppComponent implements OnDestroy, OnInit {
     );
 
     await Promise.all([
-      this.cryptoService.clearKeys(),
+      this.keyService.clearKeys(),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),

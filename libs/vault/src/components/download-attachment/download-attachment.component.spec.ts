@@ -5,7 +5,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,6 +14,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 
@@ -60,7 +60,7 @@ describe("DownloadAttachmentComponent", () => {
       imports: [DownloadAttachmentComponent],
       providers: [
         { provide: EncryptService, useValue: mock<EncryptService>() },
-        { provide: CryptoService, useValue: mock<CryptoService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: StateProvider, useValue: { activeUserId$ } },
         { provide: ToastService, useValue: { showToast } },

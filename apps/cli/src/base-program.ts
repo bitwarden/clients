@@ -171,7 +171,7 @@ export abstract class BaseProgram {
       const command = new UnlockCommand(
         this.serviceContainer.accountService,
         this.serviceContainer.masterPasswordService,
-        this.serviceContainer.cryptoService,
+        this.serviceContainer.keyService,
         this.serviceContainer.userVerificationService,
         this.serviceContainer.cryptoFunctionService,
         this.serviceContainer.logService,

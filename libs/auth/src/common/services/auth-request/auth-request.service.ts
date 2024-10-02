@@ -9,7 +9,6 @@ import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/p
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -21,6 +20,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
 
@@ -45,7 +45,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private appIdService: AppIdService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
@@ -111,7 +111,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       );
       keyToEncrypt = masterKey.encKey;
     } else {
-      const userKey = await this.cryptoService.getUserKey();
+      const userKey = await this.keyService.getUserKey();
       keyToEncrypt = userKey.key;
     }
 
@@ -135,7 +135,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.cryptoService.setUserKey(userKey, userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   async setKeysAfterDecryptingSharedMasterKeyAndHash(
@@ -156,7 +156,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterKeyHash(masterKeyHash, userId);
 
-    await this.cryptoService.setUserKey(userKey, userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   // Decryption helpers
@@ -203,6 +203,6 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
-    return (await this.cryptoService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+    return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
   }
 }

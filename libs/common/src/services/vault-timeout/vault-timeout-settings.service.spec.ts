@@ -10,13 +10,13 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
 
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith, FakeStateProvider } from "../../../spec";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import {
   VAULT_TIMEOUT,
@@ -30,7 +30,7 @@ describe("VaultTimeoutSettingsService", () => {
   let accountService: FakeAccountService;
   let pinService: MockProxy<PinServiceAbstraction>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let tokenService: MockProxy<TokenService>;
   let policyService: MockProxy<PolicyService>;
   const biometricStateService = mock<BiometricStateService>();
@@ -46,7 +46,7 @@ describe("VaultTimeoutSettingsService", () => {
     accountService = mockAccountServiceWith(mockUserId);
     pinService = mock<PinServiceAbstraction>();
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     tokenService = mock<TokenService>();
     policyService = mock<PolicyService>();
 
@@ -342,7 +342,7 @@ describe("VaultTimeoutSettingsService", () => {
         stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT).nextMock,
       ).toHaveBeenCalledWith(timeout);
 
-      expect(cryptoService.refreshAdditionalKeys).toHaveBeenCalled();
+      expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
     });
 
     it("should clear the tokens when the timeout is not never and the action is log out", async () => {
@@ -377,7 +377,7 @@ describe("VaultTimeoutSettingsService", () => {
       accountService,
       pinService,
       userDecryptionOptionsService,
-      cryptoService,
+      keyService,
       tokenService,
       policyService,
       biometricStateService,

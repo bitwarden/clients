@@ -5,13 +5,13 @@ import { first } from "rxjs/operators";
 
 import { FolderAddEditComponent as BaseFolderAddEditComponent } from "@bitwarden/angular/vault/components/folder-add-edit.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-folder-add-edit",
@@ -23,7 +23,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent implement
     folderService: FolderService,
     folderApiService: FolderApiServiceAbstraction,
     accountService: AccountService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -36,7 +36,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent implement
       folderService,
       folderApiService,
       accountService,
-      cryptoService,
+      keyService,
       i18nService,
       platformUtilsService,
       logService,

@@ -2,10 +2,10 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
@@ -64,7 +64,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   constructor(
     private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private appIdService: AppIdService,
     private devicesApiService: DevicesApiServiceAbstraction,
@@ -124,7 +124,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     // Attempt to get user key
-    const userKey: UserKey = await this.cryptoService.getUserKey(userId);
+    const userKey: UserKey = await this.keyService.getUserKey(userId);
 
     // If user key is not found, throw error
     if (!userKey) {
@@ -187,7 +187,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     // At this point of rotating their keys, they should still have their old user key in state
-    const oldUserKey = await firstValueFrom(this.cryptoService.userKey$(userId));
+    const oldUserKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const deviceIdentifier = await this.appIdService.getAppId();
     const secretVerificationRequest = new SecretVerificationRequest();

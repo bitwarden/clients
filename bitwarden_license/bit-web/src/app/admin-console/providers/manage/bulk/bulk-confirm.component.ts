@@ -27,7 +27,7 @@ export class BulkConfirmComponent extends OrganizationBulkConfirmComponent {
   }
 
   protected override getCryptoKey(): Promise<SymmetricCryptoKey> {
-    return this.cryptoService.getProviderKey(this.providerId);
+    return this.keyService.getProviderKey(this.providerId);
   }
 
   protected override async postConfirmRequest(userIdsWithKeys: any[]) {

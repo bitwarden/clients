@@ -6,13 +6,13 @@ import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
 import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-change-email",
@@ -34,7 +34,7 @@ export class ChangeEmailComponent implements OnInit {
     private apiService: ApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private messagingService: MessagingService,
     private logService: LogService,
     private stateService: StateService,
@@ -69,9 +69,9 @@ export class ChangeEmailComponent implements OnInit {
     if (!this.tokenSent) {
       const request = new EmailTokenRequest();
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(
+      request.masterPasswordHash = await this.keyService.hashMasterKey(
         step1Value.masterPassword,
-        await this.cryptoService.getOrDeriveMasterKey(step1Value.masterPassword),
+        await this.keyService.getOrDeriveMasterKey(step1Value.masterPassword),
       );
       try {
         await this.apiService.postEmailToken(request);
@@ -83,21 +83,21 @@ export class ChangeEmailComponent implements OnInit {
       const request = new EmailRequest();
       request.token = this.formGroup.value.token;
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(
+      request.masterPasswordHash = await this.keyService.hashMasterKey(
         step1Value.masterPassword,
-        await this.cryptoService.getOrDeriveMasterKey(step1Value.masterPassword),
+        await this.keyService.getOrDeriveMasterKey(step1Value.masterPassword),
       );
       const kdfConfig = await this.kdfConfigService.getKdfConfig();
-      const newMasterKey = await this.cryptoService.makeMasterKey(
+      const newMasterKey = await this.keyService.makeMasterKey(
         step1Value.masterPassword,
         newEmail,
         kdfConfig,
       );
-      request.newMasterPasswordHash = await this.cryptoService.hashMasterKey(
+      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
         step1Value.masterPassword,
         newMasterKey,
       );
-      const newUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey);
+      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey);
       request.key = newUserKey[1].encryptedString;
       try {
         await this.apiService.postEmail(request);

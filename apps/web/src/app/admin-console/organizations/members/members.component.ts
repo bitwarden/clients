@@ -38,7 +38,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -49,6 +48,7 @@ import { CollectionData } from "@bitwarden/common/vault/models/data/collection.d
 import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   ChangePlanDialogResultType,
@@ -107,7 +107,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     apiService: ApiService,
     i18nService: I18nService,
     organizationManagementPreferencesService: OrganizationManagementPreferencesService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     private encryptService: EncryptService,
     validationService: ValidationService,
     logService: LogService,
@@ -131,7 +131,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     super(
       apiService,
       i18nService,
-      cryptoService,
+      keyService,
       validationService,
       logService,
       userNamePipe,
@@ -169,8 +169,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
             this.organization.canManageUsersPassword &&
             !this.organization.hasPublicAndPrivateKeys
           ) {
-            const orgShareKey = await this.cryptoService.getOrgKey(this.organization.id);
-            const orgKeys = await this.cryptoService.makeKeyPair(orgShareKey);
+            const orgShareKey = await this.keyService.getOrgKey(this.organization.id);
+            const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
             const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
             const response = await this.organizationApiService.updateKeys(
               this.organization.id,
@@ -290,7 +290,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
-    const orgKey = await this.cryptoService.getOrgKey(this.organization.id);
+    const orgKey = await this.keyService.getOrgKey(this.organization.id);
     const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
     const request = new OrganizationUserConfirmRequest();
     request.key = key.encryptedString;

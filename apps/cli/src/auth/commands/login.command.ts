@@ -29,7 +29,6 @@ import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -38,6 +37,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../models/response";
@@ -61,7 +61,7 @@ export class LoginCommand {
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected accountService: AccountService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected policyService: PolicyService,
     protected twoFactorService: TwoFactorService,
     protected syncService: SyncService,
@@ -421,7 +421,7 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(currentPassword, null);
+      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, null);
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
@@ -570,21 +570,21 @@ export class LoginCommand {
     const kdfConfig = await this.kdfConfigService.getKdfConfig();
 
     // Create new key and hash new password
-    const newMasterKey = await this.cryptoService.makeMasterKey(
+    const newMasterKey = await this.keyService.makeMasterKey(
       masterPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
-    const newPasswordHash = await this.cryptoService.hashMasterKey(masterPassword, newMasterKey);
+    const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
 
     // Grab user key
-    const userKey = await this.cryptoService.getUserKey();
+    const userKey = await this.keyService.getUserKey();
     if (!userKey) {
       throw new Error("User key not found.");
     }
 
     // Re-encrypt user key with new master key
-    const newUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
+    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
 
     return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
   }

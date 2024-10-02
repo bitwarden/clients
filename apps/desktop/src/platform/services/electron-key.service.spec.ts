@@ -22,10 +22,10 @@ import {
   mockAccountServiceWith,
 } from "../../../../../libs/common/spec/fake-account-service";
 
-import { ElectronCryptoService } from "./electron-crypto.service";
+import { ElectronKeyService } from "./electron-key.service";
 
-describe("electronCryptoService", () => {
-  let sut: ElectronCryptoService;
+describe("electronKeyService", () => {
+  let sut: ElectronKeyService;
 
   const pinService = mock<PinServiceAbstraction>();
   const keyGenerationService = mock<KeyGenerationService>();
@@ -47,7 +47,7 @@ describe("electronCryptoService", () => {
     masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
 
-    sut = new ElectronCryptoService(
+    sut = new ElectronKeyService(
       pinService,
       masterPasswordService,
       keyGenerationService,

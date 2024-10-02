@@ -7,12 +7,12 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -41,7 +41,7 @@ export class BulkConfirmComponent implements OnInit {
 
   constructor(
     @Inject(DIALOG_DATA) protected data: BulkConfirmDialogData,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected apiService: ApiService,
     private organizationUserApiService: OrganizationUserApiService,
@@ -63,7 +63,7 @@ export class BulkConfirmComponent implements OnInit {
 
     for (const entry of response.data) {
       const publicKey = Utils.fromB64ToArray(entry.key);
-      const fingerprint = await this.cryptoService.getFingerprint(entry.userId, publicKey);
+      const fingerprint = await this.keyService.getFingerprint(entry.userId, publicKey);
       if (fingerprint != null) {
         this.publicKeys.set(entry.id, publicKey);
         this.fingerprints.set(entry.id, fingerprint.join("-"));
@@ -115,7 +115,7 @@ export class BulkConfirmComponent implements OnInit {
   }
 
   protected getCryptoKey(): Promise<SymmetricCryptoKey> {
-    return this.cryptoService.getOrgKey(this.organizationId);
+    return this.keyService.getOrgKey(this.organizationId);
   }
 
   protected async postConfirmRequest(userIdsWithKeys: any[]) {

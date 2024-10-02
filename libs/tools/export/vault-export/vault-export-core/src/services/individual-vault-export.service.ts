@@ -6,7 +6,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -16,6 +15,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvIndividualExportType,
@@ -35,7 +35,7 @@ export class IndividualVaultExportService
     private folderService: FolderService,
     private cipherService: CipherService,
     pinService: PinServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
     kdfConfigService: KdfConfigService,
@@ -104,7 +104,7 @@ export class IndividualVaultExportService
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const userKey = await this.cryptoService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

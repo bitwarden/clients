@@ -1,6 +1,5 @@
 import { filter, map } from "rxjs";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
@@ -8,6 +7,7 @@ import { PaddedDataPacker } from "@bitwarden/common/tools/state/padded-data-pack
 import { SecretState } from "@bitwarden/common/tools/state/secret-state";
 import { UserKeyEncryptor } from "@bitwarden/common/tools/state/user-key-encryptor";
 import { UserId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { GeneratedCredential } from "./generated-credential";
 import { GeneratorHistoryService } from "./generator-history.abstraction";
@@ -23,7 +23,7 @@ const OPTIONS_FRAME_SIZE = 2048;
 export class LocalGeneratorHistoryService extends GeneratorHistoryService {
   constructor(
     private readonly encryptService: EncryptService,
-    private readonly keyService: CryptoService,
+    private readonly keyService: KeyService,
     private readonly stateProvider: StateProvider,
     private readonly options: HistoryServiceOptions = { maxTotal: 100 },
   ) {

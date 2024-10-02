@@ -3,6 +3,10 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 
+import {
+  CipherDecryptionKeys,
+  KeyService,
+} from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { makeStaticByteArray } from "../../../spec/utils";
@@ -12,7 +16,6 @@ import { AutofillSettingsService } from "../../autofill/services/autofill-settin
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { CipherDecryptionKeys, CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
@@ -107,7 +110,7 @@ const mockUserId = Utils.newGuid() as UserId;
 let accountService: FakeAccountService;
 
 describe("Cipher Service", () => {
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const stateService = mock<StateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const domainSettingsService = mock<DomainSettingsService>();
@@ -130,10 +133,10 @@ describe("Cipher Service", () => {
     encryptService.encryptToBytes.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encrypt.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
 
-    (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     cipherService = new CipherService(
-      cryptoService,
+      keyService,
       domainSettingsService,
       apiService,
       i18nService,
@@ -159,10 +162,10 @@ describe("Cipher Service", () => {
     it("should upload encrypted file contents with save attachments", async () => {
       const fileName = "filename";
       const fileData = new Uint8Array(10);
-      cryptoService.getOrgKey.mockReturnValue(
+      keyService.getOrgKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
       );
-      cryptoService.makeDataEncKey.mockReturnValue(
+      keyService.makeDataEncKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32))),
       );
 
@@ -271,7 +274,7 @@ describe("Cipher Service", () => {
 
       encryptService.decryptToBytes.mockReturnValue(Promise.resolve(makeStaticByteArray(64)));
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
-      cryptoService.makeCipherKey.mockReturnValue(
+      keyService.makeCipherKey.mockReturnValue(
         Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
       );
       encryptService.encrypt.mockImplementation(encryptText);
@@ -286,7 +289,7 @@ describe("Cipher Service", () => {
           { uri: "uri", match: UriMatchStrategy.RegularExpression } as LoginUriView,
         ];
 
-        cryptoService.getOrgKey.mockReturnValue(
+        keyService.getOrgKey.mockReturnValue(
           Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
         );
 
@@ -306,7 +309,7 @@ describe("Cipher Service", () => {
       it("is null when feature flag is false", async () => {
         configService.getFeatureFlag.mockResolvedValue(false);
 
-        cryptoService.getOrgKey.mockReturnValue(
+        keyService.getOrgKey.mockReturnValue(
           Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
         );
         const cipher = await cipherService.encrypt(cipherView, userId);
@@ -330,7 +333,7 @@ describe("Cipher Service", () => {
 
       it("is not called when feature flag is false", async () => {
         configService.getFeatureFlag.mockResolvedValue(false);
-        cryptoService.getOrgKey.mockReturnValue(
+        keyService.getOrgKey.mockReturnValue(
           Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
         );
 
@@ -341,7 +344,7 @@ describe("Cipher Service", () => {
 
       it("is called when feature flag is true", async () => {
         configService.getFeatureFlag.mockResolvedValue(true);
-        cryptoService.getOrgKey.mockReturnValue(
+        keyService.getOrgKey.mockReturnValue(
           Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
         );
 
@@ -368,7 +371,7 @@ describe("Cipher Service", () => {
       const keys = {
         userKey: originalUserKey,
       } as CipherDecryptionKeys;
-      cryptoService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
 
       const cipher1 = new CipherView(cipherObj);
       cipher1.id = "Cipher 1";
@@ -387,7 +390,7 @@ describe("Cipher Service", () => {
       encryptedKey = new EncString("Re-encrypted Cipher Key");
       encryptService.encrypt.mockResolvedValue(encryptedKey);
 
-      cryptoService.makeCipherKey.mockResolvedValue(
+      keyService.makeCipherKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)) as CipherKey,
       );
     });

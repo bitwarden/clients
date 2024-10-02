@@ -5,13 +5,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-hosting-license-uploader/abstract-self-hosting-license-uploader.component";
 
@@ -37,7 +37,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     protected readonly tokenService: TokenService,
     private readonly apiService: ApiService,
     private readonly encryptService: EncryptService,
-    private readonly cryptoService: CryptoService,
+    private readonly keyService: KeyService,
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly syncService: SyncService,
   ) {
@@ -47,14 +47,14 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   protected async submit(): Promise<void> {
     await super.submit();
 
-    const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+    const orgKey = await this.keyService.makeOrgKey<OrgKey>();
     const key = orgKey[0].encryptedString;
     const collection = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),
       orgKey[1],
     );
     const collectionCt = collection.encryptedString;
-    const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
+    const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
     const fd = new FormData();
     fd.append("license", this.formValue.file);

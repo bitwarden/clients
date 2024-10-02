@@ -12,7 +12,6 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KdfType } from "@bitwarden/common/platform/enums";
@@ -24,6 +23,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -46,7 +46,7 @@ export class EmergencyAccessService
   constructor(
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private bulkEncryptService: BulkEncryptService,
     private cipherService: CipherService,
@@ -153,7 +153,7 @@ export class EmergencyAccessService
    * @param token secret token provided in email
    */
   async confirm(id: string, granteeId: string) {
-    const userKey = await this.cryptoService.getUserKey();
+    const userKey = await this.keyService.getUserKey();
     if (!userKey) {
       throw new Error("No user key found");
     }
@@ -163,7 +163,7 @@ export class EmergencyAccessService
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.cryptoService.getFingerprint(granteeId, publicKey)).join("-"),
+          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
@@ -218,7 +218,7 @@ export class EmergencyAccessService
   async getViewOnlyCiphers(id: string): Promise<CipherView[]> {
     const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
 
-    const activeUserPrivateKey = await this.cryptoService.getPrivateKey();
+    const activeUserPrivateKey = await this.keyService.getPrivateKey();
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
@@ -255,7 +255,7 @@ export class EmergencyAccessService
   async takeover(id: string, masterPassword: string, email: string) {
     const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
 
-    const activeUserPrivateKey = await this.cryptoService.getPrivateKey();
+    const activeUserPrivateKey = await this.keyService.getPrivateKey();
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot complete a takeover.");
@@ -286,10 +286,10 @@ export class EmergencyAccessService
         break;
     }
 
-    const masterKey = await this.cryptoService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.cryptoService.hashMasterKey(masterPassword, masterKey);
+    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
+    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
 
-    const encKey = await this.cryptoService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
+    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
 
     const request = new EmergencyAccessPasswordRequest();
     request.newMasterPasswordHash = masterKeyHash;

@@ -5,7 +5,6 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -14,6 +13,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AuthRequestService } from "./auth-request.service";
 
@@ -24,7 +24,7 @@ describe("AuthRequestService", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
   const appIdService = mock<AppIdService>();
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
 
@@ -41,7 +41,7 @@ describe("AuthRequestService", () => {
       appIdService,
       accountService,
       masterPasswordService,
-      cryptoService,
+      keyService,
       encryptService,
       apiService,
       stateProvider,
@@ -115,7 +115,7 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
-      cryptoService.getUserKey.mockResolvedValueOnce({ key: new Uint8Array(64) } as UserKey);
+      keyService.getUserKey.mockResolvedValueOnce({ key: new Uint8Array(64) } as UserKey);
 
       await sut.approveOrDenyAuthRequest(
         true,
@@ -135,7 +135,7 @@ describe("AuthRequestService", () => {
       const mockDecryptedUserKey = {} as UserKey;
       jest.spyOn(sut, "decryptPubKeyEncryptedUserKey").mockResolvedValueOnce(mockDecryptedUserKey);
 
-      cryptoService.setUserKey.mockResolvedValueOnce(undefined);
+      keyService.setUserKey.mockResolvedValueOnce(undefined);
 
       // Act
       await sut.setUserKeyAfterDecryptingSharedUserKey(
@@ -149,7 +149,7 @@ describe("AuthRequestService", () => {
         mockAuthReqResponse.key,
         mockPrivateKey,
       );
-      expect(cryptoService.setUserKey).toBeCalledWith(mockDecryptedUserKey, mockUserId);
+      expect(keyService.setUserKey).toBeCalledWith(mockDecryptedUserKey, mockUserId);
     });
   });
 
@@ -175,7 +175,7 @@ describe("AuthRequestService", () => {
       masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
         mockDecryptedUserKey,
       );
-      cryptoService.setUserKey.mockResolvedValueOnce(undefined);
+      keyService.setUserKey.mockResolvedValueOnce(undefined);
 
       // Act
       await sut.setKeysAfterDecryptingSharedMasterKeyAndHash(
@@ -203,7 +203,7 @@ describe("AuthRequestService", () => {
         undefined,
         undefined,
       );
-      expect(cryptoService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
     });
   });
 

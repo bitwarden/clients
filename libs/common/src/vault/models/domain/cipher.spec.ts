@@ -3,9 +3,9 @@ import { Jsonify } from "type-fest";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
@@ -237,16 +237,13 @@ describe("Cipher DTO", () => {
       login.decrypt.mockResolvedValue(loginView);
       cipher.login = login;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -357,16 +354,13 @@ describe("Cipher DTO", () => {
       cipher.secureNote.type = SecureNoteType.Generic;
       cipher.key = mockEnc("EncKey");
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -495,16 +489,13 @@ describe("Cipher DTO", () => {
       card.decrypt.mockResolvedValue(cardView);
       cipher.card = card;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -657,16 +648,13 @@ describe("Cipher DTO", () => {
       identity.decrypt.mockResolvedValue(identityView);
       cipher.identity = identity;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),

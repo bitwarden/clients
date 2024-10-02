@@ -10,12 +10,12 @@ import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/req
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "provider-setup",
@@ -44,7 +44,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     private router: Router,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private syncService: SyncService,
     private validationService: ValidationService,
     private configService: ConfigService,
@@ -124,7 +124,7 @@ export class SetupComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const providerKey = await this.cryptoService.makeOrgKey<ProviderKey>();
+      const providerKey = await this.keyService.makeOrgKey<ProviderKey>();
       const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();

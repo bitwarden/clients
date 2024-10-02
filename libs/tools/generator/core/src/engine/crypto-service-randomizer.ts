@@ -1,14 +1,14 @@
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import { Randomizer } from "../abstractions";
 import { WordOptions } from "../types";
 
-/** A randomizer backed by a CryptoService. */
-export class CryptoServiceRandomizer implements Randomizer {
+/** A randomizer backed by a KeyService. */
+export class KeyServiceRandomizer implements Randomizer {
   /** instantiates the type.
    * @param crypto generates random numbers
    */
-  constructor(private crypto: CryptoService) {}
+  constructor(private crypto: KeyService) {}
 
   async pick<Entry>(list: Array<Entry>): Promise<Entry> {
     const length = list?.length ?? 0;
