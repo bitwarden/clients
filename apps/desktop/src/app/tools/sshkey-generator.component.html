@@ -1,0 +1,16 @@
+<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="generatorTitle">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h1 class="modal-title" id="generatorTitle">Generator</h1>
+        <tools-ssh-generator (onGenerated)="onGenerated($event)"></tools-ssh-generator>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="primary" (click)="onSave()">
+          <i class="bwi bwi-lg bwi-fw bwi-check" aria-hidden="true"></i>
+        </button>
+        <button type="button" data-dismiss="modal" (click)="onCancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

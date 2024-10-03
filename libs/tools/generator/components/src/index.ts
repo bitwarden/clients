@@ -4,6 +4,7 @@ export { EmptyCredentialHistoryComponent } from "./empty-credential-history.comp
 export { PassphraseSettingsComponent } from "./passphrase-settings.component";
 export { PasswordSettingsComponent } from "./password-settings.component";
 export { PasswordGeneratorComponent } from "./password-generator.component";
+export { SshKeyGeneratorComponent } from "./sshkey-generator.component";
 export { SubaddressSettingsComponent } from "./subaddress-settings.component";
 export { UsernameGeneratorComponent } from "./username-generator.component";
 export { UsernameSettingsComponent } from "./username-settings.component";

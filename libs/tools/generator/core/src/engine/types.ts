@@ -66,3 +66,5 @@ export type WordsRequest = {
   /** Expected casing of the returned words. Defaults to lowercase. */
   casing?: "lowercase" | "TitleCase" | "camelCase";
 };
+
+export type SshKeyRequest = Record<string, never>;

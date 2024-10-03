@@ -1,0 +1,5 @@
+<tools-sshkey-settings
+  *ngIf="(credentialType$ | async) === 'password'"
+  [userId]="this.userId$ | async"
+  (onUpdated)="generate$.next()"
+/>

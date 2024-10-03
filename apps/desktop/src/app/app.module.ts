@@ -8,6 +8,7 @@ import { NgModule } from "@angular/core";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { DialogModule, CalloutModule } from "@bitwarden/components";
+import { SshKeyGeneratorComponent } from "@bitwarden/generator-components";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -51,6 +52,7 @@ import { GeneratorComponent } from "./tools/generator.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
 import { SendComponent } from "./tools/send/send.component";
+import { SshKeyGeneratorDialogComponent } from "./tools/sshkey-generator.component";
 
 @NgModule({
   imports: [
@@ -62,6 +64,7 @@ import { SendComponent } from "./tools/send/send.component";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
+    SshKeyGeneratorComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -100,6 +103,7 @@ import { SendComponent } from "./tools/send/send.component";
     VaultTimeoutInputComponent,
     ViewComponent,
     ViewCustomFieldsComponent,
+    SshKeyGeneratorDialogComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],
