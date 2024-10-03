@@ -15,11 +15,14 @@ manual_test = []
 
 [dependencies]
 anyhow = "=1.0.86"
+base64 = "=0.22.1"
 desktop_core = { path = "../core" }
+hex = "=0.4.3"
 napi = { version = "=2.16.7", features = ["async"] }
 napi-derive = "=2.16.6"
-tokio = { version = "1.38.0" }
-tokio-util = "0.7.11"
+tokio = { version = "=1.40.0" }
+tokio-util = "=0.7.11"
+tokio-stream = "=0.1.15"
 
 [build-dependencies]
 napi-build = "=2.1.3"

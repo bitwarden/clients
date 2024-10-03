@@ -445,6 +445,9 @@
   "typeSecureNote": {
     "message": "Secure note"
   },
+  "typeSshKey": {
+    "message": "Ssh key"
+  },
   "typeLoginPlural": {
     "message": "Logins"
   },
@@ -9198,6 +9201,30 @@
   },
   "additionalStorageGbMessage": {
     "message": "GB additional storage"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key algorithm"
+  },
+  "sshKeyFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Private key"
+  },
+  "sshKeyPublicKey": {
+    "message": "Public key"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
     "message": "6 premium accounts"

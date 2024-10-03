@@ -11,3 +11,6 @@ pub mod password;
 pub mod process_isolation;
 #[cfg(feature = "sys")]
 pub mod powermonitor;
+#[cfg(feature = "sys")]
+
+pub mod ssh_agent;

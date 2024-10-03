@@ -129,3 +129,6 @@ apps/browser/store/locales/en
 apps/cli/src/locales/en/messages.json
 apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
+
+## Ssh agent temporary co-codeowner
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-platform-dev @bitwarden/wg-ssh-keys

@@ -8,6 +8,7 @@ import { CustomFieldsComponent } from "./components/custom-fields/custom-fields.
 import { IdentitySectionComponent } from "./components/identity/identity.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./components/login-details-section/login-details-section.component";
+import { SshKeySectionComponent } from "./components/sshkey-section/sshkey-section.component";
 
 /**
  * The complete form for a cipher. Includes all the sub-forms from their respective section components.
@@ -20,6 +21,7 @@ export type CipherForm = {
   autoFillOptions?: AutofillOptionsComponent["autofillOptionsForm"];
   cardDetails?: CardDetailsSectionComponent["cardDetailsForm"];
   identityDetails?: IdentitySectionComponent["identityForm"];
+  sshKeyDetails?: SshKeySectionComponent["sshKeyForm"];
   customFields?: CustomFieldsComponent["customFieldsForm"];
 };
 

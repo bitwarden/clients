@@ -21,6 +21,7 @@ import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/va
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { SshAgentService } from "../../platform/services/ssh-agent.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 @Injectable()
@@ -41,11 +42,13 @@ export class InitService {
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
+    private sshAgentService: SshAgentService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
 

@@ -271,6 +271,7 @@ export class VaultPopupItemsService {
       [CipherType.Card]: 2,
       [CipherType.Identity]: 3,
       [CipherType.SecureNote]: 4,
+      [CipherType.SshKey]: 5,
     };
 
     // Compare types first

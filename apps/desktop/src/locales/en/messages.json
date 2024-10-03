@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Secure note"
   },
+  "typeSshKey": {
+    "message": "SSH key"
+  },
   "folders": {
     "message": "Folders"
   },
@@ -173,6 +176,48 @@
   },
   "address": {
     "message": "Address"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key type"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "A new SSH key was generated"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Please unlock your vault to approve the Ssh key request."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH key request timed out."
+  },
+  "enableSshAgent": {
+    "message": "Enable SSH agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Enable the SSH agent to sign Ssh requests right from your Bitwarden vault."
+  },
+  "enableSshAgentHelp": {
+    "message": "The Ssh agent is a service targeted at developers that allows you to sign Ssh requests directly from your Bitwarden vault."
   },
   "premiumRequired": {
     "message": "Premium required"
@@ -393,6 +438,12 @@
   },
   "copyPassword": {
     "message": "Copy password"
+  },
+  "regenerateSshKey": {
+    "message": "Regenerate Ssh key"
+  },
+  "copySshPrivateKey": {
+    "message": "Copy Ssh private key"
   },
   "copyUri": {
     "message": "Copy URI"
@@ -3098,6 +3149,36 @@
   },
   "textSends": {
     "message": "Text Sends"
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
+  },
+  "authorize": {
+    "message": "Authorize"
+  },
+  "deny": {
+    "message": "Deny"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirm SSH key usage"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "is requesting access to"
+  },
+  "unknownApplication": {
+    "message": "An application"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Importing password protected SSH keys is not yet supported"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyPasted": {
+    "message": "SSH key imported successfully"
   },
   "allowScreenshots": {
     "message": "Allow screen capture"

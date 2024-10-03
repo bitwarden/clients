@@ -3,4 +3,5 @@ export enum CipherType {
   SecureNote = 2,
   Card = 3,
   Identity = 4,
+  SshKey = 5,
 }

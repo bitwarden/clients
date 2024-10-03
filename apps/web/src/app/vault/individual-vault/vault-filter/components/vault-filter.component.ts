@@ -216,6 +216,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         type: CipherType.SecureNote,
         icon: "bwi-sticky-note",
       },
+      {
+        id: "sshKey",
+        name: this.i18nService.t("typeSshKey"),
+        type: CipherType.SshKey,
+        icon: "bwi-key",
+      },
     ];
 
     const typeFilterSection: VaultFilterSection = {

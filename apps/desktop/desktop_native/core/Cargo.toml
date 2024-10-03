@@ -27,21 +27,39 @@ anyhow = "=1.0.86"
 arboard = { version = "=3.4.1", default-features = false, features = [
   "wayland-data-control",
 ] }
+async-stream = "0.3.5"
 base64 = "=0.22.1"
+byteorder = "1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
+homedir = "0.3.3"
+libc = "=0.2.155"
+pin-project = "1.1.5"
 dirs = "=5.0.1"
 futures = "=0.3.30"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
-libc = "=0.2.155"
 log = "=0.4.22"
 rand = "=0.8.5"
 retry = "=2.0.0"
+russh-cryptovec = "0.7.3"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
-thiserror = "=1.0.61"
-tokio = { version = "=1.38.0", features = ["io-util", "sync", "macros"] }
+ssh-encoding = "0.2.0"
+ssh-key = { version = "0.6.6", default-features = false, features = [
+    "encryption",
+    "ed25519",
+    "rsa",
+    "getrandom",
+] }
+bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", branch = "km/pm-10098/clean-russh-implementation" }
+thiserror = "=1.0.63"
+tokio = { version = "=1.40.0", features = ["io-util", "sync", "macros", "net"] }
+tokio-stream = { version = "=0.1.15", features = ["net"] }
 tokio-util = "=0.7.11"
 typenum = "=1.17.0"
+rand_chacha = "=0.3.1"
+pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
+rsa = "=0.9.6"
+ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
 
 [target.'cfg(windows)'.dependencies]
 widestring = { version = "=1.1.0", optional = true }

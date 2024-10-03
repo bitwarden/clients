@@ -42,6 +42,41 @@ export namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
 }
+export namespace sshagent {
+  export interface PrivateKey {
+    privateKey: string
+    name: string
+    cipherId: string
+  }
+  export interface SshKey {
+    privateKey: string
+    publicKey: string
+    keyFingerprint: string
+  }
+  export const enum SshKeyImportStatus {
+    /** ssh key was parsed correctly and will be returned in the result */
+    Success = 0,
+    /** ssh key was parsed correctly but is encrypted and requires a password */
+    PasswordRequired = 1,
+    /** ssh key was parsed correctly, and a password was provided when calling the import, but it was incorrect */
+    WrongPassword = 2,
+    /** ssh key could not be parsed, either due to an incorrect / unsupported format (pkcs#8) or key type (ecdsa), or because the input is not an ssh key */
+    ParsingError = 3,
+    /** ssh key type is not supported (e.g. ecdsa) */
+    UnsupportedKeyType = 4
+  }
+  export interface SshKeyImportResult {
+    status: SshKeyImportStatus
+    sshKey?: SshKey
+  }
+  export function serve(callback: (err: Error | null, arg: string) => any): Promise<SshAgentState>
+  export function stop(agentState: SshAgentState): void
+  export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
+  export function lock(agentState: SshAgentState): void
+  export function importKey(encodedKey: string, password: string): SshKeyImportResult
+  export function generateKeypair(keyAlgorithm: string): Promise<SshKey>
+  export class SshAgentState {   }
+}
 export namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>

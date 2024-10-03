@@ -107,6 +107,9 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
           case CipherType.SecureNote:
             this.groupingTitle = this.i18nService.t("secureNotes");
             break;
+          case CipherType.SshKey:
+            this.groupingTitle = this.i18nService.t("sshKeys");
+            break;
           default:
             break;
         }

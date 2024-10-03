@@ -11,7 +11,7 @@
         <div class="box-content">
           <div class="box-content-row" *ngIf="!editMode" appBoxRow>
             <label for="type">{{ "type" | i18n }}</label>
-            <select id="type" name="Type" [(ngModel)]="cipher.type">
+            <select id="type" name="Type" [(ngModel)]="cipher.type" (change)="typeChange()">
               <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>
             </select>
           </div>
@@ -469,6 +469,115 @@
                 [(ngModel)]="cipher.identity.country"
                 [readonly]="!cipher.edit && editMode"
               />
+            </div>
+          </div>
+          <!-- Ssh Key -->
+          <div *ngIf="cipher.type === cipherType.SshKey">
+            <div class="box-content-row box-content-row-flex" appBoxRow>
+              <div class="row-main">
+                <label for="sshPrivateKey">{{ "sshPrivateKey" | i18n }}</label>
+                <div
+                  *ngIf="!showPrivateKey"
+                  class="monospaced"
+                  style="white-space: pre-line"
+                  [innerText]="cipher.sshKey.maskedPrivateKey"
+                ></div>
+                <div
+                  *ngIf="showPrivateKey"
+                  class="monospaced"
+                  style="white-space: pre-line"
+                  [innerText]="cipher.sshKey.privateKey"
+                ></div>
+              </div>
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  appA11yTitle="{{ 'copySshPrivateKey' | i18n }}"
+                  (click)="copy(this.cipher.sshKey.privateKey, 'sshPrivateKey', 'SshPrivateKey')"
+                >
+                  <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+                  (click)="togglePrivateKey()"
+                >
+                  <i
+                    class="bwi bwi-lg"
+                    aria-hidden="true"
+                    [ngClass]="{ 'bwi-eye': !showPrivateKey, 'bwi-eye-slash': showPrivateKey }"
+                  ></i>
+                </button>
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  appA11yTitle="{{ 'regenerateSshKey' | i18n }}"
+                  (click)="generateSshKey()"
+                  *ngIf="cipher.edit || !editMode"
+                >
+                  <i class="bwi bwi-lg bwi-generate" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-content-row box-content-row-flex" appBoxRow>
+              <div class="row-main">
+                <label for="sshPublicKey">{{ "sshPublicKey" | i18n }}</label>
+                <input
+                  id="sshPublicKey"
+                  type="text"
+                  name="SSHKey.SSHPublicKey"
+                  [ngModel]="cipher.sshKey.publicKey"
+                  readonly
+                />
+              </div>
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  (click)="copy(cipher.sshKey.publicKey, 'sshPublicKey', 'SSHPublicKey')"
+                >
+                  <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-content-row box-content-row-flex" appBoxRow>
+              <div class="row-main">
+                <label for="sshKeyFingerprint">{{ "sshFingerprint" | i18n }}</label>
+                <input
+                  id="sshKeyFingerprint"
+                  type="text"
+                  name="SSHKey.SSHKeyFingerprint"
+                  [ngModel]="cipher.sshKey.keyFingerprint"
+                  readonly
+                />
+              </div>
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  (click)="copy(cipher.sshKey.keyFingerprint, 'sshFingerprint', 'SSHFingerprint')"
+                  appA11yTitle="{{ 'generateSSHKey' | i18n }}"
+                >
+                  <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-content-row box-content-row-flex" appBoxRow>
+              <button
+                type="button"
+                class="row-btn"
+                appStopClick
+                (click)="importSshKeyFromClipboard()"
+              >
+                {{ "importSshKeyFromClipboard" | i18n }}
+              </button>
             </div>
           </div>
         </div>
