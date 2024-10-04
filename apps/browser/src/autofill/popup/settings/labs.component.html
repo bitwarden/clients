@@ -1,0 +1,51 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="Labs" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <app-callout type="warning">
+      These settings are experimental, may result in undesirable side-effects, and may be removed at
+      any time.
+    </app-callout>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">User settings</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="improvedFieldQualificationForInlineMenu"
+            type="checkbox"
+            (change)="updateImprovedFieldQualificationForInlineMenuEnabled()"
+            [(ngModel)]="improvedFieldQualificationForInlineMenuEnabled"
+          />
+          <bit-label for="improvedFieldQualificationForInlineMenu">
+            improve accuracy of the inline menu appearance in login forms
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="updateAdditionalInlineMenuCipherTypes"
+            type="checkbox"
+            (change)="updateAdditionalInlineMenuCipherTypesEnabled()"
+            [(ngModel)]="additionalInlineMenuCipherTypesEnabled"
+          />
+          <bit-label for="updateAdditionalInlineMenuCipherTypes">
+            enable identity and card ciphers in the inline menu
+          </bit-label>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">Global settings</h2>
+      </bit-section-header>
+      <bit-card> There are no global settings available at this time </bit-card>
+    </bit-section>
+  </div>
+</popup-page>

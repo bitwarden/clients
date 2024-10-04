@@ -60,6 +60,7 @@ import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.comp
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
+import { LabsComponent } from "../autofill/popup/settings/labs.component";
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
@@ -320,6 +321,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "autofill" } satisfies RouteDataProperties,
   }),
+  {
+    path: "labs",
+    component: LabsComponent,
+    data: { state: "labs" },
+  },
   ...extensionRefreshSwap(AccountSecurityV1Component, AccountSecurityComponent, {
     path: "account-security",
     canActivate: [authGuard],
