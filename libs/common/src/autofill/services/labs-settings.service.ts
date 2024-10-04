@@ -1,14 +1,11 @@
 import { map, Observable, firstValueFrom } from "rxjs";
+
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 
 import {
   LABS_SETTINGS_DISK,
-  LABS_SETTINGS_DISK_LOCAL,
   ActiveUserState,
-  GlobalState,
-  KeyDefinition,
   StateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
@@ -39,10 +36,12 @@ const ADDITIONAL_INLINE_MENU_CIPHER_TYPES_ENABLED = new UserKeyDefinition(
 export abstract class LabsSettingsServiceAbstraction {
   labsSettingsEnabled$: Observable<boolean>;
   setLabsSettingsEnabled: (newValue: boolean) => Promise<void>;
-  improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
+  improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean | null>;
   setImprovedFieldQualificationForInlineMenuEnabled: (newValue: boolean) => Promise<void>;
-  additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
+  getImprovedFieldQualificationForInlineMenuEnabled: () => Promise<boolean | null>;
+  additionalInlineMenuCipherTypesEnabled$: Observable<boolean | null>;
   setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
+  getAdditionalInlineMenuCipherTypesEnabled: () => Promise<boolean | null>;
 }
 
 export class LabsSettingsService implements LabsSettingsServiceAbstraction {
@@ -52,6 +51,7 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   readonly improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
   private additionalInlineMenuCipherTypesEnabledState: ActiveUserState<boolean>;
   readonly additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
+  private preserveLabSettings: boolean = true;
 
   constructor(
     private stateProvider: StateProvider,
@@ -60,12 +60,14 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     this.labsSettingsEnabledState = this.stateProvider.getActive(LABS_SETTINGS_ENABLED);
     this.labsSettingsEnabled$ = this.labsSettingsEnabledState.state$.pipe(map((x) => x ?? false));
 
+    // This setting may improve the accuracy of the inline menu appearing in login forms
     this.improvedFieldQualificationForInlineMenuEnabledState = this.stateProvider.getActive(
       IMPROVED_FIELD_QUALIFICATION_FOR_INLINE_MENU_ENABLED,
     );
     this.improvedFieldQualificationForInlineMenuEnabled$ =
       this.improvedFieldQualificationForInlineMenuEnabledState.state$.pipe(map((x) => x ?? null));
 
+    // This flag turns on inline menu credit card and identity features
     this.additionalInlineMenuCipherTypesEnabledState = this.stateProvider.getActive(
       ADDITIONAL_INLINE_MENU_CIPHER_TYPES_ENABLED,
     );
@@ -74,19 +76,64 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   }
 
   async init() {
+    // Feature-flag-driven safety override for user overrides
+    this.preserveLabSettings = !(await this.configService.getFeatureFlag(
+      FeatureFlag.ClearAllLabsSettings,
+    ));
+
+    if (!this.preserveLabSettings) {
+      await this.clearAllLabsSettings();
+    }
   }
 
-  async setLabsSettingsEnabled(newValue: boolean): Promise<void> {
+  async clearAllLabsSettings() {
+    await Promise.all([
+      this.setImprovedFieldQualificationForInlineMenuEnabled(null),
+      this.setAdditionalInlineMenuCipherTypesEnabled(null),
+    ]);
+  }
+
+  async setLabsSettingsEnabled(newValue: boolean | null): Promise<void> {
     await this.labsSettingsEnabledState.update(() => newValue);
   }
 
-  // This setting may improve the accuracy of the inline menu appearing in login forms
-  async setImprovedFieldQualificationForInlineMenuEnabled(newValue: boolean): Promise<void> {
-    await this.improvedFieldQualificationForInlineMenuEnabledState.update(() => newValue);
+  // Get user setting or feature-flag value for `inline-menu-field-qualification`
+  async getImprovedFieldQualificationForInlineMenuEnabled(): Promise<boolean | null> {
+    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
+    const userOverrideValue = await firstValueFrom(
+      this.improvedFieldQualificationForInlineMenuEnabled$,
+    );
+
+    if (labsSettingsEnabled && userOverrideValue !== null) {
+      return userOverrideValue;
+    }
+
+    // return the feature flag value if lab settings aren't enabled or user override is not set
+    return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
   }
 
-  // This flag turns on inline menu credit card and identity features
-  async setAdditionalInlineMenuCipherTypesEnabled(newValue: boolean): Promise<void> {
-    await this.additionalInlineMenuCipherTypesEnabledState.update(() => newValue);
+  async setImprovedFieldQualificationForInlineMenuEnabled(newValue: boolean | null): Promise<void> {
+    await this.improvedFieldQualificationForInlineMenuEnabledState.update(() =>
+      this.preserveLabSettings ? newValue : null,
+    );
+  }
+
+  // Get user setting or feature-flag value for `inline-menu-positioning-improvements`
+  async getAdditionalInlineMenuCipherTypesEnabled(): Promise<boolean | null> {
+    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
+    const userOverrideValue = await firstValueFrom(this.additionalInlineMenuCipherTypesEnabled$);
+
+    if (labsSettingsEnabled && userOverrideValue !== null) {
+      return userOverrideValue;
+    }
+
+    // return the feature flag value if lab settings aren't enabled or user override is not set
+    return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuPositioningImprovements);
+  }
+
+  async setAdditionalInlineMenuCipherTypesEnabled(newValue: boolean | null): Promise<void> {
+    await this.additionalInlineMenuCipherTypesEnabledState.update(() =>
+      this.preserveLabSettings ? newValue : null,
+    );
   }
 }

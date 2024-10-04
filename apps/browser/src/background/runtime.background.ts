@@ -5,6 +5,7 @@ import { NotificationsService } from "@bitwarden/common/abstractions/notificatio
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,6 +38,7 @@ export default class RuntimeBackground {
   constructor(
     private main: MainBackground,
     private autofillService: AutofillService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
     private platformUtilsService: BrowserPlatformUtilsService,
     private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
@@ -193,7 +195,12 @@ export default class RuntimeBackground {
         );
       }
       case "getInlineMenuFieldQualificationFeatureFlag": {
-        return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
+        // If there is no explicit user-setting, use the feature-flag setting
+        return (
+          (await firstValueFrom(
+            this.labsSettingsService.improvedFieldQualificationForInlineMenuEnabled$,
+          )) ?? (await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification))
+        );
       }
     }
   }
