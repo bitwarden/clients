@@ -85,6 +85,10 @@ export const USER_NOTIFICATION_SETTINGS_DISK = new StateDefinition(
   "disk",
 );
 
+export const LABS_SETTINGS_DISK = new StateDefinition("labsSettings", "disk");
+export const LABS_SETTINGS_DISK_LOCAL = new StateDefinition("labsSettingsLocal", "disk", {
+  web: "disk-local",
+});
 export const DOMAIN_SETTINGS_DISK = new StateDefinition("domainSettings", "disk");
 export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "disk");
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {

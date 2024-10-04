@@ -35,6 +35,10 @@ import {
   AutofillSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
+  LabsSettingsService,
+  LabsSettingsServiceAbstraction,
+} from "@bitwarden/common/autofill/services/labs-settings.service";
+import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -452,6 +456,11 @@ const safeProviders: SafeProvider[] = [
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
     deps: [StateProvider, PolicyService],
+  }),
+  safeProvider({
+    provide: LabsSettingsServiceAbstraction,
+    useClass: LabsSettingsService,
+    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
