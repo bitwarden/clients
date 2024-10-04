@@ -52,7 +52,11 @@
   <form
     *ngIf="org && !loading"
     [bitSubmit]="submitCollectionManagement"
-    [formGroup]="collectionManagementFormGroup"
+    [formGroup]="
+      limitCollectionCreationDeletionSplitFeatureFlagIsEnabled
+        ? collectionManagementFormGroup_VNext
+        : collectionManagementFormGroup
+    "
   >
     <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "collectionManagement" | i18n }}</h1>
     <p bitTypography="body1">{{ "collectionManagementDesc" | i18n }}</p>
