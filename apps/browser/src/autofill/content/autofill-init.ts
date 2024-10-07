@@ -78,7 +78,7 @@ class AutofillInit implements AutofillInitInterface {
       this.clearCollectPageDetailsOnLoadTimeout();
       this.collectPageDetailsOnLoadTimeout = setTimeout(
         () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
-        250,
+        750,
       );
     };
 

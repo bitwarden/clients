@@ -289,7 +289,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
     const response = (await BrowserApi.tabSendMessage(
       tab,
-      { command: "getFormFieldDataForNotification" },
+      { command: "getInlineMenuFormFieldData" },
       { frameId },
     )) as OverlayNotificationsExtensionMessage;
     if (response) {

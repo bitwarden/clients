@@ -157,6 +157,10 @@ export class DomQueryService implements DomQueryServiceInterface {
     root: Document | ShadowRoot | Element,
     returnSingleShadowRoot = false,
   ): ShadowRoot[] {
+    if (!root) {
+      return [];
+    }
+
     const shadowRoots: ShadowRoot[] = [];
     const potentialShadowRoots = root.querySelectorAll(":defined");
     for (let index = 0; index < potentialShadowRoots.length; index++) {

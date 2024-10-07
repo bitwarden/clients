@@ -353,6 +353,7 @@ describe("CollectAutofillContentService", () => {
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
+            dataSetValues: "",
           },
           {
             opid: "__1",
@@ -385,6 +386,7 @@ describe("CollectAutofillContentService", () => {
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
+            dataSetValues: "",
           },
         ],
         collectedTimestamp: expect.any(Number),
@@ -609,6 +611,7 @@ describe("CollectAutofillContentService", () => {
           type: "text",
           value: "",
           viewable: true,
+          dataSetValues: "",
         },
         {
           "aria-disabled": false,
@@ -641,6 +644,7 @@ describe("CollectAutofillContentService", () => {
           type: "password",
           value: "",
           viewable: true,
+          dataSetValues: "",
         },
       ]);
     });
@@ -1020,6 +1024,7 @@ describe("CollectAutofillContentService", () => {
         tagName: spanElement.tagName.toLowerCase(),
         title: spanElementTitle,
         viewable: true,
+        dataSetValues: "",
       });
     });
 
@@ -1111,6 +1116,7 @@ describe("CollectAutofillContentService", () => {
         type: usernameField.type,
         value: usernameField.value,
         viewable: true,
+        dataSetValues: "label: username-data-label, stripe: data-stripe, ",
       });
     });
 
@@ -1189,6 +1195,7 @@ describe("CollectAutofillContentService", () => {
         type: hiddenField.type,
         value: hiddenField.value,
         viewable: true,
+        dataSetValues: "stripe: data-stripe, ",
       });
     });
   });

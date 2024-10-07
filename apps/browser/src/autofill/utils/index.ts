@@ -378,12 +378,26 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  *
  * @param callback - The callback function to debounce.
  * @param delay - The time in milliseconds to debounce the callback.
+ * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number) {
+export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout;
   return function (...args: unknown[]) {
-    globalThis.clearTimeout(timeout);
-    timeout = globalThis.setTimeout(() => callback.apply(this, args), delay);
+    const callImmediately = !!immediate && !timeout;
+
+    if (timeout) {
+      globalThis.clearTimeout(timeout);
+    }
+    timeout = globalThis.setTimeout(() => {
+      timeout = null;
+      if (!callImmediately) {
+        callback.apply(this, args);
+      }
+    }, delay);
+
+    if (callImmediately) {
+      callback.apply(this, args);
+    }
   };
 }
 
@@ -473,3 +487,54 @@ export function generateDomainMatchPatterns(url: string): string[] {
 export function isInvalidResponseStatusCode(statusCode: number) {
   return statusCode < 200 || statusCode >= 300;
 }
+
+/**
+ * Determines if the current context is within a sandboxed iframe.
+ */
+export function currentlyInSandboxedIframe(): boolean {
+  return (
+    String(self.origin).toLowerCase() === "null" ||
+    globalThis.frameElement?.hasAttribute("sandbox") ||
+    globalThis.location.hostname === ""
+  );
+}
+
+/**
+ * This object allows us to map a special character to a key name. The key name is used
+ * in gathering the i18n translation of the written version of the special character.
+ */
+export const specialCharacterToKeyMap: Record<string, string> = {
+  " ": "keySpace",
+  "~": "keyTilde",
+  "`": "keyBacktick",
+  "!": "keyExclamation",
+  "@": "keyAtSign",
+  "#": "keyHashSign",
+  $: "keyDollarSign",
+  "%": "keyPercentSign",
+  "^": "keyCaret",
+  "&": "keyAmpersand",
+  "*": "keyAsterisk",
+  "(": "keyParenLeft",
+  ")": "keyParenRight",
+  "-": "keyHyphen",
+  _: "keyUnderscore",
+  "+": "keyPlus",
+  "=": "keyEquals",
+  "{": "keyBraceLeft",
+  "}": "keyBraceRight",
+  "[": "keyBracketLeft",
+  "]": "keyBracketRight",
+  "|": "keyPipe",
+  "\\": "keyBackSlash",
+  ":": "keyColon",
+  ";": "keySemicolon",
+  '"': "keyDoubleQuote",
+  "'": "keySingleQuote",
+  "<": "keyLessThan",
+  ">": "keyGreaterThan",
+  ",": "keyComma",
+  ".": "keyPeriod",
+  "?": "keyQuestion",
+  "/": "keyForwardSlash",
+};

@@ -367,6 +367,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       tabindex: this.getPropertyOrAttribute(element, "tabindex"),
       title: this.getPropertyOrAttribute(element, "title"),
       tagName: this.getAttributeLowerCase(element, "tagName"),
+      dataSetValues: this.getDataSetValues(element),
     };
 
     if (!autofillFieldBase.viewable) {
@@ -801,6 +802,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Captures the `data-*` attribute metadata to help with validating the autofill data.
+   *
+   * @param element - The form field element to capture the `data-*` attribute metadata from
+   */
+  private getDataSetValues(element: ElementWithOpId<FormFieldElement>): string {
+    let datasetValues = "";
+    const dataset = element.dataset;
+    for (const key in dataset) {
+      datasetValues += `${key}: ${dataset[key]}, `;
+    }
+
+    return datasetValues;
+  }
+
+  /**
    * Get the options from a select element and return them as an array
    * of arrays indicating the select element option text and value.
    * @param {HTMLSelectElement} element
@@ -945,6 +961,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
+      this.autofillOverlayContentService.clearUserFilledFields();
       void this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
     this.noFieldsFound = false;

@@ -14,6 +14,7 @@ export type SubmitButtonKeywordsMap = WeakMap<HTMLElement, string>;
 export interface InlineMenuFieldQualificationService {
   isUsernameField(field: AutofillField): boolean;
   isCurrentPasswordField(field: AutofillField): boolean;
+  isUpdateCurrentPasswordField(field: AutofillField): boolean;
   isNewPasswordField(field: AutofillField): boolean;
   isEmailField(field: AutofillField): boolean;
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;

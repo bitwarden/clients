@@ -34,28 +34,30 @@ export class AutoFillConstants {
     "totpcode",
     "2facode",
     "approvals_code",
-    "code",
     "mfacode",
-    "otc",
     "otc-code",
-    "otp",
+    "onetimecode",
     "otp-code",
     "otpcode",
-    "pin",
+    "onetimepassword",
     "security_code",
     "twofactor",
     "twofa",
     "twofactorcode",
     "verificationCode",
+    "verification code",
   ];
+
+  static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp"];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
   static readonly PasswordFieldExcludeList: string[] = [
+    "hint",
     ...AutoFillConstants.FieldIgnoreList,
-    "onetimepassword",
+    ...AutoFillConstants.TotpFieldNames,
   ];
 
   static readonly ExcludedAutofillLoginTypes: string[] = [
@@ -371,6 +373,7 @@ export class IdentityAutoFillConstants {
     "label-left",
     "label-top",
     "data-recurly",
+    "accountCreationFieldType",
   ];
 
   static readonly FullNameFieldNames: string[] = ["name", "full-name", "your-name"];

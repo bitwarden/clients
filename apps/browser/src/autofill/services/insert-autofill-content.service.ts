@@ -3,6 +3,7 @@ import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
 import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
 import { FormFieldElement } from "../types";
 import {
+  currentlyInSandboxedIframe,
   elementIsFillableFormField,
   elementIsInputElement,
   elementIsSelectElement,
@@ -39,7 +40,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   async fillForm(fillScript: AutofillScript) {
     if (
       !fillScript.script?.length ||
-      this.fillingWithinSandboxedIframe() ||
+      currentlyInSandboxedIframe() ||
       this.userCancelledInsecureUrlAutofill(fillScript.savedUrls) ||
       this.userCancelledUntrustedIframeAutofill(fillScript)
     ) {
@@ -48,20 +49,6 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const fillActionPromises = fillScript.script.map(this.runFillScriptAction);
     await Promise.all(fillActionPromises);
-  }
-
-  /**
-   * Identifies if the execution of this script is happening
-   * within a sandboxed iframe.
-   * @returns {boolean}
-   * @private
-   */
-  private fillingWithinSandboxedIframe() {
-    return (
-      String(self.origin).toLowerCase() === "null" ||
-      globalThis.frameElement?.hasAttribute("sandbox") ||
-      globalThis.location.hostname === ""
-    );
   }
 
   /**

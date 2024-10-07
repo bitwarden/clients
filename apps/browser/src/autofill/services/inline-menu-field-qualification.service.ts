@@ -30,16 +30,16 @@ export class InlineMenuFieldQualificationService
     this.webAuthnAutocompleteValue,
   ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
-  private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private currentPasswordAutocompleteValue = "current-password";
   private newPasswordAutoCompleteValue = "new-password";
   private autofillFieldKeywordsMap: AutofillKeywordsMap = new WeakMap();
   private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
-  private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
+  private newFieldKeywords = new Set(["new", "neue", "ändern"]);
   private accountCreationFieldKeywords = [
     ...new Set(["register", "registration", "create", "confirm", ...this.newFieldKeywords]),
   ];
+  private updatePasswordFieldKeywords = ["update", "change", "current"];
   private creditCardFieldKeywords = [
     ...new Set([
       ...CreditCardAutoFillConstants.CardHolderFieldNames,
@@ -146,8 +146,7 @@ export class InlineMenuFieldQualificationService
       return this.isFieldForLoginFormFallback(field);
     }
 
-    const isTotpField = this.isTotpField(field);
-    if (isTotpField) {
+    if (this.isTotpField(field)) {
       return false;
     }
 
@@ -230,7 +229,10 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    if (this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)) {
+    if (
+      this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) ||
+      this.isTotpField(field)
+    ) {
       return false;
     }
 
@@ -290,7 +292,7 @@ export class InlineMenuFieldQualificationService
     // If the provided field is set with an autocomplete value of "current-password", we should assume that
     // the page developer intends for this field to be interpreted as a password field for a login form.
     if (this.fieldContainsAutocompleteValues(field, this.currentPasswordAutocompleteValue)) {
-      return true;
+      return pageDetails.fields.filter(this.isNewPasswordField).length === 0;
     }
 
     const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
@@ -856,6 +858,22 @@ export class InlineMenuFieldQualificationService
   };
 
   /**
+   * Validates the provided field as a current password field for an update password form.
+   *
+   * @param field - The field to validate
+   */
+  isUpdateCurrentPasswordField = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue)) {
+      return false;
+    }
+
+    return (
+      this.isPasswordField(field) &&
+      this.keywordsFoundInFieldData(field, this.updatePasswordFieldKeywords)
+    );
+  };
+
+  /**
    * Validates the provided field as a new password field.
    *
    * @param field - The field to validate
@@ -927,7 +945,7 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    return !(this.passwordFieldExcludeListString.indexOf(cleanedValue) > -1);
+    return !AutoFillConstants.PasswordFieldExcludeList.some((i) => cleanedValue.indexOf(i) > -1);
   }
 
   /**
@@ -1085,6 +1103,7 @@ export class InlineMenuFieldQualificationService
         autofillFieldData.title,
         autofillFieldData.placeholder,
         autofillFieldData.autoCompleteType,
+        autofillFieldData.dataSetValues,
         autofillFieldData["label-data"],
         autofillFieldData["label-aria"],
         autofillFieldData["label-left"],
@@ -1094,13 +1113,29 @@ export class InlineMenuFieldQualificationService
       ];
       const keywordsSet = new Set<string>();
       for (let i = 0; i < keywords.length; i++) {
-        if (typeof keywords[i] === "string") {
-          keywords[i]
-            .toLowerCase()
-            .replace(/-/g, "")
-            .replace(/[^a-zA-Z0-9]+/g, "|")
-            .split("|")
-            .forEach((keyword) => keywordsSet.add(keyword));
+        if (keywords[i] && typeof keywords[i] === "string") {
+          let keywordEl = keywords[i].toLowerCase();
+          keywordsSet.add(keywordEl);
+
+          // Remove hyphens from all potential keywords, we want to treat these as a single word.
+          keywordEl = keywordEl.replace(/-/g, "");
+
+          // Split the keyword by non-alphanumeric characters to get the keywords without treating a space as a separator.
+          keywordEl.split(/[^\p{L}\d]+/gu).forEach((keyword: string) => {
+            if (keyword) {
+              keywordsSet.add(keyword);
+            }
+          });
+
+          // Collapse all spaces and split by non-alphanumeric characters to get the keywords
+          keywordEl
+            .replace(/\s/g, "")
+            .split(/[^\p{L}\d]+/gu)
+            .forEach((keyword: string) => {
+              if (keyword) {
+                keywordsSet.add(keyword);
+              }
+            });
         }
       }
 

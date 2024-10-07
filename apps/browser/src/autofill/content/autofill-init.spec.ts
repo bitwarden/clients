@@ -74,7 +74,7 @@ describe("AutofillInit", () => {
       Object.defineProperty(document, "readyState", { value: "complete", writable: true });
 
       autofillInit.init();
-      jest.advanceTimersByTime(250);
+      jest.advanceTimersByTime(750);
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("bgCollectPageDetails", {
         sender: "autofillInit",
