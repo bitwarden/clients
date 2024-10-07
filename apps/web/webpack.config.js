@@ -280,6 +280,8 @@ const devServer =
                 ;connect-src
                   'self'
                   ${envConfig.dev.wsConnectSrc ?? ""}
+                  wss://*
+                  https://push.services.mozilla.com
                   wss://notifications.bitwarden.com
                   https://notifications.bitwarden.com
                   https://cdn.bitwarden.net

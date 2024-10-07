@@ -53,6 +53,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import {
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
+} from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
@@ -214,6 +218,12 @@ const safeProviders: SafeProvider[] = [
       LogService,
       PolicyService,
     ],
+  }),
+  safeProvider({
+    provide: WebPushConnectionService,
+    // We can support web in the future by creating a worker
+    useClass: UnsupportedWebPushConnectionService,
+    deps: [],
   }),
   safeProvider({
     provide: LockComponentService,
