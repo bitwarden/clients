@@ -1,8 +1,13 @@
-import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { AbstractControl, UntypedFormBuilder, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 
-import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
+import {
+  LoginEmailService,
+  LoginStrategyServiceAbstraction,
+  PasswordLoginCredentials,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
@@ -30,7 +35,7 @@ import { InputsFieldMatch } from "../validators/inputs-field-match.validator";
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
 @Directive()
-export class RegisterComponent extends CaptchaProtectedComponent implements OnInit {
+export class RegisterComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
   @Input() isInTrialFlow = false;
   @Output() createdAccount = new EventEmitter<string>();
 
@@ -78,6 +83,9 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
 
   protected captchaBypassToken: string = null;
 
+  protected destroy$ = new Subject<void>();
+
+  // allows for extending classes to modify the register request before sending
   // allows for extending classes to modify the register request before sending
   // currently used by web to add organization invitation details
   protected modifyRegisterRequest: (request: RegisterRequest) => Promise<void>;
@@ -98,6 +106,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     protected auditService: AuditService,
     protected dialogService: DialogService,
     protected toastService: ToastService,
+    protected loginEmailService: LoginEmailService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
     this.showTerms = !platformUtilsService.isSelfHost();
@@ -108,6 +117,20 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupCaptcha();
+
+    /**
+     * If the user has a login email, set the email field to the login email.
+     */
+    this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
+      if (email) {
+        this.formGroup.patchValue({ email });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async submit(showToast = true) {

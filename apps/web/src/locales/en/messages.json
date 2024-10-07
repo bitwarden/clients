@@ -869,8 +869,14 @@
   "useADifferentLogInMethod": {
     "message": "Use a different log in method"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Invalid Passkey. Please try again."
@@ -953,6 +959,9 @@
   "createAccount": {
     "message": "Create account"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Set a strong password"
   },
@@ -967,6 +976,9 @@
   },
   "logIn": {
     "message": "Log in"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Verify your Identity"

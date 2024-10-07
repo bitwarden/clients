@@ -26,21 +26,28 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  LoginComponentService,
   LockComponentService,
   SetPasswordJitService,
 } from "@bitwarden/auth/angular";
-import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LoginEmailService,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
@@ -58,6 +65,7 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { ServerSettingsService } from "@bitwarden/common/platform/services/server-settings.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 /* eslint-disable import/no-restricted-paths -- Implementation for memory storage */
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -70,12 +78,14 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
   WebSetPasswordJitService,
   WebRegistrationFinishService,
+  WebLoginComponentService,
   WebLockComponentService,
 } from "../auth";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -241,9 +251,30 @@ const safeProviders: SafeProvider[] = [
     deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
   }),
   safeProvider({
+    provide: LoginComponentService,
+    useClass: WebLoginComponentService,
+    deps: [
+      CryptoFunctionServiceAbstraction,
+      EnvironmentService,
+      PasswordGenerationServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: LoginEmailService,
+    useClass: LoginEmailService,
+    deps: [AccountService, AuthService, StateProvider],
+  }),
+  safeProvider({
     provide: CollectionAdminService,
     useClass: DefaultCollectionAdminService,
     deps: [ApiService, CryptoServiceAbstraction, EncryptService, CollectionService],
+  }),
+  safeProvider({
+    provide: ServerSettingsService,
+    useClass: ServerSettingsService,
+    deps: [ConfigService],
   }),
 ];
 

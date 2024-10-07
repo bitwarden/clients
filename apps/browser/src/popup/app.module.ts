@@ -25,8 +25,8 @@ import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
+import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponent } from "../auth/popup/login-via-auth-request.component";
-import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
@@ -159,7 +159,7 @@ import "../platform/popup/locales";
     HintComponent,
     HomeComponent,
     LockComponent,
-    LoginComponent,
+    LoginComponentV1,
     LoginViaAuthRequestComponent,
     LoginDecryptionOptionsComponent,
     NotificationsSettingsV1Component,
