@@ -91,12 +91,17 @@
                   bitButton
                   buttonType="primary"
                   [disabled]="orgInfoFormGroup.get('name').invalid"
-                  cdkStepperNext
+                  [loading]="loading"
+                  (click)="createOrganizationOnTrial()"
                 >
-                  {{ "next" | i18n }}
+                  {{ (enableTrialPayment$ | async) ? ("startTrial" | i18n) : ("next" | i18n) }}
                 </button>
               </app-vertical-step>
-              <app-vertical-step label="Billing" [subLabel]="billingSubLabel">
+              <app-vertical-step
+                label="Billing"
+                [subLabel]="billingSubLabel"
+                *ngIf="!(enableTrialPayment$ | async)"
+              >
                 <app-trial-billing-step
                   *ngIf="stepper.selectedIndex === 2"
                   [organizationInfo]="{

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
   map,
   Observable,
@@ -12,14 +12,19 @@ import {
   take,
   share,
   firstValueFrom,
-  concatMap,
+  of,
 } from "rxjs";
 
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
+import { TrialFlowService } from "@bitwarden/web-vault/app/core/trial-flow.service";
+import { FreeTrial } from "@bitwarden/web-vault/app/core/types/free-trial";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectListView } from "../models/view/project-list.view";
@@ -81,6 +86,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected showOnboarding = false;
   protected loading = true;
   protected organizationEnabled = false;
+  protected organization: Organization;
+  protected i18n: I18nPipe;
   protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{
@@ -91,6 +98,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     tasks: OrganizationTasks;
     counts: OrganizationCounts;
   }>;
+  protected freeTrial$: Observable<FreeTrial>;
 
   constructor(
     private route: ActivatedRoute,
@@ -104,6 +112,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
+    private router: Router,
+
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private trialFlowService: TrialFlowService,
   ) {}
 
   ngOnInit() {
@@ -114,18 +126,34 @@ export class OverviewComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
     );
 
-    orgId$
-      .pipe(
-        concatMap(async (orgId) => await this.organizationService.get(orgId)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((org) => {
-        this.organizationId = org.id;
-        this.organizationName = org.name;
-        this.userIsAdmin = org.isAdmin;
-        this.loading = true;
-        this.organizationEnabled = org.enabled;
-      });
+    const org$ = orgId$.pipe(switchMap((orgId) => this.organizationService.get(orgId)));
+
+    org$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
+      this.organizationId = org.id;
+      this.organization = org;
+      this.organizationName = org.name;
+      this.userIsAdmin = org.isAdmin;
+      this.loading = true;
+      this.organizationEnabled = org.enabled;
+    });
+
+    this.freeTrial$ = org$.pipe(
+      switchMap((org) =>
+        combineLatest([
+          of(org),
+          this.organizationApiService.getSubscription(org.id),
+          this.organizationApiService.getBilling(org.id),
+        ]),
+      ),
+      map(([org, sub, billing]) => {
+        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+          org,
+          sub,
+          billing?.paymentSource,
+        );
+      }),
+      takeUntil(this.destroy$),
+    );
 
     const projects$ = combineLatest([
       orgId$,
@@ -195,6 +223,15 @@ export class OverviewComponent implements OnInit, OnDestroy {
         this.showOnboarding = Object.values(view.tasks).includes(false);
         this.loading = false;
       });
+  }
+
+  async navigateToPaymentMethod() {
+    await this.router.navigate(
+      ["organizations", `${this.organizationId}`, "billing", "payment-method"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   ngOnDestroy(): void {

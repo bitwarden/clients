@@ -1,9 +1,12 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BannerModule } from "@bitwarden/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
+import { FreeTrial } from "../../../core/types/free-trial";
 import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
@@ -19,8 +22,13 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
+  @Input() organizationsPaymentStatus: FreeTrial[] = [];
 
-  constructor(private vaultBannerService: VaultBannersService) {
+  constructor(
+    private vaultBannerService: VaultBannersService,
+    private router: Router,
+    private i18nService: I18nService,
+  ) {
     this.premiumBannerVisible$ = this.vaultBannerService.shouldShowPremiumBanner$;
   }
 
@@ -34,6 +42,17 @@ export class VaultBannersComponent implements OnInit {
     await this.determineVisibleBanners();
   }
 
+  async navigateToPaymentMethod(organizationId: string): Promise<void> {
+    const navigationExtras = {
+      state: { launchPaymentModalAutomatically: true },
+    };
+
+    await this.router.navigate(
+      ["organizations", organizationId, "billing", "payment-method"],
+      navigationExtras,
+    );
+  }
+
   /** Determine which banners should be present */
   private async determineVisibleBanners(): Promise<void> {
     const showBrowserOutdated = await this.vaultBannerService.shouldShowUpdateBrowserBanner();
@@ -45,5 +64,23 @@ export class VaultBannersComponent implements OnInit {
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
       showLowKdf ? VisibleVaultBanner.KDFSettings : null,
     ].filter(Boolean); // remove all falsy values, i.e. null
+  }
+
+  freeTrialMessage(organization: FreeTrial) {
+    if (organization.remainingDays >= 2) {
+      return this.i18nService.t(
+        "freeTrialEndPromptAboveTwoDays",
+        organization.organizationName,
+        organization.remainingDays.toString(),
+      );
+    } else if (organization.remainingDays === 1) {
+      return this.i18nService.t("freeTrialEndPromptForOneDay", organization.organizationName);
+    } else {
+      return this.i18nService.t("freeTrialEndPromptForLessThanADay", organization.organizationName);
+    }
+  }
+
+  trackBy(index: number) {
+    return index;
   }
 }

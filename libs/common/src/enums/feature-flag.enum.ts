@@ -33,6 +33,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
   Pm3478RefactorOrganizationUserApi = "pm-3478-refactor-organizationuser-api",
+  TrialPaymentOptional = "PM-8163-trial-payment",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -76,6 +77,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
   [FeatureFlag.Pm3478RefactorOrganizationUserApi]: FALSE,
+  [FeatureFlag.TrialPaymentOptional]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

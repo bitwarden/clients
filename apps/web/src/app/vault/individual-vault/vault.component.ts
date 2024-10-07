@@ -35,6 +35,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -70,6 +71,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { FreeTrial } from "../../core/types/free-trial";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -87,6 +89,7 @@ import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
+import { TrialFlowService } from "./../../core/trial-flow.service";
 import { AddEditComponent } from "./add-edit.component";
 import {
   AttachmentDialogCloseResult,
@@ -171,6 +174,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
+  protected organizationsPaymentStatus: FreeTrial[] = [];
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -208,6 +212,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private cipherFormConfigService: DefaultCipherFormConfigService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private trialFlowService: TrialFlowService,
   ) {}
 
   async ngOnInit() {
@@ -386,6 +392,28 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    const organizationsPaymentStatus$ = this.organizationService.organizations$.pipe(
+      switchMap((allOrganizations) =>
+        combineLatest(
+          allOrganizations.map((org) =>
+            combineLatest([
+              this.organizationApiService.getSubscription(org.id),
+              this.organizationApiService.getBilling(org.id),
+            ]).pipe(
+              map(([subscription, billing]) => {
+                return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+                  org,
+                  subscription,
+                  billing?.paymentSource,
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+      map((results) => results.filter((result) => result.shownBanner)),
+    );
+
     firstSetup$
       .pipe(
         switchMap(() => this.refresh$),
@@ -399,6 +427,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             ciphers$,
             collections$,
             selectedCollection$,
+            organizationsPaymentStatus$,
           ]),
         ),
         takeUntil(this.destroy$),
@@ -412,6 +441,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           ciphers,
           collections,
           selectedCollection,
+          organizationsPaymentStatus,
         ]) => {
           this.filter = filter;
           this.canAccessPremium = canAccessPremium;
@@ -427,7 +457,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           this.showBulkMove = filter.type !== "trash";
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
-
+          this.organizationsPaymentStatus = organizationsPaymentStatus;
           this.performingInitialLoad = false;
           this.refreshing = false;
         },
