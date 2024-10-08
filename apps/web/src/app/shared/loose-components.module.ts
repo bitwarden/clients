@@ -80,7 +80,6 @@ import { CollectionsComponent } from "../vault/individual-vault/collections.comp
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { ShareComponent } from "../vault/individual-vault/share.component";
 import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-edit.component";
 import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { CollectionsComponent as OrgCollectionsComponent } from "../vault/org-vault/collections.component";
@@ -164,7 +163,6 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SendAddEditComponent,
     SetPasswordComponent,
-    ShareComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
     SsoComponent,
@@ -236,7 +234,6 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SendAddEditComponent,
     SetPasswordComponent,
-    ShareComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
     SsoComponent,
