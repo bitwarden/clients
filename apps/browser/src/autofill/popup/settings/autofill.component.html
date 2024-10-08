@@ -27,7 +27,37 @@
             {{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}
           </bit-hint>
         </bit-form-control>
-        <bit-form-control *ngIf="enableInlineMenu" class="tw-pl-5">
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
+        >
+          <input
+            bitCheckbox
+            id="show-inline-menu-identities"
+            type="checkbox"
+            (change)="updateShowInlineMenuIdentities()"
+            [(ngModel)]="showInlineMenuIdentities"
+          />
+          <bit-label for="show-inline-menu-identities">
+            {{ "showInlineMenuIdentitiesLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
+        >
+          <input
+            bitCheckbox
+            id="show-inline-menu-cards"
+            type="checkbox"
+            (change)="updateShowInlineMenuCards()"
+            [(ngModel)]="showInlineMenuCards"
+          />
+          <bit-label for="show-inline-menu-cards">
+            {{ "showInlineMenuCardsLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-autofill-suggestions-on-icon"

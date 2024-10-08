@@ -2238,7 +2238,7 @@ describe("AutofillOverlayContentService", () => {
       it("updates the inlineMenuVisibility property", () => {
         sendMockExtensionMessage({
           command: "updateAutofillInlineMenuVisibility",
-          data: { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
+          data: { newSettingValue: AutofillOverlayVisibility.OnButtonClick },
         });
 
         expect(autofillOverlayContentService["inlineMenuVisibility"]).toEqual(

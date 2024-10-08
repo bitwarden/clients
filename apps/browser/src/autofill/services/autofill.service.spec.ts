@@ -75,6 +75,8 @@ describe("AutofillService", () => {
   let autofillService: AutofillService;
   const cipherService = mock<CipherService>();
   let inlineMenuVisibilityMock$!: BehaviorSubject<InlineMenuVisibilitySetting>;
+  let showInlineMenuCardsMock$!: BehaviorSubject<boolean>;
+  let showInlineMenuIdentitiesMock$!: BehaviorSubject<boolean>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -98,8 +100,12 @@ describe("AutofillService", () => {
   beforeEach(() => {
     scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
+    showInlineMenuCardsMock$ = new BehaviorSubject(false);
+    showInlineMenuIdentitiesMock$ = new BehaviorSubject(false);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
+    autofillSettingsService.showInlineMenuCards$ = showInlineMenuCardsMock$;
+    autofillSettingsService.showInlineMenuIdentities$ = showInlineMenuIdentitiesMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
@@ -291,12 +297,12 @@ describe("AutofillService", () => {
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab1,
             "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
+            { newSettingValue: AutofillOverlayVisibility.OnButtonClick },
           );
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab2,
             "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
+            { newSettingValue: AutofillOverlayVisibility.OnButtonClick },
           );
         });
 
@@ -308,12 +314,12 @@ describe("AutofillService", () => {
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab1,
             "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
+            { newSettingValue: AutofillOverlayVisibility.OnFieldFocus },
           );
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             tab2,
             "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
+            { newSettingValue: AutofillOverlayVisibility.OnFieldFocus },
           );
         });
       });

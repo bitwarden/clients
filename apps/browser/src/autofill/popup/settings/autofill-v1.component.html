@@ -46,6 +46,32 @@
       </div>
     </div>
   </div>
+  <div class="box tw-mb-5" *ngIf="inlineMenuPositioningImprovementsEnabled && inlineMenuIsEnabled">
+    <div class="box-content">
+      <div class="box-content-row box-content-row-checkbox" appBoxRow>
+        <label for="show-inline-menu-identities" class="!tw-mr-0">{{
+          "showInlineMenuIdentitiesLabel" | i18n
+        }}</label>
+        <input
+          id="show-inline-menu-identities"
+          type="checkbox"
+          (change)="updateShowInlineMenuIdentities()"
+          [(ngModel)]="showInlineMenuIdentities"
+        />
+      </div>
+      <div class="box-content-row box-content-row-checkbox" appBoxRow>
+        <label for="show-inline-menu-cards" class="!tw-mr-0">{{
+          "showInlineMenuCardsLabel" | i18n
+        }}</label>
+        <input
+          id="show-inline-menu-cards"
+          type="checkbox"
+          (change)="updateShowInlineMenuCards()"
+          [(ngModel)]="showInlineMenuCards"
+        />
+      </div>
+    </div>
+  </div>
   <div class="box">
     <div class="box-content" *ngIf="canOverrideBrowserAutofillSetting">
       <div class="box-content-row box-content-row-checkbox" appBoxRow>
