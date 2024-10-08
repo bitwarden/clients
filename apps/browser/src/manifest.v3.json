@@ -72,12 +72,7 @@
     "sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
-    "pages": [
-      "overlay/menu-button.html",
-      "overlay/menu-list.html",
-      "overlay/button.html",
-      "overlay/list.html"
-    ]
+    "pages": ["overlay/button.html", "overlay/list.html"]
   },
   "commands": {
     "_execute_action": {
@@ -123,8 +118,6 @@
         "notification/bar.html",
         "images/icon38.png",
         "images/icon38_locked.png",
-        "overlay/menu-button.html",
-        "overlay/menu-list.html",
         "overlay/menu.html",
         "overlay/button.html",
         "overlay/list.html",
