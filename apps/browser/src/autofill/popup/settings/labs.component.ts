@@ -46,9 +46,9 @@ export class LabsComponent implements OnInit {
    * Default values set here are used in component state operations
    * until corresponding stored settings have loaded on init.
    */
-  protected labsSettingsEnabled$: boolean = false;
   protected improvedFieldQualificationForInlineMenuEnabled: boolean = false;
   protected additionalInlineMenuCipherTypesEnabled: boolean = false;
+  protected designRefreshEnabled: boolean = false;
 
   constructor(
     private i18nService: I18nService,
@@ -56,12 +56,18 @@ export class LabsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // Note, we're getting the user setting values, not the values resolved against
+    // feature flags with the labsSettingsService getter methods
     this.improvedFieldQualificationForInlineMenuEnabled = await firstValueFrom(
       this.labsSettingsService.improvedFieldQualificationForInlineMenuEnabled$,
     );
 
     this.additionalInlineMenuCipherTypesEnabled = await firstValueFrom(
       this.labsSettingsService.additionalInlineMenuCipherTypesEnabled$,
+    );
+
+    this.designRefreshEnabled = await firstValueFrom(
+      this.labsSettingsService.designRefreshEnabled$,
     );
   }
 
@@ -75,5 +81,9 @@ export class LabsComponent implements OnInit {
     await this.labsSettingsService.setAdditionalInlineMenuCipherTypesEnabled(
       this.additionalInlineMenuCipherTypesEnabled,
     );
+  }
+
+  async updateDesignRefreshEnabled() {
+    await this.labsSettingsService.setDesignRefreshEnabled(this.designRefreshEnabled);
   }
 }

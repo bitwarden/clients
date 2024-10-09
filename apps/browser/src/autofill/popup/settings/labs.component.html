@@ -7,8 +7,8 @@
 
   <div class="tw-bg-background-alt">
     <app-callout type="warning">
-      These settings are experimental, may result in undesirable side-effects, and may be removed at
-      any time.
+      These settings are experimental, may result in undesirable side-effects, and may be removed or
+      disabled at any time.
     </app-callout>
     <bit-section>
       <bit-section-header>
@@ -18,16 +18,26 @@
         <bit-form-control>
           <input
             bitCheckbox
+            id="designRefresh"
+            type="checkbox"
+            (change)="updateDesignRefreshEnabled()"
+            [(ngModel)]="designRefreshEnabled"
+          />
+          <bit-label for="designRefresh"> Enable UI design and experience improvements </bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
             id="improvedFieldQualificationForInlineMenu"
             type="checkbox"
             (change)="updateImprovedFieldQualificationForInlineMenuEnabled()"
             [(ngModel)]="improvedFieldQualificationForInlineMenuEnabled"
           />
           <bit-label for="improvedFieldQualificationForInlineMenu">
-            improve accuracy of the inline menu appearance in login forms
+            Improve accuracy of the inline menu appearance in login forms
           </bit-label>
         </bit-form-control>
-        <bit-form-control>
+        <bit-form-control disableMargin>
           <input
             bitCheckbox
             id="updateAdditionalInlineMenuCipherTypes"
@@ -36,7 +46,7 @@
             [(ngModel)]="additionalInlineMenuCipherTypesEnabled"
           />
           <bit-label for="updateAdditionalInlineMenuCipherTypes">
-            enable identity and card ciphers in the inline menu
+            Enable identity and card ciphers in the inline menu
           </bit-label>
         </bit-form-control>
       </bit-card>

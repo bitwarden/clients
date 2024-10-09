@@ -33,15 +33,23 @@ const ADDITIONAL_INLINE_MENU_CIPHER_TYPES_ENABLED = new UserKeyDefinition(
   },
 );
 
+const DESIGN_REFRESH_ENABLED = new UserKeyDefinition(LABS_SETTINGS_DISK, "designRefreshEnabled", {
+  deserializer: (value: boolean) => value ?? null,
+  clearOn: [],
+});
+
 export abstract class LabsSettingsServiceAbstraction {
   labsSettingsEnabled$: Observable<boolean>;
   setLabsSettingsEnabled: (newValue: boolean) => Promise<void>;
   improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean | null>;
-  setImprovedFieldQualificationForInlineMenuEnabled: (newValue: boolean) => Promise<void>;
   getImprovedFieldQualificationForInlineMenuEnabled: () => Promise<boolean | null>;
+  setImprovedFieldQualificationForInlineMenuEnabled: (newValue: boolean) => Promise<void>;
   additionalInlineMenuCipherTypesEnabled$: Observable<boolean | null>;
-  setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
   getAdditionalInlineMenuCipherTypesEnabled: () => Promise<boolean | null>;
+  setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
+  designRefreshEnabled$: Observable<boolean | null>;
+  getDesignRefreshEnabled: () => Promise<boolean | null>;
+  setDesignRefreshEnabled: (newValue: boolean) => Promise<void>;
 }
 
 export class LabsSettingsService implements LabsSettingsServiceAbstraction {
@@ -51,6 +59,8 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   readonly improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
   private additionalInlineMenuCipherTypesEnabledState: ActiveUserState<boolean>;
   readonly additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
+  private designRefreshEnabledState: ActiveUserState<boolean>;
+  readonly designRefreshEnabled$: Observable<boolean>;
   private preserveLabSettings: boolean = true;
 
   constructor(
@@ -73,6 +83,9 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     );
     this.additionalInlineMenuCipherTypesEnabled$ =
       this.additionalInlineMenuCipherTypesEnabledState.state$.pipe(map((x) => x ?? null));
+
+    this.designRefreshEnabledState = this.stateProvider.getActive(DESIGN_REFRESH_ENABLED);
+    this.designRefreshEnabled$ = this.designRefreshEnabledState.state$.pipe(map((x) => x ?? null));
   }
 
   async init() {
@@ -87,9 +100,11 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   }
 
   async clearAllLabsSettings() {
+    // Note, does not clear the `labsSettingsEnabled` state
     await Promise.all([
       this.setImprovedFieldQualificationForInlineMenuEnabled(null),
       this.setAdditionalInlineMenuCipherTypesEnabled(null),
+      this.setDesignRefreshEnabled(null),
     ]);
   }
 
@@ -135,5 +150,22 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     await this.additionalInlineMenuCipherTypesEnabledState.update(() =>
       this.preserveLabSettings ? newValue : null,
     );
+  }
+
+  // Get user setting or feature-flag value for `extension-refresh`
+  async getDesignRefreshEnabled(): Promise<boolean | null> {
+    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
+    const userOverrideValue = await firstValueFrom(this.designRefreshEnabled$);
+
+    if (labsSettingsEnabled && userOverrideValue !== null) {
+      return userOverrideValue;
+    }
+
+    // return the feature flag value if lab settings aren't enabled or user override is not set
+    return await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
+  }
+
+  async setDesignRefreshEnabled(newValue: boolean | null): Promise<void> {
+    await this.designRefreshEnabledState.update(() => (this.preserveLabSettings ? newValue : null));
   }
 }
