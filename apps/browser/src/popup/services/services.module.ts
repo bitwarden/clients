@@ -35,13 +35,13 @@ import {
   AutofillSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
-  LabsSettingsService,
-  LabsSettingsServiceAbstraction,
-} from "@bitwarden/common/autofill/services/labs-settings.service";
-import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  LabsSettingsService,
+  LabsSettingsServiceAbstraction,
+} from "@bitwarden/common/autofill/services/labs-settings.service";
 import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,

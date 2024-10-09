@@ -3126,6 +3126,33 @@
   "gotIt": {
     "message": "Got it"
   },
+  "labsSettingsTitle": {
+    "message": "Labs"
+  },
+  "userSettingsTitle": {
+    "message": "User settings"
+  },
+  "globalSettingsTitle": {
+    "message": "Global settings"
+  },
+  "noUserSettings": {
+    "message": "There are no user settings available at this time"
+  },
+  "noGlobalSettings": {
+    "message": "There are no global settings available at this time"
+  },
+  "labsSettingsWarning": {
+    "message": "These settings are experimental, may result in undesirable side-effects, and may be removed or disabled at any time."
+  },
+  "designRefreshSettingLabel": {
+    "message": "Enable UI design and experience improvements"
+  },
+  "improvedFieldQualificationForInlineMenuSettingLabel": {
+    "message": "Improve accuracy of the inline menu appearance in login forms"
+  },
+  "updateAdditionalInlineMenuCipherTypesSettingLabel": {
+    "message": "Enable identity and card ciphers in the inline menu"
+  },
   "autofillSettings": {
     "message": "Autofill settings"
   },

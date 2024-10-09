@@ -116,10 +116,6 @@ import {
   AutofillSettingsService,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
-  LabsSettingsServiceAbstraction,
-  LabsSettingsService,
-} from "@bitwarden/common/autofill/services/labs-settings.service";
-import {
   BadgeSettingsServiceAbstraction,
   BadgeSettingsService,
 } from "@bitwarden/common/autofill/services/badge-settings.service";
@@ -127,6 +123,10 @@ import {
   DomainSettingsService,
   DefaultDomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  LabsSettingsServiceAbstraction,
+  LabsSettingsService,
+} from "@bitwarden/common/autofill/services/labs-settings.service";
 import {
   BillingApiServiceAbstraction,
   OrganizationBillingServiceAbstraction,
