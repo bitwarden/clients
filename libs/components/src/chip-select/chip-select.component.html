@@ -4,7 +4,8 @@
   [ngClass]="{
     'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:!tw-border-secondary-700':
       selectedOption && !disabled,
-    'tw-bg-transparent hover:tw-border-secondary-700 !tw-text-muted': !selectedOption && !disabled,
+    'tw-bg-transparent hover:tw-border-secondary-700 !tw-text-muted hover:tw-bg-secondary-100':
+      !selectedOption && !disabled,
     'tw-bg-secondary-300 tw-text-muted tw-border-transparent': disabled,
     'tw-border-text-muted': !disabled,
     'tw-ring-2 tw-ring-primary-600 tw-ring-offset-1': focusVisibleWithin(),
@@ -26,13 +27,7 @@
   >
     <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
       <i class="bwi !tw-text-[inherit]" [ngClass]="icon"></i>
-      <span
-        class="tw-truncate"
-        [ngClass]="{
-          'group-hover/chip-select:tw-underline': !selectedOption && !disabled,
-        }"
-        >{{ label }}</span
-      >
+      <span class="tw-truncate">{{ label }}</span>
     </span>
     <i
       *ngIf="!selectedOption"

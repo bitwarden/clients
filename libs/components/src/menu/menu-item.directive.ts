@@ -19,7 +19,6 @@ export class MenuItemDirective implements FocusableOption {
     "tw-bg-background",
     "tw-text-left",
     "hover:tw-bg-primary-100",
-    "hover:!tw-underline",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
@@ -30,7 +29,6 @@ export class MenuItemDirective implements FocusableOption {
     "active:!tw-ring-offset-0",
     "disabled:!tw-text-muted",
     "disabled:hover:tw-bg-background",
-    "disabled:hover:!tw-no-underline",
     "disabled:tw-cursor-not-allowed",
   ];
   @HostBinding("attr.role") role = "menuitem";
