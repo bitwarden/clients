@@ -1140,6 +1140,21 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
+      - name: Set up provisioning profiles
+        run: |
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile
+          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+
+          mkdir -p "$PROFILES_DIR_PATH"
+
+          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -1190,11 +1205,6 @@ jobs:
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
-
-      - name: Set up provisioning profiles
-        run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
       - name: Increment version
         shell: pwsh
