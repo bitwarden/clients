@@ -22,7 +22,7 @@ defaults:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       release-version: ${{ steps.version.outputs.version }}
     steps:
@@ -52,7 +52,7 @@ jobs:
 
   locales-test:
     name: Locales Test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     steps:
       - name: Checkout repo
@@ -86,7 +86,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - locales-test

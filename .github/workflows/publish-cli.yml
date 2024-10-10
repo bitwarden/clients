@@ -42,7 +42,7 @@ defaults:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       release-version: ${{ steps.version-output.outputs.version }}
       deployment-id: ${{ steps.deployment.outputs.deployment_id }}
@@ -85,7 +85,7 @@ jobs:
 
   snap:
     name: Deploy Snap
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     if: inputs.snap_publish
     env:
@@ -162,7 +162,7 @@ jobs:
 
   npm:
     name: Publish NPM
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     if: inputs.npm_publish
     env:
@@ -205,7 +205,7 @@ jobs:
 
   update-deployment:
     name: Update Deployment Status
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - npm

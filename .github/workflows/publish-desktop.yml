@@ -38,7 +38,7 @@ on:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       release-version: ${{ steps.version.outputs.version }}
       release-channel: ${{ steps.release-channel.outputs.channel }}
@@ -106,7 +106,7 @@ jobs:
 
   electron-blob:
     name: Electron blob publish
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release-version }}
@@ -176,7 +176,7 @@ jobs:
 
   snap:
     name: Deploy Snap
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     if: inputs.snap_publish
     env:
@@ -267,7 +267,7 @@ jobs:
 
   update-deployment:
     name: Update Deployment Status
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - electron-blob

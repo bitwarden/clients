@@ -37,7 +37,7 @@ defaults:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       package_version: ${{ steps.retrieve-package-version.outputs.package_version }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
@@ -306,7 +306,7 @@ jobs:
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for CLI is defined in `apps/cli/stores/snap/snapcraft.yaml`
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [setup, cli]
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -381,7 +381,7 @@ jobs:
   check-failures:
     name: Check for failures
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - cli

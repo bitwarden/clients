@@ -7,7 +7,7 @@ on:
 jobs:
   close-issue:
     name: 'Close pull request with automatic response'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: write
     steps:

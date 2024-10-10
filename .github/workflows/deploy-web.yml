@@ -61,7 +61,7 @@ permissions:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       environment: ${{ steps.config.outputs.environment }}
       environment-url: ${{ steps.config.outputs.environment-url }}
@@ -171,7 +171,7 @@ jobs:
   approval:
     name: Approval for Deployment to ${{ needs.setup.outputs.environment-name }}
     needs: setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     environment: ${{ needs.setup.outputs.environment-name }}
     steps:
       - name: Success Code
@@ -179,7 +179,7 @@ jobs:
 
   artifact-check:
     name: Check if Web artifact is present
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment-artifact }}
@@ -261,7 +261,7 @@ jobs:
       - approval
       - setup
       - artifact-check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ always() && ( contains( inputs.environment , 'QA' ) || contains( inputs.environment , 'DEV' ) ) }}
     outputs:
       channel_id: ${{ steps.slack-message.outputs.channel_id }}
@@ -282,7 +282,7 @@ jobs:
   update-summary:
     name: Display commit
     needs: artifact-check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Display commit SHA
         run: |
@@ -296,7 +296,7 @@ jobs:
       - setup
       - artifact-check
       - approval
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       _ENVIRONMENT: ${{ needs.setup.outputs.environment }}
       _ENVIRONMENT_URL: ${{ needs.setup.outputs.environment-url }}
@@ -412,7 +412,7 @@ jobs:
 
   notify:
     name: Notify Slack with result
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ always() && ( contains( inputs.environment , 'QA' ) || contains( inputs.environment , 'DEV' ) ) }}
     needs:
       - setup

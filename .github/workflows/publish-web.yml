@@ -21,7 +21,7 @@ env:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
@@ -51,7 +51,7 @@ jobs:
 
   self-host:
     name: Release self-host docker
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _BRANCH_NAME: ${{ github.ref_name }}
