@@ -31,6 +31,7 @@
       "@bitwarden/importer/core": ["./libs/importer/src"],
       "@bitwarden/importer/ui": ["./libs/importer/src/components"],
       "@bitwarden/send-ui": [".libs/tools/send/send-ui/src"],
+      "@bitwarden/tools-card": [".libs/tools/card/src"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/vault": ["./libs/vault/src"],

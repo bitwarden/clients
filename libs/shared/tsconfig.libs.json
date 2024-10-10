@@ -22,6 +22,7 @@
       "@bitwarden/key-management": ["../key-management/src"],
       "@bitwarden/platform": ["../platform/src"],
       "@bitwarden/send-ui": ["../tools/send/send-ui/src"],
+      "@bitwarden/tools-card": ["../tools/card/src"],
       "@bitwarden/node/*": ["../node/src/*"],
       "@bitwarden/vault": ["../vault/src"]
     }

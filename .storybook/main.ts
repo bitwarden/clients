@@ -19,6 +19,8 @@ const config: StorybookConfig = {
     "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/tools/card/src/**/*.mdx",
+    "../libs/tools/card/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
