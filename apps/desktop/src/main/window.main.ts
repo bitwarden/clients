@@ -184,7 +184,6 @@ export class WindowMain {
 
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
-    // Create the browser window.
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
@@ -208,6 +207,8 @@ export class WindowMain {
         devTools: isDev(),
       },
     });
+
+    this.win.setBounds({x: this.windowStates[mainWindowSizeKey].x, y: this.windowStates[mainWindowSizeKey].y, width: this.windowStates[mainWindowSizeKey].width, height: this.windowStates[mainWindowSizeKey].height});
 
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
@@ -383,15 +384,21 @@ export class WindowMain {
       }
     }
 
+    var widthCompare = state.width;
+    var heightCompare = state.height
+    if (isWindows()) {
+      widthCompare = state.width - 14;
+      heightCompare = state.height - 7;
+    }
+
     if (displayBounds != null) {
-      if (state.width > displayBounds.width && state.height > displayBounds.height) {
+      if (widthCompare > displayBounds.width && heightCompare > displayBounds.height) {
         state.isMaximized = true;
       }
-
-      if (state.width > displayBounds.width) {
+      if (widthCompare > displayBounds.width) {
         state.width = displayBounds.width - 10;
       }
-      if (state.height > displayBounds.height) {
+      if (heightCompare > displayBounds.height) {
         state.height = displayBounds.height - 10;
       }
     }
