@@ -22,7 +22,7 @@
         <bit-table>
           <ng-template body>
             <ng-container *ngIf="subscription">
-              <tr bitRow *ngFor="let i of subscription.plans">
+              <tr bitRow *ngFor="let i of activePlans">
                 <td bitCell class="tw-pl-0 tw-py-3">
                   {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
                     i.cadence.toLowerCase()
