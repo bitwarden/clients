@@ -61,7 +61,7 @@ export class ChangeKdfConfirmationComponent {
     const masterPassword = this.form.value.masterPassword;
 
     // Ensure the KDF config is valid.
-    this.kdfConfig.validateKdfConfig();
+    this.kdfConfig.validateKdfConfigForSetting();
 
     const request = new KdfRequest();
     request.kdf = this.kdfConfig.kdfType;
