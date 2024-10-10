@@ -39,7 +39,7 @@ retry = "=2.0.0"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
 thiserror = "=1.0.61"
-tokio = { version = "=1.38.0", features = ["io-util", "sync", "macros"] }
+tokio = { version = "=1.40.0", features = ["io-util", "sync", "macros"] }
 tokio-util = "=0.7.11"
 typenum = "=1.17.0"
 
