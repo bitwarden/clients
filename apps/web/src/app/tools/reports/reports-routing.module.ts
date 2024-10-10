@@ -8,6 +8,7 @@ import { hasPremiumGuard } from "../../core/guards/has-premium.guard";
 import { BreachReportComponent } from "./pages/breach-report.component";
 import { ExposedPasswordsReportComponent } from "./pages/exposed-passwords-report.component";
 import { InactiveTwoFactorReportComponent } from "./pages/inactive-two-factor-report.component";
+import { PasswordsReportComponent } from "./pages/passwords-report.component";
 import { ReportsHomeComponent } from "./pages/reports-home.component";
 import { ReusedPasswordsReportComponent } from "./pages/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent } from "./pages/unsecured-websites-report.component";
@@ -59,6 +60,12 @@ const routes: Routes = [
         path: "inactive-two-factor-report",
         component: InactiveTwoFactorReportComponent,
         data: { titleId: "inactive2faReport" },
+        canActivate: [hasPremiumGuard()],
+      },
+      {
+        path: "passwords-report",
+        component: PasswordsReportComponent,
+        data: { titleId: "passwordsReport" },
         canActivate: [hasPremiumGuard()],
       },
     ],

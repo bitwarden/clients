@@ -48,6 +48,10 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.DataBreach],
         variant: ReportVariant.Enabled,
       },
+      {
+        ...reports[ReportType.PasswordsReport],
+        variant: ReportVariant.Enabled,
+      },
     ];
   }
 }

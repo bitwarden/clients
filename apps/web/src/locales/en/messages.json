@@ -2312,6 +2312,12 @@
       }
     }
   },
+  "passwordsReport": {
+    "message": "Combined passwords report"
+  },
+  "passwordsReportDesc": {
+    "message": "The combined passwords report includes all of the following reports: weak passwords, reused passwords, and exposed passwords."
+  },
   "weakPasswordsReport": {
     "message": "Weak passwords"
   },

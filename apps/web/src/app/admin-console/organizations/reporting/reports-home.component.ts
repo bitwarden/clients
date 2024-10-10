@@ -69,6 +69,10 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.Inactive2fa],
         variant: reportRequiresUpgrade,
       },
+      {
+        ...reports[ReportType.PasswordsReport],
+        variant: reportRequiresUpgrade,
+      },
     ];
 
     if (this.isMemberAccessReportEnabled) {

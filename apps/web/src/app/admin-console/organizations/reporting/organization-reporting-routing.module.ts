@@ -9,6 +9,8 @@ import { InactiveTwoFactorReportComponent } from "../../../admin-console/organiz
 import { ReusedPasswordsReportComponent } from "../../../admin-console/organizations/tools/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent } from "../../../admin-console/organizations/tools/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent } from "../../../admin-console/organizations/tools/weak-passwords-report.component";
+/* eslint-disable-next-line no-restricted-imports */
+import { PasswordsReportComponent } from "../../../tools/reports/pages/passwords-report.component";
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";
@@ -72,6 +74,14 @@ const routes: Routes = [
             component: WeakPasswordsReportComponent,
             data: {
               titleId: "weakPasswordsReport",
+            },
+            canActivate: [isPaidOrgGuard()],
+          },
+          {
+            path: "passwords-report",
+            component: PasswordsReportComponent,
+            data: {
+              titleId: "passwordsReport",
             },
             canActivate: [isPaidOrgGuard()],
           },
