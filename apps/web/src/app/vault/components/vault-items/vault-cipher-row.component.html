@@ -68,7 +68,11 @@
   ></app-collection-badge>
 </td>
 <td bitCell [ngClass]="RowHeightClass" *ngIf="showGroups"></td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="viewingOrgVault"></td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="viewingOrgVault">
+  <p class="tw-mb-0 tw-text-muted">
+    {{ permissionText }}
+  </p>
+</td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
     [disabled]="disabled || disableMenu"
