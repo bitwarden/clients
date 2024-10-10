@@ -4,6 +4,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { TableModule } from "@bitwarden/components";
+import { CopyCipherFieldDirective } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../individual-vault/organization-badge/organization-badge.module";
@@ -26,6 +27,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     CollectionBadgeModule,
     GroupBadgeModule,
     PipesModule,
+    CopyCipherFieldDirective,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],

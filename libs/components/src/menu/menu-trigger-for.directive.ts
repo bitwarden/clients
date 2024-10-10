@@ -9,8 +9,8 @@ import {
   OnDestroy,
   ViewContainerRef,
 } from "@angular/core";
-import { Observable, Subscription } from "rxjs";
-import { filter, mergeWith } from "rxjs/operators";
+import { merge, Subscription } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
@@ -32,8 +32,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   private overlayRef: OverlayRef;
   private defaultMenuConfig: OverlayConfig = {
     panelClass: "bit-menu-panel",
-    hasBackdrop: true,
-    backdropClass: "cdk-overlay-transparent-backdrop",
+    hasBackdrop: false,
     scrollStrategy: this.overlay.scrollStrategies.reposition(),
     positionStrategy: this.overlay
       .position()
@@ -58,6 +57,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   };
   private closedEventsSub: Subscription;
   private keyDownEventsSub: Subscription;
+  private globalListenersSub: Subscription;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -69,34 +69,77 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.isOpen ? this.destroyMenu() : this.openMenu();
   }
 
+  /**
+   * Toggles the menu on right click event.
+   * If the menu is already open, it updates the menu position.
+   * @param event The MouseEvent from the right-click interaction
+   */
+  toggleMenuOnRightClick(event: MouseEvent) {
+    event.preventDefault(); // Prevent default context menu
+    this.isOpen ? this.updateMenuPosition(event) : this.openMenu(event);
+  }
+
   ngOnDestroy() {
     this.disposeAll();
   }
 
-  private openMenu() {
+  private openMenu(event?: MouseEvent) {
     if (this.menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
-    this.overlayRef = this.overlay.create(this.defaultMenuConfig);
+
+    const positionStrategy = event
+      ? this.overlay
+          .position()
+          .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
+          .withPositions([
+            {
+              originX: "start",
+              originY: "top",
+              overlayX: "start",
+              overlayY: "top",
+            },
+          ])
+      : this.defaultMenuConfig.positionStrategy;
+
+    const config = { ...this.defaultMenuConfig, positionStrategy };
+
+    this.overlayRef = this.overlay.create(config);
 
     const templatePortal = new TemplatePortal(this.menu.templateRef, this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
-    this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
-      if (["Tab", "Escape"].includes(event?.key)) {
-        // Required to ensure tab order resumes correctly
-        this.elementRef.nativeElement.focus();
-      }
-      this.destroyMenu();
-    });
+    this.setupClosingActions();
+    this.setupGlobalListeners();
+
     if (this.menu.keyManager) {
       this.menu.keyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
         .subscribe((event: KeyboardEvent) => this.menu.keyManager.onKeydown(event));
     }
+  }
+
+  private updateMenuPosition(event: MouseEvent) {
+    if (this.overlayRef == null) {
+      return;
+    }
+
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
+      .withPositions([
+        {
+          originX: "start",
+          originY: "top",
+          overlayX: "start",
+          overlayY: "top",
+        },
+      ]);
+
+    this.overlayRef.updatePositionStrategy(positionStrategy);
   }
 
   private destroyMenu() {
@@ -108,23 +151,41 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.disposeAll();
   }
 
-  private getClosedEvents(): Observable<any> {
-    const detachments = this.overlayRef.detachments();
+  private setupClosingActions() {
     const escKey = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
         const keys = this.menu.ariaRole === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
       }),
     );
+
     const backdrop = this.overlayRef.backdropClick();
     const menuClosed = this.menu.closed;
+    const detachments = this.overlayRef.detachments();
 
-    return detachments.pipe(mergeWith(escKey, backdrop, menuClosed));
+    this.closedEventsSub = merge(detachments, escKey, backdrop, menuClosed)
+      .pipe(takeUntil(this.overlayRef.detachments()))
+      .subscribe((event) => {
+        if (event instanceof KeyboardEvent && (event.key === "Tab" || event.key === "Escape")) {
+          this.elementRef.nativeElement.focus();
+        }
+        this.destroyMenu();
+      });
+  }
+
+  private setupGlobalListeners() {
+    this.overlayRef
+      .outsidePointerEvents()
+      .pipe(takeUntil(this.overlayRef.detachments()))
+      .subscribe((event) => {
+        this.destroyMenu();
+      });
   }
 
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
     this.overlayRef?.dispose();
     this.keyDownEventsSub?.unsubscribe();
+    this.globalListenersSub?.unsubscribe();
   }
 }
