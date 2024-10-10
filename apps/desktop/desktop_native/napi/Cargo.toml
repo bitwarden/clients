@@ -16,8 +16,8 @@ manual_test = []
 [dependencies]
 anyhow = "=1.0.86"
 desktop_core = { path = "../core" }
-napi = { version = "=2.16.7", features = ["async"] }
-napi-derive = "=2.16.6"
+napi = { version = "=2.16.11", features = ["async"] }
+napi-derive = "=2.16.12"
 tokio = { version = "1.38.0" }
 tokio-util = "0.7.11"
 
