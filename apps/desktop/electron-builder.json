@@ -25,7 +25,7 @@
     "**/node_modules/argon2/package.json",
     "**/node_modules/argon2/build/Release/argon2.node"
   ],
-  "electronVersion": "32.1.1",
+  "electronVersion": "32.1.2",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
