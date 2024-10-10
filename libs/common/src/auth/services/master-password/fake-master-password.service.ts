@@ -38,10 +38,6 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.masterKeyHashSubject.asObservable();
   }
 
-  getMasterKeyEncryptedUserKey(userId: UserId): Promise<EncString> {
-    return this.mock.getMasterKeyEncryptedUserKey(userId);
-  }
-
   setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
     return this.mock.setMasterKeyEncryptedUserKey(encryptedKey, userId);
   }
@@ -62,11 +58,7 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.mock.setForceSetPasswordReason(reason, userId);
   }
 
-  decryptUserKeyWithMasterKey(
-    masterKey: MasterKey,
-    userKey?: EncString,
-    userId?: string,
-  ): Promise<UserKey> {
-    return this.mock.decryptUserKeyWithMasterKey(masterKey, userKey, userId);
+  decryptUserKeyWithMasterKey(masterKey: MasterKey, userId: UserId): Promise<UserKey> {
+    return this.mock.decryptUserKeyWithMasterKey(masterKey, userId);
   }
 }
