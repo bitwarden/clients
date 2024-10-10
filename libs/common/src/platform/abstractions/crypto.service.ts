@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 
+import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
@@ -15,7 +16,7 @@ import {
   UserPublicKey,
 } from "../../types/key";
 import { KeySuffixOptions, HashPurpose } from "../enums";
-import { EncString } from "../models/domain/enc-string";
+import { EncryptedString, EncString } from "../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
@@ -289,6 +290,17 @@ export abstract class CryptoService {
   abstract userPrivateKey$(userId: UserId): Observable<UserPrivateKey>;
 
   /**
+   * Gets an observable stream of the given users encrypted private key, will emit null if the user
+   * doesn't have an encrypted private key at all.
+   *
+   * @param userId The user id of the user to get the data for.
+   *
+   * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
+   * will be removed when auth has been migrated to the SDK.
+   */
+  abstract userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString>;
+
+  /**
    * Gets an observable stream of the given users decrypted private key with legacy support,
    * will emit null if the user doesn't have a UserKey to decrypt the encrypted private key
    * or null if the user doesn't have an encrypted private key at all.
@@ -380,6 +392,18 @@ export abstract class CryptoService {
    * @throws If an invalid user id is passed in.
    */
   abstract orgKeys$(userId: UserId): Observable<Record<OrganizationId, OrgKey> | null>;
+
+  /**
+   * Gets an observable stream of the given users encrypted organisation keys.
+   *
+   * @param userId The user id of the user to get the data for.
+   *
+   * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
+   * will be removed when auth has been migrated to the SDK.
+   */
+  abstract encryptedOrgKeys$(
+    userId: UserId,
+  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData>>;
 
   /**
    * Gets an observable stream of the users public key. If the user is does not have
