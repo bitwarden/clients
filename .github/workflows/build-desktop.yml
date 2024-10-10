@@ -447,7 +447,7 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-13
+    runs-on: macos-14
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -610,7 +610,7 @@ jobs:
 
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-13
+    runs-on: macos-14
     needs:
       - browser-build
       - macos-build
@@ -829,7 +829,7 @@ jobs:
 
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-13
+    runs-on: macos-14
     needs:
       - browser-build
       - macos-build
@@ -1076,7 +1076,7 @@ jobs:
 
   macos-package-dev:
     name: MacOS Package Dev Release Asset
-    runs-on: macos-13
+    runs-on: macos-14
     needs:
       - browser-build
       - macos-build

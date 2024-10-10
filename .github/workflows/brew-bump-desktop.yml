@@ -14,7 +14,7 @@ defaults:
 jobs:
   update-desktop-cask:
     name: Update Bitwarden Desktop Cask
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Login to Azure
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
