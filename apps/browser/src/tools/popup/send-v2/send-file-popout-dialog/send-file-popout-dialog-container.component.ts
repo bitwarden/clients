@@ -26,8 +26,8 @@ export class SendFilePopoutDialogContainerComponent implements OnInit {
 
   ngOnInit() {
     if (
-      this.config.sendType === SendType.File &&
-      this.config.mode === "add" &&
+      this.config?.sendType === SendType.File &&
+      this.config?.mode === "add" &&
       this.filePopoutUtilsService.showFilePopoutMessage(window)
     ) {
       this.dialogService.open(SendFilePopoutDialogComponent);
