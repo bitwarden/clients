@@ -8,7 +8,7 @@ import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class SingleOrgPolicy extends BasePolicy {
   name = "singleOrg";
-  description = "singleOrgDesc";
+  description = "singleOrgPolicyDesc";
   type = PolicyType.SingleOrg;
   component = SingleOrgPolicyComponent;
 }

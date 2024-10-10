@@ -4617,14 +4617,14 @@
   "singleOrg": {
     "message": "Single organization"
   },
-  "singleOrgDesc": {
-    "message": "Restrict members from joining other organizations."
+  "singleOrgPolicyDesc": {
+    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
   },
   "singleOrgBlockCreateMessage": {
     "message": "Your current organization has a policy that does not allow you to join more than one organization. Please contact your organization admins or sign up from a different Bitwarden account."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Organization members who are not owners or admins and are already a member of another organization will be removed from your organization."
+  "singleOrgPolicyMemberWarning": {
+    "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
   "requireSso": {
     "message": "Require single sign-on authentication"
