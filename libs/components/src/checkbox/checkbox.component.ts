@@ -17,12 +17,13 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-transition",
     "tw-cursor-pointer",
     "tw-inline-block",
+    "tw-align-sub",
     "tw-rounded",
     "tw-border",
     "tw-border-solid",
-    "tw-border-secondary-600",
-    "tw-h-3.5",
-    "tw-w-3.5",
+    "tw-border-secondary-500",
+    "tw-h-5",
+    "tw-w-5",
     "tw-mr-1.5",
     "tw-bottom-[-1px]", // Fix checkbox looking off-center
     "tw-flex-none", // Flexbox fix for bit-form-control
@@ -35,13 +36,16 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "hover:tw-border-2",
     "[&>label]:tw-border-2",
 
-    "focus-visible:tw-ring-2",
-    "focus-visible:tw-ring-offset-2",
-    "focus-visible:tw-ring-primary-700",
+    // if it exists, the parent form control handles focus
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-2",
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-offset-2",
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-primary-600",
 
     "disabled:tw-cursor-auto",
     "disabled:tw-border",
+    "disabled:hover:tw-border",
     "disabled:tw-bg-secondary-100",
+    "disabled:hover:tw-bg-secondary-100",
 
     "checked:tw-bg-primary-600",
     "checked:tw-border-primary-600",
@@ -53,6 +57,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "checked:before:tw-mask-position-[center]",
     "checked:before:tw-mask-repeat-[no-repeat]",
     "checked:disabled:tw-border-secondary-100",
+    "checked:disabled:hover:tw-border-secondary-100",
     "checked:disabled:tw-bg-secondary-100",
     "checked:disabled:before:tw-bg-text-muted",
 
@@ -78,11 +83,11 @@ export class CheckboxComponent implements BitFormControlAbstraction {
 
   @HostBinding("style.--mask-image")
   protected maskImage =
-    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="8" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
+    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
 
   @HostBinding("style.--indeterminate-mask-image")
   protected indeterminateImage =
-    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
+    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
   @HostBinding()
   @Input()

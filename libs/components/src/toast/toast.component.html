@@ -1,5 +1,5 @@
 <div
-  class="tw-mb-1 tw-min-w-[--bit-toast-width] tw-text-contrast tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default {{
+  class="tw-mb-1 tw-min-w-[--bit-toast-width] tw-text-main tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default tw-overflow-hidden tw-shadow-lg {{
     bgColor
   }}"
 >
@@ -8,17 +8,23 @@
     <div>
       <span class="tw-sr-only">{{ variant | i18n }}</span>
       <p *ngIf="title" data-testid="toast-title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
-      <p *ngFor="let m of messageArray" data-testid="toast-message" class="tw-mb-2 last:tw-mb-0">
+      <p
+        bitTypography="body2"
+        *ngFor="let m of messageArray"
+        data-testid="toast-message"
+        class="tw-mb-2 last:tw-mb-0"
+      >
         {{ m }}
       </p>
     </div>
+    <!-- Overriding hover and focus-visible colors for a11y against colored background -->
     <button
-      class="tw-ml-auto"
+      class="tw-ml-auto hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
       bitIconButton="bwi-close"
-      buttonType="contrast"
+      buttonType="main"
       type="button"
       (click)="this.onClose.emit()"
     ></button>
   </div>
-  <div class="tw-h-1 tw-w-full tw-bg-text-contrast/70" [style.width]="progressWidth + '%'"></div>
+  <div class="tw-h-1 tw-w-full tw-bg-text-main/30" [style.width]="progressWidth + '%'"></div>
 </div>

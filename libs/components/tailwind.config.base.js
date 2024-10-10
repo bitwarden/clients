@@ -23,11 +23,10 @@ module.exports = {
       },
       current: colors.current,
       black: colors.black,
+      shadow: rgba("--color-shadow"),
       primary: {
-        // Can only be used behind the extension refresh flag
         100: rgba("--color-primary-100"),
         300: rgba("--color-primary-300"),
-        // Can only be used behind the extension refresh flag
         500: rgba("--color-primary-500"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
@@ -35,22 +34,27 @@ module.exports = {
       secondary: {
         100: rgba("--color-secondary-100"),
         300: rgba("--color-secondary-300"),
+        500: rgba("--color-secondary-500"),
         600: rgba("--color-secondary-600"),
         700: rgba("--color-secondary-700"),
       },
       success: {
+        100: rgba("--color-success-100"),
         600: rgba("--color-success-600"),
         700: rgba("--color-success-700"),
       },
       danger: {
+        100: rgba("--color-danger-100"),
         600: rgba("--color-danger-600"),
         700: rgba("--color-danger-700"),
       },
       warning: {
+        100: rgba("--color-warning-100"),
         600: rgba("--color-warning-600"),
         700: rgba("--color-warning-700"),
       },
       info: {
+        100: rgba("--color-info-100"),
         600: rgba("--color-info-600"),
         700: rgba("--color-info-700"),
       },
@@ -82,14 +86,35 @@ module.exports = {
       headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
-      success: rgba("--color-success-600"),
-      danger: rgba("--color-danger-600"),
-      warning: rgba("--color-warning-600"),
-      info: rgba("--color-info-600"),
+      black: colors.black,
+      success: {
+        DEFAULT: rgba("--color-success-600"),
+        600: rgba("--color-success-600"),
+        700: rgba("--color-success-700"),
+      },
+      danger: {
+        DEFAULT: rgba("--color-danger-600"),
+        600: rgba("--color-danger-600"),
+        700: rgba("--color-danger-700"),
+      },
+      warning: {
+        DEFAULT: rgba("--color-warning-600"),
+        600: rgba("--color-warning-600"),
+        700: rgba("--color-warning-700"),
+      },
+      info: {
+        DEFAULT: rgba("--color-info-600"),
+        600: rgba("--color-info-600"),
+        700: rgba("--color-info-700"),
+      },
       primary: {
         300: rgba("--color-primary-300"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
+      },
+      secondary: {
+        300: rgba("--color-secondary-300"),
+        700: rgba("--color-secondary-700"),
       },
     },
     ringOffsetColor: ({ theme }) => ({
@@ -129,6 +154,19 @@ module.exports = {
         },
         {},
       );
+    }),
+    plugin(function ({ addVariant }) {
+      for (const state of [
+        "active",
+        "hover",
+        "focus",
+        "focus-within",
+        "focus-visible",
+        "target",
+        "visited",
+      ]) {
+        addVariant(state, [`&:${state}`, `&.test-${state}`]);
+      }
     }),
   ],
 };

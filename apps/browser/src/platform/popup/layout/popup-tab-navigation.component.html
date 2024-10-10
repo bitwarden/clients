@@ -6,7 +6,7 @@
     <div class="tw-flex tw-flex-1">
       <a
         *ngFor="let button of navButtons"
-        class="tw-flex-1 tw-group tw-flex tw-flex-col tw-items-center tw-gap-1 tw-px-0.5 tw-pb-2 tw-pt-3 tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 hover:tw-bg-primary-100 tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-500"
+        class="tw-flex-1 tw-group tw-flex tw-flex-col tw-items-center tw-gap-1 tw-px-0.5 tw-pb-2 tw-pt-3 tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 hover:tw-bg-primary-100 tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-600"
         [ngClass]="rla.isActive ? 'tw-font-bold tw-text-primary-600' : 'tw-text-muted'"
         [title]="button.label"
         [routerLink]="button.page"

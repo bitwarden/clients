@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-box-border tw-block tw-bg-background tw-text-main tw-border-solid tw-border-b tw-border-0 tw-border-b-secondary-300 [&:not(bit-layout_*)]:tw-rounded-lg tw-py-4 tw-px-3",
+      "tw-box-border tw-block tw-bg-background tw-text-main tw-border-solid tw-border-b tw-border-0 tw-border-b-secondary-300 [&:not(bit-layout_*)]:tw-rounded-lg [&:not(bit-layout_*)]:tw-border-b-shadow tw-py-4 tw-px-3",
   },
 })
 export class CardComponent {}

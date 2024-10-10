@@ -12,8 +12,8 @@ import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 65;
-export const RowHeightClass = `tw-h-[65px]`;
+export const RowHeight = 74;
+export const RowHeightClass = `tw-h-[74px]`;
 
 const MaxSelectionCount = 500;
 
