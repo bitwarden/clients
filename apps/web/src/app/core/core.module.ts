@@ -39,9 +39,9 @@ import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/co
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { LabsSettingsService } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
@@ -198,10 +198,13 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider, configService: ConfigService) =>
+    useFactory: (
+      globalStateProvider: GlobalStateProvider,
+      labsSettingsService: LabsSettingsService,
+    ) =>
       // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, configService, ThemeType.Light),
-    deps: [GlobalStateProvider, ConfigService],
+      new DefaultThemeStateService(globalStateProvider, labsSettingsService, ThemeType.Light),
+    deps: [GlobalStateProvider, LabsSettingsService],
   }),
   safeProvider({
     provide: CLIENT_TYPE,

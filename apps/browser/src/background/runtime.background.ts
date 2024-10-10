@@ -241,7 +241,7 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
+        if (await this.labsSettingsService.getDesignRefreshEnabled()) {
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -270,7 +270,7 @@ export default class RuntimeBackground {
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
 
-          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
+          if (await this.labsSettingsService.getDesignRefreshEnabled()) {
             await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
           }
         }

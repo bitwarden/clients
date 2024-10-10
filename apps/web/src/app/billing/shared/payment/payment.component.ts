@@ -4,9 +4,8 @@ import { Subject, takeUntil } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { SharedModule } from "../../../shared";
@@ -67,7 +66,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private logService: LogService,
     private themingService: AbstractThemingService,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
   ) {
     this.stripeScript = window.document.createElement("script");
     this.stripeScript.src = "https://js.stripe.com/v3/?advancedFraudSignals=false";
@@ -273,9 +272,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   private async setStripeElement() {
-    const extensionRefreshFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
+    const extensionRefreshFlag = await this.labsSettingsService.getDesignRefreshEnabled();
 
     // Apply unique styles for extension refresh
     if (extensionRefreshFlag) {

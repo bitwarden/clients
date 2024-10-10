@@ -11,9 +11,8 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -104,13 +103,11 @@ export class VaultHeaderComponent implements OnInit {
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
     private router: Router,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
   ) {}
 
   async ngOnInit() {
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
+    this.extensionRefreshEnabled = await this.labsSettingsService.getDesignRefreshEnabled();
   }
 
   get title() {

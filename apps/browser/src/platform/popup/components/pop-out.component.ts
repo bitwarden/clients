@@ -2,8 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { IconButtonModule } from "@bitwarden/components";
 
@@ -21,11 +20,11 @@ export class PopOutComponent implements OnInit {
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
   ) {}
 
   async ngOnInit() {
-    this.useRefreshVariant = await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
+    this.useRefreshVariant = await this.labsSettingsService.getDesignRefreshEnabled();
 
     if (this.show) {
       if (

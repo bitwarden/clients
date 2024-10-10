@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { BankAccount } from "@bitwarden/common/billing/models/domain";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BillingServicesModule } from "./billing-services.module";
@@ -19,7 +18,7 @@ export class StripeService {
 
   constructor(
     private logService: LogService,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
   ) {}
 
   /**
@@ -41,9 +40,7 @@ export class StripeService {
       const window$ = window as any;
       this.stripe = window$.Stripe(process.env.STRIPE_KEY);
       this.elements = this.stripe.elements();
-      const isExtensionRefresh = await this.configService.getFeatureFlag(
-        FeatureFlag.ExtensionRefresh,
-      );
+      const isExtensionRefresh = await this.labsSettingsService.getDesignRefreshEnabled();
       setTimeout(() => {
         this.elements.create(
           "cardNumber",

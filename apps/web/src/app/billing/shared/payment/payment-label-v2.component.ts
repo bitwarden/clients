@@ -1,7 +1,6 @@
 import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { FormFieldModule } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
@@ -26,11 +25,9 @@ export class PaymentLabelV2 implements OnInit {
 
   protected extensionRefreshFlag = false;
 
-  constructor(private configService: ConfigService) {}
+  constructor(private labsSettingsService: LabsSettingsServiceAbstraction) {}
 
   async ngOnInit(): Promise<void> {
-    this.extensionRefreshFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
+    this.extensionRefreshFlag = await this.labsSettingsService.getDesignRefreshEnabled();
   }
 }

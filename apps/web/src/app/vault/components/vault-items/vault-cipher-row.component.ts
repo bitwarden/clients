@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -44,16 +42,17 @@ export class VaultCipherRowComponent implements OnInit {
   protected CipherType = CipherType;
   protected organization?: Organization;
 
-  constructor(private configService: ConfigService) {}
+  constructor(private labsSettingsService: LabsSettingsServiceAbstraction) {}
 
   /**
    * Lifecycle hook for component initialization.
    * Checks if the extension refresh feature flag is enabled to provide to template.
    */
   async ngOnInit(): Promise<void> {
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
+    // this.extensionRefreshEnabled = await firstValueFrom(
+    //   this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
+    // );
+    this.extensionRefreshEnabled = await this.labsSettingsService.getDesignRefreshEnabled();
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }

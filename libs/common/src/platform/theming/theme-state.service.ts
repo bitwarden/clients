@@ -1,7 +1,6 @@
 import { Observable, combineLatest, map } from "rxjs";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { ConfigService } from "../abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "../../autofill/services/labs-settings.service";
 import { ThemeType } from "../enums";
 import { GlobalStateProvider, KeyDefinition, THEMING_DISK } from "../state";
 
@@ -27,7 +26,7 @@ export class DefaultThemeStateService implements ThemeStateService {
 
   selectedTheme$ = combineLatest([
     this.selectedThemeState.state$,
-    this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
+    this.labsSettingsService.getDesignRefreshEnabled(),
   ]).pipe(
     map(([theme, isExtensionRefresh]) => {
       // The extension refresh should not allow for Nord or SolarizedDark
@@ -43,7 +42,7 @@ export class DefaultThemeStateService implements ThemeStateService {
 
   constructor(
     private globalStateProvider: GlobalStateProvider,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
     private defaultTheme: ThemeType = ThemeType.System,
   ) {}
 

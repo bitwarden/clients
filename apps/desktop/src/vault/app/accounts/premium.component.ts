@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -10,7 +11,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService } from "@bitwarden/components";
-
 @Component({
   selector: "app-premium",
   templateUrl: "premium.component.html",
@@ -26,6 +26,7 @@ export class PremiumComponent extends BasePremiumComponent {
     dialogService: DialogService,
     environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    labsSettingsService: LabsSettingsServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -36,6 +37,7 @@ export class PremiumComponent extends BasePremiumComponent {
       dialogService,
       environmentService,
       billingAccountProfileStateService,
+      labsSettingsService,
     );
   }
 }
