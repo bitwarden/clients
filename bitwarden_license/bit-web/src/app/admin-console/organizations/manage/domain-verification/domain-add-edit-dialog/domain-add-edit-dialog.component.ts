@@ -105,6 +105,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
 
   copyDnsTxt(): void {
     this.orgDomainService.copyDnsTxt(this.txtCtrl.value);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   // End Form methods

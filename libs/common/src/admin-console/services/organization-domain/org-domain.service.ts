@@ -23,11 +23,6 @@ export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
 
   copyDnsTxt(dnsTxt: string): void {
     this.platformUtilsService.copyToClipboard(dnsTxt);
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
-    );
   }
 
   upsert(orgDomains: OrganizationDomainResponse[]): void {

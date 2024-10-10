@@ -101,6 +101,11 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
 
   copyDnsTxt(dnsTxt: string): void {
     this.orgDomainService.copyDnsTxt(dnsTxt);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   async verifyDomain(orgDomainId: string, domainName: string): Promise<void> {
