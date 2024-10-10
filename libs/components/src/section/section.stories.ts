@@ -1,9 +1,18 @@
-import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
+import {
+  Meta,
+  StoryObj,
+  applicationConfig,
+  componentWrapperDecorator,
+  moduleMetadata,
+} from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { CardComponent } from "../card";
 import { IconButtonModule } from "../icon-button";
 import { ItemModule } from "../item";
 import { TypographyModule } from "../typography";
+import { I18nMockService } from "../utils";
 
 import { SectionComponent, SectionHeaderComponent } from "./";
 
@@ -21,6 +30,18 @@ export default {
       ],
     }),
     componentWrapperDecorator((story) => `<div class="tw-text-main">${story}</div>`),
+    applicationConfig({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
+    }),
   ],
 } as Meta;
 

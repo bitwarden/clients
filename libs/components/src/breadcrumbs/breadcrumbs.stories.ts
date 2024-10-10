@@ -2,9 +2,12 @@ import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
+import { I18nMockService } from "../utils";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
@@ -33,6 +36,14 @@ export default {
         importProvidersFrom(
           RouterModule.forRoot([{ path: "**", component: EmptyComponent }], { useHash: true }),
         ),
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              close: "Close",
+            });
+          },
+        },
       ],
     }),
   ],
@@ -60,7 +71,7 @@ export const TopLevel: Story = {
           <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" [route]="[item.route]">{{item.name}}</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
-  
+
       <h3 class="tw-text-main">Click emit</h3>
       <p>
         <bit-breadcrumbs [show]="show">
