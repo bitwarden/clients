@@ -18,7 +18,11 @@ import {
   ENV_ADDITIONAL_REGIONS,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { AnonLayoutWrapperDataService, LockComponentService } from "@bitwarden/auth/angular";
+import {
+  AnonLayoutWrapperDataService,
+  LoginComponentService,
+  LockComponentService,
+} from "@bitwarden/auth/angular";
 import { LockService, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -29,6 +33,7 @@ import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/a
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
   AutofillSettingsService,
@@ -49,7 +54,10 @@ import {
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import {
+  CryptoFunctionService,
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -58,7 +66,10 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  PlatformUtilsService,
+  PlatformUtilsService as PlatformUtilsServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
@@ -91,11 +102,13 @@ import { FolderService as FolderServiceAbstraction } from "@bitwarden/common/vau
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import MainBackground from "../../background/main.background";
@@ -576,6 +589,17 @@ const safeProviders: SafeProvider[] = [
     provide: AnonLayoutWrapperDataService,
     useClass: ExtensionAnonLayoutWrapperDataService,
     deps: [],
+  }),
+  safeProvider({
+    provide: LoginComponentService,
+    useClass: ExtensionLoginComponentService,
+    deps: [
+      CryptoFunctionServiceAbstraction,
+      EnvironmentService,
+      PasswordGenerationServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: LockService,
