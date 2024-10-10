@@ -81,7 +81,6 @@
         "cross-env",
         "del",
         "gulp",
-        "gulp-filter",
         "gulp-if",
         "gulp-json-editor",
         "gulp-replace",
