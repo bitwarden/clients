@@ -74,7 +74,7 @@ export class CollectionView implements View, ITreeNodeObject {
       );
     }
 
-    const canDeleteManagedCollections = !org?.limitCollectionCreationDeletion || org.isAdmin;
+    const canDeleteManagedCollections = !org?.limitCollectionDeletion || org.isAdmin;
 
     // Only use individual permissions, not admin permissions
     return canDeleteManagedCollections && this.manage;
