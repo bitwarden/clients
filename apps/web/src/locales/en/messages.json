@@ -1196,6 +1196,9 @@
   "noPermissionToViewAllCollectionItems": {
     "message": "You do not have permission to view all items in this collection."
   },
+  "youDoNotHavePermissions": {
+    "message": "You do not have permissions to this collection"
+  },
   "noCollectionsInList": {
     "message": "There are no collections to list."
   },
