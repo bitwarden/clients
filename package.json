@@ -134,7 +134,7 @@
     "sass-loader": "16.0.1",
     "storybook": "8.2.9",
     "style-loader": "3.3.4",
-    "tailwindcss": "3.4.11",
+    "tailwindcss": "3.4.13",
     "ts-jest": "29.2.2",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
