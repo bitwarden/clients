@@ -27,6 +27,7 @@ export { LogMeOnceCsvImporter } from "./logmeonce-csv-importer";
 export { MeldiumCsvImporter } from "./meldium-csv-importer";
 export { MSecureCsvImporter } from "./msecure-csv-importer";
 export { MykiCsvImporter } from "./myki-csv-importer";
+export { NetwrixPasswordSecureCsvImporter } from "./netwrix";
 export { NordPassCsvImporter } from "./nordpass-csv-importer";
 export {
   OnePassword1PifImporter,
