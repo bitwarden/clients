@@ -32,6 +32,15 @@ export class WebRegistrationFinishService
     super(cryptoService, accountApiService);
   }
 
+  override async getOrgNameFromOrgInvite(): Promise<string | null> {
+    const orgInvite = await this.acceptOrgInviteService.getOrganizationInvite();
+    if (orgInvite == null) {
+      return null;
+    }
+
+    return orgInvite.organizationName;
+  }
+
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
     // If there's a deep linked org invite, use it to get the password policies
     const orgInvite = await this.acceptOrgInviteService.getOrganizationInvite();

@@ -37,6 +37,14 @@ describe("DefaultRegistrationFinishService", () => {
     });
   });
 
+  describe("getOrgNameFromOrgInvite()", () => {
+    it("returns null", async () => {
+      const result = await service.getOrgNameFromOrgInvite();
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe("finishRegistration()", () => {
     let email: string;
     let emailVerificationToken: string;

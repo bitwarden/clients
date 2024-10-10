@@ -15,6 +15,10 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     protected accountApiService: AccountApiService,
   ) {}
 
+  getOrgNameFromOrgInvite(): Promise<string | null> {
+    return null;
+  }
+
   getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
     return null;
   }

@@ -15,6 +15,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ToastService } from "@bitwarden/components";
 
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "../../../common";
+import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import { InputPasswordComponent } from "../../input-password/input-password.component";
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -60,12 +61,28 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private accountApiService: AccountApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   async ngOnInit() {
     this.listenForQueryParamChanges();
+    await this.handleOrgInviteIfPresent();
+  }
+
+  private async handleOrgInviteIfPresent() {
     this.masterPasswordPolicyOptions =
       await this.registrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite();
+
+    const orgName = await this.registrationFinishService.getOrgNameFromOrgInvite();
+    if (orgName) {
+      // Org invite exists
+      // Set the page subtitle to the org name
+      // TODO: can't proceed until we support translations w/ placeholders.
+      // this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      //   pageTitle:
+      //   pageSubtitle: "finishJoiningThisOrganizationBySettingAMasterPassword"
+      // })
+    }
   }
 
   private listenForQueryParamChanges() {

@@ -52,6 +52,36 @@ describe("DefaultRegistrationFinishService", () => {
     expect(service).not.toBeFalsy();
   });
 
+  describe("getOrgNameFromOrgInvite()", () => {
+    let orgInvite: OrganizationInvite | null;
+
+    beforeEach(() => {
+      orgInvite = new OrganizationInvite();
+      orgInvite.organizationId = "organizationId";
+      orgInvite.organizationUserId = "organizationUserId";
+      orgInvite.token = "orgInviteToken";
+      orgInvite.email = "email";
+    });
+
+    it("returns null when the org invite is null", async () => {
+      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await service.getOrgNameFromOrgInvite();
+
+      expect(result).toBeNull();
+      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+    });
+
+    it("returns the organization name from the organization invite when it exists", async () => {
+      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+
+      const result = await service.getOrgNameFromOrgInvite();
+
+      expect(result).toEqual(orgInvite.organizationName);
+      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+    });
+  });
+
   describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
     let orgInvite: OrganizationInvite | null;
 
