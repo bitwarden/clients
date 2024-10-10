@@ -92,7 +92,8 @@ apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
-apps/desktop/src/services/native-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
+
 
 ## Component Library ##
 .storybook @bitwarden/team-design-system
@@ -113,6 +114,7 @@ libs/key-management @bitwarden/team-key-management-dev
 apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
+apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev
 
 ## DevOps team files ##
 /.github/workflows @bitwarden/dept-devops
