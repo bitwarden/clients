@@ -14,7 +14,7 @@ default = []
 manual_test = []
 
 [dependencies]
-anyhow = "=1.0.86"
+anyhow = "=1.0.89"
 desktop_core = { path = "../core" }
 napi = { version = "=2.16.7", features = ["async"] }
 napi-derive = "=2.16.6"

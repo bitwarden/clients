@@ -7,7 +7,7 @@ version = "0.0.0"
 publish = false
 
 [dependencies]
-anyhow = "=1.0.86"
+anyhow = "=1.0.89"
 desktop_core = { path = "../core", default-features = false }
 futures = "0.3.30"
 log = "0.4.21"
