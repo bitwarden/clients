@@ -46,7 +46,7 @@ export class WindowMain {
     private desktopSettingsService: DesktopSettingsService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
-  ) { }
+  ) {}
 
   init(): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
