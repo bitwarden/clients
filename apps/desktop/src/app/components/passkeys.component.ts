@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
+
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -15,7 +16,7 @@ export type BrowserSyncVerificationDialogParams = {
       style="background:white; display:flex; justify-content: center; align-items: center; flex-direction: column"
     >
       <img
-        src="../resources/Frame2101.svg"
+        src="../resources/frame2101.svg"
         class="mb-4 logo"
         alt="Bitwarden"
         width="440"
@@ -34,7 +35,7 @@ export class PasskeysComponent {
   ) {}
 
   async closeModal() {
-    this.router.navigate(["/"]);
+    await this.router.navigate(["/"]);
     await this.desktopSettingsService.setInModalMode(false);
   }
 }
