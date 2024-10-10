@@ -46,7 +46,7 @@
     "@babel/preset-env": "7.24.8",
     "@compodoc/compodoc": "1.1.25",
     "@electron/notarize": "2.5.0",
-    "@electron/rebuild": "3.6.0",
+    "@electron/rebuild": "3.7.0",
     "@ngtools/webpack": "16.2.14",
     "@storybook/addon-a11y": "8.2.9",
     "@storybook/addon-actions": "8.2.9",
