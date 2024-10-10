@@ -37,7 +37,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item>
+    <bit-item *ngIf="showLabsSettings">
       <a bit-item-content routerLink="/labs"
         >{{ "labsSettingsTitle" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>

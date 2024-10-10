@@ -3126,6 +3126,9 @@
   "gotIt": {
     "message": "Got it"
   },
+  "labsSettingsEnabled": {
+    "message": "Labs settings are enabled!"
+  },
   "labsSettingsTitle": {
     "message": "Labs"
   },

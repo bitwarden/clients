@@ -39,6 +39,8 @@ const DESIGN_REFRESH_ENABLED = new UserKeyDefinition(LABS_SETTINGS_DISK, "design
 });
 
 export abstract class LabsSettingsServiceAbstraction {
+  checkUserSettingClearStatus: () => Promise<void>;
+  clearAllLabsSettings: () => Promise<void>;
   labsSettingsEnabled$: Observable<boolean>;
   setLabsSettingsEnabled: (newValue: boolean) => Promise<void>;
   improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean | null>;
@@ -88,7 +90,8 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     this.designRefreshEnabled$ = this.designRefreshEnabledState.state$.pipe(map((x) => x ?? null));
   }
 
-  async init() {
+  // @TODO ensure this is called regularly/on state consumption
+  async checkUserSettingClearStatus() {
     // Feature-flag-driven safety override for user overrides
     this.preserveLabSettings = !(await this.configService.getFeatureFlag(
       FeatureFlag.ClearAllLabsSettings,
@@ -109,7 +112,12 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   }
 
   async setLabsSettingsEnabled(newValue: boolean | null): Promise<void> {
-    await this.labsSettingsEnabledState.update(() => newValue);
+    // Feature flag control to disable making lab settings available
+    const labSettingsAllowed = await this.configService.getFeatureFlag(
+      FeatureFlag.AllowLabsSettings,
+    );
+
+    await this.labsSettingsEnabledState.update(() => (labSettingsAllowed ? newValue : false));
   }
 
   // Get user setting or feature-flag value for `inline-menu-field-qualification`

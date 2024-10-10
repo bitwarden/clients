@@ -56,6 +56,8 @@ export class LabsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.labsSettingsService.checkUserSettingClearStatus();
+
     // Note, we're getting the user setting values, not the values resolved against
     // feature flags with the labsSettingsService getter methods
     this.improvedFieldQualificationForInlineMenuEnabled = await firstValueFrom(
