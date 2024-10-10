@@ -1,7 +1,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView, Unassigned } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TableDataSource } from "@bitwarden/components";
@@ -205,11 +205,12 @@ export class VaultItemsComponent {
 
     this.selection.clear();
 
-    // Every item except for the Unassigned collection is selectable, individual bulk actions check the user's permission
+    // All ciphers are selectable, collections only if they can be edited or deleted
     this.editableItems = items.filter(
       (item) =>
         item.cipher !== undefined ||
-        (item.collection !== undefined && item.collection.id !== Unassigned),
+        (item.collection !== undefined &&
+          (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );
 
     this.dataSource.data = items;

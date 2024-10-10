@@ -103,6 +103,10 @@ export class VaultCollectionRowComponent {
   }
 
   protected get showCheckbox() {
-    return this.collection?.id !== Unassigned;
+    if (this.collection?.id === Unassigned) {
+      return false; // Never show checkbox for Unassigned
+    }
+
+    return this.canEditCollection || this.canDeleteCollection;
   }
 }
