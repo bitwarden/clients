@@ -336,6 +336,10 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
+      - name: Find identities
+        run: |
+          security find-identity -v -p codesigning
+
       - name: NPM setup
         run: npm ci
         working-directory: ./

@@ -1089,14 +1089,19 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            --output none
+          # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          #   --name bitwarden_desktop_appstore.provisionprofile \
+          #   --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          #   --output none
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
             --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
             --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
+            --file $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             --output none
 
       - name: Set up provisioning profiles
@@ -1108,6 +1113,13 @@ jobs:
 
           AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
+
+          desktop_profile_path="$HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile"
+          DESKTOP_UUID=$(grep UUID -A1 -a $desktop_profile_path | grep -io "[-A-F0-9]\{36\}")
+          cp $desktop_profile_path "$PROFILES_DIR_PATH/$DESKTOP_UUID.provisionprofile"
+
+          cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill \
+            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
       - name: Get certificates
         run: |
@@ -1218,6 +1230,13 @@ jobs:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
         run: npm run pack:mac:masdev
+
+      - name: Resign
+        run: |
+          security find-identity -v -p codesigning
+          # codesign --entitlements resources/entitlements.mas.loginhelper.plist --verbose --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" "dist/mas-dev-universal/Bitwarden.app/Contents/Library/LoginItems/Bitwarden Login Helper.app"
+          # codesign --entitlements resources/entitlements.mas.loginhelper.plist --verbose --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" "dist/mas-dev-universal/Bitwarden.app/Contents/Library/LoginItems/Bitwarden Helper (GPU).app"
+          codesign --entitlements resources/entitlements.mas.plist --deep --verbose --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
 
       - name: Zip masdev asset
         run: |
