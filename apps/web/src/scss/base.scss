@@ -3,7 +3,6 @@ html {
 }
 
 body {
-  min-width: 1010px;
   position: relative;
 
   &.layout_frontend {
@@ -29,6 +28,12 @@ body {
       min-width: 980px;
       width: 90%;
     }
+  }
+}
+
+html.tw-fixed-width {
+  body {
+    min-width: 1010px;
   }
 }
 

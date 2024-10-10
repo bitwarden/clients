@@ -4,6 +4,8 @@ import { Component } from "@angular/core";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { NavigationModule } from "@bitwarden/components";
 
+const className = "tw-fixed-width";
+
 @Component({
   selector: "app-toggle-width",
   template: `<bit-nav-item
@@ -23,10 +25,10 @@ export class ToggleWidthComponent {
   }
 
   protected toggleWidth() {
-    if (document.body.style.minWidth === "unset") {
-      document.body.style.minWidth = "";
+    if (document.documentElement.classList.contains(className)) {
+      document.documentElement.classList.remove(className);
     } else {
-      document.body.style.minWidth = "unset";
+      document.documentElement.classList.add(className);
     }
   }
 }
