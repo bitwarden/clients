@@ -51,7 +51,11 @@ export declare namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>
   export function isLockMonitorAvailable(): Promise<boolean>
 }
-export namespace ipc {
+export declare namespace windows_registry {
+  export function createKey(key: string, subkey: string, value: string): Promise<void>
+  export function deleteKey(key: string, subkey: string): Promise<void>
+}
+export declare namespace ipc {
   export interface IpcMessage {
     clientId: number
     kind: IpcMessageType
