@@ -85,3 +85,17 @@ export const ClosedMenu: Story = {
       </bit-menu>`,
   }),
 };
+
+export const ManyItems: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-h-40">
+        <button bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
+      </div>
+  
+      <bit-menu #myMenu>
+        ${`<a href="#" bitMenuItem>Foobar</a>`.repeat(100)}
+      </bit-menu>`,
+  }),
+};
