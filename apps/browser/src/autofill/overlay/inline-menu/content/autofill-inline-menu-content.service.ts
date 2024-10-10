@@ -30,7 +30,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private buttonElement: HTMLElement;
   private listElement: HTMLElement;
   private inlineMenuElementsMutationObserver: MutationObserver;
-  private bodyElementMutationObserver: MutationObserver;
+  private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
@@ -102,7 +102,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    this.unobserveBodyElement();
+    this.unobserveContainerElement();
     this.closeInlineMenuButton();
     this.closeInlineMenuList();
   };
@@ -153,7 +153,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (!(await this.isInlineMenuButtonVisible())) {
-      this.appendInlineMenuElementToBody(this.buttonElement);
+      this.appendInlineMenuElementToDom(this.buttonElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
     }
   }
@@ -168,7 +168,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (!(await this.isInlineMenuListVisible())) {
-      this.appendInlineMenuElementToBody(this.listElement);
+      this.appendInlineMenuElementToDom(this.listElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
     }
   }
@@ -196,8 +196,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    *
    * @param element - The inline menu element to append to the body element.
    */
-  private appendInlineMenuElementToBody(element: HTMLElement) {
-    this.observeBodyElement();
+  private appendInlineMenuElementToDom(element: HTMLElement) {
+    const parentDialogElement = globalThis.document.activeElement?.closest("dialog");
+    if (parentDialogElement) {
+      this.observeContainerElement(parentDialogElement);
+      parentDialogElement.appendChild(element);
+      return;
+    }
+
+    this.observeContainerElement(globalThis.document.body);
     globalThis.document.body.appendChild(element);
   }
 
@@ -276,8 +283,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       this.handleInlineMenuElementMutationObserverUpdate,
     );
 
-    this.bodyElementMutationObserver = new MutationObserver(
-      this.handleBodyElementMutationObserverUpdate,
+    this.containerElementMutationObserver = new MutationObserver(
+      this.handleContainerElementMutationObserverUpdate,
     );
   };
 
@@ -306,19 +313,17 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Sets up a mutation observer for the body element. The mutation observer is used
-   * to ensure that the inline menu elements are always present at the bottom of the
-   * body element.
+   * Sets up a mutation observer for the element which contains the inline menu.
    */
-  private observeBodyElement() {
-    this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
+  private observeContainerElement(element: HTMLElement) {
+    this.containerElementMutationObserver?.observe(element, { childList: true });
   }
 
   /**
-   * Disconnects the mutation observer for the body element.
+   * Disconnects the mutation observer for the element which contains the inline menu.
    */
-  private unobserveBodyElement() {
-    this.bodyElementMutationObserver?.disconnect();
+  private unobserveContainerElement() {
+    this.containerElementMutationObserver?.disconnect();
   }
 
   /**
@@ -370,11 +375,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Handles the mutation observer update for the body element. This method will
-   * ensure that the inline menu elements are always present at the bottom of the
-   * body element.
+   * Handles the mutation observer update for the element that contains the inline menu.
+   * This method will ensure that the inline menu elements are always present at the
+   * bottom of the container.
    */
-  private handleBodyElementMutationObserverUpdate = () => {
+  private handleContainerElementMutationObserverUpdate = (mutations: MutationRecord[]) => {
     if (
       (!this.buttonElement && !this.listElement) ||
       this.isTriggeringExcessiveMutationObserverIterations()
@@ -382,15 +387,18 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    requestIdleCallbackPolyfill(this.processBodyElementMutation, { timeout: 500 });
+    const containerElement = mutations[0].target as HTMLElement;
+    requestIdleCallbackPolyfill(() => this.processContainerElementMutation(containerElement), {
+      timeout: 500,
+    });
   };
 
   /**
-   * Processes the mutation of the body element. Will trigger when an
+   * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
-  private processBodyElementMutation = async () => {
-    const lastChild = globalThis.document.body.lastElementChild;
+  private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
     const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
@@ -424,11 +432,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && isInlineMenuListVisible)
     ) {
-      globalThis.document.body.insertBefore(this.buttonElement, this.listElement);
+      containerElement.insertBefore(this.buttonElement, this.listElement);
       return;
     }
 
-    globalThis.document.body.insertBefore(lastChild, this.buttonElement);
+    containerElement.insertBefore(lastChild, this.buttonElement);
   };
 
   /**
