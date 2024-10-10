@@ -141,28 +141,28 @@ dataSource.filter = "search value";
 ### Virtual Scrolling
 
 It's heavily adviced to use virtual scrolling if you expect the table to have any significant amount
-of data. This is easily done by wrapping the table in the `cdk-virtual-scroll-viewport` component,
-specify a `itemSize`, set `scrollWindow` to `true` and replace `*ngFor` with `*cdkVirtualFor`.
+of data. This is done by using the `bit-table-scroll` component instead of the `bit-table`
+component. This component behaves slightly different from the `bit-table` component. Instead of
+using the `*ngFor` directive to render the rows, you provide a `bitRowDef` template that will be
+used for rendering the rows.
+
+Due to limitations in the Angular Component Dev Kit you must provide an `rowSize` which corresponds
+to the height of each row. If the height of the rows are not uniform, you should set an explicit row
+height and align vertically.
 
 ```html
-<cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-  <bit-table [dataSource]="dataSource">
-    <ng-container header>
-      <tr>
-        <th bitCell bitSortable="id" default>Id</th>
-        <th bitCell bitSortable="name">Name</th>
-        <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
-      </tr>
-    </ng-container>
-    <ng-template let-rows$>
-      <tr bitRow *cdkVirtualFor="let r of rows$">
-        <td bitCell>{{ r.id }}</td>
-        <td bitCell>{{ r.name }}</td>
-        <td bitCell>{{ r.other }}</td>
-      </tr>
-    </ng-template>
-  </bit-table>
-</cdk-virtual-scroll-viewport>
+<bit-table-scroll [dataSource]="dataSource" rowSize="47">
+  <ng-container header>
+    <th bitCell bitSortable="id" default>Id</th>
+    <th bitCell bitSortable="name">Name</th>
+    <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+  </ng-container>
+  <ng-template bitRowDef let-row>
+    <td bitCell>{{ row.id }}</td>
+    <td bitCell>{{ row.name }}</td>
+    <td bitCell>{{ row.other }}</td>
+  </ng-template>
+</bit-table-scroll>
 ```
 
 ## Accessibility

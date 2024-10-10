@@ -74,7 +74,7 @@ export class TableDataSource<T> extends DataSource<T> {
     }
   }
 
-  connect(): Observable<readonly T[]> {
+  connect(): Observable<T[]> {
     if (!this._renderChangesSubscription) {
       this.updateChangeSubscription();
     }
