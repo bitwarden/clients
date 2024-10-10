@@ -21,7 +21,6 @@ export class ProfileResponse extends BaseResponse {
   securityStamp: string;
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;
-  managedByOrganizationId?: string | null;
   organizations: ProfileOrganizationResponse[] = [];
   providers: ProfileProviderResponse[] = [];
   providerOrganizations: ProfileProviderOrganizationResponse[] = [];
@@ -43,7 +42,6 @@ export class ProfileResponse extends BaseResponse {
     this.securityStamp = this.getResponseProperty("SecurityStamp");
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
-    this.managedByOrganizationId = this.getResponseProperty("ManagedByOrganizationId");
 
     const organizations = this.getResponseProperty("Organizations");
     if (organizations != null) {

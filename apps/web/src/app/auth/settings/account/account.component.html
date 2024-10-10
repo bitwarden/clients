@@ -12,7 +12,13 @@
     <button type="button" bitButton buttonType="danger" (click)="deauthorizeSessions()">
       {{ "deauthorizeSessions" | i18n }}
     </button>
-    <button type="button" bitButton buttonType="danger" [bitAction]="purgeVault">
+    <button
+      *ngIf="showPurgeVault$ | async"
+      type="button"
+      bitButton
+      buttonType="danger"
+      [bitAction]="purgeVault"
+    >
       {{ "purgeVault" | i18n }}
     </button>
     <button type="button" bitButton buttonType="danger" [bitAction]="deleteAccount">

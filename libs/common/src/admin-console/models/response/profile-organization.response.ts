@@ -51,6 +51,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   accessSecretsManager: boolean;
   limitCollectionCreationDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
+  userIsManagedByOrganization?: boolean | null;
 
   constructor(response: any) {
     super(response);
@@ -115,5 +116,6 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
+    this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
   }
 }
