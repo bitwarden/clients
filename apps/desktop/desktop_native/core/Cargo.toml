@@ -32,7 +32,7 @@ cbc = { version = "=0.1.2", features = ["alloc"] }
 dirs = "=5.0.1"
 futures = "=0.3.30"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
-libc = "=0.2.155"
+libc = "=0.2.159"
 log = "=0.4.22"
 rand = "=0.8.5"
 retry = "=2.0.0"
