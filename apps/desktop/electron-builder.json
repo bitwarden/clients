@@ -250,7 +250,8 @@
     "base": "core22",
     "confinement": "strict",
     "plugs": ["default", "network", "network-bind", "password-manager-service"],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
   },
   "protocols": [
     {
