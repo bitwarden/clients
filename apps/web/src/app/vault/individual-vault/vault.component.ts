@@ -177,6 +177,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   private extensionRefreshEnabled: boolean;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
@@ -263,7 +264,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
 
     const filter$ = this.routedVaultFilterService.filter$;
-    const allCollections$ = this.collectionService.decryptedCollections$;
+    const allCollections$ = this.collectionService.decryptedCollections$(this.activeUserId$);
     const nestedCollections$ = allCollections$.pipe(
       map((collections) => getNestedCollectionTree(collections)),
     );

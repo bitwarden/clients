@@ -1,13 +1,15 @@
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
+import { first, map } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -49,6 +51,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
   private applySavedState = true;
   private scrollingContainer = "cdk-virtual-scroll-viewport";
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   constructor(
     searchService: SearchService,
     private organizationService: OrganizationService,
@@ -64,6 +68,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     private platformUtilsService: PlatformUtilsService,
     cipherService: CipherService,
     private vaultFilterService: VaultFilterService,
+    private accountService: AccountService,
   ) {
     super(searchService, cipherService);
     this.applySavedState =
@@ -133,7 +138,10 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
         this.showVaultFilter = false;
         this.collectionId = params.collectionId;
         this.searchPlaceholder = this.i18nService.t("searchCollection");
-        const collectionNode = await this.collectionService.getNested(this.collectionId);
+        const allCollections = await firstValueFrom(
+          this.collectionService.decryptedCollections$(this.activeUserId$),
+        );
+        const collectionNode = this.collectionService.getNested(allCollections, this.collectionId);
         if (collectionNode != null && collectionNode.node != null) {
           this.groupingTitle = collectionNode.node.name;
           this.nestedCollections =

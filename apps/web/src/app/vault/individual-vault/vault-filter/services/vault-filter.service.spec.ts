@@ -62,7 +62,7 @@ describe("vault filter service", () => {
 
     organizationService.memberOrganizations$ = organizations;
     folderService.folderViews$ = folderViews;
-    collectionService.decryptedCollections$ = collectionViews;
+    collectionService.decryptedCollections$.mockReturnValue(collectionViews);
     policyService.policyAppliesToActiveUser$
       .calledWith(PolicyType.PersonalOwnership)
       .mockReturnValue(personalOwnershipPolicy);
@@ -78,6 +78,7 @@ describe("vault filter service", () => {
       i18nService,
       stateProvider,
       collectionService,
+      accountService,
     );
     collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
   });

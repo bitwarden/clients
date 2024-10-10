@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -12,6 +12,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -38,6 +39,7 @@ export class ListCommand {
     private organizationUserApiService: OrganizationUserApiService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -146,7 +148,10 @@ export class ListCommand {
   }
 
   private async listCollections(options: Options) {
-    let collections = await this.collectionService.getAllDecrypted();
+    const activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+    let collections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId$),
+    );
 
     if (options.organizationId != null) {
       collections = collections.filter((c) => {
