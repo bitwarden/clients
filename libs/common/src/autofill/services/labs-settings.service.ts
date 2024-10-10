@@ -1,4 +1,4 @@
-import { map, combineLatest, Observable, firstValueFrom, switchMap } from "rxjs";
+import { map, combineLatest, Observable, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -53,16 +53,16 @@ export abstract class LabsSettingsServiceAbstraction {
   labsSettingsEnabled$: Observable<boolean>;
   setLabsSettingsEnabled: (newValue: boolean) => Promise<void>;
   improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean | null>;
-  getImprovedFieldQualificationForInlineMenuEnabled: () => Promise<boolean | null>;
   setImprovedFieldQualificationForInlineMenuEnabled: (newValue: boolean) => Promise<void>;
+  resolvedImprovedFieldQualificationForInlineMenuEnabled$: Observable<boolean | null>;
   additionalInlineMenuCipherTypesEnabled$: Observable<boolean | null>;
-  getAdditionalInlineMenuCipherTypesEnabled: () => Promise<boolean | null>;
   setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
+  resolvedAdditionalInlineMenuCipherTypesEnabled$: Observable<boolean | null>;
   notificationBarImprovementsEnabled$: Observable<boolean | null>;
   resolvedNotificationBarImprovementsEnabled$: Observable<boolean | null>;
   setNotificationBarImprovementsEnabled: (newValue: boolean) => Promise<void>;
   designRefreshEnabled$: Observable<boolean | null>;
-  getDesignRefreshEnabled: () => Promise<boolean | null>;
+  resolvedDesignRefreshEnabled$: Observable<boolean | null>;
   setDesignRefreshEnabled: (newValue: boolean) => Promise<void>;
 }
 
@@ -71,13 +71,16 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   readonly labsSettingsEnabled$: Observable<boolean>;
   private improvedFieldQualificationForInlineMenuEnabledState: ActiveUserState<boolean>;
   readonly improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
+  readonly resolvedImprovedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
   private additionalInlineMenuCipherTypesEnabledState: ActiveUserState<boolean>;
   readonly additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
+  readonly resolvedAdditionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
   private notificationBarImprovementsState: ActiveUserState<boolean>;
   readonly notificationBarImprovementsEnabled$: Observable<boolean>;
   readonly resolvedNotificationBarImprovementsEnabled$: Observable<boolean>;
   private designRefreshEnabledState: ActiveUserState<boolean>;
   readonly designRefreshEnabled$: Observable<boolean>;
+  readonly resolvedDesignRefreshEnabled$: Observable<boolean>;
   private preserveLabSettings: boolean = true;
 
   constructor(
@@ -93,6 +96,12 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     );
     this.improvedFieldQualificationForInlineMenuEnabled$ =
       this.improvedFieldQualificationForInlineMenuEnabledState.state$.pipe(map((x) => x ?? null));
+    // Get user setting or feature-flag value for `inline-menu-field-qualification`
+    this.resolvedImprovedFieldQualificationForInlineMenuEnabled$ = combineLatest([
+      this.labsSettingsEnabled$,
+      this.designRefreshEnabled$,
+      this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification),
+    ]).pipe(switchMap((stateResults) => this.resolveSettingStates(stateResults)));
 
     // This flag turns on inline menu credit card and identity features
     this.additionalInlineMenuCipherTypesEnabledState = this.stateProvider.getActive(
@@ -100,6 +109,12 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     );
     this.additionalInlineMenuCipherTypesEnabled$ =
       this.additionalInlineMenuCipherTypesEnabledState.state$.pipe(map((x) => x ?? null));
+    // Get user setting or feature-flag value for `inline-menu-positioning-improvements`
+    this.resolvedAdditionalInlineMenuCipherTypesEnabled$ = combineLatest([
+      this.labsSettingsEnabled$,
+      this.additionalInlineMenuCipherTypesEnabled$,
+      this.configService.getFeatureFlag(FeatureFlag.InlineMenuPositioningImprovements),
+    ]).pipe(switchMap((stateResults) => this.resolveSettingStates(stateResults)));
 
     this.notificationBarImprovementsState = this.stateProvider.getActive(
       NOTIFICATION_BAR_IMPROVEMENTS_ENABLED,
@@ -116,6 +131,12 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
 
     this.designRefreshEnabledState = this.stateProvider.getActive(DESIGN_REFRESH_ENABLED);
     this.designRefreshEnabled$ = this.designRefreshEnabledState.state$.pipe(map((x) => x ?? null));
+    // Get user setting or feature-flag value for `extension-refresh`
+    this.resolvedDesignRefreshEnabled$ = combineLatest([
+      this.labsSettingsEnabled$,
+      this.designRefreshEnabled$,
+      this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh),
+    ]).pipe(switchMap((stateResults) => this.resolveSettingStates(stateResults)));
   }
 
   private async resolveSettingStates([labsSettingsEnabled, userOverrideValue, featureFlagValue]: [
@@ -162,38 +183,10 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     await this.labsSettingsEnabledState.update(() => (labSettingsAllowed ? newValue : false));
   }
 
-  // Get user setting or feature-flag value for `inline-menu-field-qualification`
-  async getImprovedFieldQualificationForInlineMenuEnabled(): Promise<boolean | null> {
-    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
-    const userOverrideValue = await firstValueFrom(
-      this.improvedFieldQualificationForInlineMenuEnabled$,
-    );
-
-    if (labsSettingsEnabled && userOverrideValue !== null) {
-      return userOverrideValue;
-    }
-
-    // return the feature flag value if lab settings aren't enabled or user override is not set
-    return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
-  }
-
   async setImprovedFieldQualificationForInlineMenuEnabled(newValue: boolean | null): Promise<void> {
     await this.improvedFieldQualificationForInlineMenuEnabledState.update(() =>
       this.preserveLabSettings ? newValue : null,
     );
-  }
-
-  // Get user setting or feature-flag value for `inline-menu-positioning-improvements`
-  async getAdditionalInlineMenuCipherTypesEnabled(): Promise<boolean | null> {
-    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
-    const userOverrideValue = await firstValueFrom(this.additionalInlineMenuCipherTypesEnabled$);
-
-    if (labsSettingsEnabled && userOverrideValue !== null) {
-      return userOverrideValue;
-    }
-
-    // return the feature flag value if lab settings aren't enabled or user override is not set
-    return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuPositioningImprovements);
   }
 
   async setAdditionalInlineMenuCipherTypesEnabled(newValue: boolean | null): Promise<void> {
@@ -206,19 +199,6 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     await this.notificationBarImprovementsState.update(() =>
       this.preserveLabSettings ? newValue : null,
     );
-  }
-
-  // Get user setting or feature-flag value for `extension-refresh`
-  async getDesignRefreshEnabled(): Promise<boolean | null> {
-    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
-    const userOverrideValue = await firstValueFrom(this.designRefreshEnabled$);
-
-    if (labsSettingsEnabled && userOverrideValue !== null) {
-      return userOverrideValue;
-    }
-
-    // return the feature flag value if lab settings aren't enabled or user override is not set
-    return await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
   }
 
   async setDesignRefreshEnabled(newValue: boolean | null): Promise<void> {

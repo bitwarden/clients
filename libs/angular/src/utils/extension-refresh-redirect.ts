@@ -1,8 +1,8 @@
 import { inject } from "@angular/core";
 import { UrlTree, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 
 /**
  * Helper function to redirect to a new URL based on the ExtensionRefresh feature flag.
@@ -10,9 +10,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
  */
 export function extensionRefreshRedirect(redirectUrl: string): () => Promise<boolean | UrlTree> {
   return async () => {
-    const configService = inject(ConfigService);
+    const labsSettingsService = inject(LabsSettingsServiceAbstraction);
     const router = inject(Router);
-    const shouldRedirect = await configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
+    const shouldRedirect = await firstValueFrom(labsSettingsService.resolvedDesignRefreshEnabled$);
     if (shouldRedirect) {
       return router.parseUrl(redirectUrl);
     } else {

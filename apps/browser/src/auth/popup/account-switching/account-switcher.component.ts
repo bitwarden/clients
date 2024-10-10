@@ -10,9 +10,8 @@ import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeou
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AvatarModule,
@@ -70,7 +69,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private router: Router,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private authService: AuthService,
-    private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
     private lockService: LockService,
   ) {}
 
@@ -109,8 +108,8 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.enableAccountSwitching = enableAccountSwitching();
-    this.extensionRefreshFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
+    this.extensionRefreshFlag = await firstValueFrom(
+      this.labsSettingsService.resolvedDesignRefreshEnabled$,
     );
 
     const availableVaultTimeoutActions = await firstValueFrom(

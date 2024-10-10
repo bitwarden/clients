@@ -1,6 +1,8 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,13 +26,20 @@ export const canAccessFeature = (
 ): CanActivateFn => {
   return async () => {
     const configService = inject(ConfigService);
+    const labsSettingsService = inject(LabsSettingsServiceAbstraction);
     const toastService = inject(ToastService);
     const router = inject(Router);
     const i18nService = inject(I18nService);
     const logService = inject(LogService);
 
     try {
-      const flagValue = await configService.getFeatureFlag(featureFlag);
+      let flagValue;
+
+      if (featureFlag === FeatureFlag.ExtensionRefresh) {
+        flagValue = await firstValueFrom(labsSettingsService.resolvedDesignRefreshEnabled$);
+      }
+
+      flagValue = await configService.getFeatureFlag(featureFlag);
 
       if (flagValue === requiredFlagValue) {
         return true;

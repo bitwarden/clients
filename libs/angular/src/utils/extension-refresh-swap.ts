@@ -1,8 +1,8 @@
 import { Type, inject } from "@angular/core";
 import { Route, Routes } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 
 import { componentRouteSwap } from "./component-route-swap";
 
@@ -23,8 +23,8 @@ export function extensionRefreshSwap(
     defaultComponent,
     refreshedComponent,
     async () => {
-      const configService = inject(ConfigService);
-      return configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
+      const labsSettingsService = inject(LabsSettingsServiceAbstraction);
+      return await firstValueFrom(labsSettingsService.resolvedDesignRefreshEnabled$);
     },
     options,
     altOptions,

@@ -372,7 +372,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ThemeStateService,
     useClass: DefaultThemeStateService,
-    deps: [GlobalStateProvider, ConfigService],
+    deps: [GlobalStateProvider, LabsSettingsService],
   }),
   safeProvider({
     provide: AbstractThemingService,
@@ -1036,6 +1036,11 @@ const safeProviders: SafeProvider[] = [
     useExisting: DefaultConfigService,
   }),
   safeProvider({
+    provide: LabsSettingsServiceAbstraction,
+    useClass: LabsSettingsService,
+    deps: [StateProvider, ConfigService],
+  }),
+  safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
     deps: [ApiServiceAbstraction, TokenServiceAbstraction],
@@ -1208,11 +1213,6 @@ const safeProviders: SafeProvider[] = [
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
     deps: [StateProvider, PolicyServiceAbstraction],
-  }),
-  safeProvider({
-    provide: LabsSettingsServiceAbstraction,
-    useClass: LabsSettingsService,
-    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: BadgeSettingsServiceAbstraction,
