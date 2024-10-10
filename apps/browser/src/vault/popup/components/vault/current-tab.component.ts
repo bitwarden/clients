@@ -212,7 +212,7 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
       }
       if (BrowserPopupUtils.inPopup(window)) {
         if (!closePopupDelay) {
-          if (this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari()) {
+          if (this.platformUtilsService.isSafari()) {
             BrowserApi.closePopup(window);
           } else {
             // Slight delay to fix bug in Chromium browsers where popup closes without copying totp to clipboard
