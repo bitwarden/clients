@@ -14,7 +14,7 @@ export function applyPopupModalStyles(window: BrowserWindow) {
   window.setResizable(false);
   window.setAlwaysOnTop(true);
 
-  // recover from full screen is a bit more hassle
+  // Adjusting from full screen is a bit more hassle
   if (window.isFullScreen()) {
     window.setFullScreen(false);
     window.once("leave-full-screen", () => {
@@ -32,9 +32,8 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   window.setMenuBarVisibility(true);
   window.setResizable(true);
   window.setAlwaysOnTop(false);
-  // window.hide();
 
-  // console.log("is maximized", existingWindowState.isMaximized);
+  // We're currently not recovering the maximized state, mostly due to conflicts with hiding the window.
   // window.setFullScreen(existingWindowState.isMaximized);
 
   // if (existingWindowState.isMaximized) {
