@@ -23,6 +23,7 @@ export class AccountComponent implements OnInit {
 
   showChangeEmail$: Observable<boolean>;
   showPurgeVault$: Observable<boolean>;
+  showDeleteAccount$: Observable<boolean>;
 
   constructor(
     private modalService: ModalService,
@@ -60,6 +61,7 @@ export class AccountComponent implements OnInit {
     );
 
     this.showPurgeVault$ = userIsManagedByOrganization$;
+    this.showDeleteAccount$ = userIsManagedByOrganization$;
   }
 
   async deauthorizeSessions() {
