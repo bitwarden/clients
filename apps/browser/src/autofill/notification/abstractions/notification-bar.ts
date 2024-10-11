@@ -1,7 +1,9 @@
+import { ThemeType } from "@bitwarden/common/platform/enums";
+
 type NotificationBarIframeInitData = {
   type?: string;
   isVaultLocked?: boolean;
-  theme?: string;
+  theme?: ThemeType | string; // 'string' for stopgap type compatibility
   removeIndividualVault?: boolean;
   importType?: string;
   applyRedesign?: boolean;
