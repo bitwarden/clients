@@ -1,13 +1,18 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 
-import { Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import { Unassigned, CollectionView, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TableDataSource } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
+import {
+  CollectionPermission,
+  convertToPermission,
+} from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
@@ -24,6 +29,7 @@ const MaxSelectionCount = 500;
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultItemsComponent {
+  protected i18nService = inject(I18nService);
   protected RowHeight = RowHeight;
 
   @Input() disabled: boolean;
@@ -201,7 +207,7 @@ export class VaultItemsComponent {
   private refreshItems() {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
-    const items: VaultItem[] = [].concat(collections).concat(ciphers);
+    let items: VaultItem[] = [].concat(collections).concat(ciphers);
 
     this.selection.clear();
 
@@ -211,6 +217,11 @@ export class VaultItemsComponent {
         item.cipher !== undefined ||
         (item.collection !== undefined && item.collection.id !== Unassigned),
     );
+
+    // Apply sorting only for organization vault
+    if (this.showAdminActions) {
+      items = items.sort(this.defaultSort);
+    }
 
     this.dataSource.data = items;
   }
@@ -297,6 +308,112 @@ export class VaultItemsComponent {
     return false;
   }
 
+  /**
+   * Sorts VaultItems, grouping collections before ciphers, and sorting each group alphabetically by name.
+   */
+  protected sortByName = (a: VaultItem, b: VaultItem) => {
+    const getName = (item: VaultItem) => item.collection?.name || item.cipher?.name;
+
+    // First, sort collections before ciphers
+    if (a.collection && !b.collection) {
+      return -1;
+    }
+    if (!a.collection && b.collection) {
+      return 1;
+    }
+
+    return getName(a).localeCompare(getName(b));
+  };
+
+  /**
+   * Sorts VaultItems based on group names
+   */
+  protected sortByGroups = (a: VaultItem, b: VaultItem): number => {
+    const getGroupNames = (item: VaultItem): string => {
+      if (item.collection instanceof CollectionAdminView) {
+        return item.collection.groups
+          .map((group) => this.getGroupName(group.id))
+          .filter(Boolean)
+          .join(",");
+      }
+
+      return "";
+    };
+
+    const aGroupNames = getGroupNames(a);
+    const bGroupNames = getGroupNames(b);
+
+    if (aGroupNames.length !== bGroupNames.length) {
+      return bGroupNames.length - aGroupNames.length;
+    }
+
+    return aGroupNames.localeCompare(bGroupNames);
+  };
+
+  /**
+   * Sorts VaultItems based on their permissions, with higher permissions taking precedence.
+   * If permissions are equal, it falls back to sorting by name.
+   */
+  protected sortByPermissions = (a: VaultItem, b: VaultItem): number => {
+    const getPermissionPriority = (item: VaultItem): number => {
+      if (item.collection instanceof CollectionAdminView) {
+        const permission = this.getCollectionPermission(item.collection);
+
+        switch (permission) {
+          case CollectionPermission.Manage:
+            return 5;
+          case CollectionPermission.Edit:
+            return 4;
+          case CollectionPermission.EditExceptPass:
+            return 3;
+          case CollectionPermission.View:
+            return 2;
+          case CollectionPermission.ViewExceptPass:
+            return 1;
+          case "NoAccess":
+            return 0;
+        }
+      }
+
+      return -1;
+    };
+
+    const priorityA = getPermissionPriority(a);
+    const priorityB = getPermissionPriority(b);
+
+    // Higher priority first
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA;
+    }
+
+    return this.sortByName(a, b);
+  };
+
+  /**
+   * Default sorting function for vault items.
+   * Sorts by: 1. Collections before ciphers
+   *           2. Highest permission first
+   *           3. Alphabetical order of collections and ciphers
+   */
+  private defaultSort = (a: VaultItem, b: VaultItem) => {
+    // First, sort collections before ciphers
+    if (a.collection && !b.collection) {
+      return -1;
+    }
+    if (!a.collection && b.collection) {
+      return 1;
+    }
+
+    // Next, sort by permissions
+    const permissionSort = this.sortByPermissions(a, b);
+    if (permissionSort !== 0) {
+      return permissionSort;
+    }
+
+    // Finally, sort by name
+    return this.sortByName(a, b);
+  };
+
   private hasPersonalItems(): boolean {
     return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
   }
@@ -309,5 +426,25 @@ export class VaultItemsComponent {
 
   private getUniqueOrganizationIds(): Set<string> {
     return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
+  }
+
+  private getGroupName(groupId: string): string | undefined {
+    return this.allGroups.find((g) => g.id === groupId)?.name;
+  }
+
+  private getCollectionPermission(
+    collection: CollectionAdminView,
+  ): CollectionPermission | "NoAccess" {
+    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+
+    if (collection.id == Unassigned && organization?.canEditUnassignedCiphers) {
+      return CollectionPermission.Edit;
+    }
+
+    if (collection.assigned) {
+      return convertToPermission(collection);
+    }
+
+    return "NoAccess";
   }
 }

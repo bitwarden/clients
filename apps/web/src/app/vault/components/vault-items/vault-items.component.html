@@ -16,13 +16,38 @@
             "all" | i18n
           }}</label>
         </th>
-        <th bitCell [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'">{{ "name" | i18n }}</th>
+        <!-- Organization vault -->
+        <th
+          *ngIf="showAdminActions"
+          bitCell
+          bitSortable="name"
+          [fn]="sortByName"
+          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+        >
+          {{ "name" | i18n }}
+        </th>
+        <!-- Individual vault -->
+        <th
+          *ngIf="!showAdminActions"
+          bitCell
+          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+        >
+          {{ "name" | i18n }}
+        </th>
         <th bitCell *ngIf="showOwner" class="tw-hidden tw-w-2/5 lg:tw-table-cell">
           {{ "owner" | i18n }}
         </th>
         <th bitCell class="tw-w-2/5" *ngIf="showCollections">{{ "collections" | i18n }}</th>
-        <th bitCell class="tw-w-2/5" *ngIf="showGroups">{{ "groups" | i18n }}</th>
-        <th bitCell class="tw-w-2/5" *ngIf="showPermissionsColumn">
+        <th bitCell bitSortable="groups" [fn]="sortByGroups" class="tw-w-2/5" *ngIf="showGroups">
+          {{ "groups" | i18n }}
+        </th>
+        <th
+          bitCell
+          bitSortable="permissions"
+          [fn]="sortByPermissions"
+          class="tw-w-2/5"
+          *ngIf="showPermissionsColumn"
+        >
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
