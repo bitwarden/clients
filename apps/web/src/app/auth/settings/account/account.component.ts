@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { lastValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, from, lastValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -21,7 +21,7 @@ export class AccountComponent implements OnInit {
   @ViewChild("deauthorizeSessionsTemplate", { read: ViewContainerRef, static: true })
   deauthModalRef: ViewContainerRef;
 
-  showChangeEmail = true;
+  showChangeEmail$: Observable<boolean>;
   showPurgeVault$: Observable<boolean>;
 
   constructor(
@@ -33,8 +33,7 @@ export class AccountComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.showChangeEmail = await this.userVerificationService.hasMasterPassword();
-    this.showPurgeVault$ = this.configService
+    const userIsManagedByOrganization$ = this.configService
       .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
       .pipe(
         switchMap((isAccountDeprovisioningEnabled) =>
@@ -48,6 +47,19 @@ export class AccountComponent implements OnInit {
             : of(true),
         ),
       );
+
+    const hasMasterPassword$ = this.userVerificationService.hasMasterPassword();
+    this.showChangeEmail$ = combineLatest([
+      userIsManagedByOrganization$,
+      from(hasMasterPassword$),
+    ]).pipe(
+      map(
+        ([userIsManagedByOrganization, hasMasterPassword]) =>
+          userIsManagedByOrganization && hasMasterPassword,
+      ),
+    );
+
+    this.showPurgeVault$ = userIsManagedByOrganization$;
   }
 
   async deauthorizeSessions() {
