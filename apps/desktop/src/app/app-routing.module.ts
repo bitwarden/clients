@@ -15,6 +15,8 @@ import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-ref
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
+  LoginComponent,
+  LoginSecondaryContentComponent,
   LockIcon,
   LockV2Component,
   PasswordHintComponent,
@@ -33,8 +35,8 @@ import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { HintComponent } from "../auth/hint.component";
 import { LockComponent } from "../auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/login/login-decryption-options/login-decryption-options.component";
+import { LoginComponentV1 } from "../auth/login/login-v1.component";
 import { LoginViaAuthRequestComponent } from "../auth/login/login-via-auth-request.component";
-import { LoginComponent } from "../auth/login/login.component";
 import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -68,12 +70,11 @@ const routes: Routes = [
     canMatch: [extensionRefreshRedirect("/lockV2")],
   },
   {
-    path: "login",
-    component: LoginComponent,
-    canActivate: [maxAccountsGuardFn()],
+    path: "login-with-device",
+    component: LoginViaAuthRequestComponent,
   },
   {
-    path: "login-with-device",
+    path: "login-with-passkey",
     component: LoginViaAuthRequestComponent,
   },
   {
@@ -151,6 +152,36 @@ const routes: Routes = [
           } satisfies AnonLayoutWrapperData,
           children: [
             { path: "", component: PasswordHintComponent },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+        },
+      ],
+    },
+  ),
+  ...unauthUiRefreshSwap(
+    LoginComponentV1,
+    AnonLayoutWrapperComponent,
+    {
+      path: "login",
+      component: LoginComponentV1,
+      canActivate: [maxAccountsGuardFn()],
+    },
+    {
+      path: "",
+      children: [
+        {
+          path: "login",
+          canActivate: [maxAccountsGuardFn()],
+          data: {
+            pageTitle: "logInToBitwarden",
+          },
+          children: [
+            { path: "", component: LoginComponent },
+            { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
             {
               path: "",
               component: EnvironmentSelectorComponent,

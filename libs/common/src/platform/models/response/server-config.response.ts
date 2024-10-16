@@ -1,6 +1,7 @@
 import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
 import { BaseResponse } from "../../../models/response/base.response";
 import { Region } from "../../abstractions/environment.service";
+import { ServerSettings } from "../domain/server-settings";
 
 export class ServerConfigResponse extends BaseResponse {
   version: string;
@@ -8,6 +9,7 @@ export class ServerConfigResponse extends BaseResponse {
   server: ThirdPartyServerConfigResponse;
   environment: EnvironmentServerConfigResponse;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  settings: ServerSettings;
 
   constructor(response: any) {
     super(response);
@@ -21,6 +23,7 @@ export class ServerConfigResponse extends BaseResponse {
     this.server = new ThirdPartyServerConfigResponse(this.getResponseProperty("Server"));
     this.environment = new EnvironmentServerConfigResponse(this.getResponseProperty("Environment"));
     this.featureStates = this.getResponseProperty("FeatureStates");
+    this.settings = new ServerSettings(this.getResponseProperty("Settings"));
   }
 }
 
