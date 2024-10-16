@@ -79,6 +79,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
   protected captchaBypassToken: string = null;
 
   // allows for extending classes to modify the register request before sending
+  // allows for extending classes to modify the register request before sending
   // currently used by web to add organization invitation details
   protected modifyRegisterRequest: (request: RegisterRequest) => Promise<void>;
 

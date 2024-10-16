@@ -19,7 +19,11 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { LockComponentService, SetPasswordJitService } from "@bitwarden/auth/angular";
+import {
+  LoginComponentService,
+  SetPasswordJitService,
+  LockComponentService,
+} from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   PinServiceAbstraction,
@@ -35,6 +39,7 @@ import {
   KdfConfigService as KdfConfigServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -43,6 +48,7 @@ import {
   CryptoService as CryptoServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -70,10 +76,11 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
 
+import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
 import { flagEnabled } from "../../platform/flags";
@@ -304,6 +311,19 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: LoginComponentService,
+    useClass: DesktopLoginComponentService,
+    deps: [
+      CryptoFunctionServiceAbstraction,
+      EnvironmentService,
+      PasswordGenerationServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
+      I18nServiceAbstraction,
+      ToastService,
     ],
   }),
   safeProvider({

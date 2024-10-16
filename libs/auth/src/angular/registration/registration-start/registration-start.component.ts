@@ -18,6 +18,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
+import { LoginEmailService } from "../../../common";
 import { RegistrationCheckEmailIcon } from "../../icons/registration-check-email.icon";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
@@ -88,6 +89,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private accountApiService: AccountApiService,
     private router: Router,
+    private loginEmailService: LoginEmailService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -97,6 +99,15 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.registrationStartStateChange.emit(this.state);
 
     this.listenForQueryParamChanges();
+
+    /**
+     * If the user has a login email, set the email field to the login email.
+     */
+    this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
+      if (email) {
+        this.formGroup.patchValue({ email });
+      }
+    });
   }
 
   private listenForQueryParamChanges() {
