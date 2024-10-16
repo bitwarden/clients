@@ -33,7 +33,7 @@ import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { HintComponent } from "../auth/hint.component";
 import { LockComponent } from "../auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/login/login-decryption-options/login-decryption-options.component";
-import { LoginViaAuthRequestComponent } from "../auth/login/login-via-auth-request.component";
+import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
 import { LoginComponent } from "../auth/login/login.component";
 import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
@@ -74,11 +74,11 @@ const routes: Routes = [
   },
   {
     path: "login-with-device",
-    component: LoginViaAuthRequestComponent,
+    component: LoginViaAuthRequestComponentV1,
   },
   {
     path: "admin-approval-requested",
-    component: LoginViaAuthRequestComponent,
+    component: LoginViaAuthRequestComponentV1,
   },
   ...twofactorRefactorSwap(
     TwoFactorComponent,

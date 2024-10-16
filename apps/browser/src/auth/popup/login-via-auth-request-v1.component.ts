@@ -1,9 +1,8 @@
 import { Location } from "@angular/common";
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { LoginViaAuthRequestComponent as BaseLoginWithDeviceComponent } from "@bitwarden/angular/auth/components/login-via-auth-request.component";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { LoginViaAuthRequestComponentV1 as BaseLoginViaAuthRequestComponentV1 } from "@bitwarden/angular/auth/components/login-via-auth-request-v1.component";
 import {
   AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -26,19 +25,13 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { EnvironmentComponent } from "../environment.component";
-
 @Component({
   selector: "app-login-via-auth-request",
-  templateUrl: "login-via-auth-request.component.html",
+  templateUrl: "login-via-auth-request-v1.component.html",
 })
-export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
-  @ViewChild("environment", { read: ViewContainerRef, static: true })
-  environmentModal: ViewContainerRef;
-  showingModal = false;
-
+export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestComponentV1 {
   constructor(
-    protected router: Router,
+    router: Router,
     cryptoService: CryptoService,
     cryptoFunctionService: CryptoFunctionService,
     appIdService: AppIdService,
@@ -51,9 +44,8 @@ export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
     platformUtilsService: PlatformUtilsService,
     anonymousHubService: AnonymousHubService,
     validationService: ValidationService,
-    private modalService: ModalService,
-    syncService: SyncService,
     loginEmailService: LoginEmailServiceAbstraction,
+    syncService: SyncService,
     deviceTrustService: DeviceTrustServiceAbstraction,
     authRequestService: AuthRequestServiceAbstraction,
     loginStrategyService: LoginStrategyServiceAbstraction,
@@ -82,34 +74,12 @@ export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
       loginStrategyService,
       toastService,
     );
-
-    super.onSuccessfulLogin = () => {
-      return syncService.fullSync(true);
+    super.onSuccessfulLogin = async () => {
+      await syncService.fullSync(true);
     };
   }
 
-  async settings() {
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      EnvironmentComponent,
-      this.environmentModal,
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    modal.onShown.subscribe(() => {
-      this.showingModal = true;
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    modal.onClosed.subscribe(() => {
-      this.showingModal = false;
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onSaved.subscribe(() => {
-      modal.close();
-    });
-  }
-
-  back() {
+  protected back() {
     this.location.back();
   }
 }

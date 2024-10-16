@@ -14,6 +14,9 @@ export * from "./anon-layout/default-anon-layout-wrapper-data.service";
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
+// login via auth request
+export * from "./login-via-auth-request/login-via-auth-request.component";
+
 // password callout
 export * from "./password-callout/password-callout.component";
 

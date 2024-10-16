@@ -40,7 +40,7 @@ import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
-import { LoginViaAuthRequestComponent } from "../auth/popup/login-via-auth-request.component";
+import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
 import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
@@ -168,13 +168,13 @@ const routes: Routes = [
   },
   {
     path: "login-with-device",
-    component: LoginViaAuthRequestComponent,
+    component: LoginViaAuthRequestComponentV1,
     canActivate: [],
     data: { state: "login-with-device" } satisfies RouteDataProperties,
   },
   {
     path: "admin-approval-requested",
-    component: LoginViaAuthRequestComponent,
+    component: LoginViaAuthRequestComponentV1,
     canActivate: [],
     data: { state: "login-with-device" } satisfies RouteDataProperties,
   },
