@@ -1,6 +1,9 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../../button";
+import { I18nMockService } from "../../utils";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
 import { IconDirective, SimpleDialogComponent } from "./simple-dialog.component";
@@ -12,6 +15,18 @@ export default {
     moduleMetadata({
       imports: [ButtonModule],
       declarations: [IconDirective, DialogTitleContainerDirective],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {

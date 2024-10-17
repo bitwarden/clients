@@ -3,8 +3,11 @@ import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
+import { I18nMockService } from "../utils";
 
 import { TabGroupComponent } from "./tab-group/tab-group.component";
 import { TabsModule } from "./tabs.module";
@@ -68,6 +71,14 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
       ],
     }),
   ],

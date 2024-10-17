@@ -43,6 +43,7 @@ describe("PasswordInputToggle", () => {
           provide: I18nService,
           useValue: new I18nMockService({
             toggleVisibility: "Toggle visibility",
+            loading: "Loading",
           }),
         },
       ],
