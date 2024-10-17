@@ -164,10 +164,6 @@ jobs:
         run: npm run dist:mv3
         working-directory: browser-source/apps/browser
 
-      - name: Build Chrome Manifest v3 Beta
-        run: npm run dist:chrome:beta
-        working-directory: browser-source/apps/browser
-
       - name: Upload Opera artifact
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
@@ -187,13 +183,6 @@ jobs:
         with:
           name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-chrome-mv3.zip
-          if-no-files-found: error
-
-      - name: Upload Chrome MV3 Beta artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-chrome-MV3-beta-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-chrome-mv3-beta.zip
           if-no-files-found: error
 
       - name: Upload Firefox artifact
