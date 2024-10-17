@@ -1,15 +1,23 @@
-import { Simplify } from "type-fest";
+import { RequireExactlyOne, Simplify } from "type-fest";
 
-import { Dependencies, SingleUserDependency, WhenDependency } from "../dependencies";
+import {
+  Dependencies,
+  SingleUserDependency,
+  SingleUserEncryptorDependency,
+  WhenDependency,
+} from "../dependencies";
 
-import { StateConstraintsDependency } from "./state-constraints-dependency";
+import { SubjectConstraintsDependency } from "./state-constraints-dependency";
 
 /** dependencies accepted by the user state subject */
 export type UserStateSubjectDependencies<State, Dependency> = Simplify<
-  SingleUserDependency &
+  RequireExactlyOne<
+    SingleUserDependency & SingleUserEncryptorDependency,
+    "singleUserEncryptor$" | "singleUserId$"
+  > &
     Partial<WhenDependency> &
     Partial<Dependencies<Dependency>> &
-    Partial<StateConstraintsDependency<State>> & {
+    Partial<SubjectConstraintsDependency<State>> & {
       /** Compute the next stored value. If this is not set, values
        *  provided to `next` unconditionally override state.
        *  @param current the value stored in state

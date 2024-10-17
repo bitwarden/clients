@@ -20,9 +20,9 @@ import {
   Generators,
   PasswordAlgorithm,
   GeneratedCredential,
-  CredentialGeneratorInfo,
   CredentialAlgorithm,
   isPasswordAlgorithm,
+  AlgorithmInfo,
 } from "@bitwarden/generator-core";
 
 /** Options group for passwords */
@@ -174,12 +174,12 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   protected passwordOptions$ = new BehaviorSubject<Option<CredentialAlgorithm>[]>([]);
 
   /** tracks the currently selected credential type */
-  protected algorithm$ = new ReplaySubject<CredentialGeneratorInfo>(1);
+  protected algorithm$ = new ReplaySubject<AlgorithmInfo>(1);
 
-  private toOptions(algorithms: CredentialGeneratorInfo[]) {
+  private toOptions(algorithms: AlgorithmInfo[]) {
     const options: Option<CredentialAlgorithm>[] = algorithms.map((algorithm) => ({
       value: algorithm.id,
-      label: this.i18nService.t(algorithm.nameKey),
+      label: this.i18nService.t(algorithm.name),
     }));
 
     return options;
