@@ -5,9 +5,13 @@ import { Subject, firstValueFrom, switchMap, takeUntil } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { ToastService, DialogService } from "@bitwarden/components";
+
+import { RegistrationSelfHostedEnvConfigDialogComponent } from "../../../../../libs/auth/src/angular/registration/registration-self-hosted-env-config-dialog/registration-self-hosted-env-config-dialog.component";
 
 import { AccountSwitcherService } from "./account-switching/services/account-switcher.service";
 
@@ -38,6 +42,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private accountSwitcherService: AccountSwitcherService,
     private registerRouteService: RegisterRouteService,
     private toastService: ToastService,
+    private configService: ConfigService,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -58,7 +64,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(async () => {
           await this.setLoginEmailValues();
-          await this.router.navigate(["environment"]);
+          if (
+            await this.configService.getFeatureFlag(FeatureFlag.UnauthenticatedExtensionUIRefresh)
+          ) {
+            await RegistrationSelfHostedEnvConfigDialogComponent.open(this.dialogService);
+          } else {
+            await this.router.navigate(["environment"]);
+          }
         }),
         takeUntil(this.destroyed$),
       )
