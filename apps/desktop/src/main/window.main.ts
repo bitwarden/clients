@@ -3,7 +3,7 @@ import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -11,6 +11,7 @@ import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
+import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import {
   cleanUserAgent,
@@ -75,6 +76,26 @@ export class WindowMain {
       }
       this.win.setContentProtection(!allowed);
     });
+
+    this.desktopSettingsService.inModalMode$
+      .pipe(
+        pairwise(),
+        concatMap(async ([lastValue, newValue]) => {
+          if (lastValue && !newValue) {
+            //console.log("Apply main window styles");
+            // Reset the window state to the main window state
+            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+            // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+            this.win.hide();
+          } else if (!lastValue && newValue) {
+            // Apply the popup modal styles
+            applyPopupModalStyles(this.win);
+            //console.log("show the modal");
+            this.win.show();
+          }
+        }),
+      )
+      .subscribe();
 
     return new Promise<void>((resolve, reject) => {
       try {
@@ -175,7 +196,15 @@ export class WindowMain {
     });
   }
 
-  async createWindow(): Promise<void> {
+  /// Show the window with main window styles
+  show() {
+    if (this.win != null) {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      this.win.show();
+    }
+  }
+
+  async createWindow(template: "full-app" | "minimal-app" = "full-app"): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
@@ -188,8 +217,8 @@ export class WindowMain {
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 680,
-      minHeight: 500,
+      minWidth: 400,
+      minHeight: 400,
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
       title: app.name,
@@ -209,6 +238,12 @@ export class WindowMain {
       },
     });
 
+    if (template === "minimal-app") {
+      applyPopupModalStyles(this.win);
+    } else {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+    }
+
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
@@ -218,21 +253,42 @@ export class WindowMain {
     }
 
     // Show it later since it might need to be maximized.
-    this.win.show();
+    // use once event to avoid flash on unstyled content.
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
 
-    // and load the index.html of the app.
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-      }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
+    if (template === "full-app") {
+      // and load the index.html of the app.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    } else {
+      await this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          //pathname: `${__dirname}/index.html`,
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+          hash: "/passkeys",
+          query: {
+            redirectUrl: "/passkeys",
+          },
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    }
 
     // Open the DevTools.
     if (isDev()) {
@@ -327,6 +383,12 @@ export class WindowMain {
       return;
     }
 
+    const inModalMode = await firstValueFrom(this.desktopSettingsService.inModalMode$);
+
+    if (inModalMode) {
+      return;
+    }
+
     try {
       const bounds = win.getBounds();
 
@@ -337,8 +399,13 @@ export class WindowMain {
         }
       }
 
-      this.windowStates[configKey].isMaximized = win.isMaximized();
+      // We're treating fullscreen as maximized
+      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
+
+      // Maybe store these as well?
+      //console.log("isFocused", win.isFocused());
+      //console.log("isVisible", win.isVisible());
 
       if (!win.isMaximized() && !win.isMinimized() && !win.isFullScreen()) {
         this.windowStates[configKey].x = bounds.x;
