@@ -17,11 +17,11 @@
     </button>
   </div>
 </bit-card>
-<bit-section>
+<bit-section [disableMargin]="disableMargin">
   <bit-section-header>
     <h6 bitTypography="h6">{{ "options" | i18n }}</h6>
   </bit-section-header>
-  <div class="tw-mb-4">
+  <div [ngClass]="{ 'tw-mb-4': !disableMargin }">
     <bit-card>
       <form class="box" [formGroup]="credential" class="tw-container">
         <bit-form-field>

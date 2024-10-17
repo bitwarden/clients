@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { OnInit, Input, Output, EventEmitter, Component, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skip, takeUntil, Subject } from "rxjs";
@@ -46,6 +47,9 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
   @Input()
   showHeader: boolean = true;
+
+  /** Removes bottom margin from `bit-section` */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like

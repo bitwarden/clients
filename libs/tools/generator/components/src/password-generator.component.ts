@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   BehaviorSubject,
@@ -44,6 +45,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    */
   @Input()
   userId: UserId | null;
+
+  /** Removes bottom margin, passed to downstream components */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** tracks the currently selected credential type */
   protected credentialType$ = new BehaviorSubject<PasswordAlgorithm>(null);

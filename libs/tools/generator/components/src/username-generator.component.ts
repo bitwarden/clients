@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
@@ -56,6 +57,9 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
+
+  /** Removes bottom margin from internal elements */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** Tracks the selected generation algorithm */
   protected credential = this.formBuilder.group({

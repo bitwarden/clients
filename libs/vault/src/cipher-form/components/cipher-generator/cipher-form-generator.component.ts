@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
@@ -20,6 +21,9 @@ export class CipherFormGeneratorComponent {
    */
   @Input({ required: true })
   type: "password" | "username";
+
+  /** Removes bottom margin of internal sections */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /**
    * Emits an event when a new value is generated.
