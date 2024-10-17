@@ -84,9 +84,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
       base: {
         color: null,
         fontFamily:
-          '"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+          '"DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
           '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-        fontSize: "14px",
+        fontSize: "16px",
         fontSmoothing: "antialiased",
         "::placeholder": {
           color: null,

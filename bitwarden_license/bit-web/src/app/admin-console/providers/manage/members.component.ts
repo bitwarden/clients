@@ -50,8 +50,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 62;
-  rowHeightClass = `tw-h-[62px]`;
+  rowHeight = 69;
+  rowHeightClass = `tw-h-[69px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;

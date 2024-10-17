@@ -54,7 +54,11 @@
       </div>
     </div>
 
-    <div *ngIf="vaultState === null" cdkVirtualScrollingElement class="tw-h-full tw-p-3">
+    <div
+      *ngIf="vaultState === null"
+      cdkVirtualScrollingElement
+      class="tw-h-full tw-p-3 tw-styled-scrollbar"
+    >
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
