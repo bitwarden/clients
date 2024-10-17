@@ -4,6 +4,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
+import { DomElementVisibilityService } from "../services/abstractions/dom-element-visibility.service";
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import {
@@ -17,6 +18,7 @@ import AutofillInit from "./autofill-init";
 
 describe("AutofillInit", () => {
   let domQueryService: MockProxy<DomQueryService>;
+  let domElementVisibilityService: MockProxy<DomElementVisibilityService>;
   let overlayNotificationsContentService: MockProxy<OverlayNotificationsContentService>;
   let inlineMenuElements: MockProxy<AutofillInlineMenuContentService>;
   let autofillOverlayContentService: MockProxy<AutofillOverlayContentService>;
@@ -32,11 +34,13 @@ describe("AutofillInit", () => {
       },
     });
     domQueryService = mock<DomQueryService>();
+    domElementVisibilityService = mock<DomElementVisibilityService>();
     overlayNotificationsContentService = mock<OverlayNotificationsContentService>();
     inlineMenuElements = mock<AutofillInlineMenuContentService>();
     autofillOverlayContentService = mock<AutofillOverlayContentService>();
     autofillInit = new AutofillInit(
       domQueryService,
+      domElementVisibilityService,
       autofillOverlayContentService,
       inlineMenuElements,
       overlayNotificationsContentService,

@@ -1,13 +1,20 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
+import { InlineMenuFillTypes } from "../../../enums/autofill-overlay.enum";
 
 type AutofillInlineMenuListMessage = { command: string };
 
-export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage & {
+export type UpdateAutofillInlineMenuListCiphersParams = {
   ciphers: InlineMenuCipherData[];
   showInlineMenuAccountCreation?: boolean;
+};
+
+export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage &
+  UpdateAutofillInlineMenuListCiphersParams;
+
+export type UpdateAutofillInlineMenuGeneratedPasswordMessage = AutofillInlineMenuListMessage & {
+  generatedPassword: string;
 };
 
 export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & {
@@ -16,10 +23,12 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   theme: string;
   translations: Record<string, string>;
   ciphers?: InlineMenuCipherData[];
-  filledByCipherType?: CipherType;
+  inlineMenuFillType?: InlineMenuFillTypes;
   showInlineMenuAccountCreation?: boolean;
   showPasskeysLabels?: boolean;
   portKey: string;
+  generatedPassword?: string;
+  showSaveLoginMenu?: boolean;
 };
 
 export type AutofillInlineMenuListWindowMessageHandlers = {
@@ -30,6 +39,11 @@ export type AutofillInlineMenuListWindowMessageHandlers = {
     message,
   }: {
     message: UpdateAutofillInlineMenuListCiphersMessage;
+  }) => void;
+  updateAutofillInlineMenuGeneratedPassword: ({
+    message,
+  }: {
+    message: UpdateAutofillInlineMenuGeneratedPasswordMessage;
   }) => void;
   focusAutofillInlineMenuList: () => void;
 };

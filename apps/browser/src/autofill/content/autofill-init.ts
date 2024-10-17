@@ -4,9 +4,9 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
+import { DomElementVisibilityService } from "../services/abstractions/dom-element-visibility.service";
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
-import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import { sendExtensionMessage } from "../utils";
 
@@ -18,7 +18,6 @@ import {
 
 class AutofillInit implements AutofillInitInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
-  private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
   private collectPageDetailsOnLoadTimeout: number | NodeJS.Timeout | undefined;
@@ -33,26 +32,25 @@ class AutofillInit implements AutofillInitInterface {
    * CollectAutofillContentService and InsertAutofillContentService classes.
    *
    * @param domQueryService - Service used to handle DOM queries.
+   * @param domElementVisibilityService - Used to check if an element is viewable.
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    * @param autofillInlineMenuContentService - The inline menu content service, potentially undefined.
    * @param overlayNotificationsContentService - The overlay notifications content service, potentially undefined.
    */
   constructor(
     domQueryService: DomQueryService,
+    domElementVisibilityService: DomElementVisibilityService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
     private autofillInlineMenuContentService?: AutofillInlineMenuContentService,
     private overlayNotificationsContentService?: OverlayNotificationsContentService,
   ) {
-    this.domElementVisibilityService = new DomElementVisibilityService(
-      this.autofillInlineMenuContentService,
-    );
     this.collectAutofillContentService = new CollectAutofillContentService(
-      this.domElementVisibilityService,
+      domElementVisibilityService,
       domQueryService,
       this.autofillOverlayContentService,
     );
     this.insertAutofillContentService = new InsertAutofillContentService(
-      this.domElementVisibilityService,
+      domElementVisibilityService,
       this.collectAutofillContentService,
     );
   }

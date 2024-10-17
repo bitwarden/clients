@@ -165,7 +165,7 @@ export function triggerWebRequestOnBeforeRedirectEvent(
   });
 }
 
-export function triggerWebRequestOnCompletedEvent(details: chrome.webRequest.WebRequestDetails) {
+export function triggerWebRequestOnCompletedEvent(details: chrome.webRequest.WebResponseDetails) {
   (chrome.webRequest.onCompleted.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
     (call) => {
       const callback = call[0];

@@ -408,7 +408,7 @@ describe("InlineMenuFieldQualificationService", () => {
               autoCompleteType: "new-password",
               htmlID: "user-password",
               htmlName: "user-password",
-              placeholder: "user-password",
+              placeholder: "new password",
             });
             pageDetails.fields = [field, passwordField];
 

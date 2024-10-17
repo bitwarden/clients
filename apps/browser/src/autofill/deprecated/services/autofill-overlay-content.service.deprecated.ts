@@ -73,6 +73,10 @@ class LegacyAutofillOverlayContentService implements LegacyAutofillOverlayConten
    * Satisfy the AutofillOverlayContentService interface.
    */
   messageHandlers = {} as AutofillOverlayContentExtensionMessageHandlers;
+  clearUserFilledFields() {
+    // do nothing
+  }
+
   async setupOverlayListeners(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,

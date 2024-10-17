@@ -3,6 +3,7 @@
 $dark-icon-themes: "theme_dark", "theme_solarizedDark", "theme_nord";
 
 $font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-source-code-pro: "Source Code Pro", monospace;
 $font-size-base: 14px;
 $text-color: #212529;
 $muted-text-color: #6c747c;
@@ -11,6 +12,8 @@ $border-color-dark: #ddd;
 $border-radius: 3px;
 $focus-outline-color: #1252a3;
 $muted-blue: #5a6d91;
+$password-special-color: #b80017;
+$password-number-color: #1452c1;
 
 $brand-primary: #175ddc;
 
@@ -47,6 +50,8 @@ $themes: (
     successColor: $success-color-light,
     errorColor: $error-color-light,
     passkeysAuthenticating: $muted-blue,
+    passwordSpecialColor: $password-special-color,
+    passwordNumberColor: $password-number-color,
   ),
   dark: (
     textColor: #ffffff,
@@ -63,6 +68,8 @@ $themes: (
     successColor: $success-color-dark,
     errorColor: $error-color-dark,
     passkeysAuthenticating: #bac0ce,
+    passwordSpecialColor: #ff8d85,
+    passwordNumberColor: #6f9df1,
   ),
   nord: (
     textColor: $nord5,
@@ -78,6 +85,8 @@ $themes: (
     focusOutlineColor: lighten($focus-outline-color, 25%),
     successColor: $success-color-dark,
     passkeysAuthenticating: $nord4,
+    passwordSpecialColor: $nord12,
+    passwordNumberColor: $nord8,
   ),
   solarizedDark: (
     textColor: $solarizedDarkBase2,
@@ -94,6 +103,8 @@ $themes: (
     focusOutlineColor: lighten($focus-outline-color, 15%),
     successColor: $success-color-dark,
     passkeysAuthenticating: $solarizedDarkBase2,
+    passwordSpecialColor: #b58900,
+    passwordNumberColor: $solarizedDarkCyan,
   ),
 );
 
