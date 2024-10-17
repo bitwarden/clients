@@ -644,7 +644,7 @@
         class="box-content-row"
         appStopClick
         (click)="delete()"
-        *ngIf="cipher.edit"
+        *ngIf="canDeleteCipher$ | async"
       >
         <div class="row-main text-danger">
           <div class="icon text-danger" aria-hidden="true">

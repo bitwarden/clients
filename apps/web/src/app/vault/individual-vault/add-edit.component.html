@@ -995,7 +995,7 @@
             (click)="delete()"
             class="btn btn-outline-danger"
             appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
-            *ngIf="editMode && !cloneMode && !(!cipher.edit && editMode)"
+            *ngIf="editMode && !cloneMode && (canDeleteCipher$ | async)"
             [disabled]="$any(deleteBtn).loading"
             [appApiAction]="deletePromise"
           >

@@ -21,6 +21,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -57,6 +58,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     datePipe: DatePipe,
     configService: ConfigService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    cipherAuthorizationService: CipherAuthorizationService,
   ) {
     super(
       cipherService,
@@ -79,6 +81,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       datePipe,
       configService,
       billingAccountProfileStateService,
+      cipherAuthorizationService,
     );
   }
 
@@ -90,6 +93,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected async loadCipher() {
+    this.isAdminConsoleAction = true;
     // Calling loadCipher first to assess if the cipher is unassigned. If null use apiService getCipherAdmin
     const firstCipherCheck = await super.loadCipher();
 
