@@ -14,21 +14,7 @@ const betaBuild = process.env.BETA_BUILD === "1";
 const paths = {
   build: "./build/",
   dist: "./dist/",
-  node_modules: "./node_modules/",
-  popupDir: "./src/popup/",
-  cssDir: "./src/popup/css/",
   safari: "./src/safari/",
-};
-
-const filters = {
-  fonts: [
-    "!build/popup/fonts/*",
-    "build/popup/fonts/Open_Sans*.woff",
-    "build/popup/fonts/bwi-font.woff2",
-    "build/popup/fonts/bwi-font.woff",
-    "build/popup/fonts/bwi-font.ttf",
-  ],
-  safari: ["!build/safari/**/*"],
 };
 
 /**
@@ -64,11 +50,9 @@ function distFileName(browserName, ext) {
 
 async function dist(browserName, manifest) {
   const { default: zip } = await import("gulp-zip");
-  const { default: filter } = await import("gulp-filter");
 
   return gulp
     .src(paths.build + "**/*")
-    .pipe(filter(["**"].concat(filters.fonts).concat(filters.safari)))
     .pipe(gulpif("popup/index.html", replace("__BROWSER__", "browser_" + browserName)))
     .pipe(gulpif("manifest.json", jeditor(manifest)))
     .pipe(zip(distFileName(browserName, "zip")))
@@ -192,8 +176,6 @@ function distSafariApp(cb, subBuildPath) {
       return new Promise((resolve) => proc.on("close", resolve));
     })
     .then(async () => {
-      const { default: filter } = await import("gulp-filter");
-
       const libs = fs
         .readdirSync(builtAppexFrameworkPath)
         .filter((p) => p.endsWith(".dylib"))
@@ -237,13 +219,10 @@ function safariCopyAssets(source, dest) {
 }
 
 async function safariCopyBuild(source, dest) {
-  const { default: filter } = await import("gulp-filter");
-
   return new Promise((resolve, reject) => {
     gulp
       .src(source)
       .on("error", reject)
-      .pipe(filter(["**"].concat(filters.fonts)))
       .pipe(gulpif("popup/index.html", replace("__BROWSER__", "browser_safari")))
       .pipe(
         gulpif(
