@@ -4,7 +4,11 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { SecureSafeCsvImporter } from "../src/importers";
 
-import { data_upperUrl, data_lowerUrl } from "./test-data/securesafe-csv/securesafe-example.csv";
+import {
+  data_upperUrl,
+  data_lowerUrl,
+  data_surrounding_slashes,
+} from "./test-data/securesafe-csv/securesafe-example.csv";
 
 const CipherData = [
   {
@@ -46,6 +50,27 @@ const CipherData = [
         ],
       }),
       notes: null,
+      type: 1,
+    }),
+  },
+  {
+    title: "should change headers to english and remove surrounding slashes if present",
+    csv: data_surrounding_slashes,
+    expected: Object.assign(new CipherView(), {
+      id: null,
+      organizationId: null,
+      folderId: null,
+      name: "Gmail",
+      login: Object.assign(new LoginView(), {
+        username: "test@gmail.com",
+        password: "/test",
+        uris: [
+          Object.assign(new LoginUriView(), {
+            uri: "https://gmail.com",
+          }),
+        ],
+      }),
+      notes: "comment/",
       type: 1,
     }),
   },
