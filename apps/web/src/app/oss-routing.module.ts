@@ -37,7 +37,6 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
-import { VerifyRecoverDeleteProviderComponent } from "./admin-console/providers/verify-recover-delete-provider.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
@@ -152,12 +151,6 @@ const routes: Routes = [
         component: VerifyRecoverDeleteOrgComponent,
         canActivate: [unauthGuardFn()],
         data: { titleId: "deleteOrganization" },
-      },
-      {
-        path: "verify-recover-delete-provider",
-        component: VerifyRecoverDeleteProviderComponent,
-        canActivate: [unauthGuardFn()],
-        data: { titleId: "deleteAccount" } satisfies RouteDataProperties,
       },
       {
         path: "update-temp-password",

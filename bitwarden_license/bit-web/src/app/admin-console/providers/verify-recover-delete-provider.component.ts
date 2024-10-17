@@ -6,7 +6,6 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderVerifyRecoverDeleteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-verify-recover-delete.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
 @Component({
@@ -24,7 +23,6 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
   constructor(
     private router: Router,
     private providerApiService: ProviderApiServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private logService: LogService,
@@ -42,7 +40,7 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
     }
   }
 
-  async submit() {
+  submit = async () => {
     try {
       const request = new ProviderVerifyRecoverDeleteRequest(this.token);
       this.formPromise = this.providerApiService.providerRecoverDeleteToken(
@@ -59,5 +57,5 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 }

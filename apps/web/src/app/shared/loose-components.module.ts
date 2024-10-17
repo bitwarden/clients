@@ -17,8 +17,6 @@ import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent
 import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../admin-console/organizations/tools/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../admin-console/organizations/tools/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../admin-console/organizations/tools/weak-passwords-report.component";
-import { ProvidersComponent } from "../admin-console/providers/providers.component";
-import { VerifyRecoverDeleteProviderComponent } from "../admin-console/providers/verify-recover-delete-provider.component";
 import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
@@ -154,7 +152,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    ProvidersComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -182,7 +179,6 @@ import { SharedModule } from "./shared.module";
     UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
-    VerifyRecoverDeleteProviderComponent,
   ],
   exports: [
     UserVerificationModule,
@@ -226,7 +222,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    ProvidersComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -255,7 +250,6 @@ import { SharedModule } from "./shared.module";
     UserLayoutComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
-    VerifyRecoverDeleteProviderComponent,
     HeaderModule,
     DangerZoneComponent,
   ],
