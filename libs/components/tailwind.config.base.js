@@ -92,6 +92,18 @@ module.exports = {
         700: rgba("--color-primary-700"),
       },
     },
+    fontFamily: {
+      sans: [
+        '"Open Sans"',
+        '"Helvetica Neue"',
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ],
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
