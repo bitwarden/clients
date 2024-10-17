@@ -68,6 +68,8 @@ function setMockWindowLocation({
 }
 
 describe("InsertAutofillContentService", () => {
+  let matchesMedia = false;
+  window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: matchesMedia }));
   const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
   const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
   const domQueryService = new DomQueryService();
@@ -85,6 +87,7 @@ describe("InsertAutofillContentService", () => {
   let fillScript: AutofillScript;
 
   beforeEach(() => {
+    matchesMedia = false;
     document.body.innerHTML = mockLoginForm;
     confirmSpy = jest.spyOn(globalThis, "confirm");
     windowLocationSpy = jest.spyOn(globalThis, "location", "get");
@@ -765,45 +768,30 @@ describe("InsertAutofillContentService", () => {
     });
 
     describe("will not trigger the animation when...", () => {
-      it("the element is a non-hidden hidden input type", async () => {
+      it("the user prefers reduced motion", () => {
+        matchesMedia = true;
+        const testElement = document.querySelector(
+          'input[type="password"]',
+        ) as FillableFormFieldElement;
+        jest.spyOn(testElement.style, "setProperty");
+
+        insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
+        jest.advanceTimersByTime(200);
+
+        expect(testElement.style.setProperty).not.toHaveBeenCalled();
+      });
+
+      it("the element is a non-hidden hidden input type", () => {
         document.body.innerHTML = mockLoginForm + '<input type="hidden" />';
         const testElement = document.querySelector(
           'input[type="hidden"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
-
-        insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
-        await jest.advanceTimersByTime(200);
-
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
-      });
-
-      it("the element is a non-hidden textarea", () => {
-        document.body.innerHTML = mockLoginForm + "<textarea></textarea>";
-        const testElement = document.querySelector("textarea") as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
-      });
-
-      it("the element is a unsupported tag", () => {
-        document.body.innerHTML = mockLoginForm + '<div id="input-tag"></div>';
-        const testElement = document.querySelector("#input-tag") as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
-
-        insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
-        jest.advanceTimersByTime(200);
-
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
+        expect(testElement.style.setProperty).not.toHaveBeenCalled();
       });
 
       it("the element has a `visibility: hidden;` CSS rule applied to it", () => {
@@ -811,14 +799,12 @@ describe("InsertAutofillContentService", () => {
           'input[type="password"]',
         ) as FillableFormFieldElement;
         testElement.style.visibility = "hidden";
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
+        expect(testElement.style.setProperty).not.toHaveBeenCalled();
       });
 
       it("the element has a `display: none;` CSS rule applied to it", () => {
@@ -826,14 +812,12 @@ describe("InsertAutofillContentService", () => {
           'input[type="password"]',
         ) as FillableFormFieldElement;
         testElement.style.display = "none";
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
+        expect(testElement.style.setProperty).not.toHaveBeenCalled();
       });
 
       it("a parent of the element has an `opacity: 0;` CSS rule applied to it", () => {
@@ -842,14 +826,12 @@ describe("InsertAutofillContentService", () => {
         const testElement = document.querySelector(
           'input[type="email"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).not.toHaveBeenCalled();
-        expect(testElement.classList.remove).not.toHaveBeenCalled();
+        expect(testElement.style.setProperty).not.toHaveBeenCalled();
       });
     });
 
@@ -858,25 +840,12 @@ describe("InsertAutofillContentService", () => {
         const testElement = document.querySelector(
           'input[type="password"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(
-          insertAutofillContentService["domElementVisibilityService"],
-          "isElementHiddenByCss",
-        );
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(
-          insertAutofillContentService["domElementVisibilityService"].isElementHiddenByCss,
-        ).toHaveBeenCalledWith(testElement);
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
+        expect(testElement.style.setProperty).toHaveBeenCalled();
       });
 
       it("the element is a non-hidden email input", () => {
@@ -884,17 +853,15 @@ describe("InsertAutofillContentService", () => {
         const testElement = document.querySelector(
           'input[type="email"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
+        expect(testElement.style.setProperty).toHaveBeenCalledWith(
+          "background-color",
+          "rgb(219, 229, 246)",
+          "important",
         );
       });
 
@@ -903,17 +870,15 @@ describe("InsertAutofillContentService", () => {
         const testElement = document.querySelector(
           'input[type="text"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
+        expect(testElement.style.setProperty).toHaveBeenCalledWith(
+          "color",
+          "rgb(33, 37, 41)",
+          "important",
         );
       });
 
@@ -922,69 +887,49 @@ describe("InsertAutofillContentService", () => {
         const testElement = document.querySelector(
           'input[type="number"]',
         ) as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
+        expect(testElement.style.setProperty).toHaveBeenCalledWith(
+          "border-color",
+          "rgb(23, 93, 220)",
+          "important",
         );
       });
 
       it("the element is a non-hidden tel input", () => {
         document.body.innerHTML = mockLoginForm + '<input type="tel" />';
         const testElement = document.querySelector('input[type="tel"]') as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
+        expect(testElement.style.setProperty).toHaveBeenCalled();
       });
 
       it("the element is a non-hidden url input", () => {
         document.body.innerHTML = mockLoginForm + '<input type="url" />';
         const testElement = document.querySelector('input[type="url"]') as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
+        expect(testElement.style.setProperty).toHaveBeenCalled();
       });
 
       it("the element is a non-hidden span", () => {
         document.body.innerHTML = mockLoginForm + '<span id="input-tag"></span>';
         const testElement = document.querySelector("#input-tag") as FillableFormFieldElement;
-        jest.spyOn(testElement.classList, "add");
-        jest.spyOn(testElement.classList, "remove");
+        jest.spyOn(testElement.style, "setProperty");
 
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 
-        expect(testElement.classList.add).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
-        expect(testElement.classList.remove).toHaveBeenCalledWith(
-          "com-bitwarden-browser-animated-fill",
-        );
+        expect(testElement.style.setProperty).toHaveBeenCalled();
       });
     });
   });
