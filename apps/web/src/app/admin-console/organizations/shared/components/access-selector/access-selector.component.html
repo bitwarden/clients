@@ -91,7 +91,7 @@
           <div class="tw-relative tw-inline-block">
             <select
               bitInput
-              class="tw-apperance-none -tw-ml-3 tw-max-w-40 tw-appearance-none tw-overflow-ellipsis !tw-rounded tw-border-transparent !tw-bg-transparent tw-pr-6 tw-font-bold hover:tw-border-primary-700"
+              class="tw-w-full tw-apperance-none -tw-ml-3 tw-appearance-none !tw-rounded tw-border-transparent !tw-bg-transparent tw-pr-8 tw-font-bold hover:tw-border-primary-700"
               formControlName="permission"
               [id]="'permission' + i"
               (blur)="handleBlur()"
@@ -112,7 +112,7 @@
         <ng-template #readOnlyPerm>
           <div
             *ngIf="item.readonly || disabled"
-            class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-bold tw-text-muted"
+            class="tw-w-full tw-whitespace-nowrap tw-font-bold tw-text-muted"
             [title]="permissionLabelId(item.readonlyPermission) | i18n"
           >
             {{ permissionLabelId(item.readonlyPermission) | i18n }}
