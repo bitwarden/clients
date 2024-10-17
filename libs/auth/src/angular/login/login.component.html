@@ -1,0 +1,148 @@
+<!-- 
+  # Table of Contents
+
+    This file contains a single consolidated template for all visual clients.
+
+  # UI States
+
+    The template has two UI states, defined by the `LoginUiState` enum:
+      State 1: displays the email input field + continue button
+      State 2: displays the master password input field + login button
+-->
+
+<form [bitSubmit]="submit" [formGroup]="formGroup">
+  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
+    <!-- Email Address input -->
+    <bit-form-field class="!tw-mb-4">
+      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+      <input
+        type="email"
+        formControlName="email"
+        bitInput
+        appAutofocus
+        (blur)="onEmailBlur($event)"
+        (keyup.enter)="clientType === ClientType.Desktop ? continue() : validateEmail()"
+      />
+    </bit-form-field>
+
+    <!-- Remember Email input -->
+    <bit-form-control class="!tw-mb-4">
+      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
+      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Continue button -->
+      <button type="button" bitButton block buttonType="primary" (click)="validateEmail()">
+        {{ "continue" | i18n }}
+      </button>
+
+      <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+      <!-- Link to Login with Passkey page -->
+      <ng-container *ngIf="isLoginWithPasskeySupported()">
+        <a
+          bitButton
+          block
+          linkType="primary"
+          routerLink="/login-with-passkey"
+          (mousedown)="$event.preventDefault()"
+        >
+          <i class="bwi bwi-passkey tw-mr-1"></i>
+          {{ "logInWithPasskey" | i18n }}
+        </a>
+      </ng-container>
+
+      <!-- Button to Login with SSO -->
+      <ng-container *ngIf="clientType === ClientType.Web">
+        <a
+          bitButton
+          block
+          buttonType="secondary"
+          routerLink="/sso"
+          [queryParams]="{ email: formGroup.value.email }"
+          (click)="saveEmailSettings()"
+        >
+          <i class="bwi bwi-provider tw-mr-1"></i>
+          {{ "useSingleSignOn" | i18n }}
+        </a>
+      </ng-container>
+      <ng-container *ngIf="clientType === ClientType.Browser || clientType === ClientType.Desktop">
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="
+            launchSsoBrowserWindow(clientType === ClientType.Browser ? 'browser' : 'desktop')
+          "
+        >
+          <i class="bwi bwi-provider tw-mr-1"></i>
+          {{ "useSingleSignOn" | i18n }}
+        </button>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
+    <!-- Master Password input -->
+    <bit-form-field class="!tw-mb-1">
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <!-- Link to Password Hint page -->
+    <a
+      class="tw-inline-block tw-mb-4 tw-font-semibold tw-no-underline hover:tw-underline tw-text-primary-600"
+      routerLink="/hint"
+      (click)="goToHint()"
+    >
+      {{ "getMasterPasswordHint" | i18n }}
+    </a>
+
+    <!-- Captcha iframe -->
+    <iframe
+      [ngClass]="{ 'tw-hidden': !showCaptcha() }"
+      id="hcaptcha_iframe"
+      height="80"
+      sandbox="allow-scripts allow-same-origin"
+    ></iframe>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Submit button to Login with Master Password -->
+      <button type="submit" bitButton bitFormButton block buttonType="primary">
+        {{ "loginWithMasterPassword" | i18n }}
+      </button>
+
+      <!-- Button to Login with Device -->
+      <ng-container *ngIf="loginViaAuthRequestSupported && isKnownDevice">
+        <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="startAuthRequestLogin()"
+        >
+          <i class="bwi bwi-mobile"></i>
+          {{ "loginWithDevice" | i18n }}
+        </button>
+      </ng-container>
+
+      <!-- Back button -->
+      <ng-container *ngIf="showBackButton()">
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="toggleValidateEmail(false)"
+        >
+          {{ "back" | i18n }}
+        </button>
+      </ng-container>
+    </div>
+  </ng-container>
+</form>

@@ -3,7 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
+import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import {
   LoginStrategyServiceAbstraction,
@@ -29,9 +29,9 @@ import { flagEnabled } from "../../platform/flags";
 
 @Component({
   selector: "app-login",
-  templateUrl: "login.component.html",
+  templateUrl: "login-v1.component.html",
 })
-export class LoginComponent extends BaseLoginComponent implements OnInit {
+export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   showPasswordless = false;
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
