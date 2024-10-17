@@ -4,7 +4,11 @@ export class Fido2Utils {
     if (bufferSource instanceof ArrayBuffer || bufferSource.buffer === undefined) {
       buffer = new Uint8Array(bufferSource as ArrayBuffer);
     } else {
-      buffer = new Uint8Array(bufferSource.buffer);
+      buffer = new Uint8Array(
+        bufferSource.buffer,
+        bufferSource.byteOffset,
+        bufferSource.byteLength,
+      );
     }
 
     return Fido2Utils.fromBufferToB64(buffer)
