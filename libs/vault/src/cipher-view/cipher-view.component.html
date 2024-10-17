@@ -25,7 +25,11 @@
   <app-login-credentials-view *ngIf="hasLogin" [cipher]="cipher"></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->
-  <app-autofill-options-view *ngIf="hasAutofill" [loginUris]="cipher.login.uris">
+  <app-autofill-options-view
+    *ngIf="hasAutofill"
+    [loginUris]="cipher.login.uris"
+    [cipherId]="cipher.id"
+  >
   </app-autofill-options-view>
 
   <!-- CARD DETAILS -->

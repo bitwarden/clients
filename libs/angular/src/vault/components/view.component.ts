@@ -340,15 +340,13 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
   }
 
-  launch(uri: Launchable, cipherId?: string) {
+  async launch(uri: Launchable, cipherId?: string) {
     if (!uri.canLaunch) {
       return;
     }
 
     if (cipherId) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.cipherService.updateLastLaunchedDate(cipherId);
+      await this.cipherService.updateLastLaunchedDate(cipherId);
     }
 
     this.platformUtilsService.launchUri(uri.launchUri);

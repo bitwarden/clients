@@ -3,6 +3,7 @@ import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import {
   CardComponent,
@@ -30,10 +31,15 @@ import {
 })
 export class AutofillOptionsViewComponent {
   @Input() loginUris: LoginUriView[];
+  @Input() cipherId: string;
 
-  constructor(private platformUtilsService: PlatformUtilsService) {}
+  constructor(
+    private platformUtilsService: PlatformUtilsService,
+    private cipherService: CipherService,
+  ) {}
 
-  openWebsite(selectedUri: string) {
+  async openWebsite(selectedUri: string) {
+    await this.cipherService.updateLastLaunchedDate(this.cipherId);
     this.platformUtilsService.launchUri(selectedUri);
   }
 }
