@@ -1,5 +1,3 @@
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import MainBackground from "../../background/main.background";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
@@ -88,14 +86,6 @@ export default class TabsBackground {
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ) => {
-    const overlayImprovementsFlag = await this.main.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
-      this.overlayBackground.removePageDetails(tabId);
-    }
-
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }
