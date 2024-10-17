@@ -163,7 +163,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         null,
       );
 
-      await this.loginStrategyService.logIn(credentials);
+      const authenticationResult = await this.loginStrategyService.logIn(credentials);
+
+      if (authenticationResult?.requiresTwoFactor) {
+        await this.router.navigate(["/2fa"]);
+        return;
+      }
 
       this.toastService.showToast({
         variant: "success",
