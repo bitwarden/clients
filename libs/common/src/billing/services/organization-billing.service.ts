@@ -17,6 +17,7 @@ import {
   SubscriptionInformation,
 } from "../abstractions/organization-billing.service";
 import { PlanType } from "../enums";
+import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
 
 interface OrganizationKeys {
   encryptedKey: EncString;
@@ -77,6 +78,28 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
+  async purchaseSubscriptionNoPaymentMethod(
+    subscription: SubscriptionInformation,
+  ): Promise<OrganizationResponse> {
+    const request = new OrganizationNoPaymentMethodCreateRequest();
+
+    const organizationKeys = await this.makeOrganizationKeys();
+
+    this.setOrganizationKeys(request, organizationKeys);
+
+    this.setOrganizationInformation(request, subscription.organization);
+
+    this.setPlanInformation(request, subscription.plan);
+
+    const response = await this.organizationApiService.createWithoutPayment(request);
+
+    await this.apiService.refreshIdentityToken();
+
+    await this.syncService.fullSync(true);
+
+    return response;
+  }
+
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
     const [encryptedKey, key] = await this.cryptoService.makeOrgKey<OrgKey>();
     const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(key);
@@ -106,7 +129,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   }
 
   private setOrganizationInformation(
-    request: OrganizationCreateRequest,
+    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
     information: OrganizationInformation,
   ): void {
     request.name = information.name;
@@ -115,7 +138,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.initiationPath = information.initiationPath;
   }
 
-  private setOrganizationKeys(request: OrganizationCreateRequest, keys: OrganizationKeys): void {
+  private setOrganizationKeys(
+    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
+    keys: OrganizationKeys,
+  ): void {
     request.key = keys.encryptedKey.encryptedString;
     request.keys = new OrganizationKeysRequest(
       keys.publicKey,
@@ -146,7 +172,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   }
 
   private setPlanInformation(
-    request: OrganizationCreateRequest,
+    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
     information: PlanInformation,
   ): void {
     request.planType = information.type;

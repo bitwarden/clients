@@ -1,10 +1,13 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Location } from "@angular/common";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -15,6 +18,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { FreeTrial } from "../../core/types/free-trial";
+
+import { TrialFlowService } from "./../../core/trial-flow.service";
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
   AdjustPaymentDialogResult,
@@ -26,7 +32,7 @@ import { TaxInfoComponent } from "./tax-info.component";
   templateUrl: "payment-method.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class PaymentMethodComponent implements OnInit {
+export class PaymentMethodComponent implements OnInit, OnDestroy {
   @ViewChild(TaxInfoComponent) taxInfo: TaxInfoComponent;
 
   loading = false;
@@ -37,6 +43,7 @@ export class PaymentMethodComponent implements OnInit {
   paymentMethodType = PaymentMethodType;
   organizationId: string;
   isUnpaid = false;
+  organization: Organization;
 
   verifyBankForm = this.formBuilder.group({
     amount1: new FormControl<number>(null, [
@@ -52,6 +59,8 @@ export class PaymentMethodComponent implements OnInit {
   });
 
   taxForm = this.formBuilder.group({});
+  launchPaymentModalAutomatically = false;
+  protected freeTrialData: FreeTrial;
 
   constructor(
     protected apiService: ApiService,
@@ -59,12 +68,29 @@ export class PaymentMethodComponent implements OnInit {
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private location: Location,
     private logService: LogService,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private toastService: ToastService,
-  ) {}
+    private trialFlowService: TrialFlowService,
+    private organizationService: OrganizationService,
+  ) {
+    const state = this.router.getCurrentNavigation()?.extras?.state;
+    // incase the above state is undefined or null we use redundantState
+    const redundantState: any = location.getState();
+    if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
+      this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
+    } else if (
+      redundantState &&
+      Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
+    ) {
+      this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
+    } else {
+      this.launchPaymentModalAutomatically = false;
+    }
+  }
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -88,27 +114,37 @@ export class PaymentMethodComponent implements OnInit {
       return;
     }
     this.loading = true;
-
     if (this.forOrganization) {
       const billingPromise = this.organizationApiService.getBilling(this.organizationId);
       const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
         this.organizationId,
       );
+      const organizationPromise = this.organizationService.get(this.organizationId);
 
-      [this.billing, this.org] = await Promise.all([
+      [this.billing, this.org, this.organization] = await Promise.all([
         billingPromise,
         organizationSubscriptionPromise,
+        organizationPromise,
       ]);
+      this.determineOrgsWithUpcomingPaymentIssues();
     } else {
       const billingPromise = this.apiService.getUserBillingPayment();
       const subPromise = this.apiService.getUserSubscription();
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
     }
-
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
-
     this.loading = false;
+    // If the flag `launchPaymentModalAutomatically` is set to true,
+    // we schedule a timeout (delay of 800ms) to automatically launch the payment modal.
+    // This delay ensures that any prior UI/rendering operations complete before triggering the modal.
+    if (this.launchPaymentModalAutomatically) {
+      window.setTimeout(async () => {
+        await this.changePayment();
+        this.launchPaymentModalAutomatically = false;
+        this.location.replaceState(this.location.path(), "", {});
+      }, 800);
+    }
   };
 
   addCredit = async () => {
@@ -132,6 +168,7 @@ export class PaymentMethodComponent implements OnInit {
     });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === AdjustPaymentDialogResult.Adjusted) {
+      this.location.replaceState(this.location.path(), "", {});
       await this.load();
     }
   };
@@ -161,6 +198,14 @@ export class PaymentMethodComponent implements OnInit {
       message: this.i18nService.t("taxInfoUpdated"),
     });
   };
+
+  determineOrgsWithUpcomingPaymentIssues() {
+    this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+      this.organization,
+      this.org,
+      this.billing?.paymentSource,
+    );
+  }
 
   get isCreditBalance() {
     return this.billing == null || this.billing.balance <= 0;
@@ -202,5 +247,9 @@ export class PaymentMethodComponent implements OnInit {
 
   get subscription() {
     return this.sub?.subscription ?? this.org?.subscription ?? null;
+  }
+
+  ngOnDestroy(): void {
+    this.launchPaymentModalAutomatically = false;
   }
 }

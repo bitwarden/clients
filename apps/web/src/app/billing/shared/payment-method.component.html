@@ -1,3 +1,23 @@
+<bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngIf="freeTrialData.shownBanner"
+>
+  {{ freeTrialData.message }}
+  <a
+    bitLink
+    linkType="contrast"
+    (click)="changePayment()"
+    class="tw-cursor-pointer"
+    rel="noreferrer noopener"
+  >
+    {{ "routeToPaymentPageTrigger" | i18n }}
+  </a>
+</bit-banner>
+
 <app-header *ngIf="organizationId">
   <button
     type="button"
@@ -77,7 +97,13 @@
           {{ paymentSource.description }}
         </p>
       </ng-container>
-      <button type="button" bitButton buttonType="secondary" [bitAction]="changePayment">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="payment_trigger_button"
+        [bitAction]="changePayment"
+      >
         {{ (paymentSource ? "changePaymentMethod" : "addPaymentMethod") | i18n }}
       </button>
       <p *ngIf="isUnpaid" bitTypography="body1">

@@ -1,4 +1,24 @@
 <bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngFor="let organization of organizationsPaymentStatus; trackBy: trackBy; index as i"
+>
+  {{ freeTrialMessage(organization) }}
+  <a
+    bitLink
+    linkType="contrast"
+    (click)="navigateToPaymentMethod(organization?.organizationId)"
+    rel="noreferrer noopener"
+    class="tw-cursor-pointer"
+  >
+    {{ "routeToPaymentPageTrigger" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
   id="update-browser-banner"
   class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
   bannerType="warning"
