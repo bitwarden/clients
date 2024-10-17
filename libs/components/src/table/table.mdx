@@ -22,6 +22,8 @@ The UI component consists of a couple of elements.
 - `header`: A container for the table header.
 - `body`: A container for the table body.
 - `bitCell`: A cell within the table. Used for both headers and content.
+- `bitRow`: A row within the table. Used for content only.
+- `bit-row-selector`: A checkbox that selects a row.
 
 ### Guidelines
 
@@ -164,6 +166,53 @@ specify a `itemSize`, set `scrollWindow` to `true` and replace `*ngFor` with `*c
   </bit-table>
 </cdk-virtual-scroll-viewport>
 ```
+
+### Selectable rows
+
+To make a row selectable with a checkbox, add a cell with `bit-row-selector` and pass the row's data
+to `bitRow`.
+
+```html
+<tr [bitRow]="row" *ngFor="let r of rows$ | async">
+  <td bitCell bit-row-selector></td>
+  <td bitCell>{{ r.name }}</td>
+</tr>
+```
+
+Adding `bit-row-selector` to a table header will render a select all checkbox:
+
+```html
+<tr>
+  <th bitCell bit-row-selector></th>
+  <th bitCell>Name</th>
+</tr>
+```
+
+Pass a [CDK SelectionModel](https://material.angular.io/cdk/collections/overview) to the table's
+`selectionModel` input. This will contain the selected rows.
+
+```html
+<bit-table [dataSource]="dataSource" [selectionModel]="selectionModel">
+  <ng-container header>
+    <tr>
+      <th bitCell bit-row-selector></th>
+      <th bitCell>Id</th>
+      <th bitCell>Name</th>
+      <th bitCell>Other</th>
+    </tr>
+  </ng-container>
+  <ng-template body let-rows$>
+    <tr [bitRow]="r" *ngFor="let r of rows$ | async">
+      <td bitCell bit-row-selector></td>
+      <td bitCell>{{ r.id }}</td>
+      <td bitCell>{{ r.name }}</td>
+      <td bitCell>{{ r.other }}</td>
+    </tr>
+  </ng-template>
+</bit-table>
+```
+
+<Story of={stories.SelectableRowsMultiple} />
 
 ## Accessibility
 
