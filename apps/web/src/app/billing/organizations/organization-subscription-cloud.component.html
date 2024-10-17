@@ -1,17 +1,12 @@
 <app-header></app-header>
 
-<bit-container *ngIf="!isManagedByConsolidatedBillingMSP">
-  <ng-container *ngIf="!firstLoaded && loading">
-    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  </ng-container>
+<ng-container *ngIf="loading">
+  <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
 
-  <app-org-subscription-hidden
-    *ngIf="firstLoaded && !userOrg.canViewSubscription"
-    [providerName]="userOrg.providerName"
-  ></app-org-subscription-hidden>
-
-  <ng-container *ngIf="sub && firstLoaded">
+<bit-container *ngIf="showSubscription; else hideSubscription">
+  <ng-container *ngIf="sub && !loading">
     <ng-container *ngIf="!(showUpdatedSubscriptionStatusSection$ | async)">
       <bit-callout
         type="warning"
@@ -247,42 +242,7 @@
         ></app-sm-adjust-subscription>
       </ng-container>
     </ng-container>
-
-    <h2 bitTypography="h2" *ngIf="shownSelfHost()" class="tw-mt-7">
-      {{ "selfHostingTitle" | i18n }}
-    </h2>
-    <p bitTypography="body1" *ngIf="shownSelfHost()">
-      {{ "selfHostingEnterpriseOrganizationSectionCopy" | i18n }}
-      <a
-        href="https://bitwarden.com/help/licensing-on-premise/#retrieve-organization-license"
-        target="_blank"
-        rel="noreferrer"
-        appA11yTitle="{{ 'learnMore' | i18n }}"
-      >
-        <i class="bwi bwi-question-circle" aria-hidden="true"></i
-      ></a>
-    </p>
-    <div class="tw-flex tw-space-x-2">
-      <button
-        bitButton
-        buttonType="secondary"
-        type="button"
-        (click)="downloadLicense()"
-        *ngIf="canDownloadLicense && shownSelfHost()"
-        [disabled]="showDownloadLicense"
-      >
-        {{ "downloadLicense" | i18n }}
-      </button>
-      <button
-        bitButton
-        buttonType="secondary"
-        type="button"
-        (click)="manageBillingSync()"
-        *ngIf="canManageBillingSync"
-      >
-        {{ (hasBillingSyncToken ? "viewBillingToken" : "setUpBillingSync") | i18n }}
-      </button>
-    </div>
+    <ng-container *ngTemplateOutlet="setupSelfHost"></ng-container>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
       <p bitTypography="body1">
@@ -302,13 +262,50 @@
     </ng-container>
   </ng-container>
 </bit-container>
-<bit-container *ngIf="isManagedByConsolidatedBillingMSP">
-  <div
-    class="tw-mx-auto tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-24 tw-text-center tw-font-bold"
-  >
-    <bit-icon [icon]="manageBillingFromProviderPortal"></bit-icon>
-    <ng-container slot="description">{{
-      "manageBillingFromProviderPortalMessage" | i18n
-    }}</ng-container>
-  </div>
-</bit-container>
+<ng-template #hideSubscription>
+  <bit-container *ngIf="!loading">
+    <ng-container *ngIf="enableConsolidatedBilling$ | async; else consolidatedBillingDisabled">
+      <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
+      <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
+        {{ "manageSubscriptionFromThe" | i18n }}
+        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+          "providerPortal" | i18n
+        }}</a
+        >.
+      </p>
+      <ng-template #isOrganizationOwner>
+        <p>
+          {{ "billingManagedByProvider" | i18n: userOrg.providerName }}.
+          {{ "billingContactProviderForAssistance" | i18n }}.
+        </p>
+      </ng-template>
+      <ng-container *ngTemplateOutlet="setupSelfHost"></ng-container>
+    </ng-container>
+    <ng-template #consolidatedBillingDisabled>
+      <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
+        <bit-icon [icon]="subscriptionHiddenIcon"></bit-icon>
+        <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
+        <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
+      </div>
+    </ng-template>
+  </bit-container>
+</ng-template>
+
+<ng-template #setupSelfHost>
+  <ng-container *ngIf="showSelfHost">
+    <h2 bitTypography="h2" class="tw-mt-7">
+      {{ "selfHostingTitleProper" | i18n }}
+    </h2>
+    <p bitTypography="body1">
+      {{ "toHostBitwardenOnYourOwnServer" | i18n }}
+    </p>
+    <div class="tw-flex tw-space-x-2">
+      <button bitButton buttonType="secondary" type="button" (click)="downloadLicense()">
+        {{ "downloadLicense" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" (click)="manageBillingSync()">
+        {{ (hasBillingSyncToken ? "viewBillingToken" : "setUpBillingSync") | i18n }}
+      </button>
+    </div>
+  </ng-container>
+</ng-template>
