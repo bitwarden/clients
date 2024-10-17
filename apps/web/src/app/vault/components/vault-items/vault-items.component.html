@@ -123,6 +123,7 @@
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
           [canEditCipher]="canEditCipher(item.cipher)"
+          [canAssignCollections]="canAssignCollections(item.cipher)"
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>
