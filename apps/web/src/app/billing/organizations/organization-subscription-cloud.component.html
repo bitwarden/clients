@@ -53,10 +53,7 @@
           <dt [ngClass]="{ 'tw-text-danger': isExpired }">
             {{ "subscriptionExpiration" | i18n }}
           </dt>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }" *ngIf="!enableTimeThreshold">
-            {{ nextInvoice ? (nextInvoice.date | date: "mediumDate") : "-" }}
-          </dd>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }" *ngIf="enableTimeThreshold">
+          <dd [ngClass]="{ 'tw-text-danger': isExpired }">
             {{ nextInvoice ? (sub.subscription.periodEndDate | date: "mediumDate") : "-" }}
           </dd>
         </ng-container>

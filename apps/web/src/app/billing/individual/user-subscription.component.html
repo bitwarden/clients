@@ -48,16 +48,7 @@
           }}</span>
         </dd>
         <dt>{{ "nextCharge" | i18n }}</dt>
-        <dd *ngIf="!enableTimeThreshold">
-          {{
-            nextInvoice
-              ? (nextInvoice.date | date: "mediumDate") +
-                ", " +
-                (nextInvoice.amount | currency: "$")
-              : "-"
-          }}
-        </dd>
-        <dd *ngIf="enableTimeThreshold">
+        <dd>
           {{
             nextInvoice
               ? (sub.subscription.periodEndDate | date: "mediumDate") +
