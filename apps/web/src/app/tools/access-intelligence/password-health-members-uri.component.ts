@@ -28,15 +28,11 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBadgeModule } from "../../vault/individual-vault/organization-badge/organization-badge.module";
 // eslint-disable-next-line no-restricted-imports
 import { PipesModule } from "../../vault/individual-vault/pipes/pipes.module";
-// eslint-disable-next-line no-restricted-imports
-import { cipherData } from "../reports/pages/reports-ciphers.mock";
-
-import { userData } from "./password-health.mock";
 
 @Component({
   standalone: true,
-  selector: "tools-password-health-members",
-  templateUrl: "password-health-members.component.html",
+  selector: "tools-password-health-members-uri",
+  templateUrl: "password-health-members-uri.component.html",
   imports: [
     BadgeModule,
     OrganizationBadgeModule,
@@ -48,7 +44,7 @@ import { userData } from "./password-health.mock";
     TableModule,
   ],
 })
-export class PasswordHealthMembersComponent implements OnInit {
+export class PasswordHealthMembersURIComponent implements OnInit {
   passwordStrengthMap = new Map<string, [string, BadgeVariant]>();
 
   weakPasswordCiphers: CipherView[] = [];
@@ -59,10 +55,8 @@ export class PasswordHealthMembersComponent implements OnInit {
 
   dataSource = new TableDataSource<CipherView>();
 
-  totalMembersMap = new Map<string, number>();
-
-  reportCiphers: CipherView[] = [];
-  reportCipherIds: string[] = [];
+  reportCiphers: (CipherView & { hostURI: string })[] = [];
+  reportCipherURIs: string[] = [];
 
   organization: Organization;
 
@@ -93,22 +87,11 @@ export class PasswordHealthMembersComponent implements OnInit {
         switchMap(() => from(this.setCiphers())),
       )
       .subscribe();
-
-    // mock data - will be replaced with actual data
-    userData.forEach((user) => {
-      user.cipherIds.forEach((cipherId: string) => {
-        if (this.totalMembersMap.has(cipherId)) {
-          this.totalMembersMap.set(cipherId, (this.totalMembersMap.get(cipherId) || 0) + 1);
-        } else {
-          this.totalMembersMap.set(cipherId, 1);
-        }
-      });
-    });
   }
 
   async setCiphers() {
-    // const allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organization.id);
-    const allCiphers = this.formatUrisToHostnames(cipherData);
+    const allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organization.id);
+    // const allCiphers = cipherData;
     allCiphers.forEach(async (cipher) => {
       this.findWeakPassword(cipher);
       this.findReusedPassword(cipher);
@@ -132,20 +115,12 @@ export class PasswordHealthMembersComponent implements OnInit {
     // });
   }
 
-  formatUrisToHostnames(ciphers: any[]) {
-    const allCiphers = ciphers;
-    allCiphers.map((cipher) => {
-      const uris = cipher.login?.uris ?? [];
-      uris.map((u: { uri: string }) => (u.uri = Utils.getHostname(u.uri)));
-    });
-    return allCiphers;
-  }
-
   protected checkForExistingCipher(ciph: CipherView) {
-    if (!this.reportCipherIds.includes(ciph.id)) {
-      this.reportCipherIds.push(ciph.id);
-      this.reportCiphers.push(ciph);
-    }
+    ciph.trimmedURIs.forEach((uri: string) => {
+      if (!this.reportCipherURIs.includes(uri)) {
+        this.reportCiphers.push({ ...ciph, hostURI: uri } as CipherView & { hostURI: string });
+      }
+    });
   }
 
   protected async findExposedPassword(cipher: CipherView) {
