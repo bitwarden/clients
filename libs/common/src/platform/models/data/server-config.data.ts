@@ -6,6 +6,7 @@ import {
   ServerConfigResponse,
   ThirdPartyServerConfigResponse,
   EnvironmentServerConfigResponse,
+  PushSettingsConfigResponse,
 } from "../response/server-config.response";
 
 export class ServerConfigData {
@@ -15,6 +16,7 @@ export class ServerConfigData {
   environment?: EnvironmentServerConfigData;
   utcDate: string;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: PushSettingsConfigData;
 
   constructor(serverConfigResponse: Partial<ServerConfigResponse>) {
     this.version = serverConfigResponse?.version;
@@ -27,6 +29,9 @@ export class ServerConfigData {
       ? new EnvironmentServerConfigData(serverConfigResponse.environment)
       : null;
     this.featureStates = serverConfigResponse?.featureStates;
+    this.push = serverConfigResponse?.push
+      ? new PushSettingsConfigData(serverConfigResponse.push)
+      : null;
   }
 
   static fromJSON(obj: Jsonify<ServerConfigData>): ServerConfigData {
@@ -34,6 +39,20 @@ export class ServerConfigData {
       server: obj?.server ? ThirdPartyServerConfigData.fromJSON(obj.server) : null,
       environment: obj?.environment ? EnvironmentServerConfigData.fromJSON(obj.environment) : null,
     });
+  }
+}
+
+export class PushSettingsConfigData {
+  pushTechnology: number;
+  vapidPublicKey?: string;
+
+  constructor(response: Partial<PushSettingsConfigResponse>) {
+    this.pushTechnology = response.pushTechnology;
+    this.vapidPublicKey = response.vapidPublicKey;
+  }
+
+  static fromJSON(obj: Jsonify<PushSettingsConfigData>): PushSettingsConfigData {
+    return Object.assign(new PushSettingsConfigData({}), obj);
   }
 }
 

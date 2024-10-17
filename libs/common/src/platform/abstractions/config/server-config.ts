@@ -1,11 +1,17 @@
 import { Jsonify } from "type-fest";
 
 import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
+import { PushTechnology } from "../../../enums/push-technology.enum";
 import {
   ServerConfigData,
   ThirdPartyServerConfigData,
   EnvironmentServerConfigData,
 } from "../../models/data/server-config.data";
+
+type PushConfig =
+  | { pushTechnology: PushTechnology.SignalR }
+  | { pushTechnology: PushTechnology.WebPush; vapidPublicKey: string }
+  | undefined;
 
 const dayInMilliseconds = 24 * 3600 * 1000;
 
@@ -16,6 +22,7 @@ export class ServerConfig {
   environment?: EnvironmentServerConfigData;
   utcDate: Date;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: PushConfig;
 
   constructor(serverConfigData: ServerConfigData) {
     this.version = serverConfigData.version;
@@ -24,6 +31,15 @@ export class ServerConfig {
     this.utcDate = new Date(serverConfigData.utcDate);
     this.environment = serverConfigData.environment;
     this.featureStates = serverConfigData.featureStates;
+    this.push =
+      serverConfigData.push == null
+        ? {
+            pushTechnology: PushTechnology.SignalR,
+          }
+        : {
+            pushTechnology: serverConfigData.push.pushTechnology,
+            vapidPublicKey: serverConfigData.push.vapidPublicKey,
+          };
 
     if (this.server?.name == null && this.server?.url == null) {
       this.server = null;
