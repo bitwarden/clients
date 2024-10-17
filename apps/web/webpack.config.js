@@ -191,7 +191,7 @@ const devServer =
     ? {}
     : {
         server: {
-          type: "https",
+          type: envConfig.dev?.protocol ?? "https",
           options: {
             key: fs.readFileSync("dev-server" + certSuffix + ".pem"),
             cert: fs.readFileSync("dev-server" + certSuffix + ".pem"),
