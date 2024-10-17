@@ -428,7 +428,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.addType = type;
+    this.addType = type || this.activeFilter.cipherType;
     this.action = "add";
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
