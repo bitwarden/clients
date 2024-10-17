@@ -67,7 +67,14 @@ import * as stories from "./icon.stories";
          - Example: `--color-art-primary` corresponds to `tw-stroke-art-primary` or
            `tw-fill-art-primary`.
 
-6. **Import your SVG const** anywhere you want to use the SVG.
+6. **Remove any hardcoded width or height attributes** if your SVG has a configured
+   [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order
+   to allow the SVG to scale to fit its container.
+
+   - **Note:** Scaling is required for any SVG used as an
+     [AnonLayout](?path=/docs/auth-anon-layout--docs) `pageIcon`.
+
+7. **Import your SVG const** anywhere you want to use the SVG.
 
    - **Angular Component Example:**
 
@@ -95,5 +102,5 @@ import * as stories from "./icon.stories";
        <bit-icon [icon]="Icons.ExampleIcon"></bit-icon>
        ```
 
-7. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
+8. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
    which supports multiple style modes.
