@@ -38,6 +38,8 @@ export class OrganizationVaultExportService
   extends BaseVaultExportService
   implements OrganizationVaultExportServiceAbstraction
 {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   constructor(
     private cipherService: CipherService,
     private apiService: ApiService,
@@ -93,9 +95,7 @@ export class OrganizationVaultExportService
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
@@ -185,9 +185,13 @@ export class OrganizationVaultExportService
     const promises = [];
 
     promises.push(
-      this.collectionService.getAllDecrypted().then(async (collections) => {
-        decCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
+      await firstValueFrom(this.collectionService.decryptedCollections$(this.activeUserId$)).then(
+        async (collections) => {
+          decCollections = collections.filter(
+            (c) => c.organizationId == organizationId && c.manage,
+          );
+        },
+      ),
     );
 
     promises.push(
@@ -217,9 +221,13 @@ export class OrganizationVaultExportService
     const promises = [];
 
     promises.push(
-      this.collectionService.getAll().then((collections) => {
-        encCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
+      firstValueFrom(this.collectionService.encryptedCollections$(this.activeUserId$)).then(
+        (collections) => {
+          encCollections = collections.filter(
+            (c) => c.organizationId == organizationId && c.manage,
+          );
+        },
+      ),
     );
 
     promises.push(

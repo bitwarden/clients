@@ -6,7 +6,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -27,13 +26,14 @@ export class CollectionsComponent implements OnInit {
 
   protected cipherDomain: Cipher;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   constructor(
     protected collectionService: CollectionService,
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     protected organizationService: OrganizationService,
-    private logService: LogService,
     private accountService: AccountService,
     private toastService: ToastService,
   ) {}
@@ -45,9 +45,7 @@ export class CollectionsComponent implements OnInit {
   async load() {
     this.cipherDomain = await this.loadCipher();
     this.collectionIds = this.loadCipherCollections();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     this.cipher = await this.cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
     );
@@ -112,8 +110,10 @@ export class CollectionsComponent implements OnInit {
     return this.cipherDomain.collectionIds;
   }
 
-  protected async loadCollections() {
-    const allCollections = await this.collectionService.getAllDecrypted();
+  protected async loadCollections(): Promise<CollectionView[]> {
+    const allCollections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(this.activeUserId$),
+    );
     return allCollections.filter(
       (c) => !c.readOnly && c.organizationId === this.cipher.organizationId,
     );

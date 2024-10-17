@@ -144,7 +144,6 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.auditService,
           this.serviceContainer.cryptoService,
           this.serviceContainer.encryptService,
-          this.serviceContainer.stateService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,
           this.serviceContainer.organizationService,

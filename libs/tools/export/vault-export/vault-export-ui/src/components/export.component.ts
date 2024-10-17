@@ -21,11 +21,11 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AsyncActionsModule,
@@ -152,6 +152,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private destroy$ = new Subject<void>();
   private onlyManagedCollections = true;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
 
   constructor(
     protected i18nService: I18nService,
@@ -159,7 +160,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected exportService: VaultExportServiceAbstraction,
     protected eventCollectionService: EventCollectionService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private logService: LogService,
     private formBuilder: UntypedFormBuilder,
@@ -167,6 +167,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected dialogService: DialogService,
     protected organizationService: OrganizationService,
     private collectionService: CollectionService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -204,7 +205,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.organizations$ = combineLatest({
-      collections: this.collectionService.decryptedCollections$,
+      collections: this.collectionService.decryptedCollections$(this.activeUserId$),
       memberOrganizations: this.organizationService.memberOrganizations$,
     }).pipe(
       map(({ collections, memberOrganizations }) => {
