@@ -216,7 +216,7 @@ describe("UserApiLoginStrategy", () => {
 
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
       masterKey,
-      undefined,
+      userId,
       undefined,
     );
     expect(cryptoService.setUserKey).toHaveBeenCalledWith(userKey, userId);

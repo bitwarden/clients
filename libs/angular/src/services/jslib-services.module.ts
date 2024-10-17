@@ -912,7 +912,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalMasterPasswordServiceAbstraction,
     useClass: MasterPasswordService,
-    deps: [StateProvider, StateServiceAbstraction, KeyGenerationServiceAbstraction, EncryptService],
+    deps: [
+      StateProvider,
+      StateServiceAbstraction,
+      KeyGenerationServiceAbstraction,
+      EncryptService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: MasterPasswordServiceAbstraction,
