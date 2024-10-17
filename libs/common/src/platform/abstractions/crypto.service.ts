@@ -202,14 +202,18 @@ export abstract class CryptoService {
     hashPurpose?: HashPurpose,
   ): Promise<string>;
   /**
-   * Compares the provided master password to the stored password hash and server password hash.
-   * Updates the stored hash if outdated.
+   * Compares the provided master password to the stored password hash.
    * @param masterPassword The user's master password
    * @param key The user's master key
+   * @param userId The id of the user to do the operation for.
    * @returns True if the provided master password matches either the stored
    * key hash or the server key hash
    */
-  abstract compareAndUpdateKeyHash(masterPassword: string, masterKey: MasterKey): Promise<boolean>;
+  abstract compareKeyHash(
+    masterPassword: string,
+    masterKey: MasterKey,
+    userId: UserId,
+  ): Promise<boolean>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

@@ -206,9 +206,10 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
     if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
-      const passwordValid = await this.cryptoService.compareAndUpdateKeyHash(
+      const passwordValid = await this.cryptoService.compareKeyHash(
         verification.secret,
         masterKey,
+        userId,
       );
       if (!passwordValid) {
         throw new Error(this.i18nService.t("invalidMasterPassword"));

@@ -319,34 +319,39 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   // TODO: move to MasterPasswordService
-  async compareAndUpdateKeyHash(masterPassword: string, masterKey: MasterKey): Promise<boolean> {
-    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+  async compareKeyHash(
+    masterPassword: string,
+    masterKey: MasterKey,
+    userId: UserId,
+  ): Promise<boolean> {
+    if (masterPassword == null) {
+      // If they don't give us a master password, we can't hash it, and therefore
+      // it will never match what we have stored.
+      return false;
+    }
+
+    // Retrieve the current password hash
     const storedPasswordHash = await firstValueFrom(
       this.masterPasswordService.masterKeyHash$(userId),
     );
-    if (masterPassword != null && storedPasswordHash != null) {
-      const localKeyHash = await this.hashMasterKey(
-        masterPassword,
-        masterKey,
-        HashPurpose.LocalAuthorization,
-      );
-      if (localKeyHash != null && storedPasswordHash === localKeyHash) {
-        return true;
-      }
 
-      // TODO: remove serverKeyHash check in 1-2 releases after everyone's keyHash has been updated
-      const serverKeyHash = await this.hashMasterKey(
-        masterPassword,
-        masterKey,
-        HashPurpose.ServerAuthorization,
-      );
-      if (serverKeyHash != null && storedPasswordHash === serverKeyHash) {
-        await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
-        return true;
-      }
+    if (storedPasswordHash == null) {
+      return false;
     }
 
-    return false;
+    // Hash the key for local use
+    const localKeyHash = await this.hashMasterKey(
+      masterPassword,
+      masterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    // Check if the stored hash is already equal to the hash we create locally
+    if (localKeyHash == null || storedPasswordHash !== localKeyHash) {
+      return false;
+    }
+
+    return true;
   }
 
   async setOrgKeys(
