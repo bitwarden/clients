@@ -23,7 +23,7 @@ sys = [
 
 [dependencies]
 aes = "=0.8.4"
-anyhow = "=1.0.86"
+anyhow = "=1.0.89"
 arboard = { version = "=3.4.1", default-features = false, features = [
   "wayland-data-control",
 ] }
