@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { KdfType } from "../../platform/enums/kdf-type.enum";
 import { KDF_CONFIG_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
@@ -37,5 +37,9 @@ export class KdfConfigService implements KdfConfigServiceAbstraction {
       throw new Error("KdfConfig for active user account state is null");
     }
     return state;
+  }
+
+  getKdfConfig$(userId: UserId): Observable<KdfConfig> {
+    return this.stateProvider.getUser(userId, KDF_CONFIG).state$;
   }
 }

@@ -731,6 +731,9 @@ export default class MainBackground {
       sdkClientFactory,
       this.environmentService,
       this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.cryptoService,
       this.apiService,
     );
 

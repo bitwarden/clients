@@ -535,6 +535,9 @@ export class ServiceContainer {
       sdkClientFactory,
       this.environmentService,
       this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.cryptoService,
       this.apiService,
       customUserAgent,
     );
