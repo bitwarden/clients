@@ -84,8 +84,10 @@ export abstract class CryptoService {
    */
   abstract refreshAdditionalKeys(): Promise<void>;
   /**
-   * Observable value that returns whether or not the currently active user has ever had auser key,
-   * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
+   * Observable value that returns whether or not the currently active user has ever had a user key (i.e. has ever been unlocked/decrypted)
+   * in the current session (since last logout). This is key for differentiating between TDE locked and standard locked states.
+   * If a TDE user has not ever had a user key (i.e. `everHadUserKey` is `false`), this means that they need to be directed to the decryption options.
+   * If a TDE user has ever had a user key (i.e. `everHadUserKey` is `true`), this means that they can be directed to the standard locked state.
    */
   abstract everHadUserKey$: Observable<boolean>;
   /**
