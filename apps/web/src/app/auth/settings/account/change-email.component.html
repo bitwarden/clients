@@ -3,7 +3,7 @@
     {{ "changeEmailTwoFactorWarning" | i18n }}
   </bit-callout>
 
-  <div class="tw-w-1/2 tw-pr-2" formGroupName="step1">
+  <div class="@md:tw-w-1/2 @md:tw-pr-2" formGroupName="step1">
     <bit-form-field>
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
       <input
@@ -31,7 +31,7 @@
     <p>{{ "changeEmailDesc" | i18n: formGroup.controls.step1.value.newEmail }}</p>
     <bit-callout type="warning">{{ "loggedOutWarning" | i18n }}</bit-callout>
 
-    <div class="tw-w-1/2 tw-pr-2">
+    <div class="@md:tw-w-1/2 @md:tw-pr-2">
       <bit-form-field>
         <bit-label>{{ "code" | i18n }}</bit-label>
         <input id="change-email_input_token" bitInput type="text" formControlName="token" />
