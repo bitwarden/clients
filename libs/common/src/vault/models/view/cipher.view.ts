@@ -132,6 +132,10 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get trimmedURIs(): string[] {
+    return this.login?.uris?.map((u) => u.uri.replace(/(^\w+:|^)\/\//, "")) || [];
+  }
+
   linkedFieldValue(id: LinkedIdType) {
     const linkedFieldOption = this.linkedFieldOptions?.get(id);
     if (linkedFieldOption == null) {

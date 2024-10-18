@@ -12,6 +12,14 @@ export const cipherData: any[] = [
     organizationUseTotp: false,
     login: {
       password: "123",
+      hasUris: true,
+      uris: [
+        { uri: "https://www.google.com" },
+        { uri: "https://www.google.com/accounts" },
+        { uri: "https://www.accounts.google.com" },
+        { uri: "https://accounts.google.com" },
+        { uri: "accounts.google.com/all" },
+      ],
     },
     edit: false,
     viewPassword: true,
