@@ -82,6 +82,9 @@ type BaseCipherFormConfig = {
 
   /** Hides the fields that are only applicable to individuals, useful in the Admin Console where folders aren't applicable */
   hideIndividualVaultFields?: true;
+
+  /** True when the config is built within the context of the Admin Console */
+  isAdminConsole?: true;
 };
 
 /**
