@@ -33,6 +33,15 @@ const ADDITIONAL_INLINE_MENU_CIPHER_TYPES_ENABLED = new UserKeyDefinition(
   },
 );
 
+const NOTIFICATION_BAR_IMPROVEMENTS_ENABLED = new UserKeyDefinition(
+  LABS_SETTINGS_DISK,
+  "notificationBarImprovementsEnabled",
+  {
+    deserializer: (value: boolean) => value ?? null,
+    clearOn: [],
+  },
+);
+
 const DESIGN_REFRESH_ENABLED = new UserKeyDefinition(LABS_SETTINGS_DISK, "designRefreshEnabled", {
   deserializer: (value: boolean) => value ?? null,
   clearOn: [],
@@ -49,6 +58,9 @@ export abstract class LabsSettingsServiceAbstraction {
   additionalInlineMenuCipherTypesEnabled$: Observable<boolean | null>;
   getAdditionalInlineMenuCipherTypesEnabled: () => Promise<boolean | null>;
   setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
+  notificationBarImprovementsEnabled$: Observable<boolean | null>;
+  getNotificationBarImprovementsEnabled: () => Promise<boolean | null>;
+  setNotificationBarImprovementsEnabled: (newValue: boolean) => Promise<void>;
   designRefreshEnabled$: Observable<boolean | null>;
   getDesignRefreshEnabled: () => Promise<boolean | null>;
   setDesignRefreshEnabled: (newValue: boolean) => Promise<void>;
@@ -61,6 +73,8 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   readonly improvedFieldQualificationForInlineMenuEnabled$: Observable<boolean>;
   private additionalInlineMenuCipherTypesEnabledState: ActiveUserState<boolean>;
   readonly additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
+  private notificationBarImprovementsState: ActiveUserState<boolean>;
+  readonly notificationBarImprovementsEnabled$: Observable<boolean>;
   private designRefreshEnabledState: ActiveUserState<boolean>;
   readonly designRefreshEnabled$: Observable<boolean>;
   private preserveLabSettings: boolean = true;
@@ -86,6 +100,13 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     this.additionalInlineMenuCipherTypesEnabled$ =
       this.additionalInlineMenuCipherTypesEnabledState.state$.pipe(map((x) => x ?? null));
 
+    this.notificationBarImprovementsState = this.stateProvider.getActive(
+      NOTIFICATION_BAR_IMPROVEMENTS_ENABLED,
+    );
+    this.notificationBarImprovementsEnabled$ = this.notificationBarImprovementsState.state$.pipe(
+      map((x) => x ?? null),
+    );
+
     this.designRefreshEnabledState = this.stateProvider.getActive(DESIGN_REFRESH_ENABLED);
     this.designRefreshEnabled$ = this.designRefreshEnabledState.state$.pipe(map((x) => x ?? null));
   }
@@ -108,6 +129,7 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
       this.setImprovedFieldQualificationForInlineMenuEnabled(null),
       this.setAdditionalInlineMenuCipherTypesEnabled(null),
       this.setDesignRefreshEnabled(null),
+      this.setNotificationBarImprovementsEnabled(null),
     ]);
   }
 
@@ -156,6 +178,25 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
 
   async setAdditionalInlineMenuCipherTypesEnabled(newValue: boolean | null): Promise<void> {
     await this.additionalInlineMenuCipherTypesEnabledState.update(() =>
+      this.preserveLabSettings ? newValue : null,
+    );
+  }
+
+  // Get user setting or feature-flag value for `notification-bar-add-login-improvements`
+  async getNotificationBarImprovementsEnabled(): Promise<boolean | null> {
+    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
+    const userOverrideValue = await firstValueFrom(this.notificationBarImprovementsEnabled$);
+
+    if (labsSettingsEnabled && userOverrideValue !== null) {
+      return userOverrideValue;
+    }
+
+    // return the feature flag value if lab settings aren't enabled or user override is not set
+    return await this.configService.getFeatureFlag(FeatureFlag.NotificationBarAddLoginImprovements);
+  }
+
+  async setNotificationBarImprovementsEnabled(newValue: boolean | null): Promise<void> {
+    await this.notificationBarImprovementsState.update(() =>
       this.preserveLabSettings ? newValue : null,
     );
   }

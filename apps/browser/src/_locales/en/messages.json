@@ -3150,6 +3150,9 @@
   "designRefreshSettingLabel": {
     "message": "Enable UI design and experience improvements"
   },
+  "notificationBarImprovementsSettingLabel": {
+    "message": "New notification bar improvements"
+  },
   "improvedFieldQualificationForInlineMenuSettingLabel": {
     "message": "Improve accuracy of the inline menu appearance in login forms"
   },

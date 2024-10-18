@@ -48,6 +48,7 @@ export class LabsComponent implements OnInit {
    */
   protected improvedFieldQualificationForInlineMenuEnabled: boolean = false;
   protected additionalInlineMenuCipherTypesEnabled: boolean = false;
+  protected notificationBarImprovementsEnabled: boolean = false;
   protected designRefreshEnabled: boolean = false;
 
   constructor(
@@ -68,6 +69,10 @@ export class LabsComponent implements OnInit {
       this.labsSettingsService.additionalInlineMenuCipherTypesEnabled$,
     );
 
+    this.notificationBarImprovementsEnabled = await firstValueFrom(
+      this.labsSettingsService.notificationBarImprovementsEnabled$,
+    );
+
     this.designRefreshEnabled = await firstValueFrom(
       this.labsSettingsService.designRefreshEnabled$,
     );
@@ -82,6 +87,12 @@ export class LabsComponent implements OnInit {
   async updateAdditionalInlineMenuCipherTypesEnabled() {
     await this.labsSettingsService.setAdditionalInlineMenuCipherTypesEnabled(
       this.additionalInlineMenuCipherTypesEnabled,
+    );
+  }
+
+  async updateNotificationBarImprovementsEnabled() {
+    await this.labsSettingsService.setNotificationBarImprovementsEnabled(
+      this.notificationBarImprovementsEnabled,
     );
   }
 

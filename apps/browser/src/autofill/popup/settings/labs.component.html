@@ -27,6 +27,18 @@
         <bit-form-control>
           <input
             bitCheckbox
+            id="notificationBarImprovements"
+            type="checkbox"
+            (change)="updateNotificationBarImprovementsEnabled()"
+            [(ngModel)]="notificationBarImprovementsEnabled"
+          />
+          <bit-label for="notificationBarImprovements">
+            {{ "notificationBarImprovementsSettingLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
             id="improvedFieldQualificationForInlineMenu"
             type="checkbox"
             (change)="updateImprovedFieldQualificationForInlineMenuEnabled()"
