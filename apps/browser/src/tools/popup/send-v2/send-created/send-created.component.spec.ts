@@ -11,6 +11,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { ButtonModule, I18nMockService, IconModule, ToastService } from "@bitwarden/components";
@@ -50,6 +51,7 @@ describe("SendCreatedComponent", () => {
     sendView = {
       id: sendId,
       deletionDate: new Date(),
+      type: SendType.Text,
       accessId: "abc",
       urlB64Key: "123",
     } as SendView;
@@ -129,9 +131,11 @@ describe("SendCreatedComponent", () => {
     expect(component["hoursAvailable"]).toBe(0);
   });
 
-  it("should navigate back to send list on close", async () => {
-    await component.close();
-    expect(router.navigate).toHaveBeenCalledWith(["/tabs/send"]);
+  it("should navigate back to the edit send form on close", async () => {
+    await component.goToEditSend();
+    expect(router.navigate).toHaveBeenCalledWith(["/edit-send"], {
+      queryParams: { sendId: "test-send-id", type: SendType.Text },
+    });
   });
 
   describe("getHoursAvailable", () => {

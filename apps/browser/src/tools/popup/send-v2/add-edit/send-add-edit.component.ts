@@ -114,8 +114,8 @@ export class SendAddEditComponent {
   /**
    * Handles the event when the send is updated.
    */
-  onSendUpdated(send: SendView) {
-    this.location.back();
+  async onSendUpdated(_: SendView) {
+    await this.router.navigate(["/tabs/send"]);
   }
 
   deleteSend = async () => {

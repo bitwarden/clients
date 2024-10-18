@@ -4,7 +4,7 @@
       slot="header"
       [pageTitle]="'createdSend' | i18n"
       showBackButton
-      [backAction]="close.bind(this)"
+      [backAction]="goToEditSend.bind(this)"
     >
       <ng-container slot="end">
         <app-pop-out></app-pop-out>
@@ -27,7 +27,7 @@
       <button bitButton type="button" buttonType="primary" (click)="copyLink()">
         <b>{{ "copyLink" | i18n }}</b>
       </button>
-      <button bitButton type="button" buttonType="secondary" (click)="close()">
+      <button bitButton type="button" buttonType="secondary" (click)="goBack()">
         {{ "close" | i18n }}
       </button>
     </popup-footer>
