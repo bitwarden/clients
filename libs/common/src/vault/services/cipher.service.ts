@@ -650,14 +650,11 @@ export class CipherService implements CipherServiceAbstraction {
       ciphersLocalData = {};
     }
 
-    const cipherId = id as CipherId;
-    if (ciphersLocalData[cipherId]) {
-      ciphersLocalData[cipherId].lastLaunched = new Date().getTime();
-    } else {
-      ciphersLocalData[cipherId] = {
-        lastUsedDate: new Date().getTime(),
-      };
-    }
+    const currentTime = new Date().getTime();
+    ciphersLocalData[id as CipherId] = {
+      lastLaunched: currentTime,
+      lastUsedDate: currentTime,
+    };
 
     await this.localDataState.update(() => ciphersLocalData);
 

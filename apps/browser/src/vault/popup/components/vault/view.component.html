@@ -472,7 +472,7 @@
             attr.aria-label="{{ 'launch' | i18n }} {{ u.uri }}"
             appA11yTitle="{{ 'launch' | i18n }}"
             *ngIf="u.canLaunch"
-            (click)="launch(u)"
+            (click)="launch(u, cipher.id)"
           >
             <i class="bwi bwi-lg bwi-share-square" aria-hidden="true"></i>
           </button>
