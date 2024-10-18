@@ -33,6 +33,8 @@ export class CompletionCommand {
         return [
           `#compdef _${rootName} ${rootName}`,
           "",
+          `compdef _${rootName} ${rootName}`,
+          "",
           this.renderCommandBlock(rootName, rootCommand),
         ].join("\n");
       },
