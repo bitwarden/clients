@@ -1,4 +1,4 @@
-import { map, Observable, firstValueFrom } from "rxjs";
+import { map, combineLatest, Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -59,7 +59,7 @@ export abstract class LabsSettingsServiceAbstraction {
   getAdditionalInlineMenuCipherTypesEnabled: () => Promise<boolean | null>;
   setAdditionalInlineMenuCipherTypesEnabled: (newValue: boolean) => Promise<void>;
   notificationBarImprovementsEnabled$: Observable<boolean | null>;
-  getNotificationBarImprovementsEnabled: () => Promise<boolean | null>;
+  resolvedNotificationBarImprovementsEnabled$: Observable<boolean | null>;
   setNotificationBarImprovementsEnabled: (newValue: boolean) => Promise<void>;
   designRefreshEnabled$: Observable<boolean | null>;
   getDesignRefreshEnabled: () => Promise<boolean | null>;
@@ -75,6 +75,7 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
   readonly additionalInlineMenuCipherTypesEnabled$: Observable<boolean>;
   private notificationBarImprovementsState: ActiveUserState<boolean>;
   readonly notificationBarImprovementsEnabled$: Observable<boolean>;
+  readonly resolvedNotificationBarImprovementsEnabled$: Observable<boolean>;
   private designRefreshEnabledState: ActiveUserState<boolean>;
   readonly designRefreshEnabled$: Observable<boolean>;
   private preserveLabSettings: boolean = true;
@@ -106,9 +107,28 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     this.notificationBarImprovementsEnabled$ = this.notificationBarImprovementsState.state$.pipe(
       map((x) => x ?? null),
     );
+    // Get user setting or feature-flag value for `notification-bar-add-login-improvements`
+    this.resolvedNotificationBarImprovementsEnabled$ = combineLatest([
+      this.labsSettingsEnabled$,
+      this.notificationBarImprovementsEnabled$,
+      this.configService.getFeatureFlag(FeatureFlag.NotificationBarAddLoginImprovements),
+    ]).pipe(switchMap((stateResults) => this.resolveSettingStates(stateResults)));
 
     this.designRefreshEnabledState = this.stateProvider.getActive(DESIGN_REFRESH_ENABLED);
     this.designRefreshEnabled$ = this.designRefreshEnabledState.state$.pipe(map((x) => x ?? null));
+  }
+
+  private async resolveSettingStates([labsSettingsEnabled, userOverrideValue, featureFlagValue]: [
+    labsSettingsEnabled: boolean,
+    userOverrideValue: boolean,
+    featureFlagValue: boolean,
+  ]) {
+    if (labsSettingsEnabled && userOverrideValue !== null) {
+      return userOverrideValue;
+    }
+
+    // return the feature flag value if lab settings aren't enabled or user override is not set
+    return featureFlagValue ?? false;
   }
 
   // @TODO ensure this is called regularly/on state consumption
@@ -180,19 +200,6 @@ export class LabsSettingsService implements LabsSettingsServiceAbstraction {
     await this.additionalInlineMenuCipherTypesEnabledState.update(() =>
       this.preserveLabSettings ? newValue : null,
     );
-  }
-
-  // Get user setting or feature-flag value for `notification-bar-add-login-improvements`
-  async getNotificationBarImprovementsEnabled(): Promise<boolean | null> {
-    const labsSettingsEnabled = await firstValueFrom(this.labsSettingsEnabled$);
-    const userOverrideValue = await firstValueFrom(this.notificationBarImprovementsEnabled$);
-
-    if (labsSettingsEnabled && userOverrideValue !== null) {
-      return userOverrideValue;
-    }
-
-    // return the feature flag value if lab settings aren't enabled or user override is not set
-    return await this.configService.getFeatureFlag(FeatureFlag.NotificationBarAddLoginImprovements);
   }
 
   async setNotificationBarImprovementsEnabled(newValue: boolean | null): Promise<void> {

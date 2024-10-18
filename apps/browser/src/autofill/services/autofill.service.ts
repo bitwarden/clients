@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
@@ -79,6 +80,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private accountService: AccountService,
     private authService: AuthService,
     private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
   ) {}
@@ -187,8 +189,8 @@ export default class AutofillService implements AutofillServiceInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
-    const addLoginImprovementsFlagActive = await this.configService.getFeatureFlag(
-      FeatureFlag.NotificationBarAddLoginImprovements,
+    const addLoginImprovementsFlagActive = await firstValueFrom(
+      this.labsSettingsService.resolvedNotificationBarImprovementsEnabled$,
     );
 
     const injectedScripts = [

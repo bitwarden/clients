@@ -10,6 +10,7 @@ import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { LabsSettingsService } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -92,6 +93,7 @@ describe("AutofillService", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let labsSettingsService: MockProxy<LabsSettingsService>;
   let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
@@ -129,6 +131,7 @@ describe("AutofillService", () => {
       accountService,
       authService,
       configService,
+      labsSettingsService,
       userNotificationsSettings,
       messageListener,
     );

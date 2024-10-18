@@ -529,7 +529,6 @@ export default class MainBackground {
       storageServiceProvider,
       this.logService,
     );
-
     const stateEventRegistrarService = new StateEventRegistrarService(
       this.globalStateProvider,
       storageServiceProvider,
@@ -714,7 +713,6 @@ export default class MainBackground {
       this.stateProvider,
       this.policyService,
     );
-    this.labsSettingsService = new LabsSettingsService(this.stateProvider, this.configService);
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
     this.keyConnectorService = new KeyConnectorService(
@@ -810,6 +808,8 @@ export default class MainBackground {
       this.stateProvider,
       this.authService,
     );
+
+    this.labsSettingsService = new LabsSettingsService(this.stateProvider, this.configService);
 
     this.themeStateService = new DefaultThemeStateService(
       this.globalStateProvider,
@@ -995,6 +995,7 @@ export default class MainBackground {
       this.accountService,
       this.authService,
       this.configService,
+      this.labsSettingsService,
       this.userNotificationSettingsService,
       messageListener,
     );
@@ -1171,6 +1172,7 @@ export default class MainBackground {
       this.overlayNotificationsBackground = new OverlayNotificationsBackground(
         this.logService,
         this.configService,
+        this.labsSettingsService,
         this.notificationBackground,
       );
 

@@ -2,7 +2,7 @@ import { startWith, Subject, Subscription, switchMap, timer } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
@@ -37,6 +37,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   constructor(
     private logService: LogService,
     private configService: ConfigService,
+    private labsSettingsService: LabsSettingsServiceAbstraction,
     private notificationBackground: NotificationBackground,
   ) {}
 
@@ -44,8 +45,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * Initialize the overlay notifications background service.
    */
   async init() {
-    this.featureFlagState$ = this.configService
-      .getFeatureFlag$(FeatureFlag.NotificationBarAddLoginImprovements)
+    this.featureFlagState$ = this.labsSettingsService.resolvedNotificationBarImprovementsEnabled$
       .pipe(startWith(undefined), pairwise())
       .subscribe(([prev, current]) => this.handleInitFeatureFlagChange(prev, current));
     this.clearLoginCipherFormDataSubject

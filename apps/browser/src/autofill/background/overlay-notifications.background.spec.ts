@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
+import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,6 +28,7 @@ describe("OverlayNotificationsBackground", () => {
   let logService: MockProxy<LogService>;
   let getFeatureFlagMock$: BehaviorSubject<boolean>;
   let configService: MockProxy<ConfigService>;
+  let labsSettingsService: MockProxy<LabsSettingsServiceAbstraction>;
   let notificationBackground: NotificationBackground;
   let getEnableChangedPasswordPromptSpy: jest.SpyInstance;
   let getEnableAddedLoginPromptSpy: jest.SpyInstance;
@@ -49,6 +51,7 @@ describe("OverlayNotificationsBackground", () => {
     overlayNotificationsBackground = new OverlayNotificationsBackground(
       logService,
       configService,
+      labsSettingsService,
       notificationBackground,
     );
     configService.getFeatureFlag.mockResolvedValue(true);
