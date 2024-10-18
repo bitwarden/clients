@@ -1,8 +1,8 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
-import { Component, EventEmitter, Output } from "@angular/core";
-import { Router } from "@angular/router";
-import { Observable, map } from "rxjs";
+import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from "@angular/core";
+import { Router, ActivatedRoute } from "@angular/router";
+import { Observable, map, Subject, takeUntil } from "rxjs";
 
 import {
   EnvironmentService,
@@ -34,11 +34,9 @@ import {
     ]),
   ],
 })
-export class EnvironmentSelectorComponent {
+export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
-  protected isOpen = false;
-  protected ServerEnvironmentType = Region;
-  protected overlayPosition: ConnectedPosition[] = [
+  @Input() overlayPosition: ConnectedPosition[] = [
     {
       originX: "start",
       originY: "bottom",
@@ -47,6 +45,8 @@ export class EnvironmentSelectorComponent {
     },
   ];
 
+  protected isOpen = false;
+  protected ServerEnvironmentType = Region;
   protected availableRegions = this.environmentService.availableRegions();
   protected selectedRegion$: Observable<RegionConfig | undefined> =
     this.environmentService.environment$.pipe(
@@ -54,10 +54,26 @@ export class EnvironmentSelectorComponent {
       map((r) => this.availableRegions.find((ar) => ar.key === r)),
     );
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     protected environmentService: EnvironmentService,
     protected router: Router,
+    private route: ActivatedRoute,
   ) {}
+
+  ngOnInit() {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data && data["overlayPosition"]) {
+        this.overlayPosition = data["overlayPosition"];
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   async toggle(option: Region) {
     this.isOpen = !this.isOpen;

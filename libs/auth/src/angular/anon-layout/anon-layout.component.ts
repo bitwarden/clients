@@ -10,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { IconModule, Icon } from "../../../../components/src/icon";
 import { SharedModule } from "../../../../components/src/shared";
 import { TypographyModule } from "../../../../components/src/typography";
-import { BitwardenLogo, BitwardenShield } from "../icons";
+import { BitwardenLogo, VaultIcon } from "../icons";
 
 @Component({
   standalone: true,
@@ -63,7 +63,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
     // If there is no icon input, then use the default icon
     if (this.icon == null) {
-      this.icon = BitwardenShield;
+      this.icon = VaultIcon;
     }
   }
 

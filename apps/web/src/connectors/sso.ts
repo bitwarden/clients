@@ -6,10 +6,11 @@ window.addEventListener("load", () => {
   const code = getQsParam("code");
   const state = getQsParam("state");
   const lastpass = getQsParam("lp");
+  const clientId = getQsParam("clientId");
 
   if (lastpass === "1") {
     initiateBrowserSso(code, state, true);
-  } else if (state != null && state.includes(":clientId=browser")) {
+  } else if (state != null && clientId == "browser") {
     initiateBrowserSso(code, state, false);
   } else {
     window.location.href = window.location.origin + "/#/sso?code=" + code + "&state=" + state;

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
+import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import {
   LoginStrategyServiceAbstraction,
@@ -39,14 +39,15 @@ import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 @Component({
   selector: "app-login",
-  templateUrl: "login.component.html",
+  templateUrl: "login-v1.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class LoginComponent extends BaseLoginComponent implements OnInit {
+export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   showResetPasswordAutoEnrollWarning = false;
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: Policy[];
   showPasswordless = false;
+
   constructor(
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     devicesApiService: DevicesApiServiceAbstraction,
@@ -99,6 +100,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
     this.showPasswordless = flagEnabled("showPasswordless");
   }
+
   submitForm = async (showToast = true) => {
     return await this.submitFormHelper(showToast);
   };
@@ -106,9 +108,11 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   private async submitFormHelper(showToast: boolean) {
     await super.submit(showToast);
   }
+
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
+      // If there is an query parameter called 'org', set previousUrl to `/create-organization?org=paramValue`
       if (qParams.org != null) {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
@@ -116,13 +120,18 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
         this.routerService.setPreviousUrl(route.toString());
       }
 
-      // Are they coming from an email for sponsoring a families organization
+      /**
+       * If there is a query parameter called 'sponsorshipToken', that means they are coming
+       * from an email for sponsoring a families organization. If so, then set the prevousUrl
+       * to `/setup/families-for-enterprise?token=paramValue`
+       */
       if (qParams.sponsorshipToken != null) {
         const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
           queryParams: { token: qParams.sponsorshipToken },
         });
         this.routerService.setPreviousUrl(route.toString());
       }
+
       await super.ngOnInit();
     });
 
@@ -206,10 +215,12 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     if (this.policies == null) {
       return;
     }
+
     const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
       this.policies,
       invite.organizationId,
     );
+
     // Set to true if policy enabled and auto-enroll enabled
     this.showResetPasswordAutoEnrollWarning =
       resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;

@@ -87,6 +87,9 @@ export class Main {
       // on ready stuff...
     });
 
+    app.commandLine.appendSwitch("ignore-certificate-errors");
+    app.commandLine.appendSwitch("allow-insecure-localhost", "true");
+
     if (appDataPath != null) {
       app.setPath("userData", appDataPath);
     }
