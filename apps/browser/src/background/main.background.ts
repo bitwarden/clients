@@ -227,6 +227,7 @@ import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import AutofillService from "../autofill/services/autofill.service";
+import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -1141,10 +1142,10 @@ export default class MainBackground {
       );
       this.commandsBackground = new CommandsBackground(
         this,
-        this.passwordGenerationService,
         this.platformUtilsService,
         this.vaultTimeoutService,
         this.authService,
+        () => this.generatePasswordToClipboard(),
       );
       this.notificationBackground = new NotificationBackground(
         this.autofillService,
@@ -1189,14 +1190,7 @@ export default class MainBackground {
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text),
-        async (_tab) => {
-          const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-          const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.passwordGenerationService.addHistory(password);
-        },
+        async () => this.generatePasswordToClipboard(),
         async (tab, cipher) => {
           this.loginToAutoFill = cipher;
           if (tab == null) {
@@ -1648,6 +1642,7 @@ export default class MainBackground {
         this.themeStateService,
       );
     } else {
+      const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
       this.overlayBackground = new OverlayBackground(
         this.logService,
         this.cipherService,
@@ -1660,7 +1655,10 @@ export default class MainBackground {
         this.platformUtilsService,
         this.vaultSettingsService,
         this.fido2ActiveRequestManager,
+        inlineMenuFieldQualificationService,
         this.themeStateService,
+        () => this.generatePassword(),
+        (password) => this.addPasswordToHistory(password),
       );
     }
 
@@ -1673,4 +1671,19 @@ export default class MainBackground {
     await this.overlayBackground.init();
     await this.tabsBackground.init();
   }
+
+  generatePassword = async (): Promise<string> => {
+    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+    return await this.passwordGenerationService.generatePassword(options);
+  };
+
+  generatePasswordToClipboard = async () => {
+    const password = await this.generatePassword();
+    this.platformUtilsService.copyToClipboard(password);
+    await this.addPasswordToHistory(password);
+  };
+
+  addPasswordToHistory = async (password: string) => {
+    await this.passwordGenerationService.addHistory(password);
+  };
 }

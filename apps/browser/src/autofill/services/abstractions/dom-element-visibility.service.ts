@@ -1,4 +1,4 @@
 export interface DomElementVisibilityService {
-  isFormFieldViewable: (element: HTMLElement) => Promise<boolean>;
+  isElementViewable: (element: HTMLElement) => Promise<boolean>;
   isElementHiddenByCss: (element: HTMLElement) => boolean;
 }

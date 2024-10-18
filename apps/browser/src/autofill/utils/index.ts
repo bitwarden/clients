@@ -323,6 +323,10 @@ export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
   );
 }
 
+export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
+  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+}
+
 /**
  * Returns a boolean representing the attribute value of an element.
  *
@@ -378,12 +382,26 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  *
  * @param callback - The callback function to debounce.
  * @param delay - The time in milliseconds to debounce the callback.
+ * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number) {
+export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout;
   return function (...args: unknown[]) {
-    globalThis.clearTimeout(timeout);
-    timeout = globalThis.setTimeout(() => callback.apply(this, args), delay);
+    const callImmediately = !!immediate && !timeout;
+
+    if (timeout) {
+      globalThis.clearTimeout(timeout);
+    }
+    timeout = globalThis.setTimeout(() => {
+      timeout = null;
+      if (!callImmediately) {
+        callback.apply(this, args);
+      }
+    }, delay);
+
+    if (callImmediately) {
+      callback.apply(this, args);
+    }
   };
 }
 
@@ -473,3 +491,54 @@ export function generateDomainMatchPatterns(url: string): string[] {
 export function isInvalidResponseStatusCode(statusCode: number) {
   return statusCode < 200 || statusCode >= 300;
 }
+
+/**
+ * Determines if the current context is within a sandboxed iframe.
+ */
+export function currentlyInSandboxedIframe(): boolean {
+  return (
+    String(self.origin).toLowerCase() === "null" ||
+    globalThis.frameElement?.hasAttribute("sandbox") ||
+    globalThis.location.hostname === ""
+  );
+}
+
+/**
+ * This object allows us to map a special character to a key name. The key name is used
+ * in gathering the i18n translation of the written version of the special character.
+ */
+export const specialCharacterToKeyMap: Record<string, string> = {
+  " ": "spaceCharacterDescriptor",
+  "~": "tildeCharacterDescriptor",
+  "`": "backtickCharacterDescriptor",
+  "!": "exclamationCharacterDescriptor",
+  "@": "atSignCharacterDescriptor",
+  "#": "hashSignCharacterDescriptor",
+  $: "dollarSignCharacterDescriptor",
+  "%": "percentSignCharacterDescriptor",
+  "^": "caretCharacterDescriptor",
+  "&": "ampersandCharacterDescriptor",
+  "*": "asteriskCharacterDescriptor",
+  "(": "parenLeftCharacterDescriptor",
+  ")": "parenRightCharacterDescriptor",
+  "-": "hyphenCharacterDescriptor",
+  _: "underscoreCharacterDescriptor",
+  "+": "plusCharacterDescriptor",
+  "=": "equalsCharacterDescriptor",
+  "{": "braceLeftCharacterDescriptor",
+  "}": "braceRightCharacterDescriptor",
+  "[": "bracketLeftCharacterDescriptor",
+  "]": "bracketRightCharacterDescriptor",
+  "|": "pipeCharacterDescriptor",
+  "\\": "backSlashCharacterDescriptor",
+  ":": "colonCharacterDescriptor",
+  ";": "semicolonCharacterDescriptor",
+  '"': "doubleQuoteCharacterDescriptor",
+  "'": "singleQuoteCharacterDescriptor",
+  "<": "lessThanCharacterDescriptor",
+  ">": "greaterThanCharacterDescriptor",
+  ",": "commaCharacterDescriptor",
+  ".": "periodCharacterDescriptor",
+  "?": "questionCharacterDescriptor",
+  "/": "forwardSlashCharacterDescriptor",
+};

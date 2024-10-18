@@ -43,6 +43,7 @@ describe("CollectAutofillContentService", () => {
   const domQueryService = new DomQueryService();
   const autofillOverlayContentService = new AutofillOverlayContentService(
     domQueryService,
+    domElementVisibilityService,
     inlineMenuFieldQualificationService,
   );
   let collectAutofillContentService: CollectAutofillContentService;
@@ -262,8 +263,8 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["autofillFieldElements"] = new Map([
         [fieldElement, autofillField],
       ]);
-      const isFormFieldViewableSpy = jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+      const isElementViewableSpy = jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
       const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
@@ -273,7 +274,7 @@ describe("CollectAutofillContentService", () => {
       await collectAutofillContentService.getPageDetails();
 
       expect(autofillField.viewable).toBe(true);
-      expect(isFormFieldViewableSpy).toHaveBeenCalledWith(fieldElement);
+      expect(isElementViewableSpy).toHaveBeenCalledWith(fieldElement);
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalled();
     });
 
@@ -301,7 +302,7 @@ describe("CollectAutofillContentService", () => {
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFormsData");
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
 
       const pageDetails = await collectAutofillContentService.getPageDetails();
@@ -353,6 +354,7 @@ describe("CollectAutofillContentService", () => {
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
+            dataSetValues: "",
           },
           {
             opid: "__1",
@@ -385,6 +387,7 @@ describe("CollectAutofillContentService", () => {
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
+            dataSetValues: "",
           },
         ],
         collectedTimestamp: expect.any(Number),
@@ -561,7 +564,7 @@ describe("CollectAutofillContentService", () => {
       jest.spyOn(collectAutofillContentService as any, "getAutofillFieldElements");
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldItem");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
 
       const { formFieldElements } =
@@ -609,6 +612,7 @@ describe("CollectAutofillContentService", () => {
           type: "text",
           value: "",
           viewable: true,
+          dataSetValues: "",
         },
         {
           "aria-disabled": false,
@@ -641,6 +645,7 @@ describe("CollectAutofillContentService", () => {
           type: "password",
           value: "",
           viewable: true,
+          dataSetValues: "",
         },
       ]);
     });
@@ -929,7 +934,7 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["autofillFieldElements"].set(usernameInput, existingFieldData);
       jest.spyOn(collectAutofillContentService as any, "getAutofillFieldMaxLength");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
       jest.spyOn(collectAutofillContentService as any, "getElementValue");
@@ -941,7 +946,7 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["getAutofillFieldMaxLength"]).not.toHaveBeenCalled();
       expect(
-        collectAutofillContentService["domElementVisibilityService"].isFormFieldViewable,
+        collectAutofillContentService["domElementVisibilityService"].isElementViewable,
       ).not.toHaveBeenCalled();
       expect(collectAutofillContentService["getPropertyOrAttribute"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["getElementValue"]).not.toHaveBeenCalled();
@@ -962,7 +967,7 @@ describe("CollectAutofillContentService", () => {
       ) as ElementWithOpId<FormFieldElement>;
       jest.spyOn(collectAutofillContentService as any, "getAutofillFieldMaxLength");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
       jest.spyOn(collectAutofillContentService as any, "getElementValue");
@@ -976,7 +981,7 @@ describe("CollectAutofillContentService", () => {
         spanElement,
       );
       expect(
-        collectAutofillContentService["domElementVisibilityService"].isFormFieldViewable,
+        collectAutofillContentService["domElementVisibilityService"].isElementViewable,
       ).toHaveBeenCalledWith(spanElement);
       expect(collectAutofillContentService["getPropertyOrAttribute"]).toHaveBeenNthCalledWith(
         1,
@@ -1020,6 +1025,7 @@ describe("CollectAutofillContentService", () => {
         tagName: spanElement.tagName.toLowerCase(),
         title: spanElementTitle,
         viewable: true,
+        dataSetValues: "",
       });
     });
 
@@ -1070,7 +1076,7 @@ describe("CollectAutofillContentService", () => {
       ) as ElementWithOpId<FillableFormFieldElement>;
       jest.spyOn(collectAutofillContentService as any, "getAutofillFieldMaxLength");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
       jest.spyOn(collectAutofillContentService as any, "getElementValue");
@@ -1111,6 +1117,7 @@ describe("CollectAutofillContentService", () => {
         type: usernameField.type,
         value: usernameField.value,
         viewable: true,
+        dataSetValues: "label: username-data-label, stripe: data-stripe, ",
       });
     });
 
@@ -1155,7 +1162,7 @@ describe("CollectAutofillContentService", () => {
       ) as ElementWithOpId<FillableFormFieldElement>;
       jest.spyOn(collectAutofillContentService as any, "getAutofillFieldMaxLength");
       jest
-        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
         .mockResolvedValue(true);
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
       jest.spyOn(collectAutofillContentService as any, "getElementValue");
@@ -1189,6 +1196,7 @@ describe("CollectAutofillContentService", () => {
         type: hiddenField.type,
         value: hiddenField.value,
         viewable: true,
+        dataSetValues: "stripe: data-stripe, ",
       });
     });
   });
@@ -2499,13 +2507,13 @@ describe("CollectAutofillContentService", () => {
   });
 
   describe("handleFormElementIntersection", () => {
-    let isFormFieldViewableSpy: jest.SpyInstance;
+    let isElementViewableSpy: jest.SpyInstance;
     let setupAutofillOverlayListenerOnFieldSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      isFormFieldViewableSpy = jest.spyOn(
+      isElementViewableSpy = jest.spyOn(
         collectAutofillContentService["domElementVisibilityService"],
-        "isFormFieldViewable",
+        "isElementViewable",
       );
       setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
@@ -2524,7 +2532,7 @@ describe("CollectAutofillContentService", () => {
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
-      expect(isFormFieldViewableSpy).not.toHaveBeenCalled();
+      expect(isElementViewableSpy).not.toHaveBeenCalled();
       expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
     });
 
@@ -2535,11 +2543,11 @@ describe("CollectAutofillContentService", () => {
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
       collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
-      isFormFieldViewableSpy.mockReturnValueOnce(false);
+      isElementViewableSpy.mockReturnValueOnce(false);
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
-      expect(isFormFieldViewableSpy).toHaveBeenCalledWith(formFieldElement);
+      expect(isElementViewableSpy).toHaveBeenCalledWith(formFieldElement);
       expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
     });
 
@@ -2548,12 +2556,12 @@ describe("CollectAutofillContentService", () => {
       const entries = [
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
-      isFormFieldViewableSpy.mockReturnValueOnce(true);
+      isElementViewableSpy.mockReturnValueOnce(true);
       collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
-      expect(isFormFieldViewableSpy).not.toHaveBeenCalled();
+      expect(isElementViewableSpy).not.toHaveBeenCalled();
       expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
     });
 
@@ -2563,13 +2571,13 @@ describe("CollectAutofillContentService", () => {
       const entries = [
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
-      isFormFieldViewableSpy.mockReturnValueOnce(true);
+      isElementViewableSpy.mockReturnValueOnce(true);
       collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
       collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
-      expect(isFormFieldViewableSpy).toHaveBeenCalledWith(formFieldElement);
+      expect(isElementViewableSpy).toHaveBeenCalledWith(formFieldElement);
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledWith(
         formFieldElement,
         autofillField,

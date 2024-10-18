@@ -1,29 +1,36 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
+
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { buildSvgDomElement, throttle } from "../../../../utils";
+import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
+import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import {
   creditCardIcon,
   globeIcon,
   idCardIcon,
   lockIcon,
+  passkeyIcon,
   plusIcon,
   viewCipherIcon,
-  passkeyIcon,
+  keyIcon,
+  refreshIcon,
   spinnerIcon,
 } from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
   InitAutofillInlineMenuListMessage,
+  UpdateAutofillInlineMenuGeneratedPasswordMessage,
+  UpdateAutofillInlineMenuListCiphersParams,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
 export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private inlineMenuListContainer: HTMLDivElement;
+  private passwordGeneratorContainer: HTMLDivElement;
   private resizeObserver: ResizeObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private ciphers: InlineMenuCipherData[] = [];
@@ -31,7 +38,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollIsDebounced = false;
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
-  private filledByCipherType: CipherType;
+  private inlineMenuFillType: InlineMenuFillTypes;
   private showInlineMenuAccountCreation: boolean;
   private showPasskeysLabels: boolean;
   private newItemButtonElement: HTMLButtonElement;
@@ -42,14 +49,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private lastPasskeysListItemHeight: number;
   private ciphersListHeight: number;
   private isPasskeyAuthInProgress = false;
+  private authStatus: AuthenticationStatus;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
-      updateAutofillInlineMenuListCiphers: ({ message }) =>
-        this.updateListItems(message.ciphers, message.showInlineMenuAccountCreation),
+      updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message),
+      updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
+        this.handleUpdateAutofillInlineMenuGeneratedPassword(message),
+      showSaveLoginInlineMenuList: () => this.handleShowSaveLoginInlineMenuList(),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
@@ -63,27 +73,22 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Initializes the inline menu list and updates the list items with the passed ciphers.
    * If the auth status is not `Unlocked`, the locked inline menu is built.
    *
-   * @param translations - The translations to use for the inline menu list.
-   * @param styleSheetUrl - The URL of the stylesheet to use for the inline menu list.
-   * @param theme - The theme to use for the inline menu list.
-   * @param authStatus - The current authentication status.
-   * @param ciphers - The ciphers to display in the inline menu list.
-   * @param portKey - Background generated key that allows the port to communicate with the background.
-   * @param filledByCipherType - The type of cipher that fills the current field.
-   * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
-   * @param showPasskeysLabels - Whether passkeys labels are shown in the inline menu list.
+   * @param message - The message containing the data to initialize the inline menu list.
    */
-  private async initAutofillInlineMenuList({
-    translations,
-    styleSheetUrl,
-    theme,
-    authStatus,
-    ciphers,
-    portKey,
-    filledByCipherType,
-    showInlineMenuAccountCreation,
-    showPasskeysLabels,
-  }: InitAutofillInlineMenuListMessage) {
+  private async initAutofillInlineMenuList(message: InitAutofillInlineMenuListMessage) {
+    const {
+      translations,
+      styleSheetUrl,
+      theme,
+      authStatus,
+      ciphers,
+      portKey,
+      inlineMenuFillType,
+      showInlineMenuAccountCreation,
+      showPasskeysLabels,
+      generatedPassword,
+      showSaveLoginMenu,
+    } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
       styleSheetUrl,
@@ -91,7 +96,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       portKey,
     );
 
-    this.filledByCipherType = filledByCipherType;
+    this.authStatus = authStatus;
+    this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
 
     const themeClass = `theme_${theme}`;
@@ -103,12 +109,25 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
-    if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateListItems(ciphers, showInlineMenuAccountCreation);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      this.buildLockedInlineMenu();
       return;
     }
 
-    this.buildLockedInlineMenu();
+    if (showSaveLoginMenu) {
+      this.buildSaveLoginInlineMenuList();
+      return;
+    }
+
+    if (generatedPassword) {
+      this.buildPasswordGenerator(generatedPassword);
+      return;
+    }
+
+    this.updateListItems({
+      ciphers,
+      showInlineMenuAccountCreation,
+    });
   }
 
   /**
@@ -119,7 +138,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const lockedInlineMenu = globalThis.document.createElement("div");
     lockedInlineMenu.id = "locked-inline-menu-description";
     lockedInlineMenu.classList.add("locked-inline-menu", "inline-menu-list-message");
-    lockedInlineMenu.textContent = this.getTranslation("unlockYourAccount");
+    lockedInlineMenu.textContent = this.getTranslation(
+      "unlockYourAccountToViewAutofillSuggestions",
+    );
 
     const unlockButtonElement = globalThis.document.createElement("button");
     unlockButtonElement.id = "unlock-button";
@@ -140,6 +161,30 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Builds the inline menu list as a prompt that asks the user if they'd like to save the login data.
+   */
+  private buildSaveLoginInlineMenuList() {
+    const saveLoginMessage = globalThis.document.createElement("div");
+    saveLoginMessage.classList.add("save-login", "inline-menu-list-message");
+    saveLoginMessage.textContent = this.getTranslation("saveLoginToBitwarden");
+
+    const newItemButton = this.buildNewItemButton(true);
+    this.showInlineMenuAccountCreation = true;
+
+    this.inlineMenuListContainer.append(saveLoginMessage, newItemButton);
+  }
+
+  /**
+   * Handles the show save login inline menu list message that is triggered from the background script.
+   */
+  private handleShowSaveLoginInlineMenuList() {
+    if (this.authStatus === AuthenticationStatus.Unlocked) {
+      this.resetInlineMenuContainer();
+      this.buildSaveLoginInlineMenuList();
+    }
+  }
+
+  /**
    * Handles the click event for the unlock button.
    * Sends a message to the parent window to unlock the vault.
    */
@@ -148,16 +193,234 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   /**
+   * Builds the password generator within the inline menu.
+   *
+   * @param generatedPassword - The generated password to display.
+   */
+  private buildPasswordGenerator(generatedPassword: string) {
+    this.passwordGeneratorContainer = globalThis.document.createElement("div");
+    this.passwordGeneratorContainer.classList.add("password-generator-container");
+
+    const passwordGeneratorActions = globalThis.document.createElement("div");
+    passwordGeneratorActions.classList.add("password-generator-actions");
+
+    const fillGeneratedPasswordButton = globalThis.document.createElement("button");
+    fillGeneratedPasswordButton.tabIndex = -1;
+    fillGeneratedPasswordButton.classList.add(
+      "fill-generated-password-button",
+      "inline-menu-list-action",
+    );
+    fillGeneratedPasswordButton.setAttribute(
+      "aria-label",
+      this.getTranslation("fillGeneratedPassword"),
+    );
+
+    const passwordGeneratorHeading = globalThis.document.createElement("div");
+    passwordGeneratorHeading.classList.add("password-generator-heading");
+    passwordGeneratorHeading.textContent = this.getTranslation("fillGeneratedPassword");
+
+    const passwordGeneratorContent = globalThis.document.createElement("div");
+    passwordGeneratorContent.id = "password-generator-content";
+    passwordGeneratorContent.classList.add("password-generator-content");
+    passwordGeneratorContent.append(
+      passwordGeneratorHeading,
+      this.buildColorizedPasswordElement(generatedPassword),
+    );
+
+    fillGeneratedPasswordButton.append(buildSvgDomElement(keyIcon), passwordGeneratorContent);
+    fillGeneratedPasswordButton.addEventListener(
+      EVENTS.CLICK,
+      this.handleFillGeneratedPasswordClick,
+    );
+    fillGeneratedPasswordButton.addEventListener(
+      EVENTS.KEYUP,
+      this.handleFillGeneratedPasswordKeyUp,
+    );
+
+    const refreshGeneratedPasswordButton = globalThis.document.createElement("button");
+    refreshGeneratedPasswordButton.tabIndex = -1;
+    refreshGeneratedPasswordButton.classList.add(
+      "refresh-generated-password-button",
+      "inline-menu-list-action",
+    );
+    refreshGeneratedPasswordButton.setAttribute(
+      "aria-label",
+      this.getTranslation("regeneratePassword"),
+    );
+    refreshGeneratedPasswordButton.appendChild(buildSvgDomElement(refreshIcon));
+    refreshGeneratedPasswordButton.addEventListener(
+      EVENTS.CLICK,
+      this.handleRefreshGeneratedPasswordClick,
+    );
+    refreshGeneratedPasswordButton.addEventListener(
+      EVENTS.KEYUP,
+      this.handleRefreshGeneratedPasswordKeyUp,
+    );
+
+    passwordGeneratorActions.append(fillGeneratedPasswordButton, refreshGeneratedPasswordButton);
+
+    this.passwordGeneratorContainer.appendChild(passwordGeneratorActions);
+    this.inlineMenuListContainer.appendChild(this.passwordGeneratorContainer);
+  }
+
+  /**
+   * Builds the colorized password content element.
+   *
+   * @param password - The password to display.
+   */
+  private buildColorizedPasswordElement(password: string) {
+    let ariaDescription = `${this.getTranslation("generatedPassword")}: `;
+    const passwordContainer = globalThis.document.createElement("div");
+    passwordContainer.classList.add("colorized-password");
+    const appendPasswordCharacter = (character: string, type: string) => {
+      const characterElement = globalThis.document.createElement("div");
+      characterElement.classList.add(`password-${type}`);
+      characterElement.textContent = character;
+
+      passwordContainer.appendChild(characterElement);
+    };
+
+    const passwordArray = Array.from(password);
+    for (let i = 0; i < passwordArray.length; i++) {
+      const character = passwordArray[i];
+
+      if (character.match(/\W/)) {
+        appendPasswordCharacter(character, "special");
+        ariaDescription += `${this.getTranslation(specialCharacterToKeyMap[character])} `;
+        continue;
+      }
+
+      if (character.match(/\d/)) {
+        appendPasswordCharacter(character, "number");
+        ariaDescription += `${character} `;
+        continue;
+      }
+
+      appendPasswordCharacter(character, "letter");
+      ariaDescription +=
+        character === character.toLowerCase()
+          ? `${this.getTranslation("lowercaseAriaLabel")} ${character} `
+          : `${this.getTranslation("uppercaseAriaLabel")} ${character} `;
+    }
+
+    passwordContainer.setAttribute("aria-label", ariaDescription);
+    return passwordContainer;
+  }
+
+  /**
+   * Handles the click event for the fill generated password button. Triggers
+   * a message to the background script to fill the generated password.
+   */
+  private handleFillGeneratedPasswordClick = () => {
+    this.postMessageToParent({ command: "fillGeneratedPassword" });
+  };
+
+  /**
+   * Handles the keyup event for the fill generated password button.
+   *
+   * @param event - The keyup event.
+   */
+  private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
+    if (event.code === "Space") {
+      this.handleFillGeneratedPasswordClick();
+      return;
+    }
+
+    if (
+      event.code === "ArrowRight" &&
+      event.target instanceof HTMLElement &&
+      event.target.nextElementSibling
+    ) {
+      (event.target.nextElementSibling as HTMLElement).focus();
+      event.target.parentElement.classList.add("remove-outline");
+      return;
+    }
+  };
+
+  /**
+   * Handles the click event of the password regenerator button.
+   *
+   * @param event - The click event.
+   */
+  private handleRefreshGeneratedPasswordClick = (event?: MouseEvent) => {
+    if (event) {
+      (event.target as HTMLElement)
+        .closest(".password-generator-actions")
+        ?.classList.add("remove-outline");
+    }
+
+    this.postMessageToParent({ command: "refreshGeneratedPassword" });
+  };
+
+  /**
+   * Handles the keyup event for the password regenerator button.
+   *
+   * @param event - The keyup event.
+   */
+  private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
+    if (event.code === "Space") {
+      this.handleRefreshGeneratedPasswordClick();
+      return;
+    }
+
+    if (
+      event.code === "ArrowLeft" &&
+      event.target instanceof HTMLElement &&
+      event.target.previousElementSibling
+    ) {
+      (event.target.previousElementSibling as HTMLElement).focus();
+      event.target.parentElement.classList.remove("remove-outline");
+      return;
+    }
+  };
+
+  /**
+   * Updates the generated password content element with the passed generated password.
+   *
+   * @param message - The message containing the generated password.
+   */
+  private handleUpdateAutofillInlineMenuGeneratedPassword(
+    message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
+  ) {
+    if (this.authStatus !== AuthenticationStatus.Unlocked || !message.generatedPassword) {
+      return;
+    }
+
+    const passwordGeneratorContentElement = this.inlineMenuListContainer.querySelector(
+      "#password-generator-content",
+    );
+    const colorizedPasswordElement =
+      passwordGeneratorContentElement?.querySelector(".colorized-password");
+    if (!colorizedPasswordElement) {
+      this.resetInlineMenuContainer();
+      this.buildPasswordGenerator(message.generatedPassword);
+      return;
+    }
+
+    colorizedPasswordElement.replaceWith(
+      this.buildColorizedPasswordElement(message.generatedPassword),
+    );
+  }
+
+  /**
    * Updates the list items with the passed ciphers.
    * If no ciphers are passed, the no results inline menu is built.
    *
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
    */
-  private updateListItems(
-    ciphers: InlineMenuCipherData[],
-    showInlineMenuAccountCreation?: boolean,
-  ) {
+  private updateListItems({
+    ciphers,
+    showInlineMenuAccountCreation,
+  }: UpdateAutofillInlineMenuListCiphersParams) {
     if (this.isPasskeyAuthInProgress) {
       return;
     }
@@ -221,7 +484,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Builds a "New Item" button and returns the container of that button.
    */
-  private buildNewItemButton() {
+  private buildNewItemButton(showLogin = false) {
     this.newItemButtonElement = globalThis.document.createElement("button");
     this.newItemButtonElement.tabIndex = -1;
     this.newItemButtonElement.id = "new-item-button";
@@ -230,8 +493,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "inline-menu-list-button",
       "inline-menu-list-action",
     );
-    this.newItemButtonElement.textContent = this.getNewItemButtonText();
-    this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel());
+    this.newItemButtonElement.textContent = this.getNewItemButtonText(showLogin);
+    this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel(showLogin));
     this.newItemButtonElement.prepend(buildSvgDomElement(plusIcon));
     this.newItemButtonElement.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
 
@@ -241,8 +504,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Gets the new item text for the button based on the cipher type the focused field is filled by.
    */
-  private getNewItemButtonText() {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
+  private getNewItemButtonText(showLogin: boolean) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
       return this.getTranslation("newLogin");
     }
 
@@ -260,17 +523,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
    */
-  private getNewItemAriaLabel() {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
-      return this.getTranslation("addNewLoginItem");
+  private getNewItemAriaLabel(showLogin: boolean) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
+      return this.getTranslation("addNewLoginItemAria");
     }
 
     if (this.isFilledByCardCipher()) {
-      return this.getTranslation("addNewCardItem");
+      return this.getTranslation("addNewCardItemAria");
     }
 
     if (this.isFilledByIdentityCipher()) {
-      return this.getTranslation("addNewIdentityItem");
+      return this.getTranslation("addNewIdentityItemAria");
     }
 
     return this.getTranslation("addNewVaultItem");
@@ -294,7 +557,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Sends a message to the parent window to add a new vault item.
    */
   private handeNewItemButtonClick = () => {
-    let addNewCipherType = this.filledByCipherType;
+    let addNewCipherType = this.inlineMenuFillType;
 
     if (this.showInlineMenuAccountCreation) {
       addNewCipherType = CipherType.Login;
@@ -560,7 +823,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "aria-label",
       `${
         cipher.login?.passkey
-          ? this.getTranslation("logInWithPasskey")
+          ? this.getTranslation("logInWithPasskeyAriaLabel")
           : this.getTranslation("fillCredentialsFor")
       } ${cipher.name}`,
     );
@@ -589,7 +852,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       if (username) {
         fillCipherElement.setAttribute(
           "aria-description",
-          `${this.getTranslation("username")}: ${username}`,
+          `${this.getTranslation("username")?.toLowerCase()}: ${username}`,
         );
       }
       return;
@@ -980,12 +1243,37 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * If not focused, will check if the button element is focused.
    */
   private checkInlineMenuListFocused() {
-    if (globalThis.document.hasFocus() || this.inlineMenuListContainer.matches(":hover")) {
+    if (globalThis.document.hasFocus()) {
+      return;
+    }
+
+    if (this.isListHovered()) {
+      globalThis.document.addEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
       return;
     }
 
     this.postMessageToParent({ command: "checkAutofillInlineMenuButtonFocused" });
   }
+
+  /**
+   * Triggers a re-check of the list's focus status when the mouse leaves the list.
+   */
+  private handleMouseOutEvent = () => {
+    globalThis.document.removeEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
+    this.checkInlineMenuListFocused();
+  };
+
+  /**
+   * Validates whether the inline menu list iframe is currently hovered.
+   */
+  private isListHovered = () => {
+    const hoveredElement = this.inlineMenuListContainer?.querySelector(":hover");
+    return !!(
+      hoveredElement &&
+      (hoveredElement === this.inlineMenuListContainer ||
+        this.inlineMenuListContainer.contains(hoveredElement))
+    );
+  };
 
   /**
    * Focuses the inline menu list iframe. The element that receives focus is
@@ -1157,21 +1445,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Identifies if the current focused field is filled by a login cipher.
    */
   private isFilledByLoginCipher = () => {
-    return this.filledByCipherType === CipherType.Login;
+    return this.inlineMenuFillType === CipherType.Login;
   };
 
   /**
    * Identifies if the current focused field is filled by a card cipher.
    */
   private isFilledByCardCipher = () => {
-    return this.filledByCipherType === CipherType.Card;
+    return this.inlineMenuFillType === CipherType.Card;
   };
 
   /**
    * Identifies if the current focused field is filled by an identity cipher.
    */
   private isFilledByIdentityCipher = () => {
-    return this.filledByCipherType === CipherType.Identity;
+    return this.inlineMenuFillType === CipherType.Identity;
   };
 
   /**

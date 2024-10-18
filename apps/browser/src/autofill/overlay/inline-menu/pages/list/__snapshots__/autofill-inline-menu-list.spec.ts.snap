@@ -1,5 +1,54 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`AutofillInlineMenuList initAutofillInlineMenuList creates the build save login item view 1`] = `
+<div
+  class="inline-menu-list-container theme_light"
+>
+  <div
+    class="save-login inline-menu-list-message"
+  />
+  <div
+    class="inline-menu-list-button-container"
+  >
+    <button
+      aria-label=""
+      class="add-new-item-button inline-menu-list-button inline-menu-list-action"
+      id="new-item-button"
+      tabindex="-1"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="17"
+        width="17"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          clip-path="url(#a)"
+        >
+          <path
+            clip-rule="evenodd"
+            d="M9.607 7.15h5.35c.322 0 .627.133.847.362a1.213 1.213 0 0 1 .002 1.68c-.221.23-.527.363-.85.363H9.607v5.652c0 .312-.12.613-.336.839a1.176 1.176 0 0 1-1.696.003 1.21 1.21 0 0 1-.34-.842V9.555H1.888a1.173 1.173 0 0 1-.847-.361A1.193 1.193 0 0 1 .7 8.352a1.219 1.219 0 0 1 .336-.838 1.175 1.175 0 0 1 .85-.364h5.349V1.635c0-.31.118-.611.336-.84A1.176 1.176 0 0 1 9.268.795c.222.228.34.533.34.841V7.15Z"
+            fill="#175DDC"
+            fill-rule="evenodd"
+          />
+        </g>
+        <defs>
+          <clippath
+            id="a"
+          >
+            <path
+              d="M.421.421h16v16h-16z"
+              fill="#fff"
+            />
+          </clippath>
+        </defs>
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
 exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with an empty list of ciphers creates the views for the no results inline menu that does not have a fill by cipher type 1`] = `
 <div
   class="inline-menu-list-container theme_light"
@@ -2177,7 +2226,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the locked inline men
     class="locked-inline-menu inline-menu-list-message"
     id="locked-inline-menu-description"
   >
-    unlockYourAccount
+    unlockYourAccountToViewAutofillSuggestions
   </div>
   <div
     class="inline-menu-list-button-container"
@@ -2216,6 +2265,191 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the locked inline men
         </defs>
       </svg>
       unlockAccount
+    </button>
+  </div>
+</div>
+`;
+
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the password generator view creates the views for the password generator 1`] = `
+<div
+  class="password-generator-container"
+>
+  <div
+    class="password-generator-actions"
+  >
+    <button
+      aria-label=""
+      class="fill-generated-password-button inline-menu-list-action"
+      tabindex="-1"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="25"
+        viewBox="0 0 24 25"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          clip-path="url(#a)"
+        >
+          <path
+            d="M21.803 3.035a7.453 7.453 0 0 0-2.427-1.567 7.763 7.763 0 0 0-2.877-.551c-.988 0-1.967.187-2.878.55a7.455 7.455 0 0 0-2.427 1.568A7.193 7.193 0 0 0 9.283 6.23a6.936 6.936 0 0 0-.023 3.675.556.556 0 0 1-.16.549L.656 18.61a.77.77 0 0 0-.233.468l-.415 3.756a.722.722 0 0 0 .04.354.773.773 0 0 0 .203.3.85.85 0 0 0 .697.201l5.141-.855a.832.832 0 0 0 .461-.241.757.757 0 0 0 .211-.458l.108-1.162a.554.554 0 0 1 .17-.35.62.62 0 0 1 .365-.167l1.2-.105a.832.832 0 0 0 .503-.23.756.756 0 0 0 .23-.482l.124-1.326a.361.361 0 0 1 .111-.23.4.4 0 0 1 .24-.108l1.381-.113a.815.815 0 0 0 .501-.225l2.473-2.386a.506.506 0 0 1 .48-.126 7.904 7.904 0 0 0 1.912.235 7.68 7.68 0 0 0 2.846-.539 7.344 7.344 0 0 0 2.402-1.546C23.213 11.905 24 10.069 24 8.155c0-1.914-.787-3.752-2.194-5.122l-.003.002Zm-10.81 7.148a5.496 5.496 0 0 1-.25-3.208 5.677 5.677 0 0 1 1.6-2.835 5.828 5.828 0 0 1 1.902-1.233 6.075 6.075 0 0 1 4.515 0 5.829 5.829 0 0 1 1.902 1.233c1.107 1.073 1.726 2.514 1.726 4.016 0 1.501-.62 2.943-1.726 4.016a5.925 5.925 0 0 1-2.93 1.537 6.135 6.135 0 0 1-3.339-.245.844.844 0 0 0-.85.182l-2.498 2.409a1.124 1.124 0 0 1-.682.308l-1.687.142a.839.839 0 0 0-.503.23.754.754 0 0 0-.23.482l-.105 1.13a.594.594 0 0 1-.181.374.653.653 0 0 1-.39.178l-1.171.1a.832.832 0 0 0-.503.23.755.755 0 0 0-.23.483l-.122 1.313a.474.474 0 0 1-.13.287.518.518 0 0 1-.288.151l-2.66.439a.36.36 0 0 1-.286-.084.314.314 0 0 1-.102-.266l.182-1.758a.724.724 0 0 1 .222-.449l8.636-8.333a.778.778 0 0 0 .215-.39.756.756 0 0 0-.036-.439h-.001Zm6.976-1.226c-.474 0-.938-.134-1.332-.384a2.31 2.31 0 0 1-.884-1.022 2.17 2.17 0 0 1-.137-1.317c.093-.442.321-.848.657-1.166a2.441 2.441 0 0 1 1.228-.624 2.516 2.516 0 0 1 1.386.13 2.37 2.37 0 0 1 1.077.84c.263.374.404.814.404 1.265 0 .605-.253 1.184-.703 1.611-.45.428-1.06.667-1.696.667Zm0-3.56c-.266 0-.527.075-.75.216-.221.14-.394.34-.496.575a1.22 1.22 0 0 0-.077.74c.053.249.18.477.37.657.189.18.43.3.691.35.262.05.533.025.78-.072.246-.097.457-.261.606-.472a1.235 1.235 0 0 0-.168-1.619 1.369 1.369 0 0 0-.954-.376v.002l-.002-.001Z"
+            fill="#175DDC"
+          />
+        </g>
+        <defs>
+          <clippath
+            id="a"
+          >
+            <path
+              d="M0 .308h24v24H0z"
+              fill="#fff"
+            />
+          </clippath>
+        </defs>
+      </svg>
+      <div
+        class="password-generator-content"
+        id="password-generator-content"
+      >
+        <div
+          class="password-generator-heading"
+        />
+        <div
+          aria-label=":  g  e  n  e  r  a  t  e  d  P  a  s  s  w  o  r  d  1 "
+          class="colorized-password"
+        >
+          <div
+            class="password-letter"
+          >
+            g
+          </div>
+          <div
+            class="password-letter"
+          >
+            e
+          </div>
+          <div
+            class="password-letter"
+          >
+            n
+          </div>
+          <div
+            class="password-letter"
+          >
+            e
+          </div>
+          <div
+            class="password-letter"
+          >
+            r
+          </div>
+          <div
+            class="password-letter"
+          >
+            a
+          </div>
+          <div
+            class="password-letter"
+          >
+            t
+          </div>
+          <div
+            class="password-letter"
+          >
+            e
+          </div>
+          <div
+            class="password-letter"
+          >
+            d
+          </div>
+          <div
+            class="password-letter"
+          >
+            P
+          </div>
+          <div
+            class="password-letter"
+          >
+            a
+          </div>
+          <div
+            class="password-letter"
+          >
+            s
+          </div>
+          <div
+            class="password-letter"
+          >
+            s
+          </div>
+          <div
+            class="password-letter"
+          >
+            w
+          </div>
+          <div
+            class="password-letter"
+          >
+            o
+          </div>
+          <div
+            class="password-letter"
+          >
+            r
+          </div>
+          <div
+            class="password-letter"
+          >
+            d
+          </div>
+          <div
+            class="password-special"
+          >
+            !
+          </div>
+          <div
+            class="password-number"
+          >
+            1
+          </div>
+        </div>
+      </div>
+    </button>
+    <button
+      aria-label=""
+      class="refresh-generated-password-button inline-menu-list-action"
+      tabindex="-1"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="21"
+        viewBox="0 0 20 21"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          clip-path="url(#a)"
+        >
+          <path
+            d="M18.383 11.37a.678.678 0 0 0-.496.086.65.65 0 0 0-.291.402 7.457 7.457 0 0 1-2.451 3.912 7.754 7.754 0 0 1-4.328 1.78 7.761 7.761 0 0 1-4.554-.901 7.502 7.502 0 0 1-3.167-3.318c-.025-.064.03-.159.165-.14l1.039.417a.687.687 0 0 0 .51.005.662.662 0 0 0 .365-.346.62.62 0 0 0-.142-.694.64.64 0 0 0-.214-.136l-2.656-1.061a.686.686 0 0 0-.854.31L.065 14.139a.621.621 0 0 0 .31.847.69.69 0 0 0 .639-.033.653.653 0 0 0 .247-.261l.4-.792a.167.167 0 0 1 .124-.077.173.173 0 0 1 .075.01.16.16 0 0 1 .063.04 8.813 8.813 0 0 0 3.29 3.627 9.109 9.109 0 0 0 4.764 1.358c.312 0 .632-.015.961-.044a9.223 9.223 0 0 0 5.065-2.116 8.871 8.871 0 0 0 2.89-4.578.628.628 0 0 0-.274-.656.655.655 0 0 0-.236-.095v.001Zm1.25-5.735a.693.693 0 0 0-.64.033.659.659 0 0 0-.247.262l-.4.79a.166.166 0 0 1-.261.028 8.809 8.809 0 0 0-3.29-3.63 9.113 9.113 0 0 0-4.764-1.36c-.311 0-.631.014-.961.045A9.224 9.224 0 0 0 4.004 3.92a8.863 8.863 0 0 0-2.89 4.58.622.622 0 0 0 .276.658.657.657 0 0 0 .237.094c.17.036.349.005.496-.086a.65.65 0 0 0 .29-.402 7.452 7.452 0 0 1 2.452-3.911 7.764 7.764 0 0 1 4.328-1.781 7.761 7.761 0 0 1 4.553.902 7.508 7.508 0 0 1 3.168 3.317c.023.063-.03.16-.165.138l-1.042-.42a.688.688 0 0 0-.509-.004.666.666 0 0 0-.367.345.622.622 0 0 0 .357.83l2.65 1.06c.156.064.33.067.489.01a.665.665 0 0 0 .365-.318l1.243-2.454a.622.622 0 0 0-.302-.843Z"
+            fill="#175DDC"
+          />
+        </g>
+        <defs>
+          <clippath
+            id="a"
+          >
+            <path
+              d="M0 .421h20v19.773H0z"
+              fill="#fff"
+            />
+          </clippath>
+        </defs>
+      </svg>
     </button>
   </div>
 </div>

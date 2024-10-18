@@ -60,6 +60,27 @@ describe("OverlayNotificationsBackground", () => {
     jest.clearAllTimers();
   });
 
+  describe("feature flag behavior", () => {
+    let runtimeRemoveListenerSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      runtimeRemoveListenerSpy = jest.spyOn(chrome.runtime.onMessage, "removeListener");
+    });
+
+    it("removes the extension listeners if the current flag value is set to `false`", () => {
+      getFeatureFlagMock$.next(false);
+
+      expect(runtimeRemoveListenerSpy).toHaveBeenCalled();
+    });
+
+    it("ignores the feature flag change if the previous flag value is equal to the current flag value", () => {
+      getFeatureFlagMock$.next(false);
+      getFeatureFlagMock$.next(false);
+
+      expect(runtimeRemoveListenerSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("setting up the form submission listeners", () => {
     let fields: MockProxy<AutofillField>[];
     let details: MockProxy<AutofillPageDetails>;
@@ -180,6 +201,40 @@ describe("OverlayNotificationsBackground", () => {
       await flushPromises();
     });
 
+    it("ignores the store request if the sender is not within the website origins set", () => {
+      sendMockExtensionMessage(
+        {
+          command: "formFieldSubmitted",
+          uri: "example.com",
+          username: "username",
+          password: "password",
+          newPassword: "newPassword",
+        },
+        mock<chrome.runtime.MessageSender>({ tab: { id: 2 } }),
+      );
+
+      expect(
+        overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+      ).toBeUndefined();
+    });
+
+    it("ignores the store request if the form submission does not include a username, password, or newPassword", () => {
+      sendMockExtensionMessage(
+        {
+          command: "formFieldSubmitted",
+          uri: "example.com",
+          username: "",
+          password: "",
+          newPassword: "",
+        },
+        sender,
+      );
+
+      expect(
+        overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+      ).toBeUndefined();
+    });
+
     it("stores the modified login cipher form data", async () => {
       sendMockExtensionMessage(
         {
@@ -200,6 +255,41 @@ describe("OverlayNotificationsBackground", () => {
         username: "username",
         password: "password",
         newPassword: "newPassword",
+      });
+    });
+
+    it("overrides previously stored modified login cipher form data with a subsequent store request", async () => {
+      sendMockExtensionMessage(
+        {
+          command: "formFieldSubmitted",
+          uri: "example.com",
+          username: "oldUsername",
+          password: "oldPassword",
+          newPassword: "oldNewPassword",
+        },
+        sender,
+      );
+      await flushPromises();
+
+      sendMockExtensionMessage(
+        {
+          command: "formFieldSubmitted",
+          uri: "example.com",
+          username: "username",
+          password: "",
+          newPassword: "",
+        },
+        sender,
+      );
+      await flushPromises();
+
+      expect(
+        overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+      ).toEqual({
+        uri: "example.com",
+        username: "username",
+        password: "oldPassword",
+        newPassword: "oldNewPassword",
       });
     });
 
@@ -323,10 +413,9 @@ describe("OverlayNotificationsBackground", () => {
 
       it("ignores requests that are not part of an active form submission", async () => {
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
+          mock<chrome.webRequest.WebResponseDetails>({
             url: sender.url,
             tabId: sender.tab.id,
-            method: "POST",
             requestId: "123345",
           }),
         );
@@ -348,6 +437,25 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.WebResponseDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+
+        expect(notificationChangedPasswordSpy).not.toHaveBeenCalled();
+        expect(notificationAddLoginSpy).not.toHaveBeenCalled();
+      });
+
+      it("clears the notification fallback timeout if the request is completed with an invalid status code", async () => {
+        const clearFallbackSpy = jest.spyOn(
+          overlayNotificationsBackground as any,
+          "clearNotificationFallbackTimeout",
+        );
+
+        const requestId = "123345";
+        triggerWebRequestOnBeforeRequestEvent(
           mock<chrome.webRequest.WebRequestDetails>({
             url: sender.url,
             tabId: sender.tab.id,
@@ -355,9 +463,19 @@ describe("OverlayNotificationsBackground", () => {
             requestId,
           }),
         );
+        await flushPromises();
 
-        expect(notificationChangedPasswordSpy).not.toHaveBeenCalled();
-        expect(notificationAddLoginSpy).not.toHaveBeenCalled();
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.WebResponseDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            statusCode: 404,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(clearFallbackSpy).toHaveBeenCalled();
       });
     });
 
@@ -402,10 +520,9 @@ describe("OverlayNotificationsBackground", () => {
           );
         });
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
+          mock<chrome.webRequest.WebResponseDetails>({
             url: sender.url,
             tabId: sender.tab.id,
-            method: "POST",
             requestId,
           }),
         );
@@ -452,10 +569,9 @@ describe("OverlayNotificationsBackground", () => {
         });
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
+          mock<chrome.webRequest.WebResponseDetails>({
             url: sender.url,
             tabId: sender.tab.id,
-            method: "POST",
             requestId,
           }),
         );
@@ -560,14 +676,59 @@ describe("OverlayNotificationsBackground", () => {
       expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(0);
     });
 
-    it("clears all associated data with a tab that is entering a `loading` state", () => {
-      triggerTabOnUpdatedEvent(
-        sender.tab.id,
-        mock<chrome.tabs.TabChangeInfo>({ status: "loading" }),
-        mock<chrome.tabs.Tab>({ status: "loading" }),
-      );
+    describe("tab onUpdated", () => {
+      it("skips clearing the website origins if the changeInfo does not contain a `loading` status", () => {
+        triggerTabOnUpdatedEvent(
+          sender.tab.id,
+          mock<chrome.tabs.TabChangeInfo>({ status: "complete" }),
+          mock<chrome.tabs.Tab>({ status: "complete" }),
+        );
 
-      expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(0);
+        expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(1);
+      });
+
+      it("skips clearing the website origins if the changeInfo does not contain a url", () => {
+        triggerTabOnUpdatedEvent(
+          sender.tab.id,
+          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "" }),
+          mock<chrome.tabs.Tab>({ status: "loading" }),
+        );
+
+        expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(1);
+      });
+
+      it("skips clearing the website origins if the tab does not contain known website origins", () => {
+        triggerTabOnUpdatedEvent(
+          199,
+          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "https://example.com" }),
+          mock<chrome.tabs.Tab>({ status: "loading", id: 199 }),
+        );
+
+        expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(1);
+      });
+
+      it("skips clearing the website origins if the changeInfo's url is present as part of the know website origin match patterns", () => {
+        triggerTabOnUpdatedEvent(
+          sender.tab.id,
+          mock<chrome.tabs.TabChangeInfo>({
+            status: "loading",
+            url: "https://subdomain.example.com",
+          }),
+          mock<chrome.tabs.Tab>({ status: "loading" }),
+        );
+
+        expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(1);
+      });
+
+      it("clears all associated data with a tab that is entering a `loading` state", () => {
+        triggerTabOnUpdatedEvent(
+          sender.tab.id,
+          mock<chrome.tabs.TabChangeInfo>({ status: "loading" }),
+          mock<chrome.tabs.Tab>({ status: "loading" }),
+        );
+
+        expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(0);
+      });
     });
   });
 });

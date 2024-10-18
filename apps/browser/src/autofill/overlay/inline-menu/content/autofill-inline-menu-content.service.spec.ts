@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillInit from "../../../content/autofill-init";
 import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
+import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { createMutationRecordMock } from "../../../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
 import { ElementWithOpId } from "../../../types";
@@ -11,6 +12,7 @@ import { AutofillInlineMenuContentService } from "./autofill-inline-menu-content
 
 describe("AutofillInlineMenuContentService", () => {
   let domQueryService: MockProxy<DomQueryService>;
+  let domElementVisibilityService: DomElementVisibilityService;
   let autofillInlineMenuContentService: AutofillInlineMenuContentService;
   let autofillInit: AutofillInit;
   let sendExtensionMessageSpy: jest.SpyInstance;
@@ -22,8 +24,14 @@ describe("AutofillInlineMenuContentService", () => {
     globalThis.document.body.innerHTML = "";
     globalThis.requestIdleCallback = jest.fn((cb, options) => setTimeout(cb, 100));
     domQueryService = mock<DomQueryService>();
+    domElementVisibilityService = new DomElementVisibilityService();
     autofillInlineMenuContentService = new AutofillInlineMenuContentService();
-    autofillInit = new AutofillInit(domQueryService, null, autofillInlineMenuContentService);
+    autofillInit = new AutofillInit(
+      domQueryService,
+      domElementVisibilityService,
+      null,
+      autofillInlineMenuContentService,
+    );
     autofillInit.init();
     observeContainerMutationsSpy = jest.spyOn(
       autofillInlineMenuContentService["containerElementMutationObserver"] as any,
@@ -37,6 +45,11 @@ describe("AutofillInlineMenuContentService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+
+    Object.defineProperty(document, "activeElement", {
+      value: null,
+      writable: true,
+    });
   });
 
   describe("isElementInlineMenu", () => {
@@ -196,6 +209,31 @@ describe("AutofillInlineMenuContentService", () => {
             },
           );
         });
+      });
+
+      it("appends the inline menu element to a containing `dialog` element if the element is a modal", async () => {
+        isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+        const dialogElement = document.createElement("dialog");
+        dialogElement.setAttribute("open", "true");
+        jest.spyOn(dialogElement, "matches").mockReturnValue(true);
+        const dialogAppendSpy = jest.spyOn(dialogElement, "appendChild");
+        const inputElement = document.createElement("input");
+        dialogElement.appendChild(inputElement);
+        document.body.appendChild(dialogElement);
+        Object.defineProperty(document, "activeElement", {
+          value: inputElement,
+          writable: true,
+        });
+
+        sendMockExtensionMessage({
+          command: "appendAutofillInlineMenuToDom",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(dialogAppendSpy).toHaveBeenCalledWith(
+          autofillInlineMenuContentService["buttonElement"],
+        );
       });
     });
   });
