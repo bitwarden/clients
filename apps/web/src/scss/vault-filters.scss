@@ -43,6 +43,7 @@
 
   button.toggle-button,
   button.add-button {
+    margin-right: 0.25rem;
     &:hover,
     &:focus {
       @include themify($themes) {
@@ -98,6 +99,7 @@
   }
 
   .toggle-button {
+    margin-right: 0.25rem;
     &:hover,
     &:focus {
       @include themify($themes) {
