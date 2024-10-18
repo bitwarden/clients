@@ -153,7 +153,7 @@ export class PremiumComponent implements OnInit {
 
   get taxCharges(): number {
     return this.taxInfoComponent != null && this.taxInfoComponent.taxRate != null
-      ? (this.taxInfoComponent.taxRate / 100) * this.subtotal
+      ? this.taxInfoComponent.taxRate * this.subtotal
       : 0;
   }
 

@@ -1,6 +1,8 @@
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { CalculateTaxRequest } from "@bitwarden/common/billing/models/request/calculate-tax.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
+import { CalculateTaxResponse } from "@bitwarden/common/billing/models/response/calculate-tax.response";
 import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
 import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -25,6 +27,10 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     private logService: LogService,
     private toastService: ToastService,
   ) {}
+
+  calculateTax(request: CalculateTaxRequest): Promise<CalculateTaxResponse> {
+    return this.apiService.send("POST", "/tax/calculate", request, true, true);
+  }
 
   cancelOrganizationSubscription(
     organizationId: string,

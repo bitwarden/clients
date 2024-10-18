@@ -438,8 +438,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   get taxCharges() {
     return this.taxComponent != null && this.taxComponent.taxRate != null
-      ? (this.taxComponent.taxRate / 100) *
-          (this.passwordManagerSubtotal + this.secretsManagerSubtotal)
+      ? this.taxComponent.taxRate * (this.passwordManagerSubtotal + this.secretsManagerSubtotal)
       : 0;
   }
 

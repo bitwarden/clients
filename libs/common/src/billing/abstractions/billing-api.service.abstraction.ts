@@ -1,8 +1,10 @@
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { CalculateTaxRequest } from "@bitwarden/common/billing/models/request/calculate-tax.request";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
+import { CalculateTaxResponse } from "@bitwarden/common/billing/models/response/calculate-tax.response";
 import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
 import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
 
@@ -15,6 +17,8 @@ import { UpdateClientOrganizationRequest } from "../models/request/update-client
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export abstract class BillingApiServiceAbstraction {
+  calculateTax: (request: CalculateTaxRequest) => Promise<CalculateTaxResponse>;
+
   cancelOrganizationSubscription: (
     organizationId: string,
     request: SubscriptionCancellationRequest,
