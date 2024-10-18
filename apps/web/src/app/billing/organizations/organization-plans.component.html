@@ -46,7 +46,7 @@
   *ngIf="!loading && !selfHosted && this.passwordManagerPlans && this.secretsManagerPlans"
   class="tw-pt-6"
 >
-  <bit-section>
+  <bit-section [ngClass]="{ 'tw-hidden': !createOrganization }">
     <app-org-info
       (changedBusinessOwned)="changedOwnedBusiness()"
       [formGroup]="formGroup"
