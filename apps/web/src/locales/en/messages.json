@@ -1693,7 +1693,10 @@
   "dangerZone": {
     "message": "Danger zone"
   },
-  "dangerZoneDesc": {
+  "dangerZoneDescSingular": {
+    "message": "Careful, this action is not reversible!"
+  },
+  "dangerZoneDescPlural": {
     "message": "Careful, these actions are not reversible!"
   },
   "deauthorizeSessions": {
