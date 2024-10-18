@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -7,6 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KdfType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -22,7 +23,8 @@ describe("VaultBannersService", () => {
   let service: VaultBannersService;
   const isSelfHost = jest.fn().mockReturnValue(false);
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
-  const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
+  const userId = Utils.newGuid() as UserId;
+  const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
   const getEmailVerified = jest.fn().mockResolvedValue(true);
   const hasMasterPassword = jest.fn().mockResolvedValue(true);
   const getKdfConfig = jest
@@ -89,7 +91,7 @@ describe("VaultBannersService", () => {
 
       jest.advanceTimersByTime(201);
 
-      expect(await firstValueFrom(service.shouldShowPremiumBanner$)).toBe(true);
+      expect(await firstValueFrom(service.shouldShowPremiumBanner$(of(userId)))).toBe(true);
     });
 
     it("does not show a premium banner for self-hosted users", async () => {
@@ -101,7 +103,7 @@ describe("VaultBannersService", () => {
 
       jest.advanceTimersByTime(201);
 
-      expect(await firstValueFrom(service.shouldShowPremiumBanner$)).toBe(false);
+      expect(await firstValueFrom(service.shouldShowPremiumBanner$(of(userId)))).toBe(false);
     });
 
     it("does not show a premium banner when they have access to premium", async () => {
@@ -113,7 +115,7 @@ describe("VaultBannersService", () => {
 
       jest.advanceTimersByTime(201);
 
-      expect(await firstValueFrom(service.shouldShowPremiumBanner$)).toBe(false);
+      expect(await firstValueFrom(service.shouldShowPremiumBanner$(of(userId)))).toBe(false);
     });
 
     describe("dismissing", () => {
@@ -124,7 +126,7 @@ describe("VaultBannersService", () => {
         jest.setSystemTime(date.getTime());
 
         service = TestBed.inject(VaultBannersService);
-        await service.dismissBanner(VisibleVaultBanner.Premium);
+        await service.dismissBanner(userId, VisibleVaultBanner.Premium);
       });
 
       afterEach(() => {
@@ -133,7 +135,7 @@ describe("VaultBannersService", () => {
 
       it("updates state on first dismiss", async () => {
         const state = await firstValueFrom(
-          fakeStateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY).state$,
+          fakeStateProvider.getUser(userId, PREMIUM_BANNER_REPROMPT_KEY).state$,
         );
 
         const oneWeekLater = new Date("2023-06-15");
@@ -147,7 +149,7 @@ describe("VaultBannersService", () => {
 
       it("updates state on second dismiss", async () => {
         const state = await firstValueFrom(
-          fakeStateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY).state$,
+          fakeStateProvider.getUser(userId, PREMIUM_BANNER_REPROMPT_KEY).state$,
         );
 
         const oneMonthLater = new Date("2023-07-08");
@@ -161,7 +163,7 @@ describe("VaultBannersService", () => {
 
       it("updates state on third dismiss", async () => {
         const state = await firstValueFrom(
-          fakeStateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY).state$,
+          fakeStateProvider.getUser(userId, PREMIUM_BANNER_REPROMPT_KEY).state$,
         );
 
         const oneYearLater = new Date("2024-06-08");
@@ -184,7 +186,7 @@ describe("VaultBannersService", () => {
     it("shows low KDF iteration banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowLowKDFBanner()).toBe(true);
+      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
     });
 
     it("does not show low KDF iteration banner if KDF type is not PBKDF2_SHA256", async () => {
@@ -192,7 +194,7 @@ describe("VaultBannersService", () => {
 
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowLowKDFBanner()).toBe(false);
+      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
     });
 
     it("does not show low KDF for iterations about 600,000", async () => {
@@ -200,17 +202,17 @@ describe("VaultBannersService", () => {
 
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowLowKDFBanner()).toBe(false);
+      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
     });
 
     it("dismisses low KDF iteration banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowLowKDFBanner()).toBe(true);
+      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
 
-      await service.dismissBanner(VisibleVaultBanner.KDFSettings);
+      await service.dismissBanner(userId, VisibleVaultBanner.KDFSettings);
 
-      expect(await service.shouldShowLowKDFBanner()).toBe(false);
+      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
     });
   });
 
@@ -227,17 +229,17 @@ describe("VaultBannersService", () => {
     it("shows outdated browser banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowUpdateBrowserBanner()).toBe(true);
+      expect(await service.shouldShowUpdateBrowserBanner(userId)).toBe(true);
     });
 
     it("dismisses outdated browser banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowUpdateBrowserBanner()).toBe(true);
+      expect(await service.shouldShowUpdateBrowserBanner(userId)).toBe(true);
 
-      await service.dismissBanner(VisibleVaultBanner.OutdatedBrowser);
+      await service.dismissBanner(userId, VisibleVaultBanner.OutdatedBrowser);
 
-      expect(await service.shouldShowUpdateBrowserBanner()).toBe(false);
+      expect(await service.shouldShowUpdateBrowserBanner(userId)).toBe(false);
     });
   });
 
@@ -249,17 +251,17 @@ describe("VaultBannersService", () => {
     it("shows verify email banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowVerifyEmailBanner()).toBe(true);
+      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(true);
     });
 
     it("dismisses verify email banner", async () => {
       service = TestBed.inject(VaultBannersService);
 
-      expect(await service.shouldShowVerifyEmailBanner()).toBe(true);
+      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(true);
 
-      await service.dismissBanner(VisibleVaultBanner.VerifyEmail);
+      await service.dismissBanner(userId, VisibleVaultBanner.VerifyEmail);
 
-      expect(await service.shouldShowVerifyEmailBanner()).toBe(false);
+      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(false);
     });
   });
 });
