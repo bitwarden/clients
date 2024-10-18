@@ -330,6 +330,20 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Deleted:
+        msg = this.i18nService.t("deletedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Left:
+        msg = this.i18nService.t("userLeftOrganization", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "userLeftOrganization",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
