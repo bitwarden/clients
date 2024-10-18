@@ -3,6 +3,7 @@
 export type SharedFlags = {
   showPasswordless?: boolean;
   sdk?: boolean;
+  betaBuild?: boolean;
 };
 
 // required to avoid linting errors when there are no flags
