@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@bitwarden/desktop-napi": "file:../desktop_native/napi",
-    "argon2": "0.40.1"
+    "argon2": "0.41.1"
   }
 }
