@@ -481,6 +481,7 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       masterPasswordVerificationResponse.masterKey,
+      this.activeAccount.id,
     );
     await this.setUserKeyAndContinue(userKey, true);
   }

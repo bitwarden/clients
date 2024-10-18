@@ -418,6 +418,7 @@ export class PinService implements PinServiceAbstraction {
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       masterKey,
+      userId,
       encUserKey ? new EncString(encUserKey) : undefined,
     );
 
