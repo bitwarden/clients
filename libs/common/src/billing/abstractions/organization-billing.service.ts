@@ -44,4 +44,8 @@ export abstract class OrganizationBillingServiceAbstraction {
   purchaseSubscription: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
 
   startFree: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
+
+  purchaseSubscriptionNoPaymentMethod: (
+    subscription: SubscriptionInformation,
+  ) => Promise<OrganizationResponse>;
 }

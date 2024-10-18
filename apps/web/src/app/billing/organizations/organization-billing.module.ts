@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
 import { LooseComponentsModule } from "../../shared";
 import { BillingSharedModule } from "../shared";
@@ -28,6 +29,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     BillingSharedModule,
     OrganizationPlansComponent,
     LooseComponentsModule,
+    BannerModule,
   ],
   declarations: [
     AdjustSubscription,

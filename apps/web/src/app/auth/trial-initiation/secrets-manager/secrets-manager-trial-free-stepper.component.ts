@@ -46,7 +46,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
     protected formBuilder: UntypedFormBuilder,
     protected i18nService: I18nService,
     protected organizationBillingService: OrganizationBillingService,
-    private router: Router,
+    protected router: Router,
   ) {}
 
   ngOnInit(): void {
