@@ -107,6 +107,9 @@
   "copyPassword": {
     "message": "Copy password"
   },
+  "copyPassphrase": {
+    "message": "Copy passphrase"
+  },
   "copyNote": {
     "message": "Copy note"
   },
@@ -406,6 +409,9 @@
   },
   "generatePassword": {
     "message": "Generate password"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
   },
   "regeneratePassword": {
     "message": "Regenerate password"

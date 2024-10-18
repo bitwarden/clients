@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Generate password"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "checkPassword": {
     "message": "Check if password has been exposed."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Copy password",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUsername": {
     "message": "Copy username",

@@ -63,6 +63,36 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     nav: null,
   });
 
+  /** Emits the copy button aria-label respective of the selected credential type */
+  protected credentialTypeCopyLabel$ = this.root$.pipe(
+    map(({ nav }) => {
+      if (nav === "password") {
+        return this.i18nService.t("copyPassword");
+      }
+
+      if (nav === "passphrase") {
+        return this.i18nService.t("copyPassphrase");
+      }
+
+      return this.i18nService.t("copyUsername");
+    }),
+  );
+
+  /** Emits the generate button aria-label respective of the selected credential type */
+  protected credentialTypeGenerateLabel$ = this.root$.pipe(
+    map(({ nav }) => {
+      if (nav === "password") {
+        return this.i18nService.t("generatePassword");
+      }
+
+      if (nav === "passphrase") {
+        return this.i18nService.t("generatePassphrase");
+      }
+
+      return this.i18nService.t("generateUsername");
+    }),
+  );
+
   protected onRootChanged(nav: RootNavValue) {
     // prevent subscription cycle
     if (this.root$.value.nav !== nav) {

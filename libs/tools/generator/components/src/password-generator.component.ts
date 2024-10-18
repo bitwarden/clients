@@ -48,6 +48,28 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   /** tracks the currently selected credential type */
   protected credentialType$ = new BehaviorSubject<PasswordAlgorithm>(null);
 
+  /** Emits the copy button aria-label respective of the selected credential */
+  protected credentialTypeCopyLabel$ = this.credentialType$.pipe(
+    map((cred) => {
+      if (cred === "password") {
+        return this.i18nService.t("copyPassword");
+      }
+
+      return this.i18nService.t("copyPassphrase");
+    }),
+  );
+
+  /** Emits the generate button aria-label respective of the selected credential */
+  protected credentialTypeGenerateLabel$ = this.credentialType$.pipe(
+    map((cred) => {
+      if (cred === "password") {
+        return this.i18nService.t("generatePassword");
+      }
+
+      return this.i18nService.t("generatePassphrase");
+    }),
+  );
+
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
 
