@@ -3147,6 +3147,12 @@
   "labsSettingsWarning": {
     "message": "These settings are experimental, may result in undesirable side-effects, and may be removed or disabled at any time."
   },
+  "resetDisableLabsSettingsAction": {
+    "message": "Reset and disable Labs"
+  },
+  "resetDisableLabsSettingsConfirmation": {
+    "message": "Are you sure you want to disable Labs? All settings will be reset and you will not be able to access them without re-enabling Labs."
+  },
   "designRefreshSettingLabel": {
     "message": "Enable UI design and experience improvements"
   },

@@ -1,15 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { Router , RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LabsSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/labs-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  ButtonModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   ItemModule,
   SectionComponent,
@@ -25,6 +27,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   templateUrl: "labs.component.html",
   standalone: true,
   imports: [
+    ButtonModule,
     CardComponent,
     CheckboxModule,
     CommonModule,
@@ -54,6 +57,8 @@ export class LabsComponent implements OnInit {
   constructor(
     private i18nService: I18nService,
     private labsSettingsService: LabsSettingsServiceAbstraction,
+    private dialogService: DialogService,
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -76,6 +81,22 @@ export class LabsComponent implements OnInit {
     this.designRefreshEnabled = await firstValueFrom(
       this.labsSettingsService.designRefreshEnabled$,
     );
+  }
+
+  async handleResetClick() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "resetDisableLabsSettingsAction" },
+      content: { key: "resetDisableLabsSettingsConfirmation" },
+      type: "danger",
+    });
+    if (confirmed) {
+      await Promise.all([
+        this.labsSettingsService.clearAllLabsSettings(),
+        this.labsSettingsService.setLabsSettingsEnabled(false),
+      ]);
+
+      await this.router.navigate(["/"]);
+    }
   }
 
   async updateImprovedFieldQualificationForInlineMenuEnabled() {

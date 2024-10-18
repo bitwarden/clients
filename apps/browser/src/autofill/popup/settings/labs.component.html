@@ -10,6 +10,11 @@
       {{ "labsSettingsWarning" | i18n }}
     </app-callout>
     <bit-section>
+      <button buttonType="danger" bitButton block (click)="handleResetClick()">
+        {{ "resetDisableLabsSettingsAction" | i18n }}
+      </button>
+    </bit-section>
+    <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "userSettingsTitle" | i18n }}</h2>
       </bit-section-header>
