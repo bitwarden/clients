@@ -91,21 +91,3 @@ export const DisabledWithAttribute: Story = {
     loading: false,
   },
 };
-
-export const Block: Story = {
-  render: (args: ButtonComponent) => ({
-    props: args,
-    template: `
-      <span class="tw-flex">
-        <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
-        <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
-  
-        <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
-        <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
-      </span>
-    `,
-  }),
-  args: {
-    block: true,
-  },
-};
