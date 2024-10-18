@@ -1,0 +1,15 @@
+<form class="box" [formGroup]="settings" class="tw-container">
+  <bit-form-field *ngIf="displayDomain">
+    <bit-label>{{ "aliasDomain" | i18n }}</bit-label>
+    <input bitInput formControlName="domain" type="text" />
+  </bit-form-field>
+  <bit-form-field *ngIf="displayToken">
+    <bit-label>{{ "apiAccessToken" | i18n }}</bit-label>
+    <input bitInput formControlName="token" type="password" />
+    <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+  </bit-form-field>
+  <bit-form-field *ngIf="displayBaseUrl">
+    <bit-label>{{ "baseUrl" | i18n }}</bit-label>
+    <input bitInput formControlName="baseUrl" type="text" />
+  </bit-form-field>
+</form>

@@ -23,19 +23,30 @@
   </bit-section-header>
   <div [ngClass]="{ 'tw-mb-4': !disableMargin }">
     <bit-card>
-      <form class="box" [formGroup]="credential" class="tw-container">
+      <form class="box" [formGroup]="username" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "type" | i18n }}</bit-label>
-          <bit-select [items]="typeOptions$ | async" formControlName="type"> </bit-select>
+          <bit-select [items]="typeOptions$ | async" formControlName="nav"> </bit-select>
           <bit-hint *ngIf="!!(credentialTypeHint$ | async)">{{
             credentialTypeHint$ | async
           }}</bit-hint>
+        </bit-form-field>
+      </form>
+      <form class="box" [formGroup]="forwarder" class="tw-container">
+        <bit-form-field>
+          <bit-label>{{ "forwarder" | i18n }}</bit-label>
+          <bit-select [items]="forwarderOptions$ | async" formControlName="nav"> </bit-select>
         </bit-form-field>
       </form>
       <tools-catchall-settings
         *ngIf="(algorithm$ | async)?.id === 'catchall'"
         [userId]="this.userId$ | async"
         (onUpdated)="generate$.next()"
+      />
+      <tools-forwarder-settings
+        *ngIf="!!(forwarderId$ | async)"
+        [forwarder]="forwarderId$ | async"
+        [userId]="this.userId$ | async"
       />
       <tools-subaddress-settings
         *ngIf="(algorithm$ | async)?.id === 'subaddress'"
