@@ -1,10 +1,32 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { SpinnerComponent } from "../spinner";
+import { I18nMockService } from "../utils";
 
 import { BitIconButtonComponent } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [SpinnerComponent],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     bitIconButton: "bwi-plus",
     size: "default",
