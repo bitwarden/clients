@@ -22,7 +22,7 @@
         buttonType="danger"
         [appA11yTitle]="'delete' | i18n"
         [bitAction]="delete"
-        [disabled]="!cipher.edit"
+        [disabled]="!(canDeleteCipher$ | async)"
       >
         <i class="bwi bwi-trash bwi-lg bwi-fw" aria-hidden="true"></i>
       </button>

@@ -24,6 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -72,6 +73,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
     datePipe: DatePipe,
     configService: ConfigService,
     private fido2UserVerificationService: Fido2UserVerificationService,
+    cipherAuthorizationService: CipherAuthorizationService,
   ) {
     super(
       cipherService,
@@ -92,6 +94,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
       window,
       datePipe,
       configService,
+      cipherAuthorizationService,
     );
   }
 
@@ -107,6 +110,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
         this.folderId = params.folderId;
       }
       if (params.collectionId) {
+        this.collectionId = params.collectionId;
         const collection = this.writeableCollections.find((c) => c.id === params.collectionId);
         if (collection != null) {
           this.collectionIds = [collection.id];

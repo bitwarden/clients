@@ -55,7 +55,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -173,6 +173,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
+  private activeUserId: UserId;
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -217,6 +218,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.isSelfHost()
         ? "trashCleanupWarningSelfHosted"
         : "trashCleanupWarning",
+    );
+
+    this.activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
     const firstSetup$ = this.route.queryParams.pipe(
@@ -603,11 +608,17 @@ export class VaultComponent implements OnInit, OnDestroy {
    * Open the combined view / edit dialog for a cipher.
    * @param mode - Starting mode of the dialog.
    * @param formConfig - Configuration for the form when editing/adding a cipher.
+   * @param activeCollectionId - The active collection ID.
    */
-  async openVaultItemDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+  async openVaultItemDialog(
+    mode: VaultItemDialogMode,
+    formConfig: CipherFormConfig,
+    activeCollectionId?: CollectionId,
+  ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
       formConfig,
+      activeCollectionId,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -713,6 +724,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.cipherAddEditModalRef,
       (comp) => {
         comp.cipherId = id;
+        comp.collectionId = this.selectedCollection?.node.id;
+
         comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
           modal.close();
           this.refresh();
@@ -787,7 +800,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       cipher.type,
     );
 
-    await this.openVaultItemDialog("view", cipherFormConfig);
+    await this.openVaultItemDialog(
+      "view",
+      cipherFormConfig,
+      this.selectedCollection?.node.id as CollectionId,
+    );
   }
 
   async addCollection() {

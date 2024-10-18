@@ -15,6 +15,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
@@ -80,6 +81,12 @@ describe("ViewV2Component", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$: jest.fn().mockReturnValue(true),
+          },
         },
       ],
     }).compileComponents();
