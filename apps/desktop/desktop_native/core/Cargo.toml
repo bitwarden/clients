@@ -30,7 +30,7 @@ arboard = { version = "=3.4.1", default-features = false, features = [
 base64 = "=0.22.1"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 dirs = "=5.0.1"
-futures = "=0.3.30"
+futures = "=0.3.31"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
 libc = "=0.2.159"
 log = "=0.4.22"
