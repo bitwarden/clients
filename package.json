@@ -27,7 +27,7 @@
     "storybook": "ng run components:storybook",
     "build-storybook": "ng run components:build-storybook",
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && rimraf ./node_modules/@types/glob && rimraf ./node_modules/@types/minimatch"
   },
   "workspaces": [
     "apps/*",
@@ -212,11 +212,7 @@
     "@storybook/angular": {
       "zone.js": "$zone.js"
     },
-    "replacestream": "4.0.3",
-    "@types/minimatch": "3.0.5",
-    "@electron/asar": {
-      "@types/glob": "7.1.3"
-    }
+    "replacestream": "4.0.3"
   },
   "lint-staged": {
     "*": "prettier --cache --ignore-unknown --write",
