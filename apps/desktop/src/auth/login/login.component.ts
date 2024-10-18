@@ -14,8 +14,10 @@ import {
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,9 +27,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+import { RegistrationSelfHostedEnvConfigDialogComponent } from "../../../../../libs/auth/src/angular/registration/registration-self-hosted-env-config-dialog/registration-self-hosted-env-config-dialog.component";
 import { EnvironmentComponent } from "../environment.component";
 
 const BroadcasterSubscriptionId = "LoginComponent";
@@ -76,6 +79,8 @@ export class LoginComponent extends BaseLoginComponent implements OnInit, OnDest
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
     registerRouteService: RegisterRouteService,
     toastService: ToastService,
+    private configService: ConfigService,
+    private dialogService: DialogService,
   ) {
     super(
       devicesApiService,
@@ -137,7 +142,35 @@ export class LoginComponent extends BaseLoginComponent implements OnInit, OnDest
     this.componentDestroyed$.complete();
   }
 
+  /**
+   * Opens the environment configuration dialog.
+   * If the feature flag is enabled, it will open the refreshed environment configuration dialog.
+   * Otherwise, it will open the environment configuration dialog.
+   */
   async settings() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.UnauthenticatedExtensionUIRefresh)) {
+      await this.showRefreshedEnvConfigDialog();
+    } else {
+      await this.showEnvConfigDialog();
+    }
+  }
+
+  /**
+   * Show the refreshed environment configuration dialog (when the UnauthenticatedExtensionUIRefresh flag is true).
+   */
+  async showRefreshedEnvConfigDialog() {
+    this.showingModal = true;
+    const wasSaved = await RegistrationSelfHostedEnvConfigDialogComponent.open(this.dialogService);
+    this.showingModal = false;
+    if (wasSaved) {
+      await this.getLoginWithDevice(this.loggedEmail);
+    }
+  }
+
+  /**
+   * Show the environment configuration dialog.
+   */
+  async showEnvConfigDialog() {
     const [modal, childComponent] = await this.modalService.openViewRef(
       EnvironmentComponent,
       this.environmentModal,

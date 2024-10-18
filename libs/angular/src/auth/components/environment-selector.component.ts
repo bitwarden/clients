@@ -4,11 +4,15 @@ import { Component, EventEmitter, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 @Component({
   selector: "environment-selector",
@@ -37,6 +41,7 @@ import {
 export class EnvironmentSelectorComponent {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
   protected isOpen = false;
+  protected accessingString: string;
   protected ServerEnvironmentType = Region;
   protected overlayPosition: ConnectedPosition[] = [
     {
@@ -56,8 +61,27 @@ export class EnvironmentSelectorComponent {
 
   constructor(
     protected environmentService: EnvironmentService,
+    protected configService: ConfigService,
     protected router: Router,
-  ) {}
+    protected logService: LogService,
+    private i18nService: I18nService,
+  ) {
+    this.setAccessingString().catch((e) => {
+      this.logService.error(e);
+    });
+  }
+
+  /**
+   * Set the text in front of the dropdown to either "Accessing" or "Logging In On" based on whether the
+   * UnauthenticatedExtensionUIRefresh feature flag is set.
+   */
+  private async setAccessingString() {
+    const isUnauthenticatedExtensionUIRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.UnauthenticatedExtensionUIRefresh,
+    );
+    const translationKey = isUnauthenticatedExtensionUIRefreshEnabled ? "accessing" : "loggingInOn";
+    this.accessingString = this.i18nService.t(translationKey);
+  }
 
   async toggle(option: Region) {
     this.isOpen = !this.isOpen;
