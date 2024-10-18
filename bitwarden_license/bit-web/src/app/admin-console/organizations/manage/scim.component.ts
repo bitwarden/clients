@@ -82,6 +82,11 @@ export class ScimComponent implements OnInit {
 
   copyScimUrl = async () => {
     this.platformUtilsService.copyToClipboard(await this.getScimEndpointUrl());
+    this.toastService.showToast({
+      message: this.i18nService.t("valueCopied", this.i18nService.t("scimUrl")),
+      variant: "success",
+      title: null,
+    });
   };
 
   rotateScimKey = async () => {
@@ -114,6 +119,11 @@ export class ScimComponent implements OnInit {
 
   copyScimKey = async () => {
     this.platformUtilsService.copyToClipboard(this.formData.get("clientSecret").value);
+    this.toastService.showToast({
+      message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
+      variant: "success",
+      title: null,
+    });
   };
 
   submit = async () => {
