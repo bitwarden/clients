@@ -2892,6 +2892,12 @@
   "aliasDomain": {
     "message": "Alias domain"
   },
+  "all": {
+    "message": "All"
+  },
+  "toggleRow": {
+    "message": "Toggle row"
+  },
   "importData": {
     "message": "Import data",
     "description": "Used for the desktop menu item and the header of the import dialog"

@@ -23,7 +23,7 @@ export class ServiceAccountsListComponent implements OnDestroy {
     return this._serviceAccounts;
   }
   set serviceAccounts(serviceAccounts: ServiceAccountSecretsDetailsView[]) {
-    this.selection.clear();
+    this.selectionModel.clear();
     this._serviceAccounts = serviceAccounts;
     this.dataSource.data = serviceAccounts;
   }
@@ -31,27 +31,27 @@ export class ServiceAccountsListComponent implements OnDestroy {
 
   @Input()
   set search(search: string) {
-    this.selection.clear();
+    this.selectionModel.clear();
     this.dataSource.filter = search;
   }
 
   @Output() newServiceAccountEvent = new EventEmitter();
   @Output() deleteServiceAccountsEvent = new EventEmitter<ServiceAccountView[]>();
-  @Output() onServiceAccountCheckedEvent = new EventEmitter<string[]>();
+  @Output() onServiceAccountCheckedEvent = new EventEmitter<ServiceAccountView[]>();
   @Output() editServiceAccountEvent = new EventEmitter<string>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
-  selection = new SelectionModel<string>(true, []);
+  protected selectionModel = new SelectionModel<ServiceAccountView>(true, []);
 
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
   ) {
-    this.selection.changed
+    this.selectionModel.changed
       .pipe(takeUntil(this.destroy$))
-      .subscribe((_) => this.onServiceAccountCheckedEvent.emit(this.selection.selected));
+      .subscribe((_) => this.onServiceAccountCheckedEvent.emit(this.selectionModel.selected));
   }
 
   ngOnDestroy(): void {
@@ -59,32 +59,13 @@ export class ServiceAccountsListComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  isAllSelected() {
-    if (this.selection.selected?.length > 0) {
-      const numSelected = this.selection.selected.length;
-      const numRows = this.dataSource.filteredData.length;
-      return numSelected === numRows;
-    }
-    return false;
-  }
-
-  toggleAll() {
-    if (this.isAllSelected()) {
-      this.selection.clear();
-    } else {
-      this.selection.select(...this.dataSource.filteredData.map((s) => s.id));
-    }
-  }
-
   delete(serviceAccount: ServiceAccountSecretsDetailsView) {
     this.deleteServiceAccountsEvent.emit([serviceAccount as ServiceAccountView]);
   }
 
   bulkDeleteServiceAccounts() {
-    if (this.selection.selected.length >= 1) {
-      this.deleteServiceAccountsEvent.emit(
-        this.serviceAccounts.filter((sa) => this.selection.isSelected(sa.id)),
-      );
+    if (this.selectionModel.selected.length >= 1) {
+      this.deleteServiceAccountsEvent.emit(this.selectionModel.selected);
     } else {
       this.toastService.showToast({
         variant: "error",
