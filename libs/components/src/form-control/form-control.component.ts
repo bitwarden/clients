@@ -33,26 +33,10 @@ export class FormControlComponent {
   @HostBinding("class") get classes() {
     return []
       .concat(this.inline ? ["tw-inline-block", "tw-mr-4"] : ["tw-block"])
-      .concat(this.disableMargin ? [] : ["tw-mb-6"]);
+      .concat(this.disableMargin ? [] : ["tw-mb-4"]);
   }
 
   constructor(private i18nService: I18nService) {}
-
-  protected get labelClasses() {
-    return [
-      "tw-transition",
-      "tw-select-none",
-      "tw-mb-0",
-      "tw-inline-flex",
-      "tw-items-baseline",
-    ].concat(this.formControl.disabled ? "tw-cursor-auto" : "tw-cursor-pointer");
-  }
-
-  protected get labelContentClasses() {
-    return ["tw-inline-flex", "tw-flex-col", "tw-font-semibold"].concat(
-      this.formControl.disabled ? "tw-text-muted" : "tw-text-main",
-    );
-  }
 
   get required() {
     return this.formControl.required;

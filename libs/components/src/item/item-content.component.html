@@ -13,12 +13,12 @@
         <ng-content select="[slot=default-trailing]"></ng-content>
       </div>
     </div>
-    <div class="tw-text-muted tw-text-sm tw-w-full tw-truncate">
+    <div bitTypography="helper" class="tw-text-muted tw-w-full tw-truncate">
       <ng-content select="[slot=secondary]"></ng-content>
     </div>
   </div>
 </div>
 
-<div class="tw-flex tw-gap-2 tw-items-center">
+<div class="tw-flex tw-gap-2 tw-items-center" #endSlot [hidden]="!endSlotHasChildren()">
   <ng-content select="[slot=end]"></ng-content>
 </div>

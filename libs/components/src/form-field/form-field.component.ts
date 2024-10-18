@@ -1,22 +1,22 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
   AfterContentChecked,
   booleanAttribute,
   Component,
   ContentChild,
-  ContentChildren,
+  ElementRef,
   HostBinding,
+  HostListener,
   Input,
-  QueryList,
   ViewChild,
+  signal,
 } from "@angular/core";
 
 import { BitHintComponent } from "../form-control/hint.component";
+import { BitLabel } from "../form-control/label.component";
+import { inputBorderClasses } from "../input/input.directive";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";
-import { BitPrefixDirective } from "./prefix.directive";
-import { BitSuffixDirective } from "./suffix.directive";
 
 @Component({
   selector: "bit-form-field",
@@ -25,30 +25,74 @@ import { BitSuffixDirective } from "./suffix.directive";
 export class BitFormFieldComponent implements AfterContentChecked {
   @ContentChild(BitFormFieldControl) input: BitFormFieldControl;
   @ContentChild(BitHintComponent) hint: BitHintComponent;
+  @ContentChild(BitLabel) label: BitLabel;
+
+  @ViewChild("prefixContainer") prefixContainer: ElementRef<HTMLDivElement>;
+  @ViewChild("suffixContainer") suffixContainer: ElementRef<HTMLDivElement>;
 
   @ViewChild(BitErrorComponent) error: BitErrorComponent;
 
-  @ContentChildren(BitPrefixDirective) prefixChildren: QueryList<BitPrefixDirective>;
-  @ContentChildren(BitSuffixDirective) suffixChildren: QueryList<BitSuffixDirective>;
+  @Input({ transform: booleanAttribute })
+  disableMargin = false;
 
-  private _disableMargin = false;
-  @Input() set disableMargin(value: boolean | "") {
-    this._disableMargin = coerceBooleanProperty(value);
-  }
-  get disableMargin() {
-    return this._disableMargin;
-  }
-
-  /**
-   * NOTE: Placeholder to match the API of the form-field component in the `ps/extension` branch,
-   * no functionality is implemented as of now.
-   */
+  /** If `true`, remove the bottom border for `readonly` inputs */
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
 
+  protected prefixHasChildren = signal(false);
+  protected suffixHasChildren = signal(false);
+
+  get inputBorderClasses(): string {
+    const shouldFocusBorderAppear = this.defaultContentIsFocused();
+
+    const groupClasses = [
+      this.input.hasError
+        ? "group-hover/bit-form-field:tw-border-danger-700"
+        : "group-hover/bit-form-field:tw-border-primary-600",
+      // the next 2 selectors override the above hover selectors when the input (or text area) is non-interactive (i.e. readonly, disabled)
+      "group-has-[input:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
+      "group-has-[textarea:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
+      "group-focus-within/bit-form-field:tw-outline-none",
+      shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-2" : "",
+      shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-primary-600" : "",
+      shouldFocusBorderAppear
+        ? "group-focus-within/bit-form-field:group-hover/bit-form-field:tw-border-primary-600"
+        : "",
+    ];
+
+    const baseInputBorderClasses = inputBorderClasses(this.input.hasError);
+
+    const borderClasses = baseInputBorderClasses.concat(groupClasses);
+
+    return borderClasses.join(" ");
+  }
+
   @HostBinding("class")
   get classList() {
-    return ["tw-block"].concat(this.disableMargin ? [] : ["tw-mb-6"]);
+    return ["tw-block"]
+      .concat(this.disableMargin ? [] : ["tw-mb-4"])
+      .concat(this.readOnly ? [] : "tw-pt-2");
+  }
+
+  /**
+   * If the currently focused element is not part of the default content, then we don't want to show focus on the
+   * input field itself.
+   *
+   * This is necessary because the `tw-group/bit-form-field` wraps the input and any prefix/suffix
+   * buttons
+   */
+  protected defaultContentIsFocused = signal(false);
+  @HostListener("focusin", ["$event.target"])
+  onFocusIn(target: HTMLElement) {
+    this.defaultContentIsFocused.set(target.matches(".default-content *:focus-visible"));
+  }
+  @HostListener("focusout")
+  onFocusOut() {
+    this.defaultContentIsFocused.set(false);
+  }
+
+  protected get readOnly(): boolean {
+    return this.input.readOnly;
   }
 
   ngAfterContentChecked(): void {
@@ -59,5 +103,8 @@ export class BitFormFieldComponent implements AfterContentChecked {
     } else {
       this.input.ariaDescribedBy = undefined;
     }
+
+    this.prefixHasChildren.set(this.prefixContainer?.nativeElement.childElementCount > 0);
+    this.suffixHasChildren.set(this.suffixContainer?.nativeElement.childElementCount > 0);
   }
 }

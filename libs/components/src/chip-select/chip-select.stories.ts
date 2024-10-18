@@ -44,6 +44,47 @@ export const Default: Story = {
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
+      ></bit-chip-select>
+      <bit-chip-select
+        placeholderText="Folder"
+        placeholderIcon="bwi-folder"
+        [options]="options"
+        [ngModel]="value"
+      ></bit-chip-select>
+    `,
+  }),
+  args: {
+    options: [
+      {
+        label: "Foo",
+        value: "foo",
+        icon: "bwi-folder",
+      },
+      {
+        label: "Bar",
+        value: "bar",
+        icon: "bwi-exclamation-triangle tw-text-danger",
+      },
+      {
+        label: "Baz",
+        value: "baz",
+        disabled: true,
+      },
+    ],
+    value: "foo",
+  },
+};
+
+export const MenuOpen: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+    },
+    template: /* html */ `
+      <bit-chip-select
+        placeholderText="Folder"
+        placeholderIcon="bwi-folder"
+        [options]="options"
         [ngModel]="value"
       ></bit-chip-select>
     `,
@@ -122,7 +163,7 @@ export const NestedOptions: Story = {
         icon: "bwi-folder",
         children: [
           {
-            label: "Foo1",
+            label: "Foo1 very long name of folder but even longer than you thought",
             value: "foo1",
             icon: "bwi-folder",
             children: [
@@ -170,12 +211,17 @@ export const TextOverflow: Story = {
 };
 
 export const Disabled: Story = {
-  ...Default,
   render: (args) => ({
     props: {
       ...args,
     },
     template: /* html */ `
+      <bit-chip-select
+        placeholderText="Folder"
+        placeholderIcon="bwi-folder"
+        [options]="options"
+        disabled
+      ></bit-chip-select>
       <bit-chip-select
         placeholderText="Folder"
         placeholderIcon="bwi-folder"

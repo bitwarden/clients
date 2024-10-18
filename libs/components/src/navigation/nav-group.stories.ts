@@ -22,9 +22,7 @@ export default {
   title: "Component Library/Nav/Nav Group",
   component: NavGroupComponent,
   decorators: [
-    positionFixedWrapperDecorator(
-      (story) => `<bit-layout><bit-side-nav>${story}</bit-side-nav></bit-layout>`,
-    ),
+    positionFixedWrapperDecorator((story) => `<bit-layout>${story}</bit-layout>`),
     moduleMetadata({
       imports: [
         SharedModule,
@@ -73,17 +71,19 @@ export default {
 export const Default: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,
-    template: `
-      <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
-        <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
-        <bit-nav-item text="Child B" route="b"></bit-nav-item>
-        <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
-      </bit-nav-group>
-      <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
-        <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
-        <bit-nav-item text="Child B"></bit-nav-item>
-        <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
-      </bit-nav-group>
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B" route="b"></bit-nav-item>
+          <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
+        <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
+          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B"></bit-nav-item>
+          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
+      </bit-side-nav>
     `,
   }),
 };
@@ -91,22 +91,44 @@ export const Default: StoryObj<NavGroupComponent> = {
 export const Tree: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,
-    template: `
-      <bit-nav-group text="Tree example" icon="bwi-collection" [open]="true">
-        <bit-nav-group text="Level 1 - with children (empty)" route="t1" icon="bwi-collection" variant="tree"></bit-nav-group>
-        <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection" variant="tree"></bit-nav-item>
-        <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection" variant="tree" [open]="true">
-          <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection" variant="tree" [open]="true">
-            <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
-            <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection" variant="tree" [open]="true">
-              <bit-nav-item text="Level 4 - no children, no icon" route="t7" variant="tree"></bit-nav-item>
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Tree example" icon="bwi-collection" [open]="true">
+          <bit-nav-group text="Level 1 - with children (empty)" route="t1" icon="bwi-collection" variant="tree"></bit-nav-group>
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection" variant="tree"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection" variant="tree" [open]="true">
+            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection" variant="tree" [open]="true">
+              <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
+              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection" variant="tree" [open]="true">
+                <bit-nav-item text="Level 4 - no children, no icon" route="t7" variant="tree"></bit-nav-item>
+              </bit-nav-group>
             </bit-nav-group>
+            <bit-nav-group text="Level 2 - with children (empty)" route="t8" icon="bwi-collection" variant="tree" [open]="true"></bit-nav-group>
+            <bit-nav-item text="Level 2 - no children" route="t9" icon="bwi-collection" variant="tree"></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-group text="Level 2 - with children (empty)" route="t8" icon="bwi-collection" variant="tree" [open]="true"></bit-nav-group>
-          <bit-nav-item text="Level 2 - no children" route="t9" icon="bwi-collection" variant="tree"></bit-nav-item>
+          <bit-nav-item text="Level 1 - no children" route="t10" icon="bwi-collection" variant="tree"></bit-nav-item>
         </bit-nav-group>
-        <bit-nav-item text="Level 1 - no children" route="t10" icon="bwi-collection" variant="tree"></bit-nav-item>
-      </bit-nav-group>
+      </bit-side-nav>
+    `,
+  }),
+};
+
+export const Secondary: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav variant="secondary">
+        <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B" route="b"></bit-nav-item>
+          <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
+        <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
+          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B"></bit-nav-item>
+          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
+      </bit-side-nav>
     `,
   }),
 };

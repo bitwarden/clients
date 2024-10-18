@@ -39,7 +39,7 @@ class ExtensionContainerComponent {}
 @Component({
   selector: "vault-placeholder",
   template: `
-    <bit-section disableMargin>
+    <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
           <button bit-item-content>

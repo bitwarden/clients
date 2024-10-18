@@ -2,6 +2,9 @@ import { Component, Input, OnInit } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { SharedModule } from "../shared";
+import { TypographyModule } from "../typography";
+
 export type CalloutTypes = "success" | "info" | "warning" | "danger";
 
 const defaultIcon: Record<CalloutTypes, string> = {
@@ -22,6 +25,8 @@ let nextId = 0;
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
+  standalone: true,
+  imports: [SharedModule, TypographyModule],
 })
 export class CalloutComponent implements OnInit {
   @Input() type: CalloutTypes = "info";
@@ -42,13 +47,13 @@ export class CalloutComponent implements OnInit {
   get calloutClass() {
     switch (this.type) {
       case "danger":
-        return "tw-border-l-danger-600";
+        return "tw-border-danger-600";
       case "info":
-        return "tw-border-l-info-600";
+        return "tw-border-info-600";
       case "success":
-        return "tw-border-l-success-600";
+        return "tw-border-success-600";
       case "warning":
-        return "tw-border-l-warning-600";
+        return "tw-border-warning-600";
     }
   }
 
