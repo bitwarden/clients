@@ -6,10 +6,11 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ObservableTracker } from "@bitwarden/common/spec";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { mockAccountServiceWith, ObservableTracker } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -39,6 +40,7 @@ describe("VaultPopupItemsService", () => {
   const collectionService = mock<CollectionService>();
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
+  const accountService = mockAccountServiceWith("UserId" as UserId);
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -90,7 +92,7 @@ describe("VaultPopupItemsService", () => {
     ];
 
     organizationServiceMock.organizations$ = new BehaviorSubject([mockOrg]);
-    collectionService.decryptedCollections$ = new BehaviorSubject(mockCollections);
+    collectionService.decryptedCollections$.mockReturnValue(new BehaviorSubject(mockCollections));
 
     activeUserLastSync$ = new BehaviorSubject(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
@@ -105,6 +107,7 @@ describe("VaultPopupItemsService", () => {
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
         { provide: SyncService, useValue: syncServiceMock },
+        { provide: AccountService, useValue: accountService },
       ],
     });
 

@@ -38,7 +38,8 @@ describe("DefaultCollectionService", () => {
       const collection2 = collectionDataFactory(org2);
 
       // Arrange state provider
-      const fakeStateProvider = mockStateProvider();
+      const userId = Utils.newGuid() as UserId;
+      const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
       await fakeStateProvider.setUserState(ENCRYPTED_COLLECTION_DATA_KEY, {
         [collection1.id]: collection1,
         [collection2.id]: collection2,
@@ -60,7 +61,7 @@ describe("DefaultCollectionService", () => {
         fakeStateProvider,
       );
 
-      const result = await firstValueFrom(collectionService.decryptedCollections$);
+      const result = await firstValueFrom(collectionService.decryptedCollections$(of(userId)));
       expect(result.length).toBe(2);
       expect(result[0]).toMatchObject({
         id: collection1.id,
@@ -78,7 +79,8 @@ describe("DefaultCollectionService", () => {
       const org2 = Utils.newGuid() as OrganizationId;
 
       // Arrange state provider
-      const fakeStateProvider = mockStateProvider();
+      const userId = Utils.newGuid() as UserId;
+      const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
       await fakeStateProvider.setUserState(ENCRYPTED_COLLECTION_DATA_KEY, null);
 
       // Arrange cryptoService - orgKeys and mock decryption
@@ -97,10 +99,14 @@ describe("DefaultCollectionService", () => {
         fakeStateProvider,
       );
 
-      const decryptedCollections = await firstValueFrom(collectionService.decryptedCollections$);
+      const decryptedCollections = await firstValueFrom(
+        collectionService.decryptedCollections$(of(userId)),
+      );
       expect(decryptedCollections.length).toBe(0);
 
-      const encryptedCollections = await firstValueFrom(collectionService.encryptedCollections$);
+      const encryptedCollections = await firstValueFrom(
+        collectionService.encryptedCollections$(of(userId)),
+      );
       expect(encryptedCollections.length).toBe(0);
     });
   });
@@ -110,11 +116,6 @@ const mockI18nService = () => {
   const i18nService = mock<I18nService>();
   i18nService.collator = null; // this is a mock only, avoid use of this object
   return i18nService;
-};
-
-const mockStateProvider = () => {
-  const userId = Utils.newGuid() as UserId;
-  return new FakeStateProvider(mockAccountServiceWith(userId));
 };
 
 const mockCryptoService = () => {

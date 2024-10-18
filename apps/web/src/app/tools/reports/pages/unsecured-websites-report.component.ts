@@ -1,8 +1,10 @@
 import { Component, OnInit } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService, Collection } from "@bitwarden/admin-console/common";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -19,6 +21,8 @@ import { CipherReportComponent } from "./cipher-report.component";
 export class UnsecuredWebsitesReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   constructor(
     protected cipherService: CipherService,
     protected organizationService: OrganizationService,
@@ -27,6 +31,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     i18nService: I18nService,
     syncService: SyncService,
     private collectionService: CollectionService,
+    private accountService: AccountService,
   ) {
     super(
       cipherService,
@@ -44,7 +49,9 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
 
   async setCiphers() {
     const allCiphers = await this.getAllCiphers();
-    const allCollections = await this.collectionService.getAll();
+    const allCollections = await firstValueFrom(
+      this.collectionService.encryptedCollections$(this.activeUserId$),
+    );
     this.filterStatus = [0];
 
     const unsecuredCiphers = allCiphers.filter((c) => {

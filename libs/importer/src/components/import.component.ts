@@ -152,6 +152,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   formGroup = this.formBuilder.group({
     vaultSelector: [
       "myVault",
@@ -205,6 +207,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     @Optional()
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
+    protected accountService: AccountService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -272,15 +275,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         if (value) {
-          this.collections$ = Utils.asyncToObservable(() =>
-            this.collectionService
-              .getAllDecrypted()
-              .then((decryptedCollections) =>
+          this.collections$ = this.collectionService
+            .decryptedCollections$(this.activeUserId$)
+            .pipe(
+              map((decryptedCollections) =>
                 decryptedCollections
                   .filter((c2) => c2.organizationId === value && c2.manage)
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
-          );
+            );
         }
       });
     this.formGroup.controls.vaultSelector.setValue("myVault");

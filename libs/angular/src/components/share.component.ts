@@ -27,6 +27,7 @@ export class ShareComponent implements OnInit, OnDestroy {
 
   protected writeableCollections: Checkable<CollectionView>[] = [];
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
   private _destroy = new Subject<void>();
 
   constructor(
@@ -49,7 +50,9 @@ export class ShareComponent implements OnInit, OnDestroy {
   }
 
   async load() {
-    const allCollections = await this.collectionService.getAllDecrypted();
+    const allCollections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(this.activeUserId$),
+    );
     this.writeableCollections = allCollections.map((c) => c).filter((c) => !c.readOnly);
 
     this.organizations$ = this.organizationService.memberOrganizations$.pipe(
