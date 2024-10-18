@@ -70,6 +70,7 @@ bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 ## Platform team files ##
 apps/browser/src/platform @bitwarden/team-platform-dev
 apps/cli/src/platform @bitwarden/team-platform-dev
+apps/desktop/macos @bitwarden/team-platform-dev
 apps/desktop/src/platform @bitwarden/team-platform-dev
 apps/web/src/app/platform @bitwarden/team-platform-dev
 libs/angular/src/platform @bitwarden/team-platform-dev
