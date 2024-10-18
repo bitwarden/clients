@@ -213,6 +213,10 @@ export class ItemDetailsSectionComponent implements OnInit {
         (this.originalCipherView.collectionIds as CollectionId[]),
     );
 
+    if (!(this.originalCipherView?.edit && this.originalCipherView?.viewPassword)) {
+      this.itemDetailsForm.controls.collectionIds.disable();
+    }
+
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
       this.itemDetailsForm.controls.favorite.enable();
