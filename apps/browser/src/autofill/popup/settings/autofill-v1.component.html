@@ -41,8 +41,19 @@
           </option>
         </select>
       </div>
-      <div class="box-footer" *ngIf="accountSwitcherEnabled && canOverrideBrowserAutofillSetting">
-        {{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}
+      <div class="box-footer" *ngIf="accountSwitcherEnabled || !canOverrideBrowserAutofillSetting">
+        <span *ngIf="accountSwitcherEnabled">{{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}</span>
+        <span *ngIf="!canOverrideBrowserAutofillSetting">
+          {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
+          <a
+            [attr.href]="disablePasswordManagerLink"
+            (click)="openDisablePasswordManagerLink($event)"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
+          </a>
+        </span>
       </div>
     </div>
   </div>
@@ -86,7 +97,7 @@
         />
       </div>
     </div>
-    <div class="box-footer">
+    <div class="box-footer" *ngIf="canOverrideBrowserAutofillSetting">
       <span *ngIf="accountSwitcherEnabled">{{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}</span>
       {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
       <a
