@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { lastValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, from, lastValueFrom, map, Observable } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -21,7 +21,7 @@ export class AccountComponent implements OnInit {
   @ViewChild("deauthorizeSessionsTemplate", { read: ViewContainerRef, static: true })
   deauthModalRef: ViewContainerRef;
 
-  showChangeEmail = true;
+  showChangeEmail$: Observable<boolean>;
   showPurgeVault$: Observable<boolean>;
 
   constructor(
@@ -33,21 +33,36 @@ export class AccountComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.showChangeEmail = await this.userVerificationService.hasMasterPassword();
-    this.showPurgeVault$ = this.configService
-      .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
-      .pipe(
-        switchMap((isAccountDeprovisioningEnabled) =>
-          isAccountDeprovisioningEnabled
-            ? this.organizationService.organizations$.pipe(
-                map(
-                  (organizations) =>
-                    !organizations.some((o) => o.userIsManagedByOrganization === true),
-                ),
-              )
-            : of(true),
-        ),
-      );
+    const isAccountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+
+    const userIsManagedByOrganization$ = this.organizationService.organizations$.pipe(
+      map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
+    );
+
+    const hasMasterPassword$ = from(this.userVerificationService.hasMasterPassword());
+
+    this.showChangeEmail$ = combineLatest([
+      hasMasterPassword$,
+      isAccountDeprovisioningEnabled$,
+      userIsManagedByOrganization$,
+    ]).pipe(
+      map(
+        ([hasMasterPassword, isAccountDeprovisioningEnabled, userIsManagedByOrganization]) =>
+          hasMasterPassword && (!isAccountDeprovisioningEnabled || !userIsManagedByOrganization),
+      ),
+    );
+
+    this.showPurgeVault$ = combineLatest([
+      isAccountDeprovisioningEnabled$,
+      userIsManagedByOrganization$,
+    ]).pipe(
+      map(
+        ([isAccountDeprovisioningEnabled, userIsManagedByOrganization]) =>
+          !isAccountDeprovisioningEnabled || !userIsManagedByOrganization,
+      ),
+    );
   }
 
   async deauthorizeSessions() {
