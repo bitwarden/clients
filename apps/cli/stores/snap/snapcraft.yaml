@@ -35,7 +35,8 @@ apps:
     command: bw
     environment:
       XDG_CONFIG_HOME: $SNAP_USER_DATA
-    plugs: [network, network-bind, desktop]
+    plugs: [network, network-bind, desktop, home, removable-media]
+
 parts:
   bw:
     plugin: dump
