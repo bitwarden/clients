@@ -779,7 +779,7 @@
         </div>
       </div>
     </div>
-    <div class="box list" *ngIf="editMode && !cloneMode && !(!cipher.edit && editMode)">
+    <div class="box list" *ngIf="editMode && !cloneMode && (canDeleteCipher$ | async)">
       <div class="box-content single-line">
         <button
           type="button"

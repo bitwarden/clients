@@ -64,12 +64,7 @@
               <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
               {{ "restoreSelected" | i18n }}
             </button>
-            <button
-              *ngIf="showDelete() || showBulkTrashOptions"
-              type="button"
-              bitMenuItem
-              (click)="bulkDelete()"
-            >
+            <button *ngIf="showDelete" type="button" bitMenuItem (click)="bulkDelete()">
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
                 {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
@@ -123,6 +118,7 @@
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
           [canEditCipher]="canEditCipher(item.cipher)"
+          [canManageCollection]="canManageCollection(item.cipher)"
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

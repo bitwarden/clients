@@ -132,7 +132,7 @@
       <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
       {{ "restore" | i18n }}
     </button>
-    <button bitMenuItem *ngIf="canEditCipher" (click)="deleteCipher()" type="button">
+    <button bitMenuItem *ngIf="canManageCollection" (click)="deleteCipher()" type="button">
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}

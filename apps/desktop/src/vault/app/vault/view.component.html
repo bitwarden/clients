@@ -566,7 +566,7 @@
   >
     <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true"></i>
   </button>
-  <div class="right" *ngIf="cipher.edit">
+  <div class="right" *ngIf="canDeleteCipher$ | async">
     <button
       type="button"
       (click)="delete()"

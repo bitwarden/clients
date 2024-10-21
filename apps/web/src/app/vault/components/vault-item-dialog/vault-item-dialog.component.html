@@ -72,7 +72,7 @@
         buttonType="danger"
         [appA11yTitle]="'delete' | i18n"
         [bitAction]="delete"
-        [disabled]="!canDelete"
+        [disabled]="!(canDeleteCipher$ | async)"
         data-testid="delete-cipher-btn"
       ></button>
     </div>

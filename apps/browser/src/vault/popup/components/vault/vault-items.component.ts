@@ -198,7 +198,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/view-cipher"], {
-          queryParams: { cipherId: cipher.id },
+          queryParams: { cipherId: cipher.id, collectionId: this.collectionId },
         });
       }
       this.preventSelected = false;

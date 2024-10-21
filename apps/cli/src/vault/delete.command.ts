@@ -6,6 +6,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
@@ -17,6 +18,7 @@ export class DeleteCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountProfileService: BillingAccountProfileStateService,
+    private cipherAuthorizationService: CipherAuthorizationService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -43,6 +45,14 @@ export class DeleteCommand {
     const cipher = await this.cipherService.get(id);
     if (cipher == null) {
       return Response.notFound();
+    }
+
+    const canDeleteCipher = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(cipher),
+    );
+
+    if (!canDeleteCipher) {
+      return Response.error("You do not have permission to delete this item.");
     }
 
     try {

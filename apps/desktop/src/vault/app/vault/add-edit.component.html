@@ -710,7 +710,7 @@
         (click)="delete()"
         class="danger"
         appA11yTitle="{{ 'delete' | i18n }}"
-        *ngIf="editMode && !cloneMode"
+        *ngIf="editMode && !cloneMode && (canDeleteCipher$ | async)"
         [disabled]="$any(deleteBtn).loading"
         [appApiAction]="deletePromise"
       >
