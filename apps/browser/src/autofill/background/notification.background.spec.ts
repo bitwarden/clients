@@ -1114,8 +1114,9 @@ describe("NotificationBackground", () => {
 
       it("skips saving the domain as a never value if the tab url does not match the queue message domain", async () => {
         const tab = createChromeTabMock({ id: 2, url: "https://example.com" });
-        const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        const secondaryTab = createChromeTabMock({ id: 3, url: "https://another.com" });
+        const sender = mock<chrome.runtime.MessageSender>({ tab: secondaryTab });
         notificationBackground["notificationQueue"] = [
           mock<AddLoginQueueMessage>({
             type: NotificationQueueMessageType.AddLogin,

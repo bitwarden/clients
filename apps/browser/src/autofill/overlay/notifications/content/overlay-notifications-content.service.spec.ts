@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillInit from "../../../content/autofill-init";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
+import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
 import { NotificationTypeData } from "../abstractions/overlay-notifications-content.service";
 
@@ -10,15 +11,18 @@ import { OverlayNotificationsContentService } from "./overlay-notifications-cont
 describe("OverlayNotificationsContentService", () => {
   let overlayNotificationsContentService: OverlayNotificationsContentService;
   let domQueryService: MockProxy<DomQueryService>;
+  let domElementVisibilityService: DomElementVisibilityService;
   let autofillInit: AutofillInit;
   let bodyAppendChildSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.useFakeTimers();
     domQueryService = mock<DomQueryService>();
+    domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
     autofillInit = new AutofillInit(
       domQueryService,
+      domElementVisibilityService,
       null,
       null,
       overlayNotificationsContentService,

@@ -92,7 +92,7 @@ export default class TabsBackground {
       FeatureFlag.InlineMenuPositioningImprovements,
     );
     const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
+    if (!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
       this.overlayBackground.removePageDetails(tabId);
     }
 
