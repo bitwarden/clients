@@ -2,10 +2,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProvidersComponent } from "@bitwarden/web-vault/app/admin-console/providers/providers.component";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
@@ -23,7 +21,6 @@ import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { PeopleComponent } from "./manage/people.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
@@ -98,22 +95,18 @@ const routes: Routes = [
               {
                 path: "",
                 pathMatch: "full",
-                redirectTo: "people",
+                redirectTo: "members",
               },
-              ...featureFlaggedRoute({
-                defaultComponent: PeopleComponent,
-                flaggedComponent: MembersComponent,
-                featureFlag: FeatureFlag.AC2828_ProviderPortalMembersPage,
-                routeOptions: {
-                  path: "people",
-                  canActivate: [
-                    providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
-                  ],
-                  data: {
-                    titleId: "people",
-                  },
+              {
+                path: "members",
+                component: MembersComponent,
+                canActivate: [
+                  providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
+                ],
+                data: {
+                  titleId: "members",
                 },
-              }),
+              },
               {
                 path: "events",
                 component: EventsComponent,

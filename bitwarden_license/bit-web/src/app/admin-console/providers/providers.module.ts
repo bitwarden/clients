@@ -24,14 +24,11 @@ import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
-import { BulkConfirmComponent } from "./manage/bulk/bulk-confirm.component";
-import { BulkRemoveComponent } from "./manage/bulk/bulk-remove.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { PeopleComponent } from "./manage/people.component";
 import { UserAddEditComponent } from "./manage/user-add-edit.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
@@ -58,14 +55,11 @@ import { SetupComponent } from "./setup/setup.component";
     AcceptProviderComponent,
     AccountComponent,
     AddOrganizationComponent,
-    BulkConfirmComponent,
     BulkConfirmDialogComponent,
-    BulkRemoveComponent,
     BulkRemoveDialogComponent,
     ClientsComponent,
     CreateOrganizationComponent,
     EventsComponent,
-    PeopleComponent,
     MembersComponent,
     SetupComponent,
     SetupProviderComponent,

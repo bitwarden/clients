@@ -60,9 +60,9 @@ import { GroupService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
-import { BulkConfirmComponent } from "./components/bulk/bulk-confirm.component";
+import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
-import { BulkRemoveComponent } from "./components/bulk/bulk-remove.component";
+import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import {
@@ -541,7 +541,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const dialogRef = BulkRemoveComponent.open(this.dialogService, {
+    const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
         organizationId: this.organization.id,
         users: this.dataSource.getCheckedUsers(),
@@ -620,7 +620,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const dialogRef = BulkConfirmComponent.open(this.dialogService, {
+    const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
         organizationId: this.organization.id,
         users: this.dataSource.getCheckedUsers(),
