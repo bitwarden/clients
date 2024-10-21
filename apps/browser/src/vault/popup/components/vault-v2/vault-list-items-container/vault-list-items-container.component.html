@@ -1,18 +1,20 @@
 <bit-section *ngIf="ciphers?.length > 0 || description" [disableMargin]="disableSectionMargin">
-  <bit-section-header>
-    <h2 bitTypography="h6">
-      {{ title }}
-    </h2>
-    <button
-      *ngIf="showRefresh"
-      bitIconButton="bwi-refresh"
-      type="button"
-      size="small"
-      (click)="onRefresh.emit()"
-      [appA11yTitle]="'refresh' | i18n"
-    ></button>
-    <span bitTypography="body2" slot="end">{{ ciphers.length }}</span>
-  </bit-section-header>
+  <div class="tw-ml-1">
+    <bit-section-header>
+      <h2 bitTypography="h6">
+        {{ title }}
+      </h2>
+      <button
+        *ngIf="showRefresh"
+        bitIconButton="bwi-refresh"
+        type="button"
+        size="small"
+        (click)="onRefresh.emit()"
+        [appA11yTitle]="'refresh' | i18n"
+      ></button>
+      <span bitTypography="body2" slot="end">{{ ciphers.length }}</span>
+    </bit-section-header>
+  </div>
   <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
     {{ description }}
   </div>
