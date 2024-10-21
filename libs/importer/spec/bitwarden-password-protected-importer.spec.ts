@@ -2,12 +2,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { KdfType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenPasswordProtectedImporter,
@@ -19,7 +19,7 @@ import { emptyUnencryptedExport } from "./test-data/bitwarden-json/unencrypted.j
 
 describe("BitwardenPasswordProtectedImporter", () => {
   let importer: BitwardenPasswordProtectedImporter;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
@@ -31,7 +31,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
   };
 
   beforeEach(() => {
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
@@ -39,7 +39,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     accountService = mock<AccountService>();
 
     importer = new BitwardenPasswordProtectedImporter(
-      cryptoService,
+      keyService,
       encryptService,
       i18nService,
       cipherService,

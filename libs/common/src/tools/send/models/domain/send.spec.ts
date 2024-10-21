@@ -3,8 +3,8 @@ import { mock } from "jest-mock-extended";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 
+import { KeyService } from "../../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
-import { CryptoService } from "../../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { SendType } from "../../enums/send-type";
@@ -111,14 +111,14 @@ describe("Send", () => {
     send.hideEmail = true;
 
     const encryptService = mock<EncryptService>();
-    const cryptoService = mock<CryptoService>();
+    const keyService = mock<KeyService>();
     encryptService.decryptToBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
-    cryptoService.makeSendKey.mockResolvedValue("cryptoKey" as any);
-    cryptoService.getUserKey.mockResolvedValue(userKey);
+    keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
+    keyService.getUserKey.mockResolvedValue(userKey);
 
-    (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     const view = await send.decrypt();
 

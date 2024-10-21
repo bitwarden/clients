@@ -12,10 +12,10 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractio
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { lockGuard } from "./lock.guard";
 
@@ -38,9 +38,9 @@ describe("lockGuard", () => {
       mock<VaultTimeoutSettingsService>();
     vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock);
 
-    const cryptoService: MockProxy<CryptoService> = mock<CryptoService>();
-    cryptoService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
-    cryptoService.everHadUserKey$ = of(setupParams.everHadUserKey);
+    const keyService: MockProxy<KeyService> = mock<KeyService>();
+    keyService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
+    keyService.everHadUserKey$ = of(setupParams.everHadUserKey);
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
     platformUtilService.getClientType.mockReturnValue(setupParams.clientType);
@@ -83,7 +83,7 @@ describe("lockGuard", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: AccountService, useValue: accountService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
-        { provide: CryptoService, useValue: cryptoService },
+        { provide: KeyService, useValue: keyService },
         { provide: PlatformUtilsService, useValue: platformUtilService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: UserVerificationService, useValue: userVerificationService },

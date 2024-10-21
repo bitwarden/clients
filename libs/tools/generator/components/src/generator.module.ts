@@ -6,7 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import {
   CardComponent,
@@ -27,6 +26,7 @@ import {
   CredentialGeneratorService,
   Randomizer,
 } from "@bitwarden/generator-core";
+import { KeyService } from "@bitwarden/key-management";
 
 import { CatchallSettingsComponent } from "./catchall-settings.component";
 import { CredentialGeneratorComponent } from "./credential-generator.component";
@@ -62,7 +62,7 @@ const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
     safeProvider({
       provide: RANDOMIZER,
       useFactory: createRandomizer,
-      deps: [CryptoService],
+      deps: [KeyService],
     }),
     safeProvider({
       provide: CredentialGeneratorService,

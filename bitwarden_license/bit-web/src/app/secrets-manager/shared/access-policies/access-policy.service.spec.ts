@@ -1,12 +1,12 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   GroupAccessPolicyView,
@@ -31,14 +31,14 @@ import { trackEmissions } from "@bitwarden/common/../spec";
 describe("AccessPolicyService", () => {
   let sut: AccessPolicyService;
 
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new AccessPolicyService(cryptoService, apiService, encryptService);
+    sut = new AccessPolicyService(keyService, apiService, encryptService);
   });
 
   it("instantiates", () => {
@@ -135,7 +135,7 @@ describe("AccessPolicyService", () => {
       const expectedRequest = toServiceAccountGrantedPoliciesRequest(view);
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-      cryptoService.getOrgKey.mockResolvedValue(mockOrgKey);
+      keyService.getOrgKey.mockResolvedValue(mockOrgKey);
       encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const serviceAccountId = Utils.newGuid();
@@ -172,7 +172,7 @@ describe("AccessPolicyService", () => {
       const expectedRequest = toProjectServiceAccountsAccessPoliciesRequest(view);
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-      cryptoService.getOrgKey.mockResolvedValue(mockOrgKey);
+      keyService.getOrgKey.mockResolvedValue(mockOrgKey);
       encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const projectId = Utils.newGuid();

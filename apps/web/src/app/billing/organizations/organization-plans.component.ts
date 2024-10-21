@@ -33,7 +33,6 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -43,6 +42,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
@@ -153,7 +153,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
@@ -596,14 +596,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
       if (this.createOrganization) {
-        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+        const orgKey = await this.keyService.makeOrgKey<OrgKey>();
         const key = orgKey[0].encryptedString;
         const collection = await this.encryptService.encrypt(
           this.i18nService.t("defaultCollection"),
           orgKey[1],
         );
         const collectionCt = collection.encryptedString;
-        const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
+        const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
         if (this.selfHosted) {
           orgId = await this.createSelfHosted(key, collectionCt, orgKeys);
@@ -690,8 +690,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.cryptoService.getOrgKey(this.organizationId);
-      const orgKeys = await this.cryptoService.makeKeyPair(orgShareKey);
+      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
@@ -755,7 +755,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.cryptoService.getProviderKey(this.providerId);
+      const providerKey = await this.keyService.getProviderKey(this.providerId);
       providerRequest.organizationCreateRequest.key = (
         await this.encryptService.encrypt(orgKey.key, providerKey)
       ).encryptedString;

@@ -6,16 +6,16 @@ import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { KeyService } from "@bitwarden/key-management";
 
 @Injectable()
 export class WebProviderService {
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private syncService: SyncService,
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -24,8 +24,8 @@ export class WebProviderService {
   ) {}
 
   async addOrganizationToProvider(providerId: string, organizationId: string) {
-    const orgKey = await this.cryptoService.getOrgKey(organizationId);
-    const providerKey = await this.cryptoService.getProviderKey(providerId);
+    const orgKey = await this.keyService.getOrgKey(organizationId);
+    const providerKey = await this.keyService.getProviderKey(providerId);
 
     const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
 
@@ -45,16 +45,16 @@ export class WebProviderService {
     planType: PlanType,
     seats: number,
   ): Promise<void> {
-    const organizationKey = (await this.cryptoService.makeOrgKey<OrgKey>())[1];
+    const organizationKey = (await this.keyService.makeOrgKey<OrgKey>())[1];
 
-    const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(organizationKey);
+    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(organizationKey);
 
     const encryptedCollectionName = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),
       organizationKey,
     );
 
-    const providerKey = await this.cryptoService.getProviderKey(providerId);
+    const providerKey = await this.keyService.getProviderKey(providerId);
 
     const encryptedProviderKey = await this.encryptService.encrypt(
       organizationKey.key,

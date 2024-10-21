@@ -4,7 +4,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
 
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -13,6 +12,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   AddEditFolderDialogComponent,
@@ -64,7 +64,7 @@ describe("AddEditFolderDialogComponent", () => {
           useValue: { activeAccount$: new BehaviorSubject({ id: userId, ...accountInfo }) },
         },
         {
-          provide: CryptoService,
+          provide: KeyService,
           useValue: {
             getUserKeyWithLegacySupport,
           },

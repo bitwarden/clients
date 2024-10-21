@@ -192,7 +192,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (masterKeyEncryptedUserKey) {
       // set the master key encrypted user key if it exists
-      await this.cryptoService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
+      await this.keyService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
     }
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
@@ -205,7 +205,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       // Using it will clear it from state and future requests will use the device key.
       await this.trySetUserKeyWithApprovedAdminRequestIfExists(userId);
 
-      const hasUserKey = await this.cryptoService.hasUserKey(userId);
+      const hasUserKey = await this.keyService.hasUserKey(userId);
 
       // Only try to set user key with device key if admin approval request was not successful.
       if (!hasUserKey) {
@@ -267,7 +267,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       }
 
-      if (await this.cryptoService.hasUserKey()) {
+      if (await this.keyService.hasUserKey()) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
@@ -323,7 +323,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.cryptoService.setUserKey(userKey, userId);
+      await this.keyService.setUserKey(userKey, userId);
     }
   }
 
@@ -339,7 +339,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-    await this.cryptoService.setUserKey(userKey, userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   protected override async setPrivateKey(
@@ -349,7 +349,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     const newSsoUser = tokenResponse.key == null;
 
     if (!newSsoUser) {
-      await this.cryptoService.setPrivateKey(
+      await this.keyService.setPrivateKey(
         tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
         userId,
       );

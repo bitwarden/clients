@@ -12,11 +12,11 @@ import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
@@ -85,7 +85,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private router: Router,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
@@ -194,8 +194,8 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.org.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.cryptoService.getOrgKey(this.organizationId);
-      const orgKeys = await this.cryptoService.makeKeyPair(orgShareKey);
+      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 

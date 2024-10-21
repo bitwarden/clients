@@ -14,7 +14,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -23,6 +22,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../input-password/password-input-result";
 
@@ -33,7 +33,7 @@ describe("DefaultSetPasswordJitService", () => {
   let sut: DefaultSetPasswordJitService;
 
   let apiService: MockProxy<ApiService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
@@ -44,7 +44,7 @@ describe("DefaultSetPasswordJitService", () => {
 
   beforeEach(() => {
     apiService = mock<ApiService>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
@@ -55,7 +55,7 @@ describe("DefaultSetPasswordJitService", () => {
 
     sut = new DefaultSetPasswordJitService(
       apiService,
-      cryptoService,
+      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
@@ -141,14 +141,14 @@ describe("DefaultSetPasswordJitService", () => {
 
     function setupSetPasswordMocks(hasUserKey = true) {
       if (!hasUserKey) {
-        cryptoService.userKey$.mockReturnValue(of(null));
-        cryptoService.makeUserKey.mockResolvedValue(protectedUserKey);
+        keyService.userKey$.mockReturnValue(of(null));
+        keyService.makeUserKey.mockResolvedValue(protectedUserKey);
       } else {
-        cryptoService.userKey$.mockReturnValue(of(userKey));
-        cryptoService.encryptUserKeyWithMasterKey.mockResolvedValue(protectedUserKey);
+        keyService.userKey$.mockReturnValue(of(userKey));
+        keyService.encryptUserKeyWithMasterKey.mockResolvedValue(protectedUserKey);
       }
 
-      cryptoService.makeKeyPair.mockResolvedValue(keyPair);
+      keyService.makeKeyPair.mockResolvedValue(keyPair);
 
       apiService.setPassword.mockResolvedValue(undefined);
       masterPasswordService.setForceSetPasswordReason.mockResolvedValue(undefined);
@@ -156,9 +156,9 @@ describe("DefaultSetPasswordJitService", () => {
       userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
       userDecryptionOptionsService.setUserDecryptionOptions.mockResolvedValue(undefined);
       kdfConfigService.setKdfConfig.mockResolvedValue(undefined);
-      cryptoService.setUserKey.mockResolvedValue(undefined);
+      keyService.setUserKey.mockResolvedValue(undefined);
 
-      cryptoService.setPrivateKey.mockResolvedValue(undefined);
+      keyService.setPrivateKey.mockResolvedValue(undefined);
 
       masterPasswordService.setMasterKeyHash.mockResolvedValue(undefined);
     }
@@ -171,7 +171,7 @@ describe("DefaultSetPasswordJitService", () => {
         return;
       }
 
-      cryptoService.userKey$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
       encryptService.rsaEncrypt.mockResolvedValue(userKeyEncString);
 
       organizationUserApiService.putOrganizationUserResetPasswordEnrollment.mockResolvedValue(

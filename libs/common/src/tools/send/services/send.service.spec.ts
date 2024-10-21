@@ -4,6 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import {
   FakeAccountService,
   FakeActiveUserState,
@@ -11,7 +12,6 @@ import {
   awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -40,7 +40,7 @@ import {
 } from "./test-data/send-tests.data";
 
 describe("SendService", () => {
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
@@ -65,7 +65,7 @@ describe("SendService", () => {
       get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
     });
 
-    (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
@@ -84,7 +84,7 @@ describe("SendService", () => {
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
     sendService = new SendService(
-      cryptoService,
+      keyService,
       i18nService,
       keyGenerationService,
       sendStateProvider,

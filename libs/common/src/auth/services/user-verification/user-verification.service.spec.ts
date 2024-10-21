@@ -8,9 +8,9 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { VaultTimeoutSettingsService } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
@@ -31,7 +31,7 @@ import { UserVerificationService } from "./user-verification.service";
 describe("UserVerificationService", () => {
   let sut: UserVerificationService;
 
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const i18nService = mock<I18nService>();
   const userVerificationApiService = mock<UserVerificationApiServiceAbstraction>();
@@ -50,7 +50,7 @@ describe("UserVerificationService", () => {
     accountService = mockAccountServiceWith(mockUserId);
 
     sut = new UserVerificationService(
-      cryptoService,
+      keyService,
       accountService,
       masterPasswordService,
       i18nService,
@@ -132,7 +132,7 @@ describe("UserVerificationService", () => {
           setMasterPasswordAvailability(false);
           setPinAvailability("DISABLED");
           vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(isBiometricsLockSet);
-          cryptoService.hasUserKeyStored.mockResolvedValue(isBiometricsUserKeyStored);
+          keyService.hasUserKeyStored.mockResolvedValue(isBiometricsUserKeyStored);
           platformUtilsService.supportsSecureStorage.mockReturnValue(platformSupportSecureStorage);
 
           const result = await sut.getAvailableVerificationOptions("client");
@@ -205,7 +205,7 @@ describe("UserVerificationService", () => {
 
       kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
       masterPasswordService.masterKey$.mockReturnValue(of("masterKey" as unknown as MasterKey));
-      cryptoService.hashMasterKey
+      keyService.hashMasterKey
         .calledWith("password", "masterKey" as unknown as MasterKey, HashPurpose.LocalAuthorization)
         .mockResolvedValue("localHash");
     });
@@ -216,7 +216,7 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        cryptoService.compareAndUpdateKeyHash.mockResolvedValueOnce(true);
+        keyService.compareAndUpdateKeyHash.mockResolvedValueOnce(true);
 
         const result = await sut.verifyUserByMasterPassword(
           {
@@ -227,7 +227,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(cryptoService.compareAndUpdateKeyHash).toHaveBeenCalled();
+        expect(keyService.compareAndUpdateKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -240,7 +240,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        cryptoService.compareAndUpdateKeyHash.mockResolvedValueOnce(false);
+        keyService.compareAndUpdateKeyHash.mockResolvedValueOnce(false);
 
         await expect(
           sut.verifyUserByMasterPassword(
@@ -253,7 +253,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(cryptoService.compareAndUpdateKeyHash).toHaveBeenCalled();
+        expect(keyService.compareAndUpdateKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -265,7 +265,7 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        cryptoService.hashMasterKey
+        keyService.hashMasterKey
           .calledWith(
             "password",
             "masterKey" as unknown as MasterKey,
@@ -285,7 +285,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(cryptoService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
+        expect(keyService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -298,7 +298,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        cryptoService.hashMasterKey
+        keyService.hashMasterKey
           .calledWith(
             "password",
             "masterKey" as unknown as MasterKey,
@@ -318,7 +318,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(cryptoService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
+        expect(keyService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -380,7 +380,7 @@ describe("UserVerificationService", () => {
       it("throws if master key cannot be created", async () => {
         kdfConfigService.getKdfConfig.mockResolvedValueOnce("kdfConfig" as unknown as KdfConfig);
         masterPasswordService.masterKey$.mockReturnValueOnce(of(null));
-        cryptoService.makeMasterKey.mockResolvedValueOnce(null);
+        keyService.makeMasterKey.mockResolvedValueOnce(null);
 
         await expect(
           sut.verifyUserByMasterPassword(

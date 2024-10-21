@@ -1,9 +1,9 @@
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { EncString } from "../../platform/models/domain/enc-string";
@@ -28,7 +28,7 @@ interface OrganizationKeys {
 export class OrganizationBillingService implements OrganizationBillingServiceAbstraction {
   constructor(
     private apiService: ApiService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
@@ -78,8 +78,8 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   }
 
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.cryptoService.makeOrgKey<OrgKey>();
-    const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(key);
+    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
+    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
     const encryptedCollectionName = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),
       key,

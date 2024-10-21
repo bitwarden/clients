@@ -25,7 +25,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -37,7 +36,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
-import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService, BiometricsService } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -87,7 +86,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private stateService: StateService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
@@ -386,7 +385,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       const awaitDesktopDialogRef = AwaitDesktopDialogComponent.open(this.dialogService);
       const awaitDesktopDialogClosed = firstValueFrom(awaitDesktopDialogRef.closed);
 
-      await this.cryptoService.refreshAdditionalKeys();
+      await this.keyService.refreshAdditionalKeys();
 
       await Promise.race([
         awaitDesktopDialogClosed.then(async (result) => {
@@ -465,9 +464,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async fingerprint() {
-    const fingerprint = await this.cryptoService.getFingerprint(
-      await this.stateService.getUserId(),
-    );
+    const fingerprint = await this.keyService.getFingerprint(await this.stateService.getUserId());
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,

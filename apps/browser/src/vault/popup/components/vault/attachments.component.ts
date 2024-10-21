@@ -7,7 +7,6 @@ import { AttachmentsComponent as BaseAttachmentsComponent } from "@bitwarden/ang
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-vault-attachments",
@@ -28,7 +28,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
   constructor(
     cipherService: CipherService,
     i18nService: I18nService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     encryptService: EncryptService,
     platformUtilsService: PlatformUtilsService,
     apiService: ApiService,
@@ -45,7 +45,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
     super(
       cipherService,
       i18nService,
-      cryptoService,
+      keyService,
       encryptService,
       platformUtilsService,
       apiService,

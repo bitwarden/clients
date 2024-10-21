@@ -3,8 +3,8 @@ import { firstValueFrom, map } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
@@ -39,7 +39,7 @@ import {
  */
 export class UserVerificationService implements UserVerificationServiceAbstraction {
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private i18nService: I18nService,
@@ -66,7 +66,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         this.hasMasterPasswordAndMasterKeyHash(userId),
         this.pinService.isPinDecryptionAvailable(userId),
         this.vaultTimeoutSettingsService.isBiometricLockSet(userId),
-        this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
+        this.keyService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
       ]);
 
       // note: we do not need to check this.platformUtilsService.supportsBiometric() because
@@ -119,7 +119,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       );
       let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (!masterKey && !alreadyHashed) {
-        masterKey = await this.cryptoService.makeMasterKey(
+        masterKey = await this.keyService.makeMasterKey(
           verification.secret,
           email,
           await this.kdfConfigService.getKdfConfig(),
@@ -127,7 +127,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
       request.masterPasswordHash = alreadyHashed
         ? verification.secret
-        : await this.cryptoService.hashMasterKey(verification.secret, masterKey);
+        : await this.keyService.hashMasterKey(verification.secret, masterKey);
     }
 
     return request;
@@ -196,7 +196,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (!masterKey) {
-      masterKey = await this.cryptoService.makeMasterKey(verification.secret, email, kdfConfig);
+      masterKey = await this.keyService.makeMasterKey(verification.secret, email, kdfConfig);
     }
 
     if (!masterKey) {
@@ -206,7 +206,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
     if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
-      const passwordValid = await this.cryptoService.compareAndUpdateKeyHash(
+      const passwordValid = await this.keyService.compareAndUpdateKeyHash(
         verification.secret,
         masterKey,
       );
@@ -217,7 +217,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       // Server-side verification
       const request = new SecretVerificationRequest();
-      const serverKeyHash = await this.cryptoService.hashMasterKey(
+      const serverKeyHash = await this.keyService.hashMasterKey(
         verification.secret,
         masterKey,
         HashPurpose.ServerAuthorization,
@@ -230,7 +230,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
     }
 
-    const localKeyHash = await this.cryptoService.hashMasterKey(
+    const localKeyHash = await this.keyService.hashMasterKey(
       verification.secret,
       masterKey,
       HashPurpose.LocalAuthorization,
@@ -254,7 +254,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     let userKey: UserKey;
     // Biometrics crashes and doesn't return a value if the user cancels the prompt
     try {
-      userKey = await this.cryptoService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
+      userKey = await this.keyService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
     } catch (e) {
       this.logService.error(`Biometrics User Verification failed: ${e.message}`);
       // So, any failures should be treated as a failed verification

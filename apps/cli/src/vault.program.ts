@@ -177,7 +177,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.collectionService,
           this.serviceContainer.totpService,
           this.serviceContainer.auditService,
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.stateService,
           this.serviceContainer.searchService,
@@ -224,7 +224,7 @@ export class VaultProgram extends BaseProgram {
         const command = new CreateCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.folderApiService,
@@ -273,7 +273,7 @@ export class VaultProgram extends BaseProgram {
         const command = new EditCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.folderService,
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.folderApiService,
@@ -414,7 +414,7 @@ export class VaultProgram extends BaseProgram {
         await this.exitIfLocked();
         const command = new ConfirmCommand(
           this.serviceContainer.apiService,
-          this.serviceContainer.cryptoService,
+          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.organizationUserApiService,
         );

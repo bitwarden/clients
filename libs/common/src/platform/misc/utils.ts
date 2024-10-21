@@ -6,7 +6,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
-import { CryptoService } from "../abstractions/crypto.service";
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
@@ -18,7 +18,7 @@ declare global {
 }
 
 interface BitwardenContainerService {
-  getCryptoService: () => CryptoService;
+  getKeyService: () => KeyService;
   getEncryptService: () => EncryptService;
 }
 

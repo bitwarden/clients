@@ -3,12 +3,12 @@ import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AccessTokenRequest } from "../models/requests/access-token.request";
 import { RevokeAccessTokensRequest } from "../models/requests/revoke-access-tokens.request";
@@ -26,7 +26,7 @@ export class AccessService {
   accessToken$ = this._accessToken.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
@@ -116,7 +116,7 @@ export class AccessService {
   }
 
   private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
+    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async createAccessTokenViews(

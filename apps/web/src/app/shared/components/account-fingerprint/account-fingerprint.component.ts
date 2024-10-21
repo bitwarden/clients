@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../shared.module";
 
@@ -17,11 +17,11 @@ export class AccountFingerprintComponent implements OnInit {
 
   protected fingerprint: string;
 
-  constructor(private cryptoService: CryptoService) {}
+  constructor(private keyService: KeyService) {}
 
   async ngOnInit() {
     // TODO - In the future, remove this code and use the fingerprint pipe once merged
-    const generatedFingerprint = await this.cryptoService.getFingerprint(
+    const generatedFingerprint = await this.keyService.getFingerprint(
       this.fingerprintMaterial,
       this.publicKeyBuffer,
     );

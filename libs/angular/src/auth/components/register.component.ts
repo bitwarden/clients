@@ -10,7 +10,6 @@ import { RegisterResponse } from "@bitwarden/common/auth/models/response/registe
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
 import { RegisterRequest } from "@bitwarden/common/models/request/register.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -19,6 +18,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   AllValidationErrors,
@@ -88,7 +88,7 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected router: Router,
     i18nService: I18nService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected apiService: ApiService,
     protected stateService: StateService,
     platformUtilsService: PlatformUtilsService,
@@ -283,10 +283,10 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
   ): Promise<RegisterRequest> {
     const hint = this.formGroup.value.hint;
     const kdfConfig = DEFAULT_KDF_CONFIG;
-    const key = await this.cryptoService.makeMasterKey(masterPassword, email, kdfConfig);
-    const newUserKey = await this.cryptoService.makeUserKey(key);
-    const masterKeyHash = await this.cryptoService.hashMasterKey(masterPassword, key);
-    const keys = await this.cryptoService.makeKeyPair(newUserKey[0]);
+    const key = await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
+    const newUserKey = await this.keyService.makeUserKey(key);
+    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, key);
+    const keys = await this.keyService.makeKeyPair(newUserKey[0]);
     const request = new RegisterRequest(
       email,
       name,

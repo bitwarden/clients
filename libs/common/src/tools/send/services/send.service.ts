@@ -1,7 +1,7 @@
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -37,7 +37,7 @@ export class SendService implements InternalSendServiceAbstraction {
   );
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
@@ -77,7 +77,7 @@ export class SendService implements InternalSendServiceAbstraction {
       send.password = passwordKey.keyB64;
     }
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     send.key = await this.encryptService.encrypt(model.key, key);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
@@ -197,7 +197,7 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     decSends = [];
-    const hasKey = await this.cryptoService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey();
     if (!hasKey) {
       throw new Error("No user key found.");
     }
@@ -322,7 +322,7 @@ export class SendService implements InternalSendServiceAbstraction {
     key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     const encFileName = await this.encryptService.encrypt(fileName, key);
     const encFileData = await this.encryptService.encryptToBytes(new Uint8Array(data), key);

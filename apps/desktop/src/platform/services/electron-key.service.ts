@@ -13,14 +13,13 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngString } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { DefaultKeyService, BiometricStateService } from "@bitwarden/key-management";
 
-export class ElectronCryptoService extends CryptoService {
+export class ElectronKeyService extends DefaultKeyService {
   constructor(
     pinService: PinServiceAbstraction,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,

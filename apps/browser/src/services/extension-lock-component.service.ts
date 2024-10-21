@@ -11,11 +11,10 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsService } from "@bitwarden/key-management";
+import { KeyService, BiometricsService } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
 import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
@@ -26,7 +25,7 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly biometricsService = inject(BiometricsService);
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
-  private readonly cryptoService = inject(CryptoService);
+  private readonly keyService = inject(KeyService);
   private readonly routerService = inject(BrowserRouterService);
 
   getPreviousUrl(): string | null {
@@ -53,7 +52,7 @@ export class ExtensionLockComponentService implements LockComponentService {
 
   private async isBiometricLockSet(userId: UserId): Promise<boolean> {
     const biometricLockSet = await this.vaultTimeoutSettingsService.isBiometricLockSet(userId);
-    const hasBiometricEncryptedUserKeyStored = await this.cryptoService.hasUserKeyStored(
+    const hasBiometricEncryptedUserKeyStored = await this.keyService.hasUserKeyStored(
       KeySuffixOptions.Biometric,
       userId,
     );

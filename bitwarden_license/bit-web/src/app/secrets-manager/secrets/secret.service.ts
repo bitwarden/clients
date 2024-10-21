@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";
@@ -29,7 +29,7 @@ export class SecretService {
   secret$ = this._secret.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private encryptService: EncryptService,
     private accessPolicyService: AccessPolicyService,
@@ -153,7 +153,7 @@ export class SecretService {
   }
 
   private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
+    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async getSecretRequest(

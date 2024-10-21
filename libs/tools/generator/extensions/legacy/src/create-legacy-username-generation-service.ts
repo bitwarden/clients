@@ -1,18 +1,18 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { engine, services, strategies, Integrations } from "@bitwarden/generator-core";
 import { DefaultGeneratorNavigationService } from "@bitwarden/generator-navigation";
+import { KeyService } from "@bitwarden/key-management";
 
 import { LegacyUsernameGenerationService } from "./legacy-username-generation.service";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
 
-const { CryptoServiceRandomizer, UsernameRandomizer, EmailRandomizer, EmailCalculator } = engine;
+const { KeyServiceRandomizer, UsernameRandomizer, EmailRandomizer, EmailCalculator } = engine;
 const DefaultGeneratorService = services.DefaultGeneratorService;
 const {
   CatchallGeneratorStrategy,
@@ -24,13 +24,13 @@ const {
 export function legacyUsernameGenerationServiceFactory(
   apiService: ApiService,
   i18nService: I18nService,
-  cryptoService: CryptoService,
+  keyService: KeyService,
   encryptService: EncryptService,
   policyService: PolicyService,
   accountService: AccountService,
   stateProvider: StateProvider,
 ): UsernameGenerationServiceAbstraction {
-  const randomizer = new CryptoServiceRandomizer(cryptoService);
+  const randomizer = new KeyServiceRandomizer(keyService);
   const restClient = new RestClient(apiService, i18nService);
   const usernameRandomizer = new UsernameRandomizer(randomizer);
   const emailRandomizer = new EmailRandomizer(randomizer);
@@ -57,7 +57,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,
@@ -69,7 +69,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,
@@ -81,7 +81,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,
@@ -93,7 +93,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,
@@ -105,7 +105,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,
@@ -117,7 +117,7 @@ export function legacyUsernameGenerationServiceFactory(
       restClient,
       i18nService,
       encryptService,
-      cryptoService,
+      keyService,
       stateProvider,
     ),
     policyService,

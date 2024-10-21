@@ -16,13 +16,13 @@ import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/mode
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { BasePeopleComponent } from "@bitwarden/web-vault/app/admin-console/common/base.people.component";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
@@ -65,7 +65,7 @@ export class PeopleComponent
     i18nService: I18nService,
     modalService: ModalService,
     platformUtilsService: PlatformUtilsService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     private encryptService: EncryptService,
     private router: Router,
     searchService: SearchService,
@@ -84,7 +84,7 @@ export class PeopleComponent
       searchService,
       i18nService,
       platformUtilsService,
-      cryptoService,
+      keyService,
       validationService,
       modalService,
       logService,
@@ -151,7 +151,7 @@ export class PeopleComponent
   }
 
   async confirmUser(user: ProviderUserUserDetailsResponse, publicKey: Uint8Array): Promise<any> {
-    const providerKey = await this.cryptoService.getProviderKey(this.providerId);
+    const providerKey = await this.keyService.getProviderKey(this.providerId);
     const key = await this.encryptService.rsaEncrypt(providerKey.key, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;

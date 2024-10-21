@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -15,6 +14,7 @@ import {
 } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionData } from "../models";
 
@@ -118,15 +118,15 @@ const mockStateProvider = () => {
 };
 
 const mockCryptoService = () => {
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
   encryptService.decryptToUtf8
     .calledWith(expect.any(EncString), expect.anything())
     .mockResolvedValue("DECRYPTED_STRING");
 
-  (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-  return cryptoService;
+  return keyService;
 };
 
 const collectionDataFactory = (orgId: OrganizationId) => {

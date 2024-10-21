@@ -1,6 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import {
   FakeAccountService,
   makeStaticByteArray,
@@ -8,7 +9,6 @@ import {
   trackEmissions,
 } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
@@ -25,7 +25,7 @@ describe("AuthService", () => {
 
   let accountService: FakeAccountService;
   let messagingService: MockProxy<MessagingService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
   let apiService: MockProxy<ApiService>;
   let stateService: MockProxy<StateService>;
   let tokenService: MockProxy<TokenService>;
@@ -36,7 +36,7 @@ describe("AuthService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     messagingService = mock();
-    cryptoService = mock();
+    keyService = mock();
     apiService = mock();
     stateService = mock();
     tokenService = mock();
@@ -44,7 +44,7 @@ describe("AuthService", () => {
     sut = new AuthService(
       accountService,
       messagingService,
-      cryptoService,
+      keyService,
       apiService,
       stateService,
       tokenService,
@@ -63,7 +63,7 @@ describe("AuthService", () => {
     beforeEach(() => {
       accountService.activeAccountSubject.next(accountInfo);
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
     });
 
     it("emits LoggedOut when there is no active account", async () => {
@@ -84,7 +84,7 @@ describe("AuthService", () => {
 
     it("emits LoggedOut when there is no access token but has a user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(false));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(
         AuthenticationStatus.LoggedOut,
@@ -93,14 +93,14 @@ describe("AuthService", () => {
 
     it("emits Locked when there is an access token and no user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(AuthenticationStatus.Locked);
     });
 
     it("emits Unlocked when there is an access token and user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(AuthenticationStatus.Unlocked);
     });
@@ -117,7 +117,7 @@ describe("AuthService", () => {
       const emissions = trackEmissions(sut.activeAccountStatus$);
 
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
       accountService.activeAccountSubject.next(accountInfo2);
 
       expect(emissions).toEqual([AuthenticationStatus.Locked, AuthenticationStatus.Unlocked]);
@@ -150,7 +150,7 @@ describe("AuthService", () => {
   describe("authStatusFor$", () => {
     beforeEach(() => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
     });
 
     it.each([null, undefined, "not a userId"])(
@@ -172,14 +172,14 @@ describe("AuthService", () => {
 
     it("emits Locked when there is an access token and no user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
 
       expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(AuthenticationStatus.Locked);
     });
 
     it("emits Unlocked when there is an access token and user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      cryptoService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(
         AuthenticationStatus.Unlocked,

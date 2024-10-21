@@ -9,10 +9,9 @@ import {
 } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsService } from "@bitwarden/key-management";
+import { KeyService, BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopLockComponentService } from "./desktop-lock-component.service";
 
@@ -38,7 +37,7 @@ describe("DesktopLockComponentService", () => {
   let biometricsService: MockProxy<BiometricsService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -46,7 +45,7 @@ describe("DesktopLockComponentService", () => {
     biometricsService = mock<BiometricsService>();
     pinService = mock<PinServiceAbstraction>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -72,8 +71,8 @@ describe("DesktopLockComponentService", () => {
           useValue: vaultTimeoutSettingsService,
         },
         {
-          provide: CryptoService,
-          useValue: cryptoService,
+          provide: KeyService,
+          useValue: keyService,
         },
       ],
     });
@@ -358,9 +357,7 @@ describe("DesktopLockComponentService", () => {
       // Biometrics
       biometricsService.supportsBiometric.mockResolvedValue(mockInputs.osSupportsBiometric);
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(mockInputs.biometricLockSet);
-      cryptoService.hasUserKeyStored.mockResolvedValue(
-        mockInputs.hasBiometricEncryptedUserKeyStored,
-      );
+      keyService.hasUserKeyStored.mockResolvedValue(mockInputs.hasBiometricEncryptedUserKeyStored);
       platformUtilsService.supportsSecureStorage.mockReturnValue(
         mockInputs.platformSupportsSecureStorage,
       );

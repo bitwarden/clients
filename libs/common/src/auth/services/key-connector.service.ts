@@ -2,12 +2,12 @@ import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { KeysRequest } from "../../models/request/keys.request";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { KdfType } from "../../platform/enums/kdf-type.enum";
@@ -54,7 +54,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
@@ -146,7 +146,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         ? new PBKDF2KdfConfig(kdfIterations)
         : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
 
-    const masterKey = await this.cryptoService.makeMasterKey(
+    const masterKey = await this.keyService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,
@@ -154,11 +154,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
-    const userKey = await this.cryptoService.makeUserKey(masterKey);
-    await this.cryptoService.setUserKey(userKey[0], userId);
-    await this.cryptoService.setMasterKeyEncryptedUserKey(userKey[1].encryptedString, userId);
+    const userKey = await this.keyService.makeUserKey(masterKey);
+    await this.keyService.setUserKey(userKey[0], userId);
+    await this.keyService.setMasterKeyEncryptedUserKey(userKey[1].encryptedString, userId);
 
-    const [pubKey, privKey] = await this.cryptoService.makeKeyPair(userKey[0]);
+    const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
 
     try {
       const keyConnectorUrl =

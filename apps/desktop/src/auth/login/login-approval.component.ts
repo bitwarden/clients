@@ -9,7 +9,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -20,6 +19,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 const RequestTimeOut = 60000 * 15; //15 Minutes
 const RequestTimeUpdate = 60000 * 5; //5 Minutes
@@ -53,7 +53,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected apiService: ApiService,
     protected appIdService: AppIdService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     private dialogRef: DialogRef,
     private toastService: ToastService,
   ) {

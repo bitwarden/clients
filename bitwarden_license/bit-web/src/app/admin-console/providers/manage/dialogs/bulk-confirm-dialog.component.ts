@@ -12,11 +12,11 @@ import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { BaseBulkConfirmComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/base-bulk-confirm.component";
 import { BulkUserDetails } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
 
@@ -34,19 +34,19 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
 
   constructor(
     private apiService: ApiService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected encryptService: EncryptService,
     @Inject(DIALOG_DATA) protected dialogParams: BulkConfirmDialogParams,
     protected i18nService: I18nService,
   ) {
-    super(cryptoService, encryptService, i18nService);
+    super(keyService, encryptService, i18nService);
 
     this.providerId = dialogParams.providerId;
     this.users = dialogParams.users;
   }
 
   protected getCryptoKey = (): Promise<SymmetricCryptoKey> =>
-    this.cryptoService.getProviderKey(this.providerId);
+    this.keyService.getProviderKey(this.providerId);
 
   protected getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>

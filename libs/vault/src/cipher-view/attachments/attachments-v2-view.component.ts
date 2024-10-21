@@ -5,7 +5,6 @@ import { NEVER, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -17,6 +16,7 @@ import {
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { DownloadAttachmentComponent } from "../../components/download-attachment/download-attachment.component";
 
@@ -42,7 +42,7 @@ export class AttachmentsV2ViewComponent {
   orgKey: OrgKey;
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private stateProvider: StateProvider,
   ) {
@@ -61,7 +61,7 @@ export class AttachmentsV2ViewComponent {
   subscribeToOrgKey() {
     this.stateProvider.activeUserId$
       .pipe(
-        switchMap((userId) => (userId != null ? this.cryptoService.orgKeys$(userId) : NEVER)),
+        switchMap((userId) => (userId != null ? this.keyService.orgKeys$(userId) : NEVER)),
         takeUntilDestroyed(),
       )
       .subscribe((data: Record<OrganizationId, OrgKey> | null) => {

@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { FolderService } from "../../abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
@@ -31,7 +31,7 @@ describe("encrypted folders", () => {
 });
 
 describe("derived decrypted folders", () => {
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const folderService = mock<FolderService>();
   const sut = FOLDER_DECRYPTED_FOLDERS;
   let data: FolderData;
@@ -64,13 +64,13 @@ describe("derived decrypted folders", () => {
 
   it("should derive encrypted folders", async () => {
     const folderViewMock = new FolderView(new Folder(data));
-    cryptoService.hasUserKey.mockResolvedValue(true);
+    keyService.hasUserKey.mockResolvedValue(true);
     folderService.decryptFolders.mockResolvedValue([folderViewMock]);
 
     const encryptedFoldersState = { id: data };
     const derivedStateResult = await sut.derive(encryptedFoldersState, {
       folderService,
-      cryptoService,
+      keyService,
     });
 
     expect(derivedStateResult).toEqual([folderViewMock]);

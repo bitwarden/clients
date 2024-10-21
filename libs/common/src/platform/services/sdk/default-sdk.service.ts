@@ -10,6 +10,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { KeyService } from "@bitwarden/key-management";
 import {
   BitwardenClient,
   ClientSettings,
@@ -25,7 +26,6 @@ import { KdfConfig } from "../../../auth/models/domain/kdf-config";
 import { DeviceType } from "../../../enums/device-type.enum";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { CryptoService } from "../../abstractions/crypto.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
@@ -57,7 +57,7 @@ export class DefaultSdkService implements SdkService {
     private platformUtilsService: PlatformUtilsService,
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService, // Yes we shouldn't import ApiService, but it's temporary
     private userAgent: string = null,
   ) {}
@@ -73,11 +73,11 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.cryptoService
+    const privateKey$ = this.keyService
       .userEncryptedPrivateKey$(userId)
       .pipe(distinctUntilChanged());
-    const userKey$ = this.cryptoService.userKey$(userId).pipe(distinctUntilChanged());
-    const orgKeys$ = this.cryptoService.encryptedOrgKeys$(userId).pipe(
+    const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
+    const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
 

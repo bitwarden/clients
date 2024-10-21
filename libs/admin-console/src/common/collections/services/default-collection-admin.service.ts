@@ -1,8 +1,8 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
 import {
@@ -19,7 +19,7 @@ import {
 export class DefaultCollectionAdminService implements CollectionAdminService {
   constructor(
     private apiService: ApiService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
     private collectionService: CollectionService,
   ) {}
@@ -109,7 +109,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
   ): Promise<CollectionAdminView[]> {
-    const orgKey = await this.cryptoService.getOrgKey(organizationId);
+    const orgKey = await this.keyService.getOrgKey(organizationId);
 
     const promises = collections.map(async (c) => {
       const view = new CollectionAdminView();
@@ -138,7 +138,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     if (model.organizationId == null) {
       throw new Error("Collection has no organization id.");
     }
-    const key = await this.cryptoService.getOrgKey(model.organizationId);
+    const key = await this.keyService.getOrgKey(model.organizationId);
     if (key == null) {
       throw new Error("No key for this collection's organization.");
     }
