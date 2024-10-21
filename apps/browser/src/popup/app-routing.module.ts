@@ -16,8 +16,10 @@ import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
+  DevicesIcon,
   LockIcon,
   LockV2Component,
+  LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationLockAltIcon,
@@ -42,7 +44,7 @@ import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
-import { LoginViaAuthRequestComponent } from "../auth/popup/login-via-auth-request.component";
+import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
 import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
@@ -168,18 +170,6 @@ const routes: Routes = [
     component: LoginComponent,
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "login" } satisfies RouteDataProperties,
-  },
-  {
-    path: "login-with-device",
-    component: LoginViaAuthRequestComponent,
-    canActivate: [],
-    data: { state: "login-with-device" } satisfies RouteDataProperties,
-  },
-  {
-    path: "admin-approval-requested",
-    component: LoginViaAuthRequestComponent,
-    canActivate: [],
-    data: { state: "login-with-device" } satisfies RouteDataProperties,
   },
   {
     path: "lock",
@@ -407,6 +397,71 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "update-temp-password" } satisfies RouteDataProperties,
   },
+  ...unauthUiRefreshSwap(
+    LoginViaAuthRequestComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "login-with-device",
+      component: LoginViaAuthRequestComponentV1,
+      data: { state: "login-with-device" } satisfies RouteDataProperties,
+    },
+    {
+      path: "login-with-device",
+      data: {
+        pageIcon: DevicesIcon,
+        pageTitle: {
+          key: "loginInitiated",
+        },
+        pageSubtitle: {
+          key: "aNotificationWasSentToYourDevice",
+        },
+        showLogo: false,
+        showBackButton: true,
+        state: "login-with-device",
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      children: [
+        { path: "", component: LoginViaAuthRequestComponent },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+    },
+  ),
+  ...unauthUiRefreshSwap(
+    LoginViaAuthRequestComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "admin-approval-requested",
+      component: LoginViaAuthRequestComponentV1,
+      // TODO-rr-bw: Verify that changing the `state` from `login-with-device` is correct (see also in route extensionAnon route a few lines below)
+      data: { state: "admin-approval-requested" } satisfies RouteDataProperties,
+    },
+    {
+      path: "admin-approval-requested",
+      data: {
+        pageIcon: DevicesIcon,
+        pageTitle: {
+          key: "adminApprovalRequested",
+        },
+        pageSubtitle: {
+          key: "adminApprovalRequestSentToAdmins",
+        },
+        showLogo: false,
+        showBackButton: true,
+        state: "admin-approval-requested",
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      children: [
+        { path: "", component: LoginViaAuthRequestComponent },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+    },
+  ),
   ...unauthUiRefreshSwap(
     HintComponent,
     ExtensionAnonLayoutWrapperComponent,
