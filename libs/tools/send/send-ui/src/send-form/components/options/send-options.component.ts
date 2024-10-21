@@ -7,14 +7,19 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
+  ButtonModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { CredentialGeneratorService, Generators } from "@bitwarden/generator-core";
@@ -27,6 +32,7 @@ import { SendFormContainer } from "../../send-form-container";
   templateUrl: "./send-options.component.html",
   standalone: true,
   imports: [
+    ButtonModule,
     CardComponent,
     CheckboxModule,
     CommonModule,
@@ -45,6 +51,7 @@ export class SendOptionsComponent implements OnInit {
   @Input()
   originalSendView: SendView;
   disableHideEmail = false;
+  removingPassword = false;
   sendOptionsForm = this.formBuilder.group({
     maxAccessCount: [null as number],
     accessCount: [null as number],
@@ -53,7 +60,7 @@ export class SendOptionsComponent implements OnInit {
     hideEmail: [false as boolean],
   });
 
-  get shouldShowNewPassword(): boolean {
+  get hasPassword(): boolean {
     return this.originalSendView && this.originalSendView.password !== null;
   }
 
@@ -71,8 +78,12 @@ export class SendOptionsComponent implements OnInit {
 
   constructor(
     private sendFormContainer: SendFormContainer,
+    private dialogService: DialogService,
+    private sendApiService: SendApiService,
     private formBuilder: FormBuilder,
     private policyService: PolicyService,
+    private i18nService: I18nService,
+    private toastService: ToastService,
     private generatorService: CredentialGeneratorService,
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
@@ -110,16 +121,53 @@ export class SendOptionsComponent implements OnInit {
     });
   };
 
+  async removePassword(): Promise<boolean> {
+    if (!this.originalSendView || !this.originalSendView.password) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    this.removingPassword = true;
+
+    await this.sendApiService.removePassword(this.originalSendView.id);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("removedPassword"),
+    });
+
+    this.removingPassword = false;
+
+    this.originalSendView.password = null;
+    this.sendOptionsForm.patchValue({
+      password: null,
+    });
+    this.sendOptionsForm.get("password")?.enable();
+  }
+
   ngOnInit() {
     if (this.sendFormContainer.originalSendView) {
       this.sendOptionsForm.patchValue({
         maxAccessCount: this.sendFormContainer.originalSendView.maxAccessCount,
         accessCount: this.sendFormContainer.originalSendView.accessCount,
-        password: null,
+        password: this.hasPassword ? "************" : null, // 12 masked characters as a placeholder
         hideEmail: this.sendFormContainer.originalSendView.hideEmail,
         notes: this.sendFormContainer.originalSendView.notes,
       });
     }
+    if (this.hasPassword) {
+      this.sendOptionsForm.get("password")?.disable();
+    }
+
     if (!this.config.areSendsAllowed) {
       this.sendOptionsForm.disable();
     }
