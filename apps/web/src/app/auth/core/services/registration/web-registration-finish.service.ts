@@ -82,6 +82,8 @@ export class WebRegistrationFinishService
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
+    providerInviteToken?: string,
+    providerUserId?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
       email,
@@ -108,6 +110,11 @@ export class WebRegistrationFinishService
     if (acceptEmergencyAccessInviteToken && emergencyAccessId) {
       registerRequest.acceptEmergencyAccessInviteToken = acceptEmergencyAccessInviteToken;
       registerRequest.acceptEmergencyAccessId = emergencyAccessId;
+    }
+
+    if (providerInviteToken && providerUserId) {
+      registerRequest.providerInviteToken = providerInviteToken;
+      registerRequest.providerUserId = providerUserId;
     }
 
     return registerRequest;

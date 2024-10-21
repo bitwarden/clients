@@ -30,6 +30,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
+    providerInviteToken?: string,
+    providerUserId?: string,
   ): Promise<string> {
     const [newUserKey, newEncUserKey] = await this.cryptoService.makeUserKey(
       passwordInputResult.masterKey,
@@ -49,6 +51,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       orgSponsoredFreeFamilyPlanToken,
       acceptEmergencyAccessInviteToken,
       emergencyAccessId,
+      providerInviteToken,
+      providerUserId,
     );
 
     const capchaBypassToken = await this.accountApiService.registerFinish(registerRequest);
@@ -65,6 +69,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     orgSponsoredFreeFamilyPlanToken?: string, // web only
     acceptEmergencyAccessInviteToken?: string, // web only
     emergencyAccessId?: string, // web only
+    providerInviteToken?: string, // web only
+    providerUserId?: string, // web only
   ): Promise<RegisterFinishRequest> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],

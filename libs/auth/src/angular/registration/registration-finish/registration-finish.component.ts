@@ -49,6 +49,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   acceptEmergencyAccessInviteToken: string;
   emergencyAccessId: string;
 
+  // This token is provided when the user is coming from an emailed invite to accept a provider invite
+  providerInviteToken: string;
+  providerUserId: string;
+
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
   constructor(
@@ -104,6 +108,11 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       this.acceptEmergencyAccessInviteToken = qParams.acceptEmergencyAccessInviteToken;
       this.emergencyAccessId = qParams.emergencyAccessId;
     }
+
+    if (qParams.providerInviteToken != null && qParams.providerUserId != null) {
+      this.providerInviteToken = qParams.providerInviteToken;
+      this.providerUserId = qParams.providerUserId;
+    }
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
@@ -140,6 +149,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         this.orgSponsoredFreeFamilyPlanToken,
         this.acceptEmergencyAccessInviteToken,
         this.emergencyAccessId,
+        this.providerInviteToken,
+        this.providerUserId,
       );
     } catch (e) {
       this.validationService.showError(e);

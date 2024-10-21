@@ -113,8 +113,14 @@ describe("DefaultRegistrationFinishService", () => {
           kdfIterations: passwordInputResult.kdfConfig.iterations,
           kdfMemory: undefined,
           kdfParallelism: undefined,
-          orgInviteToken: undefined, // OrgInvite only handled in web
-          organizationUserId: undefined, // OrgInvite only handled in web
+          // Web only fields should be undefined
+          orgInviteToken: undefined,
+          organizationUserId: undefined,
+          orgSponsoredFreeFamilyPlanToken: undefined,
+          acceptEmergencyAccessInviteToken: undefined,
+          acceptEmergencyAccessId: undefined,
+          providerInviteToken: undefined,
+          providerUserId: undefined,
         }),
       );
     });

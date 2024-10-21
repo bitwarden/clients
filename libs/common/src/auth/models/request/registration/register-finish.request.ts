@@ -21,6 +21,8 @@ export class RegisterFinishRequest {
     public orgSponsoredFreeFamilyPlanToken?: string,
     public acceptEmergencyAccessInviteToken?: string,
     public acceptEmergencyAccessId?: string,
+    public providerInviteToken?: string,
+    public providerUserId?: string,
 
     // Org Invite data (only applies on web)
     public organizationUserId?: string,

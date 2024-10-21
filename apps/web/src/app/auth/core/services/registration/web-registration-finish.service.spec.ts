@@ -20,7 +20,7 @@ import { OrganizationInvite } from "../../../organization-invite/organization-in
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 
-describe("DefaultRegistrationFinishService", () => {
+describe("WebRegistrationFinishService", () => {
   let service: WebRegistrationFinishService;
 
   let cryptoService: MockProxy<CryptoService>;
@@ -167,6 +167,11 @@ describe("DefaultRegistrationFinishService", () => {
     let capchaBypassToken: string;
 
     let orgInvite: OrganizationInvite;
+    let orgSponsoredFreeFamilyPlanToken: string;
+    let acceptEmergencyAccessInviteToken: string;
+    let emergencyAccessId: string;
+    let providerInviteToken: string;
+    let providerUserId: string;
 
     beforeEach(() => {
       email = "test@email.com";
@@ -190,6 +195,12 @@ describe("DefaultRegistrationFinishService", () => {
       orgInvite = new OrganizationInvite();
       orgInvite.organizationUserId = "organizationUserId";
       orgInvite.token = "orgInviteToken";
+
+      orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
+      acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";
+      emergencyAccessId = "emergencyAccessId";
+      providerInviteToken = "providerInviteToken";
+      providerUserId = "providerUserId";
     });
 
     it("throws an error if the user key cannot be created", async () => {
@@ -233,11 +244,16 @@ describe("DefaultRegistrationFinishService", () => {
           kdfParallelism: undefined,
           orgInviteToken: undefined,
           organizationUserId: undefined,
+          orgSponsoredFreeFamilyPlanToken: undefined,
+          acceptEmergencyAccessInviteToken: undefined,
+          acceptEmergencyAccessId: undefined,
+          providerInviteToken: undefined,
+          providerUserId: undefined,
         }),
       );
     });
 
-    it("it registers the user and returns a captcha bypass token when given an org invite", async () => {
+    it("registers the user and returns a captcha bypass token when given an org invite", async () => {
       cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
@@ -266,6 +282,146 @@ describe("DefaultRegistrationFinishService", () => {
           kdfParallelism: undefined,
           orgInviteToken: orgInvite.token,
           organizationUserId: orgInvite.organizationUserId,
+          orgSponsoredFreeFamilyPlanToken: undefined,
+          acceptEmergencyAccessInviteToken: undefined,
+          acceptEmergencyAccessId: undefined,
+          providerInviteToken: undefined,
+          providerUserId: undefined,
+        }),
+      );
+    });
+
+    it("registers the user and returns a captcha bypass token when given an org sponsored free family plan token", async () => {
+      cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
+      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        orgSponsoredFreeFamilyPlanToken,
+      );
+
+      expect(result).toEqual(capchaBypassToken);
+
+      expect(cryptoService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(cryptoService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(accountApiService.registerFinish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          emailVerificationToken: undefined,
+          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHint: passwordInputResult.hint,
+          userSymmetricKey: userKeyEncString.encryptedString,
+          userAsymmetricKeys: {
+            publicKey: userKeyPair[0],
+            encryptedPrivateKey: userKeyPair[1].encryptedString,
+          },
+          kdf: passwordInputResult.kdfConfig.kdfType,
+          kdfIterations: passwordInputResult.kdfConfig.iterations,
+          kdfMemory: undefined,
+          kdfParallelism: undefined,
+          orgInviteToken: undefined,
+          organizationUserId: undefined,
+          orgSponsoredFreeFamilyPlanToken: orgSponsoredFreeFamilyPlanToken,
+          acceptEmergencyAccessInviteToken: undefined,
+          acceptEmergencyAccessId: undefined,
+          providerInviteToken: undefined,
+          providerUserId: undefined,
+        }),
+      );
+    });
+
+    it("registers the user and returns a captcha bypass token when given an emergency access invite token", async () => {
+      cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
+      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        acceptEmergencyAccessInviteToken,
+        emergencyAccessId,
+      );
+
+      expect(result).toEqual(capchaBypassToken);
+
+      expect(cryptoService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(cryptoService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(accountApiService.registerFinish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          emailVerificationToken: undefined,
+          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHint: passwordInputResult.hint,
+          userSymmetricKey: userKeyEncString.encryptedString,
+          userAsymmetricKeys: {
+            publicKey: userKeyPair[0],
+            encryptedPrivateKey: userKeyPair[1].encryptedString,
+          },
+          kdf: passwordInputResult.kdfConfig.kdfType,
+          kdfIterations: passwordInputResult.kdfConfig.iterations,
+          kdfMemory: undefined,
+          kdfParallelism: undefined,
+          orgInviteToken: undefined,
+          organizationUserId: undefined,
+          orgSponsoredFreeFamilyPlanToken: undefined,
+          acceptEmergencyAccessInviteToken: acceptEmergencyAccessInviteToken,
+          acceptEmergencyAccessId: emergencyAccessId,
+          providerInviteToken: undefined,
+          providerUserId: undefined,
+        }),
+      );
+    });
+
+    it("registers the user and returns a captcha bypass token when given a provider invite token", async () => {
+      cryptoService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      cryptoService.makeKeyPair.mockResolvedValue(userKeyPair);
+      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        providerInviteToken,
+        providerUserId,
+      );
+
+      expect(result).toEqual(capchaBypassToken);
+
+      expect(cryptoService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(cryptoService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(accountApiService.registerFinish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          emailVerificationToken: undefined,
+          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHint: passwordInputResult.hint,
+          userSymmetricKey: userKeyEncString.encryptedString,
+          userAsymmetricKeys: {
+            publicKey: userKeyPair[0],
+            encryptedPrivateKey: userKeyPair[1].encryptedString,
+          },
+          kdf: passwordInputResult.kdfConfig.kdfType,
+          kdfIterations: passwordInputResult.kdfConfig.iterations,
+          kdfMemory: undefined,
+          kdfParallelism: undefined,
+          orgInviteToken: undefined,
+          organizationUserId: undefined,
+          orgSponsoredFreeFamilyPlanToken: undefined,
+          acceptEmergencyAccessInviteToken: undefined,
+          acceptEmergencyAccessId: undefined,
+          providerInviteToken: providerInviteToken,
+          providerUserId: providerUserId,
         }),
       );
     });
