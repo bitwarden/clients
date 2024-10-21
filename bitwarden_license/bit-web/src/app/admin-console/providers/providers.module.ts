@@ -35,10 +35,12 @@ import { PeopleComponent } from "./manage/people.component";
 import { UserAddEditComponent } from "./manage/user-add-edit.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
+import { ProvidersComponent } from "./providers.component";
 import { WebProviderService } from "./services/web-provider.service";
 import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
 import { SetupComponent } from "./setup/setup.component";
+import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-provider.component";
 
 @NgModule({
   imports: [
@@ -79,6 +81,8 @@ import { SetupComponent } from "./setup/setup.component";
     ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
     ProviderSubscriptionStatusComponent,
+    ProvidersComponent,
+    VerifyRecoverDeleteProviderComponent,
   ],
   providers: [WebProviderService],
 })

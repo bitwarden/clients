@@ -6,7 +6,6 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderVerifyRecoverDeleteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-verify-recover-delete.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
 @Component({
@@ -24,7 +23,6 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
   constructor(
     private router: Router,
     private providerApiService: ProviderApiServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private logService: LogService,
@@ -42,22 +40,15 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
     }
   }
 
-  async submit() {
-    try {
-      const request = new ProviderVerifyRecoverDeleteRequest(this.token);
-      this.formPromise = this.providerApiService.providerRecoverDeleteToken(
-        this.providerId,
-        request,
-      );
-      await this.formPromise;
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("providerDeleted"),
-        message: this.i18nService.t("providerDeletedDesc"),
-      });
-      await this.router.navigate(["/"]);
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
+  submit = async () => {
+    const request = new ProviderVerifyRecoverDeleteRequest(this.token);
+    this.formPromise = this.providerApiService.providerRecoverDeleteToken(this.providerId, request);
+    await this.formPromise;
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("providerDeleted"),
+      message: this.i18nService.t("providerDeletedDesc"),
+    });
+    await this.router.navigate(["/"]);
+  };
 }
