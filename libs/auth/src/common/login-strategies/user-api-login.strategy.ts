@@ -69,7 +69,10 @@ export class UserApiLoginStrategy extends LoginStrategy {
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+          masterKey,
+          userId,
+        );
         await this.cryptoService.setUserKey(userKey, userId);
       }
     }

@@ -64,9 +64,9 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
 
   decryptUserKeyWithMasterKey(
     masterKey: MasterKey,
+    userId: string,
     userKey?: EncString,
-    userId?: string,
   ): Promise<UserKey> {
-    return this.mock.decryptUserKeyWithMasterKey(masterKey, userKey, userId);
+    return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
   }
 }
