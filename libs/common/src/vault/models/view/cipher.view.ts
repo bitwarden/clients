@@ -132,6 +132,10 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get canEditWithPassword(): boolean {
+    return this.edit && this.viewPassword;
+  }
+
   linkedFieldValue(id: LinkedIdType) {
     const linkedFieldOption = this.linkedFieldOptions?.get(id);
     if (linkedFieldOption == null) {
