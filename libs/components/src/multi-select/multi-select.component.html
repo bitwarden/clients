@@ -27,17 +27,15 @@
       type="button"
       bitBadge
       variant="primary"
-      class="tw-mr-1 disabled:tw-border-0"
+      class="tw-mr-1 disabled:tw-border-0 tw-flex tw-gap-1.5 tw-items-center"
       [disabled]="disabled"
       (click)="clear(item)"
     >
-      <i
-        *ngIf="item.icon != null"
-        class="tw-mr-1 bwi bwi-fw {{ item.icon }}"
-        aria-hidden="true"
-      ></i>
-      {{ item.labelName }}
-      <i class="bwi bwi-fw bwi-close bwi-sm tw-ml-1" aria-hidden="true"></i>
+      <i *ngIf="item.icon != null" class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+      <span class="tw-truncate">
+        {{ item.labelName }}
+      </span>
+      <i class="bwi bwi-fw bwi-close bwi-sm" aria-hidden="true"></i>
     </button>
   </ng-template>
   <ng-template ng-option-tmp let-item="item">

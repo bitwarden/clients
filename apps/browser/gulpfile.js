@@ -23,7 +23,7 @@ const paths = {
 const filters = {
   fonts: [
     "!build/popup/fonts/*",
-    "build/popup/fonts/Open_Sans*.woff",
+    "build/popup/fonts/dm-sans.woff2",
     "build/popup/fonts/bwi-font.woff2",
     "build/popup/fonts/bwi-font.woff",
     "build/popup/fonts/bwi-font.ttf",

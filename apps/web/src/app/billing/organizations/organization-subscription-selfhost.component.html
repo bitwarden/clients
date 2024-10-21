@@ -65,7 +65,7 @@
       {{ "launchCloudSubscription" | i18n }}
     </a>
     <form [formGroup]="form">
-      <bit-radio-group formControlName="updateMethod">
+      <bit-radio-group formControlName="updateMethod" [block]="true">
         <h2 class="mt-5">
           {{ "licenseAndBillingManagement" | i18n }}
         </h2>
@@ -73,7 +73,6 @@
           id="automatic-sync"
           [value]="licenseOptions.SYNC"
           [disabled]="disableLicenseSyncControl"
-          class="tw-block"
           *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label
@@ -94,29 +93,31 @@
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
-          <button
-            bitButton
-            buttonType="secondary"
-            type="button"
-            (click)="manageBillingSyncSelfHosted()"
-          >
-            {{ "manageBillingTokenSync" | i18n }}
-          </button>
-          <button
-            bitButton
-            buttonType="primary"
-            type="button"
-            [bitAction]="syncLicense"
-            [disabled]="!billingSyncEnabled"
-          >
-            {{ "syncLicense" | i18n }}
-          </button>
+          <div class="tw-mt-6">
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              (click)="manageBillingSyncSelfHosted()"
+            >
+              {{ "manageBillingTokenSync" | i18n }}
+            </button>
+            <button
+              bitButton
+              buttonType="primary"
+              type="button"
+              [bitAction]="syncLicense"
+              [disabled]="!billingSyncEnabled"
+            >
+              {{ "syncLicense" | i18n }}
+            </button>
+          </div>
         </ng-container>
 
         <bit-radio-button
           id="manual-upload"
           [value]="licenseOptions.UPLOAD"
-          class="tw-mt-6 tw-block"
+          class="tw-mt-6"
           *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label>{{ "manualUpload" | i18n }}</bit-label>
@@ -128,7 +129,7 @@
           <bit-label class="tw-mb-6 tw-block" *ngIf="!showAutomaticSyncAndManualUpload">
             {{ "licenseAndBillingManagementDesc" | i18n }}
           </bit-label>
-          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold">
+          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold tw-mt-6">
             {{ "uploadLicense" | i18n }}
           </h3>
           <app-update-license
