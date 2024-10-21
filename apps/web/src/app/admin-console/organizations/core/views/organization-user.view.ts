@@ -25,6 +25,7 @@ export class OrganizationUserView {
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
   accessSecretsManager: boolean;
+  managedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];

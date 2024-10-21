@@ -49,6 +49,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
   avatarColor: string;
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
+  managedByOrganization: boolean;
 
   constructor(response: any) {
     super(response);
@@ -57,12 +58,16 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
     this.avatarColor = this.getResponseProperty("AvatarColor");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
+    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
   }
 }
 
 export class OrganizationUserDetailsResponse extends OrganizationUserResponse {
+  managedByOrganization: boolean;
+
   constructor(response: any) {
     super(response);
+    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
   }
 }
 

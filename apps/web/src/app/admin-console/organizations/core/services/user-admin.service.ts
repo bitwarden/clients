@@ -90,6 +90,7 @@ export class UserAdminService {
       view.groups = u.groups;
       view.accessSecretsManager = u.accessSecretsManager;
       view.hasMasterPassword = u.hasMasterPassword;
+      view.managedByOrganization = u.managedByOrganization;
 
       return view;
     });

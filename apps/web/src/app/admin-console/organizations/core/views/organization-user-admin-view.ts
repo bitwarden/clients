@@ -15,6 +15,7 @@ export class OrganizationUserAdminView {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
+  managedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
