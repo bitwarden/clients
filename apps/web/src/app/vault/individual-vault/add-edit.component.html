@@ -851,6 +851,99 @@
             </div>
           </div>
         </ng-container>
+        <!-- Ssh Key -->
+        <ng-container *ngIf="cipher.type === cipherType.SshKey">
+          <div class="row">
+            <div class="col-12 form-group">
+              <label for="sshKeyPrivateKey">{{ "sshKeyPrivateKey" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyPrivateKey"
+                  class="form-control"
+                  type="{{ showPrivateKey ? 'text' : 'password' }}"
+                  name="SSHKey.PrivateKey"
+                  [(ngModel)]="cipher.sshKey.privateKey"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+                    (click)="togglePrivateKey()"
+                    [disabled]="!cipher.viewPassword"
+                  >
+                    <i
+                      class="bwi bwi-lg"
+                      aria-hidden="true"
+                      [ngClass]="{ 'bwi-eye': !showPrivateKey, 'bwi-eye-slash': showPrivateKey }"
+                    ></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySSHPrivateKey' | i18n }}"
+                    (click)="copy(cipher.sshKey.privateKey, 'sshKeyPrivateKey', 'PrivateKey')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyPublicKey">{{ "sshKeyPublicKey" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyPublicKey"
+                  class="form-control"
+                  type="text"
+                  name="SshKey.PublicKey"
+                  [(ngModel)]="cipher.sshKey.publicKey"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySshPublicKey' | i18n }}"
+                    (click)="copy(cipher.sshKey.publicKey, 'sshKeyPublicKey', 'PublicKey')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyFingerprint">{{ "sshKeyFingerprint" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyFingerprint"
+                  class="form-control"
+                  type="text"
+                  name="SshKey.Fingerprint"
+                  [(ngModel)]="cipher.sshKey.keyFingerprint"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySshFingerprint' | i18n }}"
+                    (click)="copy(cipher.sshKey.keyFingerprint, 'sshKeyFingerprint', 'Fingerprint')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
         <div class="form-group">
           <label for="notes">{{ "notes" | i18n }}</label>
           <textarea

@@ -38,6 +38,7 @@ export class ImportSuccessDialogComponent implements OnInit {
     let cards = 0;
     let identities = 0;
     let secureNotes = 0;
+    let sshKeys = 0;
     this.data.ciphers.map((c) => {
       switch (c.type) {
         case CipherType.Login:
@@ -51,6 +52,9 @@ export class ImportSuccessDialogComponent implements OnInit {
           break;
         case CipherType.Identity:
           identities++;
+          break;
+        case CipherType.SshKey:
+          sshKeys++;
           break;
         default:
           break;
@@ -69,6 +73,9 @@ export class ImportSuccessDialogComponent implements OnInit {
     }
     if (secureNotes > 0) {
       list.push({ icon: "sticky-note", type: "typeSecureNote", count: secureNotes });
+    }
+    if (sshKeys > 0) {
+      list.push({ icon: "key", type: "typeSSHKey", count: sshKeys });
     }
     if (this.data.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: this.data.folders.length });

@@ -114,6 +114,19 @@
           <span class="row-sub-label">{{ typeCounts.get(cipherType.SecureNote) || 0 }}</span>
           <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
         </button>
+        <button
+          type="button"
+          class="box-content-row"
+          appStopClick
+          (click)="selectType(cipherType.SshKey)"
+        >
+          <div class="row-main">
+            <div class="icon"><i class="bwi bwi-fw bwi-lg bwi-key"></i></div>
+            <span class="text">{{ "typeSshKey" | i18n }}</span>
+          </div>
+          <span class="row-sub-label">{{ typeCounts.get(cipherType.SshKey) || 0 }}</span>
+          <span><i class="bwi bwi-angle-right bwi-lg row-sub-icon"></i></span>
+        </button>
       </div>
     </div>
     <div class="box list" *ngIf="nestedFolders?.length">

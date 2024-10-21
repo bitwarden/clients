@@ -25,7 +25,10 @@ export type CopyAction =
   | "phone"
   | "address"
   | "secureNote"
-  | "hiddenField";
+  | "hiddenField"
+  | "privateKey"
+  | "publicKey"
+  | "keyFingerprint";
 
 type CopyActionInfo = {
   /**
@@ -62,6 +65,9 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   phone: { typeI18nKey: "phone", protected: true },
   address: { typeI18nKey: "address", protected: true },
   secureNote: { typeI18nKey: "note", protected: true },
+  privateKey: { typeI18nKey: "sshPrivateKey", protected: true },
+  publicKey: { typeI18nKey: "sshPublicKey", protected: true },
+  keyFingerprint: { typeI18nKey: "sshFingerprint", protected: true },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,

@@ -66,6 +66,10 @@ const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
   },
 );
 
+const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
+  deserializer: (b) => b,
+});
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
@@ -143,6 +147,9 @@ export class DesktopSettingsService {
   browserIntegrationFingerprintEnabled$ =
     this.browserIntegrationFingerprintEnabledState.state$.pipe(map(Boolean));
 
+  private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
+
+  sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
   private readonly allowScreenshotState = this.stateProvider.getGlobal(ALLOW_SCREENSHOTS);
 
   /**
@@ -255,6 +262,13 @@ export class DesktopSettingsService {
    */
   async setBrowserIntegrationFingerprintEnabled(value: boolean) {
     await this.browserIntegrationFingerprintEnabledState.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not the SSH agent is enabled.
+   */
+  async setSshAgentEnabled(value: boolean) {
+    await this.sshAgentEnabledState.update(() => value);
   }
 
   /**

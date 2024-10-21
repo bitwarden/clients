@@ -429,6 +429,39 @@
           <div *ngIf="cipher.identity.country">{{ cipher.identity.country }}</div>
         </div>
       </div>
+      <!-- SshKey -->
+      <div *ngIf="cipher.sshKey">
+        <div class="box-content-row" *ngIf="cipher.sshKey.privateKey" style="overflow: hidden">
+          <span
+            class="row-label draggable"
+            draggable="true"
+            (dragstart)="setTextDataOnDrag($event, cipher.sshKey.privateKey)"
+          >
+            {{ "sshPrivateKey" | i18n }}
+          </span>
+          <div [innerText]="cipher.sshKey.maskedPrivateKey" class="monospaced"></div>
+        </div>
+        <div class="box-content-row" *ngIf="cipher.sshKey.publicKey" style="overflow: hidden">
+          <span
+            class="row-label draggable"
+            draggable="true"
+            (dragstart)="setTextDataOnDrag($event, cipher.sshKey.publicKey)"
+          >
+            {{ "sshPublicKey" | i18n }}</span
+          >
+          {{ cipher.sshKey.publicKey }}
+        </div>
+        <div class="box-content-row" *ngIf="cipher.sshKey.keyFingerprint" style="overflow: hidden">
+          <span
+            class="row-label draggable"
+            draggable="true"
+            (dragstart)="setTextDataOnDrag($event, cipher.sshKey.keyFingerprint)"
+          >
+            {{ "sshFingerprint" | i18n }}</span
+          >
+          {{ cipher.sshKey.keyFingerprint }}
+        </div>
+      </div>
     </div>
   </div>
   <div class="box" *ngIf="cipher.login && cipher.login.hasUris">

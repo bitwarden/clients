@@ -35,6 +35,9 @@
   <app-view-identity-sections *ngIf="cipher.identity" [cipher]="cipher">
   </app-view-identity-sections>
 
+  <!-- SshKEY SECTIONS -->
+  <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
+
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher.notes">
     <app-additional-options [notes]="cipher.notes"> </app-additional-options>

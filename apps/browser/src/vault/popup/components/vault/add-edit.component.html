@@ -529,6 +529,26 @@
             />
           </div>
         </div>
+
+        <!-- SshKey -->
+        <div *ngIf="cipher.sshKey">
+          <div class="box-content-row" *ngIf="cipher.sshKey.privateKey" style="overflow: hidden">
+            <span class="row-label"> {{ "sshPrivateKey" | i18n }}</span>
+            {{ cipher.sshKey.privateKey }}
+          </div>
+          <div class="box-content-row" *ngIf="cipher.sshKey.publicKey" style="overflow: hidden">
+            <span class="row-label"> {{ "sshPublicKey" | i18n }}</span>
+            {{ cipher.sshKey.publicKey }}
+          </div>
+          <div
+            class="box-content-row"
+            *ngIf="cipher.sshKey.keyFingerprint"
+            style="overflow: hidden"
+          >
+            <span class="row-label"> {{ "sshKeyFingerprint" | i18n }}</span>
+            {{ cipher.sshKey.keyFingerprint }}
+          </div>
+        </div>
       </div>
     </div>
     <div class="box" *ngIf="cipher.type === cipherType.Login">
