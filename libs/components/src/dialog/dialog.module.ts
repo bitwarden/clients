@@ -6,6 +6,7 @@ import { AsyncActionsModule } from "../async-actions";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
+import { SpinnerComponent } from "../spinner";
 import { TypographyModule } from "../typography";
 
 import { DialogComponent } from "./dialog/dialog.component";
@@ -24,6 +25,7 @@ import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dia
     IconButtonModule,
     ReactiveFormsModule,
     TypographyModule,
+    SpinnerComponent,
   ],
   declarations: [
     DialogCloseDirective,

@@ -1,6 +1,9 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
+import { I18nMockService } from "../utils";
 
 import { NoItemsComponent } from "./no-items.component";
 import { NoItemsModule } from "./no-items.module";
@@ -11,6 +14,18 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoItemsModule],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
 } as Meta;

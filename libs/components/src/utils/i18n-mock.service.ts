@@ -14,6 +14,12 @@ export class I18nMockService implements I18nService {
 
   t(id: string, p1?: string, p2?: string, p3?: string) {
     let value = this.lookupTable[id];
+
+    // I18nMock may have missing values, silently ignore them.
+    if (value == null) {
+      return "";
+    }
+
     if (typeof value == "string") {
       if (value !== "") {
         if (p1 != null) {

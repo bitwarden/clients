@@ -1,10 +1,30 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { SpinnerComponent } from "../spinner";
+import { I18nMockService } from "../utils";
 
 import { ButtonComponent } from "./button.component";
 
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [SpinnerComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     buttonType: "primary",
     disabled: false,
@@ -99,7 +119,7 @@ export const Block: Story = {
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
         <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
-  
+
         <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
         <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
       </span>

@@ -1,7 +1,10 @@
 import { OverlayModule } from "@angular/cdk/overlay";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button/button.module";
+import { I18nMockService } from "../utils";
 
 import { MenuDividerComponent } from "./menu-divider.component";
 import { MenuItemDirective } from "./menu-item.directive";
@@ -20,6 +23,18 @@ export default {
         MenuDividerComponent,
       ],
       imports: [OverlayModule, ButtonModule],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
@@ -51,7 +66,7 @@ export const OpenMenu: Story = {
           Disabled button
         </button>
       </bit-menu>
-  
+
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-menu-panel">
           <ng-container *ngTemplateOutlet="myMenu.templateRef"></ng-container>
@@ -67,7 +82,7 @@ export const ClosedMenu: Story = {
       <div class="tw-h-40">
         <button bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
       </div>
-  
+
       <bit-menu #myMenu>
         <a href="#" bitMenuItem>Anchor link</a>
         <a href="#" bitMenuItem>Another link</a>

@@ -2,6 +2,10 @@ import { Component, DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { I18nMockService } from "../utils";
+
 import { ButtonModule } from "./index";
 
 describe("Button", () => {
@@ -15,6 +19,14 @@ describe("Button", () => {
     TestBed.configureTestingModule({
       imports: [ButtonModule],
       declarations: [TestApp],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({
+            loading: "Loading",
+          }),
+        },
+      ],
     });
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
