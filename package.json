@@ -133,7 +133,7 @@
     "sass": "1.74.1",
     "sass-loader": "16.0.1",
     "storybook": "8.2.9",
-    "style-loader": "3.3.4",
+    "style-loader": "4.0.0",
     "tailwindcss": "3.4.14",
     "ts-jest": "29.2.2",
     "ts-loader": "9.5.1",
