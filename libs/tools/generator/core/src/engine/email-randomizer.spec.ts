@@ -213,12 +213,9 @@ describe("EmailRandomizer", () => {
     it("processes catchall generation options", async () => {
       const email = new EmailRandomizer(randomizer);
 
-      const result = await email.generate(
-        {},
-        {
-          catchallDomain: "example.com",
-        },
-      );
+      const result = await email.generate({}, "catchall", {
+        catchallDomain: "example.com",
+      });
 
       expect(result.category).toEqual("catchall");
     });
@@ -226,12 +223,9 @@ describe("EmailRandomizer", () => {
     it("processes subaddress generation options", async () => {
       const email = new EmailRandomizer(randomizer);
 
-      const result = await email.generate(
-        {},
-        {
-          subaddressEmail: "foo@example.com",
-        },
-      );
+      const result = await email.generate({}, "subaddress", {
+        subaddressEmail: "foo@example.com",
+      });
 
       expect(result.category).toEqual("subaddress");
     });
@@ -239,7 +233,7 @@ describe("EmailRandomizer", () => {
     it("throws when it cannot recognize the options type", async () => {
       const email = new EmailRandomizer(randomizer);
 
-      const result = email.generate({}, {});
+      const result = email.generate({}, "subaddress", {});
 
       await expect(result).rejects.toBeInstanceOf(Error);
     });

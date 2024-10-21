@@ -32,6 +32,7 @@ import { isDynamic } from "@bitwarden/common/tools/state/state-constraints-depen
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 
 import { Randomizer } from "../abstractions";
+import { SshKeyNativeGenerator } from "../abstractions/sshkey-native-generator.abstraction";
 import { Generators } from "../data";
 import { availableAlgorithms } from "../policies/available-algorithms-policy";
 import { mapPolicyToConstraints } from "../rx";
@@ -68,6 +69,7 @@ export class CredentialGeneratorService {
     private randomizer: Randomizer,
     private stateProvider: StateProvider,
     private policyService: PolicyService,
+    private sshNativeGenerator: SshKeyNativeGenerator,
   ) {}
 
   // FIXME: the rxjs methods of this service can be a lot more resilient if
@@ -84,7 +86,7 @@ export class CredentialGeneratorService {
     dependencies?: Generate$Dependencies,
   ) {
     // instantiate the engine
-    const engine = configuration.engine.create(this.randomizer);
+    const engine = configuration.engine.create(this.randomizer, this.sshNativeGenerator);
 
     // stream blocks until all of these values are received
     const website$ = dependencies?.website$ ?? new BehaviorSubject<string>(null);
@@ -115,7 +117,7 @@ export class CredentialGeneratorService {
     // generation proper
     const generate$ = (readyOn$ ?? settings$).pipe(
       withLatestFrom(request$, settings$),
-      concatMap(([, request, settings]) => engine.generate(request, settings)),
+      concatMap(([, request, settings]) => engine.generate(request, configuration.id, settings)),
       takeUntil(complete$),
     );
 

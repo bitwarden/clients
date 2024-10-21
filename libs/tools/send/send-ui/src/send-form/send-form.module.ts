@@ -11,6 +11,9 @@ import {
   Randomizer,
 } from "@bitwarden/generator-core";
 
+import { SshKeyNativeGenerator } from "../../../../generator/core/src/abstractions/sshkey-native-generator.abstraction";
+import { NoopSshKeyGeneratorService } from "../../../../generator/core/src/services/noop-sshkey-native-generator.service";
+
 import { SendFormService } from "./abstractions/send-form.service";
 import { SendFormComponent } from "./components/send-form.component";
 import { DefaultSendFormService } from "./services/default-send-form.service";
@@ -30,9 +33,14 @@ const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
       deps: [CryptoService],
     }),
     safeProvider({
+      provide: SshKeyNativeGenerator,
+      useClass: NoopSshKeyGeneratorService,
+      deps: [],
+    }),
+    safeProvider({
       useClass: CredentialGeneratorService,
       provide: CredentialGeneratorService,
-      deps: [RANDOMIZER, StateProvider, PolicyService],
+      deps: [RANDOMIZER, StateProvider, PolicyService, SshKeyNativeGenerator],
     }),
   ],
   exports: [SendFormComponent],

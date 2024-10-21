@@ -17,6 +17,10 @@ export class SshKeyView extends ItemView {
   }
 
   get maskedPrivateKey(): string {
+    if (!this.privateKey || this.privateKey.length === 0) {
+      return "";
+    }
+
     let lines = this.privateKey.split("\n").filter((l) => l.trim() !== "");
     lines = lines.map((l, i) => {
       if (i === 0 || i === lines.length - 1) {

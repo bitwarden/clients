@@ -58,6 +58,7 @@ import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginApprovalComponent } from "../auth/login/login-approval.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { flagEnabled } from "../platform/flags";
+import { SshAgentService } from "../platform/services/ssh-agent.service";
 import { PremiumComponent } from "../vault/app/accounts/premium.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
@@ -83,6 +84,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #exportVault></ng-template>
     <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
+    <ng-template #appSshGenerator></ng-template>
     <app-header></app-header>
 
     <div id="container">
@@ -106,6 +108,8 @@ export class AppComponent implements OnInit, OnDestroy {
   generatorModalRef: ViewContainerRef;
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
+  @ViewChild("appSshGenerator", { read: ViewContainerRef, static: true })
+  sshGeneratorModalRef: ViewContainerRef;
 
   loading = false;
 
@@ -153,6 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
+    private sshAgentService: SshAgentService,
     private sdkService: SdkService,
   ) {
     if (flagEnabled("sdk")) {

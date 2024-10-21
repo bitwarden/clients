@@ -107,12 +107,9 @@ describe("UsernameRandomizer", () => {
     it("processes username generation options", async () => {
       const username = new UsernameRandomizer(randomizer);
 
-      const result = await username.generate(
-        {},
-        {
-          wordIncludeNumber: true,
-        },
-      );
+      const result = await username.generate({}, "username", {
+        wordIncludeNumber: true,
+      });
 
       expect(result.category).toEqual("username");
     });
@@ -120,7 +117,7 @@ describe("UsernameRandomizer", () => {
     it("throws when it cannot recognize the options type", async () => {
       const username = new UsernameRandomizer(randomizer);
 
-      const result = username.generate({}, {});
+      const result = username.generate({}, "username", {});
 
       await expect(result).rejects.toBeInstanceOf(Error);
     });

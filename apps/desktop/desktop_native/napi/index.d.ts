@@ -77,7 +77,6 @@ export declare namespace sshagent {
   export function generateKeypair(keyAlgorithm: string): Promise<SshKey>
   export class SshAgentState {   }
 }
-
 export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>

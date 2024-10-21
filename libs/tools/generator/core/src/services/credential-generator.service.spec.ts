@@ -15,6 +15,7 @@ import {
   ObservableTracker,
 } from "../../../../../common/spec";
 import { Randomizer } from "../abstractions";
+import { SshKeyNativeGenerator } from "../abstractions/sshkey-native-generator.abstraction";
 import { Generators } from "../data";
 import {
   CredentialGeneratorConfiguration,
@@ -36,6 +37,7 @@ const SettingsKey = new UserKeyDefinition<SomeSettings>(GENERATOR_DISK, "SomeSet
 
 // fake policies
 const policyService = mock<PolicyService>();
+const sshKeyNativeGeneratorService = mock<SshKeyNativeGenerator>();
 const somePolicy = new Policy({
   data: { fooPolicy: true },
   type: PolicyType.PasswordGenerator,
@@ -77,7 +79,7 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
   engine: {
     create: (randomizer) => {
       return {
-        generate: (request, settings) => {
+        generate: (request, _algorithm, settings) => {
           const credential = request.website ? `${request.website}|${settings.foo}` : settings.foo;
           const result = new GeneratedCredential(credential, SomeAlgorithm, SomeTime);
           return Promise.resolve(result);
@@ -170,7 +172,12 @@ describe("CredentialGeneratorService", () => {
     it("emits a generation for the active user when subscribed", async () => {
       const settings = { foo: "value" };
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
       const result = await generated.expectEmission();
@@ -183,7 +190,12 @@ describe("CredentialGeneratorService", () => {
       const anotherSettings = { foo: "another value" };
       await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
       await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
       await accountService.switchAccount(AnotherUser);
@@ -200,7 +212,12 @@ describe("CredentialGeneratorService", () => {
       const someSettings = { foo: "some value" };
       const anotherSettings = { foo: "another value" };
       await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
       await stateProvider.setUserState(SettingsKey, anotherSettings, SomeUser);
@@ -220,7 +237,12 @@ describe("CredentialGeneratorService", () => {
     it("includes `website$`'s last emitted value", async () => {
       const settings = { foo: "value" };
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const website$ = new BehaviorSubject("some website");
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { website$ }));
 
@@ -233,7 +255,12 @@ describe("CredentialGeneratorService", () => {
 
     it("errors when `website$` errors", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const website$ = new BehaviorSubject("some website");
       let error = null;
 
@@ -250,7 +277,12 @@ describe("CredentialGeneratorService", () => {
 
     it("completes when `website$` completes", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const website$ = new BehaviorSubject("some website");
       let completed = false;
 
@@ -268,7 +300,12 @@ describe("CredentialGeneratorService", () => {
     it("emits a generation for a specific user when `user$` supplied", async () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       await stateProvider.setUserState(SettingsKey, { foo: "another" }, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { userId$ }));
 
@@ -280,7 +317,12 @@ describe("CredentialGeneratorService", () => {
     it("emits a generation for a specific user when `user$` emits", async () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       await stateProvider.setUserState(SettingsKey, { foo: "another" }, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.pipe(filter((u) => !!u));
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { userId$ }));
@@ -296,7 +338,12 @@ describe("CredentialGeneratorService", () => {
 
     it("errors when `user$` errors", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(SomeUser);
       let error = null;
 
@@ -313,7 +360,12 @@ describe("CredentialGeneratorService", () => {
 
     it("completes when `user$` completes", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(SomeUser);
       let completed = false;
 
@@ -331,7 +383,12 @@ describe("CredentialGeneratorService", () => {
     it("emits a generation only when `on$` emits", async () => {
       // This test breaks from arrange/act/assert because it is testing causality
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const on$ = new Subject<void>();
       const results: any[] = [];
 
@@ -365,7 +422,12 @@ describe("CredentialGeneratorService", () => {
 
     it("errors when `on$` errors", async () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const on$ = new Subject<void>();
       let error: any = null;
 
@@ -383,7 +445,12 @@ describe("CredentialGeneratorService", () => {
 
     it("completes when `on$` completes", async () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const on$ = new Subject<void>();
       let complete = false;
 
@@ -406,7 +473,12 @@ describe("CredentialGeneratorService", () => {
 
   describe("algorithms", () => {
     it("outputs password generation metadata", () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = generator.algorithms("password");
 
@@ -419,7 +491,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("outputs username generation metadata", () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = generator.algorithms("username");
 
@@ -431,7 +508,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("outputs email generation metadata", () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = generator.algorithms("email");
 
@@ -444,7 +526,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("combines metadata across categories", () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = generator.algorithms(["username", "email"]);
 
@@ -461,7 +548,12 @@ describe("CredentialGeneratorService", () => {
     // these tests cannot use the observable tracker because they return
     //  data that cannot be cloned
     it("returns password metadata", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.algorithms$("password"));
 
@@ -470,7 +562,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("returns username metadata", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.algorithms$("username"));
 
@@ -478,7 +575,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("returns email metadata", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.algorithms$("email"));
 
@@ -487,7 +589,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("returns username and email metadata", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.algorithms$(["username", "email"]));
 
@@ -501,7 +608,12 @@ describe("CredentialGeneratorService", () => {
     it("enforces the active user's policy", async () => {
       const policy$ = new BehaviorSubject([passwordOverridePolicy]);
       policyService.getAll$.mockReturnValue(policy$);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.algorithms$(["password"]));
 
@@ -518,7 +630,12 @@ describe("CredentialGeneratorService", () => {
       await accountService.switchAccount(SomeUser);
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const results: any = [];
       const sub = generator.algorithms$("password").subscribe((r) => results.push(r));
 
@@ -547,7 +664,12 @@ describe("CredentialGeneratorService", () => {
 
     it("reads an arbitrary user's settings", async () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
 
       const result = await firstValueFrom(generator.algorithms$("password", { userId$ }));
@@ -560,7 +682,12 @@ describe("CredentialGeneratorService", () => {
     it("follows changes to the arbitrary user", async () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       const results: any = [];
@@ -582,7 +709,12 @@ describe("CredentialGeneratorService", () => {
 
     it("errors when the arbitrary user's stream errors", async () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let error = null;
@@ -600,7 +732,12 @@ describe("CredentialGeneratorService", () => {
 
     it("completes when the arbitrary user's stream completes", async () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let completed = false;
@@ -618,7 +755,12 @@ describe("CredentialGeneratorService", () => {
 
     it("ignores repeated arbitrary user emissions", async () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let count = 0;
@@ -642,7 +784,12 @@ describe("CredentialGeneratorService", () => {
   describe("settings$", () => {
     it("defaults to the configuration's initial settings if settings aren't found", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
 
@@ -652,7 +799,12 @@ describe("CredentialGeneratorService", () => {
     it("reads from the active user's configuration-defined storage", async () => {
       const settings = { foo: "value" };
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
 
@@ -664,7 +816,12 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const policy$ = new BehaviorSubject([somePolicy]);
       policyService.getAll$.mockReturnValue(policy$);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
 
@@ -681,7 +838,12 @@ describe("CredentialGeneratorService", () => {
       const anotherSettings = { foo: "another" };
       await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
       await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const results: any = [];
       const sub = generator.settings$(SomeConfiguration).subscribe((r) => results.push(r));
 
@@ -698,7 +860,12 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       const anotherSettings = { foo: "another" };
       await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration, { userId$ }));
@@ -711,7 +878,12 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
       const anotherSettings = { foo: "another" };
       await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       const results: any = [];
@@ -730,7 +902,12 @@ describe("CredentialGeneratorService", () => {
 
     it("errors when the arbitrary user's stream errors", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let error = null;
@@ -748,7 +925,12 @@ describe("CredentialGeneratorService", () => {
 
     it("completes when the arbitrary user's stream completes", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let completed = false;
@@ -766,7 +948,12 @@ describe("CredentialGeneratorService", () => {
 
     it("ignores repeated arbitrary user emissions", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       let count = 0;
@@ -790,7 +977,12 @@ describe("CredentialGeneratorService", () => {
   describe("settings", () => {
     it("writes to the user's state", async () => {
       const singleUserId$ = new BehaviorSubject(SomeUser).asObservable();
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const subject = await generator.settings(SomeConfiguration, { singleUserId$ });
 
       subject.next({ foo: "next value" });
@@ -803,7 +995,12 @@ describe("CredentialGeneratorService", () => {
     it("waits for the user to become available", async () => {
       const singleUserId = new BehaviorSubject(null);
       const singleUserId$ = singleUserId.asObservable();
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
 
       let completed = false;
       const promise = generator.settings(SomeConfiguration, { singleUserId$ }).then((settings) => {
@@ -821,7 +1018,12 @@ describe("CredentialGeneratorService", () => {
 
   describe("policy$", () => {
     it("creates constraints without policy in effect when there is no policy", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(SomeUser).asObservable();
 
       const result = await firstValueFrom(generator.policy$(SomeConfiguration, { userId$ }));
@@ -830,7 +1032,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("creates constraints with policy in effect when there is a policy", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId$ = new BehaviorSubject(SomeUser).asObservable();
       const policy$ = new BehaviorSubject([somePolicy]);
       policyService.getAll$.mockReturnValue(policy$);
@@ -841,7 +1048,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("follows policy emissions", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       const somePolicySubject = new BehaviorSubject([somePolicy]);
@@ -862,7 +1074,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("follows user emissions", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       const somePolicy$ = new BehaviorSubject([somePolicy]).asObservable();
@@ -884,7 +1101,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("errors when the user errors", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
       const expectedError = { some: "error" };
@@ -902,7 +1124,12 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("completes when the user completes", async () => {
-      const generator = new CredentialGeneratorService(randomizer, stateProvider, policyService);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        sshKeyNativeGeneratorService,
+      );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
 
