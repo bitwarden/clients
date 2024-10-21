@@ -7,6 +7,7 @@ import { SecretVerificationRequest } from "../../../auth/models/request/secret-v
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
 import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
+import { OrganizationNoPaymentMethodCreateRequest } from "../../../billing/models/request/organization-no-payment-method-create-request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
@@ -102,6 +103,21 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
 
   async create(request: OrganizationCreateRequest): Promise<OrganizationResponse> {
     const r = await this.apiService.send("POST", "/organizations", request, true, true);
+    // Forcing a sync will notify organization service that they need to repull
+    await this.syncService.fullSync(true);
+    return new OrganizationResponse(r);
+  }
+
+  async createWithoutPayment(
+    request: OrganizationNoPaymentMethodCreateRequest,
+  ): Promise<OrganizationResponse> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/create-without-payment",
+      request,
+      true,
+      true,
+    );
     // Forcing a sync will notify organization service that they need to repull
     await this.syncService.fullSync(true);
     return new OrganizationResponse(r);
