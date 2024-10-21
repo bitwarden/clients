@@ -3,6 +3,8 @@ import { Observable } from "rxjs";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { UserEncryptor } from "./state/user-encryptor.abstraction";
+
 /** error emitted when the `SingleUserDependency` changes Ids */
 export type UserChangedError = {
   /** the userId pinned by the single user dependency */
@@ -43,6 +45,12 @@ export type UserDependency = {
    *  or undefined.
    */
   userId$: Observable<UserId>;
+};
+
+export type UserBound<K extends keyof any, T> = { [P in K]: T } & { userId: UserId };
+
+export type SingleUserEncryptorDependency = {
+  singleUserEncryptor$: Observable<UserBound<"encryptor", UserEncryptor>>;
 };
 
 /** A pattern for types that depend upon a fixed userid and return

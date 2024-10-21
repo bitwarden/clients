@@ -63,7 +63,7 @@ function getConstraint<Key extends keyof AnyConstraint>(
 ) {
   if (policy && key in policy) {
     return policy[key] ?? config[key];
-  } else if (key in config) {
+  } else if (config && key in config) {
     return config[key];
   }
 }
