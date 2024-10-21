@@ -562,7 +562,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   get taxCharges() {
     return this.taxComponent != null && this.taxComponent.taxRate != null
-      ? (this.taxComponent.taxRate / 100) * this.passwordManagerSubtotal
+      ? this.taxComponent.taxRate * this.passwordManagerSubtotal
       : 0;
   }
 
