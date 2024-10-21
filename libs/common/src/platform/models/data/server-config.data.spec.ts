@@ -1,3 +1,4 @@
+import { PushTechnology } from "../../../enums/push-technology.enum";
 import { Region } from "../../abstractions/environment.service";
 
 import {
@@ -26,6 +27,9 @@ describe("ServerConfigData", () => {
         },
         utcDate: "2020-01-01T00:00:00.000Z",
         featureStates: { feature: "state" },
+        push: {
+          pushTechnology: PushTechnology.SignalR,
+        },
       };
       const serverConfigData = ServerConfigData.fromJSON(json);
 
