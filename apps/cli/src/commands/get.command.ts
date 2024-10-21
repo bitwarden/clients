@@ -22,11 +22,10 @@ import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.ex
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -58,7 +57,6 @@ export class GetCommand extends DownloadCommand {
     private auditService: AuditService,
     private cryptoService: CryptoService,
     encryptService: EncryptService,
-    private stateService: StateService,
     private searchService: SearchService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
@@ -95,7 +93,7 @@ export class GetCommand extends DownloadCommand {
       case "folder":
         return await this.getFolder(id);
       case "collection":
-        return await this.getCollection(id);
+        return await this.getCollection(id as CollectionId);
       case "org-collection":
         return await this.getOrganizationCollection(id, normalizedOptions);
       case "organization":
@@ -406,10 +404,14 @@ export class GetCommand extends DownloadCommand {
     return Response.success(res);
   }
 
-  private async getCollection(id: string) {
+  private async getCollection(id: CollectionId) {
+    const activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
     let decCollection: CollectionView = null;
     if (Utils.isGuid(id)) {
-      const collection = await this.collectionService.get(id);
+      const collection = (
+        await firstValueFrom(this.collectionService.encryptedCollections$(activeUserId$))
+      ).find((c) => c.id === id);
       if (collection != null) {
         const orgKeys = await firstValueFrom(this.cryptoService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
@@ -417,7 +419,9 @@ export class GetCommand extends DownloadCommand {
         );
       }
     } else if (id.trim() !== "") {
-      let collections = await this.collectionService.getAllDecrypted();
+      let collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(activeUserId$),
+      );
       collections = CliUtils.searchCollections(collections, id);
       if (collections.length > 1) {
         return Response.multipleResults(collections.map((c) => c.id));

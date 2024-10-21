@@ -36,6 +36,7 @@ const LAST_SYNC_DATE = new UserKeyDefinition<Date>(SYNC_DISK, "lastSync", {
  */
 export abstract class CoreSyncService implements SyncService {
   syncInProgress = false;
+  protected activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     protected readonly stateService: StateService,
@@ -56,7 +57,7 @@ export abstract class CoreSyncService implements SyncService {
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   async getLastSync(): Promise<Date> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(this.activeUserId$);
     if (userId == null) {
       return null;
     }
@@ -149,7 +150,9 @@ export abstract class CoreSyncService implements SyncService {
           notification.collectionIds != null &&
           notification.collectionIds.length > 0
         ) {
-          const collections = await this.collectionService.getAll();
+          const collections = await firstValueFrom(
+            this.collectionService.encryptedCollections$(this.activeUserId$),
+          );
           if (collections != null) {
             for (let i = 0; i < collections.length; i++) {
               if (notification.collectionIds.indexOf(collections[i].id) > -1) {

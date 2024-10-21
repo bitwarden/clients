@@ -49,6 +49,8 @@ export class AssignCollections {
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   constructor(
     private location: Location,
     private collectionService: CollectionService,
@@ -59,8 +61,7 @@ export class AssignCollections {
     const cipher$: Observable<CipherView> = route.queryParams.pipe(
       switchMap(({ cipherId }) => this.cipherService.get(cipherId)),
       switchMap((cipherDomain) =>
-        this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
+        this.activeUserId$.pipe(
           switchMap((userId) =>
             this.cipherService
               .getKeyForCipherKeyDecryption(cipherDomain, userId)
@@ -70,7 +71,7 @@ export class AssignCollections {
       ),
     );
 
-    combineLatest([cipher$, this.collectionService.decryptedCollections$])
+    combineLatest([cipher$, this.collectionService.decryptedCollections$(this.activeUserId$)])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
         let availableCollections = collections.filter((c) => !c.readOnly);

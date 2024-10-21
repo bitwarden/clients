@@ -6,7 +6,6 @@ import { CollectionsComponent as BaseCollectionsComponent } from "@bitwarden/ang
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -22,7 +21,6 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     i18nService: I18nService,
     cipherService: CipherService,
     organizationSerivce: OrganizationService,
-    logService: LogService,
     accountService: AccountService,
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: CollectionsDialogParams,
@@ -34,7 +32,6 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
       i18nService,
       cipherService,
       organizationSerivce,
-      logService,
       accountService,
       toastService,
     );

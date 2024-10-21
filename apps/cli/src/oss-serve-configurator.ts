@@ -58,7 +58,6 @@ export class OssServeConfigurator {
       this.serviceContainer.auditService,
       this.serviceContainer.cryptoService,
       this.serviceContainer.encryptService,
-      this.serviceContainer.stateService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,
       this.serviceContainer.organizationService,
@@ -75,6 +74,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
+      this.serviceContainer.accountService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
