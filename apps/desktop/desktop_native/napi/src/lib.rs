@@ -191,6 +191,21 @@ pub mod powermonitors {
 }
 
 #[napi]
+pub mod windows_registry {
+    #[napi]
+    pub async fn create_key(key: String, subkey: String, value: String) -> napi::Result<()> {
+        desktop_core::registry::create_key(&key, &subkey, &value)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn delete_key(key: String, subkey: String) -> napi::Result<()> {
+        desktop_core::registry::delete_key(&key, &subkey)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod ipc {
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::threadsafe_function::{
