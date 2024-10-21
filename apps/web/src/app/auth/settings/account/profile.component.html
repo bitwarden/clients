@@ -7,8 +7,8 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </div>
 <form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
-  <div class="tw-grid tw-grid-cols-12 tw-gap-6">
-    <div class="tw-col-span-6">
+  <div class="tw-grid @md:tw-grid-cols-2 tw-gap-6">
+    <div>
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
         <input bitInput formControlName="name" />
@@ -17,8 +17,12 @@
         <bit-label>{{ "email" | i18n }}</bit-label>
         <input bitInput formControlName="email" readonly />
       </bit-form-field>
+
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
     </div>
-    <div class="tw-col-span-6">
+    <div>
       <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
         <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" size="large">
         </dynamic-avatar>
@@ -43,5 +47,4 @@
       </app-account-fingerprint>
     </div>
   </div>
-  <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>
 </form>

@@ -111,6 +111,75 @@ module.exports = {
     },
   },
   plugins: [
+    /**
+     * Custom plugin for media queries, which uses a `@` prefix. If the html has the
+     * class `tw-fixed-width` all variants will be applied.
+     *
+     * Based on https://github.com/tailwindlabs/tailwindcss-container-queries
+     * MIT License
+     *
+     * Copyright (c) 2023 Tailwind Labs
+     *
+     * Permission is hereby granted, free of charge, to any person obtaining a copy
+     * of this software and associated documentation files (the "Software"), to deal
+     * in the Software without restriction, including without limitation the rights
+     * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+     * copies of the Software, and to permit persons to whom the Software is
+     * furnished to do so, subject to the following conditions:
+     *
+     * The above copyright notice and this permission notice shall be included in all
+     * copies or substantial portions of the Software.
+     *
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+     * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+     * SOFTWARE.
+     */
+    plugin(function ({ matchVariant, theme }) {
+      // Responsive
+      const values = theme("screens") ?? {};
+
+      matchVariant(
+        "@",
+        (value = "", { modifier }) => {
+          let parsed = parseFloat(value);
+
+          return parsed !== null
+            ? [`@media ${modifier ?? ""} (min-width: ${value})`, "html.fixed-width &"]
+            : [];
+        },
+        {
+          values,
+          sort(aVariant, zVariant) {
+            let a = parseFloat(aVariant.value);
+            let z = parseFloat(zVariant.value);
+
+            if (a === null || z === null) return 0;
+
+            // Sort values themselves regardless of unit
+            if (a - z !== 0) return a - z;
+
+            let aLabel = aVariant.modifier ?? "";
+            let zLabel = zVariant.modifier ?? "";
+
+            // Explicitly move empty labels to the end
+            if (aLabel === "" && zLabel !== "") {
+              return 1;
+            } else if (aLabel !== "" && zLabel === "") {
+              return -1;
+            }
+
+            // Sort labels alphabetically in the English locale
+            // We are intentionally overriding the locale because we do not want the sort to
+            // be affected by the machine's locale (be it a developer or CI environment)
+            return aLabel.localeCompare(zLabel, "en", { numeric: true });
+          },
+        },
+      );
+    }),
     plugin(function ({ matchUtilities, theme, addUtilities, addComponents, e, config }) {
       matchUtilities(
         {
