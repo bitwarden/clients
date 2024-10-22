@@ -151,6 +151,7 @@ describe("Login DTO", () => {
         password: "myPassword" as EncryptedString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
         totp: "myTotp" as EncryptedString,
+        // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
         fido2Credentials: [
           {
             credentialId: "keyId" as EncryptedString,
@@ -167,7 +168,7 @@ describe("Login DTO", () => {
             discoverable: "discoverable" as EncryptedString,
             creationDate: fido2CreationDate.toISOString(),
           },
-        ],
+        ] as any,
       });
 
       expect(actual).toEqual({

@@ -94,7 +94,7 @@ export const ContentSlots: Story = {
             slot="start"
             [text]="'Foo'"
           ></bit-avatar>
-          foo@bitwarden.com
+          foo&#64;bitwarden.com
           <ng-container slot="secondary">
             <div>Bitwarden.com</div>
             <div><em>locked</em></div>
@@ -285,37 +285,37 @@ export const SingleActionList: Story = {
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
       </bit-item-group>
     `,
@@ -332,14 +332,14 @@ export const SingleActionWithBadge: Story = {
             Foobar
             <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
             <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
       </bit-item-group>
     `,
