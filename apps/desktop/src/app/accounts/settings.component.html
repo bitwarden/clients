@@ -419,6 +419,23 @@
                   "enableHardwareAccelerationDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group">
+                <div class="checkbox">
+                  <label for="enableSshAgent">
+                    <input
+                      id="enableSshAgent"
+                      type="checkbox"
+                      aria-describedby="enableSshAgentHelp"
+                      formControlName="enableSshAgent"
+                      (change)="saveSshAgent()"
+                    />
+                    {{ "enableSshAgent" | i18n }}
+                  </label>
+                </div>
+                <small id="enableSshAgentHelp" class="help-block">{{
+                  "enableSshAgentDesc" | i18n
+                }}</small>
+              </div>
               <div class="form-group" *ngIf="!isLinux">
                 <div class="checkbox">
                   <label for="allowScreenshots">

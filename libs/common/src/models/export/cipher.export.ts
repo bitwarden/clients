@@ -10,6 +10,7 @@ import { IdentityExport } from "./identity.export";
 import { LoginExport } from "./login.export";
 import { PasswordHistoryExport } from "./password-history.export";
 import { SecureNoteExport } from "./secure-note.export";
+import { SshKeyExport } from "./ssh-key.export";
 import { safeGetString } from "./utils";
 
 export class CipherExport {
@@ -27,6 +28,7 @@ export class CipherExport {
     req.secureNote = null;
     req.card = null;
     req.identity = null;
+    req.sshKey = null;
     req.reprompt = CipherRepromptType.None;
     req.passwordHistory = [];
     req.creationDate = null;
@@ -67,6 +69,8 @@ export class CipherExport {
       case CipherType.Identity:
         view.identity = IdentityExport.toView(req.identity);
         break;
+      case CipherType.SshKey:
+        view.sshKey = SshKeyExport.toView(req.sshKey);
     }
 
     if (req.passwordHistory != null) {
@@ -108,6 +112,9 @@ export class CipherExport {
       case CipherType.Identity:
         domain.identity = IdentityExport.toDomain(req.identity);
         break;
+      case CipherType.SshKey:
+        domain.sshKey = SshKeyExport.toDomain(req.sshKey);
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -132,6 +139,7 @@ export class CipherExport {
   secureNote: SecureNoteExport;
   card: CardExport;
   identity: IdentityExport;
+  sshKey: SshKeyExport;
   reprompt: CipherRepromptType;
   passwordHistory: PasswordHistoryExport[] = null;
   revisionDate: Date = null;
@@ -170,6 +178,9 @@ export class CipherExport {
         break;
       case CipherType.Identity:
         this.identity = new IdentityExport(o.identity);
+        break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyExport(o.sshKey);
         break;
     }
 

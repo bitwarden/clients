@@ -5,13 +5,13 @@ use base64::Engine;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 
-use crate::biometric::{KeyMaterial, OsDerivedKey, base64_engine};
+use crate::biometric::{base64_engine, KeyMaterial, OsDerivedKey};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
 
 use super::{decrypt, encrypt};
-use anyhow::anyhow;
 use crate::crypto::CipherString;
+use anyhow::anyhow;
 
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}
@@ -22,13 +22,15 @@ impl super::BiometricTrait for Biometric {
         let proxy = AuthorityProxy::new(&connection).await?;
         let subject = Subject::new_for_owner(std::process::id(), None, None)?;
         let details = std::collections::HashMap::new();
-        let result = proxy.check_authorization(
-            &subject,
-            "com.bitwarden.Bitwarden.unlock",
-            &details,
-            CheckAuthorizationFlags::AllowUserInteraction.into(),
-            "",
-        ).await;
+        let result = proxy
+            .check_authorization(
+                &subject,
+                "com.bitwarden.Bitwarden.unlock",
+                &details,
+                CheckAuthorizationFlags::AllowUserInteraction.into(),
+                "",
+            )
+            .await;
 
         match result {
             Ok(result) => {

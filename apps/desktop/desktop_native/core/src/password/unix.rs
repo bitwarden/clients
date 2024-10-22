@@ -41,7 +41,11 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
 }
 
 pub fn is_available() -> Result<bool> {
-    let result = password_clear_sync(Some(&get_schema()), build_attributes("bitwardenSecretsAvailabilityTest", "test"), gio::Cancellable::NONE);
+    let result = password_clear_sync(
+        Some(&get_schema()),
+        build_attributes("bitwardenSecretsAvailabilityTest", "test"),
+        gio::Cancellable::NONE,
+    );
     match result {
         Ok(_) => Ok(true),
         Err(_) => {

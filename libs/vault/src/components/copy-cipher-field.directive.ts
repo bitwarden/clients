@@ -91,6 +91,12 @@ export class CopyCipherFieldDirective implements OnChanges {
         return this.cipher.identity?.fullAddressForCopy;
       case "secureNote":
         return this.cipher.notes;
+      case "privateKey":
+        return this.cipher.sshKey?.privateKey;
+      case "publicKey":
+        return this.cipher.sshKey?.publicKey;
+      case "keyFingerprint":
+        return this.cipher.sshKey?.keyFingerprint;
       default:
         return null;
     }

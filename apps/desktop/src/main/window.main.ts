@@ -76,6 +76,19 @@ export class WindowMain {
       this.win.setContentProtection(!allowed);
     });
 
+    ipcMain.on("window-focus", () => {
+      if (this.win != null) {
+        this.win.show();
+        this.win.focus();
+      }
+    });
+
+    ipcMain.on("window-hide", () => {
+      if (this.win != null) {
+        this.win.hide();
+      }
+    });
+
     return new Promise<void>((resolve, reject) => {
       try {
         if (!isMacAppStore() && !isSnapStore()) {

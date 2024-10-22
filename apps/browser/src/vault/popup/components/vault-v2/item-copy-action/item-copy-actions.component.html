@@ -88,3 +88,27 @@
     [cipher]="cipher"
   ></button>
 </bit-item-action>
+
+<bit-item-action *ngIf="cipher.type === CipherType.SshKey">
+  <button
+    type="button"
+    bitIconButton="bwi-clone"
+    size="small"
+    [appA11yTitle]="
+      hasSshKeyValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+    "
+    [disabled]="!hasSshKeyValues"
+    [bitMenuTriggerFor]="sshKeyOptions"
+  ></button>
+  <bit-menu #sshKeyOptions>
+    <button type="button" bitMenuItem appCopyField="privateKey" [cipher]="cipher">
+      {{ "copyPrivateKey" | i18n }}
+    </button>
+    <button type="button" bitMenuItem appCopyField="publicKey" [cipher]="cipher">
+      {{ "copyPublicKey" | i18n }}
+    </button>
+    <button type="button" bitMenuItem appCopyField="keyFingerprint" [cipher]="cipher">
+      {{ "copyFingerprint" | i18n }}
+    </button>
+  </bit-menu>
+</bit-item-action>

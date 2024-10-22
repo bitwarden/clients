@@ -79,4 +79,19 @@
       </button>
     </span>
   </li>
+  <li
+    class="filter-option"
+    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.SshKey }"
+  >
+    <span class="filter-buttons">
+      <button
+        type="button"
+        class="filter-button"
+        (click)="applyFilter(cipherTypeEnum.SshKey)"
+        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.SshKey"
+      >
+        <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>&nbsp;{{ "typeSshKey" | i18n }}
+      </button>
+    </span>
+  </li>
 </ul>
