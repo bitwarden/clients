@@ -29,7 +29,7 @@ import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enum
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -170,7 +170,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private get selectedOrgId(): OrganizationId {
     return this.formGroup.getRawValue().selectedOrg || this.params.organizationId;
   }
-  private activeUserId: UserId;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -184,10 +184,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   ) {}
 
   async ngOnInit() {
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
     const onlyPersonalItems = this.params.ciphers.every((c) => c.organizationId == null);
 
     if (this.selectedOrgId === MY_VAULT_ID || onlyPersonalItems) {
@@ -405,7 +401,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
    */
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
     return combineLatest([
-      this.collectionService.decryptedCollections$,
+      this.collectionService.decryptedCollections$(this.activeUserId$),
       this.organizationService.organizations$,
     ]).pipe(
       map(([collections, organizations]) => {
@@ -429,7 +425,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       shareableCiphers,
       organizationId,
       selectedCollectionIds,
-      this.activeUserId,
+      await firstValueFrom(this.activeUserId$),
     );
 
     this.toastService.showToast({
@@ -470,7 +466,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private async updateAssignedCollections(cipherView: CipherView) {
     const { collections } = this.formGroup.getRawValue();
     cipherView.collectionIds = collections.map((i) => i.id as CollectionId);
-    const cipher = await this.cipherService.encrypt(cipherView, this.activeUserId);
+    const cipher = await this.cipherService.encrypt(
+      cipherView,
+      await firstValueFrom(this.activeUserId$),
+    );
     if (this.params.isSingleCipherAdmin) {
       await this.cipherService.saveCollectionsWithServerAdmin(cipher);
     } else {

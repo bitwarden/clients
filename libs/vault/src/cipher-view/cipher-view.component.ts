@@ -1,13 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
-import { CollectionId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -55,11 +55,13 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   folder$: Observable<FolderView>;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
 
   constructor(
     private organizationService: OrganizationService,
     private collectionService: CollectionService,
     private folderService: FolderService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnChanges() {
@@ -98,9 +100,13 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       (!this.collections || this.collections.length === 0)
     ) {
       this.collections = await firstValueFrom(
-        this.collectionService.decryptedCollectionViews$(
-          this.cipher.collectionIds as CollectionId[],
-        ),
+        this.collectionService
+          .decryptedCollections$(this.activeUserId$)
+          .pipe(
+            map((allCollections) =>
+              allCollections.filter((c) => this.cipher.collectionIds.includes(c.id)),
+            ),
+          ),
       );
     }
 

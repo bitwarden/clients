@@ -66,7 +66,7 @@ describe("AddEditComponentV2", () => {
     folderService = mock<FolderService>();
     folderService.folderViews$ = of([]);
     collectionService = mock<CollectionService>();
-    collectionService.decryptedCollections$ = of([]);
+    collectionService.decryptedCollections$.mockReturnValue(of([]));
 
     const mockDefaultCipherFormConfigService = {
       buildConfig: jest.fn().mockResolvedValue({

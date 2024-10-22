@@ -1,15 +1,7 @@
 import { Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import {
-  combineLatest,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-  switchMap,
-  tap,
-} from "rxjs";
+import { combineLatest, distinctUntilChanged, map, Observable, startWith, tap } from "rxjs";
 
 import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
@@ -17,6 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -54,6 +47,8 @@ const INITIAL_FILTERS: PopupListFilter = {
   providedIn: "root",
 })
 export class VaultPopupListFiltersService {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a.id));
+
   /**
    * UI form for all filters
    */
@@ -89,6 +84,7 @@ export class VaultPopupListFiltersService {
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -302,7 +298,7 @@ export class VaultPopupListFiltersService {
           previousFilter.organization?.id === currentFilter.organization?.id,
       ),
     ),
-    this.collectionService.decryptedCollections$,
+    this.collectionService.decryptedCollections$(this.activeUserId$),
   ]).pipe(
     map(([filters, allCollections]) => {
       const organizationId = filters.organization?.id ?? null;
@@ -314,8 +310,8 @@ export class VaultPopupListFiltersService {
 
       return collections;
     }),
-    switchMap(async (collections) => {
-      const nestedCollections = await this.collectionService.getAllNested(collections);
+    map((collections) => {
+      const nestedCollections = this.collectionService.getAllNested(collections);
 
       return new DynamicTreeNode<CollectionView>({
         fullList: collections,

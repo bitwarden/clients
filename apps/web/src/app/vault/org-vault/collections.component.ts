@@ -46,7 +46,6 @@ export class CollectionsComponent extends BaseCollectionsComponent {
       i18nService,
       cipherService,
       organizationService,
-      logService,
       accountService,
       dialogRef,
       params,
