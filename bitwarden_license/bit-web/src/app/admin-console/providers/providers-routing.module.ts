@@ -6,7 +6,6 @@ import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-f
 import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ProvidersComponent } from "@bitwarden/web-vault/app/admin-console/providers/providers.component";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
@@ -25,6 +24,7 @@ import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
 import { PeopleComponent } from "./manage/people.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
+import { ProvidersComponent } from "./providers.component";
 import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
 import { SetupComponent } from "./setup/setup.component";

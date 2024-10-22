@@ -1,0 +1,15 @@
+<p class="lead tw-text-center tw-mb-4">{{ "deleteProvider" | i18n }}</p>
+<app-callout type="warning">{{ "deleteProviderWarning" | i18n }}</app-callout>
+<p class="tw-text-center">
+  <strong>{{ name }}</strong>
+</p>
+<p>{{ "deleteProviderRecoverConfirmDesc" | i18n }}</p>
+<hr />
+<div class="tw-flex">
+  <button bitButton [bitAction]="submit" buttonType="danger" type="button" [block]="true">
+    <span>{{ "deleteProvider" | i18n }}</span>
+  </button>
+  <a routerLink="/login" bitButton buttonType="secondary" [block]="true" class="tw-ml-2 tw-mt-0">
+    {{ "cancel" | i18n }}
+  </a>
+</div>
