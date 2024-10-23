@@ -320,6 +320,17 @@
                     <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
                   </span>
                 </button>
+                <button
+                  *ngIf="u.managedByOrganization === true"
+                  type="button"
+                  bitMenuItem
+                  (click)="deleteUser(u)"
+                >
+                  <span class="tw-text-danger">
+                    <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                    {{ "delete" | i18n }}
+                  </span>
+                </button>
               </bit-menu>
             </td>
           </tr>

@@ -1,0 +1,21 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "deleteOrganizationUser" | i18n: userName }}
+    </span>
+    <div bitDialogContent>
+      <bit-callout type="warning">
+        {{ "deleteOrganizationUserWarning" | i18n }}
+      </bit-callout>
+      <app-user-verification formControlName="secret"></app-user-verification>
+    </div>
+    <div bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="danger">
+        {{ "delete" | i18n }}
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </div>
+  </bit-dialog>
+</form>

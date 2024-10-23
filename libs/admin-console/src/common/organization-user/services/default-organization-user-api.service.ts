@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -373,5 +374,19 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  deleteOrganizationUser(
+    organizationId: string,
+    id: string,
+    request: SecretVerificationRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/" + id + "/delete-account",
+      request,
+      true,
+      false,
+    );
   }
 }

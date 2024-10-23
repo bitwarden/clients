@@ -1,3 +1,4 @@
+import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import {
@@ -275,4 +276,16 @@ export abstract class OrganizationUserApiService {
     organizationId: string,
     ids: string[],
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
+
+  /**
+   * Remove an organization user's access to the organization and delete their account data
+   * @param organizationId - Identifier for the organization the user belongs to
+   * @param id - Organization user identifier
+   * @param request - Secret verification details
+   */
+  abstract deleteOrganizationUser(
+    organizationId: string,
+    id: string,
+    request: SecretVerificationRequest,
+  ): Promise<void>;
 }

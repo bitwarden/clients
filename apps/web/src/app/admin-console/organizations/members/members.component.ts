@@ -66,6 +66,10 @@ import { BulkRemoveComponent } from "./components/bulk/bulk-remove.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import {
+  DeleteOrganizationUserDialogResult,
+  openDeleteOrganizationUserDialog,
+} from "./components/delete-organizationuser-dialog.component";
+import {
   MemberDialogResult,
   MemberDialogTab,
   openUserAddEditDialog,
@@ -723,6 +727,20 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     return true;
+  }
+
+  async deleteUser(user: OrganizationUserView) {
+    const dialogRef = openDeleteOrganizationUserDialog(this.dialogService, {
+      data: {
+        organizationId: this.organization.id,
+        user: user,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === DeleteOrganizationUserDialogResult.Deleted) {
+      await this.load();
+    }
   }
 
   private async noMasterPasswordConfirmationDialog(user: OrganizationUserView) {
