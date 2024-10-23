@@ -7,6 +7,7 @@ import {
   EffUsernameGenerationOptions,
   SubaddressGenerationOptions,
 } from "../types";
+import { RsaSshKeyGenerationOptions as RsaSshKeyGenerationOptions } from "../types/sshkey-generation-options";
 
 /** plaintext password generation options */
 export const PASSWORD_SETTINGS = new UserKeyDefinition<PasswordGenerationOptions>(
@@ -55,5 +56,25 @@ export const SUBADDRESS_SETTINGS = new UserKeyDefinition<SubaddressGenerationOpt
   {
     deserializer: (value) => value,
     clearOn: [],
+  },
+);
+
+/** plaintext configuration for an ssh key. */
+export const ED25519_SSHKEY_SETTINGS = new UserKeyDefinition<Record<string, never>>(
+  GENERATOR_DISK,
+  "sshkeyEd25519GeneratorSettings",
+  {
+    deserializer: (value) => value,
+    clearOn: ["logout"],
+  },
+);
+
+/** plaintext configuration for an ssh key. */
+export const RSA_SSHKEY_SETTINGS = new UserKeyDefinition<RsaSshKeyGenerationOptions>(
+  GENERATOR_DISK,
+  "sshkeyRsaGeneratorSettings",
+  {
+    deserializer: (value) => value,
+    clearOn: ["logout"],
   },
 );

@@ -32,6 +32,7 @@ import { isDynamic } from "@bitwarden/common/tools/state/state-constraints-depen
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 
 import { Randomizer } from "../abstractions";
+import { SshKeyNativeGenerator } from "../abstractions/sshkey-native-generator.abstraction";
 import { Generators } from "../data";
 import { availableAlgorithms } from "../policies/available-algorithms-policy";
 import { mapPolicyToConstraints } from "../rx";
@@ -59,6 +60,8 @@ type Generate$Dependencies = Simplify<Partial<OnDependency> & Partial<UserDepend
    *  When `website$` errors, the generator forwards the error.
    */
   website$?: Observable<string>;
+
+  algorithm$?: Observable<CredentialAlgorithm>;
 };
 
 type Algorithms$Dependencies = Partial<UserDependency>;
@@ -68,10 +71,8 @@ export class CredentialGeneratorService {
     private randomizer: Randomizer,
     private stateProvider: StateProvider,
     private policyService: PolicyService,
+    private sshNativeGenerator: SshKeyNativeGenerator,
   ) {}
-
-  // FIXME: the rxjs methods of this service can be a lot more resilient if
-  // `Subjects` are introduced where sharing occurs
 
   /** Generates a stream of credentials
    * @param configuration determines which generator's settings are loaded
@@ -84,17 +85,21 @@ export class CredentialGeneratorService {
     dependencies?: Generate$Dependencies,
   ) {
     // instantiate the engine
-    const engine = configuration.engine.create(this.randomizer);
+    const engine = configuration.engine.create(this.randomizer, this.sshNativeGenerator);
 
     // stream blocks until all of these values are received
     const website$ = dependencies?.website$ ?? new BehaviorSubject<string>(null);
-    const request$ = website$.pipe(map((website) => ({ website })));
+    const algorithm$ = dependencies?.algorithm$ ?? new BehaviorSubject<CredentialAlgorithm>(null);
+    const request$ = combineLatest([website$, algorithm$]).pipe(
+      map(([website, algorithm]) => ({ website, algorithm })),
+    );
     const settings$ = this.settings$(configuration, dependencies);
 
     // monitor completion
-    const requestComplete$ = request$.pipe(ignoreElements(), endWith(true));
-    const settingsComplete$ = request$.pipe(ignoreElements(), endWith(true));
-    const complete$ = race(requestComplete$, settingsComplete$);
+    const websiteComplete$ = website$.pipe(ignoreElements(), endWith(true));
+    const algorithmComplete$ = algorithm$.pipe(ignoreElements(), endWith(true));
+    const settingsComplete$ = settings$.pipe(ignoreElements(), endWith(true));
+    const complete$ = race(websiteComplete$, algorithmComplete$, settingsComplete$);
 
     // if on$ triggers before settings are loaded, trigger as soon
     // as they become available.

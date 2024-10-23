@@ -141,7 +141,11 @@ export type VaultItemRequest = {
   website: string | null;
 };
 
+export type RequestWithAlgorithm = {
+  algorithm: string;
+};
+
 /** Options that provide contextual information about the application state
  *  when a generator is invoked.
  */
-export type GenerationRequest = Partial<VaultItemRequest>;
+export type GenerationRequest = Partial<VaultItemRequest & RequestWithAlgorithm>;

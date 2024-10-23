@@ -28,11 +28,15 @@ import {
   Randomizer,
 } from "@bitwarden/generator-core";
 
+import { SshKeyNativeGenerator } from "../../core/src/abstractions/sshkey-native-generator.abstraction";
+
 import { CatchallSettingsComponent } from "./catchall-settings.component";
 import { CredentialGeneratorComponent } from "./credential-generator.component";
 import { PassphraseSettingsComponent } from "./passphrase-settings.component";
 import { PasswordGeneratorComponent } from "./password-generator.component";
 import { PasswordSettingsComponent } from "./password-settings.component";
+import { SshKeyGeneratorComponent } from "./sshkey-generator.component";
+import { SshKeySettingsComponent } from "./sshkey-settings.component";
 import { SubaddressSettingsComponent } from "./subaddress-settings.component";
 import { UsernameGeneratorComponent } from "./username-generator.component";
 import { UsernameSettingsComponent } from "./username-settings.component";
@@ -67,7 +71,7 @@ const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
     safeProvider({
       provide: CredentialGeneratorService,
       useClass: CredentialGeneratorService,
-      deps: [RANDOMIZER, StateProvider, PolicyService],
+      deps: [RANDOMIZER, StateProvider, PolicyService, SshKeyNativeGenerator],
     }),
   ],
   declarations: [
@@ -79,8 +83,15 @@ const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
     PasswordSettingsComponent,
     PassphraseSettingsComponent,
     UsernameGeneratorComponent,
+    SshKeySettingsComponent,
+    SshKeyGeneratorComponent,
   ],
-  exports: [CredentialGeneratorComponent, PasswordGeneratorComponent, UsernameGeneratorComponent],
+  exports: [
+    CredentialGeneratorComponent,
+    PasswordGeneratorComponent,
+    UsernameGeneratorComponent,
+    SshKeyGeneratorComponent,
+  ],
 })
 export class GeneratorModule {
   constructor() {}

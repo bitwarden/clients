@@ -2,6 +2,7 @@ import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { Constraints } from "@bitwarden/common/tools/types";
 
 import { Randomizer } from "../abstractions";
+import { SshKeyNativeGenerator } from "../abstractions/sshkey-native-generator.abstraction";
 import { CredentialAlgorithm, CredentialCategory, PolicyConfiguration } from "../types";
 
 import { CredentialGenerator } from "./credential-generator";
@@ -40,7 +41,10 @@ export type CredentialGeneratorConfiguration<Settings, Policy> = CredentialGener
     // the credential generator, but engine configurations should return
     // the underlying type. `create` may be able to do double-duty w/ an
     // engine definition if `CredentialGenerator` can be made covariant.
-    create: (randomizer: Randomizer) => CredentialGenerator<Settings>;
+    create: (
+      randomizer: Randomizer,
+      sshGenerator: SshKeyNativeGenerator,
+    ) => CredentialGenerator<Settings>;
   };
   /** Defines the stored parameters for credential generation */
   settings: {

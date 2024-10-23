@@ -6,6 +6,7 @@ import {
   CredentialAlgorithm,
   EmailAlgorithms,
   PasswordAlgorithms,
+  SshKeyAlgorithms,
   UsernameAlgorithms,
 } from "@bitwarden/generator-core";
 
@@ -21,7 +22,11 @@ export function availableAlgorithms(policies: Policy[]): CredentialAlgorithm[] {
       null as CredentialAlgorithm,
     );
 
-  const policy: CredentialAlgorithm[] = [...EmailAlgorithms, ...UsernameAlgorithms];
+  const policy: CredentialAlgorithm[] = [
+    ...EmailAlgorithms,
+    ...UsernameAlgorithms,
+    ...SshKeyAlgorithms,
+  ];
   if (overridePassword) {
     policy.push(overridePassword);
   } else {

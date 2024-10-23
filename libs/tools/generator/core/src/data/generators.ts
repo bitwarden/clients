@@ -2,8 +2,10 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 
-import { Randomizer } from "../abstractions";
+import { SshKeyNativeGenerator } from "../abstractions/sshkey-native-generator.abstraction";
 import { EmailRandomizer, PasswordRandomizer, UsernameRandomizer } from "../engine";
+import { Randomizer } from "../engine/abstractions";
+import { SshKeyGenerator } from "../engine/sshkey-generator";
 import {
   DefaultPolicyEvaluator,
   DynamicPasswordPolicyConstraints,
@@ -15,15 +17,16 @@ import {
 } from "../policies";
 import {
   CATCHALL_SETTINGS,
+  ED25519_SSHKEY_SETTINGS,
   EFF_USERNAME_SETTINGS,
   PASSPHRASE_SETTINGS,
   PASSWORD_SETTINGS,
+  RSA_SSHKEY_SETTINGS,
   SUBADDRESS_SETTINGS,
 } from "../strategies/storage";
 import {
   CatchallGenerationOptions,
   CredentialGenerator,
-  CredentialGeneratorConfiguration,
   EffUsernameGenerationOptions,
   NoPolicy,
   PassphraseGenerationOptions,
@@ -32,6 +35,11 @@ import {
   PasswordGeneratorPolicy,
   SubaddressGenerationOptions,
 } from "../types";
+import { CredentialGeneratorConfiguration } from "../types/credential-generator-configuration";
+import {
+  Ed25519KeyGenrationOptions,
+  RsaSshKeyGenerationOptions,
+} from "../types/sshkey-generation-options";
 
 import { DefaultCatchallOptions } from "./default-catchall-options";
 import { DefaultEffUsernameOptions } from "./default-eff-username-options";
@@ -39,6 +47,10 @@ import { DefaultPassphraseBoundaries } from "./default-passphrase-boundaries";
 import { DefaultPassphraseGenerationOptions } from "./default-passphrase-generation-options";
 import { DefaultPasswordBoundaries } from "./default-password-boundaries";
 import { DefaultPasswordGenerationOptions } from "./default-password-generation-options";
+import {
+  DefaultEd25519SshKeyGenerationOptions,
+  DefaultRsaSshKeyGenerationOptions,
+} from "./default-sshkey-generation-options";
 import { DefaultSubaddressOptions } from "./default-subaddress-generator-options";
 
 const PASSPHRASE = Object.freeze({
@@ -47,7 +59,10 @@ const PASSPHRASE = Object.freeze({
   nameKey: "passphrase",
   onlyOnRequest: false,
   engine: {
-    create(randomizer: Randomizer): CredentialGenerator<PassphraseGenerationOptions> {
+    create(
+      randomizer: Randomizer,
+      _sshGenerator: SshKeyNativeGenerator,
+    ): CredentialGenerator<PassphraseGenerationOptions> {
       return new PasswordRandomizer(randomizer);
     },
   },
@@ -84,7 +99,10 @@ const PASSWORD = Object.freeze({
   nameKey: "password",
   onlyOnRequest: false,
   engine: {
-    create(randomizer: Randomizer): CredentialGenerator<PasswordGenerationOptions> {
+    create(
+      randomizer: Randomizer,
+      _sshGenerator: SshKeyNativeGenerator,
+    ): CredentialGenerator<PasswordGenerationOptions> {
       return new PasswordRandomizer(randomizer);
     },
   },
@@ -152,6 +170,72 @@ const USERNAME = Object.freeze({
     },
   },
 } satisfies CredentialGeneratorConfiguration<EffUsernameGenerationOptions, NoPolicy>);
+
+const SSH_ED25519 = Object.freeze({
+  id: "ed25519",
+  category: "sshKey",
+  nameKey: "ed25519",
+  onlyOnRequest: false,
+  engine: {
+    create(
+      _randomizer: Randomizer,
+      sshGenerator: SshKeyNativeGenerator,
+    ): CredentialGenerator<Ed25519KeyGenrationOptions> {
+      return new SshKeyGenerator(sshGenerator);
+    },
+  },
+  settings: {
+    initial: DefaultEd25519SshKeyGenerationOptions,
+    constraints: {},
+    account: ED25519_SSHKEY_SETTINGS,
+  },
+  policy: {
+    type: PolicyType.PasswordGenerator,
+    disabledValue: {},
+    combine(_acc: NoPolicy, _policy: Policy) {
+      return {};
+    },
+    createEvaluator(_policy: NoPolicy) {
+      return new DefaultPolicyEvaluator<Ed25519KeyGenrationOptions>();
+    },
+    toConstraints(_policy: NoPolicy) {
+      return new IdentityConstraint<Ed25519KeyGenrationOptions>();
+    },
+  },
+} satisfies CredentialGeneratorConfiguration<Ed25519KeyGenrationOptions, NoPolicy>);
+
+const SSH_RSA = Object.freeze({
+  id: "rsa",
+  category: "sshKey",
+  nameKey: "rsa",
+  onlyOnRequest: false,
+  engine: {
+    create(
+      _randomizer: Randomizer,
+      sshGenerator: SshKeyNativeGenerator,
+    ): CredentialGenerator<RsaSshKeyGenerationOptions> {
+      return new SshKeyGenerator(sshGenerator);
+    },
+  },
+  settings: {
+    initial: DefaultRsaSshKeyGenerationOptions,
+    constraints: {},
+    account: RSA_SSHKEY_SETTINGS,
+  },
+  policy: {
+    type: PolicyType.PasswordGenerator,
+    disabledValue: {},
+    combine(_acc: NoPolicy, _policy: Policy) {
+      return {};
+    },
+    createEvaluator(_policy: NoPolicy) {
+      return new DefaultPolicyEvaluator<RsaSshKeyGenerationOptions>();
+    },
+    toConstraints(_policy: NoPolicy) {
+      return new IdentityConstraint<RsaSshKeyGenerationOptions>();
+    },
+  },
+} satisfies CredentialGeneratorConfiguration<RsaSshKeyGenerationOptions, NoPolicy>);
 
 const CATCHALL = Object.freeze({
   id: "catchall",
@@ -231,4 +315,10 @@ export const Generators = Object.freeze({
 
   /** Email subaddress generator configuration */
   subaddress: SUBADDRESS,
+
+  /** Ssh rsa key generator configuration */
+  rsa: SSH_RSA,
+
+  /** Ssh ed25519 key generator configuration */
+  ed25519: SSH_ED25519,
 });

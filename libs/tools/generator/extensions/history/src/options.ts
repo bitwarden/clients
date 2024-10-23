@@ -1,5 +1,5 @@
 /** Kinds of credentials that can be stored by the history service */
-export type GeneratorCategory = "password" | "passphrase";
+export type GeneratorCategory = "password" | "passphrase" | "sshkey";
 
 /** Configuration options for the history service */
 export type HistoryServiceOptions = {

@@ -1,0 +1,35 @@
+<bit-section>
+  <bit-section-header *ngIf="showHeader" class="tw-mt-4">
+    <h6 bitTypography="h6">{{ "options" | i18n }}</h6>
+  </bit-section-header>
+  <form class="box" [formGroup]="settings" class="tw-container">
+    <div class="tw-mb-4">
+      <bit-card>
+        <bit-form-field disableMargin>
+          <bit-label>{{ "sshKeyAlgorithm" | i18n }}</bit-label>
+          <bit-select formControlName="keyAlgorithm">
+            <bit-option
+              *ngFor="let o of algorithmOptions"
+              [value]="o.value"
+              [label]="o.name"
+            ></bit-option>
+          </bit-select>
+        </bit-form-field>
+        <bit-form-field
+          disableMargin
+          *ngIf="settings.get('keyAlgorithm').value === 'rsa'"
+          class="tw-mt-4"
+        >
+          <bit-label>{{ "sshKeyLength" | i18n }}</bit-label>
+          <bit-select formControlName="bits">
+            <bit-option
+              *ngFor="let o of rsaKeyLengths"
+              [value]="o.value"
+              [label]="o.name"
+            ></bit-option>
+          </bit-select>
+        </bit-form-field>
+      </bit-card>
+    </div>
+  </form>
+</bit-section>
