@@ -169,7 +169,7 @@ fn random_challenge() -> [u8; 16] {
 
 /// Searches for a window that looks like a security prompt and set it as focused.
 ///
-/// Gives up after 1.5 seconds with a delay of 500ms between each try.
+/// Gives up after 4 seconds with a delay of 200ms between each try.
 fn focus_security_prompt() -> Result<()> {
     unsafe fn try_find_and_set_focus(
         class_name: windows::core::PCSTR,
@@ -183,8 +183,8 @@ fn focus_security_prompt() -> Result<()> {
     }
 
     let class_name = s!("Credential Dialog Xaml Host");
-    retry::retry_with_index(Fixed::from_millis(500), |current_try| {
-        if current_try > 3 {
+    retry::retry_with_index(Fixed::from_millis(200), |current_try| {
+        if current_try > 20 {
             return retry::OperationResult::Err(());
         }
 
