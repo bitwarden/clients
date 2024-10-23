@@ -15,6 +15,8 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+
 type ActiveAccount = {
   id: string;
   name: string;
@@ -88,6 +90,7 @@ export class AccountSwitcherComponent implements OnInit {
     private environmentService: EnvironmentService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
+    private biometricsService: DesktopBiometricsService,
   ) {
     this.activeAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (active) => {
@@ -179,6 +182,7 @@ export class AccountSwitcherComponent implements OnInit {
 
   async switch(userId: string) {
     this.close();
+    await this.biometricsService.setShouldAutopromptNow(true);
 
     this.disabled = true;
     const accountSwitchFinishedPromise = firstValueFrom(

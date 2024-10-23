@@ -1,11 +1,7 @@
 import { inject } from "@angular/core";
 import { combineLatest, defer, map, Observable } from "rxjs";
 
-import {
-  BiometricsDisableReason,
-  LockComponentService,
-  UnlockOptions,
-} from "@bitwarden/auth/angular";
+import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
@@ -15,7 +11,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsService } from "@bitwarden/key-management";
+import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
 import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
@@ -64,54 +60,28 @@ export class ExtensionLockComponentService implements LockComponentService {
     );
   }
 
-  private getBiometricsDisabledReason(
-    osSupportsBiometric: boolean,
-    biometricLockSet: boolean,
-  ): BiometricsDisableReason | null {
-    if (!osSupportsBiometric) {
-      return BiometricsDisableReason.NotSupportedOnOperatingSystem;
-    } else if (!biometricLockSet) {
-      return BiometricsDisableReason.EncryptedKeysUnavailable;
-    }
-
-    return null;
-  }
-
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
-      defer(() => this.biometricsService.supportsBiometric()),
-      defer(() => this.isBiometricLockSet(userId)),
+      defer(async () => await this.biometricsService.getBiometricsStatusForUser(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
     ]).pipe(
-      map(
-        ([
-          supportsBiometric,
-          isBiometricsLockSet,
-          userDecryptionOptions,
-          pinDecryptionAvailable,
-        ]) => {
-          const disableReason = this.getBiometricsDisabledReason(
-            supportsBiometric,
-            isBiometricsLockSet,
-          );
-
-          const unlockOpts: UnlockOptions = {
-            masterPassword: {
-              enabled: userDecryptionOptions.hasMasterPassword,
-            },
-            pin: {
-              enabled: pinDecryptionAvailable,
-            },
-            biometrics: {
-              enabled: supportsBiometric && isBiometricsLockSet,
-              disableReason: disableReason,
-            },
-          };
-          return unlockOpts;
-        },
-      ),
+      map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
+        const unlockOpts: UnlockOptions = {
+          masterPassword: {
+            enabled: userDecryptionOptions.hasMasterPassword,
+          },
+          pin: {
+            enabled: pinDecryptionAvailable,
+          },
+          biometrics: {
+            enabled: biometricsStatus === BiometricsStatus.Available,
+            biometricsStatus: biometricsStatus,
+          },
+        };
+        return unlockOpts;
+      }),
     );
   }
 }

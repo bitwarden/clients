@@ -1,34 +1,50 @@
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsCommands, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-import { BrowserBiometricsService } from "./browser-biometrics.service";
-
-export class ForegroundBrowserBiometricsService extends BrowserBiometricsService {
-  async authenticateBiometric(): Promise<boolean> {
+export class ForegroundBrowserBiometricsService extends BiometricsService {
+  async authenticateWithBiometrics(): Promise<boolean> {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: boolean;
       error: string;
-    }>("biometricUnlock");
+    }>(BiometricsCommands.AuthenticateWithBiometrics);
     if (!response.result) {
       throw response.error;
     }
     return response.result;
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
     const response = await BrowserApi.sendMessageWithResponse<{
-      result: boolean;
+      result: BiometricsStatus;
       error: string;
-    }>("biometricUnlockAvailable");
-    return response.result && response.result === true;
+    }>(BiometricsCommands.GetBiometricsStatus);
+    return response.result;
   }
 
-  async biometricsNeedsSetup(): Promise<boolean> {
-    return false;
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+    const response = await BrowserApi.sendMessageWithResponse<{
+      result: UserKey;
+      error: string;
+    }>(BiometricsCommands.UnlockWithBiometricsForUser, { userId });
+    if (!response.result) {
+      throw response.error;
+    }
+    return response.result;
   }
 
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return false;
+  async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    const response = await BrowserApi.sendMessageWithResponse<{
+      result: BiometricsStatus;
+      error: string;
+    }>(BiometricsCommands.GetBiometricsStatusForUser, { userId: id });
+    return response.result;
   }
 
-  async biometricsSetup(): Promise<void> {}
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return true;
+  }
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 }

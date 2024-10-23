@@ -37,7 +37,11 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
-import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
+import {
+  BiometricStateService,
+  BiometricsService,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -165,7 +169,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    this.supportsBiometric =
+      (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
     this.form.controls.vaultTimeout.valueChanges
@@ -395,7 +400,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           }
         }),
         this.biometricsService
-          .authenticateBiometric()
+          .authenticateWithBiometrics()
           .then((result) => {
             this.form.controls.biometric.setValue(result);
             if (!result) {

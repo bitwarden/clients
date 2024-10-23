@@ -1,6 +1,6 @@
 import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, interval, merge, Subject } from "rxjs";
 import { concatMap, map, take, takeUntil } from "rxjs/operators";
 
 import { PinServiceAbstraction, PinLockType } from "@bitwarden/auth/common";
@@ -29,13 +29,16 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
+import {
+  BiometricStateService,
+  BiometricsService,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
 
 @Directive()
 export class LockComponent implements OnInit, OnDestroy {
@@ -47,10 +50,9 @@ export class LockComponent implements OnInit, OnDestroy {
   masterPasswordEnabled = false;
   webVaultHostname = "";
   formPromise: Promise<MasterPasswordVerificationResponse>;
-  supportsBiometric: boolean;
-  biometricLock: boolean;
+  biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabledLocally;
 
-  private activeUserId: UserId;
+  protected activeUserId: UserId;
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
   protected onSuccessfulSubmit: () => Promise<void>;
@@ -60,7 +62,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
 
-  private destroy$ = new Subject<void>();
+  protected destroy$ = new Subject<void>();
 
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -102,6 +104,27 @@ export class LockComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this.biometricStatus = BiometricsStatus.NotEnabledLocally;
+    merge(interval(1000), this.accountService.activeAccount$)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        (async () => {
+          if (this.activeUserId) {
+            if (!(await this.vaultTimeoutSettingsService.isBiometricLockSet(this.activeUserId))) {
+              this.biometricStatus = BiometricsStatus.NotEnabledLocally;
+            } else {
+              this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
+                this.activeUserId,
+              );
+            }
+          }
+        })()
+          .then(() => {})
+          .catch((e) => {
+            this.logService.error("Error checking biometrics status", e);
+          });
+      });
   }
 
   ngOnDestroy() {
@@ -131,15 +154,8 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockBiometric(): Promise<boolean> {
-    if (!this.biometricLock) {
-      return;
-    }
-
     await this.biometricStateService.setUserPromptCancelled();
-    const userKey = await this.cryptoService.getUserKeyFromStorage(
-      KeySuffixOptions.Biometric,
-      this.activeUserId,
-    );
+    const userKey = await this.biometricsService.unlockWithBiometricsForUser(this.activeUserId);
 
     if (userKey) {
       await this.setUserKeyAndContinue(userKey, this.activeUserId, false);
@@ -148,11 +164,34 @@ export class LockComponent implements OnInit, OnDestroy {
     return !!userKey;
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
-    if (!(await this.biometricsService.supportsBiometric())) {
-      return false;
+  get showBiometricsButton(): boolean {
+    return this.biometricStatus != BiometricsStatus.NotEnabledLocally;
+  }
+
+  get biometricUnavailabilityReason(): string {
+    switch (this.biometricStatus) {
+      case BiometricsStatus.Available:
+        return "";
+      case BiometricsStatus.UnlockNeeded:
+        return this.i18nService.t("biometricsStatusHelptextUnlockNeeded");
+      case BiometricsStatus.HardwareUnavailable:
+        return this.i18nService.t("biometricsStatusHelptextHardwareUnavailable");
+      case BiometricsStatus.AutoSetupNeeded:
+        return this.i18nService.t("biometricsStatusHelptextAutoSetupNeeded");
+      case BiometricsStatus.ManualSetupNeeded:
+        return this.i18nService.t("biometricsStatusHelptextManualSetupNeeded");
+      case BiometricsStatus.NotEnabledInConnectedDesktopApp:
+        return this.i18nService.t("biometricsStatusHelptextNotEnabledInDesktop", this.email);
+      case BiometricsStatus.NotEnabledLocally:
+        return this.i18nService.t("biometricsStatusHelptextNotEnabledInDesktop");
+      case BiometricsStatus.DesktopDisconnected:
+        return this.i18nService.t("biometricsStatusHelptextDesktopDisconnected");
+      default:
+        return (
+          this.i18nService.t("biometricsStatusHelptextUnavailableReasonUnknown") +
+          this.biometricStatus
+        );
     }
-    return this.biometricsService.isBiometricUnlockAvailable();
   }
 
   togglePassword() {
@@ -336,11 +375,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
-    this.biometricLock =
-      (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
-      ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
-        !this.platformUtilsService.supportsSecureStorage());
     this.email = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );

@@ -73,17 +73,21 @@
           {{ "loggedInAsOn" | i18n: email : webVaultHostname }}
         </div>
       </div>
-      <div class="box" *ngIf="biometricLock">
+
+      <div class="box" *ngIf="showBiometricsButton">
         <div class="box-footer no-pad">
           <button
             type="button"
             class="btn primary block"
             (click)="unlockBiometric()"
             appStopClick
-            [disabled]="pendingBiometric"
+            [disabled]="pendingBiometric || !canUseBiometric"
           >
             {{ "unlockWithBiometrics" | i18n }}
           </button>
+        </div>
+        <div id="biometricsHelp" class="box-footer" *ngIf="biometricUnavailabilityReason">
+          {{ biometricUnavailabilityReason }}
         </div>
       </div>
       <p class="text-center" *ngIf="!fido2Data.isFido2Session">

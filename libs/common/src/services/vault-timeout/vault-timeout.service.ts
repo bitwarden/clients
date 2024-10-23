@@ -4,6 +4,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
@@ -39,6 +40,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private stateEventRunnerService: StateEventRunnerService,
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
+    private biometricService: BiometricsService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (
       logoutReason: LogoutReason,
@@ -96,6 +98,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   }
 
   async lock(userId?: UserId): Promise<void> {
+    await this.biometricService.setShouldAutopromptNow(false);
+
     const authed = await this.stateService.getIsAuthenticated({ userId: userId });
     if (!authed) {
       return;
