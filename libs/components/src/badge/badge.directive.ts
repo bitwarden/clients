@@ -5,21 +5,25 @@ import { FocusableElement } from "../shared/focusable-element";
 export type BadgeVariant = "primary" | "secondary" | "success" | "danger" | "warning" | "info";
 
 const styles: Record<BadgeVariant, string[]> = {
-  primary: ["tw-bg-primary-600"],
-  secondary: ["tw-bg-text-muted"],
-  success: ["tw-bg-success-600"],
-  danger: ["tw-bg-danger-600"],
-  warning: ["tw-bg-warning-600"],
-  info: ["tw-bg-info-600"],
+  primary: ["tw-bg-primary-100", "tw-border-primary-700", "!tw-text-primary-700"],
+  secondary: ["tw-bg-secondary-100", "tw-border-secondary-700", "!tw-text-secondary-700"],
+  success: ["tw-bg-success-100", "tw-border-success-700", "!tw-text-success-700"],
+  danger: ["tw-bg-danger-100", "tw-border-danger-700", "!tw-text-danger-700"],
+  warning: ["tw-bg-warning-100", "tw-border-warning-700", "!tw-text-warning-700"],
+  info: ["tw-bg-info-100", "tw-border-info-700", "!tw-text-info-700"],
 };
 
 const hoverStyles: Record<BadgeVariant, string[]> = {
-  primary: ["hover:tw-bg-primary-700"],
-  secondary: ["hover:tw-bg-secondary-700"],
-  success: ["hover:tw-bg-success-700"],
-  danger: ["hover:tw-bg-danger-700"],
-  warning: ["hover:tw-bg-warning-700"],
-  info: ["hover:tw-bg-info-700"],
+  primary: ["hover:tw-bg-primary-600", "hover:tw-border-primary-600", "hover:!tw-text-contrast"],
+  secondary: [
+    "hover:tw-bg-secondary-600",
+    "hover:tw-border-secondary-600",
+    "hover:!tw-text-contrast",
+  ],
+  success: ["hover:tw-bg-success-600", "hover:tw-border-success-600", "hover:!tw-text-contrast"],
+  danger: ["hover:tw-bg-danger-600", "hover:tw-border-danger-600", "hover:!tw-text-contrast"],
+  warning: ["hover:tw-bg-warning-600", "hover:tw-border-warning-600", "hover:!tw-text-black"],
+  info: ["hover:tw-bg-info-600", "hover:tw-border-info-600", "hover:!tw-text-black"],
 };
 
 @Directive({
@@ -30,22 +34,29 @@ export class BadgeDirective implements FocusableElement {
   @HostBinding("class") get classList() {
     return [
       "tw-inline-block",
-      "tw-py-0.5",
-      "tw-px-1.5",
-      "tw-font-bold",
+      "tw-py-1",
+      "tw-px-2",
+      "tw-font-medium",
       "tw-text-center",
       "tw-align-text-top",
-      "!tw-text-contrast",
-      "tw-rounded",
-      "tw-border-none",
+      "tw-rounded-full",
+      "tw-border-[0.5px]",
+      "tw-border-solid",
       "tw-box-border",
       "tw-whitespace-nowrap",
       "tw-text-xs",
       "hover:tw-no-underline",
-      "focus:tw-outline-none",
-      "focus:tw-ring",
-      "focus:tw-ring-offset-2",
-      "focus:tw-ring-primary-700",
+      "focus-visible:tw-outline-none",
+      "focus-visible:tw-ring-2",
+      "focus-visible:tw-ring-offset-2",
+      "focus-visible:tw-ring-primary-600",
+      "disabled:tw-bg-secondary-300",
+      "disabled:hover:tw-bg-secondary-300",
+      "disabled:tw-border-secondary-300",
+      "disabled:hover:tw-border-secondary-300",
+      "disabled:!tw-text-muted",
+      "disabled:hover:!tw-text-muted",
+      "disabled:tw-cursor-not-allowed",
     ]
       .concat(styles[this.variant])
       .concat(this.hasHoverEffects ? hoverStyles[this.variant] : [])

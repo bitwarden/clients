@@ -103,8 +103,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   );
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 62;
-  protected rowHeightClass = `tw-h-[62px]`;
+  protected rowHeight = 69;
+  protected rowHeightClass = `tw-h-[69px]`;
 
   constructor(
     apiService: ApiService,

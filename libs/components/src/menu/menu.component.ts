@@ -31,7 +31,9 @@ export class MenuComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     if (this.ariaRole === "menu") {
-      this.keyManager = new FocusKeyManager(this.menuItems).withWrap();
+      this.keyManager = new FocusKeyManager(this.menuItems)
+        .withWrap()
+        .skipPredicate((item) => item.disabled);
     }
   }
 }

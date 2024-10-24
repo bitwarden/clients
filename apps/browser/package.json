@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2024.10.1",
+  "version": "2024.10.999",
   "scripts": {
     "build": "cross-env MANIFEST_VERSION=3 webpack",
     "build:mv2": "webpack",

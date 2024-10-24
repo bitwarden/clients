@@ -1,7 +1,7 @@
 import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
-import { BitLabel } from "../form-control/label.directive";
+import { BitLabel } from "../form-control/label.component";
 
 let nextId = 0;
 

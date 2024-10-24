@@ -1,13 +1,19 @@
-<label [class]="labelClasses">
+<label
+  class="tw-transition tw-select-none tw-mb-0 tw-inline-flex tw-rounded tw-p-0.5 has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-primary-600"
+  [ngClass]="[formControl.disabled ? 'tw-cursor-auto' : 'tw-cursor-pointer']"
+>
   <ng-content></ng-content>
-  <span [class]="labelContentClasses">
-    <span>
+  <span
+    class="tw-inline-flex tw-flex-col"
+    [ngClass]="formControl.disabled ? 'tw-text-muted' : 'tw-text-main'"
+  >
+    <span bitTypography="body1">
       <ng-content select="bit-label"></ng-content>
       <span *ngIf="required" class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
     </span>
     <ng-content select="bit-hint" *ngIf="!hasError"></ng-content>
   </span>
 </label>
-<div *ngIf="hasError" class="tw-mt-1 tw-text-danger">
+<div *ngIf="hasError" class="tw-mt-1 tw-text-danger tw-text-xs tw-ml-0.5">
   <i class="bwi bwi-error"></i> {{ displayError }}
 </div>

@@ -10,21 +10,21 @@ export class MenuItemDirective implements FocusableOption {
   @HostBinding("class") classList = [
     "tw-block",
     "tw-w-full",
-    "tw-py-1",
-    "tw-px-4",
+    "tw-py-1.5",
+    "tw-px-3",
     "!tw-text-main",
     "!tw-no-underline",
     "tw-cursor-pointer",
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-secondary-100",
-    "focus-visible:tw-bg-secondary-100",
+    "hover:tw-bg-primary-100",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
-    "focus-visible:tw-ring",
-    "focus-visible:tw-ring-offset-2",
-    "focus-visible:tw-ring-primary-700",
+    "focus-visible:tw-ring-2",
+    "focus-visible:tw-rounded-lg",
+    "focus-visible:tw-ring-inset",
+    "focus-visible:tw-ring-primary-600",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
     "disabled:!tw-text-muted",
@@ -39,7 +39,7 @@ export class MenuItemDirective implements FocusableOption {
 
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
 
   focus() {
     this.elementRef.nativeElement.focus();
