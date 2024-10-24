@@ -27,7 +27,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked {
   constructor(private groupComponent: ToggleGroupComponent<TValue>) {}
 
   @HostBinding("tabIndex") tabIndex = "-1";
-  @HostBinding("class") classList = ["tw-group/toggle", "tw-flex"];
+  @HostBinding("class") classList = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
 
   protected bitBadgeContainerHasChidlren = signal(false);
 

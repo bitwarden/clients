@@ -47,34 +47,6 @@ export const Default: Story = {
   },
 };
 
-export const LabelWrap: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `
-      <bit-toggle-group
-        [(selected)]="selected"
-        aria-label="People list filter"
-        class="tw-max-w-[500px]"
-      >
-        <bit-toggle value="all">
-          All of the best things <span bitBadge variant="info">3</span>
-        </bit-toggle>
-
-        <bit-toggle value="invited"> Invited to a cool party </bit-toggle>
-
-        <bit-toggle value="accepted">
-          Accepted the invitation<span bitBadge variant="info">2</span>
-        </bit-toggle>
-
-        <bit-toggle value="deactivated"> Deactivated forever</bit-toggle>
-      </bit-toggle-group>
-    `,
-  }),
-  args: {
-    selected: "all",
-  },
-};
-
 export const FullWidth: Story = {
   render: (args) => ({
     props: args,
@@ -91,6 +63,52 @@ export const FullWidth: Story = {
         <bit-toggle value="accepted"> Accepted <span bitBadge variant="info">2</span> </bit-toggle>
 
         <bit-toggle value="deactivated"> Deactivated </bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: "all",
+    fullWidth: true,
+  },
+};
+
+export const LabelWrap: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <code>fullWidth=false</code>
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        class="tw-max-w-[500px] tw-overflow-hidden tw-border tw-border-solid tw-border-danger-600 tw-py-3"
+      >
+        <bit-toggle value="all"> All</bit-toggle>
+
+        <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
+
+        <bit-toggle value="accepted">
+          Accepted the invitation<span bitBadge variant="info">2</span>
+        </bit-toggle>
+
+        <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
+      </bit-toggle-group>
+      <br />
+      <code>fullWidth=true</code>
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        class="tw-max-w-[500px] tw-overflow-hidden tw-border tw-border-solid tw-border-danger-600 tw-py-3"
+        [fullWidth]="fullWidth"
+      >
+        <bit-toggle value="all"> All</bit-toggle>
+
+        <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
+
+        <bit-toggle value="accepted">
+          Accepted the invitation<span bitBadge variant="info">2</span>
+        </bit-toggle>
+
+        <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
       </bit-toggle-group>
     `,
   }),
