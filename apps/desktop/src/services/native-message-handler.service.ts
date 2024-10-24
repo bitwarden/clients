@@ -185,6 +185,7 @@ export class NativeMessageHandlerService {
       let decryptedResult = await this.encryptService.decryptToUtf8(
         message.encryptedCommand as EncString,
         this.ddgSharedSecret,
+        `ddg-shared-key`,
       );
 
       decryptedResult = this.trimNullCharsFromMessage(decryptedResult);

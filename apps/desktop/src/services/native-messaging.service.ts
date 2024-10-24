@@ -115,6 +115,7 @@ export class NativeMessagingService {
       await this.encryptService.decryptToUtf8(
         rawMessage as EncString,
         SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
+        `native-messaging-session-${appId}`,
       ),
     );
 
