@@ -28,11 +28,12 @@ import { Environment, EnvironmentService, Region } from "../../abstractions/envi
 import { LogService } from "../../abstractions/log.service";
 import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
+import { ServerSettings } from "../../models/domain/server-settings";
 import { CONFIG_DISK, KeyDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
 export const RETRIEVAL_INTERVAL = devFlagEnabled("configRetrievalIntervalMs")
   ? (devFlagValue("configRetrievalIntervalMs") as number)
-  : 3_600_000; // 1 hour
+  : 60_000; // 1 minute
 
 export const SLOW_EMISSION_GUARD = 800;
 
@@ -57,6 +58,8 @@ export class DefaultConfigService implements ConfigService {
 
   serverConfig$: Observable<ServerConfig>;
 
+  serverSettings$: Observable<ServerSettings>;
+
   cloudRegion$: Observable<Region>;
 
   constructor(
@@ -79,7 +82,7 @@ export class DefaultConfigService implements ConfigService {
       switchMap(([userId, environment, authStatus]) => {
         if (userId == null || authStatus !== AuthenticationStatus.Unlocked) {
           return this.globalConfigFor$(environment.getApiUrl()).pipe(
-            map((config) => [config, null, environment] as const),
+            map((config): readonly [ServerConfig, any, Environment] => [config, null, environment]),
           );
         }
 
@@ -111,6 +114,10 @@ export class DefaultConfigService implements ConfigService {
     this.cloudRegion$ = this.serverConfig$.pipe(
       map((config) => config?.environment?.cloudRegion ?? Region.US),
     );
+
+    this.serverSettings$ = this.serverConfig$.pipe(
+      map((config) => config?.settings ?? new ServerSettings()),
+    );
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
@@ -123,6 +130,13 @@ export class DefaultConfigService implements ConfigService {
     serverConfig: ServerConfig | null,
     flag: Flag,
   ) {
+    if (
+      flag === FeatureFlag.ExtensionRefresh ||
+      flag === FeatureFlag.UnauthenticatedExtensionUIRefresh
+    ) {
+      return true as FeatureFlagValueType<Flag>;
+    }
+
     if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
       return DefaultFeatureFlagValue[flag];
     }

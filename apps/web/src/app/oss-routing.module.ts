@@ -22,6 +22,8 @@ import {
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
   RegistrationLinkExpiredComponent,
+  LoginComponent,
+  LoginSecondaryContentComponent,
   LockV2Component,
   LockIcon,
   UserLockIcon,
@@ -43,9 +45,9 @@ import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
 import { LockComponent } from "./auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "./auth/login/login-decryption-options/login-decryption-options.component";
+import { LoginComponentV1 } from "./auth/login/login-v1.component";
 import { LoginViaAuthRequestComponent } from "./auth/login/login-via-auth-request.component";
 import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
-import { LoginComponent } from "./auth/login/login.component";
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
@@ -180,6 +182,53 @@ const routes: Routes = [
       },
     ],
   },
+  ...unauthUiRefreshSwap(
+    AnonLayoutWrapperComponent,
+    AnonLayoutWrapperComponent,
+    {
+      path: "login",
+      canActivate: [unauthGuardFn()],
+      children: [
+        {
+          path: "",
+          component: LoginComponentV1,
+        },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+      data: {
+        pageTitle: "logIn",
+      },
+    },
+    {
+      path: "login",
+      canActivate: [unauthGuardFn()],
+      data: {
+        pageTitle: {
+          key: "logInToBitwarden",
+        },
+      } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      children: [
+        {
+          path: "",
+          component: LoginComponent,
+        },
+        {
+          path: "",
+          component: LoginSecondaryContentComponent,
+          outlet: "secondary",
+        },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+    },
+  ),
   ...unauthUiRefreshSwap(
     AnonLayoutWrapperComponent,
     AnonLayoutWrapperComponent,

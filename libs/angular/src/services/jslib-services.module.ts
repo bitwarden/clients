@@ -14,6 +14,8 @@ import {
   DefaultRegistrationFinishService,
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
+  LoginComponentService,
+  DefaultLoginComponentService,
 } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
@@ -1330,6 +1332,17 @@ const safeProviders: SafeProvider[] = [
     provide: ViewCacheService,
     useExisting: NoopViewCacheService,
     deps: [],
+  }),
+  safeProvider({
+    provide: LoginComponentService,
+    useClass: DefaultLoginComponentService,
+    deps: [
+      CryptoFunctionServiceAbstraction,
+      EnvironmentService,
+      PasswordGenerationServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: SdkService,
