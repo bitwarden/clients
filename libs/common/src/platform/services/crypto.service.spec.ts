@@ -735,4 +735,63 @@ describe("cryptoService", () => {
       });
     });
   });
+
+  describe("compareKeyHash", () => {
+    type TestCase = {
+      masterKey: MasterKey;
+      masterPassword: string | null;
+      storedMasterKeyHash: string;
+      mockReturnedHash: string;
+      expectedToMatch: boolean;
+    };
+
+    const data: TestCase[] = [
+      {
+        masterKey: makeSymmetricCryptoKey(64),
+        masterPassword: "my_master_password",
+        storedMasterKeyHash: "bXlfaGFzaA==",
+        mockReturnedHash: "bXlfaGFzaA==",
+        expectedToMatch: true,
+      },
+      {
+        masterKey: makeSymmetricCryptoKey(64),
+        masterPassword: null,
+        storedMasterKeyHash: "bXlfaGFzaA==",
+        mockReturnedHash: "bXlfaGFzaA==",
+        expectedToMatch: false,
+      },
+      {
+        masterKey: makeSymmetricCryptoKey(64),
+        masterPassword: null,
+        storedMasterKeyHash: null,
+        mockReturnedHash: "bXlfaGFzaA==",
+        expectedToMatch: false,
+      },
+    ];
+
+    it.each(data)(
+      "returns expected match value when calculated hash equals stored hash",
+      async ({
+        masterKey,
+        masterPassword,
+        storedMasterKeyHash,
+        mockReturnedHash,
+        expectedToMatch,
+      }) => {
+        masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
+
+        cryptoFunctionService.pbkdf2
+          .calledWith(masterKey.key, masterPassword, "sha256", 2)
+          .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
+
+        const actualDidMatch = await cryptoService.compareKeyHash(
+          masterPassword,
+          masterKey,
+          mockUserId,
+        );
+
+        expect(actualDidMatch).toBe(expectedToMatch);
+      },
+    );
+  });
 });

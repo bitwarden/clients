@@ -216,7 +216,7 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        cryptoService.compareAndUpdateKeyHash.mockResolvedValueOnce(true);
+        cryptoService.compareKeyHash.mockResolvedValueOnce(true);
 
         const result = await sut.verifyUserByMasterPassword(
           {
@@ -227,7 +227,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(cryptoService.compareAndUpdateKeyHash).toHaveBeenCalled();
+        expect(cryptoService.compareKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -240,7 +240,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        cryptoService.compareAndUpdateKeyHash.mockResolvedValueOnce(false);
+        cryptoService.compareKeyHash.mockResolvedValueOnce(false);
 
         await expect(
           sut.verifyUserByMasterPassword(
@@ -253,7 +253,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(cryptoService.compareAndUpdateKeyHash).toHaveBeenCalled();
+        expect(cryptoService.compareKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -285,7 +285,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(cryptoService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
+        expect(cryptoService.compareKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -318,7 +318,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(cryptoService.compareAndUpdateKeyHash).not.toHaveBeenCalled();
+        expect(cryptoService.compareKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
