@@ -152,7 +152,7 @@ describe("EncString", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       await encString.decryptWithKey(key, encryptService);
 
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, key);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, key, "domain-withkey");
     });
 
     it("fails to decrypt when key is null", async () => {
@@ -360,7 +360,11 @@ describe("EncString", () => {
       await encString.decrypt(null, key);
 
       expect(cryptoService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, key);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encString,
+        key,
+        "domain-userkey|cipherkey|masterkey",
+      );
     });
 
     it("gets an organization key if required", async () => {
@@ -371,7 +375,11 @@ describe("EncString", () => {
       await encString.decrypt("orgId", null);
 
       expect(cryptoService.getOrgKey).toHaveBeenCalledWith("orgId");
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, orgKey);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encString,
+        orgKey,
+        "domain-orgkey-orgId",
+      );
     });
 
     it("gets the user's decryption key if required", async () => {
@@ -382,7 +390,11 @@ describe("EncString", () => {
       await encString.decrypt(null, null);
 
       expect(cryptoService.getUserKeyWithLegacySupport).toHaveBeenCalledWith();
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, userKey);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encString,
+        userKey,
+        "domain-userkey|cipherkey|masterkey",
+      );
     });
   });
 

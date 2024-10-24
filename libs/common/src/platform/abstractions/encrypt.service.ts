@@ -8,7 +8,11 @@ import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 export abstract class EncryptService {
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
-  abstract decryptToUtf8(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
+  abstract decryptToUtf8(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+    decryptContext?: string,
+  ): Promise<string>;
   abstract decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array>;
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;

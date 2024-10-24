@@ -63,7 +63,11 @@ export class EncryptServiceImplementation implements EncryptService {
     return new EncArrayBuffer(encBytes);
   }
 
-  async decryptToUtf8(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+  async decryptToUtf8(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+    decryptContext: string = "no context",
+  ): Promise<string> {
     if (key == null) {
       throw new Error("No key provided for decryption.");
     }
@@ -75,8 +79,9 @@ export class EncryptServiceImplementation implements EncryptService {
       this.logService.error(
         "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
           encryptionTypeName(key.encType) +
-          " Payload type " +
+          "Payload type " +
           encryptionTypeName(encString.encryptionType),
+        "Decrypt context: " + decryptContext,
       );
       return null;
     }
@@ -85,8 +90,9 @@ export class EncryptServiceImplementation implements EncryptService {
       this.logService.error(
         "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
           encryptionTypeName(key.encType) +
-          " Payload type " +
+          "Payload type " +
           encryptionTypeName(encString.encryptionType),
+        "Decrypt context: " + decryptContext,
       );
       return null;
     }
@@ -108,8 +114,10 @@ export class EncryptServiceImplementation implements EncryptService {
         this.logMacFailed(
           "[Encrypt service] MAC comparison failed. Key or payload has changed. Key type " +
             encryptionTypeName(key.encType) +
-            " Payload type " +
-            encryptionTypeName(encString.encryptionType),
+            "Payload type " +
+            encryptionTypeName(encString.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
         );
         return null;
       }
