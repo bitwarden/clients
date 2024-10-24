@@ -9,5 +9,6 @@ config.content = [
   "../../libs/angular/src/**/*.{html,ts}",
   "../../bitwarden_license/bit-web/src/**/*.{html,ts}",
 ];
+config.corePlugins.preflight = true;
 
 module.exports = config;
