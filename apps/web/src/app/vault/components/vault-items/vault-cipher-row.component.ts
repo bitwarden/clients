@@ -40,6 +40,7 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
   @Input() canEditCipher: boolean;
+  @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
@@ -92,7 +93,7 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get showAssignToCollections() {
-    return this.canEditCipher && !this.cipher.isDeleted;
+    return this.canAssignCollections && !this.cipher.isDeleted;
   }
 
   protected get showClone() {

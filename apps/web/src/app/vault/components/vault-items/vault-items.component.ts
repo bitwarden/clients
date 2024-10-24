@@ -227,6 +227,14 @@ export class VaultItemsComponent {
     return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
   }
 
+  protected canAssignCollections(cipher: CipherView) {
+    if (cipher.organizationId == null) {
+      return true;
+    }
+    const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.canEditWithPassword;
+  }
+
   protected canManageCollection(cipher: CipherView) {
     // If the cipher is not part of an organization (personal item), user can manage it
     if (cipher.organizationId == null) {
