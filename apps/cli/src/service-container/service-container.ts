@@ -400,6 +400,7 @@ export class ServiceContainer {
       this.stateService,
       this.keyGenerationService,
       this.encryptService,
+      this.logService,
     );
 
     this.kdfConfigService = new KdfConfigService(this.stateProvider);
