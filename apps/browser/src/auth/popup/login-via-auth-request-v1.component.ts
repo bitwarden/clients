@@ -2,7 +2,7 @@ import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { LoginViaAuthRequestComponent as BaseLoginWithDeviceComponent } from "@bitwarden/angular/auth/components/login-via-auth-request.component";
+import { LoginViaAuthRequestComponentV1 as BaseLoginViaAuthRequestComponentV1 } from "@bitwarden/angular/auth/components/login-via-auth-request-v1.component";
 import {
   AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -27,9 +27,9 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 @Component({
   selector: "app-login-via-auth-request",
-  templateUrl: "login-via-auth-request.component.html",
+  templateUrl: "login-via-auth-request-v1.component.html",
 })
-export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
+export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestComponentV1 {
   constructor(
     router: Router,
     cryptoService: CryptoService,
