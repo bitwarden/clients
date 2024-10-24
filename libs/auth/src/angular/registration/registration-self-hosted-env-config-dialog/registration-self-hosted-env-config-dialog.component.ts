@@ -10,7 +10,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -131,7 +131,27 @@ export class RegistrationSelfHostedEnvConfigDialogComponent implements OnInit, O
     private environmentService: EnvironmentService,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    /**
+     * Populate the form with the current self-hosted environment settings.
+     */
+    this.environmentService.environment$
+      .pipe(
+        take(1),
+        filter((env) => env.getRegion() === Region.SelfHosted),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((env) => {
+        const urls = env.getUrls();
+        this.formGroup.patchValue({
+          webVaultUrl: urls.webVault || "",
+          apiUrl: urls.api || "",
+          identityUrl: urls.identity || "",
+          iconsUrl: urls.icons || "",
+          notificationsUrl: urls.notifications || "",
+        });
+      });
+  }
 
   submit = async () => {
     this.showErrorSummary = false;
