@@ -67,12 +67,7 @@
   "optional_permissions": ["nativeMessaging", "privacy"],
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   "sandbox": {
-    "pages": [
-      "overlay/menu-button.html",
-      "overlay/menu-list.html",
-      "overlay/button.html",
-      "overlay/list.html"
-    ],
+    "pages": ["overlay/button.html", "overlay/list.html"],
     "content_security_policy": "sandbox allow-scripts; script-src 'self'"
   },
   "commands": {
@@ -118,8 +113,6 @@
     "notification/bar.html",
     "images/icon38.png",
     "images/icon38_locked.png",
-    "overlay/menu-button.html",
-    "overlay/menu-list.html",
     "overlay/menu.html",
     "overlay/button.html",
     "overlay/list.html",
