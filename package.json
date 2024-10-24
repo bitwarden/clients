@@ -114,7 +114,7 @@
     "html-loader": "5.0.0",
     "html-webpack-injector": "1.1.4",
     "html-webpack-plugin": "5.6.0",
-    "husky": "9.1.4",
+    "husky": "9.1.6",
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
     "jest-preset-angular": "14.1.1",
