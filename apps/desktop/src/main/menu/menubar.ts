@@ -3,6 +3,7 @@ import { Menu, MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
+import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { isMac } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -54,6 +55,7 @@ export class Menubar {
     webVaultUrl: string,
     appVersion: string,
     hardwareAccelerationEnabled: boolean,
+    versionMain: VersionMain,
     updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
@@ -96,7 +98,7 @@ export class Menubar {
         desktopSettingsService,
         webVaultUrl,
         hardwareAccelerationEnabled,
-        new AboutMenu(i18nService, appVersion, windowMain.win, updaterMain),
+        new AboutMenu(i18nService, appVersion, windowMain.win, updaterMain, versionMain),
       ),
     ];
 

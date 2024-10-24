@@ -25,7 +25,11 @@ on:
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      sdk_branch:
+        description: "Custom SDK branch"
+        required: false
+        type: string
 
 defaults:
   run:
@@ -167,6 +171,26 @@ jobs:
         run: npm ci
         working-directory: ./
 
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
         id: cache
@@ -296,6 +320,26 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
@@ -582,6 +626,26 @@ jobs:
         run: npm ci
         working-directory: ./
 
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
         id: cache
@@ -747,6 +811,26 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
@@ -973,6 +1057,26 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
@@ -1208,6 +1312,26 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1

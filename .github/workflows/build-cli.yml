@@ -27,7 +27,11 @@ on:
       - '.github/workflows/build-cli.yml'
       - 'bitwarden_license/bit-cli/**'
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      sdk_branch:
+        description: "Custom SDK branch"
+        required: false
+        type: string
 
 defaults:
   run:
@@ -101,6 +105,26 @@ jobs:
       - name: Install
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Build & Package Unix
         run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }} --quiet
@@ -234,6 +258,26 @@ jobs:
       - name: Install
         run: npm ci
         working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
