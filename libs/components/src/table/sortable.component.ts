@@ -35,6 +35,12 @@ export class SortableComponent implements OnInit {
    */
   @Input() fn: SortFn;
 
+  /**
+   * Factory function to create a sorting function based on the desired sorting direction
+   */
+  @Input()
+  fnFactory: (direction: "asc" | "desc") => SortFn;
+
   constructor(private table: TableComponent) {}
 
   ngOnInit(): void {
@@ -53,7 +59,11 @@ export class SortableComponent implements OnInit {
   protected setActive() {
     if (this.table.dataSource) {
       const direction = this.isActive && this.direction === "asc" ? "desc" : "asc";
-      this.table.dataSource.sort = { column: this.bitSortable, direction: direction, fn: this.fn };
+      this.table.dataSource.sort = {
+        column: this.bitSortable,
+        direction: direction,
+        fn: this.fn ? this.fn : this.fnFactory(direction),
+      };
     }
   }
 

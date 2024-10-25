@@ -1,13 +1,17 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { CollectionView, Unassigned } from "@bitwarden/admin-console/common";
+import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TableDataSource } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
+import {
+  CollectionPermission,
+  convertToPermission,
+} from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
@@ -333,6 +337,124 @@ export class VaultItemsComponent {
     return (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) && collectionNotSelected;
   }
 
+  /**
+   * Sorts VaultItems, grouping collections before ciphers, and sorting each group alphabetically by name.
+   */
+  protected sortByName = (direction: "asc" | "desc") => {
+    return (a: VaultItem, b: VaultItem): number => {
+      // Collections before ciphers
+      const collectionCompare = this.prioritizeCollections(a, b, direction);
+      if (collectionCompare !== 0) {
+        return collectionCompare;
+      }
+
+      return this.compareNames(a, b);
+    };
+  };
+
+  /**
+   * Sorts VaultItems based on group names
+   */
+  protected sortByGroups = (direction: "asc" | "desc") => {
+    return (a: VaultItem, b: VaultItem): number => {
+      const getFirstGroupName = (item: VaultItem): string => {
+        if (item.collection instanceof CollectionAdminView && item.collection.groups.length > 0) {
+          return item.collection.groups.map((group) => this.getGroupName(group.id) || "").sort()[0];
+        }
+        return null;
+      };
+
+      // Collections before ciphers
+      const collectionCompare = this.prioritizeCollections(a, b, direction);
+      if (collectionCompare !== 0) {
+        return collectionCompare;
+      }
+
+      const aGroupName = getFirstGroupName(a);
+      const bGroupName = getFirstGroupName(b);
+
+      // Collections with groups come before collections without groups.
+      // If a collection has no groups, getFirstGroupName returns null.
+      if (aGroupName === null) {
+        return 1;
+      }
+
+      if (bGroupName === null) {
+        return -1;
+      }
+
+      return aGroupName.localeCompare(bGroupName);
+    };
+  };
+
+  /**
+   * Sorts VaultItems based on their permissions, with higher permissions taking precedence.
+   * If permissions are equal, it falls back to sorting by name.
+   */
+  protected sortByPermissions = (direction: "asc" | "desc") => {
+    return (a: VaultItem, b: VaultItem): number => {
+      const getPermissionPriority = (item: VaultItem): number => {
+        if (item.collection instanceof CollectionAdminView) {
+          const permission = this.getCollectionPermission(item.collection);
+
+          switch (permission) {
+            case CollectionPermission.Manage:
+              return 5;
+            case CollectionPermission.Edit:
+              return 4;
+            case CollectionPermission.EditExceptPass:
+              return 3;
+            case CollectionPermission.View:
+              return 2;
+            case CollectionPermission.ViewExceptPass:
+              return 1;
+            case "NoAccess":
+              return 0;
+          }
+        }
+
+        return -1;
+      };
+
+      // Collections before ciphers
+      const collectionCompare = this.prioritizeCollections(a, b, direction);
+      if (collectionCompare !== 0) {
+        return collectionCompare;
+      }
+
+      const priorityA = getPermissionPriority(a);
+      const priorityB = getPermissionPriority(b);
+
+      // Higher priority first
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA;
+      }
+
+      return this.compareNames(a, b);
+    };
+  };
+
+  private compareNames(a: VaultItem, b: VaultItem): number {
+    const getName = (item: VaultItem) => item.collection?.name || item.cipher?.name;
+    return getName(a).localeCompare(getName(b));
+  }
+
+  /**
+   * Sorts VaultItems by prioritizing collections over ciphers.
+   * Collections are always placed before ciphers, regardless of the sorting direction.
+   */
+  private prioritizeCollections(a: VaultItem, b: VaultItem, direction: "asc" | "desc"): number {
+    if (a.collection && !b.collection) {
+      return direction === "asc" ? -1 : 1;
+    }
+
+    if (!a.collection && b.collection) {
+      return direction === "asc" ? 1 : -1;
+    }
+
+    return 0;
+  }
+
   private hasPersonalItems(): boolean {
     return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
   }
@@ -345,5 +467,25 @@ export class VaultItemsComponent {
 
   private getUniqueOrganizationIds(): Set<string> {
     return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
+  }
+
+  private getGroupName(groupId: string): string | undefined {
+    return this.allGroups.find((g) => g.id === groupId)?.name;
+  }
+
+  private getCollectionPermission(
+    collection: CollectionAdminView,
+  ): CollectionPermission | "NoAccess" {
+    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+
+    if (collection.id == Unassigned && organization?.canEditUnassignedCiphers) {
+      return CollectionPermission.Edit;
+    }
+
+    if (collection.assigned) {
+      return convertToPermission(collection);
+    }
+
+    return "NoAccess";
   }
 }
