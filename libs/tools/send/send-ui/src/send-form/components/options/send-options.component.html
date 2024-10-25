@@ -12,7 +12,7 @@
       >
     </bit-form-field>
     <bit-form-field>
-      <bit-label>{{ "password" | i18n }}</bit-label>
+      <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
       <input bitInput type="password" formControlName="password" />
       <ng-container *ngIf="!hasPassword">
         <button

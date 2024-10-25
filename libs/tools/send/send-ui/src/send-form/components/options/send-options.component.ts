@@ -53,6 +53,7 @@ export class SendOptionsComponent implements OnInit {
   @Input()
   originalSendView: SendView;
   disableHideEmail = false;
+  passwordRemoved = false;
   sendOptionsForm = this.formBuilder.group({
     maxAccessCount: [null as number],
     accessCount: [null as number],
@@ -135,6 +136,8 @@ export class SendOptionsComponent implements OnInit {
     if (!confirmed) {
       return false;
     }
+
+    this.passwordRemoved = true;
 
     await this.sendApiService.removePassword(this.originalSendView.id);
 
