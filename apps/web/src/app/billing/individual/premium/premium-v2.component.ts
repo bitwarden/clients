@@ -158,7 +158,7 @@ export class PremiumV2Component {
 
   protected get estimatedTax(): number {
     return this.taxInfoComponent?.taxRate != null
-      ? (this.taxInfoComponent.taxRate / 100) * this.subtotal
+      ? this.taxInfoComponent.taxRate * this.subtotal
       : 0;
   }
 
