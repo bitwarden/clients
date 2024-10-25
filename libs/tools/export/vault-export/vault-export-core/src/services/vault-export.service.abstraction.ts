@@ -1,8 +1,8 @@
-export const EXPORT_FORMATS = ["csv", "json", "encrypted_json"] as const;
+export const EXPORT_FORMATS = ["csv", "json", "encrypted_json", "zip"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 
 export abstract class VaultExportServiceAbstraction {
-  getExport: (format: ExportFormat, password: string) => Promise<string>;
+  getExport: (format: ExportFormat, password: string) => Promise<string | Blob>;
   getOrganizationExport: (
     organizationId: string,
     format: ExportFormat,
