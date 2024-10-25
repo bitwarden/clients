@@ -1,12 +1,16 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { NavigationModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, NavigationModule } from "@bitwarden/components";
+
+import { TrialFlowService } from "../../billing/services/trial-flow.service";
 
 @Component({
   selector: "org-switcher",
@@ -52,12 +56,22 @@ export class OrgSwitcherComponent {
 
   constructor(
     private route: ActivatedRoute,
+    protected dialogService: DialogService,
     private organizationService: OrganizationService,
+    private i18nService: I18nService,
+    private router: Router,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private trialFlowService: TrialFlowService,
   ) {}
 
   protected toggle(event?: MouseEvent) {
     event?.stopPropagation();
     this.open = !this.open;
     this.openChange.emit(this.open);
+  }
+
+  async handleUnpaidSubscription(org: Organization) {
+    const sub = await this.organizationApiService.getSubscription(org.id);
+    await this.trialFlowService.handleUnpaidSubscriptionDialog(org, sub);
   }
 }

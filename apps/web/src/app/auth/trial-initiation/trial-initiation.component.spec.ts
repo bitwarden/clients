@@ -13,7 +13,9 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -39,6 +41,8 @@ describe("TrialInitiationComponent", () => {
   let policyServiceMock: MockProxy<PolicyService>;
   let routerServiceMock: MockProxy<RouterService>;
   let acceptOrgInviteServiceMock: MockProxy<AcceptOrganizationInviteService>;
+  let organizationBillingServiceMock: MockProxy<OrganizationBillingService>;
+  let configServiceMock: MockProxy<ConfigService>;
 
   beforeEach(() => {
     // only define services directly that we want to mock return values in this component
@@ -47,6 +51,8 @@ describe("TrialInitiationComponent", () => {
     policyServiceMock = mock<PolicyService>();
     routerServiceMock = mock<RouterService>();
     acceptOrgInviteServiceMock = mock<AcceptOrganizationInviteService>();
+    organizationBillingServiceMock = mock<OrganizationBillingService>();
+    configServiceMock = mock<ConfigService>();
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -91,6 +97,14 @@ describe("TrialInitiationComponent", () => {
         {
           provide: AcceptOrganizationInviteService,
           useValue: acceptOrgInviteServiceMock,
+        },
+        {
+          provide: OrganizationBillingService,
+          useValue: organizationBillingServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Allows child components to be ignored (such as register component)
