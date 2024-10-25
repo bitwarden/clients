@@ -1,4 +1,20 @@
-<app-header></app-header>
+<div class="tw-mb-1 text-primary" bitTypography="body1">{{ "accessIntelligence" | i18n }}</div>
+<h1 bitTypography="h1">{{ "passwordRisk" | i18n }}</h1>
+<div class="tw-text-muted">{{ "discoverAtRiskPasswords" | i18n }}</div>
+<div class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-2 tw-my-4">
+  <i class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] text-muted" aria-hidden="true"></i>
+  <span class="tw-mx-4">{{
+    "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
+  }}</span>
+  <a
+    bitButton
+    buttonType="unstyled"
+    class="tw-border-none !tw-font-normal tw-cursor-pointer"
+    [bitAction]="refreshData.bind(this)"
+  >
+    {{ "refresh" | i18n }}
+  </a>
+</div>
 <bit-tab-group [(selectedIndex)]="tabIndex">
   <bit-tab label="Raw Data">
     <tools-password-health></tools-password-health>

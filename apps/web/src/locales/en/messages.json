@@ -8,6 +8,21 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
+  "passwordRisk": {
+    "message": "Password Risk"
+  },
+  "discoverAtRiskPasswords": {
+    "message": "Discover at-risk passwords and notify users to change those passwords."
+  },
+  "dataLastUpdated": {
+    "message": "Data last updated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
+  },
   "notifiedMembers": {
     "message": "Notified members"
   },

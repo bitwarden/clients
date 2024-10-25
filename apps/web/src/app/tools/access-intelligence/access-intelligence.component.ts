@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { first } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { TabsModule } from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -25,6 +25,8 @@ export enum AccessIntelligenceTabType {
   templateUrl: "./access-intelligence.component.html",
   imports: [
     ApplicationTableComponent,
+    AsyncActionsModule,
+    ButtonModule,
     CommonModule,
     JslibModule,
     HeaderModule,
@@ -36,10 +38,21 @@ export enum AccessIntelligenceTabType {
 })
 export class AccessIntelligenceComponent {
   tabIndex: AccessIntelligenceTabType;
+  dataLastUpdated = new Date();
 
   apps: any[] = [];
   priorityApps: any[] = [];
   notifiedMembers: any[] = [];
+
+  async refreshData() {
+    // TODO: Implement
+    return new Promise((resolve) =>
+      setTimeout(() => {
+        this.dataLastUpdated = new Date();
+        resolve(true);
+      }, 1000),
+    );
+  }
 
   constructor(route: ActivatedRoute) {
     route.queryParams.pipe(takeUntilDestroyed(), first()).subscribe(({ tabIndex }) => {
