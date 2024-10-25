@@ -380,6 +380,10 @@
           In the ProtonPass browser extension, go to Settings > Export. Export without PGP
           encryption and save the zip file.
         </ng-container>
+        <ng-container *ngIf="format === 'netwrixpasswordsecure'">
+          Open the FullClient, go to the Main Menu and select Export. Start the export passwords
+          wizard and follow the instructions to export a CSV file.
+        </ng-container>
       </bit-callout>
       <import-lastpass
         *ngIf="showLastPassOptions"
