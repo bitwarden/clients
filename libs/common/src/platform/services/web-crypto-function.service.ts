@@ -12,7 +12,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   private subtle: SubtleCrypto;
   private wasmSupported: boolean;
 
-  constructor(globalContext: Window | typeof global) {
+  constructor(globalContext: { crypto: Crypto }) {
     this.crypto = typeof globalContext.crypto !== "undefined" ? globalContext.crypto : null;
     this.subtle =
       !!this.crypto && typeof this.crypto.subtle !== "undefined" ? this.crypto.subtle : null;
