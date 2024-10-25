@@ -94,6 +94,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   async loadCipherData() {
     // Load collections if not provided and the cipher has collectionIds
     if (
+      this.cipher.collectionIds &&
       this.cipher.collectionIds.length > 0 &&
       (!this.collections || this.collections.length === 0)
     ) {

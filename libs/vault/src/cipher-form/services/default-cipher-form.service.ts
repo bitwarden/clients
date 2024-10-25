@@ -64,13 +64,16 @@ export class DefaultCipherFormService implements CipherFormService {
       savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
-      // First update the cipher with the original collectionIds
-      encryptedCipher.collectionIds = config.originalCipher.collectionIds;
-      await this.cipherService.updateWithServer(encryptedCipher, config.admin);
+      // First update collections. Collections need to be updated first to handle the case where a cipher is unassigned
+      // and needs to be assigned to a collection before any other edits are made.
+      if (config.admin || originalCollectionIds.size === 0) {
+        // When using an admin config, update collections as an admin
+        await this.cipherService.saveCollectionsWithServerAdmin(encryptedCipher);
+      } else {
+        await this.cipherService.saveCollectionsWithServer(encryptedCipher);
+      }
 
-      // Then save the new collection changes separately
-      encryptedCipher.collectionIds = cipher.collectionIds;
-      savedCipher = await this.cipherService.saveCollectionsWithServer(encryptedCipher);
+      savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
     }
 
     // Its possible the cipher was made no longer available due to collection assignment changes
