@@ -19,6 +19,18 @@
   "createAccount": {
     "message": "Hesap oluştur"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden'da yeni misiniz?"
+  },
+  "logInWithPasskey": {
+    "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "useSingleSignOn": {
+    "message": "Çoklu oturum açma kullan"
+  },
+  "welcomeBack": {
+    "message": "Tekrar hoş geldiniz"
+  },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
   },
@@ -107,6 +119,9 @@
   "copyPassword": {
     "message": "Parolayı kopyala"
   },
+  "copyPassphrase": {
+    "message": "Copy passphrase"
+  },
   "copyNote": {
     "message": "Notu kopyala"
   },
@@ -151,6 +166,10 @@
   },
   "copyNotes": {
     "message": "Notları kopyala"
+  },
+  "fill": {
+    "message": "Doldur",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Otomatik doldur"
@@ -407,6 +426,9 @@
   "generatePassword": {
     "message": "Parola oluştur"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
   },
@@ -567,6 +589,15 @@
   },
   "launchWebsite": {
     "message": "Web sitesini aç"
+  },
+  "launchWebsiteName": {
+    "message": "$ITEMNAME$ web sitesini aç",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Web sitesi"
@@ -813,6 +844,9 @@
   },
   "logIn": {
     "message": "Giriş yap"
+  },
+  "logInToBitwarden": {
+    "message": "Bitwarden'a giriş yapın"
   },
   "restartRegistration": {
     "message": "Kaydı yeniden başlat"
@@ -1388,6 +1422,10 @@
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
+  },
+  "selfHostBaseUrl": {
+    "message": "Kendi kendine barındırılan sunucu URL'si",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API sunucu URL'si"
@@ -2464,8 +2502,8 @@
     "message": "Kullanıcıların bu Send'e erişmek için parola girmelerini isteyebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV2": {
-    "message": "Send'i görüntülemek için bu parolayı iste.",
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2827,6 +2865,9 @@
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
+  "generateEmail": {
+    "message": "E-posta oluştur"
+  },
   "usernameType": {
     "message": "Kullanıcı adı türü"
   },
@@ -2866,6 +2907,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Harici bir yönlendirme servisiyle e-posta maskesi oluştur."
+  },
+  "forwarderDomainName": {
+    "message": "E-posta alan adı",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Seçtiğiniz servisin desteklediği bir alan adı seçin",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hatası: $ERRORMESSAGE$",
@@ -4494,8 +4543,14 @@
   "itemLocation": {
     "message": "Kayıt konumu"
   },
+  "fileSend": {
+    "message": "Dosya Send'i"
+  },
   "fileSends": {
     "message": "Dosya Send'leri"
+  },
+  "textSend": {
+    "message": "Metin Send'i"
   },
   "textSends": {
     "message": "Metin Send'leri"
@@ -4559,5 +4614,158 @@
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
+  },
+  "fillGeneratedPassword": {
+    "message": "Üretilen parolayı doldur",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Parola yeniden üretildi",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Hesap Bitwarden'a kaydedilsin mi?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Boşluk",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Tilde",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Ters tırnak",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Ünlem işareti",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "At işareti",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Kare işareti",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Dolar işareti",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Yüzde işareti",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Düzeltme işareti",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Ve işareti",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Yıldız işareti",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Sol parantez",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Sağ parantez",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Alt çizgi",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Tire",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Artı",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Eşittir",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Sol küme parantezi",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Sağ küme parantezi",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Sol köşeli parantez",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Sağ köşeli parantez",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Çubuk",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Ters eğik çizgi",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "İki nokta",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Noktalı virgül",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Çift tırnak",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Tek tırnak",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Küçüktür",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Büyüktür",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Virgül",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Nokta",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Soru işareti",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Bölü işareti",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Küçük harf"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Büyük harf"
+  },
+  "generatedPassword": {
+    "message": "Üretilen parola"
   }
 }

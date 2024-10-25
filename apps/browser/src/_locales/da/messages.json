@@ -19,6 +19,18 @@
   "createAccount": {
     "message": "Opret konto"
   },
+  "newToBitwarden": {
+    "message": "Ny på Bitwarden?"
+  },
+  "logInWithPasskey": {
+    "message": "Log ind med adgangsnøgle"
+  },
+  "useSingleSignOn": {
+    "message": "Brug Single Sign-On"
+  },
+  "welcomeBack": {
+    "message": "Velkommen tilbage"
+  },
   "setAStrongPassword": {
     "message": "Indstil en stærk adgangskode"
   },
@@ -107,6 +119,9 @@
   "copyPassword": {
     "message": "Kopiér adgangskode"
   },
+  "copyPassphrase": {
+    "message": "Kopiér adgangssætning"
+  },
   "copyNote": {
     "message": "Kopiér notat"
   },
@@ -151,6 +166,10 @@
   },
   "copyNotes": {
     "message": "Kopiér notater"
+  },
+  "fill": {
+    "message": "Udfyld",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Autoudfyld"
@@ -407,6 +426,9 @@
   "generatePassword": {
     "message": "Generér adgangskode"
   },
+  "generatePassphrase": {
+    "message": "Generér adgangssætning"
+  },
   "regeneratePassword": {
     "message": "Regenerér adgangskode"
   },
@@ -545,7 +567,7 @@
     "message": "Notater"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privat notat"
   },
   "note": {
     "message": "Notat"
@@ -567,6 +589,15 @@
   },
   "launchWebsite": {
     "message": "Åbn websted"
+  },
+  "launchWebsiteName": {
+    "message": "Åbn webstedet $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Hjemmeside"
@@ -813,6 +844,9 @@
   },
   "logIn": {
     "message": "Log ind"
+  },
+  "logInToBitwarden": {
+    "message": "Log ind på Bitwarden"
   },
   "restartRegistration": {
     "message": "Genstart registrering"
@@ -1388,6 +1422,10 @@
   },
   "baseUrl": {
     "message": "Server URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL til selv-hostet server",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API-server URL"
@@ -2302,14 +2340,14 @@
     "message": "Ekskluderet domæne-ændringer gemt"
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Begræns visninger"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Ingen kan se denne Send efter grænsen er nået.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visninger tilbage",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -2464,8 +2502,8 @@
     "message": "Valgfrit brugeradgangskodekrav for at tilgå denne Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV2": {
-    "message": "Require this password to view the Send.",
+  "sendPasswordDescV3": {
+    "message": "Tilføj en valgfri adgangskode til modtagere for adgang til denne Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2554,7 +2592,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
-    "message": "For at oprette en fil-Send, skal udvidelsen poppes ud til et nyt vindue.",
+    "message": "For at oprette en fil-Send, skal udvidelsen poppes ud i et nyt vindue.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLinuxChromiumFileWarning": {
@@ -2603,7 +2641,7 @@
     "message": "Skjul min e-mailadresse for modtagere."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Skjul e-mailadressen for modtagere."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Én eller flere organisationspolitikker påvirker dine Send-valgmuligheder."
@@ -2827,6 +2865,9 @@
   "generateUsername": {
     "message": "Generér brugernavn"
   },
+  "generateEmail": {
+    "message": "Generér e-mail"
+  },
   "usernameType": {
     "message": "Brugernavnstype"
   },
@@ -2866,6 +2907,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Generér et e-mail alias med en ekstern viderestillingstjeneste."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomæne",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vælg et domæne understøttet af den valgte tjeneste",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$-fejl: $ERRORMESSAGE$",
@@ -4494,8 +4543,14 @@
   "itemLocation": {
     "message": "Emneplacering"
   },
+  "fileSend": {
+    "message": "Fil Send"
+  },
   "fileSends": {
     "message": "Fil-Sends"
+  },
+  "textSend": {
+    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -4559,5 +4614,158 @@
   },
   "authenticating": {
     "message": "Godkender"
+  },
+  "fillGeneratedPassword": {
+    "message": "Udfyld genereret adgangskode",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Adgangskode genereret igen",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Gem login til Bitwarden?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Mellemrum",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Tilde",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Accent grave",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Udråbstegn",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "Snabel-a",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Hash-tegn",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Dollar-tegn",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Procenttegn",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Cirkumfleks",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Og-tegn",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Stjerne",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Venstre parentes",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Højre parentes",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Understregning",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Bindestreg",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Plus",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Lighedstegn",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Venstre tuborg",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Højre tuborg",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Venstre klamme",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Højre klamme",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Lodret streg",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Omvendt skråstreg",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "Kolon",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Semikolon",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Dobbelt anførselstegn",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Enkelt anførselstegn",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Mindre end",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Større end",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Komma",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Punktum",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Spørgsmålstegn",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Skråstreg",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Minuskel"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Majuskel"
+  },
+  "generatedPassword": {
+    "message": "Genereret adgangskode"
   }
 }
