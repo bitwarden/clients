@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { Router, UrlTree } from "@angular/router";
+import { Navigation, Router, UrlTree } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -37,19 +37,29 @@ describe("unauthUiRefreshRedirect", () => {
     expect(router.parseUrl).not.toHaveBeenCalled();
   });
 
-  it("returns UrlTree when UnauthenticatedExtensionUIRefresh flag is enabled", async () => {
-    const mockUrlTree = mock<UrlTree>();
+  it("returns UrlTree when UnauthenticatedExtensionUIRefresh flag is enabled and preserves query params", async () => {
     configService.getFeatureFlag.mockResolvedValue(true);
-    router.parseUrl.mockReturnValue(mockUrlTree);
 
-    const result = await TestBed.runInInjectionContext(() =>
-      unauthUiRefreshRedirect("/redirect")(),
-    );
+    const queryParams = { test: "test" };
 
-    expect(result).toBe(mockUrlTree);
+    const navigation: Navigation = {
+      extras: {
+        queryParams: queryParams,
+      },
+      id: 0,
+      initialUrl: new UrlTree(),
+      extractedUrl: new UrlTree(),
+      trigger: "imperative",
+      previousNavigation: undefined,
+    };
+
+    router.getCurrentNavigation.mockReturnValue(navigation);
+
+    await TestBed.runInInjectionContext(() => unauthUiRefreshRedirect("/redirect")());
+
     expect(configService.getFeatureFlag).toHaveBeenCalledWith(
       FeatureFlag.UnauthenticatedExtensionUIRefresh,
     );
-    expect(router.parseUrl).toHaveBeenCalledWith("/redirect");
+    expect(router.createUrlTree).toHaveBeenCalledWith(["/redirect"], { queryParams });
   });
 });

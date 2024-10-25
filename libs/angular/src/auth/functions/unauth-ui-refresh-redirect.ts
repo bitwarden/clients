@@ -16,7 +16,12 @@ export function unauthUiRefreshRedirect(redirectUrl: string): () => Promise<bool
       FeatureFlag.UnauthenticatedExtensionUIRefresh,
     );
     if (shouldRedirect) {
-      return router.parseUrl(redirectUrl);
+      const currentNavigation = router.getCurrentNavigation();
+      const queryParams = currentNavigation?.extras?.queryParams || {};
+
+      // Preserve query params when redirecting as it is likely that the refreshed component
+      // will be consuming the same query params.
+      return router.createUrlTree([redirectUrl], { queryParams });
     } else {
       return true;
     }

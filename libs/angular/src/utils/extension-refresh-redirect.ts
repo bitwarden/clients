@@ -12,9 +12,15 @@ export function extensionRefreshRedirect(redirectUrl: string): () => Promise<boo
   return async () => {
     const configService = inject(ConfigService);
     const router = inject(Router);
+
     const shouldRedirect = await configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
     if (shouldRedirect) {
-      return router.parseUrl(redirectUrl);
+      const currentNavigation = router.getCurrentNavigation();
+      const queryParams = currentNavigation?.extras?.queryParams || {};
+
+      // Preserve query params when redirecting as it is likely that the refreshed component
+      // will be consuming the same query params.
+      return router.createUrlTree([redirectUrl], { queryParams });
     } else {
       return true;
     }
