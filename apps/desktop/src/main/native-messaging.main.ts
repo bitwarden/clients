@@ -1,12 +1,11 @@
 import { existsSync, promises as fs } from "fs";
 import { homedir, userInfo } from "os";
 import * as path from "path";
-import * as util from "util";
 
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ipc } from "@bitwarden/desktop-napi";
+import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../utils";
 
@@ -153,12 +152,12 @@ export class NativeMessagingMain {
         await this.writeManifest(path.join(destination, "chrome.json"), chromeJson);
 
         const nmhs = this.getWindowsNMHS();
-        for (const [key, value] of Object.entries(nmhs)) {
+        for (const [name, [key, subkey]] of Object.entries(nmhs)) {
           let manifestPath = path.join(destination, "chrome.json");
-          if (key === "Firefox") {
+          if (name === "Firefox") {
             manifestPath = path.join(destination, "firefox.json");
           }
-          await this.createWindowsRegistry(value, manifestPath);
+          await windows_registry.createKey(key, subkey, manifestPath);
         }
         break;
       }
@@ -245,8 +244,8 @@ export class NativeMessagingMain {
         await this.removeIfExists(path.join(this.userPath, "browsers", "chrome.json"));
 
         const nmhs = this.getWindowsNMHS();
-        for (const [, value] of Object.entries(nmhs)) {
-          await this.deleteWindowsRegistry(value);
+        for (const [, [key, subkey]] of Object.entries(nmhs)) {
+          await windows_registry.deleteKey(key, subkey);
         }
         break;
       }
@@ -291,11 +290,14 @@ export class NativeMessagingMain {
 
   private getWindowsNMHS() {
     return {
-      Firefox: "HKCU\\SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden",
-      Chrome: "HKCU\\SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden",
-      Chromium: "HKCU\\SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden",
+      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
       // Edge uses the same registry key as Chrome as a fallback, but it's has its own separate key as well.
-      "Microsoft Edge": "HKCU\\SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
+      "Microsoft Edge": [
+        "HKCU",
+        "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
+      ],
     };
   }
 
@@ -348,52 +350,6 @@ export class NativeMessagingMain {
     }
 
     return path.join(path.dirname(this.exePath), `desktop_proxy${ext}`);
-  }
-
-  private getRegeditInstance() {
-    // eslint-disable-next-line
-    const regedit = require("regedit");
-    regedit.setExternalVBSLocation(path.join(path.dirname(this.exePath), "resources/regedit/vbs"));
-
-    return regedit;
-  }
-
-  private async createWindowsRegistry(location: string, jsonFile: string) {
-    const regedit = this.getRegeditInstance();
-
-    const createKey = util.promisify(regedit.createKey);
-    const putValue = util.promisify(regedit.putValue);
-
-    this.logService.debug(`Adding registry: ${location}`);
-
-    await createKey(location);
-
-    // Insert path to manifest
-    const obj: any = {};
-    obj[location] = {
-      default: {
-        value: jsonFile,
-        type: "REG_DEFAULT",
-      },
-    };
-
-    return putValue(obj);
-  }
-
-  private async deleteWindowsRegistry(key: string) {
-    const regedit = this.getRegeditInstance();
-
-    const list = util.promisify(regedit.list);
-    const deleteKey = util.promisify(regedit.deleteKey);
-
-    this.logService.debug(`Removing registry: ${key}`);
-
-    try {
-      await list(key);
-      await deleteKey(key);
-    } catch {
-      this.logService.error(`Unable to delete registry key: ${key}`);
-    }
   }
 
   private homedir() {
