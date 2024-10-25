@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Generér adgangskode"
   },
+  "generatePassphrase": {
+    "message": "Generér adgangssætning"
+  },
   "checkPassword": {
     "message": "Tjek, om adgangskode er blevet kompromitteret."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Kopiér adgangskode",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Kopiér adgangssætning",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Adgangskode kopieret"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Benyt en anden login-metode"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Log ind med adgangsnøgle"
+  },
+  "useSingleSignOn": {
+    "message": "Brug Single Sign-On"
+  },
+  "welcomeBack": {
+    "message": "Velkommen tilbage"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ugyldig adgangsnøgle. Prøv igen."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Opret konto"
   },
+  "newToBitwarden": {
+    "message": "Ny på Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Indstil en stærk adgangskode"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Log ind"
+  },
+  "logInToBitwarden": {
+    "message": "Log ind på Bitwarden"
   },
   "verifyIdentity": {
     "message": "Bekræft din identitet"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Generér brugernavn"
   },
+  "generateEmail": {
+    "message": "Generér e-mail"
+  },
   "usernameType": {
     "message": "Brugernavnstype"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Generér et e-mail alias med en ekstern viderestillingstjeneste."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomæne",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vælg et domæne understøttet af den valgte tjeneste",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$-fejl: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "selfHostBaseUrl": {
+    "message": "URL til selv-hostet server",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Aliasdomæne"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Sikker på, at denne vedhæftning skal slettes permanent?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Håndtér abonnement fra",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "For hoste Bitwarden på egen server, skal man uploade sin licensfil. Opsæt automatisk faktureringssynk for den selv-hostede organisation for at understøtte Free Families-abonnementstyper og avancerede faktureringsmuligheder for organisationen."
+  },
+  "selfHostingTitleProper": {
+    "message": "Selv-hosting"
   }
 }

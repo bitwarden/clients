@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Jelszó generálása"
   },
+  "generatePassphrase": {
+    "message": "Jelmondat generálás"
+  },
   "checkPassword": {
     "message": "A jelszóvédelmi állapot ellenőrzése."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Jelszó másolása",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Jelmondat másolása",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "A jelszó másolásra került."
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Más bejelentkezési mód használata"
   },
-  "loginWithPasskey": {
-    "message": "Bejelentkezés jelszóval"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Érvénytelen jelszó. Próbálja újra."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Fiók létrehozása"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Erős jelszó beállítása"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Bejelentkezés"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Felhasználónév generálása"
   },
+  "generateEmail": {
+    "message": "Email generálása"
+  },
   "usernameType": {
     "message": "Felhasználónév típusa"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Email álnév generálása külső továbbító szolgáltatással."
+  },
+  "forwarderDomainName": {
+    "message": "Email tartomány",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Válasszunk a kiválasztott szolgáltatás által támogatott tartományt.",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hiba: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Szerver webcím"
   },
+  "selfHostBaseUrl": {
+    "message": "Saját üzemeltetésű szerver webcím",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Áldomain"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Előfizetés kezelése:",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Ha a Bitwarden szolgáltatást saját szerveren szeretnénk tárolni, fel kell tölteni a licenszfájlt. A Free Families csomagok és a speciális számlázási lehetőségek támogatásához a saját üzemeltetésű szervezet számára be kell állítani az automatikus szinkronizálást a saját üzemeltetésű szervezetben."
+  },
+  "selfHostingTitleProper": {
+    "message": "Sahát üzemeltetés"
   }
 }

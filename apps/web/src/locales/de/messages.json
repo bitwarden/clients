@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Passwort generieren"
   },
+  "generatePassphrase": {
+    "message": "Passphrase generieren"
+  },
   "checkPassword": {
     "message": "Überprüfen ob ihr Kennwort kompromittiert ist."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Passwort kopieren",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Passphrase kopieren",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Passwort kopiert"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Eine andere Anmeldemethode verwenden"
   },
-  "loginWithPasskey": {
-    "message": "Mit Passkey anmelden"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ungültiger Passkey. Bitte versuche es erneut."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Konto erstellen"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Lege ein starkes Passwort fest"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Anmelden"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Verifiziere deine Identität"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Benutzername generieren"
   },
+  "generateEmail": {
+    "message": "E-Mail generieren"
+  },
   "usernameType": {
     "message": "Benutzernamenstyp"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Generiere ein E-Mail-Alias mit einem externen Weiterleitungsdienst."
+  },
+  "forwarderDomainName": {
+    "message": "E-Mail-Domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Wähle eine Domain aus, die vom ausgewählten Dienst unterstützt wird",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ Fehler: $ERRORMESSAGE$",
@@ -8208,10 +8238,10 @@
     "message": "Sammlungserstellung und -löschung auf Eigentümer und Administratoren beschränken"
   },
   "limitCollectionCreationDesc": {
-    "message": "Begrenze die Erstellung von Sammlungen auf Besitzer und Administratoren"
+    "message": "Das Erstellen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
   "limitCollectionDeletionDesc": {
-    "message": "Begrenze das Löschen von Sammlungen auf Besitzer und Administratoren"
+    "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
@@ -8257,6 +8287,10 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "Selbst gehostete Server-URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "aliasDomain": {
     "message": "Alias-Domain"
@@ -9411,7 +9445,7 @@
     "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Website hast."
   },
   "linkedLabelHelpText": {
-    "message": "Gib die HTML ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
   },
   "addAttachment": {
     "message": "Anhang hinzufügen"
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Manage subscription from the",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Um Bitwarden auf deinem eigenen Server zu hosten, must du deine Lizenzdatei hochladen. Um Free Families-Tarife und erweiterte Abrechnungsmöglichkeiten für deine selbst gehostete Organisation anzubieten, musst du die automatische Synchronisierung für deine selbst gehostete Organisation einrichten."
+  },
+  "selfHostingTitleProper": {
+    "message": "Selbst gehostet"
   }
 }

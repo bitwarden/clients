@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Gerar palavra-passe"
   },
+  "generatePassphrase": {
+    "message": "Gerar frase de acesso"
+  },
   "checkPassword": {
     "message": "Verificar se a palavra-passe foi exposta."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Copiar palavra-passe",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copiar frase de acesso",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Palavra-passe copiada"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Utilizar um método de início de sessão diferente"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
+  },
+  "useSingleSignOn": {
+    "message": "Utilizar início de sessão único"
+  },
+  "welcomeBack": {
+    "message": "Bem-vindo de volta"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Chave de acesso inválida. Por favor, tente novamente."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Criar conta"
   },
+  "newToBitwarden": {
+    "message": "Novo no Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Defina uma palavra-passe forte"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Iniciar sessão"
+  },
+  "logInToBitwarden": {
+    "message": "Iniciar sessão no Bitwarden"
   },
   "verifyIdentity": {
     "message": "Verifique a sua identidade"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Gerar nome de utilizador"
   },
+  "generateEmail": {
+    "message": "Gerar e-mail"
+  },
   "usernameType": {
     "message": "Tipo de nome de utilizador"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Gerar um alias de e-mail com um serviço de reencaminhamento externo."
+  },
+  "forwarderDomainName": {
+    "message": "Domínio de e-mail",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Escolha um domínio que seja suportado pelo serviço selecionado",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Erro no $SERVICENAME$: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "URL do servidor"
   },
+  "selfHostBaseUrl": {
+    "message": "URL do servidor auto-hospedado",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Alias de domínio"
   },
@@ -9399,19 +9433,19 @@
     "message": "Editar acesso"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Utilize campos de texto para dados como perguntas de segurança"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Utilize campos ocultos para dados sensíveis como uma palavra-passe"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Utilize caixas de verificação se pretender preencher automaticamente uma caixa de verificação de um formulário, como um e-mail de memorização"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Utilize um campo ligado quando tiver problemas de preenchimento automático para um site específico."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
   },
   "addAttachment": {
     "message": "Adicionar anexo"
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Tem a certeza de que pretende eliminar permanentemente este anexo?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Gerir a subscrição a partir do",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Para hospedar o Bitwarden no seu próprio servidor, precisará de carregar o seu ficheiro de licença. Para suportar planos Familiar gratuitos e recursos avançados de faturamento para a sua organização auto-hospedada, precisará de configurar a sincronização automática na sua organização auto-hospedada."
+  },
+  "selfHostingTitleProper": {
+    "message": "Auto-hospedagem"
   }
 }

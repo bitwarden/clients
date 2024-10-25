@@ -1,9 +1,9 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Όλες οι εφαρμογές"
   },
   "priorityApplications": {
-    "message": "Priority applications"
+    "message": "Εφαρμογές προτεραιότητας"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -12,7 +12,7 @@
     "message": "Notified members"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Όλες οι εφαρμογές ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21,7 +21,7 @@
     }
   },
   "priorityApplicationsWithCount": {
-    "message": "Priority applications ($COUNT$)",
+    "message": "Εφαρμογές προτεραιότητας ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -39,25 +39,25 @@
     }
   },
   "application": {
-    "message": "Application"
+    "message": "Εφαρμογή"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Σύνολο κωδικών πρόσβασης"
   },
   "atRiskMembers": {
     "message": "At-risk members"
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Σύνολο μελών"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "Σύνολο εφαρμογών"
   },
   "whatTypeOfItem": {
     "message": "Τι είδους στοιχείο είναι αυτό;"
@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Δημιουργία Κωδικού"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "checkPassword": {
     "message": "Ελέγξτε εάν ο κωδικός έχει εκτεθεί."
   },
@@ -663,8 +666,12 @@
     "message": "Αντιγραφή κωδικού πρόσβασης",
     "description": "Copy password to clipboard"
   },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
+  },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Ο κωδικός αντιγράφηκε"
   },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη",
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Χρήση διαφορετικής μεθόδου σύνδεσης"
   },
-  "loginWithPasskey": {
-    "message": "Σύνδεση με κλειδί πρόσβασης"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Μη έγκυρο κλειδί πρόσβασης. Παρακαλώ προσπαθήστε ξανά."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Δημιουργία Λογαριασμού"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Ορίστε έναν ισχυρό κωδικό πρόσβασης"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Είσοδος"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Επαληθεύστε την ταυτότητά σας"
@@ -5625,7 +5644,7 @@
     "message": "Ο Κύριος κωδικός πρόσβασης δεν πληροί τις απαιτήσεις πολιτικής αυτού του οργανισμού. Για να γίνετε μέλος του οργανισμού, πρέπει να ενημερώσετε το Κύριο Συνθηματικό σας τώρα. Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία σας, απαιτώντας από εσάς να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να συνεχίσουν να είναι ενεργές για μία ώρα."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+    "message": "Ο κύριος κωδικός πρόσβασής σας δεν πληροί μία ή περισσότερες πολιτικές του οργανισμού σας. Για να αποκτήσετε πρόσβαση στην κρύπτη, πρέπει να ενημερώσετε τον κύριο κωδικό πρόσβασής σας τώρα. Η διαδικασία αυτή θα σας αποσυνδέσει από την τρέχουσα συνεδρία σας, απαιτώντας από εσάς να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να παραμείνουν ενεργές για μία ώρα."
   },
   "automaticAppLogin": {
     "message": "Automatically log in users for allowed applications"
@@ -5674,7 +5693,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "$HOURS$ ώρα(ες) και $MINUTES$ λεπτό(ά) το πολύ.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Δημιουργία Ονόματος Χρήστη"
   },
+  "generateEmail": {
+    "message": "Generate email"
+  },
   "usernameType": {
     "message": "Τύπος Ονόματος Χρήστη"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Δημιουργήστε ένα ψευδώνυμο διεύθυνσης ηλ. ταχυδρομείου με μια εξωτερική υπηρεσία προώθησης."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ σφάλμα: $ERRORMESSAGE$",
@@ -7594,7 +7624,7 @@
     "message": "Unlock with biometrics"
   },
   "unlockWithPin": {
-    "message": "Unlock with PIN"
+    "message": "Ξεκλείδωμα με PIN"
   },
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"
@@ -7864,7 +7894,7 @@
     "message": "Require existing members to change their passwords"
   },
   "smProjectDeleteAccessRestricted": {
-    "message": "You don't have permissions to delete this project",
+    "message": "Δεν έχετε δικαιώματα για να διαγράψετε αυτό το έργο",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
   },
   "smProjectsDeleteBulkConfirmation": {
@@ -7914,7 +7944,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "SSO required",
+    "message": "Απαιτείται SSO",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescriptionPartThree": {
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "URL διακομιστή"
   },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Ψευδώνυμο τομέα"
   },
@@ -8320,7 +8354,7 @@
     "message": "Collection access is restricted"
   },
   "readOnlyCollectionAccess": {
-    "message": "You do not have access to manage this collection."
+    "message": "Δεν έχετε πρόσβαση για να διαχειριστείτε αυτήν τη συλλογή."
   },
   "grantAddAccessCollectionWarningTitle": {
     "message": "Missing Can Manage Permissions"
@@ -8721,7 +8755,7 @@
     "message": "Machine account access updated"
   },
   "restrictedGroupAccessDesc": {
-    "message": "You cannot add yourself to a group."
+    "message": "Δεν μπορείτε να προσθέσετε τον εαυτό σας σε μια ομάδα."
   },
   "deleteProvider": {
     "message": "Διαγραφή παρόχου"
@@ -9142,7 +9176,7 @@
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ στοιχεία θα μεταφερθούν οριστικά στον επιλεγμένο οργανισμό. Δεν θα κατέχετε πλέον αυτά τα στοιχεία.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτό το συνημμένο;"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Manage subscription from the",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
+  },
+  "selfHostingTitleProper": {
+    "message": "Self-Hosting"
   }
 }

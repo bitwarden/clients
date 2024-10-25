@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Generovať heslo"
   },
+  "generatePassphrase": {
+    "message": "Generovať prístupovú frázu"
+  },
   "checkPassword": {
     "message": "Overiť či došlo k úniku hesla."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Kopírovať heslo",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Kopírovať prístupovú frázu",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Heslo skopírované"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
-  "loginWithPasskey": {
-    "message": "Prihlásiť sa s prístupovým kľúčom"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Nesprávne Passkey heslo. Prosím skúste to znovu."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Vytvoriť účet"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Prihlásiť sa"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Overte svoju totožnosť"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
   },
+  "generateEmail": {
+    "message": "Generovať e-mail"
+  },
   "usernameType": {
     "message": "Typ používateľského mena"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+  },
+  "forwarderDomainName": {
+    "message": "E-mailová doména",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vyberte doménu, ktorá je podporovaná vybranou službou",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "URL servera"
   },
+  "selfHostBaseUrl": {
+    "message": "Adresa URL vlastného hostingu",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Alias doména"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Spravovať predplatné z",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Ak chcete prevádzkovať Bitwarden na vlastnom serveri, musíte nahrať licenčný súbor. Pre podporu Free Families plánu a pokročilé možnosti fakturácie pre vašu organizáciu s vlastným hostingom, budete musieť nastaviť automatickú synchronizáciu v organizácii vo vlastnom hostingu."
+  },
+  "selfHostingTitleProper": {
+    "message": "Vlastný hosting"
   }
 }

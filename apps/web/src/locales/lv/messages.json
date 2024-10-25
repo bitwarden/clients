@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Veidot paroli"
   },
+  "generatePassphrase": {
+    "message": "Izveidot paroles vārdkopu"
+  },
   "checkPassword": {
     "message": "Pārbaudīt, vai parole ir bijusi nopludināta."
   },
@@ -663,8 +666,12 @@
     "message": "Ievietot paroli starpliktuvē",
     "description": "Copy password to clipboard"
   },
+  "copyPassphrase": {
+    "message": "Ievietot paroles vārdkopu starpliktuvē",
+    "description": "Copy passphrase to clipboard"
+  },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Parole ievietota starpliktuvē"
   },
   "copyUsername": {
     "message": "Ievietot lietotājvārdu starpliktuvē",
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Jāizmanto cits pieteikšanās veids"
   },
-  "loginWithPasskey": {
-    "message": "Pieteikties ar piekļuves atslēgu"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Nederīga piekļuves atslēga. Lūgums mēģināt vēlreiz."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Izveidot kontu"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Jāiestata droša parole"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Pieteikties"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Jāapliecina sava identitāte"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Izveidot lietotājvārdu"
   },
+  "generateEmail": {
+    "message": "Izveidot e-pastu"
+  },
   "usernameType": {
     "message": "Lietotājvārda veids"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Izveidot e-pastu aizstājvārdu ar ārēju pārvirzīšanas pakalpojumu."
+  },
+  "forwarderDomainName": {
+    "message": "E-pasta domēns",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Jāizvēlas domēns, kuru atbalsta atlasītais pakalpojums",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ kļūda: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Servera URL"
   },
+  "selfHostBaseUrl": {
+    "message": "Pašmitināta servera URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Vai tiešām neatgriezeniski izdzēst šo pielikumu?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Pārvaldīt abonementu",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Lai mitinātu Bitwarden savā serverī, ir nepieciešams augšupielādēt licences datni. Lai nodrošinātu bezmaksas ģimeņu plānus un papildu norēķinu iespējas pašmitinātajai apvienībai, tajā ir nepieciešams uzstādīt automātisku sinhronizēšanu."
+  },
+  "selfHostingTitleProper": {
+    "message": "Pašmitināts"
   }
 }

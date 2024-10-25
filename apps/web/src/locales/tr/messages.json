@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Parola oluştur"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "checkPassword": {
     "message": "Parolanız ele geçirilip geçirilmediğini kontrol edin."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Parolayı kopyala",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Parola kopyalandı"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Başka bir giriş yöntemi kullan"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "useSingleSignOn": {
+    "message": "Çoklu oturum açma kullan"
+  },
+  "welcomeBack": {
+    "message": "Tekrar hoş geldiniz"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Geçersiz geçiş anahtarı. Lütfen tekrar deneyin."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Hesap aç"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden'da yeni misiniz?"
+  },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Giriş yap"
+  },
+  "logInToBitwarden": {
+    "message": "Bitwarden'a giriş yapın"
   },
   "verifyIdentity": {
     "message": "Kimliğinizi doğrulayın"
@@ -3073,7 +3092,7 @@
     "message": "İlkeler"
   },
   "singleSignOn": {
-    "message": "Tek oturum açma"
+    "message": "Çoklu oturum açma"
   },
   "editPolicy": {
     "message": "İlkeyi düzenle"
@@ -4566,10 +4585,10 @@
     "message": "Kuruluş tanımlayıcı"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Kuruluşunuzun tek oturum açma portalını kullanarak giriş yapabilirsiniz. Başlamak için lütfen kuruluşunuzun SSO tanımlayıcısını girin."
+    "message": "Kuruluşunuzun çoklu oturum açma portalını kullanarak giriş yapabilirsiniz. Başlamak için lütfen kuruluşunuzun SSO tanımlayıcısını girin."
   },
   "enterpriseSingleSignOn": {
-    "message": "Kurumsal tek oturum açma"
+    "message": "Kurumsal çoklu oturum açma"
   },
   "ssoHandOff": {
     "message": "Şimdi bu sekmeyi kapatıp uzantı üzerinden devam edebilirsiniz."
@@ -4642,16 +4661,16 @@
     "message": "Sahip veya yönetici olmayan ve zaten başka bir kuruluşun üyesi olan kuruluş üyeleri kuruluşunuzdan kaldırılır."
   },
   "requireSso": {
-    "message": "Tek oturum açma kimlik doğrulamasını zorunlu tut"
+    "message": "Çoklu oturum açma kimlik doğrulamasını zorunlu tut"
   },
   "requireSsoPolicyDesc": {
-    "message": "Üyelerin kurumsal tek oturum açma (SSO) yöntemiyle oturum açmasını zorunlu kılın."
+    "message": "Üyelerin kurumsal çoklu oturum açma (SSO) yöntemiyle oturum açmasını zorunlu kıl."
   },
   "prerequisite": {
     "message": "Önkoşul"
   },
   "requireSsoPolicyReq": {
-    "message": "Bu ilkeyi etkinleştirmeden önce tek kuruluş kurumsal ilkesi etkinleştirilmelidir."
+    "message": "Bu ilkeyi etkinleştirmeden önce çoklu kuruluş kurumsal ilkesi etkinleştirilmelidir."
   },
   "requireSsoPolicyReqError": {
     "message": "Tek kuruluş ilkesi ayarlanmamış."
@@ -5842,7 +5861,7 @@
     "message": "Bağlama türü"
   },
   "idpSingleSignOnServiceUrl": {
-    "message": "Tek oturum açma (SSO) servis URL'si"
+    "message": "Çoklu oturum açma (SSO) servis URL'si"
   },
   "idpSingleLogoutServiceUrl": {
     "message": "Tek çıkış (SLO) servis URL'si"
@@ -5863,7 +5882,7 @@
     "message": "Kimlik doğrulama isteklerini imzala"
   },
   "ssoSettingsSaved": {
-    "message": "Tek oturum açma yapılandırması kaydedildi"
+    "message": "Çoklu oturum açma yapılandırması kaydedildi"
   },
   "sponsoredFamilies": {
     "message": "Ücretsiz Bitwarden Aile"
@@ -6038,7 +6057,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "çoklu oturum açma kimlik doğrulama ilkesini zorunlu tut",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
+  "generateEmail": {
+    "message": "E-posta oluştur"
+  },
   "usernameType": {
     "message": "Kullanıcı adı türü"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Harici bir yönlendirme servisiyle e-posta maskesi oluştur."
+  },
+  "forwarderDomainName": {
+    "message": "E-posta alan adı",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Seçtiğiniz servisin desteklediği bir alan adı seçin",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hatası: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Sunucu URL'si"
   },
+  "selfHostBaseUrl": {
+    "message": "Kendi kendine barındırılan sunucu URL'si",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Alias alan adı"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu dosyayı kalıcı olarak silmek istediğinizden emin misiniz?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Aboneliğinizi yönetin:",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
+  },
+  "selfHostingTitleProper": {
+    "message": "Kendi Kendinize Barındırma"
   }
 }

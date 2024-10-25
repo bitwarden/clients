@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Générer un mot de passe"
   },
+  "generatePassphrase": {
+    "message": "Générer une phrase de passe"
+  },
   "checkPassword": {
     "message": "Vérifier si le mot de passe a été exposé."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Copier le mot de passe",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copier la phrase de passe",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Mot de passe copié"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Utiliser une méthode de connexion différente"
   },
-  "loginWithPasskey": {
-    "message": "Se connecter avec une clé d'accès"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Passkey invalide. Veuillez réessayer de nouveau."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Créez un compte"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Définir un mot de passe fort"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Se connecter"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Vérifiez votre Identité"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Générer le Nom d'Utilisateur"
   },
+  "generateEmail": {
+    "message": "Générer un courriel"
+  },
   "usernameType": {
     "message": "Type de Nom d'Utilisateur"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Générer un alias de courriel avec un service de transfert externe."
+  },
+  "forwarderDomainName": {
+    "message": "Domaine du courriel",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choisissez un domaine qui est supporté par le service sélectionné",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Erreur $SERVICENAME$ : $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "URL du serveur"
   },
+  "selfHostBaseUrl": {
+    "message": "URL du serveur auto-hébergé",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Domaine de l'alias"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Êtes-vous sûr de vouloir supprimer définitivement cette pièce jointe ?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Gérer l'abonnement à partir du",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Pour héberger Bitwarden sur votre propre serveur, vous devrez téléverser votre fichier de licence. Pour prendre en charge les forfaits Familles Gratuits et les fonctionnalités de facturation avancées pour votre organisation auto-hébergée, vous devrez configurer la synchronisation automatique dans votre organisation auto-hébergée."
+  },
+  "selfHostingTitleProper": {
+    "message": "Auto-Hébergement"
   }
 }

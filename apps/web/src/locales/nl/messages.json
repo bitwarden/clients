@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Wachtwoord genereren"
   },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
   "checkPassword": {
     "message": "Controleer of wachtwoord is gelekt."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Wachtwoord kopiëren",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Wachtwoordzin kopiëren",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Wachtwoord gekopieerd"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Inloggen met passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Single sign-on gebruiken"
+  },
+  "welcomeBack": {
+    "message": "Welkom terug"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ongeldige passkey. Probeer het opnieuw."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Account aanmaken"
   },
+  "newToBitwarden": {
+    "message": "Nieuw bij Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Sterk wachtwoord instellen"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Inloggen"
+  },
+  "logInToBitwarden": {
+    "message": "Inloggen op Bitwarden"
   },
   "verifyIdentity": {
     "message": "Verify your Identity"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Gebruikersnaam genereren"
   },
+  "generateEmail": {
+    "message": "E-mailadres genereren"
+  },
   "usernameType": {
     "message": "Type gebruikersnaam"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Genereer een e-mailalias met een externe doorschakelservice."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomein",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Kies een domein dat wordt ondersteund door de geselecteerde dienst",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "selfHostBaseUrl": {
+    "message": "URL zelfgehoste server",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Aliasdomein"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Abonnement beheren vanuit het",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Om Bitwarden op je eigen server te hosten, moet je je licentiebestand uploaden. Om gratis familie-abonnementen en geavanceerde factureringsmogelijkheden voor je zelfgehoste organisatie te ondersteunen, moet je automatische synchronisatie instellen in je zelfgehoste organisatie."
+  },
+  "selfHostingTitleProper": {
+    "message": "Zelf hosten"
   }
 }

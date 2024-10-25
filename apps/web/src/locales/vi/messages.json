@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Tạo mật khẩu"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "checkPassword": {
     "message": "Kiểm tra xem mật khẩu có bị lộ không."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Sao chép mật khẩu",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Password copied"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Dùng phương thức đăng nhập khác"
   },
-  "loginWithPasskey": {
-    "message": "Đăng nhập bằng mã khoá"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Mã khoá không hợp lệ. Vui lòng thử lại."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Tạo tài khoản"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Đặt mật khẩu mạnh"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Đăng nhập"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Xác minh danh tính của bạn"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Generate username"
   },
+  "generateEmail": {
+    "message": "Generate email"
+  },
   "usernameType": {
     "message": "Username type"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Generate an email alias with an external forwarding service."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
   },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Tên miền thay thế"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Quản lý đăng ký từ",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Để lưu trữ Bitwarden trên máy chủ của riêng bạn, bạn sẽ cần tải tệp giấy phép của mình lên. Để hỗ trợ các gói Free Families và khả năng thanh toán nâng cao cho tổ chức tự lưu trữ của bạn, bạn sẽ cần thiết lập đồng bộ hóa tự động trong tổ chức tự lưu trữ của mình."
+  },
+  "selfHostingTitleProper": {
+    "message": "Tự lưu trữ"
   }
 }

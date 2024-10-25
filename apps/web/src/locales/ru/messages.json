@@ -405,6 +405,9 @@
   "generatePassword": {
     "message": "Сгенерировать пароль"
   },
+  "generatePassphrase": {
+    "message": "Создать парольную фразу"
+  },
   "checkPassword": {
     "message": "Проверьте, не скомпрометирован ли пароль."
   },
@@ -662,6 +665,10 @@
   "copyPassword": {
     "message": "Скопировать пароль",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Скопировать парольную фразу",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Пароль скопирован"
@@ -932,8 +939,14 @@
   "useADifferentLogInMethod": {
     "message": "Использовать другой способ авторизации"
   },
-  "loginWithPasskey": {
-    "message": "Войти с passkey"
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Неверный passkey. Попробуйте снова."
@@ -1016,6 +1029,9 @@
   "createAccount": {
     "message": "Создать аккаунт"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Задайте надежный пароль"
   },
@@ -1030,6 +1046,9 @@
   },
   "logIn": {
     "message": "Войти"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "verifyIdentity": {
     "message": "Подтвердите вашу личность"
@@ -6354,6 +6373,9 @@
   "generateUsername": {
     "message": "Создать имя пользователя"
   },
+  "generateEmail": {
+    "message": "Сгенерировать email"
+  },
   "usernameType": {
     "message": "Тип имени пользователя"
   },
@@ -6458,6 +6480,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Создать псевдоним электронной почты для внешней службы пересылки."
+  },
+  "forwarderDomainName": {
+    "message": "Домен электронной почты",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Выберите домен, который поддерживается выбранным сервисом",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Ошибка $SERVICENAME$: $ERRORMESSAGE$",
@@ -8258,6 +8288,10 @@
   "baseUrl": {
     "message": "URL сервера"
   },
+  "selfHostBaseUrl": {
+    "message": "URL собственного сервера",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
@@ -9421,5 +9455,15 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Вы уверены, что хотите навсегда удалить это вложение?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Управление подпиской с",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Чтобы разместить Bitwarden на собственном сервере, вам нужно загрузить файл лицензии. Для поддержки тарифных планов Free Families и расширенных возможностей выставления счетов для вашей организации, размещенной на собственном сервере вам необходимо настроить автоматическую синхронизацию в вашей организации."
+  },
+  "selfHostingTitleProper": {
+    "message": "Собственное размещение"
   }
 }
