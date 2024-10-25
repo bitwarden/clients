@@ -12,6 +12,7 @@ import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { SectionComponent, SectionHeaderComponent } from "../../section";
 import { SharedModule } from "../../shared";
+import { SpinnerComponent } from "../../spinner";
 import { TabsModule } from "../../tabs";
 import { TypographyModule } from "../../typography";
 import { I18nMockService } from "../../utils/i18n-mock.service";
@@ -40,6 +41,7 @@ export default {
         ReactiveFormsModule,
         FormFieldModule,
         InputModule,
+        SpinnerComponent,
       ],
       providers: [
         {
