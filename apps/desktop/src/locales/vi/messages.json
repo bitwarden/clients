@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
     "message": "Chọn một tổ chức mà bạn muốn chuyển mục này đến. Việc chuyển đến một tổ chức sẽ chuyển quyền sở hữu mục này cho tổ chức đó. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này khi đã chuyển."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Tạo mật khẩu"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "type": {
     "message": "Loại"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Sao chép Mật khẩu"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Sao chép URI"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Tạo tài khoản"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Đặt mật khẩu mạnh"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Đăng Nhập"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Gửi"
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
+  },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "Địa chỉ API máy chủ"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Chép số",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copy email"
   },
   "copySecurityCode": {
     "message": "Sao chép Mã bảo mật",
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Tạo tên tài khoản"
   },
+  "generateEmail": {
+    "message": "Generate email"
+  },
   "usernameType": {
     "message": "Loại tên người dùng"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Tạo bí danh email với dịch vụ chuyển tiếp bên ngoài."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Lỗi $SERVICENAME$: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Gửi tin nhắn"
-  },
-  "allowScreenshots": {
-    "message": "Allow screen capture"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Allow screen capture of the Bitwarden desktop application."
   },
   "ssoError": {
     "message": "Không thể tìm thấy cổng trống để đăng nhập SSO."

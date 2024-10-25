@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Tekrar hoş geldiniz"
+  },
   "moveToOrgDesc": {
     "message": "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Parola oluştur"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "type": {
     "message": "Tür"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Parolayı kopyala"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "URI'yi kopyala"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Hesap oluştur"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden'da yeni misiniz?"
+  },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Giriş yap"
+  },
+  "logInToBitwarden": {
+    "message": "Bitwarden'a giriş yapın"
+  },
+  "logInWithPasskey": {
+    "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "loginWithDevice": {
+    "message": "Cihazla giriş yap"
+  },
+  "useSingleSignOn": {
+    "message": "Çoklu oturum açma kullan"
   },
   "submit": {
     "message": "Gönder"
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
+  },
+  "selfHostBaseUrl": {
+    "message": "Kendi kendine barındırılan sunucu URL'si",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API sunucu URL'si"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Numarayı kopyala",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "E-postayı kopyala"
   },
   "copySecurityCode": {
     "message": "Güvenlik kodunu kopyala",
@@ -1748,7 +1780,7 @@
     "message": "Zaman aşımı eylem onayı"
   },
   "enterpriseSingleSignOn": {
-    "message": "Kurumsal tek oturum açma"
+    "message": "Kurumsal çoklu oturum açma"
   },
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
+  "generateEmail": {
+    "message": "E-posta oluştur"
+  },
   "usernameType": {
     "message": "Kullanıcı adı türü"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Harici bir yönlendirme servisiyle e-posta maskesi oluştur."
+  },
+  "forwarderDomainName": {
+    "message": "E-posta alan adı",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Seçtiğiniz servisin desteklediği bir alan adı seçin",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hatası: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Metin Send'leri"
-  },
-  "allowScreenshots": {
-    "message": "Ekran kaydına izin ver"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Bitwarden masaüstü uygulamasının ekran kaydının alınmasına izin ver."
   },
   "ssoError": {
     "message": "SSO girişi için açık port bulunamadı."

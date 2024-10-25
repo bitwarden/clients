@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
     "message": "Scegli un'organizzazione in cui vuoi spostare questo elemento. Spostarlo in un'organizzazione trasferisce la proprietà dell'elemento all'organizzazione. Una volta spostato, non sarai più il proprietario diretto di questo elemento."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Genera password"
   },
+  "generatePassphrase": {
+    "message": "Genera passphrase"
+  },
   "type": {
     "message": "Tipo"
   },
@@ -394,6 +400,10 @@
   "copyPassword": {
     "message": "Copia password"
   },
+  "copyPassphrase": {
+    "message": "Copia passphrase",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Copia URI"
   },
@@ -422,11 +432,11 @@
     "message": "Caratteri speciali (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "Includi",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Includi caratteri maiuscoli",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -434,7 +444,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Includi caratteri minuscoli",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -442,7 +452,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Includi numeri",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -450,7 +460,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Includi caratteri speciali",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -485,11 +495,11 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Evita caratteri ambigui",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "I requisiti di politica aziendale sono stati applicati alle opzioni del generatore.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Crea account"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Imposta una password robusta"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Accedi"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Invia"
@@ -603,7 +628,7 @@
     "message": "Unisciti all'organizzazione"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Unisciti a $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -828,6 +853,10 @@
   "baseUrl": {
     "message": "URL del server"
   },
+  "selfHostBaseUrl": {
+    "message": "URL server autogestito",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
     "message": "URL del server API"
   },
@@ -972,16 +1001,16 @@
     "message": "La tua cassaforte è bloccata. Verifica la tua identità per continuare."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Il tuo account è bloccato"
   },
   "or": {
-    "message": "or"
+    "message": "o"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Sblocca con dati biometrici"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Sblocca con la password principale"
   },
   "unlock": {
     "message": "Sblocca"
@@ -1012,7 +1041,7 @@
     "message": "Timeout cassaforte"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Tempo limite"
   },
   "vaultTimeoutDesc": {
     "message": "Scegli quando la tua cassaforte eseguirà l'azione di timeout."
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Copia numero",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copia e-mail"
   },
   "copySecurityCode": {
     "message": "Copia codice di sicurezza",
@@ -1640,7 +1672,7 @@
     "message": "Consigliato per la sicurezza."
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Lock with master password on restart"
+    "message": "Blocca con password principale al riavvio"
   },
   "deleteAccount": {
     "message": "Elimina account"
@@ -1762,7 +1794,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "di $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -1850,7 +1882,7 @@
     "message": "Consenti l'integrazione del browser"
   },
   "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
+    "message": "Usato per consentire lo sblocco biometrico nei browser che non sono Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Consenti l'integrazione del browser DuckDuckGo"
@@ -2181,7 +2213,7 @@
     "message": "Minuti"
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "Al massimo $HOURS$ ora/e e $MINUTES$ minuto/i.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2331,7 +2363,7 @@
     "message": "Bloccato"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Cassaforte bloccata"
   },
   "unlocked": {
     "message": "Sbloccato"
@@ -2351,6 +2383,9 @@
   },
   "generateUsername": {
     "message": "Genera nome utente"
+  },
+  "generateEmail": {
+    "message": "Genera e-mail"
   },
   "usernameType": {
     "message": "Tipo di nome utente"
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Genera un alias email con un servizio di inoltro esterno."
+  },
+  "forwarderDomainName": {
+    "message": "Dominio e-mail",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Scegli un dominio supportato dal servizio selezionato",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Errore $SERVICENAME$: $ERRORMESSAGE$",
@@ -2687,7 +2730,7 @@
     "message": "Importante:"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Accesso"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Sei stato fatto uscire perché non è stato possibile decrittografare il tuo token di accesso. Entra di nuovo per risolvere il problema."
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Send Testo"
-  },
-  "allowScreenshots": {
-    "message": "Allow screen capture"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Allow screen capture of the Bitwarden desktop application."
   },
   "ssoError": {
     "message": "Non è stato possibile trovare nessuna porta libera per il login Sso."

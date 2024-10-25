@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
     "message": "Kies ’n organisasie waarheen u hierdie item wil skuif. Deur te skuif kry die organisasie die einaarskap van die item. U is dan nie meer die direkte eienaar van die item wanneer dit geskuif is nie."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Wek 'n Wagwoord op"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "type": {
     "message": "Tipe"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Kopieer Wagwoord"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Kopieer URI"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Skep Rekening"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Set a strong password"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Teken Aan"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Dien In"
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "Bedienerbronadres"
+  },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API-bedienerbronadres"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Kopieer Nommer",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copy email"
   },
   "copySecurityCode": {
     "message": "Kopieer Sekureiteitskode",
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Wek 'n gebruikersnaam op"
   },
+  "generateEmail": {
+    "message": "Generate email"
+  },
   "usernameType": {
     "message": "Gebruikersnaamtipe"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Wek ’n e-posalias op met ’n eksterne aanstuurdiens."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Teks stuur"
-  },
-  "allowScreenshots": {
-    "message": "Allow screen capture"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Allow screen capture of the Bitwarden desktop application."
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."

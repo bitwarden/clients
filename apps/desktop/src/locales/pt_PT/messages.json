@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Bem-vindo de volta"
+  },
   "moveToOrgDesc": {
     "message": "Escolha uma organização para a qual pretende mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Deixará de ser o proprietário direto deste item depois de este ter sido movido."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Gerar palavra-passe"
   },
+  "generatePassphrase": {
+    "message": "Gerar frase de acesso"
+  },
   "type": {
     "message": "Tipo"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Copiar palavra-passe"
+  },
+  "copyPassphrase": {
+    "message": "Copiar frase de acesso",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Copiar URI"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Criar conta"
   },
+  "newToBitwarden": {
+    "message": "Novo no Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Defina uma palavra-passe forte"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Iniciar sessão"
+  },
+  "logInToBitwarden": {
+    "message": "Iniciar sessão no Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Iniciar sessão com a chave de acesso"
+  },
+  "loginWithDevice": {
+    "message": "Iniciar sessão com o dispositivo"
+  },
+  "useSingleSignOn": {
+    "message": "Utilizar início de sessão único"
   },
   "submit": {
     "message": "Submeter"
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "URL do servidor"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL do servidor auto-hospedado",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "URL do servidor da API"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Copiar número",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copiar e-mail"
   },
   "copySecurityCode": {
     "message": "Copiar código de segurança",
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Gerar nome de utilizador"
   },
+  "generateEmail": {
+    "message": "Gerar e-mail"
+  },
   "usernameType": {
     "message": "Tipo de nome de utilizador"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Gerar um alias de e-mail com um serviço de reencaminhamento externo."
+  },
+  "forwarderDomainName": {
+    "message": "Domínio de e-mail",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Escolha um domínio que seja suportado pelo serviço selecionado",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Erro no $SERVICENAME$: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Sends de texto"
-  },
-  "allowScreenshots": {
-    "message": "Permitir a captura de ecrã"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Permitir a captura de ecrã da aplicação para computador do Bitwarden."
   },
   "ssoError": {
     "message": "Não foi possível encontrar portas livres para o início de sessão sso."

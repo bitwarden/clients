@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
     "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Генерувати пароль"
   },
+  "generatePassphrase": {
+    "message": "Генерувати парольну фразу"
+  },
   "type": {
     "message": "Тип"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Копіювати пароль"
+  },
+  "copyPassphrase": {
+    "message": "Копіювати парольну фразу",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Копіювати URI"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Створити обліковий запис"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Встановіть надійний пароль"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Увійти"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Відправити"
@@ -603,7 +628,7 @@
     "message": "Приєднатися до організації"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Приєднатися до $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL-адреса власного сервера",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "URL-адреса сервера API"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Копіювати номер",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Копіювати е-пошту"
   },
   "copySecurityCode": {
     "message": "Копіювати код безпеки",
@@ -1762,7 +1794,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "з $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
   },
+  "generateEmail": {
+    "message": "Генерувати е-пошту"
+  },
   "usernameType": {
     "message": "Тип імені користувача"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Згенеруйте псевдонім е-пошти зі стороннім сервісом пересилання."
+  },
+  "forwarderDomainName": {
+    "message": "Домен електронної пошти",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Виберіть домен, який підтримується вибраною службою",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Помилка $SERVICENAME$: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Відправлення тексту"
-  },
-  "allowScreenshots": {
-    "message": "Дозволити захоплення екрана"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Дозволити захоплення екрана для комп'ютерної програми Bitwarden."
   },
   "ssoError": {
     "message": "Не знайдено вільних портів для цього входу SSO."
