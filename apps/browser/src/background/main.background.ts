@@ -227,7 +227,6 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
-import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../autofill/fido2/services/browser-fido2-user-interface.service";
@@ -1180,6 +1179,31 @@ export default class MainBackground {
         this.notificationBackground,
       );
 
+      const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+      this.overlayBackground = new OverlayBackground(
+        this.logService,
+        this.cipherService,
+        this.autofillService,
+        this.authService,
+        this.environmentService,
+        this.domainSettingsService,
+        this.autofillSettingsService,
+        this.i18nService,
+        this.platformUtilsService,
+        this.vaultSettingsService,
+        this.fido2ActiveRequestManager,
+        inlineMenuFieldQualificationService,
+        this.themeStateService,
+        () => this.generatePassword(),
+        (password) => this.addPasswordToHistory(password),
+      );
+
+      this.tabsBackground = new TabsBackground(
+        this,
+        this.notificationBackground,
+        this.overlayBackground,
+      );
+
       this.filelessImporterBackground = new FilelessImporterBackground(
         this.configService,
         this.authService,
@@ -1313,6 +1337,8 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
+    await this.overlayBackground.init();
+    await this.tabsBackground.init();
     this.filelessImporterBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
@@ -1341,8 +1367,6 @@ export default class MainBackground {
         await this.switchAccount(nextUpAccount?.id);
       }
     }
-
-    await this.initOverlayAndTabsBackground();
 
     if (flagEnabled("sdk")) {
       // Warn if the SDK for some reason can't be initialized
@@ -1625,68 +1649,6 @@ export default class MainBackground {
     if (override || lastSyncAgo >= syncInternal) {
       await this.syncService.fullSync(override);
     }
-  }
-
-  /**
-   * Temporary solution to handle initialization of the overlay background behind a feature flag.
-   * Will be reverted to instantiation within the constructor once the feature flag is removed.
-   */
-  async initOverlayAndTabsBackground() {
-    if (
-      this.popupOnlyContext ||
-      this.overlayBackground ||
-      this.tabsBackground ||
-      (await firstValueFrom(this.authService.activeAccountStatus$)) ===
-        AuthenticationStatus.LoggedOut
-    ) {
-      return;
-    }
-
-    const inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-
-    if (!inlineMenuPositioningImprovementsEnabled) {
-      this.overlayBackground = new LegacyOverlayBackground(
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.themeStateService,
-      );
-    } else {
-      const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-      this.overlayBackground = new OverlayBackground(
-        this.logService,
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.vaultSettingsService,
-        this.fido2ActiveRequestManager,
-        inlineMenuFieldQualificationService,
-        this.themeStateService,
-        () => this.generatePassword(),
-        (password) => this.addPasswordToHistory(password),
-      );
-    }
-
-    this.tabsBackground = new TabsBackground(
-      this,
-      this.notificationBackground,
-      this.overlayBackground,
-    );
-
-    await this.overlayBackground.init();
-    await this.tabsBackground.init();
   }
 
   generatePassword = async (): Promise<string> => {

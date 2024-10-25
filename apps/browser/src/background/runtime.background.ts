@@ -205,7 +205,6 @@ export default class RuntimeBackground {
         let item: LockedVaultPendingNotificationsData;
 
         if (msg.command === "loggedIn") {
-          await this.main.initOverlayAndTabsBackground();
           await this.sendBwInstalledMessageToVault();
           await this.autofillService.reloadAutofillScripts();
         }
