@@ -3,6 +3,7 @@ import { Component, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { LoginViaAuthRequestComponent as BaseLoginWithDeviceComponent } from "@bitwarden/angular/auth/components/login-via-auth-request.component";
+import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
@@ -38,6 +39,7 @@ export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
   showingModal = false;
 
   constructor(
+    viewCacheService: ViewCacheService,
     protected router: Router,
     keyService: KeyService,
     cryptoFunctionService: CryptoFunctionService,
@@ -62,6 +64,7 @@ export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
     toastService: ToastService,
   ) {
     super(
+      viewCacheService,
       router,
       keyService,
       cryptoFunctionService,

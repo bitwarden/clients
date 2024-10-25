@@ -1,7 +1,8 @@
-import { Directive, OnDestroy, OnInit } from "@angular/core";
+import { Directive, OnDestroy, OnInit, WritableSignal } from "@angular/core";
 import { IsActiveMatchOptions, Router } from "@angular/router";
 import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
+import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
 import {
   AuthRequestLoginCredentials,
   AuthRequestServiceAbstraction,
@@ -70,7 +71,13 @@ export class LoginViaAuthRequestComponent
 
   private authRequestKeyPair: { publicKey: Uint8Array; privateKey: Uint8Array };
 
+  existingAuthRequest: WritableSignal<CreateAuthRequest> = this.viewCacheService.signal({
+    key: "existing-auth-request",
+    initialValue: null,
+  });
+
   constructor(
+    protected viewCacheService: ViewCacheService,
     protected router: Router,
     private keyService: KeyService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -292,8 +299,18 @@ export class LoginViaAuthRequestComponent
         const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
         await this.authRequestService.setAdminAuthRequest(adminAuthReqStorable, userId);
       } else {
-        await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
-        reqResponse = await this.apiService.postAuthRequest(this.authRequest);
+        console.log("existingAuthRequest() - Before set: ", this.existingAuthRequest());
+
+        if (this.existingAuthRequest() != null) {
+          this.authRequest = this.existingAuthRequest();
+        } else {
+          await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
+          reqResponse = await this.apiService.postAuthRequest(this.authRequest);
+
+          this.existingAuthRequest.set(this.authRequest);
+        }
+
+        console.log("existingAuthRequest() - After set: ", this.existingAuthRequest());
       }
 
       if (reqResponse.id) {
