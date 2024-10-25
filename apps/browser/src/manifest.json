@@ -24,7 +24,6 @@
     },
     {
       "all_frames": true,
-      "css": ["content/autofill.css"],
       "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],

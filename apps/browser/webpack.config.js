@@ -189,7 +189,6 @@ const plugins = [
       { from: "./src/_locales", to: "_locales" },
       { from: "./src/images", to: "images" },
       { from: "./src/popup/images", to: "popup/images" },
-      { from: "./src/autofill/content/autofill.css", to: "content" },
     ],
   }),
   new MiniCssExtractPlugin({

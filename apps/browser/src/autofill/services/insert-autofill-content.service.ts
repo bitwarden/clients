@@ -8,6 +8,7 @@ import {
   elementIsInputElement,
   elementIsSelectElement,
   elementIsTextAreaElement,
+  setElementStyles,
 } from "../utils";
 
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -15,6 +16,7 @@ import { InsertAutofillContentService as InsertAutofillContentServiceInterface }
 import { CollectAutofillContentService } from "./collect-autofill-content.service";
 
 class InsertAutofillContentService implements InsertAutofillContentServiceInterface {
+  private readonly filledElements: WeakMap<HTMLElement, Record<string, any>> = new Map();
   private readonly autofillInsertActions: AutofillInsertActions = {
     fill_by_opid: ({ opid, value }) => this.handleFillFieldByOpidAction(opid, value),
     click_on_opid: ({ opid }) => this.handleClickOnFieldByOpidAction(opid),
@@ -128,13 +130,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const delayActionsInMilliseconds = 20;
-    return new Promise((resolve) =>
-      setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
-        resolve();
-      }, delayActionsInMilliseconds * actionIndex),
-    );
+    this.autofillInsertActions[action]({ opid, value });
   };
 
   /**
@@ -273,17 +269,55 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
-    const skipAnimatingElement =
-      elementIsFillableFormField(element) &&
-      !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);
-
-    if (this.domElementVisibilityService.isElementHiddenByCss(element) || skipAnimatingElement) {
+    const prefersReducedMotion = !!globalThis.matchMedia(`(prefers-reduced-motion: reduce)`)
+      .matches;
+    if (prefersReducedMotion) {
       return;
     }
 
-    element.classList.add("com-bitwarden-browser-animated-fill");
-    setTimeout(() => element.classList.remove("com-bitwarden-browser-animated-fill"), 200);
+    const skipAnimatingElement =
+      elementIsInputElement(element) &&
+      !new Set(["email", "text", "password", "number", "tel", "url", "date"]).has(element?.type);
+    if (skipAnimatingElement || this.domElementVisibilityService.isElementHiddenByCss(element)) {
+      return;
+    }
+
+    if (!this.filledElements.has(element)) {
+      this.filledElements.set(element, {
+        backgroundColor: element.style.backgroundColor,
+        textColor: element.style.color,
+        borderColor: element.style.borderColor,
+      });
+    }
+
+    setElementStyles(
+      element,
+      {
+        backgroundColor: "rgb(219, 229, 246)",
+        color: "rgb(33, 37, 41)",
+        borderColor: "rgb(23, 93, 220)",
+      },
+      true,
+    );
+    element.addEventListener(EVENTS.INPUT, this.resetElementStyles, { once: true });
   }
+
+  /**
+   * Reset the element styles to their original values upon user modification of the form field.
+   *
+   * @param event - The keyboard event that triggered the reset.
+   */
+  private resetElementStyles = (event: KeyboardEvent): void => {
+    const element = event.target as HTMLElement;
+    if (this.filledElements.has(element)) {
+      const { backgroundColor, textColor, borderColor } = this.filledElements.get(element);
+      setElementStyles(element, {
+        backgroundColor: backgroundColor,
+        color: textColor,
+        borderColor: borderColor,
+      });
+    }
+  };
 
   /**
    * Simulates a click  event on the element.
