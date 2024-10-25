@@ -147,9 +147,13 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
-    return (
-      this.allowOwnershipChange || (this.organizations.length > 0 && this.config.mode === "edit")
-    );
+    // Show ownership field when editing with available orgs
+    const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
+
+    // When in admin console, ownership should not be shown unless cloning
+    const isAdminConsoleEdit = this.config.isAdminConsole && this.config.mode !== "clone";
+
+    return this.allowOwnershipChange || (isEditingWithOrgs && !isAdminConsoleEdit);
   }
 
   get defaultOwner() {
