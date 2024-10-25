@@ -1,4 +1,5 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
@@ -19,12 +20,29 @@ export class SingleOrgPolicy extends BasePolicy {
   selector: "policy-single-org",
   templateUrl: "single-org.component.html",
 })
-export class SingleOrgPolicyComponent extends BasePolicyComponent {
+export class SingleOrgPolicyComponent extends BasePolicyComponent implements OnInit {
   constructor(
     private i18nService: I18nService,
     private configService: ConfigService,
   ) {
     super();
+  }
+
+  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.AccountDeprovisioning,
+  );
+
+  async ngOnInit() {
+    super.ngOnInit();
+
+    const isAccountDeprovisioningEnabled = await firstValueFrom(this.accountDeprovisioningEnabled$);
+    this.policy.description = isAccountDeprovisioningEnabled
+      ? "singleOrgPolicyDesc"
+      : "singleOrgDesc";
+
+    if (!this.policyResponse.canToggleState) {
+      this.enabled.disable();
+    }
   }
 
   async buildRequest(policiesEnabledMap: Map<PolicyType, boolean>): Promise<PolicyRequest> {
@@ -46,6 +64,15 @@ export class SingleOrgPolicyComponent extends BasePolicyComponent {
             "disableRequiredError",
             this.i18nService.t("maximumVaultTimeoutLabel"),
           ),
+        );
+      }
+
+      if (
+        (await firstValueFrom(this.accountDeprovisioningEnabled$)) &&
+        !this.policyResponse.canToggleState
+      ) {
+        throw new Error(
+          this.i18nService.t("disableRequiredError", this.i18nService.t("singleOrg")),
         );
       }
     }
