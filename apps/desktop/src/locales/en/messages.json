@@ -1683,6 +1683,12 @@
   "deleteAccountWarning": {
     "message": "Deleting your account is permanent. It cannot be undone."
   },
+  "cannotDeleteAccount":{
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc":{
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "Account deleted"
   },
