@@ -12,6 +12,13 @@ export const mockCiphers: any[] = [
     organizationUseTotp: false,
     login: {
       password: "123",
+      hasUris: true,
+      uris: [
+        { uri: "www.google.com" },
+        { uri: "accounts.google.com" },
+        { uri: "https://www.google.com" },
+        { uri: "https://www.google.com/login" },
+      ],
     },
     edit: false,
     viewPassword: true,

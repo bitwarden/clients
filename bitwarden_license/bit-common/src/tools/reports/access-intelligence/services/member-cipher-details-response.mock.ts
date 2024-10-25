@@ -64,5 +64,16 @@ export const mockMemberCipherDetailsResponse: { data: any[] } = {
         "cbea34a8-bde4-46ad-9d19-b05001228xy4",
       ],
     },
+    {
+      UserName: "Chris Finch Tester",
+      Email: "chris.finch@wernhamhogg.uk",
+      UsesKeyConnector: true,
+      cipherIds: [
+        "cbea34a8-bde4-46ad-9d19-b05001228ab2",
+        "cbea34a8-bde4-46ad-9d19-b05001228cd3",
+        "cbea34a8-bde4-46ad-9d19-b05001228xy4",
+        "cbea34a8-bde4-46ad-9d19-b05001228ab1",
+      ],
+    },
   ],
 };

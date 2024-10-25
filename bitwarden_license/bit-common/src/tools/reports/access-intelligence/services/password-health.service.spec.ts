@@ -99,12 +99,12 @@ describe("PasswordHealthService", () => {
 
     it("should calculate total members per cipher", () => {
       expect(service.totalMembersMap.size).toBeGreaterThan(0);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab1")).toBe(2);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab2")).toBe(4);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228cd3")).toBe(5);
+      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab1")).toBe(3);
+      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab2")).toBe(5);
+      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228cd3")).toBe(6);
       expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001227nm5")).toBe(4);
       expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001227nm7")).toBe(1);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228xy4")).toBe(6);
+      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228xy4")).toBe(7);
     });
   });
 

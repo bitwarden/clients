@@ -11,6 +11,7 @@ import { HeaderModule } from "../../layouts/header/header.module";
 
 import { ApplicationTableComponent } from "./application-table.component";
 import { NotifiedMembersTableComponent } from "./notified-members-table.component";
+import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
 import { PasswordHealthMembersComponent } from "./password-health-members.component";
 import { PasswordHealthComponent } from "./password-health.component";
 
@@ -30,6 +31,7 @@ export enum AccessIntelligenceTabType {
     HeaderModule,
     PasswordHealthComponent,
     PasswordHealthMembersComponent,
+    PasswordHealthMembersURIComponent,
     NotifiedMembersTableComponent,
     TabsModule,
   ],

@@ -1,5 +1,9 @@
 import { Inject, Injectable } from "@angular/core";
 
+// eslint-disable-next-line no-restricted-imports
+import { mockCiphers } from "@bitwarden/bit-common/tools/reports/access-intelligence/services/ciphers.mock";
+// eslint-disable-next-line no-restricted-imports
+import { mockMemberCipherDetailsResponse } from "@bitwarden/bit-common/tools/reports/access-intelligence/services/member-cipher-details-response.mock";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -7,9 +11,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
-
-import { mockCiphers } from "./ciphers.mock";
-import { mockMemberCipherDetailsResponse } from "./member-cipher-details-response.mock";
 
 @Injectable()
 export class PasswordHealthService {
@@ -162,5 +163,24 @@ export class PasswordHealthService {
       this.reportCipherIds.push(ciph.id);
       this.reportCiphers.push(ciph);
     }
+  }
+
+  groupCiphersByLoginUri(): CipherView[] {
+    const cipherViews: CipherView[] = [];
+    const cipherUris: string[] = [];
+    const ciphers = this.reportCiphers;
+
+    ciphers.forEach((ciph) => {
+      const uris = ciph.login?.uris ?? [];
+      uris.map((u: { uri: string }) => {
+        const uri = Utils.getHostname(u.uri).replace("www.", "");
+        if (!cipherUris.includes(uri)) {
+          cipherUris.push(uri);
+          cipherViews.push({ ...ciph, hostURI: uri } as CipherView & { hostURI: string });
+        }
+      });
+    });
+
+    return cipherViews;
   }
 }
