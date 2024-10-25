@@ -8,22 +8,25 @@ export class BitwardenFileUploadService {
     apiCall: (fd: FormData) => Promise<any>,
   ) {
     const fd = new FormData();
+    // eslint-disable-next-line no-useless-catch
     try {
-      const blob = new Blob([encryptedFileData.buffer], { type: "application/octet-stream" });
-      fd.append("data", blob, encryptedFileName);
-    } catch (e) {
-      if (Utils.isNode && !Utils.isBrowser) {
+      if (Utils.isBrowser) {
+        const blob = new Blob([encryptedFileData.buffer], { type: "application/octet-stream" });
+        fd.append("data", blob, encryptedFileName);
+      } else if (Utils.isNode) {
         fd.append(
           "data",
           Buffer.from(encryptedFileData.buffer) as any,
           {
-            filepath: encryptedFileName,
+            filename: encryptedFileName,
             contentType: "application/octet-stream",
           } as any,
         );
       } else {
-        throw e;
+        throw new Error("Unsupported environment");
       }
+    } catch (e) {
+      throw e;
     }
 
     await apiCall(fd);
