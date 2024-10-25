@@ -940,13 +940,16 @@ export default class AutofillService implements AutofillServiceInterface {
 
     if (options.allowTotpAutofill) {
       await Promise.all(
-        totps.map(async (t) => {
+        totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
             return;
           }
 
           filledFields[t.opid] = t;
-          const totpValue = await this.totpService.getCode(login.totp);
+          let totpValue = await this.totpService.getCode(login.totp);
+          if (totpValue.length == totps.length) {
+            totpValue = totpValue.charAt(i);
+          }
           AutofillService.fillByOpid(fillScript, t, totpValue);
         }),
       );
