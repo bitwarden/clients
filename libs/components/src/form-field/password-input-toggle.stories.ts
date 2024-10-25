@@ -1,8 +1,9 @@
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { DialogModule } from "../dialog";
 import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -15,11 +16,23 @@ export default {
   component: BitPasswordInputToggleDirective,
   decorators: [
     moduleMetadata({
-      imports: [FormsModule, ReactiveFormsModule, FormFieldModule, InputModule, IconButtonModule],
+      imports: [
+        DialogModule,
+        FormsModule,
+        ReactiveFormsModule,
+        FormFieldModule,
+        InputModule,
+        IconButtonModule,
+      ],
+    }),
+    applicationConfig({
       providers: [
         {
           provide: I18nService,
-          useValue: new I18nMockService({ toggleVisibility: "Toggle visibility" }),
+          useValue: new I18nMockService({
+            toggleVisibility: "Toggle visibility",
+            close: "Close",
+          }),
         },
       ],
     }),
