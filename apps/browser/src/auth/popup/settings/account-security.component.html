@@ -94,7 +94,7 @@
       </bit-section-header>
       <bit-item>
         <button bit-item-content type="button" appStopClick (click)="fingerprint()">
-          <div class="row-main">{{ "fingerprintPhrase" | i18n }}</div>
+          <div>{{ "fingerprintPhrase" | i18n }}</div>
         </button>
       </bit-item>
       <bit-item>
@@ -115,11 +115,11 @@
         "
       >
         <button bit-item-content type="button" appStopClick (click)="lock()"></button>
-        <div class="row-main">{{ "lockNow" | i18n }}</div>
+        <div>{{ "lockNow" | i18n }}</div>
       </bit-item>
       <bit-item *ngIf="!accountSwitcherEnabled">
         <button bit-item-content type="button" appStopClick (click)="logOut()"></button>
-        <div class="row-main">{{ "logOut" | i18n }}</div>
+        <div>{{ "logOut" | i18n }}</div>
       </bit-item>
     </bit-section>
   </div>
