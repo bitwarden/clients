@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
     "message": "Vyberte organizáciu, do ktorej chcete presunúť túto položku. Presunom do organizácie sa vlastníctvo položky prenáša na túto organizáciu. Po presunutí už nebudete priamym vlastníkom danej položky."
   },
@@ -101,7 +104,7 @@
     "message": "Upraviť položku"
   },
   "emailAddress": {
-    "message": "Emailová adresa"
+    "message": "E-mailová adresa"
   },
   "verificationCodeTotp": {
     "message": "Overovací kód (TOTP)"
@@ -166,7 +169,7 @@
     "message": "Číslo vodičského preukazu"
   },
   "email": {
-    "message": "Email"
+    "message": "E-mail"
   },
   "phone": {
     "message": "Telefón"
@@ -258,6 +261,9 @@
   },
   "generatePassword": {
     "message": "Generovať heslo"
+  },
+  "generatePassphrase": {
+    "message": "Generovať prístupovú frázu"
   },
   "type": {
     "message": "Typ"
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Skopírovať heslo"
+  },
+  "copyPassphrase": {
+    "message": "Kopírovať prístupovú frázu",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Kopírovať URI"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Vytvoriť účet"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Prihlásiť sa"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Potvrdiť"
@@ -633,16 +658,16 @@
     "message": "Nápoveď k heslu"
   },
   "enterEmailToGetHint": {
-    "message": "Zadajte emailovú adresu na zaslanie nápovede k vášmu hlavnému heslu."
+    "message": "Zadajte e-mailovú adresu na zaslanie nápovede k vášmu hlavnému heslu."
   },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
   },
   "emailRequired": {
-    "message": "Emailová adresa je povinná."
+    "message": "E-mailová adresa je povinná."
   },
   "invalidEmail": {
-    "message": "Neplatná emailová adresa."
+    "message": "Neplatná e-mailová adresa."
   },
   "masterPasswordRequired": {
     "message": "Hlavné heslo je povinné."
@@ -679,7 +704,7 @@
     "message": "Boli ste prihlásený!"
   },
   "masterPassSent": {
-    "message": "Emailom sme vám poslali nápoveď k hlavnému heslu."
+    "message": "E-mailom sme vám poslali nápoveď k hlavnému heslu."
   },
   "unexpectedError": {
     "message": "Vyskytla sa neočakávaná chyba."
@@ -721,7 +746,7 @@
     "message": "Zadajte 6-miestny overovací kód z vašej overovacej aplikácie."
   },
   "enterVerificationCodeEmail": {
-    "message": "Zadajte 6-miestny overovací kód, ktorý bol zaslaný emailom na $EMAIL$.",
+    "message": "Zadajte 6-miestny overovací kód, ktorý bol zaslaný e-mailom na $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -730,7 +755,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "Overovací email odoslaný na $EMAIL$.",
+    "message": "Overovací e-mail odoslaný na $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -742,7 +767,7 @@
     "message": "Zapamätaj si ma"
   },
   "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslať overovací kód emailom"
+    "message": "Znovu zaslať overovací kód e-mailom"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použiť inú dvojstupňovú metódu prihlásenia"
@@ -787,7 +812,7 @@
     "message": "Použiť akýkoľvek WebAuthn bezpečnostný kľúč pre prístup k vášmu účtu."
   },
   "emailTitle": {
-    "message": "Email"
+    "message": "E-mail"
   },
   "emailDescV2": {
     "message": "Zadajte kód zaslaný na váš e-mail."
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "URL servera"
+  },
+  "selfHostBaseUrl": {
+    "message": "Adresa URL vlastného hostingu",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "URL API servera"
@@ -1218,6 +1247,9 @@
     "message": "Kopírovať číslo",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Kopírovať e-mail"
+  },
   "copySecurityCode": {
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
@@ -1543,7 +1575,7 @@
     "message": "Potvrdiť export trezoru"
   },
   "exportWarningDesc": {
-    "message": "Tento export obsahuje vaše dáta v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. email). Okamžite ho odstráňte, keď ho prestanete používať."
+    "message": "Tento export obsahuje vaše dáta v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. e-mail). Okamžite ho odstráňte, keď ho prestanete používať."
   },
   "encExportKeyWarningDesc": {
     "message": "Tento export zašifruje vaše údaje pomocou šifrovacieho kľúča vášho účtu. Ak niekedy budete rotovať šifrovací kľúč svojho účtu, mali by ste exportovať znova, pretože nebudete môcť dešifrovať tento exportovaný súbor."
@@ -2100,7 +2132,7 @@
     "message": "Overiť cez WebAuthn"
   },
   "hideEmail": {
-    "message": "Skryť moju emailovú adresu pred príjemcami."
+    "message": "Skryť moju e-mailovú adresu pred príjemcami."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send."
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
   },
+  "generateEmail": {
+    "message": "Generovať e-mail"
+  },
   "usernameType": {
     "message": "Typ používateľského mena"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+  },
+  "forwarderDomainName": {
+    "message": "E-mailová doména",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vyberte doménu, ktorá je podporovaná vybranou službou",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ chyba: $ERRORMESSAGE$",
@@ -2660,7 +2703,7 @@
     "message": "a pokračujte vo vytváraní účtu."
   },
   "noEmail": {
-    "message": "Žiadny email?"
+    "message": "Žiadny e-mail?"
   },
   "goBack": {
     "message": "Prejsť späť"
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Textové Sendy"
-  },
-  "allowScreenshots": {
-    "message": "Povoliť snímanie obrazovky"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Povoliť snímanie obsahu aplikácie Bitwarden Desktop."
   },
   "ssoError": {
     "message": "Pre prihlásenie SSO sa nepodarilo nájsť žiadne voľné porty."

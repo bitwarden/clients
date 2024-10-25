@@ -60,6 +60,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welkom terug"
+  },
   "moveToOrgDesc": {
     "message": "Kies een organisatie waarnaar je dit item wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van het item. Je bent niet langer de directe eigenaar meer van het item als het is verplaatst."
   },
@@ -259,6 +262,9 @@
   "generatePassword": {
     "message": "Genereer wachtwoord"
   },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
   "type": {
     "message": "Categorie"
   },
@@ -393,6 +399,10 @@
   },
   "copyPassword": {
     "message": "Kopieer wachtwoord"
+  },
+  "copyPassphrase": {
+    "message": "Wachtwoordzin kopiëren",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "URI kopiëren"
@@ -547,6 +557,9 @@
   "createAccount": {
     "message": "Maak een account aan"
   },
+  "newToBitwarden": {
+    "message": "Nieuw bij Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Stel een sterk wachtwoord in"
   },
@@ -555,6 +568,18 @@
   },
   "logIn": {
     "message": "Log in"
+  },
+  "logInToBitwarden": {
+    "message": "Inloggen op Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Inloggen met passkey"
+  },
+  "loginWithDevice": {
+    "message": "Inloggen met apparaat"
+  },
+  "useSingleSignOn": {
+    "message": "Single sign-on gebruiken"
   },
   "submit": {
     "message": "Opslaan"
@@ -827,6 +852,10 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL zelfgehoste server",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API server-URL"
@@ -1217,6 +1246,9 @@
   "copyNumber": {
     "message": "Nummer kopiëren",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "E-mail kopiëren"
   },
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
@@ -2352,6 +2384,9 @@
   "generateUsername": {
     "message": "Gebruikersnamen genereren"
   },
+  "generateEmail": {
+    "message": "E-mailadres genereren"
+  },
   "usernameType": {
     "message": "Type gebruikersnaam"
   },
@@ -2394,6 +2429,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Genereer een e-mailalias met een externe doorstuurservice."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomein",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Kies een domein dat wordt ondersteund door de geselecteerde dienst",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ fout: $ERRORMESSAGE$",
@@ -3161,12 +3204,6 @@
   },
   "textSends": {
     "message": "Tekst-Sends"
-  },
-  "allowScreenshots": {
-    "message": "Schermopname toestaan"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Schermopnames van de Bitwarden-desktopapplicatie toestaan."
   },
   "ssoError": {
     "message": "Er zijn geen vrije poorten gevonden voor de sso-login."
