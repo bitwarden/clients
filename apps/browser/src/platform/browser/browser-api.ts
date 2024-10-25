@@ -58,11 +58,36 @@ export class BrowserApi {
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) =>
-      chrome.windows.create(options, (window) => {
-        resolve(window);
-      }),
-    );
+    return new Promise((resolve) => {
+      chrome.windows.create(options, async (newWindow) => {
+        if (!BrowserApi.isSafariApi) {
+          return resolve(newWindow);
+        }
+        // Safari doesn't close the default extension popup when a new window is created so we need to
+        // manually trigger the close by focusing the main window after the new window is created
+        const allWindows = await new Promise<chrome.windows.Window[]>((resolve) => {
+          chrome.windows.getAll({ windowTypes: ["normal"] }, (windows) => resolve(windows));
+        });
+
+        const mainWindow = allWindows.find((window) => window.id !== newWindow.id);
+
+        // No main window found, resolve the new window
+        if (!mainWindow) {
+          return resolve(newWindow);
+        }
+        // Focus the main window to close the extension popup
+        if (mainWindow && mainWindow.id) {
+          chrome.windows.update(mainWindow.id, { focused: true }, () => {
+            // Refocus the newly created window
+            if (newWindow.id) {
+              chrome.windows.update(newWindow.id, { focused: true }, () => {
+                resolve(newWindow);
+              });
+            }
+          });
+        }
+      });
+    });
   }
 
   /**
