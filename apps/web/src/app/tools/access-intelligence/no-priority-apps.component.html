@@ -1,0 +1,15 @@
+<bit-no-items [icon]="noItemsIcon" class="tw-text-main">
+  <ng-container slot="title">
+    <h2 class="tw-font-semibold mt-4">
+      {{ "noPriorityApplicationsTitle" | i18n }}
+    </h2>
+  </ng-container>
+  <ng-container slot="description">
+    <p class="tw-text-muted">
+      {{ "noPriorityApplicationsDescription" | i18n }}
+    </p>
+  </ng-container>
+  <ng-container slot="button">
+    <button bitButton buttonType="primary" type="button">{{ "markPriorityApps" | i18n }}</button>
+  </ng-container>
+</bit-no-items>
