@@ -93,7 +93,6 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { CollectionsDialogResult } from "../individual-vault/collections.component";
 import { RoutedVaultFilterBridgeService } from "../individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { createFilterFunction } from "../individual-vault/vault-filter/shared/models/filter-function";
@@ -111,7 +110,6 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { openOrgVaultCollectionsDialog } from "./collections.component";
 import { AdminConsoleCipherFormConfigService } from "./services/admin-console-cipher-form-config.service";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 const BroadcasterSubscriptionId = "OrgVaultComponent";
@@ -716,39 +714,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
       madeAttachmentChanges = false;
     });
-  }
-
-  async editCipherCollections(cipher: CipherView) {
-    let collections: CollectionAdminView[] = [];
-
-    // Admins limited to only adding items to collections they have access to.
-    collections = await firstValueFrom(
-      this.allCollectionsWithoutUnassigned$.pipe(
-        map((c) => {
-          return c.sort((a, b) => {
-            if (a.canEditItems(this.organization) && !b.canEditItems(this.organization)) {
-              return -1;
-            } else if (!a.canEditItems(this.organization) && b.canEditItems(this.organization)) {
-              return 1;
-            } else {
-              return a.name.localeCompare(b.name);
-            }
-          });
-        }),
-      ),
-    );
-    const dialog = openOrgVaultCollectionsDialog(this.dialogService, {
-      data: {
-        collectionIds: cipher.collectionIds,
-        collections: collections,
-        organization: this.organization,
-        cipherId: cipher.id,
-      },
-    });
-
-    if ((await lastValueFrom(dialog.closed)) == CollectionsDialogResult.Saved) {
-      this.refresh();
-    }
   }
 
   async addCipher(cipherType?: CipherType) {
