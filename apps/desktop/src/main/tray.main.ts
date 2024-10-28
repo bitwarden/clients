@@ -211,6 +211,10 @@ export class TrayMain {
     }
   }
 
+  /**
+   * This method is used to test modal behavior during development and could be removed in the future.
+   * @returns
+   */
   private async fakePopup() {
     if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
       await this.windowMain.createWindow("modal-app");
