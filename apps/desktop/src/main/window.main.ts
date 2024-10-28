@@ -216,8 +216,8 @@ export class WindowMain {
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 400,
-      minHeight: 400,
+      minWidth: 680,
+      minHeight: 500,
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
       title: app.name,

@@ -2,8 +2,9 @@ import { BrowserWindow } from "electron";
 
 import { WindowState } from "./models/domain/window-state";
 
-const popupWidth = 450;
-const popupHeight = 450;
+// change as needed, however limited by mainwindow minimum size
+const popupWidth = 680;
+const popupHeight = 500;
 
 export function applyPopupModalStyles(window: BrowserWindow) {
   window.unmaximize();
@@ -25,7 +26,7 @@ export function applyPopupModalStyles(window: BrowserWindow) {
 }
 
 export function applyMainWindowStyles(window: BrowserWindow, existingWindowState: WindowState) {
-  window.setMinimumSize(400, 400);
+  window.setMinimumSize(680, 500);
 
   // need to guard against null/undefined values
   if (existingWindowState) {
