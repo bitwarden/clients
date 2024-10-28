@@ -275,7 +275,6 @@ export class WindowMain {
       await this.win.loadURL(
         url.format({
           protocol: "file:",
-          //pathname: `${__dirname}/index.html`,
           pathname: path.join(__dirname, "/index.html"),
           slashes: true,
           hash: "/passkeys",
