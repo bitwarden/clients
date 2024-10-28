@@ -1,6 +1,6 @@
 import { html, css } from "lit";
 
-import { NotificationBarIframeInitData } from "../abstractions/notification-bar";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { IconClose } from "./icon-close";
 
@@ -8,19 +8,12 @@ export function CloseButton({
   handleCloseNotification,
   theme,
 }: {
-  // @TODO use context to avoid prop drilling
   handleCloseNotification: (e: Event) => void;
-  theme: NotificationBarIframeInitData["theme"];
+  theme: Theme;
 }) {
   return html`
-    <div class="notification-close">
-      <button
-        type="button"
-        style=${buttonStyles}
-        class="neutral"
-        id="close-button"
-        @click=${handleCloseNotification}
-      >
+    <div>
+      <button type="button" style=${buttonStyles} @click=${handleCloseNotification}>
         ${IconClose({ theme })}
       </button>
     </div>
@@ -29,7 +22,7 @@ export function CloseButton({
 
 const buttonStyles = css`
   border: 1px solid transparent;
+  border-radius: 8px;
   background-color: transparent;
   cursor: pointer;
-  padding: 0.35rem 15px;
 `;

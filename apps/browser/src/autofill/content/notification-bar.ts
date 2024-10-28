@@ -860,6 +860,8 @@ async function loadNotificationBar() {
     notificationBarInitData: NotificationBarIframeInitData,
   ) {
     barType = type;
+    // @TODO feature-flag
+    const useComponentBar = true;
 
     if (document.body == null) {
       return;
@@ -870,7 +872,8 @@ async function loadNotificationBar() {
 
     notificationBarIframe = document.createElement("iframe");
     notificationBarIframe.style.cssText =
-      "height: 42px; width: 100%; border: 0; min-height: initial;";
+      (useComponentBar ? "height: 142px; width: 450px; right: 0;" : "height: 42px; width: 100%;") +
+      " border: 0; min-height: initial;";
     notificationBarIframe.id = "bit-notification-bar-iframe";
     notificationBarIframe.src = barPageUrl;
 
@@ -878,8 +881,11 @@ async function loadNotificationBar() {
     frameDiv.setAttribute("aria-live", "polite");
     frameDiv.id = "bit-notification-bar";
     frameDiv.style.cssText =
-      "height: 42px; width: 100%; top: 0; left: 0; padding: 0; position: fixed; " +
-      "z-index: 2147483647; visibility: visible;";
+      (useComponentBar
+        ? "height: 142px; width: 450px; right: 0;"
+        : "height: 42px; width: 100%; left: 0;") +
+      " top: 0; padding: 0; position: fixed;" +
+      " z-index: 2147483647; visibility: visible;";
     frameDiv.appendChild(notificationBarIframe);
     document.body.appendChild(frameDiv);
 

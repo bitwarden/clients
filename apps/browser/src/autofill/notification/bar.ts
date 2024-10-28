@@ -16,7 +16,7 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
 } from "./abstractions/notification-bar";
-import { OuterWrapper } from "./components/outer-wrapper";
+import { NotificationOuterWrapper } from "./components/outer-wrapper";
 
 const useComponentBar = true;
 
@@ -64,6 +64,19 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     cancelFilelessImport: chrome.i18n.getMessage("no"),
     lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
     startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
+
+    // @TODO move to message catalog
+    saveAction: "Save",
+    saveAsNewLoginAction: "Save as new login",
+    updateLoginAction: "Update login",
+    saveLoginPrompt: "Save login?",
+    updateLoginPrompt: "Update existing login?",
+    loginSaveSuccess: "Login saved",
+    loginSaveSuccessDetails: "Login saved to Bitwarden.",
+    loginUpdateSuccess: "Login saved",
+    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
+    saveFailure: "Error saving",
+    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
   };
 
   if (useComponentBar) {
@@ -73,8 +86,9 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     // There are other possible passed theme values, but for now, resolve to dark or light
     const resolvedTheme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
 
+    // @TODO use context to avoid prop drilling
     return render(
-      OuterWrapper({
+      NotificationOuterWrapper({
         ...notificationBarIframeInitData,
         theme: resolvedTheme,
         handleCloseNotification,
