@@ -213,7 +213,7 @@ export class TrayMain {
 
   private async fakePopup() {
     if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
-      await this.windowMain.createWindow("minimal-app");
+      await this.windowMain.createWindow("modal-app");
       return;
     }
 
