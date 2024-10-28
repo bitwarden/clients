@@ -278,6 +278,11 @@ export class DesktopSettingsService {
   async setMinimizeOnCopy(value: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
   }
+
+  /**
+   * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
+   * @param value `true` if the application is in modal mode, `false` if it is not.
+   */
   async setInModalMode(value: boolean) {
     await this.inModalModeState.update(() => value);
   }
