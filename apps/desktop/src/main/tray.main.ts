@@ -10,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent } from "../utils";
+import { cleanUserAgent, isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -52,6 +52,7 @@ export class TrayMain {
         click: () => this.toggleWindow(),
       },
       {
+        visible: isDev(),
         label: "Fake Popup",
         click: () => this.fakePopup(),
       },
