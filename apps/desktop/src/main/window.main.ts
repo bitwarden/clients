@@ -272,6 +272,7 @@ export class WindowMain {
         },
       );
     } else {
+      // we're in modal mode - load the passkeys page
       await this.win.loadURL(
         url.format({
           protocol: "file:",
