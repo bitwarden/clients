@@ -15,7 +15,7 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
     </div>
   `,
 })
-export class PasskeysComponent {
+export class Fido2PlaceholderComponent {
   constructor(
     private readonly desktopSettingsService: DesktopSettingsService,
     private readonly router: Router,
