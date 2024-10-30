@@ -156,6 +156,7 @@
     "@angular/router": "18.2.13",
     "@bitwarden/sdk-internal": "0.2.0-main.38",
     "@electron/fuses": "1.8.0",
+    "@emotion/css": "11.13.5",
     "@koa/multer": "3.0.2",
     "@koa/router": "13.1.0",
     "@microsoft/signalr": "8.0.7",

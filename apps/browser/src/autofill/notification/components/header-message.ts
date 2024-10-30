@@ -1,11 +1,12 @@
-import { html, css } from "lit";
+import { css } from '@emotion/css'
+import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../constants/styles";
 
 export function NotificationHeaderMessage({ message, theme }: { message: string; theme: Theme }) {
-  return html` <span style=${messageStyles(theme)}>${message}</span> `;
+  return html` <span title=${message} class=${messageStyles(theme)}>${message}</span> `;
 }
 
 const messageStyles = (theme: Theme) => css`

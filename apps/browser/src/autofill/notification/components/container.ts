@@ -1,13 +1,16 @@
-import { html, css } from "lit";
+import { css } from "@emotion/css";
+import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { NotificationBarIframeInitData } from "../abstractions/notification-bar";
 import { themes, spacing } from "../constants/styles";
 
+import { ButtonRow } from "./Buttons/button-row";
+import { NotificationBody } from "./body";
 import { NotificationHeader } from "./header";
 
-export function NotificationOuterWrapper({
+export function NotificationContainer({
   handleCloseNotification,
   i18n,
   isVaultLocked,
@@ -17,10 +20,10 @@ export function NotificationOuterWrapper({
   i18n: { [key: string]: string };
 } & NotificationBarIframeInitData) {
   const headerMessage = getHeaderMessage(type, i18n);
-  const showBody = false;
+  const showBody = true;
 
   return html`
-    <div style=${wrapperStyles(theme)}>
+    <div class=${wrapperStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         hasBody: showBody,
@@ -28,6 +31,12 @@ export function NotificationOuterWrapper({
         message: headerMessage,
         theme,
       })}
+      ${showBody
+        ? NotificationBody({
+            theme,
+            children: [ButtonRow({ theme })],
+          })
+        : null}
     </div>
   `;
 }

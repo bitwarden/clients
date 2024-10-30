@@ -1,11 +1,12 @@
-import { html, css } from "lit";
+import { css } from '@emotion/css';
+import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../constants/styles";
 
+import { CloseButton } from "./Buttons/close-button";
 import { BrandIcon } from "./brand-icon";
-import { CloseButton } from "./close-button";
 import { NotificationHeaderMessage } from "./header-message";
 
 export function NotificationHeader({
@@ -25,7 +26,7 @@ export function NotificationHeader({
   const isDismissable = true;
 
   return html`
-    <div style=${headerStyles({ hasBody, theme })}>
+    <div class=${headerStyles({ hasBody, theme })}>
       ${showIcon ? BrandIcon({ isVaultLocked }) : null}
       ${NotificationHeaderMessage({ message, theme })}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
