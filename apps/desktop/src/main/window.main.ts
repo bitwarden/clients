@@ -258,8 +258,7 @@ export class WindowMain {
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.win.loadURL(
+      void this.win.loadURL(
         url.format({
           protocol: "file:",
           pathname: path.join(__dirname, "/index.html"),
