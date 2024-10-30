@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css } from "@emotion/css";
 import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -39,8 +39,9 @@ const headerStyles = ({ hasBody, theme }: { hasBody: boolean; theme: Theme }) =>
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 8px 0 8px 16px;
+  padding: 12px 16px 8px 16px;
   white-space: nowrap;
+
   ${hasBody
     ? css`
         border-bottom: 0.5px solid ${themes[theme].secondary["300"]};

@@ -14,11 +14,9 @@ export function CloseButton({
   theme: Theme;
 }) {
   return html`
-    <div>
-      <button type="button" class=${buttonStyles(theme)} @click=${handleCloseNotification}>
-        ${CloseIcon({ theme })}
-      </button>
-    </div>
+    <button type="button" class=${buttonStyles(theme)} @click=${handleCloseNotification}>
+      ${CloseIcon({ theme })}
+    </button>
   `;
 }
 
@@ -32,5 +30,10 @@ const buttonStyles = (theme: Theme) => css`
 
   :hover {
     border: 1px solid ${themes[theme].primary["600"]};
+  }
+
+  > svg {
+    width: 20px;
+    height: 20px;
   }
 `;
