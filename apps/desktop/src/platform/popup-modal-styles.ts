@@ -29,15 +29,15 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   window.setMinimumSize(680, 500);
 
   // need to guard against null/undefined values
-  if (existingWindowState) {
-    if (existingWindowState.width && existingWindowState.height) {
-      window.setSize(existingWindowState.width, existingWindowState.height);
-    }
 
-    if (existingWindowState.x && existingWindowState.y) {
-      window.setPosition(existingWindowState.x, existingWindowState.y);
-    }
+  if (existingWindowState?.width && existingWindowState?.height) {
+    window.setSize(existingWindowState.width, existingWindowState.height);
   }
+
+  if (existingWindowState?.x && existingWindowState?.y) {
+    window.setPosition(existingWindowState.x, existingWindowState.y);
+  }
+
   window.setWindowButtonVisibility?.(true);
   window.setMenuBarVisibility?.(true);
   window.setResizable(true);
