@@ -1,10 +1,10 @@
-import { css } from '@emotion/css'
+import { css } from "@emotion/css";
 import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../constants/styles";
-import { IconClose } from "../icon-close";
+import { Close as CloseIcon } from "../Icons";
 
 export function CloseButton({
   handleCloseNotification,
@@ -16,7 +16,7 @@ export function CloseButton({
   return html`
     <div>
       <button type="button" class=${buttonStyles(theme)} @click=${handleCloseNotification}>
-        ${IconClose({ theme })}
+        ${CloseIcon({ theme })}
       </button>
     </div>
   `;
