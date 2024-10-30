@@ -387,7 +387,7 @@ export class WindowMain {
         }
       }
 
-      // We're treating fullscreen as maximized
+      // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
       this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
 
