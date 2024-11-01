@@ -98,7 +98,11 @@ describe("AutofillService", () => {
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
     showInlineMenuCardsMock$ = new BehaviorSubject(false);
     showInlineMenuIdentitiesMock$ = new BehaviorSubject(false);

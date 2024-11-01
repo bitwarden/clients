@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -35,6 +36,7 @@ jest.mock("rxjs", () => {
 describe("FilelessImporterBackground ", () => {
   let filelessImporterBackground: FilelessImporterBackground;
   const configService = mock<ConfigService>();
+  const domainSettingsService = mock<DomainSettingsService>();
   const authService = mock<AuthService>();
   const policyService = mock<PolicyService>();
   const notificationBackground = mock<NotificationBackground>();
@@ -45,7 +47,11 @@ describe("FilelessImporterBackground ", () => {
   let scriptInjectorService: BrowserScriptInjectorService;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     filelessImporterBackground = new FilelessImporterBackground(
       configService,
       authService,
