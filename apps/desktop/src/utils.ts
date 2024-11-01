@@ -71,6 +71,16 @@ export function isWindowsPortable() {
 }
 
 /**
+ * We block the browser integration on some unsupported platforms, which also
+ * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * experimenting with the feature for QA. So this env var allows overriding
+ * the block.
+ */
+export function allowBrowserintegrationOverride() {
+  return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";
+}
+
+/**
  * Sanitize user agent so external resources used by the app can't built data on our users.
  */
 export function cleanUserAgent(userAgent: string): string {
