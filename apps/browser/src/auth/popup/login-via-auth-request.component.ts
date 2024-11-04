@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { LoginViaAuthRequestComponent as BaseLoginWithDeviceComponent } from "@bitwarden/angular/auth/components/login-via-auth-request.component";
+import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
 import {
   AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -31,6 +32,7 @@ import { KeyService } from "@bitwarden/key-management";
 })
 export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
   constructor(
+    viewCacheService: ViewCacheService,
     router: Router,
     keyService: KeyService,
     cryptoFunctionService: CryptoFunctionService,
@@ -54,6 +56,7 @@ export class LoginViaAuthRequestComponent extends BaseLoginWithDeviceComponent {
     toastService: ToastService,
   ) {
     super(
+      viewCacheService,
       router,
       keyService,
       cryptoFunctionService,
