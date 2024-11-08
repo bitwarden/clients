@@ -94,6 +94,7 @@ libs/common/src/autofill @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/native-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
 
 ## Component Library ##
 .storybook @bitwarden/team-design-system
