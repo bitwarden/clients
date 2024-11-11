@@ -36,8 +36,8 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  selector: "app-disabled-domains",
-  templateUrl: "disabled-domains.component.html",
+  selector: "app-blocked-domains",
+  templateUrl: "blocked-domains.component.html",
   standalone: true,
   imports: [
     ButtonModule,
@@ -59,14 +59,14 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     TypographyModule,
   ],
 })
-export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
+export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
   @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>>;
 
   accountSwitcherEnabled = false;
   dataIsPristine = true;
   isLoading = false;
-  disabledDomainsState: string[] = [];
-  storedDisabledDomains: string[] = [];
+  blockedDomainsState: string[] = [];
+  storedBlockedDomains: string[] = [];
   // How many fields should be non-editable before editable fields
   fieldsEditThreshold: number = 0;
 
@@ -81,7 +81,7 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
-    this.domainSettingsService.disabledInteractionsUris$
+    this.domainSettingsService.blockedInteractionsUris$
       .pipe(takeUntil(this.destroy$))
       .subscribe((neverDomains: NeverDomains) => this.handleStateUpdate(neverDomains));
 
@@ -97,13 +97,13 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
 
   handleStateUpdate(neverDomains: NeverDomains) {
     if (neverDomains) {
-      this.storedDisabledDomains = Object.keys(neverDomains);
+      this.storedBlockedDomains = Object.keys(neverDomains);
     }
 
-    this.disabledDomainsState = [...this.storedDisabledDomains];
+    this.blockedDomainsState = [...this.storedBlockedDomains];
 
     // Do not allow the first x (pre-existing) fields to be edited
-    this.fieldsEditThreshold = this.storedDisabledDomains.length;
+    this.fieldsEditThreshold = this.storedBlockedDomains.length;
 
     this.dataIsPristine = true;
     this.isLoading = false;
@@ -117,13 +117,13 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
 
   async addNewDomain() {
     // add empty field to the Domains list interface
-    this.disabledDomainsState.push("");
+    this.blockedDomainsState.push("");
 
     await this.fieldChange();
   }
 
   async removeDomain(i: number) {
-    this.disabledDomainsState.splice(i, 1);
+    this.blockedDomainsState.splice(i, 1);
 
     // If a pre-existing field was dropped, lower the edit threshold
     if (i < this.fieldsEditThreshold) {
@@ -146,10 +146,10 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
 
     this.isLoading = true;
 
-    const newDisabledDomainsSaveState: NeverDomains = {};
-    const uniqueDisabledDomains = new Set(this.disabledDomainsState);
+    const newBlockedDomainsSaveState: NeverDomains = {};
+    const uniqueBlockedDomains = new Set(this.blockedDomainsState);
 
-    for (const uri of uniqueDisabledDomains) {
+    for (const uri of uniqueBlockedDomains) {
       if (uri && uri !== "") {
         const validatedHost = Utils.getHostname(uri);
 
@@ -165,13 +165,13 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
-        newDisabledDomainsSaveState[validatedHost] = null;
+        newBlockedDomainsSaveState[validatedHost] = null;
       }
     }
 
     try {
-      const existingState = new Set(this.storedDisabledDomains);
-      const newState = new Set(Object.keys(newDisabledDomainsSaveState));
+      const existingState = new Set(this.storedBlockedDomains);
+      const newState = new Set(Object.keys(newBlockedDomainsSaveState));
       const stateIsUnchanged =
         existingState.size === newState.size &&
         new Set([...existingState, ...newState]).size === existingState.size;
@@ -179,19 +179,19 @@ export class DisabledDomainsComponent implements AfterViewInit, OnDestroy {
       // The subscriber updates don't trigger if `setNeverDomains` sets an equivalent state
       if (stateIsUnchanged) {
         // Reset UI state directly
-        const constructedNeverDomainsState = this.storedDisabledDomains.reduce(
+        const constructedNeverDomainsState = this.storedBlockedDomains.reduce(
           (neverDomains, uri) => ({ ...neverDomains, [uri]: null }),
           {},
         );
         this.handleStateUpdate(constructedNeverDomainsState);
       } else {
-        await this.domainSettingsService.setDisabledInteractionsUris(newDisabledDomainsSaveState);
+        await this.domainSettingsService.setBlockedInteractionsUris(newBlockedDomainsSaveState);
       }
 
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("disabledDomainsSavedSuccess"),
+        this.i18nService.t("blockedDomainsSavedSuccess"),
       );
     } catch {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("unexpectedError"));

@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ 'disabledDomains' | i18n }}" showBackButton>
+  <popup-header slot="header" pageTitle="{{ 'blockedDomains' | i18n }}" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
@@ -8,18 +8,18 @@
   <div class="tw-bg-background-alt">
     <p>
       {{
-        accountSwitcherEnabled ? ("disabledDomainsDescAlt" | i18n) : ("disabledDomainsDesc" | i18n)
+        accountSwitcherEnabled ? ("blockedDomainsDescAlt" | i18n) : ("blockedDomainsDesc" | i18n)
       }}
     </p>
     <bit-section *ngIf="!isLoading">
       <bit-section-header>
         <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
-        <span bitTypography="body2" slot="end">{{ disabledDomainsState?.length || 0 }}</span>
+        <span bitTypography="body2" slot="end">{{ blockedDomainsState?.length || 0 }}</span>
       </bit-section-header>
 
-      <ng-container *ngIf="disabledDomainsState">
+      <ng-container *ngIf="blockedDomainsState">
         <bit-item
-          *ngFor="let domain of disabledDomainsState; let i = index; trackBy: trackByFunction"
+          *ngFor="let domain of blockedDomainsState; let i = index; trackBy: trackByFunction"
         >
           <bit-item-content>
             <bit-label *ngIf="i >= fieldsEditThreshold">{{
@@ -35,7 +35,7 @@
               name="excludedDomain{{ i }}"
               type="text"
               (change)="fieldChange()"
-              [(ngModel)]="disabledDomainsState[i]"
+              [(ngModel)]="blockedDomainsState[i]"
             />
             <div id="excludedDomain{{ i }}" *ngIf="i < fieldsEditThreshold">{{ domain }}</div>
           </bit-item-content>
