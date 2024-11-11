@@ -2334,8 +2334,8 @@
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
   },
-  "disabledDomains": {
-    "message": "Disabled domains"
+  "blockedDomains": {
+    "message": "Blocked domains"
   },
   "excludedDomains": {
     "message": "Excluded domains"
@@ -2346,10 +2346,10 @@
   "excludedDomainsDescAlt": {
     "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
   },
-  "disabledDomainsDesc": {
+  "blockedDomainsDesc": {
     "message": "Bitwarden will be disabled for these domains. You must refresh the page for changes to take effect."
   },
-  "disabledDomainsDescAlt": {
+  "blockedDomainsDescAlt": {
     "message": "Bitwarden will be disabled for these domains on all logged in accounts. You must refresh the page for changes to take effect."
   },
   "websiteItemLabel": {
@@ -2370,8 +2370,8 @@
       }
     }
   },
-  "disabledDomainsSavedSuccess": {
-    "message": "Excluded domain changes saved"
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Excluded domain changes saved"

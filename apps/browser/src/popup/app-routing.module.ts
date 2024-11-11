@@ -78,7 +78,7 @@ import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
-import { DisabledDomainsComponent } from "../autofill/popup/settings/disabled-domains.component";
+import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
@@ -408,10 +408,10 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "disabled-domains",
-    component: DisabledDomainsComponent,
+    path: "blocked-domains",
+    component: BlockedDomainsComponent,
     canActivate: [authGuard],
-    data: { state: "disabled-domains" } satisfies RouteDataProperties,
+    data: { state: "blocked-domains" } satisfies RouteDataProperties,
   },
   ...extensionRefreshSwap(ExcludedDomainsV1Component, ExcludedDomainsComponent, {
     path: "excluded-domains",

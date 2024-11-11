@@ -16,7 +16,7 @@ import {
 } from "./abstractions/script-injector.service";
 
 export class BrowserScriptInjectorService extends ScriptInjectorService {
-  disabledDomains: Set<string> = null;
+  blockedDomains: Set<string> = null;
 
   private destroy$ = new Subject<void>();
 
@@ -27,10 +27,10 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
   ) {
     super();
 
-    this.domainSettingsService.disabledInteractionsUris$
+    this.domainSettingsService.blockedInteractionsUris$
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-        (neverDomains: NeverDomains) => (this.disabledDomains = new Set(Object.keys(neverDomains))),
+        (neverDomains: NeverDomains) => (this.blockedDomains = new Set(Object.keys(neverDomains))),
       );
   }
 
@@ -50,10 +50,10 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
     // Check if the tab URI is on the disabled URIs list
     const tab = await BrowserApi.getTab(tabId);
     const tabURL = tab.url ? new URL(tab.url) : null;
-    const injectionAllowedInTab = !(tabURL && this.disabledDomains?.has(tabURL.hostname));
+    const injectionAllowedInTab = !(tabURL && this.blockedDomains?.has(tabURL.hostname));
 
     if (!injectionAllowedInTab) {
-      throw new Error("This URI of this tab is on the disabled domains list.");
+      throw new Error("This URI of this tab is on the blocked domains list.");
     }
 
     const injectionDetails = this.buildInjectionDetails(injectDetails, file);
