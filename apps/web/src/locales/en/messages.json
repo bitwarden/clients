@@ -1275,6 +1275,9 @@
   "youDoNotHavePermissions": {
     "message": "You do not have permissions to this collection"
   },
+  "noActiveSubscription": {
+    "message": "You do not have an active subscription. Reinstate your subscription to make changes"
+  },
   "noCollectionsInList": {
     "message": "There are no collections to list."
   },

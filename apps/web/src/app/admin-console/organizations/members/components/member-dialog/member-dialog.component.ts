@@ -4,6 +4,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
   firstValueFrom,
+  from,
   map,
   Observable,
   of,
@@ -20,6 +21,7 @@ import {
   OrganizationUserApiService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
@@ -29,6 +31,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -92,6 +95,7 @@ export class MemberDialogComponent implements OnDestroy {
   isOnSecretsManagerStandalone: boolean;
 
   protected organization$: Observable<Organization>;
+  protected subscription$: Observable<OrganizationSubscriptionResponse>;
   protected collectionAccessItems: AccessItemView[] = [];
   protected groupAccessItems: AccessItemView[] = [];
   protected tabIndex: MemberDialogTab;
@@ -145,11 +149,15 @@ export class MemberDialogComponent implements OnDestroy {
     private accountService: AccountService,
     organizationService: OrganizationService,
     private toastService: ToastService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {
     this.organization$ = organizationService
       .get$(this.params.organizationId)
       .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
+    this.subscription$ = from(
+      this.organizationApiService.getSubscription(this.params.organizationId),
+    );
     this.editMode = this.params.organizationUserId != null;
     this.tabIndex = this.params.initialTab ?? MemberDialogTab.Role;
     this.title = this.i18nService.t(this.editMode ? "editMember" : "inviteMember");
@@ -432,6 +440,15 @@ export class MemberDialogComponent implements OnDestroy {
     if (this.editMode) {
       await this.userService.save(userView);
     } else {
+      const subscription = await firstValueFrom(this.subscription$);
+      if (subscription.subscription.cancelled) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("noActiveSubscription"),
+        });
+        return;
+      }
       userView.id = this.params.organizationUserId;
       const maxEmailsCount =
         organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
