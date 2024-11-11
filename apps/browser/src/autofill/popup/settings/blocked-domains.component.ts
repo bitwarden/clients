@@ -29,7 +29,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { enableAccountSwitching } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -62,7 +61,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
   @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>>;
 
-  accountSwitcherEnabled = false;
   dataIsPristine = true;
   isLoading = false;
   blockedDomainsState: string[] = [];
@@ -76,9 +74,7 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   async ngAfterViewInit() {
     this.domainSettingsService.blockedInteractionsUris$

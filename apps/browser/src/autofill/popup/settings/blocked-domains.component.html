@@ -6,11 +6,7 @@
   </popup-header>
 
   <div class="tw-bg-background-alt">
-    <p>
-      {{
-        accountSwitcherEnabled ? ("blockedDomainsDescAlt" | i18n) : ("blockedDomainsDesc" | i18n)
-      }}
-    </p>
+    <p>{{ "blockedDomainsDesc" | i18n }}</p>
     <bit-section *ngIf="!isLoading">
       <bit-section-header>
         <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
