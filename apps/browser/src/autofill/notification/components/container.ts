@@ -3,12 +3,17 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { createAutofillOverlayCipherDataMock } from "../../spec/autofill-mocks";
 import { NotificationBarIframeInitData } from "../abstractions/notification-bar";
 import { themes, spacing } from "../constants/styles";
+import { CipherData } from "../types";
 
 import { ButtonRow } from "./Buttons/button-row";
+import { CipherItem } from "./Cipher";
 import { NotificationBody } from "./body";
+import { NotificationFooter } from "./footer";
 import { NotificationHeader } from "./header";
+import { ItemRow } from "./item-row";
 
 export function NotificationContainer({
   handleCloseNotification,
@@ -22,8 +27,11 @@ export function NotificationContainer({
   const headerMessage = getHeaderMessage(type, i18n);
   const showBody = true;
 
+  // @TODO mock cipher for development
+  const cipher = createAutofillOverlayCipherDataMock(1) as CipherData;
+
   return html`
-    <div class=${wrapperStyles(theme)}>
+    <div class=${containerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         hasBody: showBody,
@@ -34,14 +42,21 @@ export function NotificationContainer({
       ${showBody
         ? NotificationBody({
             theme,
-            children: [ButtonRow({ theme })],
+            // @TODO move notificationType to `NotificationBody` component
+            children: [
+              // @TODO placeholder composition
+              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
+              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
+              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
+            ],
           })
         : null}
+      ${NotificationFooter({ theme, children: [ButtonRow({ theme })] })}
     </div>
   `;
 }
 
-const wrapperStyles = (theme: Theme) => css`
+const containerStyles = (theme: Theme) => css`
   position: absolute;
   right: 20px;
   border: 1px solid ${themes[theme].secondary["300"]};
@@ -52,6 +67,7 @@ const wrapperStyles = (theme: Theme) => css`
 `;
 
 function getHeaderMessage(type: string, i18n: { [key: string]: string }) {
+  // @TODO create constants/types for `type`
   switch (type) {
     case "add":
       return i18n.saveAsNewLoginAction;

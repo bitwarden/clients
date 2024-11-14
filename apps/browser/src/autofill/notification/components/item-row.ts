@@ -5,31 +5,28 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes, typography } from "../constants/styles";
 
-export function NotificationBody({
+export function ItemRow({
   theme = ThemeTypes.Light,
   children,
 }: {
   theme: Theme;
   children: TemplateResult[];
 }) {
-  return html` <div class=${bodyStyles({ theme })}>${children}</div> `;
+  return html` <div class=${rowStyles({ theme })}>${children}</div> `;
 }
 
-const bodyStyles = ({ theme }: { theme: Theme }) => css`
+export const rowStyles = ({ theme }: { theme: Theme }) => css`
   ${typography.body1}
 
-  gap: ${spacing["1.5"]};
+  gap: ${spacing["2"]};
   display: flex;
-  flex-flow: column;
-  background-color: ${themes[theme].background.alt};
-  padding: ${spacing["3"]};
-  max-height: 123px;
-  overflow-y: auto;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: ${spacing["2"]};
+  background-color: ${themes[theme].background.DEFAULT};
+  padding: ${spacing["2"]} ${spacing["3"]};
+  max-height: 52px;
   white-space: nowrap;
   color: ${themes[theme].text.main};
   font-weight: 400;
-
-  :last-child {
-    border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
-  }
 `;
