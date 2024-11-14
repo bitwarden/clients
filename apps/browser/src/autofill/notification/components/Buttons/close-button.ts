@@ -4,7 +4,7 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../constants/styles";
-import { Close as CloseIcon } from "../Icons";
+import { Close as CloseIcon } from "../icons";
 
 export function CloseButton({
   handleCloseNotification,
