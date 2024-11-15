@@ -22,6 +22,15 @@
     </bit-no-items>
   </div>
 
+  <bit-banner
+    *ngIf="vaultState !== VaultStateEnum.Empty && showScriptInjectionIsBlockedBanner"
+    id="domain-script-injection-blocked-banner"
+    bannerType="info"
+    (onClose)="handleScriptInjectionIsBlockedBannerDismiss()"
+  >
+    {{ "autofillBlockedNotice" | i18n }}
+  </bit-banner>
+
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container
     slot="above-scroll-area"
