@@ -70,7 +70,9 @@
       cdkVirtualScrollingElement
       class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
     >
-      <app-autofill-vault-list-items></app-autofill-vault-list-items>
+      <app-autofill-vault-list-items
+        [sectionIndicators]="sectionIndicators"
+      ></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
         [ciphers]="favoriteCiphers$ | async"
