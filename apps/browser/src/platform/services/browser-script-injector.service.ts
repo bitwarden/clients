@@ -29,9 +29,11 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
 
     this.domainSettingsService.blockedInteractionsUris$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (neverDomains: NeverDomains) => (this.blockedDomains = new Set(Object.keys(neverDomains))),
-      );
+      .subscribe((neverDomains: NeverDomains) => {
+        if (neverDomains) {
+          this.blockedDomains = new Set(Object.keys(neverDomains));
+        }
+      });
   }
 
   /**
