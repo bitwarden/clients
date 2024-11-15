@@ -2,7 +2,6 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import { combineLatest, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -49,7 +48,6 @@ enum VaultState {
     VaultListItemsContainerComponent,
     BannerModule,
     ButtonModule,
-    RouterLink,
     NewItemDropdownV2Component,
     ScrollingModule,
     VaultHeaderV2Component,
@@ -65,6 +63,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   protected scriptInjectionIsBlocked = false;
   protected showScriptInjectionIsBlockedBanner = false;
   protected autofillTabHostname: string = null;
+  protected sectionIndicators: string[] = [];
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -133,6 +132,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
           );
 
           this.scriptInjectionIsBlocked = autofillTabIsBlocked;
+
+          if (autofillTabIsBlocked) {
+            this.sectionIndicators.push("autofillDisabled");
+          }
 
           this.showScriptInjectionIsBlockedBanner =
             autofillTabIsBlocked &&
