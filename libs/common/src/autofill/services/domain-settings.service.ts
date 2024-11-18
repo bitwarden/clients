@@ -21,9 +21,19 @@ const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
 });
 
+// Domain exclusion list for notifications
 const NEVER_DOMAINS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "neverDomains", {
   deserializer: (value: NeverDomains) => value ?? null,
 });
+
+// Domain exclusion list for content script injections
+const BLOCKED_INTERACTIONS_URIS = new KeyDefinition(
+  DOMAIN_SETTINGS_DISK,
+  "blockedInteractionsUris",
+  {
+    deserializer: (value: NeverDomains) => value ?? null,
+  },
+);
 
 const EQUIVALENT_DOMAINS = new UserKeyDefinition(DOMAIN_SETTINGS_DISK, "equivalentDomains", {
   deserializer: (value: EquivalentDomains) => value ?? null,
@@ -44,6 +54,8 @@ export abstract class DomainSettingsService {
   setShowFavicons: (newValue: boolean) => Promise<void>;
   neverDomains$: Observable<NeverDomains>;
   setNeverDomains: (newValue: NeverDomains) => Promise<void>;
+  blockedInteractionsUris$: Observable<NeverDomains>;
+  setBlockedInteractionsUris: (newValue: NeverDomains) => Promise<void>;
   equivalentDomains$: Observable<EquivalentDomains>;
   setEquivalentDomains: (newValue: EquivalentDomains, userId: UserId) => Promise<void>;
   defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
@@ -58,6 +70,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private neverDomainsState: GlobalState<NeverDomains>;
   readonly neverDomains$: Observable<NeverDomains>;
 
+  private blockedInteractionsUrisState: GlobalState<NeverDomains>;
+  readonly blockedInteractionsUris$: Observable<NeverDomains>;
+
   private equivalentDomainsState: ActiveUserState<EquivalentDomains>;
   readonly equivalentDomains$: Observable<EquivalentDomains>;
 
@@ -70,6 +85,11 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     this.neverDomainsState = this.stateProvider.getGlobal(NEVER_DOMAINS);
     this.neverDomains$ = this.neverDomainsState.state$.pipe(map((x) => x ?? null));
+
+    this.blockedInteractionsUrisState = this.stateProvider.getGlobal(BLOCKED_INTERACTIONS_URIS);
+    this.blockedInteractionsUris$ = this.blockedInteractionsUrisState.state$.pipe(
+      map((x) => x ?? null),
+    );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);
     this.equivalentDomains$ = this.equivalentDomainsState.state$.pipe(map((x) => x ?? null));
@@ -86,6 +106,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   async setNeverDomains(newValue: NeverDomains): Promise<void> {
     await this.neverDomainsState.update(() => newValue);
+  }
+
+  async setBlockedInteractionsUris(newValue: NeverDomains): Promise<void> {
+    await this.blockedInteractionsUrisState.update(() => newValue);
   }
 
   async setEquivalentDomains(newValue: EquivalentDomains, userId: UserId): Promise<void> {
