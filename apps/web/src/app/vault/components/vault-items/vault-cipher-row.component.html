@@ -76,25 +76,31 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
-    [disabled]="disabled || disableMenu"
+    [disabled]="disabled"
     [bitMenuTriggerFor]="cipherOptions"
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
-    appA11yTitle="{{ (disableMenu ? 'missingPermissions' : 'options') | i18n }}"
+    appA11yTitle="{{ 'options' | i18n }}"
     appStopProp
   ></button>
   <bit-menu #cipherOptions>
-    <ng-container *ngIf="isNotDeletedLoginCipher">
-      <button bitMenuItem type="button" (click)="copy('username')">
+    <ng-container *ngIf="isLoginCipher">
+      <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyUsername" | i18n }}
       </button>
-      <button bitMenuItem type="button" (click)="copy('password')" *ngIf="cipher.viewPassword">
+      <button
+        bitMenuItem
+        type="button"
+        appCopyField="password"
+        [cipher]="cipher"
+        *ngIf="cipher.viewPassword"
+      >
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyPassword" | i18n }}
       </button>
-      <button bitMenuItem type="button" (click)="copy('totp')" *ngIf="showTotpCopyButton">
+      <button bitMenuItem type="button" appCopyField="totp" [cipher]="cipher">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyVerificationCode" | i18n }}
       </button>
@@ -111,6 +117,57 @@
       </a>
     </ng-container>
 
+    <ng-container *ngIf="isCardCipher">
+      <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyNumber" | i18n }}
+      </button>
+      <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copySecurityCode" | i18n }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="isIdentityCipher">
+      <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyUsername" | i18n }}
+      </button>
+      <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyEmail" | i18n }}
+      </button>
+      <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyPhone" | i18n }}
+      </button>
+      <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyAddress" | i18n }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="isSecureNoteCipher">
+      <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher">
+        <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+        {{ "copyNote" | i18n }}
+      </button>
+    </ng-container>
+
+    <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
+
+    <button bitMenuItem type="button" (click)="toggleFavorite()">
+      <i
+        class="bwi bwi-fw"
+        [ngClass]="{ 'bwi-star-f': cipher.favorite, 'bwi-star': !cipher.favorite }"
+        aria-hidden="true"
+      ></i>
+      {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
+    </button>
+    <button bitMenuItem type="button" (click)="editCipher()" *ngIf="canEditCipher">
+      <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+      {{ "edit" | i18n }}
+    </button>
     <button bitMenuItem *ngIf="showAttachments" type="button" (click)="attachments()">
       <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
       {{ "attachments" | i18n }}

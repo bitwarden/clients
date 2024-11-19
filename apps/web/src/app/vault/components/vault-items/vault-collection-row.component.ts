@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from "@angular/core";
 
 import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MenuTriggerForDirective } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -20,6 +21,8 @@ import { RowHeightClass } from "./vault-items.component";
 export class VaultCollectionRowComponent {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
+
+  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
   @Input() disabled: boolean;
   @Input() collection: CollectionView;
@@ -108,5 +111,12 @@ export class VaultCollectionRowComponent {
     }
 
     return this.canEditCollection || this.canDeleteCollection;
+  }
+
+  @HostListener("contextmenu", ["$event"])
+  protected onRightClick(event: MouseEvent) {
+    if (!this.disabled) {
+      this.menuTrigger.toggleMenuOnRightClick(event);
+    }
   }
 }
