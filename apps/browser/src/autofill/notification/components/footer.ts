@@ -12,10 +12,11 @@ export function NotificationFooter({
   theme: Theme;
   children: TemplateResult[];
 }) {
-  return html` <div class=${footerStyles({ theme })}>${children}</div> `;
+  return html` <div class=${notificationFooterStyles({ theme })}>${children}</div> `;
 }
 
-const footerStyles = ({ theme }: { theme: Theme }) => css`
+const notificationFooterStyles = ({ theme }: { theme: Theme }) => css`
+  display: flex;
   background-color: ${themes[theme].background.alt};
   padding: ${spacing["1.5"]} 16px 16px 16px;
 

@@ -10,23 +10,38 @@ export function ItemRow({
   children,
 }: {
   theme: Theme;
-  children: TemplateResult[];
+  children: TemplateResult | TemplateResult[];
 }) {
-  return html` <div class=${rowStyles({ theme })}>${children}</div> `;
+  return html` <div class=${itemRowStyles({ theme })}>${children}</div> `;
 }
 
-export const rowStyles = ({ theme }: { theme: Theme }) => css`
+export const itemRowStyles = ({ theme }: { theme: Theme }) => css`
   ${typography.body1}
 
   gap: ${spacing["2"]};
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-width: 0 0 0.5px 0;
+  border-style: solid;
   border-radius: ${spacing["2"]};
+  border-color: ${themes[theme].secondary["300"]};
   background-color: ${themes[theme].background.DEFAULT};
   padding: ${spacing["2"]} ${spacing["3"]};
+  min-height: min-content;
   max-height: 52px;
+  overflow-x: hidden;
   white-space: nowrap;
   color: ${themes[theme].text.main};
   font-weight: 400;
+
+  > div {
+    flex: 3 3 75%;
+    min-width: 25%;
+  }
+
+  > button {
+    flex: 1 1 25%;
+    max-width: min-content;
+  }
 `;

@@ -10,6 +10,7 @@ import { CipherData } from "../types";
 
 import { ButtonRow } from "./Buttons/button-row";
 import { CipherItem } from "./Cipher";
+import { ActionRow } from "./action-row";
 import { NotificationBody } from "./body";
 import { NotificationFooter } from "./footer";
 import { NotificationHeader } from "./header";
@@ -27,11 +28,13 @@ export function NotificationContainer({
   const headerMessage = getHeaderMessage(type, i18n);
   const showBody = true;
 
-  // @TODO mock cipher for development
+  // @TODO remove mock cipher for development
   const cipher = createAutofillOverlayCipherDataMock(1) as CipherData;
+  const actionType = "newLogin";
+  const itemText = actionType === "newLogin" ? "Save as new login" : null;
 
   return html`
-    <div class=${containerStyles(theme)}>
+    <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         hasBody: showBody,
@@ -46,7 +49,7 @@ export function NotificationContainer({
             children: [
               // @TODO placeholder composition
               ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
-              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
+              ActionRow({ itemText, handleAction: () => {}, theme }),
               ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
             ],
           })
@@ -56,7 +59,7 @@ export function NotificationContainer({
   `;
 }
 
-const containerStyles = (theme: Theme) => css`
+const notificationContainerStyles = (theme: Theme) => css`
   position: absolute;
   right: 20px;
   border: 1px solid ${themes[theme].secondary["300"]};

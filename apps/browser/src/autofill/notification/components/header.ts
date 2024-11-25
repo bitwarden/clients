@@ -26,7 +26,7 @@ export function NotificationHeader({
   const isDismissable = true;
 
   return html`
-    <div class=${headerStyles({ hasBody, theme })}>
+    <div class=${notificationHeaderStyles({ hasBody, theme })}>
       ${showIcon ? BrandIcon({ isVaultLocked }) : null}
       ${NotificationHeaderMessage({ message, theme })}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
@@ -34,7 +34,7 @@ export function NotificationHeader({
   `;
 }
 
-const headerStyles = ({ hasBody, theme }: { hasBody: boolean; theme: Theme }) => css`
+const notificationHeaderStyles = ({ hasBody, theme }: { hasBody: boolean; theme: Theme }) => css`
   gap: 8px;
   display: flex;
   align-items: center;

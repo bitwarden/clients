@@ -53,11 +53,22 @@ const buttonRowStyles = css`
   width: 100%;
   max-height: 52px;
   white-space: nowrap;
+
+  /* position of children within the parent context is the concern of the parent */
+  > button {
+    flex: 1 1 min-content;
+    max-width: 50%;
+  }
+
+  > div {
+    flex: 1 1 70%;
+  }
 `;
 
 const badgeContainerStyles = css`
   gap: 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  overflow: hidden;
 `;

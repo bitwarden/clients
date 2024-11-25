@@ -14,13 +14,13 @@ export function CloseButton({
   theme: Theme;
 }) {
   return html`
-    <button type="button" class=${buttonStyles(theme)} @click=${handleCloseNotification}>
+    <button type="button" class=${closeButtonStyles(theme)} @click=${handleCloseNotification}>
       ${CloseIcon({ theme })}
     </button>
   `;
 }
 
-const buttonStyles = (theme: Theme) => css`
+const closeButtonStyles = (theme: Theme) => css`
   border: 1px solid transparent;
   border-radius: 8px;
   background-color: transparent;

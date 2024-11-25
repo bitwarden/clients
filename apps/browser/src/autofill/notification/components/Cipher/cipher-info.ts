@@ -13,29 +13,35 @@ export function CipherInfo({ cipher, theme }: { cipher: CipherData; theme: Theme
 
   return html`
     <div>
-      <div class=${cipherItemPrimaryTextStyles(theme)}>
-        ${name}${CipherInfoIndicatorIcons({ cipher, theme })}
-      </div>
+      <span class=${cipherInfoPrimaryTextStyles(theme)}>
+        ${[name, CipherInfoIndicatorIcons({ cipher, theme })]}
+      </span>
 
       ${login.username
-        ? html`<div class=${cipherItemSecondaryTextStyles(theme)}>${login.username}</div>`
+        ? html`<span class=${cipherInfoSecondaryTextStyles(theme)}>${login.username}</span>`
         : null}
     </div>
   `;
 }
 
-const cipherItemPrimaryTextStyles = (theme: Theme) => css`
+const cipherInfoPrimaryTextStyles = (theme: Theme) => css`
   ${typography.body2}
 
   gap: 2px;
   display: flex;
+  display: block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
   color: ${themes[theme].text.main};
   font-weight: 500;
 `;
 
-const cipherItemSecondaryTextStyles = (theme: Theme) => css`
+const cipherInfoSecondaryTextStyles = (theme: Theme) => css`
   ${typography.helperMedium}
 
+  display: block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
   color: ${themes[theme].text.muted};
   font-weight: 400;
 `;

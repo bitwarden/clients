@@ -31,15 +31,22 @@ export function CipherItem({
   ];
 }
 
+const cipherIconWidth = "24px";
+
 const cipherItemStyles = css`
   gap: ${spacing["2"]};
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
+
+  > div {
+    max-width: calc(100% - ${cipherIconWidth} - ${spacing["2"]});
+  }
 
   > img,
   > svg {
-    width: 24px;
+    width: ${cipherIconWidth};
     height: fit-content;
   }
 `;

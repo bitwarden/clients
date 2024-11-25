@@ -1,4 +1,4 @@
-import { css } from '@emotion/css'
+import { css } from "@emotion/css";
 import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
@@ -6,10 +6,12 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes } from "../constants/styles";
 
 export function NotificationHeaderMessage({ message, theme }: { message: string; theme: Theme }) {
-  return html` <span title=${message} class=${messageStyles(theme)}>${message}</span> `;
+  return html`
+    <span title=${message} class=${notificationHeaderMessageStyles(theme)}>${message}</span>
+  `;
 }
 
-const messageStyles = (theme: Theme) => css`
+const notificationHeaderMessageStyles = (theme: Theme) => css`
   flex-grow: 1;
   overflow-x: hidden;
   text-align: left;

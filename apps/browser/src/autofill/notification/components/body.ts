@@ -12,10 +12,10 @@ export function NotificationBody({
   theme: Theme;
   children: TemplateResult[];
 }) {
-  return html` <div class=${bodyStyles({ theme })}>${children}</div> `;
+  return html` <div class=${notificationBodyStyles({ theme })}>${children}</div> `;
 }
 
-const bodyStyles = ({ theme }: { theme: Theme }) => css`
+const notificationBodyStyles = ({ theme }: { theme: Theme }) => css`
   ${typography.body1}
 
   gap: ${spacing["1.5"]};
@@ -24,6 +24,7 @@ const bodyStyles = ({ theme }: { theme: Theme }) => css`
   background-color: ${themes[theme].background.alt};
   padding: ${spacing["3"]};
   max-height: 123px;
+  overflow-x: hidden;
   overflow-y: auto;
   white-space: nowrap;
   color: ${themes[theme].text.main};
