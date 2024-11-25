@@ -1,3 +1,5 @@
+import { Theme } from "@bitwarden/common/platform/enums";
+
 const lightTheme = {
   transparent: {
     hover: `rgb(0 0 0 / 0.02)`,
@@ -156,5 +158,34 @@ export const typography = {
     line-height: 16px;
     font-family: "DM Sans", sans-serif;
     font-size: 12px;
-  `
+  `,
 };
+
+export function scrollbarStyles(theme: Theme) {
+  return {
+    default: `
+      /* FireFox & Chrome support */
+      scrollbar-color: ${themes[theme].secondary["500"]} ${themes[theme].background.alt};
+    `,
+    safari: `
+      /* Safari Support */
+      ::-webkit-scrollbar {
+        overflow: auto;
+      }
+      ::-webkit-scrollbar-thumb {
+        border-width: 4px;
+        border-style: solid;
+        border-radius: 0.5rem;
+        border-color: transparent;
+        background-clip: content-box;
+        background-color: ${themes[theme].secondary["500"]};
+      }
+      ::-webkit-scrollbar-track {
+        ${themes[theme].background.alt};
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        ${themes[theme].secondary["600"]};
+      }
+    `,
+  };
+}

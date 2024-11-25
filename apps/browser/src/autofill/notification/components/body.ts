@@ -3,7 +3,7 @@ import { html, TemplateResult } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes, typography } from "../constants/styles";
+import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 
 export function NotificationBody({
   theme = ThemeTypes.Light,
@@ -12,10 +12,13 @@ export function NotificationBody({
   theme: Theme;
   children: TemplateResult[];
 }) {
-  return html` <div class=${notificationBodyStyles({ theme })}>${children}</div> `;
+  // @TODO get client vendor from context
+  const isSafari = false;
+
+  return html` <div class=${notificationBodyStyles({ isSafari, theme })}>${children}</div> `;
 }
 
-const notificationBodyStyles = ({ theme }: { theme: Theme }) => css`
+const notificationBodyStyles = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
   ${typography.body1}
 
   gap: ${spacing["1.5"]};
@@ -33,4 +36,6 @@ const notificationBodyStyles = ({ theme }: { theme: Theme }) => css`
   :last-child {
     border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
   }
+
+  ${isSafari ? scrollbarStyles(theme).safari : scrollbarStyles(theme).default}
 `;
