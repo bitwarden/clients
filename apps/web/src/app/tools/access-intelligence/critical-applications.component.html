@@ -1,10 +1,5 @@
 <div *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  <tools-applications-loading></tools-applications-loading>
 </div>
 <div class="tw-mt-4" *ngIf="!dataSource.data.length">
   <bit-no-items [icon]="noItemsIcon" class="tw-text-main">

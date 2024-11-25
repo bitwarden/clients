@@ -13,13 +13,22 @@ import { SharedModule } from "../../shared";
 import { PipesModule } from "../../vault/individual-vault/pipes/pipes.module";
 
 import { applicationTableMockData } from "./application-table.mock";
+import { ApplicationsLoadingComponent } from "./applications-loading.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   standalone: true,
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
-  imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
+  imports: [
+    ApplicationsLoadingComponent,
+    CardComponent,
+    HeaderModule,
+    SearchModule,
+    NoItemsModule,
+    PipesModule,
+    SharedModule,
+  ],
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<any>();

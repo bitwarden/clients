@@ -17,6 +17,9 @@
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "dataLastUpdated": {
     "message": "Data last updated: $DATE$",
     "placeholders": {

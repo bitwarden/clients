@@ -13,9 +13,6 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
 import { NotifiedMembersTableComponent } from "./notified-members-table.component";
-import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
-import { PasswordHealthMembersComponent } from "./password-health-members.component";
-import { PasswordHealthComponent } from "./password-health.component";
 
 export enum RiskInsightsTabType {
   AllApps = 0,
@@ -34,9 +31,6 @@ export enum RiskInsightsTabType {
     CriticalApplicationsComponent,
     JslibModule,
     HeaderModule,
-    PasswordHealthComponent,
-    PasswordHealthMembersComponent,
-    PasswordHealthMembersURIComponent,
     NotifiedMembersTableComponent,
     TabsModule,
   ],

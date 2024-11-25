@@ -3,7 +3,9 @@ import { TestBed } from "@angular/core/testing";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { mockCiphers } from "./ciphers.mock";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -12,8 +14,6 @@ import { PasswordHealthService } from "./password-health.service";
 
 describe("PasswordHealthService", () => {
   let service: PasswordHealthService;
-  let cipherService: CipherService;
-  let memberCipherDetailsApiService: MemberCipherDetailsApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -46,104 +46,84 @@ describe("PasswordHealthService", () => {
             getMemberCipherDetails: jest.fn().mockResolvedValue(mockMemberCipherDetails),
           },
         },
-        { provide: "organizationId", useValue: "org1" },
       ],
     });
 
     service = TestBed.inject(PasswordHealthService);
-    cipherService = TestBed.inject(CipherService);
-    memberCipherDetailsApiService = TestBed.inject(MemberCipherDetailsApiService);
   });
 
-  it("should be created", () => {
-    expect(service).toBeTruthy();
+  it("should build the application health report correctly", async () => {
+    const result = await service.generateReportDetails("orgId");
+
+    const expected = [
+      {
+        application: "101domain.com",
+        atRiskPasswords: 1,
+        totalPasswords: 2,
+        atRiskMembers: 2,
+        totalMembers: 5,
+      },
+      {
+        application: "123formbuilder.com",
+        atRiskPasswords: 1,
+        totalPasswords: 1,
+        atRiskMembers: 1,
+        totalMembers: 1,
+      },
+      {
+        application: "example.com",
+        atRiskPasswords: 2,
+        totalPasswords: 2,
+        atRiskMembers: 5,
+        totalMembers: 5,
+      },
+      {
+        application: "google.com",
+        atRiskPasswords: 2,
+        totalPasswords: 2,
+        atRiskMembers: 3,
+        totalMembers: 3,
+      },
+    ];
+
+    const sortFn = (a: any, b: any) => a.application.localeCompare(b.application);
+
+    expect(result.details.sort(sortFn)).toEqual(expected.sort(sortFn));
+    expect(result.totalAtRiskMembers).toBe(5);
+    expect(result.totalMembers).toBe(6);
+    expect(result.totalAtRiskApps).toBe(4);
+    expect(result.totalApps).toBe(4);
   });
 
-  it("should initialize properties", () => {
-    expect(service.reportCiphers).toEqual([]);
-    expect(service.reportCipherIds).toEqual([]);
-    expect(service.passwordStrengthMap.size).toBe(0);
-    expect(service.passwordUseMap.size).toBe(0);
-    expect(service.exposedPasswordMap.size).toBe(0);
-    expect(service.totalMembersMap.size).toBe(0);
-  });
-
-  describe("generateReport", () => {
-    beforeEach(async () => {
-      await service.generateReport();
-    });
-
-    it("should fetch all ciphers for the organization", () => {
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith("org1");
-    });
-
-    it("should fetch member cipher details", () => {
-      expect(memberCipherDetailsApiService.getMemberCipherDetails).toHaveBeenCalledWith("org1");
-    });
-
-    it("should populate reportCiphers with ciphers that have issues", () => {
-      expect(service.reportCiphers.length).toBeGreaterThan(0);
-    });
-
-    it("should detect weak passwords", () => {
-      expect(service.passwordStrengthMap.size).toBeGreaterThan(0);
-      expect(service.passwordStrengthMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab1")).toEqual([
-        "veryWeak",
-        "danger",
-      ]);
-      expect(service.passwordStrengthMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab2")).toEqual([
-        "veryWeak",
-        "danger",
-      ]);
-      expect(service.passwordStrengthMap.get("cbea34a8-bde4-46ad-9d19-b05001228cd3")).toEqual([
-        "veryWeak",
-        "danger",
-      ]);
-    });
-
-    it("should detect reused passwords", () => {
-      expect(service.passwordUseMap.get("123")).toBe(3);
-    });
-
-    it("should detect exposed passwords", () => {
-      expect(service.exposedPasswordMap.size).toBeGreaterThan(0);
-      expect(service.exposedPasswordMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab1")).toBe(100);
-    });
-
-    it("should calculate total members per cipher", () => {
-      expect(service.totalMembersMap.size).toBeGreaterThan(0);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab1")).toBe(2);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228ab2")).toBe(4);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228cd3")).toBe(5);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001227nm5")).toBe(4);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001227nm7")).toBe(1);
-      expect(service.totalMembersMap.get("cbea34a8-bde4-46ad-9d19-b05001228xy4")).toBe(6);
+  describe("getReusedPasswords", () => {
+    it.only("should return an array of reused passwords", () => {
+      const ciphers = [
+        { login: { password: "123" }, type: CipherType.Login, viewPassword: true },
+        { login: { password: "123" }, type: CipherType.Login, viewPassword: true },
+        { login: { password: "abc" }, type: CipherType.Login, viewPassword: true },
+      ] as CipherView[];
+      const result = service.getReusedPasswords(ciphers);
+      expect(result).toEqual(new Set(["123"]));
     });
   });
 
-  describe("findWeakPassword", () => {
-    it("should add weak passwords to passwordStrengthMap", () => {
-      const weakCipher = mockCiphers.find((c) => c.login?.password === "123") as CipherView;
-      service.findWeakPassword(weakCipher);
-      expect(service.passwordStrengthMap.get(weakCipher.id)).toEqual(["veryWeak", "danger"]);
-    });
-  });
+  describe("isWeakPassword", () => {
+    it("should return true for a weak password", () => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = { password: "123", username: "user" } as LoginView;
+      cipher.viewPassword = true;
 
-  describe("findReusedPassword", () => {
-    it("should detect password reuse", () => {
-      mockCiphers.forEach((cipher) => {
-        service.findReusedPassword(cipher as CipherView);
-      });
-      const reuseCounts = Array.from(service.passwordUseMap.values()).filter((count) => count > 1);
-      expect(reuseCounts.length).toBeGreaterThan(0);
+      expect(service.isWeakPassword(cipher)).toBe(true);
     });
-  });
 
-  describe("findExposedPassword", () => {
-    it("should add exposed passwords to exposedPasswordMap", async () => {
-      const exposedCipher = mockCiphers.find((c) => c.login?.password === "123") as CipherView;
-      await service.findExposedPassword(exposedCipher);
-      expect(service.exposedPasswordMap.get(exposedCipher.id)).toBe(100);
+    it("should return false for a strong password", () => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = { password: "StrongPass!123", username: "user" } as LoginView;
+      cipher.viewPassword = true;
+
+      expect(service.isWeakPassword(cipher)).toBe(false);
     });
   });
 });

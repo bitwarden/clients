@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -6,9 +6,25 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BadgeVariant } from "@bitwarden/components";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
+
+export interface ApplicationHealthReport {
+  details: ApplicationHealthReportDetail[];
+  totalAtRiskMembers: number;
+  totalMembers: number;
+  totalAtRiskApps: number;
+  totalApps: number;
+}
+
+interface ApplicationHealthReportDetail {
+  application: string;
+  atRiskPasswords: number;
+  totalPasswords: number;
+  atRiskMembers: number;
+  totalMembers: number;
+}
 
 @Injectable()
 export class PasswordHealthService {
@@ -16,98 +32,176 @@ export class PasswordHealthService {
 
   reportCipherIds: string[] = [];
 
-  passwordStrengthMap = new Map<string, [string, BadgeVariant]>();
+  usedPasswords: string[] = [];
 
-  passwordUseMap = new Map<string, number>();
-
-  exposedPasswordMap = new Map<string, number>();
-
-  totalMembersMap = new Map<string, number>();
+  applicationHealthReport: ApplicationHealthReportDetail[] = [];
 
   constructor(
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private auditService: AuditService,
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
-    @Inject("organizationId") private organizationId: string,
   ) {}
 
-  async generateReport() {
-    const allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organizationId);
-    allCiphers.forEach(async (cipher) => {
-      this.findWeakPassword(cipher);
-      this.findReusedPassword(cipher);
-      await this.findExposedPassword(cipher);
-    });
+  async generateReportDetails(organizationId: string): Promise<ApplicationHealthReport> {
+    // Helper function to normalize hostnames to TLDs
+    const hostnameToTLD = (uriView: LoginUriView): string => {
+      const match = uriView.hostname.match(/([^.]+\.[^.]+)$/);
+      return match ? match[1] : uriView.hostname;
+    };
 
-    const memberCipherDetails = await this.memberCipherDetailsApiService.getMemberCipherDetails(
-      this.organizationId,
-    );
+    const members = await this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId);
 
-    memberCipherDetails.forEach((user) => {
-      user.cipherIds.forEach((cipherId: string) => {
-        if (this.totalMembersMap.has(cipherId)) {
-          this.totalMembersMap.set(cipherId, (this.totalMembersMap.get(cipherId) || 0) + 1);
-        } else {
-          this.totalMembersMap.set(cipherId, 1);
+    const ciphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
+
+    // Map to store application data
+    const appDataMap = new Map<string, ApplicationHealthReportDetail>();
+
+    // Map cipher IDs to ciphers
+    const cipherMap = new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]));
+
+    // Set to store at-risk member IDs
+    const totalAtRiskMembers = new Set<string>();
+
+    // Set to store at-risk app IDs
+    const totalAtRiskApps = new Set<string>();
+
+    // Set to store at-risk cipher IDs
+    const atRiskCipherIds = new Set<string>();
+
+    const reusedPasswords = this.getReusedPasswords(ciphers);
+
+    // Determine at-risk ciphers
+    for (const cipher of ciphers) {
+      const isReused = reusedPasswords.has(cipher.login.password);
+      const isWeak = this.isWeakPassword(cipher);
+      const isExposed = await this.isExposedPassword(cipher);
+      if (isWeak || isReused || isExposed) {
+        atRiskCipherIds.add(cipher.id);
+      }
+    }
+
+    // Group ciphers by application
+    for (const cipher of ciphers) {
+      const applications = new Set(cipher.login.uris.map(hostnameToTLD));
+
+      for (const app of applications) {
+        if (!appDataMap.has(app)) {
+          appDataMap.set(app, {
+            application: app,
+            atRiskPasswords: 0,
+            totalPasswords: 0,
+            atRiskMembers: 0,
+            totalMembers: 0,
+          });
         }
-      });
-    });
-  }
 
-  async findExposedPassword(cipher: CipherView) {
-    const { type, login, isDeleted, viewPassword, id } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
+        const appData = appDataMap.get(app)!;
+        appData.totalPasswords += 1;
+
+        if (atRiskCipherIds.has(cipher.id)) {
+          appData.atRiskPasswords += 1;
+        }
+      }
     }
 
-    const exposedCount = await this.auditService.passwordLeaked(login.password);
-    if (exposedCount > 0) {
-      this.exposedPasswordMap.set(id, exposedCount);
-      this.checkForExistingCipher(cipher);
+    // Associate members with applications
+    for (const member of members) {
+      const memberApps = new Set<string>();
+      const atRiskApps = new Set<string>();
+
+      for (const cipherId of member.cipherIds) {
+        const cipher = cipherMap.get(cipherId);
+        if (!cipher) {
+          continue;
+        }
+
+        const applications = new Set(cipher.login.uris.map(hostnameToTLD));
+
+        for (const app of applications) {
+          memberApps.add(app);
+          if (atRiskCipherIds.has(cipherId)) {
+            atRiskApps.add(app);
+          }
+        }
+      }
+
+      for (const app of memberApps) {
+        const appData = appDataMap.get(app);
+        if (appData) {
+          appData.totalMembers += 1;
+        }
+      }
+
+      for (const app of atRiskApps) {
+        const appData = appDataMap.get(app);
+        if (appData) {
+          if (!totalAtRiskMembers.has(member.userName)) {
+            totalAtRiskMembers.add(member.userName);
+          }
+          if (!totalAtRiskApps.has(app)) {
+            totalAtRiskApps.add(app);
+          }
+          appData.atRiskMembers += 1;
+        }
+      }
     }
+
+    return {
+      totalAtRiskMembers: totalAtRiskMembers.size,
+      totalMembers: members.length,
+      totalAtRiskApps: totalAtRiskApps.size,
+      totalApps: appDataMap.size,
+      details: Array.from(appDataMap.values()),
+    };
   }
 
-  findReusedPassword(cipher: CipherView) {
+  getReusedPasswords(ciphers: CipherView[]): Set<string> {
+    const seenPasswords = new Set<string>();
+    const reusedPasswords = new Set<string>();
+
+    for (const cipher of ciphers) {
+      if (this.isValidPassword(cipher)) {
+        const password = cipher.login.password;
+        if (seenPasswords.has(password)) {
+          reusedPasswords.add(password);
+        } else {
+          seenPasswords.add(password);
+        }
+      }
+    }
+
+    return reusedPasswords;
+  }
+
+  isValidPassword(cipher: CipherView) {
     const { type, login, isDeleted, viewPassword } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
-    }
-
-    if (this.passwordUseMap.has(login.password)) {
-      this.passwordUseMap.set(login.password, (this.passwordUseMap.get(login.password) || 0) + 1);
-    } else {
-      this.passwordUseMap.set(login.password, 1);
-    }
-
-    this.checkForExistingCipher(cipher);
+    return (
+      type === CipherType.Login &&
+      login.password != null &&
+      login.password !== "" &&
+      !isDeleted &&
+      viewPassword
+    );
   }
 
-  findWeakPassword(cipher: CipherView): void {
-    const { type, login, isDeleted, viewPassword } = cipher;
-    if (
-      type !== CipherType.Login ||
-      login.password == null ||
-      login.password === "" ||
-      isDeleted ||
-      !viewPassword
-    ) {
-      return;
+  async isExposedPassword(cipher: CipherView) {
+    if (!this.isValidPassword(cipher)) {
+      return false;
     }
 
-    const hasUserName = this.isUserNameNotEmpty(cipher);
+    const exposedCount = await this.auditService.passwordLeaked(cipher.login.password);
+    return exposedCount > 0;
+  }
+
+  isWeakPassword(cipher: CipherView) {
+    if (!this.isValidPassword(cipher)) {
+      return false;
+    }
+
+    const { login } = cipher;
+
+    const hasUserName = !Utils.isNullOrWhitespace(cipher.login.username);
     let userInput: string[] = [];
     if (hasUserName) {
       const atPosition = login.username.indexOf("@");
@@ -135,50 +229,6 @@ export class PasswordHealthService {
       userInput.length > 0 ? userInput : null,
     );
 
-    if (score != null && score <= 2) {
-      this.passwordStrengthMap.set(cipher.id, this.scoreKey(score));
-      this.checkForExistingCipher(cipher);
-    }
-  }
-
-  private isUserNameNotEmpty(c: CipherView): boolean {
-    return !Utils.isNullOrWhitespace(c.login.username);
-  }
-
-  private scoreKey(score: number): [string, BadgeVariant] {
-    switch (score) {
-      case 4:
-        return ["strong", "success"];
-      case 3:
-        return ["good", "primary"];
-      case 2:
-        return ["weak", "warning"];
-      default:
-        return ["veryWeak", "danger"];
-    }
-  }
-
-  checkForExistingCipher(ciph: CipherView) {
-    if (!this.reportCipherIds.includes(ciph.id)) {
-      this.reportCipherIds.push(ciph.id);
-      this.reportCiphers.push(ciph);
-    }
-  }
-
-  groupCiphersByLoginUri(): CipherView[] {
-    const cipherViews: CipherView[] = [];
-    const cipherUris: string[] = [];
-    const ciphers = this.reportCiphers;
-
-    ciphers.forEach((ciph) => {
-      const uris = ciph.login?.uris ?? [];
-      uris.map((u: { uri: string }) => {
-        const uri = Utils.getHostname(u.uri).replace("www.", "");
-        cipherUris.push(uri);
-        cipherViews.push({ ...ciph, hostURI: uri } as CipherView & { hostURI: string });
-      });
-    });
-
-    return cipherViews;
+    return score != null && score <= 2;
   }
 }

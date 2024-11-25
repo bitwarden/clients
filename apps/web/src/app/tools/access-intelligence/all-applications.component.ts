@@ -4,6 +4,12 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { debounceTime, firstValueFrom, map } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import {
+  PasswordHealthService,
+  MemberCipherDetailsApiService,
+  ApplicationHealthReport,
+} from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -26,31 +32,40 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 import { PipesModule } from "../../vault/individual-vault/pipes/pipes.module";
 
-import { applicationTableMockData } from "./application-table.mock";
+import { ApplicationsLoadingComponent } from "./applications-loading.component";
 
 @Component({
   standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
-  imports: [HeaderModule, CardComponent, SearchModule, PipesModule, NoItemsModule, SharedModule],
+  imports: [
+    ApplicationsLoadingComponent,
+    HeaderModule,
+    CardComponent,
+    SearchModule,
+    PipesModule,
+    NoItemsModule,
+    SharedModule,
+  ],
+  providers: [MemberCipherDetailsApiService],
 })
 export class AllApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<any>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
-  protected loading = false;
+  protected loading = true;
   protected organization: Organization;
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
+  protected applicationHealthReport: ApplicationHealthReport;
   isCritialAppsFeatureEnabled = false;
-
-  // MOCK DATA
-  protected mockData = applicationTableMockData;
-  protected mockAtRiskMembersCount = 0;
-  protected mockAtRiskAppsCount = 0;
-  protected mockTotalMembersCount = 0;
-  protected mockTotalAppsCount = 0;
+  passwordHealthService = new PasswordHealthService(
+    this.passwordStrengthService,
+    this.auditService,
+    this.cipherService,
+    this.memberCipherDetailsApiService,
+  );
 
   async ngOnInit() {
     this.activatedRoute.paramMap
@@ -59,7 +74,10 @@ export class AllApplicationsComponent implements OnInit {
         map(async (params) => {
           const organizationId = params.get("organizationId");
           this.organization = await firstValueFrom(this.organizationService.get$(organizationId));
-          // TODO: use organizationId to fetch data
+          this.applicationHealthReport =
+            await this.passwordHealthService.generateReportDetails(organizationId);
+          this.dataSource.data = this.applicationHealthReport.details;
+          this.loading = false;
         }),
       )
       .subscribe();
@@ -78,8 +96,8 @@ export class AllApplicationsComponent implements OnInit {
     protected toastService: ToastService,
     protected organizationService: OrganizationService,
     protected configService: ConfigService,
+    protected memberCipherDetailsApiService: MemberCipherDetailsApiService,
   ) {
-    this.dataSource.data = applicationTableMockData;
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
