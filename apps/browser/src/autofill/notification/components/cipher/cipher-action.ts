@@ -1,6 +1,6 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { BadgeButton } from "../Buttons/badge-button";
+import { BadgeButton } from "../buttons/badge-button";
 import { PencilSquare } from "../icons";
 
 export function CipherAction({

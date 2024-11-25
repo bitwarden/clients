@@ -8,10 +8,10 @@ import { NotificationBarIframeInitData } from "../abstractions/notification-bar"
 import { themes, spacing } from "../constants/styles";
 import { CipherData } from "../types";
 
-import { ButtonRow } from "./Buttons/button-row";
-import { CipherItem } from "./Cipher";
 import { ActionRow } from "./action-row";
 import { NotificationBody } from "./body";
+import { ButtonRow } from "./buttons/button-row";
+import { CipherItem } from "./cipher";
 import { NotificationFooter } from "./footer";
 import { NotificationHeader } from "./header";
 import { ItemRow } from "./item-row";
