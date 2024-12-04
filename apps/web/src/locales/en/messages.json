@@ -3870,6 +3870,9 @@
   "updateBrowserDesc": {
     "message": "You are using an unsupported web browser. The web vault may not function properly."
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "freeTrialEndPrompt": {
     "message": "Your free trial ends in $COUNT$ days. To maintain your subscription,",
     "placeholders": {
