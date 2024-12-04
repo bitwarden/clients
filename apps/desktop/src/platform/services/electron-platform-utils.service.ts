@@ -75,10 +75,20 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return (await this.getApplicationVersion()).split(/[+|-]/)[0].trim();
   }
 
-  // Temporarily restricted to only Windows until https://github.com/electron/electron/pull/28349
-  // has been merged and an updated electron build is available.
   supportsWebAuthn(win: Window): boolean {
-    return this.getDevice() === DeviceType.WindowsDesktop;
+    return true;
+  }
+
+  supportsNativeWebauthn(): boolean {
+    return true;
+  }
+
+  performNativeWebauthnAuthentication(
+    challenge: string,
+    credentials: Array<string>,
+    origin: string,
+  ): Promise<string> {
+    return ipc.platform.webauthn.webauthnAuthenticate(challenge, credentials, origin);
   }
 
   supportsDuo(): boolean {

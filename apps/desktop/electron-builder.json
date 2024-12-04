@@ -246,7 +246,7 @@
     "autoStart": true,
     "base": "core22",
     "confinement": "strict",
-    "plugs": ["default", "network-bind", "password-manager-service"],
+    "plugs": ["default", "network-bind", "password-manager-service", "u2f-devices"],
     "stagePackages": ["default"]
   },
   "protocols": [

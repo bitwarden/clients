@@ -27,6 +27,12 @@ export abstract class PlatformUtilsService {
   abstract getApplicationVersion(): Promise<string>;
   abstract getApplicationVersionNumber(): Promise<string>;
   abstract supportsWebAuthn(win: Window): boolean;
+  abstract supportsNativeWebauthn(): boolean;
+  abstract performNativeWebauthnAuthentication(
+    challenge: string,
+    credentials: Array<string>,
+    origin: string,
+  ): Promise<string>;
   abstract supportsDuo(): boolean;
   /**
    * @deprecated use `@bitwarden/components/ToastService.showToast` instead

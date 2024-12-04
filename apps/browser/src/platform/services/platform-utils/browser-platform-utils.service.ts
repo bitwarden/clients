@@ -338,4 +338,15 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
     return "";
   }
+
+  supportsNativeWebauthn(): boolean {
+    return false;
+  }
+  performNativeWebauthnAuthentication(
+    challenge: string,
+    credentials: Array<string>,
+    origin: string,
+  ): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
 }

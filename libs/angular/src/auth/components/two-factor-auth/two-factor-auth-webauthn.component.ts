@@ -121,6 +121,22 @@ export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.platformUtilsService.supportsNativeWebauthn()) {
+      const challenge = providerData.challenge;
+      const rpId = providerData.rpId;
+      const creds = providerData.allowCredentials as any as Array<string>;
+      const credentials = creds.map((c: any) => {
+        return c.id;
+      });
+      const resp = await this.platformUtilsService.performNativeWebauthnAuthentication(
+        challenge,
+        credentials,
+        rpId,
+      );
+      this.token.emit(resp);
+      return;
+    }
+
     this.webAuthn.init(providerData);
   }
 

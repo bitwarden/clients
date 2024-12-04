@@ -193,4 +193,15 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  supportsNativeWebauthn(): boolean {
+    return false;
+  }
+  performNativeWebauthnAuthentication(
+    challenge: string,
+    credentials: Array<string>,
+    origin: string,
+  ): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
 }

@@ -528,3 +528,13 @@ pub mod ipc {
         }
     }
 }
+
+#[napi]
+pub mod fido2_hid_client {
+    #[napi]
+    pub fn authenticate(challenge: String, credentials: Vec<String>, rpid: String, pin: String) -> napi::Result<String> {
+        let pin = if pin.is_empty() { None } else { Some(pin) };
+        desktop_core::fido2_client::authenticate(challenge, credentials, rpid, pin)
+            .map_err(|e| napi::Error::from_reason(format!("Error authenticating: {:?}", e)))
+    }
+}
