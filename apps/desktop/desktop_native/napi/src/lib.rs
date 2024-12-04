@@ -528,3 +528,39 @@ pub mod ipc {
         }
     }
 }
+
+#[napi]
+pub mod epheremal_values {
+    use desktop_core::epheremal_values::EpheremalValueStore;
+
+    #[napi]
+    pub struct EpheremalValueStoreWrapper {
+        store: EpheremalValueStore,
+    }
+
+    #[napi]
+    impl EpheremalValueStoreWrapper {
+
+        #[napi(constructor)]
+        pub fn new() -> napi::Result<Self> {
+            Ok(EpheremalValueStoreWrapper {
+                store: EpheremalValueStore::new(),
+            })
+        }
+
+        #[napi]
+        pub fn set(&mut self, key: String, value: String) {
+            self.store.set(key, value);
+        }
+
+        #[napi]
+        pub fn get(&self, key: String) -> Option<String> {
+            self.store.get(&key).cloned()
+        }
+
+        #[napi]
+        pub fn remove(&mut self, key: String) {
+            self.store.remove(&key);
+        }
+    }
+}

@@ -60,6 +60,7 @@ rand_chacha = "=0.3.1"
 pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
 rsa = "=0.9.6"
 ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
+zeroizing-alloc = "0.1.0"
 
 [target.'cfg(windows)'.dependencies]
 widestring = { version = "=1.1.0", optional = true }

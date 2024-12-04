@@ -12,5 +12,10 @@ pub mod process_isolation;
 #[cfg(feature = "sys")]
 pub mod powermonitor;
 #[cfg(feature = "sys")]
-
 pub mod ssh_agent;
+#[cfg(feature = "sys")]
+pub mod epheremal_values;
+
+pub use zeroizing_alloc::ZeroAlloc as ZeroizingAllocator;
+#[global_allocator]
+static ALLOC: ZeroizingAllocator<std::alloc::System> = ZeroizingAllocator(std::alloc::System);

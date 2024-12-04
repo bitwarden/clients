@@ -148,7 +148,7 @@ export class PinService implements PinServiceAbstraction {
   /**
    * Sets the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
    */
-  private async setPinKeyEncryptedUserKeyEphemeral(
+  protected async setPinKeyEncryptedUserKeyEphemeral(
     pinKeyEncryptedUserKey: EncString,
     userId: UserId,
   ): Promise<void> {
