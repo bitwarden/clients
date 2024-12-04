@@ -36,12 +36,21 @@ export const itemRowStyles = ({ theme }: { theme: Theme }) => css`
   font-weight: 400;
 
   > div {
-    flex: 3 3 75%;
-    min-width: 25%;
-  }
+    :first-child {
+      flex: 3 3 75%;
+      min-width: 25%;
+    }
 
-  > button {
-    flex: 1 1 25%;
-    max-width: min-content;
+    :not(:first-child) {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      max-width: 25%;
+
+      > button {
+        max-width: min-content;
+      }
+    }
   }
 `;

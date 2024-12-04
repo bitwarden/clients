@@ -20,14 +20,15 @@ export function CipherItem({
   theme: Theme;
 }) {
   const { icon } = cipher;
+  const cipherAction = CipherAction({ handleAction, notificationType, theme });
 
   return [
     html`
       <div class=${cipherItemStyles}>
         ${CipherIcon({ theme, ...icon })} ${CipherInfo({ theme, cipher })}
       </div>
+      ${cipherAction ? html`<div class=${cipherActionContainerStyles}>${cipherAction}</div>` : null}
     `,
-    CipherAction({ handleAction, notificationType, theme }),
   ];
 }
 
@@ -43,7 +44,9 @@ const cipherItemStyles = css`
   > div {
     max-width: calc(100% - ${cipherIconWidth} - ${spacing["2"]});
   }
+`;
 
+const cipherActionContainerStyles = css`
   > img,
   > svg {
     width: ${cipherIconWidth};
