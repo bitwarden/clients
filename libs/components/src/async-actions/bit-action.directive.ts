@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
 import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 

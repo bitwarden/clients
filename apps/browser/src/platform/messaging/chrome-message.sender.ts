@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageSender } from "@bitwarden/common/platform/messaging";
 import { getCommand } from "@bitwarden/common/platform/messaging/internal";

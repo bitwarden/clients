@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AttachmentResponse } from "../response/attachment.response";
 
 export class AttachmentData {

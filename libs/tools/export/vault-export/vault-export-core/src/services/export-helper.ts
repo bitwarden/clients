@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export class ExportHelper {
   static getFileName(prefix: string = null, extension = "csv"): string {
     const now = new Date();

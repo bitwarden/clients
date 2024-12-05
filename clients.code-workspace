@@ -65,6 +65,7 @@
     "angular.enable-strict-mode-prompt": false,
     "typescript.preferences.importModuleSpecifier": "project-relative",
     "javascript.preferences.importModuleSpecifier": "project-relative",
+    "typescript.tsdk": "root/node_modules/typescript/lib",
   },
   "extensions": {
     "recommendations": [

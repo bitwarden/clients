@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, HostBinding, Input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";

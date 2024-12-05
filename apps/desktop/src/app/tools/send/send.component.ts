@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";

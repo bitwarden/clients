@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TemplatePortal } from "@angular/cdk/portal";
 import { Component, HostBinding, Input } from "@angular/core";
 

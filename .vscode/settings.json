@@ -6,5 +6,6 @@
     "**/_locales/[^e]*/messages.json": true,
     "**/_locales/*[^n]/messages.json": true
   },
-  "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

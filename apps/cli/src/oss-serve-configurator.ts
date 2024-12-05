@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
 import * as koa from "koa";

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import { BehaviorSubject, Observable, Subject, takeUntil } from "rxjs";
 
