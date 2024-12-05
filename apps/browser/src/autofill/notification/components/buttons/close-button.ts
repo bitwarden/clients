@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../../constants/styles";
+import { spacing, themes } from "../../constants/styles";
 import { Close as CloseIcon } from "../icons";
 
 export function CloseButton({
@@ -22,7 +22,7 @@ export function CloseButton({
 
 const closeButtonStyles = (theme: Theme) => css`
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: ${spacing["1"]};
   background-color: transparent;
   cursor: pointer;
   width: 36px;

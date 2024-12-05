@@ -3,8 +3,10 @@ import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { ActionButton } from "./action-button";
-import { BadgeButton } from "./badge-button";
+import { spacing, themes } from "../../constants/styles";
+import { ActionButton } from "../buttons/action-button";
+import { DropdownMenu } from "../dropdown-menu";
+import { Folder, User } from "../icons";
 
 export function ButtonRow({ theme }: { theme: Theme }) {
   return html`
@@ -17,20 +19,16 @@ export function ButtonRow({ theme }: { theme: Theme }) {
           buttonText: "Action Button",
           theme,
         }),
-        BadgeContainer({
+        DropdownContainer({
           children: [
-            BadgeButton({
-              buttonAction: () => {
-                window.alert("button 1 preseed!");
-              },
-              buttonText: "Badge Button 1",
+            DropdownMenu({
+              buttonText: "You",
+              icon: User({ color: themes[theme].text.muted, theme }),
               theme,
             }),
-            BadgeButton({
-              buttonAction: () => {
-                window.alert("button 2 preseed!");
-              },
-              buttonText: "Badge Button 2",
+            DropdownMenu({
+              buttonText: "Folder",
+              icon: Folder({ color: themes[theme].text.muted, theme }),
               disabled: true,
               theme,
             }),
@@ -41,8 +39,8 @@ export function ButtonRow({ theme }: { theme: Theme }) {
   `;
 }
 
-function BadgeContainer({ children }: { children: TemplateResult[] }) {
-  return html` <div class=${badgeContainerStyles}>${children}</div> `;
+function DropdownContainer({ children }: { children: TemplateResult[] }) {
+  return html` <div class=${dropdownContainerStyles}>${children}</div> `;
 }
 
 const buttonRowStyles = css`
@@ -54,21 +52,24 @@ const buttonRowStyles = css`
   max-height: 52px;
   white-space: nowrap;
 
-  /* position of children within the parent context is the concern of the parent */
   > button {
-    flex: 1 1 min-content;
-    max-width: 50%;
+    max-width: min-content;
+    flex: 1 1 50%;
   }
 
   > div {
-    flex: 1 1 70%;
+    flex: 1 1 min-content;
   }
 `;
 
-const badgeContainerStyles = css`
+const dropdownContainerStyles = css`
   gap: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   overflow: hidden;
+
+  > div {
+    min-width: calc(50% - ${spacing["1.5"]});
+  }
 `;

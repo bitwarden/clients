@@ -5,8 +5,8 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../constants/styles";
 
-import { CloseButton } from "./Buttons/close-button";
 import { BrandIcon } from "./brand-icon";
+import { CloseButton } from "./buttons/close-button";
 import { NotificationHeaderMessage } from "./header-message";
 
 export function NotificationHeader({

@@ -9,39 +9,49 @@ import { PencilSquare } from "../icons";
 export function EditButton({
   buttonAction,
   buttonText,
+  disabled = false,
   theme,
 }: {
   buttonAction: (e: Event) => void;
   buttonText: string;
+  disabled?: boolean;
   theme: Theme;
 }) {
   return html`
     <button
       type="button"
       title=${buttonText}
-      class=${editButtonStyles({ theme })}
-      @click=${buttonAction}
+      class=${editButtonStyles({ disabled, theme })}
+      @click=${(event: Event) => {
+        !disabled && buttonAction(event);
+      }}
     >
-      ${PencilSquare({ theme })}
+      ${PencilSquare({ disabled, theme })}
     </button>
   `;
 }
 
-const editButtonStyles = ({ theme }: { theme: Theme }) => css`
+const editButtonStyles = ({ disabled, theme }: { disabled?: boolean; theme: Theme }) => css`
   ${typography.helperMedium}
 
   user-select: none;
-  border: 0.5px solid transparent;
-  border-radius: 0.5rem;
+  display: flex;
+  border: 1px solid transparent;
+  border-radius: ${spacing["1"]};
   background-color: transparent;
-  cursor: pointer;
-  padding: ${spacing["1"]} ${spacing["2"]};
+  padding: ${spacing["1"]};
   max-height: fit-content;
   overflow: hidden;
 
-  :hover {
-    border-color: ${themes[theme].primary["600"]};
-  }
+  ${!disabled
+    ? `
+    cursor: pointer;
+
+    :hover {
+      border-color: ${themes[theme].primary["600"]};
+    }
+  `
+    : ""}
 
   > svg {
     width: 16px;

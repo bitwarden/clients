@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes, typography } from "../constants/styles";
+import { spacing, themes, typography } from "../../constants/styles";
 
 export function ActionRow({
   handleAction,
@@ -46,8 +46,7 @@ const actionRowStyles = (theme: Theme) => css`
   }
 
   :hover {
-    background-color: ${themes[theme].primary["700"]};
-    text-decoration: underline;
-    color: ${themes[theme].text.contrast};
+    background-color: ${themes[theme].primary["100"]};
+    color: ${themes[theme].primary["600"]};
   }
 `;

@@ -1,7 +1,6 @@
 import { html, css } from "lit";
 
-export function BrandIcon({ isVaultLocked }: { isVaultLocked: boolean }) {
-  const iconLink = "https://vault.bitwarden.com";
+export function BrandIcon({ iconLink, isVaultLocked }: { iconLink?: URL; isVaultLocked: boolean }) {
   const iconImageURI = isVaultLocked
     ? chrome.runtime.getURL("images/icon38_locked.png")
     : chrome.runtime.getURL("images/icon38.png");

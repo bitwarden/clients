@@ -35,12 +35,12 @@ export function ActionButton({
 }
 
 const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Theme }) => css`
-  ${typography.body1}
+  ${typography.body2}
 
   user-select: none;
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
-  padding: ${spacing["1.5"]} ${spacing["4"]};
+  padding: ${spacing["1"]} ${spacing["4"]};
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
@@ -60,7 +60,6 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
     :hover {
       border-color: ${themes[theme].primary["700"]};
       background-color: ${themes[theme].primary["700"]};
-      text-decoration: underline;
       color: ${themes[theme].text.contrast};
   `
   }
