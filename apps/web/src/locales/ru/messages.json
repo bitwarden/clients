@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Уведомленные участники"
   },
+  "revokeMembers": {
+    "message": "Отзыв пользователей"
+  },
+  "restoreMembers": {
+    "message": "Восстановление пользователей"
+  },
+  "revokeMembersWarning": {
+    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Claimed account: Revoke access to Bitwarden account"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Unclaimed account: Revoke access to organization data"
+  },
+  "claimedAccount": {
+    "message": "Claimed account"
+  },
+  "unclaimedAccount": {
+    "message": "Unclaimed account"
+  },
+  "restoreMembersInstructions": {
+    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Cannot restore organization access"
+  },
   "allApplicationsWithCount": {
     "message": "Все приложения ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Таймаут аутентификации"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
   },
   "verifyIdentity": {
     "message": "Подтвердите вашу личность"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Исключено, не применимо для данного действия."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Non-compliant members"
+  },
+  "nonCompliantMembersError": {
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Отпечаток"
   },
@@ -6790,6 +6829,10 @@
   },
   "scimDescription": {
     "message": "Автоматически предоставлять пользователям и группам предпочитаемого поставщика удостоверений с помощью обеспечения SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Автоматически предоставлять пользователям и группам предпочитаемого поставщика удостоверений с помощью обеспечения SCIM. Поиск поддерживаемых интеграций",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Используйте SDK Bitwarden Secrets Manager на следующих языках программирования для создания собственных приложений."
   },
-  "setUpGithubActions": {
-    "message": "Настроить Github Actions"
+  "ssoDescStart": {
+    "message": "Настроить",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Настроить Kubernetes"
+  "ssoDescEnd": {
+    "message": "для Bitwarden, используя руководство по внедрению для вашего поставщика идентификационных данных.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Настроить GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Развертывание пользователя"
   },
-  "setUpAnsible": {
-    "message": "Настроить Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Просмотр репозитория Rust"
+  "scimIntegrationDescStart": {
+    "message": "Настроить ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Просмотр репозитория C#"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) для автоматического развертывания пользователей и групп в Bitwarden, используя руководство по внедрению вашего провайдера идентификации.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Просмотр репозитория C++"
+  "bwdc": {
+    "message": "Коннектор каталогов Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Просмотр репозитория JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Настройте Коннектор каталогов Bitwarden на автоматическое развертывание пользователей и групп, используя руководство по внедрению для вашего провайдера идентификации."
   },
-  "javaSDKRepo": {
-    "message": "Просмотр репозитория Java"
+  "eventManagement": {
+    "message": "Управление событиями"
   },
-  "pythonSDKRepo": {
-    "message": "Просмотр репозитория Python"
+  "eventManagementDesc": {
+    "message": "Интегрируйте журналы событий Bitwarden с вашей системой SIEM (управление системной информацией и событиями), используя руководство по внедрению для вашей платформы."
   },
-  "phpSDKRepo": {
-    "message": "Просмотр репозитория php"
+  "deviceManagement": {
+    "message": "Управление устройством"
   },
-  "rubySDKRepo": {
-    "message": "Просмотр репозитория Ruby"
+  "deviceManagementDesc": {
+    "message": "Настройте управление устройствами для Bitwarden, используя руководство по внедрению для вашей платформы."
   },
-  "goSDKRepo": {
-    "message": "Просмотр репозитория Go"
+  "integrationCardTooltip": {
+    "message": "Запустить руководство по внедрению $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Настроить $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Просмотр репозитория $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "откройте руководство по внедрению $INTEGRATION$ в новой вкладке.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "просмотр репозитория $SDK$ в новой вкладке.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "настроить руководство по внедрению $INTEGRATION$ в новой вкладке.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Создайте новую клиентскую организацию для управления ею в качестве провайдера. Дополнительные места будут отражены в следующем биллинговом цикле."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "При удалении участника его аккаунт Bitwarden и личные данные хранилища будут удалены навсегда. Данные коллекций останутся в организации. Чтобы восстановить их, необходимо создать аккаунт и заново пройти процедуру регистрации.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Это приведет к окончательному удалению всех элементов, принадлежащих $NAME$. Элементы коллекции не затрагиваются.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Это приведет к безвозвратному удалению всех предметов, принадлежащих следующим пользователям. Элементы коллекций не затрагиваются.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Аккаунт $NAME$ удален",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Код дескриптора"
+  },
+  "removeMembers": {
+    "message": "Удалить участников"
   }
 }

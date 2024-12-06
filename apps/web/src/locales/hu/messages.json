@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Értesített tagok"
   },
+  "revokeMembers": {
+    "message": "Tagok eltávolítása"
+  },
+  "restoreMembers": {
+    "message": "Tagok visszaállítása"
+  },
+  "revokeMembersWarning": {
+    "message": "Az igényelt és nem igényelt fiókokkal rendelkező tagok visszavonása esetén eltérő eredményeket érnek el:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Igényelt fiók: A Bitwarden fiókhoz hozzáférés visszavonása"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Nem igényelt fiók: A szervezeti adatokhoz hozzáférés visszavonása"
+  },
+  "claimedAccount": {
+    "message": "Igényelt fiók"
+  },
+  "unclaimedAccount": {
+    "message": "Nem-igényelt fiók"
+  },
+  "restoreMembersInstructions": {
+    "message": "Egy tag fiókjának visszaállításához lépjünk a Visszavont fülre. A folyamat néhány másodpercig tarthat és nem lehet megszakítani vagy törölni."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nem lehet visszaállítani a szervezeti hozzáférést."
+  },
   "allApplicationsWithCount": {
     "message": "Összes alkalmazás ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Kizárva, nem alkalmazható erre a műveletre."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Nem megfelelő tagok"
+  },
+  "nonCompliantMembersError": {
+    "message": "Azok a tagok, amelyek nem felelnek meg az egy szervezeti vagy kétlépcsős bejelentkezési szabályzatnak, nem állíthatók vissza mindaddig, amíg nem felelnek meg a szabályzat követelményeinek."
+  },
   "fingerprint": {
     "message": "Ujjlenyomat"
   },
@@ -6790,6 +6829,10 @@
   },
   "scimDescription": {
     "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül. Támogatott integrációk keresése",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
   },
-  "setUpGithubActions": {
-    "message": "Set up Github Actions"
+  "ssoDescStart": {
+    "message": "Konfigurálás",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes beüzemelése"
+  "ssoDescEnd": {
+    "message": "a Bitwarden számára az azonosítás szolgáltató megvalósítási útmutató használatával.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Set up GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Felhasználói kiépítés"
   },
-  "setUpAnsible": {
-    "message": "Set up Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust tár megtekintése"
+  "scimIntegrationDescStart": {
+    "message": "Konfigurálás ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "View C# repository"
+  "scimIntegrationDescEnd": {
+    "message": "(Rendszer a tartományok közötti azonosítás kezeléshez), hogy automatikusan biztosítson felhasználókat és csoportokat a Bitwarden számára az azonostíás szolgáltató megvalósítási útmutatója segítségével.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "View C++ repository"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "View JS WebAssembly repository"
+  "bwdcDesc": {
+    "message": "Konfigurálja a Bitwarden Directory Connector szolgáltatást úgy, hogy automatikusan biztosítson felhasználókat és csoportokat az identitásszolgáltató megvalósítási útmutatója segítségével."
   },
-  "javaSDKRepo": {
-    "message": "View Java repository"
+  "eventManagement": {
+    "message": "Esemény kezelés"
   },
-  "pythonSDKRepo": {
-    "message": "View Python repository"
+  "eventManagementDesc": {
+    "message": "Integrálja a Bitwarden eseménynaplókat a SIEM (rendszerinformációs és esemény kezelési) rendszerrel a platform megvalósítási útmutatója segítségével."
   },
-  "phpSDKRepo": {
-    "message": "View php repository"
+  "deviceManagement": {
+    "message": "Eszközkezelés"
   },
-  "rubySDKRepo": {
-    "message": "View Ruby repository"
+  "deviceManagementDesc": {
+    "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
-  "goSDKRepo": {
-    "message": "View Go repository"
+  "integrationCardTooltip": {
+    "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "$INTEGRATION$ beüzemelése.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "$SDK$ tár megtekintése",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "$INTEGRATION$ megvalósítási útmutató megnyitása egy új fülön.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "$SDK$ tár megtekintése egy új fülön.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "$INTEGRATION$ megvalósítási útmutató beüzemelése egy új fülön.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Amikor egy tag törlésre kerül, a Bitwarden fiókjuk és az egyéni széf adataik véglegesen törlésre kerülnek. A gyűjtési adatok a szervezetben maradnak. A visszaállításukhoz egy fiókot kell létrehozni és újra be kell lépni.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Ezzel véglegesen törlésre kerül $NAME$ tulajdonában lévő összes elem. A gyűjtemény elemeit ez nem érinti.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Ezzel véglegesen törlésre kerül a következő tagok tulajdonában lévő összes elem. A gyűjtemény elemeit ez nem érinti.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ törlésre került.",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Leíró kód"
+  },
+  "removeMembers": {
+    "message": "Tagok eltávolítása"
   }
 }

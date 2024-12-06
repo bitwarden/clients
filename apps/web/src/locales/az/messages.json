@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Məlumatlandırılan üzvlər"
   },
+  "revokeMembers": {
+    "message": "Üzvləri ləğv et"
+  },
+  "restoreMembers": {
+    "message": "Üzvləri bərpa et"
+  },
+  "revokeMembersWarning": {
+    "message": "İddia edilən və edilməyən hesablara aid üzvlər, ləğv edildikdə fərqli nəticələrlə üzləşəcəklər:"
+  },
+  "claimedAccountRevoke": {
+    "message": "İddia edilən hesab: Bitwarden hesabına müraciəti ləğv et"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "İddia edilməyən hesab: Təşkilat datasına müraciəti ləğv et"
+  },
+  "claimedAccount": {
+    "message": "İddia edilən hesab"
+  },
+  "unclaimedAccount": {
+    "message": "İddia edilməyən hesab"
+  },
+  "restoreMembersInstructions": {
+    "message": "Bir üzvün hesabını bərpa etmək üçün Ləğv edildi vərəqinə gedin. Prosesin tamamlanması bir neçə saniyə çəkə bilər və yarımçıq kəsilə və ya ləğv edilə bilməz."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Təşkilat müraciəti bərpa edilə bilmir"
+  },
   "allApplicationsWithCount": {
     "message": "Bütün tətbiqlər ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
+  },
+  "authenticationTimeout": {
+    "message": "Kimlik doğrulama vaxtı bitdi"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "İstisna edildi, bu əməliyyat üçün etibarlı deyil."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Uyğun olmayan üzvlər"
+  },
+  "nonCompliantMembersError": {
+    "message": "Single təşkilat və ya İki addımlı giriş siyasətinə uyğun gəlməyən üzvlər, siyasət tələblərinə əməl edənə qədər bərpa edilə bilməz"
+  },
   "fingerprint": {
     "message": "Barmaq izi"
   },
@@ -6790,6 +6829,10 @@
   },
   "scimDescription": {
     "message": "SCIM təmin etmə vasitəsilə tərcih etdiyiniz kimlik doğrulama provayderləri ilə istifadəçiləri və qrupları avtomatik təmin edin",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Öz tətbiqlərinizi qurmaq üçün \"Bitwarden Sirr Meneceri SDK\"sını aşağıdakı proqramlaşdırma dillərində istifadə edin."
   },
-  "setUpGithubActions": {
-    "message": "Github Actions qur"
+  "ssoDescStart": {
+    "message": "Configure",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes-i qur"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "GitLab CI/CD qur"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "setUpAnsible": {
-    "message": "Ansible qur"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust repozitoriyasına bax"
+  "scimIntegrationDescStart": {
+    "message": "Configure ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "C# repozitoriyasına bax"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "C++ repozitoriyasına bax"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "JS WebAssembly repozitoriyasına bax"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "javaSDKRepo": {
-    "message": "Java repozitoriyasına bax"
+  "eventManagement": {
+    "message": "Event management"
   },
-  "pythonSDKRepo": {
-    "message": "Python repozitoriyasına bax"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "php repozitoriyasına bax"
+  "deviceManagement": {
+    "message": "Device management"
   },
-  "rubySDKRepo": {
-    "message": "Ruby repozitoriyasına bax"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Go repozitoriyasına bax"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Provayder kimi idarə etmək üçün yeni bir client təşkilatı yaradın. Əlavə yerlər növbəti faktura dövründə əks olunacaq."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Bir hesab silindikdə, Bitwarden hesabı və onun fərdi seyf dataları həmişəlik silinir. Təşkilatdakı kolleksiya dataları qalır. Bunları yenidən fəallaşdırmaq üçün bir hesab yaradılmalı və yenidən təşkilata qoşulması lazımdır.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Bu, sahibi $NAME$ olan bütün elementləri həmişəlik siləcək. Kolleksiya elementləri təsirlənmir.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Bu, sahibi aşağıdakı üzvlər olan bütün elementləri həmişəlik siləcək. Kolleksiya elementləri təsirlənmir.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ silindi",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Açıqlayıcı kod"
+  },
+  "removeMembers": {
+    "message": "Üzvləri çıxart"
   }
 }
