@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
   },
+  "authenticationTimeout": {
+    "message": "Autentificēšanās noildze"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
+  },
   "enterVerificationCodeEmail": {
     "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
     "placeholders": {

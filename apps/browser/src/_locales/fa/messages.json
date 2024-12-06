@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "کد ۶ رقمی تأیید را از برنامه احراز هویت وارد کنید."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "کد ۶ رقمی تأیید را که به $EMAIL$ ایمیل شده را وارد کنید.",
     "placeholders": {

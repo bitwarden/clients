@@ -124,48 +124,48 @@
     <value>Било где, Bitwarden лако обезбеђује све ваше лозинке, приступне кључеве и осетљиве информације.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Препознат као најбољи руковалац лозинкама од стране PCMag, WIRED, The Verge, CNET, G2, и других!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ОСИГУРАЈТЕ ВАШ ДИГИТАЛНИ ЖИВОТ
+Осигурајте ваш дигитални живот и заштитите се против цурења података генерисањем и чувањем јединствених, јаких лозинки за сваки ваш налог. Држите све унутар потпуно екнриптованог трезора којем само ви имате приступ.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ПРИСТУПИТЕ ВАШИМ ПОДАЦИМА, БИЛО ГДЕ, НА БИЛО КОМ УРЕЂАЈУ
+Са лакоћом управљајте, складиштите, штитите и делите неограничен број лозинки на неограниченом броју уређаја без органичења
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+СВАКО БИ ТРЕБАО ДА ИМА АЛАТЕ ДА БИ ОСТАО БЕЗБЕДАН НА МРЕЖИ
+Користите Bitwarden бесплатно без реклама или продаје података. Bitwarden верује да свако треба да има способност да остане безбедан на мрежи. Премијум планови нуде приступ напредним могућностима.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+ОСНАЖИТЕ ВАШЕ ТИМОВЕ СА BITWARDEN-ОМ
+Планови за тимове и пословно окружење долазе са професионалним пословним могућностима. Неки од примера укључују SSO интеграцију, самостално хостовање, интеграцију са директоријумом и SCIM провизионисање, глобалне полисе, API приступ, записе догађаја и још више.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Користите Bitwarden да би сте обезбедили вашу радну снагу и делили осетљиве информације са колегама.
 
 
-More reasons to choose Bitwarden:
+Додатни разлози да изаберете Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Енкрипција светске класе
+Лозинке су заштићене са напредном потпуном енкрипцијом (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) тако да ваши подаци остају сигурни и приватни.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Ревизије треће стране
+Bitwarden редовно спроводи опсежне безбедносне ревизије трећих страна заједно са препознатим безбедносним фирмама. Ове годишње ревизије укључују процене изворног кода и тестирање пробојности Bitwarden-ових ИП адреса, сервера и веб апликација.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Напредна двофакторска аутентификација
+Обезбедите ваше пријаве са аутентификатором треће стране, кодовима послатим на е-пошту, или FIDO2 WebAuthn акредитивима као што су хардверски кључ или фраза.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Одашиљите податке директно другима док одржавате потпуну енкриптовану безбедност и ограничавате изалагање.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Уграђени генератор
+Правите дугачке, комплексне и посебне лозинке и јединствена корисничка имена за сваки сајт који посећујете. Интегришите са провајдерима алијаса е-пошти за додатну приватност.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Глобална превођења
+Bitwarden преводи постоје за више од 60 језика, преведени од стране глобалне заједнице уз помоћ Crowdin-а.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Апликације за разне платформе
+Обезбедите и делите осетљиве податке у оквиру Bitwarden трезора из било којег прегледача, мобилног уређаја или оперативног система и више.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden обезбеђује више од обичних лозинки
+Потпуно енкриптовано решење за управљање акредитивима од Bitwarden-а оснажава организације да обезбеде све, укључујући тајне девелопера и фразе. Посетите Bitwarden.com да би сте сазнали више о Bitwarden руководиоцу тајнама и Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
