@@ -928,6 +928,7 @@ describe("OverlayBackground", () => {
             login: {
               username: "username-1",
               passkey: null,
+              totpField: false,
             },
             name: "name-1",
             reprompt: loginCipher1.reprompt,
@@ -1065,6 +1066,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
               name: loginCipher1.name,
               reprompt: loginCipher1.reprompt,
@@ -1189,6 +1191,7 @@ describe("OverlayBackground", () => {
                 rpName: passkeyCipher.login.fido2Credentials[0].rpName,
                 userName: passkeyCipher.login.fido2Credentials[0].userName,
               },
+              totpField: false,
             },
           },
           {
@@ -1207,6 +1210,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1225,6 +1229,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1272,6 +1277,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1290,6 +1296,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1337,6 +1344,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1355,6 +1363,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1400,6 +1409,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
             {
@@ -1418,6 +1428,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher2.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
           ],

@@ -5,20 +5,34 @@ $dark-icon-themes: "theme_dark", "theme_solarizedDark", "theme_nord";
 $font-family-sans-serif: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-source-code-pro: "Source Code Pro", monospace;
 $font-size-base: 14px;
-$text-color: #212529;
-$muted-text-color: #6c747c;
-$border-color: #ced4dc;
+
+$text-color-light: #212529;
+$muted-text-color-light: #6c747c;
+$background-color-light: #ffffff;
+$background-offset-color-light: #f0f0f0;
+$brand-primary-light: #175ddc;
+$password-special-color-light: #b80017;
+$password-number-color-light: #1452c1;
+$success-color-light: #017e45;
+$error-color-light: #c83522;
+
+$text-color-dark: #ffffff;
+$muted-text-color-dark: #bac0ce;
+$background-color-dark: #2f343d;
+$background-offset-color-dark: darken(#2f343d, 2.75%);
 $border-color-dark: #ddd;
+$brand-primary-dark: #6f9df1;
+$password-special-color-dark: #ff8d85;
+$password-number-color-dark: #6f9df1;
+$success-color-dark: #8db89b;
+$error-color-dark: #ee9792;
+
+$muted-blue: #5a6d91;
+$muted-grey: #bac0ce;
+$border-color: #ced4dc;
+
 $border-radius: 3px;
 $focus-outline-color: #1252a3;
-$muted-blue: #5a6d91;
-$password-special-color: #b80017;
-$password-number-color: #1452c1;
-
-$brand-primary: #175ddc;
-
-$background-color: #ffffff;
-$background-offset-color: #f0f0f0;
 
 $solarizedDarkBase0: #839496;
 $solarizedDarkBase03: #002b36;
@@ -28,48 +42,42 @@ $solarizedDarkBase2: #eee8d5;
 $solarizedDarkCyan: #2aa198;
 $solarizedDarkGreen: #859900;
 
-$success-color-light: #017e45;
-$success-color-dark: #8db89b;
-
-$error-color-light: #c83522;
-$error-color-dark: #ee9792;
-
 $themes: (
   light: (
-    textColor: $text-color,
-    mutedTextColor: $muted-text-color,
-    backgroundColor: $background-color,
-    backgroundOffsetColor: $background-offset-color,
-    primaryColor: $brand-primary,
-    buttonPrimaryColor: $brand-primary,
-    textContrast: $background-color,
+    textColor: $text-color-light,
+    mutedTextColor: $muted-text-color-light,
+    backgroundColor: $background-color-light,
+    backgroundOffsetColor: $background-offset-color-light,
+    primaryColor: $brand-primary-light,
+    buttonPrimaryColor: $brand-primary-light,
+    textContrast: $background-color-light,
     inputBorderColor: darken($border-color-dark, 2.75%),
-    inputBackgroundColor: #ffffff,
+    inputBackgroundColor: $background-color-light,
     borderColor: $border-color,
     focusOutlineColor: $focus-outline-color,
     successColor: $success-color-light,
     errorColor: $error-color-light,
     passkeysAuthenticating: $muted-blue,
-    passwordSpecialColor: $password-special-color,
-    passwordNumberColor: $password-number-color,
+    passwordSpecialColor: $password-special-color-light,
+    passwordNumberColor: $password-number-color-light,
   ),
   dark: (
-    textColor: #ffffff,
-    mutedTextColor: #bac0ce,
-    backgroundColor: #2f343d,
-    backgroundOffsetColor: darken(#2f343d, 2.75%),
-    buttonPrimaryColor: #6f9df1,
-    primaryColor: #6f9df1,
-    textContrast: #2f343d,
+    textColor: $text-color-dark,
+    mutedTextColor: $muted-text-color-dark,
+    backgroundColor: $background-color-dark,
+    backgroundOffsetColor: $background-offset-color-dark,
+    buttonPrimaryColor: $brand-primary-dark,
+    primaryColor: $brand-primary-dark,
+    textContrast: $background-color-dark,
     inputBorderColor: #4c525f,
-    inputBackgroundColor: #2f343d,
+    inputBackgroundColor: $background-color-dark,
     borderColor: #4c525f,
     focusOutlineColor: lighten($focus-outline-color, 25%),
     successColor: $success-color-dark,
     errorColor: $error-color-dark,
-    passkeysAuthenticating: #bac0ce,
-    passwordSpecialColor: #ff8d85,
-    passwordNumberColor: #6f9df1,
+    passkeysAuthenticating: $muted-grey,
+    passwordSpecialColor: $password-special-color-dark,
+    passwordNumberColor: $password-number-color-dark,
   ),
   nord: (
     textColor: $nord5,
