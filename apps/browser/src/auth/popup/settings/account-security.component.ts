@@ -51,7 +51,12 @@ import {
   TypographyModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  BiometricStateService,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -199,7 +204,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    this.supportsBiometric =
+      (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
     this.form.controls.vaultTimeout.valueChanges
@@ -471,7 +477,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const biometricsPromise = async () => {
       try {
-        const result = await this.biometricsService.authenticateBiometric();
+        const result = await this.biometricsService.authenticateWithBiometrics();
 
         // prevent duplicate dialog
         biometricsResponseReceived = true;

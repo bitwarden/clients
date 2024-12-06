@@ -57,16 +57,23 @@
       </div>
     </div>
     <div class="buttons with-rows">
-      <div class="buttons-row" *ngIf="supportsBiometric && biometricLock && biometricReady">
-        <button
-          type="button"
-          class="btn block"
-          [ngClass]="{ 'primary font-weight-bold': !pinEnabled && !masterPasswordEnabled }"
-          (click)="unlockBiometric()"
-        >
-          {{ biometricText | i18n }}
-        </button>
+      <div *ngIf="showBiometricsButton" class="box">
+        <div class="buttons-row">
+          <button
+            type="button"
+            class="btn block"
+            [ngClass]="{ 'primary font-weight-bold': !pinEnabled && !masterPasswordEnabled }"
+            (click)="unlockBiometric()"
+            [disabled]="!canUseBiometric"
+          >
+            {{ biometricText | i18n }}
+          </button>
+        </div>
+        <div id="biometricsHelp" class="box-footer sub-label" *ngIf="biometricUnavailabilityReason">
+          {{ biometricUnavailabilityReason }}
+        </div>
       </div>
+
       <div class="buttons-row">
         <button type="submit" class="btn primary block" *ngIf="pinEnabled || masterPasswordEnabled">
           <i class="bwi bwi-unlock" aria-hidden="true"></i> <b>{{ "unlock" | i18n }}</b>

@@ -26,8 +26,9 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
-import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
-import { BiometricsService, DesktopBiometricsService } from "./key-management/biometrics/index";
+import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
+import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
+import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -58,7 +59,7 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
-  biometricsRendererIPCListener: BiometricsRendererIPCListener;
+  mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
@@ -173,6 +174,15 @@ export class Main {
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
+    this.biometricsService = new MainBiometricsService(
+      this.i18nService,
+      this.windowMain,
+      this.logService,
+      this.messagingService,
+      process.platform,
+      biometricStateService,
+    );
+
     this.windowMain = new WindowMain(
       biometricStateService,
       this.logService,
@@ -183,7 +193,6 @@ export class Main {
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
@@ -214,22 +223,19 @@ export class Main {
       this.versionMain,
     );
 
-    this.biometricsService = new BiometricsService(
-      this.i18nService,
+    this.trayMain = new TrayMain(
       this.windowMain,
-      this.logService,
-      this.messagingService,
-      process.platform,
+      this.i18nService,
+      this.desktopSettingsService,
       biometricStateService,
+      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
       "Bitwarden",
-      this.biometricsService,
       this.logService,
     );
-    this.biometricsRendererIPCListener = new BiometricsRendererIPCListener(
-      "Bitwarden",
+    this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
       this.biometricsService,
       this.logService,
     );
@@ -260,7 +266,7 @@ export class Main {
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
-    this.biometricsRendererIPCListener.init();
+    this.mainBiometricsIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
