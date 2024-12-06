@@ -1,5 +1,3 @@
-import { Injectable } from "@angular/core";
-
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -20,7 +18,6 @@ import {
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 
-@Injectable()
 export class RiskInsightsReportService {
   passwordUseMap = new Map<string, number>();
 
