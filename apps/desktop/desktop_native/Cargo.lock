@@ -962,6 +962,8 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "serde",
+ "serde_json",
  "tokio",
  "tokio-stream",
  "tokio-util",
