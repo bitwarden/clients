@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL do servidor"
   },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
+  },
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-hospedado",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1729,7 +1735,7 @@
     "message": "Verificar para o Bitwarden."
   },
   "polkitConsentMessage": {
-    "message": "Autenticar para desbloquear o Bitwarden."
+    "message": "Autentique-se para desbloquear o Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Desbloquear com Touch ID"

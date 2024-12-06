@@ -208,19 +208,19 @@
     "message": "A new SSH key was generated"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "入力したパスワードが正しくありません。"
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "インポート"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "パスワードを確認"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "SSH キーのパスワードを入力します。"
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "パスワードを入力"
   },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "サーバー URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
@@ -1729,7 +1735,7 @@
     "message": "Bitwarden の認証を行います。"
   },
   "polkitConsentMessage": {
-    "message": "認証して Bitwarden のロックを解除します。"
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Touch ID でロック解除"

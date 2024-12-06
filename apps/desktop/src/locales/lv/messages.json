@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Servera URL"
   },
+  "authenticationTimeout": {
+    "message": "Autentificēšanās noildze"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
+  },
   "selfHostBaseUrl": {
     "message": "Pašmitināta servera URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1729,7 +1735,7 @@
     "message": "Apstiprināt Bitwarden."
   },
   "polkitConsentMessage": {
-    "message": "Autentificēt, lai atslēgtu Bitwarden."
+    "message": "Autentificēties, lai atslēgtu Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Atslēgt ar Touch ID"
