@@ -134,10 +134,12 @@ export class CreateCommand {
       return Response.notFound();
     }
 
-    if (
-      cipher.organizationId == null &&
-      !(await firstValueFrom(this.accountProfileService.hasPremiumFromAnySource$))
-    ) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const canAccessPremium = await firstValueFrom(
+      this.accountProfileService.hasPremiumFromAnySource$(account.id),
+    );
+
+    if (cipher.organizationId == null && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 

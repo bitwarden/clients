@@ -1227,6 +1227,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(

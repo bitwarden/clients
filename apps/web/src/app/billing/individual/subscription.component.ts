@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -14,8 +15,11 @@ export class SubscriptionComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
-    this.hasPremium$ = billingAccountProfileStateService.hasPremiumPersonally$;
+    this.hasPremium$ = accountService.activeAccount$.pipe(
+      switchMap((account) => billingAccountProfileStateService.hasPremiumPersonally$(account.id)),
+    );
   }
 
   ngOnInit() {
