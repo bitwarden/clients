@@ -75,6 +75,10 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     return super.data;
   }
 
+  get occupiedSeatCount(): number {
+    return this.activeUserCount;
+  }
+
   /**
    * Check or uncheck a user in the table
    * @param select check the user (true), uncheck the user (false), or toggle the current state (null)

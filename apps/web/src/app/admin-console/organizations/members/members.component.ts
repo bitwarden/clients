@@ -71,6 +71,7 @@ import {
   MemberDialogTab,
   openUserAddEditDialog,
 } from "./components/member-dialog";
+import { isFixedSeatPlan } from "./components/member-dialog/validators/org-seat-limit-reached.validator";
 import {
   ResetPasswordComponent,
   ResetPasswordDialogResult,
@@ -466,7 +467,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     if (
       !user &&
       this.organization.hasReseller &&
-      this.organization.seats === this.dataSource.confirmedUserCount
+      this.organization.seats === this.dataSource.occupiedSeatCount
     ) {
       this.toastService.showToast({
         variant: "error",
@@ -482,10 +483,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     // User attempting to invite new users in a free org with max users
     if (
       !user &&
-      this.dataSource.data.length === this.organization.seats &&
-      (this.organization.productTierType === ProductTierType.Free ||
-        this.organization.productTierType === ProductTierType.TeamsStarter ||
-        this.organization.productTierType === ProductTierType.Families)
+      this.dataSource.occupiedSeatCount === this.organization.seats &&
+      isFixedSeatPlan(this.organization.productTierType)
     ) {
       if (!this.organization.canEditSubscription) {
         await this.showSeatLimitReachedDialog();
@@ -510,14 +509,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
+        kind: "InviteMemberDialogParams",
         name: this.userNamePipe.transform(user),
         organizationId: this.organization.id,
         organizationUserId: user != null ? user.id : null,
+        occupiedSeatCount: this.dataSource.occupiedSeatCount,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
         usesKeyConnector: user?.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
-        numConfirmedMembers: this.dataSource.confirmedUserCount,
         managedByOrganization: user?.managedByOrganization,
       },
     });
