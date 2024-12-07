@@ -704,7 +704,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    const type = cipherType ?? this.activeFilter.cipherType;
+    let type = cipherType ?? this.activeFilter.cipherType;
+    if (type === CipherType.SshKey) {
+      type = CipherType.Login;
+    }
 
     if (this.extensionRefreshEnabled) {
       return this.addCipherV2(type);
