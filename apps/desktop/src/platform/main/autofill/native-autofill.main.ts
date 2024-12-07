@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, ipc } from "@bitwarden/desktop-napi";
 
 import { CommandDefinition } from "./command";
 
@@ -14,6 +14,8 @@ export type RunCommandParams<C extends CommandDefinition> = {
 export type RunCommandResult<C extends CommandDefinition> = C["output"];
 
 export class NativeAutofillMain {
+  private ipcServer: ipc.IpcServer | null;
+
   constructor(private logService: LogService) {}
 
   async init() {
@@ -24,6 +26,13 @@ export class NativeAutofillMain {
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
         return this.runCommand(params);
+      },
+    );
+
+    this.ipcServer = await ipc.IpcServer.listen(
+      "autofill",
+      (error: Error | null, data: ipc.IpcMessage) => {
+        this.logService.warning("autofill.IpcServer.listen", error, data);
       },
     );
   }
