@@ -2,8 +2,10 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
@@ -12,10 +14,12 @@ import {
   ProviderSubscriptionComponent,
   hasConsolidatedBilling,
   ProviderBillingHistoryComponent,
+  vNextManageClientsComponent,
 } from "../../billing/providers";
 
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
+import { vNextClientsComponent } from "./clients/vnext-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
@@ -82,13 +86,25 @@ const routes: Routes = [
         children: [
           { path: "", pathMatch: "full", redirectTo: "clients" },
           { path: "clients/create", component: CreateOrganizationComponent },
-          { path: "clients", component: ClientsComponent, data: { titleId: "clients" } },
-          {
-            path: "manage-client-organizations",
-            canActivate: [hasConsolidatedBilling],
-            component: ManageClientsComponent,
-            data: { titleId: "clients" },
-          },
+          ...featureFlaggedRoute({
+            defaultComponent: ClientsComponent,
+            flaggedComponent: vNextClientsComponent,
+            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
+            routeOptions: {
+              path: "clients",
+              data: { titleId: "clients" },
+            },
+          }),
+          ...featureFlaggedRoute({
+            defaultComponent: ManageClientsComponent,
+            flaggedComponent: vNextManageClientsComponent,
+            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
+            routeOptions: {
+              path: "manage-client-organizations",
+              data: { titleId: "clients" },
+              canActivate: [hasConsolidatedBilling],
+            },
+          }),
           {
             path: "manage",
             children: [
