@@ -208,19 +208,19 @@
     "message": "A new SSH key was generated"
   },
   "sshKeyWrongPassword": {
-    "message": "Girdiğiniz parola yanlış."
+    "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "İçe aktar"
+    "message": "Import"
   },
   "confirmSshKeyPassword": {
-    "message": "Parolayı onaylayın"
+    "message": "Confirm password"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "SSH anahtarının parolasını girin."
+    "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Parolayı girin"
+    "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "Kendi kendine barındırılan sunucu URL'si",
@@ -1729,7 +1735,7 @@
     "message": "Bitwarden için doğrulayın."
   },
   "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
+    "message": "Bitwarden kilidini açmak için kimliğinizi doğrulayın."
   },
   "unlockWithTouchId": {
     "message": "Kilidi Touch ID ile aç"
@@ -2723,13 +2729,13 @@
     "message": "Cihazınıza bir bildirim gönderildi."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "Cihazınıza bir bildirim gönderildi"
+    "message": "A notification was sent to your device"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "Başka bir seçeneğe mi ihtiyacınız var?"
+    "message": "Need another option?"
   },
   "fingerprintMatchInfo": {
     "message": "Lütfen kasanızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun."
@@ -2738,13 +2744,13 @@
     "message": "Parmak izi ifadesi"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "İsteğiniz onaylanınca size haber vereceğiz"
+    "message": "You will be notified once the request is approved"
   },
   "needAnotherOption": {
     "message": "Cihazla girişi Bitwarden mobil uygulamasının ayarlarından etkinleştirmelisiniz. Başka bir seçeneğe mi ihtiyacınız var?"
   },
   "viewAllLogInOptions": {
-    "message": "Tüm giriş seçeneklerini gör"
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Tüm giriş seçeneklerini gör"

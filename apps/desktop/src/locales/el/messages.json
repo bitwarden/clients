@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL Διακομιστή"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "URL διακομιστή αυτο-φιλοξενίας",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1729,7 +1735,7 @@
     "message": "Επαληθεύστε για το Bitwarden."
   },
   "polkitConsentMessage": {
-    "message": "Αυθεντικοποίηση για ξεκλείδωμα του Bitwarden."
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Ξεκλείδωμα με Touch ID"
