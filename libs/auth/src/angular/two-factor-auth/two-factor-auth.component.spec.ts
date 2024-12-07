@@ -25,10 +25,6 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -64,7 +60,6 @@ describe("TwoFactorComponent", () => {
   let mockApiService: MockProxy<ApiService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockWin: MockProxy<Window>;
-  let mockEnvironmentService: MockProxy<EnvironmentService>;
   let mockStateService: MockProxy<StateService>;
   let mockLogService: MockProxy<LogService>;
   let mockTwoFactorService: MockProxy<TwoFactorService>;
@@ -98,10 +93,6 @@ describe("TwoFactorComponent", () => {
     mockApiService = mock<ApiService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockWin = mock<Window>();
-    const mockEnvironment = mock<Environment>();
-    mockEnvironment.getWebVaultUrl.mockReturnValue("http://example.com");
-    mockEnvironmentService = mock<EnvironmentService>();
-    mockEnvironmentService.environment$ = new BehaviorSubject(mockEnvironment);
 
     mockStateService = mock<StateService>();
     mockLogService = mock<LogService>();
@@ -171,7 +162,6 @@ describe("TwoFactorComponent", () => {
         { provide: ApiService, useValue: mockApiService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: WINDOW, useValue: mockWin },
-        { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: StateService, useValue: mockStateService },
         {
           provide: ActivatedRoute,
@@ -247,12 +237,10 @@ describe("TwoFactorComponent", () => {
     describe("submit", () => {
       const token = "testToken";
       const remember = false;
-      const captchaToken = "testCaptchaToken";
 
       beforeEach(() => {
         component.token = token;
         component.remember = remember;
-        component.captchaToken = captchaToken;
 
         selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
       });
@@ -267,31 +255,8 @@ describe("TwoFactorComponent", () => {
         // Assert
         expect(mockLoginStrategyService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          captchaToken,
+          null, // captcha token not supported
         );
-      });
-
-      it("should return when handleCaptchaRequired returns true", async () => {
-        // Arrange
-        const captchaSiteKey = "testCaptchaSiteKey";
-        const authResult = new AuthResult();
-        authResult.captchaSiteKey = captchaSiteKey;
-
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
-
-        // Note: the any casts are required b/c typescript cant recognize that
-        // handleCaptureRequired is a method on TwoFactorComponent b/c it is inherited
-        // from the CaptchaProtectedComponent
-        const handleCaptchaRequiredSpy = jest
-          .spyOn<any, any>(component, "handleCaptchaRequired")
-          .mockReturnValue(true);
-
-        // Act
-        const result = await component.submit();
-
-        // Assert
-        expect(handleCaptchaRequiredSpy).toHaveBeenCalled();
-        expect(result).toBeUndefined();
       });
 
       it("calls onSuccessfulLogin when defined", async () => {
@@ -405,12 +370,10 @@ describe("TwoFactorComponent", () => {
     describe("submit", () => {
       const token = "testToken";
       const remember = false;
-      const captchaToken = "testCaptchaToken";
 
       beforeEach(() => {
         component.token = token;
         component.remember = remember;
-        component.captchaToken = captchaToken;
       });
 
       describe("Trusted Device Encryption scenarios", () => {

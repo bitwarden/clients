@@ -38,6 +38,7 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent
   private dialogService = inject(DialogService);
 
   async ngOnInit(): Promise<void> {
+    // TODO: route persistence might make this unnecessary; test
     if (BrowserPopupUtils.inPopup(window)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },

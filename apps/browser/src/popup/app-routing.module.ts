@@ -43,7 +43,6 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
@@ -65,7 +64,7 @@ import { AccountSecurityComponent } from "../auth/popup/settings/account-securit
 import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -181,8 +180,8 @@ const routes: Routes = [
     canMatch: [extensionRefreshRedirect("/lockV2")],
     data: { elevation: 1, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
-  ...twofactorRefactorSwap(
-    TwoFactorComponent,
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
     AnonLayoutWrapperComponent,
     {
       path: "2fa",
