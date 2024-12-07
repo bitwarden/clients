@@ -1734,9 +1734,6 @@
   "windowsHelloConsentMessage": {
     "message": "Verify for Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Unlock with Touch ID"
   },

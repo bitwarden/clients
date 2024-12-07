@@ -658,7 +658,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       this.form.controls.enableBrowserIntegration.setValue(false);
       return;
-    } else if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
+    } else if (ipc.platform.isFlatpak) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationLinuxDesc" },

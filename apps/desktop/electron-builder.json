@@ -241,7 +241,16 @@
     "autoStart": true,
     "base": "core22",
     "confinement": "strict",
-    "plugs": ["default", "network-bind", "password-manager-service"],
+    "plugs": [
+      "default",
+      "network-bind",
+      "password-manager-service",
+      {
+        "polkit": {
+          "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      }
+    ],
     "stagePackages": ["default"]
   },
   "protocols": [

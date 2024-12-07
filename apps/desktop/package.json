@@ -35,7 +35,7 @@
     "clean:dist": "rimraf ./dist",
     "pack:dir": "npm run clean:dist && electron-builder --dir -p never",
     "pack:lin:flatpak": "npm run clean:dist && electron-builder --dir -p never && flatpak-builder  --repo=build/.repo build/.flatpak  ./resources/com.bitwarden.desktop.devel.yaml --install-deps-from=flathub --force-clean &&  flatpak build-bundle ./build/.repo/ ./dist/com.bitwarden.desktop.flatpak com.bitwarden.desktop",
-    "pack:lin": "npm run clean:dist && electron-builder --linux --x64 -p never",
+    "pack:lin": "npm run clean:dist && electron-builder --linux --x64 -p never && export SNAP_FILE=$(realpath ./dist/bitwarden_*.snap) && unsquashfs -d ./dist/tmp-snap/ $SNAP_FILE && mkdir -p ./dist/tmp-snap/meta/polkit/ && cp ./resources/com.bitwarden.desktop.policy  ./dist/tmp-snap/meta/polkit/polkit.com.bitwarden.desktop.policy && rm $SNAP_FILE && mksquashfs ./dist/tmp-snap/ $SNAP_FILE -noappend -comp lzo -no-fragments && rm -rf ./dist/tmp-snap/",
     "pack:mac": "npm run clean:dist && electron-builder --mac --universal -p never",
     "pack:mac:arm64": "npm run clean:dist && electron-builder --mac --arm64 -p never",
     "pack:mac:mas": "npm run clean:dist && electron-builder --mac mas --universal -p never",
