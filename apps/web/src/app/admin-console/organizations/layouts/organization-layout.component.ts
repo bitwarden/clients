@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   canAccessBillingTab,
   canAccessGroupsTab,
@@ -18,7 +19,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -65,6 +66,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -105,13 +107,32 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
+    const excludedPlans = [
+      PlanType.Free,
+      PlanType.Custom,
+      PlanType.TeamsStarter,
+      PlanType.TeamsStarter2023,
+      PlanType.FamiliesAnnually,
+      PlanType.FamiliesAnnually2019,
+    ];
+
     this.integrationPageEnabled$ = combineLatest(
       this.organization$,
       this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
     ).pipe(
-      map(
-        ([org, featureFlagEnabled]) =>
-          org.productTierType === ProductTierType.Enterprise && featureFlagEnabled,
+      switchMap(([org, featureFlagEnabled]) =>
+        of(org.productTierType === ProductTierType.Enterprise && featureFlagEnabled).pipe(
+          filter(
+            (enabled) =>
+              enabled &&
+              (org.isAdmin ||
+                org.isOwner ||
+                org.userIsManagedByOrganization ||
+                org.canAccessEventLogs),
+          ),
+          switchMap(() => this.organizationApiService.getPlanType(org.id)),
+          map((planType) => !excludedPlans.includes(planType)),
+        ),
       ),
     );
   }

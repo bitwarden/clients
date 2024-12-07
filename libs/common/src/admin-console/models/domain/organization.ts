@@ -358,4 +358,10 @@ export class Organization {
       familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
     });
   }
+
+  get canAccessIntegrations() {
+    return (
+      this.isAdmin || this.isOwner || this.userIsManagedByOrganization || this.canAccessEventLogs
+    );
+  }
 }
