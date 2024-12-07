@@ -197,10 +197,10 @@ export class AppComponent implements OnInit, OnDestroy {
         ) {
           await this.clearComponentStates();
         }
+        (window as any).previousPopupUrl = url;
         if (url.startsWith("/tabs/")) {
           await this.cipherService.setAddEditCipherInfo(null);
         }
-        (window as any).previousPopupUrl = url;
 
         // Clear route direction after animation (400ms)
         if ((window as any).routeDirection != null) {

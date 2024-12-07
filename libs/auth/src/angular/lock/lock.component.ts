@@ -117,6 +117,8 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   unlockingViaBiometrics = false;
 
+  private hadActiveAccount = false;
+
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
@@ -156,6 +158,22 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     if (this.clientType === "desktop") {
       await this.desktopOnInit();
+    }
+
+    this.isInitialLockScreen = (window as any).previousPopupUrl == null;
+
+    if (this.clientType === "browser") {
+      if ((window as any).previousPopupUrl != null) {
+        /// add param
+        const url = new URL((window as any).location.href);
+        url.searchParams.set("previousPopupUrl", (window as any).previousPopupUrl);
+        (window as any).location.href = url.toString();
+      }
+      const url = new URL((window as any).location.href);
+      if (url.searchParams.has("previousPopupUrl")) {
+        this.isInitialLockScreen = false;
+        (window as any).previousPopupUrl = url.searchParams.get("previousPopupUrl");
+      }
     }
   }
 
@@ -228,7 +246,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.unlockOptions = null;
     this.activeUnlockOption = null;
     this.formGroup = null; // new form group will be created based on new active unlock option
-    this.isInitialLockScreen = true;
+    this.isInitialLockScreen = (window as any).previousPopupUrl == null;
 
     // Desktop properties:
     this.biometricAsked = false;
