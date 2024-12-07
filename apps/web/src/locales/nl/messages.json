@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Geînformeerde leden"
   },
+  "revokeMembers": {
+    "message": "Leden intrekken"
+  },
+  "restoreMembers": {
+    "message": "Leden herstellen"
+  },
+  "revokeMembersWarning": {
+    "message": "Leden met geclaimde en niet-geclailmde accounts krijgen verschillende resultaten bij intrekken:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Geclaimd account: Toegang tot Bitwarden-account intrekken"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Niet-geclaild account: Toegang tot organisatiegegevens intrekken"
+  },
+  "claimedAccount": {
+    "message": "Geclaimd account"
+  },
+  "unclaimedAccount": {
+    "message": "Niet-geclaimd account"
+  },
+  "restoreMembersInstructions": {
+    "message": "Om het account van een lid te herstellen, ga je naar het tabblad Ingetrokken. Het proces duurt een paar seconden om te voltooien en kan niet worden onderbroken of geannuleerd."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Kan organisatietoegang niet herstellen"
+  },
   "allApplicationsWithCount": {
     "message": "Alle applicaties ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Inloggen op Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Authenticatie-timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
   },
   "verifyIdentity": {
     "message": "Verify your Identity"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Uitgezonderd, niet van toepassing voor deze actie."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Niet-conforme leden"
+  },
+  "nonCompliantMembersError": {
+    "message": "Leden die niet-conform zijn aan het enkele organisatie- of tweestapsaanmeldingsbeleid kunnen niet worden hersteld totdat ze voldoen aan de beleidsvereisten"
+  },
   "fingerprint": {
     "message": "Vingerafdruk"
   },
@@ -6790,6 +6829,10 @@
   },
   "scimDescription": {
     "message": "Automatisch in gebruikers en groepen voorzien via SCIM-provisioning van je voorkeursprovider",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Gebruik Bitwarden Secrets Manager SDK in de volgende programmeertalen om je eigen applicaties te bouwen."
   },
-  "setUpGithubActions": {
-    "message": "GitHub Actions instellen"
+  "ssoDescStart": {
+    "message": "Configure",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes inrichten"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "GitLab CI/CD instellen"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "setUpAnsible": {
-    "message": "Ansibel instellen"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Ruby-repository bekijken"
+  "scimIntegrationDescStart": {
+    "message": "Configure ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "C#-repository bekijken"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "C++-repository bekijken"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "JS WebAssembly-repository bekijken"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "javaSDKRepo": {
-    "message": "Java-repository bekijken"
+  "eventManagement": {
+    "message": "Event management"
   },
-  "pythonSDKRepo": {
-    "message": "Python-repository bekijken"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "Php-repository bekijken"
+  "deviceManagement": {
+    "message": "Device management"
   },
-  "rubySDKRepo": {
-    "message": "Ruby-repository bekijken"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Go-repository bekijken"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Als je een lid verwijdert, verwijder je permanent hun Bitwarden-account en individuele kluisgegevens. Collectiegegevens blijven in de organisatie. Om het account te heractiveren, moet het lid een account aanmaken en opnieuw on-boarding doorlopen.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Dit verwijdert alle items in eigendom van $NAME$ permanent. Items in een collectie blijven buiten schot.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Dit verwijdert alle items in eigendom van de volgende leden permanent. Items in een collectie blijven buiten schot.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ verwijderd",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Code bankafschrift"
+  },
+  "removeMembers": {
+    "message": "Leden verwijderen"
   }
 }
