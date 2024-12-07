@@ -155,6 +155,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.searchService,
       this.serviceContainer.encryptService,
+      this.serviceContainer.apiService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
