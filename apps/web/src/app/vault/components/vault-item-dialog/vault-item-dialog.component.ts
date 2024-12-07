@@ -428,6 +428,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       case CipherType.SecureNote:
         this.title = this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
         break;
+      case CipherType.SshKey:
+        this.title = this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLowerCase());
+        break;
     }
   }
 

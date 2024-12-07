@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -33,14 +35,20 @@ export class NewItemDropdownV2Component implements OnInit {
    */
   @Input()
   initialValues: NewItemInitialValues;
+  constructor(
+    private router: Router,
+    private dialogService: DialogService,
+    private configService: ConfigService,
+  ) {}
 
-  constructor(private dialogService: DialogService) {}
+  sshKeysEnabled = false;
 
   async ngOnInit() {
+    this.sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
     this.tab = await BrowserApi.getTabFromCurrentWindow();
   }
 
-  buildQueryParams(type: CipherType): AddEditQueryParams {
+  private async buildQueryParams(type: CipherType): Promise<AddEditQueryParams> {
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
     const loginDetails: { uri?: string; name?: string } = {};
