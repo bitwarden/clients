@@ -1,15 +1,14 @@
 import {
   Observable,
   ReplaySubject,
-  defer,
   filter,
   firstValueFrom,
-  merge,
   share,
   switchMap,
   tap,
   timeout,
   timer,
+  concat,
 } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -53,9 +52,9 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
       }),
     );
 
-    let state$ = merge(
-      defer(() => getStoredValue(key, storageService, keyDefinition.deserializer)),
+    let state$ = concat(
       storageUpdate$,
+      getStoredValue(key, storageService, keyDefinition.deserializer),
     );
 
     if (keyDefinition.debug.enableRetrievalLogging) {
