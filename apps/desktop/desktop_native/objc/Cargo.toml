@@ -10,7 +10,7 @@ default = []
 
 [dependencies]
 anyhow = "=1.0.93"
-thiserror = "=1.0.69"
+thiserror = "=2.0.5"
 tokio = "1.39.1"
 
 [target.'cfg(target_os = "macos")'.dependencies]
