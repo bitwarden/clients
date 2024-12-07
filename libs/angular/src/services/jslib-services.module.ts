@@ -445,7 +445,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: FileUploadServiceAbstraction,
     useClass: FileUploadService,
-    deps: [LogService],
+    deps: [LogService, ApiServiceAbstraction],
   }),
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
