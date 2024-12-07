@@ -2,8 +2,10 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, firstValueFrom, map } from "rxjs";
+import { debounceTime, firstValueFrom, map, switchMap } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports  -- used for dependency injection
+import { CriticalAppsApiService } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -11,6 +13,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -35,7 +38,7 @@ import { applicationTableMockData } from "./application-table.mock";
 })
 export class AllApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<any>();
-  protected selectedIds: Set<number> = new Set<number>();
+  protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
@@ -58,10 +61,15 @@ export class AllApplicationsComponent implements OnInit {
         map(async (params) => {
           const organizationId = params.get("organizationId");
           this.organization = await firstValueFrom(this.organizationService.get$(organizationId));
+          return params;
           // TODO: use organizationId to fetch data
         }),
+        switchMap(async (params) => await params),
       )
-      .subscribe();
+      .subscribe((params) => {
+        const orgId = params.get("organizationId");
+        this.criticalAppsService.setOrganizationId(orgId as OrganizationId);
+      });
 
     this.isCritialAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
@@ -77,6 +85,7 @@ export class AllApplicationsComponent implements OnInit {
     protected toastService: ToastService,
     protected organizationService: OrganizationService,
     protected configService: ConfigService,
+    protected criticalAppsService: CriticalAppsApiService,
   ) {
     this.dataSource.data = applicationTableMockData;
     this.searchControl.valueChanges
@@ -94,32 +103,35 @@ export class AllApplicationsComponent implements OnInit {
   };
 
   markAppsAsCritical = async () => {
-    // TODO: Send to API once implemented
     this.markingAsCritical = true;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.selectedIds.clear();
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("appsMarkedAsCritical"),
-        });
-        resolve(true);
-        this.markingAsCritical = false;
-      }, 1000);
-    });
+
+    try {
+      await this.criticalAppsService.setCriticalApps(
+        this.organization.id,
+        Array.from(this.selectedUrls),
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("appsMarkedAsCritical"),
+      });
+    } finally {
+      this.selectedUrls.clear();
+      this.markingAsCritical = false;
+    }
   };
 
   trackByFunction(_: number, item: CipherView) {
     return item.id;
   }
 
-  onCheckboxChange(id: number, event: Event) {
+  onCheckboxChange(urlName: string, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.selectedIds.add(id);
+      this.selectedUrls.add(urlName);
     } else {
-      this.selectedIds.delete(id);
+      this.selectedUrls.delete(urlName);
     }
   }
 }
