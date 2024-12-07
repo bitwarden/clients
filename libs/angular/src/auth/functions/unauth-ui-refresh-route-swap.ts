@@ -15,6 +15,7 @@ import { componentRouteSwap } from "../../utils/component-route-swap";
  * @param defaultComponent - The current non-refreshed component to render.
  * @param refreshedComponent - The new refreshed component to render.
  * @param options - The shared route options to apply to both components.
+ * @param altOptions - The alt route options to apply to the alt component. If not provided, the base options will be used.
  */
 export function unauthUiRefreshSwap(
   defaultComponent: Type<any>,

@@ -64,6 +64,11 @@ export * from "./lock/lock-component.service";
 // vault timeout
 export * from "./vault-timeout-input/vault-timeout-input.component";
 
+// sso
+export * from "./sso/sso.component";
+export * from "./sso/sso-component.service";
+export * from "./sso/default-sso-component.service";
+
 // self hosted environment configuration dialog
 export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
