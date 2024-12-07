@@ -26,6 +26,7 @@ import { DeviceType } from "../../../enums/device-type.enum";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
+import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
@@ -82,6 +83,7 @@ export class DefaultSdkService implements SdkService {
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
     private apiService: ApiService, // Yes we shouldn't import ApiService, but it's temporary
+    private logService: LogService,
     private userAgent: string = null,
   ) {}
 
@@ -204,15 +206,25 @@ export class DefaultSdkService implements SdkService {
       privateKey,
     });
 
-    // We initialize the org crypto even if the org_keys are
-    // null to make sure any existing org keys are cleared.
-    await client.crypto().initialize_org_crypto({
-      organizationKeys: new Map(
-        Object.entries(orgKeys ?? {})
-          .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
-      ),
-    });
+    try {
+      // We initialize the org crypto even if the org_keys are
+      // null to make sure any existing org keys are cleared.
+      await client.crypto().initialize_org_crypto({
+        organizationKeys: new Map(
+          Object.entries(orgKeys ?? {})
+            .filter(([_, v]) => v.type === "organization")
+            .map(([k, v]) => [k, v.key]),
+        ),
+      });
+    } catch (e) {
+      if (e.message === "Missing private key") {
+        this.logService.warning(
+          "[SdkService] organization crypto not initialized, missing private key",
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 
   private toSettings(env: Environment): ClientSettings {

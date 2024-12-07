@@ -9,6 +9,7 @@ import { AccountInfo, AccountService } from "../../../auth/abstractions/account.
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
+import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { EncryptedString } from "../../models/domain/enc-string";
@@ -25,6 +26,7 @@ describe("DefaultSdkService", () => {
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
     let apiService!: MockProxy<ApiService>;
+    let logService!: MockProxy<LogService>;
     let service!: DefaultSdkService;
 
     let mockClient!: MockProxy<BitwardenClient>;
@@ -37,6 +39,7 @@ describe("DefaultSdkService", () => {
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
       apiService = mock<ApiService>();
+      logService = mock<LogService>();
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -49,6 +52,7 @@ describe("DefaultSdkService", () => {
         kdfConfigService,
         keyService,
         apiService,
+        logService,
       );
 
       mockClient = mock<BitwardenClient>();
