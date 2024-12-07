@@ -38,10 +38,10 @@
     "dist:bit:lin": "npm run build:bit:prod && npm run clean && npm run package:bit:lin",
     "package:oss:win": "pkg . --targets win-x64 --output ./dist/oss/windows/bw.exe",
     "package:oss:mac": "pkg . --targets macos-x64 --output ./dist/oss/macos/bw",
-    "package:oss:lin": "pkg . --targets linux-x64 --output ./dist/oss/linux/bw",
+    "package:oss:lin": "pkg . --targets linux-x64,alpine --out-dir ./dist/oss/linux",
     "package:bit:win": "pkg . --targets win-x64 --output ./dist/bit/windows/bw.exe",
     "package:bit:mac": "pkg . --targets macos-x64 --output ./dist/bit/macos/bw",
-    "package:bit:lin": "pkg . --targets linux-x64 --output ./dist/bit/linux/bw",
+    "package:bit:lin": "pkg . --targets linux-x64,alpine --out-dir ./dist/bit/linux",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll"
