@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, signal } from "@angular/core";
+import { Toast } from "ngx-toastr";
 
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
@@ -48,7 +49,7 @@ export class ToastComponent {
   /**
    * The percent width of the progress bar, from 0-100
    **/
-  @Input() progressWidth = 0;
+  @Input() progressWidth: Toast["width"] = signal(0);
 
   /** Emits when the user presses the close button */
   @Output() onClose = new EventEmitter<void>();

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, signal } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
@@ -56,7 +56,7 @@ export default {
   args: {
     onClose: action("emit onClose"),
     variant: "info",
-    progressWidth: 50,
+    progressWidth: signal(50),
     title: "",
     message: "Hello Bitwarden!",
   },
