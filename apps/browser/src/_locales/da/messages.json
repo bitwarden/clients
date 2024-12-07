@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Indtast den 6-cifrede verifikationskode fra din autentificerings-app."
   },
+  "authenticationTimeout": {
+    "message": "Godkendelsestimeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
+  },
   "enterVerificationCodeEmail": {
     "message": "Indtast den 6-cifrede verifikationskode, der blev sendt til $EMAIL$.",
     "placeholders": {

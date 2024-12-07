@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "輸入驗證器應用程式提供的 6 位數驗證碼。"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "輸入已傳送至 $EMAIL$ 的 6 位數驗證碼。",
     "placeholders": {

@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Kimlik doğrulama uygulamanızdaki 6 haneli doğrulama kodunu girin."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ adresine e-postayla gönderdiğimiz 6 haneli doğrulama kodunu girin.",
     "placeholders": {

@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Sisesta autentimise rakendusest 6 kohaline number."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Sisesta 6 kohaline number, mis saadeti e-posti aadressile $EMAIL$.",
     "placeholders": {

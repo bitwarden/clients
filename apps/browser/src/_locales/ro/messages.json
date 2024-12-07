@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Introducere cod de verificare din 6 cifre din aplicația de autentificare."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Introducere cod de verificare din 6 cifre care a fost trimis prin e-mail la $EMAIL$.",
     "placeholders": {

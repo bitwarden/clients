@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "ඔබගේ සත්යාපන යෙදුමෙන් 6 ඉලක්කම් සත්යාපන කේතය ඇතුළත් කරන්න."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$වෙත ඊමේල් කරන ලද 6 ඉලක්කම් සත්යාපන කේතය ඇතුළත් කරන්න.",
     "placeholders": {

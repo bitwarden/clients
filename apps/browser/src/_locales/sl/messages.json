@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Vnesite 6-mestno verifikacijsko kodo iz svoje aplikacije za avtentikacijo."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Vnesite 6-mestno verifikacijsko kodo, ki vam je bila poslana na $EMAIL$.",
     "placeholders": {
