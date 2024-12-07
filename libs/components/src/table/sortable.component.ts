@@ -97,7 +97,6 @@ export class SortableComponent implements OnInit {
 
   get classList() {
     return [
-      "tw-group",
       "tw-min-w-max",
 
       // Offset to border and padding

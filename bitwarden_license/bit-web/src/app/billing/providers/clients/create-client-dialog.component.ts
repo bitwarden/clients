@@ -67,7 +67,7 @@ export class CreateClientDialogComponent implements OnInit {
     switch (selected) {
       case true: {
         return [
-          "tw-group",
+          "tw-group/plan-card-container",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",

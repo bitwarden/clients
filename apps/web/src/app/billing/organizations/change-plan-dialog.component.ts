@@ -348,7 +348,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     switch (cardState) {
       case PlanCardState.Selected: {
         return [
-          "tw-group",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",
