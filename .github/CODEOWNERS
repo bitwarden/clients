@@ -151,3 +151,6 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-platform-dev @bit
 **/*.Dockerfile
 **/.dockerignore
 **/entrypoint.sh
+
+## No ownership of package-lock.json to support automerge
+apps/desktop/native-messaging-test-runner/package-lock.json
