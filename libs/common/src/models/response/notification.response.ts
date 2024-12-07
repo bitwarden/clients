@@ -42,6 +42,9 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.AuthRequestResponse:
         this.payload = new AuthRequestPushNotification(payload);
         break;
+      case NotificationType.SyncOrganizationStatusChanged:
+        this.payload = new OrganizationStatusPushNotification(payload);
+        break;
       default:
         break;
     }
@@ -110,5 +113,16 @@ export class AuthRequestPushNotification extends BaseResponse {
     super(response);
     this.id = this.getResponseProperty("Id");
     this.userId = this.getResponseProperty("UserId");
+  }
+}
+
+export class OrganizationStatusPushNotification extends BaseResponse {
+  organizationId: string;
+  enabled: boolean;
+
+  constructor(response: any) {
+    super(response);
+    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.enabled = this.getResponseProperty("Enabled");
   }
 }
