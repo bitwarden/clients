@@ -86,6 +86,9 @@ export class ItemMoreOptionsComponent implements OnInit {
     return this.cipher.edit;
   }
 
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
   /**
    * Determines if the cipher can be autofilled.
    */

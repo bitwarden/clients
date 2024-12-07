@@ -40,6 +40,7 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
   @Input() canEditCipher: boolean;
+  @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
@@ -92,7 +93,7 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get showAssignToCollections() {
-    return this.organizations?.length && this.canEditCipher && !this.cipher.isDeleted;
+    return this.organizations?.length && this.canAssignCollections && !this.cipher.isDeleted;
   }
 
   protected get showClone() {
@@ -199,6 +200,6 @@ export class VaultCipherRowComponent implements OnInit {
       return true; // Always show checkbox in individual vault or for non-org items
     }
 
-    return this.organization.canEditAllCiphers || this.cipher.edit;
+    return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
   }
 }

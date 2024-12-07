@@ -62,7 +62,7 @@
           [baseItems]="collectionOptions"
         ></bit-multi-select>
         <bit-hint *ngIf="readOnlyCollections.length > 0" data-testid="view-only-hint">
-          {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollections.join(", ") }}
+          {{ "noPermissionToRemoveCollections" | i18n: readOnlyCollections.join(", ") }}
         </bit-hint>
       </bit-form-field>
     </ng-container>

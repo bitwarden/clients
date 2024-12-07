@@ -116,6 +116,9 @@ export class EditCommand {
         "Item does not belong to an organization. Consider moving it first.",
       );
     }
+    if (!cipher.viewPassword) {
+      return Response.noEditPermission();
+    }
 
     cipher.collectionIds = req;
     try {

@@ -233,16 +233,22 @@ export class ItemDetailsSectionComponent implements OnInit {
         (this.originalCipherView.collectionIds as CollectionId[]),
     );
 
+    if (!(this.originalCipherView?.edit && this.originalCipherView?.viewPassword)) {
+      this.itemDetailsForm.controls.collectionIds.disable();
+    }
+
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
       this.itemDetailsForm.controls.favorite.enable();
       this.itemDetailsForm.controls.folderId.enable();
     } else if (this.config.mode === "edit") {
+      const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
+      const organization = this.organizations.find((o) => o.id === orgId);
       this.readOnlyCollections = this.collections
         .filter(
           // When the configuration is set up for admins, they can alter read only collections
           (c) =>
-            c.readOnly &&
+            !c.canEditItems(organization) &&
             !this.config.admin &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         )
