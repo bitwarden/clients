@@ -154,15 +154,22 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
         value = field.value === "true" ? true : false;
       }
 
-      this.fields.push(
-        this.formBuilder.group<CustomField>({
-          type: field.type,
-          name: field.name,
-          value: value,
-          linkedId: field.linkedId,
-          newField: false,
-        }),
-      );
+      const formGroup = this.formBuilder.group<CustomField>({
+        type: field.type,
+        name: field.name,
+        value: value,
+        linkedId: field.linkedId,
+        newField: false,
+      });
+
+      if (
+        field.type === FieldType.Hidden &&
+        !this.cipherFormContainer.originalCipherView.viewPassword
+      ) {
+        formGroup.get("value")?.disable();
+      }
+
+      this.fields.push(formGroup);
     });
 
     // Disable the form if in partial-edit mode
