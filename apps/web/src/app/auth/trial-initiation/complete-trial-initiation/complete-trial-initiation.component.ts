@@ -2,7 +2,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { PasswordInputResult, RegistrationFinishService } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
@@ -10,8 +10,14 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import {
+  OrganizationBillingServiceAbstraction as OrganizationBillingService,
+  OrganizationInformation,
+  PlanInformation,
+} from "@bitwarden/common/billing/abstractions/organization-billing.service";
+import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -25,6 +31,10 @@ import {
 import { RouterService } from "../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../organization-invite/accept-organization.service";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
+
+export type InitiationPath =
+  | "Password Manager trial from marketing website"
+  | "Secrets Manager trial from marketing website";
 
 @Component({
   selector: "app-complete-trial-initiation",
@@ -63,6 +73,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
   /** Token from the backend associated with the email verification */
   emailVerificationToken: string;
+  loading = false;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -72,6 +83,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected readonly SubscriptionProduct = SubscriptionProduct;
   protected readonly ProductType = ProductType;
+  protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
+    FeatureFlag.TrialPaymentOptional,
+  );
 
   constructor(
     protected router: Router,
@@ -88,6 +102,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -183,10 +198,56 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
+  async orgNameEntrySubmit(): Promise<void> {
+    const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
+
+    if (isTrialPaymentOptional) {
+      await this.createOrganizationOnTrial();
+    } else {
+      await this.conditionallyCreateOrganization();
+    }
+  }
+
   /** Update local details from organization created event */
   createdOrganization(event: OrganizationCreatedEvent) {
     this.orgId = event.organizationId;
     this.billingSubLabel = event.planDescription;
+    this.verticalStepper.next();
+  }
+
+  /** create an organization on trial without payment method */
+  async createOrganizationOnTrial() {
+    this.loading = true;
+    let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
+    let plan: PlanInformation = {
+      type: PlanType.EnterpriseAnnually,
+      passwordManagerSeats: 1,
+    };
+
+    if (this.product === ProductType.SecretsManager) {
+      trialInitiationPath = "Secrets Manager trial from marketing website";
+      plan = {
+        ...plan,
+        subscribeToSecretsManager: true,
+        isFromSecretsManagerTrial: true,
+        secretsManagerSeats: 1,
+      };
+    }
+
+    const organization: OrganizationInformation = {
+      name: this.orgInfoFormGroup.value.name,
+      billingEmail: this.orgInfoFormGroup.value.billingEmail,
+      initiationPath: trialInitiationPath,
+    };
+
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
+      organization,
+      plan,
+    });
+
+    this.orgId = response?.id;
+    this.billingSubLabel = response.name.toString();
+    this.loading = false;
     this.verticalStepper.next();
   }
 

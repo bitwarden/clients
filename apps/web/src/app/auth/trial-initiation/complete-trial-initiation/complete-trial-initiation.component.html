@@ -23,12 +23,17 @@
         bitButton
         buttonType="primary"
         [disabled]="orgInfoFormGroup.controls.name.invalid"
-        (click)="conditionallyCreateOrganization()"
+        [loading]="loading && (trialPaymentOptional$ | async)"
+        (click)="orgNameEntrySubmit()"
       >
-        {{ "next" | i18n }}
+        {{ (trialPaymentOptional$ | async) ? ("startTrial" | i18n) : ("next" | i18n) }}
       </button>
     </app-vertical-step>
-    <app-vertical-step label="Billing" [subLabel]="billingSubLabel" *ngIf="!isSecretsManagerFree">
+    <app-vertical-step
+      label="Billing"
+      [subLabel]="billingSubLabel"
+      *ngIf="!(trialPaymentOptional$ | async) && !isSecretsManagerFree"
+    >
       <app-trial-billing-step
         *ngIf="stepper.selectedIndex === 2"
         [organizationInfo]="{
