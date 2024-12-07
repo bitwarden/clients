@@ -19,7 +19,9 @@ export class SyncCommand {
       const res = new MessageResponse("Syncing complete.", null);
       return Response.success(res);
     } catch (e) {
-      return Response.error("Syncing failed: " + e.toString());
+      const response = Response.error(e);
+      response.message = "Syncing failed: " + response.message;
+      return response;
     }
   }
 
