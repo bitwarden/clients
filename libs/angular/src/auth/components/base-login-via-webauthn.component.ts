@@ -1,6 +1,7 @@
 import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
@@ -24,6 +25,7 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
     private logService: LogService,
     private validationService: ValidationService,
     private i18nService: I18nService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {}
 
   ngOnInit(): void {
@@ -57,11 +59,17 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
           this.i18nService.t("twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn"),
         );
         this.currentState = "assertFailed";
-      } else if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-        await this.router.navigate([this.forcePasswordResetRoute]);
-      } else {
-        await this.router.navigate([this.successRoute]);
+        return;
       }
+
+      await this.loginSuccessHandlerService.run(authResult.userId);
+
+      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
+        await this.router.navigate([this.forcePasswordResetRoute]);
+        return;
+      }
+
+      await this.router.navigate([this.successRoute]);
     } catch (error) {
       if (error instanceof ErrorResponse) {
         this.validationService.showError(this.i18nService.t("invalidPasskeyPleaseTryAgain"));
