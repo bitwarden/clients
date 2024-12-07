@@ -7,11 +7,12 @@
       [disableMargin]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
       [disableReadOnlyBorder]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
     >
-      <bit-label>
+      <bit-label [appTextDrag]="cipher.name">
         {{ "itemName" | i18n }}
       </bit-label>
       <input
         readonly
+        id="itemName"
         bitInput
         type="text"
         [value]="cipher.name"

@@ -43,6 +43,7 @@ import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { NotPremiumDirective } from "./directives/not-premium.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
+import { TextDragDirective } from "./directives/text-drag.directive";
 import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
 import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 import { PluralizePipe } from "./pipes/pluralize.pipe";
@@ -81,6 +82,7 @@ import { IconComponent } from "./vault/components/icon.component";
     IconModule,
     LinkModule,
     IconModule,
+    TextDragDirective,
   ],
   declarations: [
     A11yInvalidDirective,
@@ -150,6 +152,7 @@ import { IconComponent } from "./vault/components/icon.component";
     NoInvoicesComponent,
     ManageTaxInformationComponent,
     TwoFactorIconComponent,
+    TextDragDirective,
   ],
   providers: [
     CreditCardNumberPipe,
