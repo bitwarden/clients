@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
+import { InfiniteScrollDirective } from "ngx-infinite-scroll";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CoreModule } from "@bitwarden/web-vault/app/core";
@@ -36,7 +36,7 @@ import { FreeFamiliesSponsorshipPolicyComponent } from "./billing/policies/free-
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
-    InfiniteScrollModule,
+    InfiniteScrollDirective,
     DragDropModule,
     AppRoutingModule,
     OssRoutingModule,
