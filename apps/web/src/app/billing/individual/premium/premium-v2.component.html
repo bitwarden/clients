@@ -131,11 +131,10 @@
   <bit-section>
     <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
     <app-payment-v2 [showBankAccount]="false"></app-payment-v2>
-    <app-tax-info></app-tax-info>
+    <app-tax-info (taxInformationChanged)="onTaxInformationChanged()"></app-tax-info>
     <div class="tw-mb-4">
       <div class="tw-text-muted tw-text-sm tw-flex tw-flex-col">
         <span>{{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}</span>
-        <!-- TODO: Currently incorrect - https://bitwarden.atlassian.net/browse/PM-11525 -->
         <span>{{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}</span>
       </div>
     </div>

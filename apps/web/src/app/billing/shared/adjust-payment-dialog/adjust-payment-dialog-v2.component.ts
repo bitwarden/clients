@@ -1,15 +1,19 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { forwardRef, Component, Inject, ViewChild } from "@angular/core";
+import { forwardRef, Component, Inject, ViewChild, OnInit } from "@angular/core";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
+import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
+import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TaxInfoComponent } from "../";
 import { PaymentV2Component } from "../payment/payment-v2.component";
 
 export interface AdjustPaymentDialogV2Params {
@@ -25,9 +29,10 @@ export enum AdjustPaymentDialogV2ResultType {
 @Component({
   templateUrl: "./adjust-payment-dialog-v2.component.html",
 })
-export class AdjustPaymentDialogV2Component {
+export class AdjustPaymentDialogV2Component implements OnInit {
   @ViewChild(PaymentV2Component) paymentComponent: PaymentV2Component;
-  @ViewChild(forwardRef(() => TaxInfoComponent)) taxInfoComponent: TaxInfoComponent;
+  @ViewChild(forwardRef(() => ManageTaxInformationComponent))
+  taxInfoComponent: ManageTaxInformationComponent;
 
   protected readonly PaymentMethodType = PaymentMethodType;
   protected readonly ResultType = AdjustPaymentDialogV2ResultType;
@@ -36,9 +41,12 @@ export class AdjustPaymentDialogV2Component {
   protected initialPaymentMethod: PaymentMethodType;
   protected organizationId?: string;
 
+  protected taxInformation: TaxInformation;
+
   constructor(
     private apiService: ApiService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationApiService: OrganizationApiServiceAbstraction,
     @Inject(DIALOG_DATA) protected dialogParams: AdjustPaymentDialogV2Params,
     private dialogRef: DialogRef<AdjustPaymentDialogV2ResultType>,
     private i18nService: I18nService,
@@ -50,8 +58,31 @@ export class AdjustPaymentDialogV2Component {
     this.organizationId = this.dialogParams.organizationId;
   }
 
-  onCountryChanged = () => {
-    if (this.taxInfoComponent.taxInfo.country === "US") {
+  ngOnInit(): void {
+    if (this.organizationId) {
+      this.organizationApiService
+        .getTaxInfo(this.organizationId)
+        .then((response: TaxInfoResponse) => {
+          this.taxInformation = TaxInformation.from(response);
+        })
+        .catch(() => {
+          this.taxInformation = new TaxInformation();
+        });
+    } else {
+      this.apiService
+        .getTaxInfo()
+        .then((response: TaxInfoResponse) => {
+          this.taxInformation = TaxInformation.from(response);
+        })
+        .catch(() => {
+          this.taxInformation = new TaxInformation();
+        });
+    }
+  }
+
+  taxInformationChanged(event: TaxInformation) {
+    this.taxInformation = event;
+    if (event.country === "US") {
       this.paymentComponent.showBankAccount = !!this.organizationId;
     } else {
       this.paymentComponent.showBankAccount = false;
@@ -59,12 +90,10 @@ export class AdjustPaymentDialogV2Component {
         this.paymentComponent.select(PaymentMethodType.Card);
       }
     }
-  };
+  }
 
   submit = async (): Promise<void> => {
-    this.taxInfoComponent.taxFormGroup.updateValueAndValidity();
-    this.taxInfoComponent.taxFormGroup.markAllAsTouched();
-    if (this.taxInfoComponent.taxFormGroup.invalid) {
+    if (!this.taxInfoComponent.validate()) {
       return;
     }
 
@@ -88,15 +117,7 @@ export class AdjustPaymentDialogV2Component {
 
     const request = new UpdatePaymentMethodRequest();
     request.paymentSource = paymentSource;
-    request.taxInformation = {
-      country: this.taxInfoComponent.country,
-      postalCode: this.taxInfoComponent.postalCode,
-      taxId: this.taxInfoComponent.taxId,
-      line1: this.taxInfoComponent.line1,
-      line2: this.taxInfoComponent.line2,
-      city: this.taxInfoComponent.city,
-      state: this.taxInfoComponent.state,
-    };
+    request.taxInformation = ExpandedTaxInfoUpdateRequest.From(this.taxInformation);
 
     await this.billingApiService.updateOrganizationPaymentMethod(this.organizationId, request);
   };
@@ -107,8 +128,14 @@ export class AdjustPaymentDialogV2Component {
     const request = new PaymentRequest();
     request.paymentMethodType = type;
     request.paymentToken = token;
-    request.country = this.taxInfoComponent.country;
-    request.postalCode = this.taxInfoComponent.postalCode;
+    request.country = this.taxInformation.country;
+    request.postalCode = this.taxInformation.postalCode;
+    request.taxId = this.taxInformation.taxId;
+    request.state = this.taxInformation.state;
+    request.line1 = this.taxInformation.line1;
+    request.line2 = this.taxInformation.line2;
+    request.city = this.taxInformation.city;
+    request.state = this.taxInformation.state;
     await this.apiService.postAccountPayment(request);
   };
 
