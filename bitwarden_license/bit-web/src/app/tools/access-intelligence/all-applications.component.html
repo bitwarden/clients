@@ -10,7 +10,7 @@
   <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
     <ng-container slot="title">
       <h2 class="tw-font-semibold mt-4">
-        {{ "noAppsInOrgTitle" | i18n: organization.name }}
+        {{ "noAppsInOrgTitle" | i18n: organization?.name }}
       </h2>
     </ng-container>
     <ng-container slot="description">
@@ -58,7 +58,7 @@
       buttonType="secondary"
       bitButton
       *ngIf="isCritialAppsFeatureEnabled"
-      [disabled]="!selectedIds.size"
+      [disabled]="!selectedUrls.size"
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
     >
@@ -83,9 +83,11 @@
           <input
             bitCheckbox
             type="checkbox"
-            [checked]="selectedIds.has(r.id)"
-            (change)="onCheckboxChange(r.id, $event)"
+            *ngIf="!r.isMarkedAsCritical"
+            [checked]="selectedUrls.has(r.name)"
+            (change)="onCheckboxChange(r.name, $event)"
           />
+          <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
         </td>
         <td bitCell>
           <span>{{ r.name }}</span>
