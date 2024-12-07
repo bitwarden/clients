@@ -56,7 +56,7 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
-        uses: chromaui/action@dd2eecb9bef44f54774581f4163b0327fd8cf607 # v11.16.3
+        uses: chromaui/action@5d19b9438d8e51210405062c56b1ddb20b90ca24 # v11.16.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
