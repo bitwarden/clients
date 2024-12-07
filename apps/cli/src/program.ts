@@ -426,7 +426,10 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.serviceContainer.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });
