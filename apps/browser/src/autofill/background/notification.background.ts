@@ -81,6 +81,8 @@ export default class NotificationBackground {
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
   };
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private autofillService: AutofillService,
     private cipherService: CipherService,
@@ -567,9 +569,7 @@ export default class NotificationBackground {
         return;
       }
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
       try {
@@ -609,10 +609,7 @@ export default class NotificationBackground {
       return;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     const cipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       // We've only updated the password, no need to broadcast editedCipher message
@@ -645,17 +642,15 @@ export default class NotificationBackground {
     if (Utils.isNullOrWhitespace(folderId) || folderId === "null") {
       return false;
     }
-
-    const folders = await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const folders = await firstValueFrom(this.folderService.folderViews$(activeUserId));
     return folders.some((x) => x.id === folderId);
   }
 
   private async getDecryptedCipherById(cipherId: string) {
     const cipher = await this.cipherService.get(cipherId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       return await cipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
@@ -695,7 +690,8 @@ export default class NotificationBackground {
    * Returns the first value found from the folder service's folderViews$ observable.
    */
   private async getFolderData() {
-    return await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
   private async getWebVaultUrl(): Promise<string> {

@@ -14,7 +14,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
 import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { filter, map, takeUntil } from "rxjs/operators";
+import { filter, map, switchMap, takeUntil } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -149,6 +149,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   formGroup = this.formBuilder.group({
     vaultSelector: [
       "myVault",
@@ -202,6 +204,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     @Optional()
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
+    protected accountService: AccountService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -253,7 +256,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private handleImportInit() {
     // Filter out the no folder-item from folderViews$
-    this.folders$ = this.folderService.folderViews$.pipe(
+    this.folders$ = this.activeUserId$.pipe(
+      switchMap((userId) => {
+        return this.folderService.folderViews$(userId);
+      }),
       map((folders) => folders.filter((f) => f.id != null)),
     );
 

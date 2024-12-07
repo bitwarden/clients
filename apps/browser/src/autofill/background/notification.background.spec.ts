@@ -60,10 +60,18 @@ describe("NotificationBackground", () => {
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
 
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+    id: "testId" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  });
+
   beforeEach(() => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Locked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
+    accountService.activeAccount$ = activeAccountSubject;
     notificationBackground = new NotificationBackground(
       autofillService,
       cipherService,
@@ -683,13 +691,6 @@ describe("NotificationBackground", () => {
       });
 
       describe("saveOrUpdateCredentials", () => {
-        const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
-          id: "testId" as UserId,
-          email: "test@example.com",
-          emailVerified: true,
-          name: "Test User",
-        });
-
         let getDecryptedCipherByIdSpy: jest.SpyInstance;
         let getAllDecryptedForUrlSpy: jest.SpyInstance;
         let updatePasswordSpy: jest.SpyInstance;
