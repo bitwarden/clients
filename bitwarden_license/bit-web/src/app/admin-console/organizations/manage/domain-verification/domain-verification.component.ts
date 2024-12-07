@@ -41,6 +41,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
 
   organizationId: string;
   orgDomains$: Observable<OrganizationDomainResponse[]>;
+  accountDeprovisioningEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,7 +53,11 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private policyApiService: PolicyApiServiceAbstraction,
-  ) {}
+  ) {
+    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async ngOnInit() {
@@ -103,7 +108,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
             organizationDomains.every((domain) => domain.verifiedDate === null)
           ) {
             await this.dialogService.openSimpleDialog({
-              title: { key: "verified-domain-single-org-warning" },
+              title: { key: "claim-domain-single-org-warning" },
               content: { key: "single-org-revoked-user-warning" },
               cancelButtonText: { key: "cancel" },
               acceptButtonText: { key: "confirm" },
@@ -167,13 +172,22 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("domainVerified"),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainClaimed"
+              : "domainVerified",
+          ),
         });
       } else {
         this.toastService.showToast({
           variant: "error",
           title: null,
-          message: this.i18nService.t("domainNotVerified", domainName),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainNotClaimed"
+              : "domainNotVerified",
+            domainName,
+          ),
         });
         // Update this item so the last checked date gets updated.
         await this.updateOrgDomain(orgDomainId);
