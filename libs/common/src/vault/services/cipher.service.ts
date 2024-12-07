@@ -1026,7 +1026,11 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(ids);
   }
 
-  async deleteAttachment(id: string, attachmentId: string): Promise<void> {
+  async deleteAttachment(
+    id: string,
+    revisionDate: string,
+    attachmentId: string,
+  ): Promise<CipherData> {
     let ciphers = await firstValueFrom(this.ciphers$);
     const cipherId = id as CipherId;
     // eslint-disable-next-line
@@ -1040,6 +1044,10 @@ export class CipherService implements CipherServiceAbstraction {
       }
     }
 
+    // Deleting the cipher updates the revision date on the server,
+    // Update the stored `revisionDate` to match
+    ciphers[cipherId].revisionDate = revisionDate;
+
     await this.clearCache();
     await this.encryptedCiphersState.update(() => {
       if (ciphers == null) {
@@ -1047,15 +1055,20 @@ export class CipherService implements CipherServiceAbstraction {
       }
       return ciphers;
     });
+
+    return ciphers[cipherId];
   }
 
-  async deleteAttachmentWithServer(id: string, attachmentId: string): Promise<void> {
+  async deleteAttachmentWithServer(id: string, attachmentId: string): Promise<CipherData> {
+    let cipherResponse = null;
     try {
-      await this.apiService.deleteCipherAttachment(id, attachmentId);
+      cipherResponse = await this.apiService.deleteCipherAttachment(id, attachmentId);
     } catch (e) {
       return Promise.reject((e as ErrorResponse).getSingleMessage());
     }
-    await this.deleteAttachment(id, attachmentId);
+    const cipherData = CipherData.fromJSON(cipherResponse?.cipher);
+
+    return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId);
   }
 
   sortCiphersByLastUsed(a: CipherView, b: CipherView): number {

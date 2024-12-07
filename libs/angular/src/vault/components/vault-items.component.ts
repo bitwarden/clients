@@ -1,5 +1,6 @@
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BehaviorSubject, Subject, from, switchMap, takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -38,7 +39,12 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
-  ) {}
+  ) {
+    this.cipherService.cipherViews$.pipe(takeUntilDestroyed()).subscribe((ciphers) => {
+      void this.doSearch(ciphers);
+      this.loaded = true;
+    });
+  }
 
   ngOnInit(): void {
     this._searchText$
@@ -115,7 +121,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
 
   protected async doSearch(indexedCiphers?: CipherView[]) {
-    indexedCiphers = indexedCiphers ?? (await this.cipherService.getAllDecrypted());
+    indexedCiphers = indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$));
     this.ciphers = await this.searchService.searchCiphers(
       this.searchText,
       [this.filter, this.deletedFilter],
