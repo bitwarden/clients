@@ -462,9 +462,51 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     firstValueFrom(simpleDialog.closed).then(this.handleDialogClose.bind(this));
   }
 
-  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
+  private async handleInviteDialog(initialTab: MemberDialogTab) {
+    const dialog = openUserAddEditDialog(this.dialogService, {
+      data: {
+        name: null,
+        organizationId: this.organization.id,
+        organizationUserId: null,
+        allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
+        usesKeyConnector: null,
+        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
+        initialTab: initialTab,
+        numConfirmedMembers: this.dataSource.confirmedUserCount,
+        managedByOrganization: null,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load();
+    }
+  }
+
+  private async handleSeatLimitForFixedTiers() {
+    if (!this.organization.canEditSubscription) {
+      await this.showSeatLimitReachedDialog();
+      return;
+    }
+
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organization.id,
+        subscription: null,
+        productTierType: this.organization.productTierType,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Submitted) {
+      await this.load();
+    }
+  }
+
+  async invite(initialTab: MemberDialogTab = MemberDialogTab.Role) {
     if (
-      !user &&
       this.organization.hasReseller &&
       this.organization.seats === this.dataSource.confirmedUserCount
     ) {
@@ -473,52 +515,30 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         title: this.i18nService.t("seatLimitReached"),
         message: this.i18nService.t("contactYourProvider"),
       });
-      return;
-    }
-
-    // Invite User: Add Flow
-    // Click on user email: Edit Flow
-
-    // User attempting to invite new users in a free org with max users
-    if (
-      !user &&
+    } else if (
       this.dataSource.data.length === this.organization.seats &&
       (this.organization.productTierType === ProductTierType.Free ||
         this.organization.productTierType === ProductTierType.TeamsStarter ||
         this.organization.productTierType === ProductTierType.Families)
     ) {
-      if (!this.organization.canEditSubscription) {
-        await this.showSeatLimitReachedDialog();
-        return;
-      }
-
-      const reference = openChangePlanDialog(this.dialogService, {
-        data: {
-          organizationId: this.organization.id,
-          subscription: null,
-          productTierType: this.organization.productTierType,
-        },
-      });
-
-      const result = await lastValueFrom(reference.closed);
-
-      if (result === ChangePlanDialogResultType.Submitted) {
-        await this.load();
-      }
-      return;
+      await this.handleSeatLimitForFixedTiers();
+    } else {
+      await this.handleInviteDialog(initialTab);
     }
+  }
 
+  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         organizationId: this.organization.id,
-        organizationUserId: user != null ? user.id : null,
+        organizationUserId: user.id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        usesKeyConnector: user?.usesKeyConnector,
+        usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
         numConfirmedMembers: this.dataSource.confirmedUserCount,
-        managedByOrganization: user?.managedByOrganization,
+        managedByOrganization: user.managedByOrganization,
       },
     });
 
