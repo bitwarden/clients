@@ -185,6 +185,28 @@ export class AppComponent implements OnInit, OnDestroy {
             this.logService.debug("SDK is supported");
           }
         });
+
+      this.sdkService.client$.pipe(takeUntilDestroyed()).subscribe((client) => {
+        (window as any).sdkClient = client;
+
+        (window as any).catchAndLog = () => {
+          try {
+            client.echo_complex(undefined);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.log("Caught the error:", e);
+          }
+        };
+
+        (window as any).catchAndLogAsync = async () => {
+          try {
+            await client.echo_complex_async(undefined);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.log("Caught the async error:", e);
+          }
+        };
+      });
     }
   }
 
