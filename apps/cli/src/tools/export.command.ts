@@ -60,7 +60,7 @@ export class ExportCommand {
 
       exportContent =
         options.organizationid == null
-          ? await this.exportService.getExport(format, password)
+          ? ((await this.exportService.getExport(format, password)) as string)
           : await this.exportService.getOrganizationExport(
               options.organizationid,
               format,
