@@ -2,15 +2,22 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, firstValueFrom, map } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, switchMap, tap } from "rxjs";
 
+import {
+  MemberCipherDetailsApiService,
+  RiskInsightsReportService,
+} from "@bitwarden/bit-common/tools/reports/risk-insights";
+import {
+  ApplicationHealthReportDetail,
+  ApplicationHealthReportSummary,
+} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -25,52 +32,73 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { applicationTableMockData } from "./application-table.mock";
+import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
   standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
-  imports: [HeaderModule, CardComponent, SearchModule, PipesModule, NoItemsModule, SharedModule],
+  imports: [
+    ApplicationsLoadingComponent,
+    HeaderModule,
+    CardComponent,
+    SearchModule,
+    PipesModule,
+    NoItemsModule,
+    SharedModule,
+  ],
+  providers: [MemberCipherDetailsApiService, RiskInsightsReportService],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<any>();
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetail>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
-  protected loading = false;
+  protected loading = true;
   protected organization: Organization;
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
-  isCritialAppsFeatureEnabled = false;
+  protected applicationSummary: ApplicationHealthReportSummary;
 
-  // MOCK DATA
-  protected mockData = applicationTableMockData;
-  protected mockAtRiskMembersCount = 0;
-  protected mockAtRiskAppsCount = 0;
-  protected mockTotalMembersCount = 0;
-  protected mockTotalAppsCount = 0;
+  isCritialAppsFeatureEnabled$: Observable<boolean>;
 
-  async ngOnInit() {
-    this.activatedRoute.paramMap
+  ngOnInit() {
+    // Combine route parameters and feature flag
+    combineLatest([
+      this.activatedRoute.paramMap.pipe(
+        switchMap((params) => {
+          const organizationId = params.get("organizationId");
+          if (!organizationId) {
+            this.loading = false;
+            return of(null);
+          }
+          return this.organizationService.get$(organizationId).pipe(
+            tap((org) => (this.organization = org)),
+            switchMap(() =>
+              this.riskInsightsReportService.generateApplicationsReport$(organizationId),
+            ),
+            tap((applicationsReport) => {
+              this.dataSource.data = applicationsReport;
+              this.applicationSummary =
+                this.riskInsightsReportService.generateApplicationsSummary(applicationsReport);
+              this.loading = false;
+            }),
+          );
+        }),
+      ),
+      this.configService.getFeatureFlag$(FeatureFlag.CriticalApps).pipe(),
+    ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
-          const organizationId = params.get("organizationId");
-          this.organization = await firstValueFrom(this.organizationService.get$(organizationId));
-          // TODO: use organizationId to fetch data
-        }),
+        map(([_, featureFlag]) => featureFlag),
+        tap((flag) => (this.isCritialAppsFeatureEnabled$ = of(flag))),
       )
       .subscribe();
-
-    this.isCritialAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
   }
 
   constructor(
     protected cipherService: CipherService,
-    protected passwordStrengthService: PasswordStrengthServiceAbstraction,
+    protected riskInsightsReportService: RiskInsightsReportService,
     protected auditService: AuditService,
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
@@ -78,7 +106,6 @@ export class AllApplicationsComponent implements OnInit {
     protected organizationService: OrganizationService,
     protected configService: ConfigService,
   ) {
-    this.dataSource.data = applicationTableMockData;
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
@@ -93,22 +120,25 @@ export class AllApplicationsComponent implements OnInit {
     });
   };
 
-  markAppsAsCritical = async () => {
+  markAppsAsCritical() {
     // TODO: Send to API once implemented
     this.markingAsCritical = true;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.selectedIds.clear();
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("appsMarkedAsCritical"),
-        });
-        resolve(true);
-        this.markingAsCritical = false;
-      }, 1000);
-    });
-  };
+    of(true)
+      .pipe(
+        debounceTime(1000), // Simulate delay
+        tap(() => {
+          this.selectedIds.clear();
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("appsMarkedAsCritical"),
+          });
+          this.markingAsCritical = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
 
   trackByFunction(_: number, item: CipherView) {
     return item.id;
