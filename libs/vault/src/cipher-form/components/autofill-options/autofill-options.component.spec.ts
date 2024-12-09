@@ -25,9 +25,11 @@ describe("AutofillOptionsComponent", () => {
   let domainSettingsService: MockProxy<DomainSettingsService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  const getInitialCipherView = jest.fn(() => null);
 
   beforeEach(async () => {
-    cipherFormContainer = mock<CipherFormContainer>();
+    getInitialCipherView.mockClear();
+    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView });
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
@@ -107,11 +109,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 
@@ -138,11 +142,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 
@@ -159,11 +165,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 

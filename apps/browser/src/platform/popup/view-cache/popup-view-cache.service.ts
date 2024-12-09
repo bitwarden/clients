@@ -131,6 +131,7 @@ export class PopupViewCacheService implements ViewCacheService {
   }
 
   private clearState() {
+    this._cache = {}; // clear local cache
     this.messageSender.send(ClEAR_VIEW_CACHE_COMMAND, {});
   }
 }

@@ -12,7 +12,6 @@ import { SshKeySectionComponent } from "./components/sshkey-section/sshkey-secti
 
 /**
  * The complete form for a cipher. Includes all the sub-forms from their respective section components.
- * TODO: Add additional form sections as they are implemented.
  */
 export type CipherForm = {
   itemDetails?: ItemDetailsSectionComponent["itemDetailsForm"];
@@ -55,4 +54,12 @@ export abstract class CipherFormContainer {
    * @param updateFn - A function that takes the current cipherView and returns the updated cipherView
    */
   abstract patchCipher(updateFn: (current: CipherView) => CipherView): void;
+
+  /**
+   * Returns initial values for the CipherView, either from the config or the cached cipher
+   */
+  abstract getInitialCipherView(): CipherView | null;
+
+  /** Returns true when the `CipherFormContainer` was initialized with a cached cipher available. */
+  abstract initializedWithCachedCipher(): boolean;
 }
