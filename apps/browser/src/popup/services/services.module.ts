@@ -17,12 +17,14 @@ import {
   SYSTEM_THEME_OBSERVABLE,
   SafeInjectionToken,
   ENV_ADDITIONAL_REGIONS,
+  WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   AnonLayoutWrapperDataService,
   LoginComponentService,
   LockComponentService,
+  SsoComponentService,
   LoginDecryptionOptionsService,
 } from "@bitwarden/auth/angular";
 import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
@@ -117,6 +119,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
+import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
@@ -594,6 +597,18 @@ const safeProviders: SafeProvider[] = [
     provide: CompactModeService,
     useExisting: PopupCompactModeService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SsoComponentService,
+    useClass: ExtensionSsoComponentService,
+    deps: [
+      SyncService,
+      AuthService,
+      EnvironmentService,
+      WINDOW,
+      I18nServiceAbstraction,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,
