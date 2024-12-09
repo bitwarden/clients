@@ -182,6 +182,7 @@ export class WindowMain {
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
+    const hidden = this.session === undefined && isMac() && app.isHidden();
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
     // Create the browser window.
@@ -218,7 +219,9 @@ export class WindowMain {
     }
 
     // Show it later since it might need to be maximized.
-    this.win.show();
+    if (!hidden) {
+      this.win.show();
+    }
 
     // and load the index.html of the app.
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
