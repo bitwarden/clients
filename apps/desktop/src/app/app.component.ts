@@ -53,7 +53,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -439,8 +438,6 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
             break;
           case "switchAccount": {
-            // Clear sequentialized caches
-            clearCaches();
             if (message.userId != null) {
               await this.accountService.switchAccount(message.userId);
             }
