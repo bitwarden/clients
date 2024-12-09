@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -11,16 +11,9 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
-import { NotifiedMembersTableComponent } from "./notified-members-table.component";
 import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
 import { PasswordHealthMembersComponent } from "./password-health-members.component";
 import { PasswordHealthComponent } from "./password-health.component";
-
-export enum RiskInsightsTabType {
-  AllApps = 0,
-  CriticalApps = 1,
-  NotifiedMembers = 2,
-}
 
 @Component({
   standalone: true,
@@ -36,14 +29,14 @@ export enum RiskInsightsTabType {
     PasswordHealthComponent,
     PasswordHealthMembersComponent,
     PasswordHealthMembersURIComponent,
-    NotifiedMembersTableComponent,
     TabsModule,
   ],
 })
 export class RiskInsightsComponent implements OnInit {
-  tabIndex: RiskInsightsTabType;
+  tabIndex: number;
   dataLastUpdated = new Date();
   isCritialAppsFeatureEnabled = false;
+  private destroyRef = inject(DestroyRef);
 
   apps: any[] = [];
   criticalApps: any[] = [];
@@ -71,15 +64,23 @@ export class RiskInsightsComponent implements OnInit {
     this.isCritialAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
     );
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
+      let parsedIndex = parseInt(tabIndex);
+      if (isNaN(parsedIndex)) {
+        parsedIndex = 0;
+      }
+
+      if (!this.isCritialAppsFeatureEnabled && parsedIndex >= 1) {
+        parsedIndex = parsedIndex - 1;
+      }
+
+      this.tabIndex = parsedIndex;
+    });
   }
 
   constructor(
     protected route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
-  ) {
-    route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(tabIndex) ? tabIndex : RiskInsightsTabType.AllApps;
-    });
-  }
+  ) {}
 }

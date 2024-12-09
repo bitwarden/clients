@@ -12,7 +12,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { applicationTableMockData } from "./application-table.mock";
-import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   standalone: true,
@@ -49,7 +48,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
   goToAllAppsTab = async () => {
     await this.router.navigate([`organizations/${this.organizationId}/risk-insights`], {
-      queryParams: { tabIndex: RiskInsightsTabType.AllApps },
+      queryParams: { tabIndex: 0 },
       queryParamsHandling: "merge",
     });
   };
