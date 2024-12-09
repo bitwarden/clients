@@ -133,7 +133,7 @@
     "ts-jest": "29.2.2",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
-    "type-fest": "2.19.0",
+    "type-fest": "4.30.0",
     "typescript": "5.4.2",
     "url": "0.11.4",
     "util": "0.12.5",
