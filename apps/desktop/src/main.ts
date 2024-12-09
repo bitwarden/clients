@@ -261,7 +261,7 @@ export class Main {
     new EphemeralValueStorageService();
     new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
 
-    this.nativeAutofillMain = new NativeAutofillMain(this.logService);
+    this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
   }
 

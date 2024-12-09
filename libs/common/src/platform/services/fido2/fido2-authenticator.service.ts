@@ -43,10 +43,12 @@ const KeyUsages: KeyUsage[] = ["sign"];
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstraction {
+export class Fido2AuthenticatorService<ParentWindowReference>
+  implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference>
+{
   constructor(
     private cipherService: CipherService,
-    private userInterface: Fido2UserInterfaceService,
+    private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
     private syncService: SyncService,
     private accountService: AccountService,
     private logService?: LogService,
@@ -54,12 +56,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
 
@@ -209,12 +211,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
     try {

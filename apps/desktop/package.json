@@ -23,7 +23,7 @@
     "build:dev": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main:dev\" \"npm run build:renderer:dev\"",
     "build:preload": "cross-env NODE_ENV=production webpack --config webpack.preload.js",
     "build:preload:watch": "cross-env NODE_ENV=production webpack --config webpack.preload.js --watch",
-    "build:macos-extension": "node scripts/build-macos-extension.js",
+    "build:macos-extension": "./desktop_native/macos_provider/build.sh && node scripts/build-macos-extension.js",
     "build:main": "cross-env NODE_ENV=production webpack --config webpack.main.js",
     "build:main:dev": "npm run build-native && cross-env NODE_ENV=development webpack --config webpack.main.js",
     "build:main:watch": "npm run build-native && cross-env NODE_ENV=development webpack --config webpack.main.js --watch",

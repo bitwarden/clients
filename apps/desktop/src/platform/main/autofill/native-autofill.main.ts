@@ -3,6 +3,8 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill } from "@bitwarden/desktop-napi";
 
+import { WindowMain } from "../../../main/window.main";
+
 import { CommandDefinition } from "./command";
 
 export type RunCommandParams<C extends CommandDefinition> = {
@@ -14,7 +16,12 @@ export type RunCommandParams<C extends CommandDefinition> = {
 export type RunCommandResult<C extends CommandDefinition> = C["output"];
 
 export class NativeAutofillMain {
-  constructor(private logService: LogService) {}
+  private ipcServer: autofill.IpcServer | null;
+
+  constructor(
+    private logService: LogService,
+    private windowMain: WindowMain,
+  ) {}
 
   async init() {
     ipcMain.handle(
@@ -26,6 +33,52 @@ export class NativeAutofillMain {
         return this.runCommand(params);
       },
     );
+
+    this.ipcServer = await autofill.IpcServer.listen(
+      "autofill",
+      // RegistrationCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.registration", error);
+          return;
+        }
+        this.windowMain.win.webContents.send("autofill.passkeyRegistration", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
+      // AssertionCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.assertion", error);
+          return;
+        }
+        this.windowMain.win.webContents.send("autofill.passkeyAssertion", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
+    );
+
+    ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
+      this.logService.warning("autofill.completePasskeyRegistration", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeRegistration(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completePasskeyAssertion", (event, data) => {
+      this.logService.warning("autofill.completePasskeyAssertion", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeAssertion(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completeError", (event, data) => {
+      this.logService.warning("autofill.completeError", data);
+      const { clientId, sequenceNumber, error } = data;
+      this.ipcServer.completeAssertion(clientId, sequenceNumber, error);
+    });
   }
 
   private async runCommand<C extends CommandDefinition>(
