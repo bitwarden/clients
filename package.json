@@ -192,6 +192,7 @@
     "open": "8.4.2",
     "papaparse": "5.4.1",
     "patch-package": "8.0.0",
+    "plausible-tracker": "^0.3.9",
     "popper.js": "1.16.1",
     "proper-lockfile": "4.1.2",
     "qrcode-parser": "2.1.3",

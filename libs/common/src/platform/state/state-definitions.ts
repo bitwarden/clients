@@ -124,6 +124,7 @@ export const TASK_SCHEDULER_DISK = new StateDefinition("taskScheduler", "disk");
 // Design System
 
 export const POPUP_STYLE_DISK = new StateDefinition("popupStyle", "disk");
+export const ANALYTICS = new StateDefinition("analytics", "disk");
 
 // Secrets Manager
 
