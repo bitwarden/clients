@@ -6,7 +6,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DeviceType, EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()
@@ -16,6 +18,7 @@ export class EventService {
   constructor(
     private i18nService: I18nService,
     policyService: PolicyService,
+    private configService: ConfigService,
   ) {
     policyService.policies$.subscribe((policies) => {
       this.policies = policies;
@@ -451,10 +454,20 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("removedDomain", ev.domainName);
         break;
       case EventType.OrganizationDomain_Verified:
-        msg = humanReadableMsg = this.i18nService.t("domainVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+            ? "domainClaimedEvent"
+            : "domainVerifiedEvent",
+          ev.domainName,
+        );
         break;
       case EventType.OrganizationDomain_NotVerified:
-        msg = humanReadableMsg = this.i18nService.t("domainNotVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+            ? "domainNotClaimedEvent"
+            : "domainNotVerifiedEvent",
+          ev.domainName,
+        );
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:

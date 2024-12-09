@@ -31,7 +31,10 @@
         <input bitInput type="text" formControlName="ssoIdentifier" />
         <bit-hint>
           {{ "ssoIdentifierHintPartOne" | i18n }}
-          <a bitLink routerLink="../domain-verification">{{ "domainVerification" | i18n }}</a>
+          <a bitLink routerLink="../domain-verification">{{
+            ((accountDeprovisioningEnabled$ | async) ? "claimedDomains" : "domainVerification")
+              | i18n
+          }}</a>
         </bit-hint>
       </bit-form-field>
 

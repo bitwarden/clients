@@ -23,6 +23,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
@@ -49,6 +50,7 @@ export class OrganizationLayoutComponent implements OnInit {
   protected readonly logo = AdminConsoleLogo;
 
   protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
+  protected domainVerificationNavigationTextKey: string;
 
   protected integrationPageEnabled$: Observable<boolean>;
 
@@ -67,6 +69,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
+    private i18nService: I18nService,
   ) {}
 
   async ngOnInit() {
@@ -116,6 +119,12 @@ export class OrganizationLayoutComponent implements OnInit {
           org.productTierType === ProductTierType.Enterprise && featureFlagEnabled,
       ),
     );
+
+    this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
+      FeatureFlag.AccountDeprovisioning,
+    ))
+      ? "claimedDomains"
+      : "domainVerification";
   }
 
   canShowVaultTab(organization: Organization): boolean {
