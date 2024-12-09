@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Apziņotie dalībnieki"
   },
+  "revokeMembers": {
+    "message": "Atsaukt dalībniekus"
+  },
+  "restoreMembers": {
+    "message": "Atjaunot dalībniekus"
+  },
+  "revokeMembersWarning": {
+    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Claimed account: Revoke access to Bitwarden account"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Unclaimed account: Revoke access to organization data"
+  },
+  "claimedAccount": {
+    "message": "Claimed account"
+  },
+  "unclaimedAccount": {
+    "message": "Unclaimed account"
+  },
+  "restoreMembersInstructions": {
+    "message": "Lai atjaunotu dalībnieka kontu, jādodas uz cilni \"Atsaukts\". Darbība var aizņemt dažas sekundes, un to nevar pārtraukt vai atcelt."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nevar atjaunot apvienības piekļuvi"
+  },
   "allApplicationsWithCount": {
     "message": "Visas lietotnes ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Pieteikties Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Autentificēšanās noildze"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
   },
   "verifyIdentity": {
     "message": "Jāapliecina sava identitāte"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Nav iekļauts, tādēļ nav piemērojams šai darbībai."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Neatbilstoši dalībnieki"
+  },
+  "nonCompliantMembersError": {
+    "message": "Dalībniekus, kuri neatbilst viena uzņēmuma vai divpakāpju pieteikšanās nosacījumam, nevar atjaunot, līdz tie ievēros nosacījumu prasības"
+  },
   "fingerprint": {
     "message": "Pirkstu nospiedums"
   },
@@ -6790,6 +6829,10 @@
   },
   "scimDescription": {
     "message": "Automātiski nodrošina lietotājus un kopas ar vēlamo identitātes nodrošinātāju, izmantojot SCIM nodrošināšanu",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automātiski nodrošina lietotājus un kopas ar vēlamo identitāšu nodrošinātāju, izmantojot SCIM nodrošināšanu. Atrast atbalstītās integrācijas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Bitwarden Noslēpumu pārvaldnieka izstrādātāju rīkkopa ir izmantojama ar zemāk esošajām programmēšanas valodām, lai veidotu pats savas lietotnes."
   },
-  "setUpGithubActions": {
-    "message": "Iestatīt GitHub darbības"
+  "ssoDescStart": {
+    "message": "Konfigurēt",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Iestatīt Kubernetes"
+  "ssoDescEnd": {
+    "message": "Bitwarden, izmantojot sava identitāšu nodrošinātāja ieviešanas norādes.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Iestatīt GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Lietotāju nodrošināšana"
   },
-  "setUpAnsible": {
-    "message": "Iestatīt Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Skatīt Rust glabātavu"
+  "scimIntegrationDescStart": {
+    "message": "Konfigurēt ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Skatīt C# glabātavu"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management), lai automātiski nodrošinātu lietotājus un kopas Bitwarden, izmantojot sava identitāšu nodrošinātāja ieviešanas norādes.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Skatīt C++ glabātavu"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Skatīt JS WebAssembly glabātavu"
+  "bwdcDesc": {
+    "message": "Konfigurēt Bitwarden Directory Connector, lai automātiski nodrošinātu lietotājus un kopas, izmantojot sava identitāšu nodrošinātāja ieviešanas norādes."
   },
-  "javaSDKRepo": {
-    "message": "Skatīt Java glabātavu"
+  "eventManagement": {
+    "message": "Notikumu pārvaldība"
   },
-  "pythonSDKRepo": {
-    "message": "Skatīt Python glabātavu"
+  "eventManagementDesc": {
+    "message": "Iekļaut Bitwarden notikumu žurnālus savā SIEM (System Information and Event Management) sistēmā, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
-  "phpSDKRepo": {
-    "message": "Skatīt PHP glabātavu"
+  "deviceManagement": {
+    "message": "Ierīču pārvaldība"
   },
-  "rubySDKRepo": {
-    "message": "Skatīt Ruby glabātavu"
+  "deviceManagementDesc": {
+    "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
-  "goSDKRepo": {
-    "message": "Skatīt Go glabātavu"
+  "integrationCardTooltip": {
+    "message": "Palaist $INTEGRATION$ ieviešanas norādes.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Uzstādīt $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Skatīt $SDK$ glabātavu",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "atvērt $INTEGRATION$ ieviešanas norādes jaunā cilnē.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "skatīt $SDK$ glabātavu jaunā cilnē.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "uzstādīt $INTEGRATION$ ieviešanas norādes jaunā cilnē.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Izveidot jaunu klienta apvienību, ko pārvaldīt kā nodrošinātājam. Papildu vietas tiks atspoguļotas nākamajā norēķinu posmā."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Kad dalībnieks tiek izdzēsts, viņa Bitwarden konts un personīgās glabātavas dati tiks neatgriezeniski izdzēsti. Krājumu dati paliks apvienībās. Lai atjaunotu dalībniekus, viņiem atkārtoti jāizveido konts un jāpievieno komandai.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Šī darbība neatgriezeniski izdzēsīs visus $NAME$ piederošos vienumus. Krājumu vienumi netiks ietekmēti.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Šī darbība neatgriezeniski izdzēsīs visus zemāk esošajiem dalībniekiem piederošos vienumus. Krājumu vienumi netiks ietekmēti.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Izdzēsts/a $NAME$",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Apraksta kods"
+  },
+  "removeMembers": {
+    "message": "Noņemt dalībniekus"
   }
 }

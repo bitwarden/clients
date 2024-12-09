@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Сповіщення учасників"
   },
+  "revokeMembers": {
+    "message": "Відкликати учасників"
+  },
+  "restoreMembers": {
+    "message": "Відновити учасників"
+  },
+  "revokeMembersWarning": {
+    "message": "Учасники із заявленими та не заявленими обліковими записами матимуть різні результати після відкликання:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Заявлений обліковий запис: відкликати доступ до облікового запису Bitwarden"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Не заявлений обліковий запис: відкликати доступ до даних організації"
+  },
+  "claimedAccount": {
+    "message": "Заявлений обліковий запис"
+  },
+  "unclaimedAccount": {
+    "message": "Не заявлений обліковий запис"
+  },
+  "restoreMembersInstructions": {
+    "message": "Щоб відновити обліковий запис учасника, перейдіть на вкладку \"Відкликані\". Процес може тривати декілька секунд, і його не можна перервати чи скасувати."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Не вдається відновити доступ до організації"
+  },
   "allApplicationsWithCount": {
     "message": "Всі програми ($COUNT$)",
     "placeholders": {
@@ -1110,6 +1137,12 @@
   "logInToBitwarden": {
     "message": "Увійти в Bitwarden"
   },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
+  },
   "verifyIdentity": {
     "message": "Підтвердьте свою особу"
   },
@@ -1643,25 +1676,25 @@
     "message": "Історія паролів"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Історія генератора"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Очистити історію генератора"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
   },
   "noPasswordsInList": {
     "message": "Немає паролів."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Очистити історію"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Немає даних для показу"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Ви нічого не генерували останнім часом"
   },
   "clear": {
     "message": "Стерти",
@@ -1786,7 +1819,7 @@
     "message": "Усі сеанси завершено"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Цим обліковим записом володіє $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Виключено, не застосовується для цієї дії"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Учасники, які не відповідають вимогам"
+  },
+  "nonCompliantMembersError": {
+    "message": "Учасників, які не відповідають вимогам єдиної організації або політиці двоетапної перевірки, не можна відновити доки вони не дотримуватимуться вимог політики"
+  },
   "fingerprint": {
     "message": "Цифровий відбиток"
   },
@@ -6785,11 +6824,15 @@
     "message": "Необхідна передплата преміум"
   },
   "scim": {
-    "message": "Забезпечення SCIM",
+    "message": "Розгортання SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
     "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM. Знайти підтримувані інтеграції",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8070,16 +8113,16 @@
     "message": "Ініційовано вхід"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потрібне підтвердження пристрою"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -8311,7 +8354,7 @@
     "message": "Немає адреси електронної пошти"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -8986,44 +9029,99 @@
   "sdksDesc": {
     "message": "Використовуйте SDK менеджера секретів Bitwarden із зазначеними мовами програмування для створення власних програм."
   },
-  "setUpGithubActions": {
-    "message": "Налаштувати дії для Github"
+  "ssoDescStart": {
+    "message": "Налаштувати",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Налаштувати Kubernetes"
+  "ssoDescEnd": {
+    "message": "для Bitwarden, використовуючи посібник із впровадження для вашого провайдера ідентифікації.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Налаштувати GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Розгортання користувача"
   },
-  "setUpAnsible": {
-    "message": "Налаштувати Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Переглянути репозиторій Rust"
+  "scimIntegrationDescStart": {
+    "message": "Налаштувати ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Перегляд репозиторію C#"
+  "scimIntegrationDescEnd": {
+    "message": "(система керування ідентифікаційними даними між доменами), щоб автоматично розгортати користувачів та групи в Bitwarden, використовуючи посібник із впровадження для вашого провайдера ідентифікації.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Перегляд репозиторію C++"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Перегляд репозиторію JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Налаштуйте Bitwarden Directory Connector, щоб автоматично розгортати користувачів та групи, використовуючи посібник із впровадження для вашого провайдера ідентифікації."
   },
-  "javaSDKRepo": {
-    "message": "Перегляд репозиторію Java"
+  "eventManagement": {
+    "message": "Керування подіями"
   },
-  "pythonSDKRepo": {
-    "message": "Перегляд репозиторію Python"
+  "eventManagementDesc": {
+    "message": "Інтегруйте журнали подій Bitwarden з вашою SIEM (керування системною інформацією та подіями), використовуючи посібник із впровадження для вашої платформи."
   },
-  "phpSDKRepo": {
-    "message": "Перегляд репозиторію php"
+  "deviceManagement": {
+    "message": "Керування пристроями"
   },
-  "rubySDKRepo": {
-    "message": "Перегляд репозиторію Ruby"
+  "deviceManagementDesc": {
+    "message": "Налаштуйте керування пристроями для Bitwarden, використовуючи посібник із впровадження для вашої платформи."
   },
-  "goSDKRepo": {
-    "message": "Перегляд репозиторію Go"
+  "integrationCardTooltip": {
+    "message": "Відкрити посібник із впровадження $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Налаштувати $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Переглянути репозиторій $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Створіть нову організацію клієнта, щоб керувати нею як провайдер. Додаткові місця будуть відображені в наступному платіжному циклі."
@@ -9715,9 +9813,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Якщо учасник видаляється, його обліковий запис Bitwarden разом з даними особистого сховища також остаточно видаляється. Дані збірок залишаються в організації. Щоб їх відновити, учасник повинен створити обліковий запис і приєднатися до організації знову.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "This will permanently delete all items owned by $NAME$. Collection items are not impacted.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "This will permanently delete all items owned by the following members. Collection items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Видалено $NAME$",
@@ -9787,5 +9895,8 @@
   },
   "descriptorCode": {
     "message": "Descriptor code"
+  },
+  "removeMembers": {
+    "message": "Remove members"
   }
 }
