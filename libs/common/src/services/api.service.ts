@@ -1946,7 +1946,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 
