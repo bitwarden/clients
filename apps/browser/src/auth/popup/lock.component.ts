@@ -25,10 +25,11 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
-  KdfConfigService,
   KeyService,
   BiometricsService,
   BiometricStateService,
+  BiometricsStatus,
+  KdfConfigService,
 } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
@@ -130,8 +131,10 @@ export class LockComponent extends BaseLockComponent implements OnInit {
 
     window.setTimeout(async () => {
       document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       if (
-        this.biometricLock &&
+        this.biometricStatus == BiometricsStatus.Available &&
         autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
@@ -142,31 +145,26 @@ export class LockComponent extends BaseLockComponent implements OnInit {
   }
 
   override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
-    if (!this.biometricLock) {
-      return;
+    if (this.biometricStatus != BiometricsStatus.Available) {
+      if (!automaticPrompt) {
+        await this.dialogService.openSimpleDialog({
+          type: "warning",
+          title: { key: "biometricsNotAvailableTitle" },
+          content: { key: "biometricsNotAvailableDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+        });
+      }
     }
 
     this.biometricError = null;
-
     let success;
     try {
-      const available = await super.isBiometricUnlockAvailable();
-      if (!available) {
-        if (!automaticPrompt) {
-          await this.dialogService.openSimpleDialog({
-            type: "warning",
-            title: { key: "biometricsNotAvailableTitle" },
-            content: { key: "biometricsNotAvailableDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-          });
-        }
-      } else {
-        this.pendingBiometric = true;
-        success = await super.unlockBiometric();
-      }
+      this.pendingBiometric = true;
+      success = await super.unlockBiometric();
     } catch (e) {
       const error = BiometricErrors[e?.message as BiometricErrorTypes];
+      this.logService.info("Unlocking with biometrics error: " + e);
 
       if (error == null) {
         this.logService.error("Unknown error: " + e);
@@ -179,5 +177,12 @@ export class LockComponent extends BaseLockComponent implements OnInit {
     }
 
     return success;
+  }
+
+  get canUseBiometric() {
+    return (
+      this.biometricStatus == BiometricsStatus.Available ||
+      this.biometricStatus == BiometricsStatus.UnlockNeeded
+    );
   }
 }

@@ -163,6 +163,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
@@ -687,11 +688,11 @@ export class ServiceContainer {
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
       this.pinService,
-      this.logService,
-      this.vaultTimeoutSettingsService,
-      this.platformUtilsService,
       this.kdfConfigService,
+      new CliBiometricsService(),
     );
+
+    const biometricService = new CliBiometricsService();
 
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
@@ -708,6 +709,7 @@ export class ServiceContainer {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      biometricService,
       lockedCallback,
       undefined,
     );
