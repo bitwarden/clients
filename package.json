@@ -110,7 +110,7 @@
     "html-loader": "5.1.0",
     "html-webpack-injector": "1.1.4",
     "html-webpack-plugin": "5.6.3",
-    "husky": "9.1.4",
+    "husky": "9.1.7",
     "jest-extended": "4.0.2",
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
