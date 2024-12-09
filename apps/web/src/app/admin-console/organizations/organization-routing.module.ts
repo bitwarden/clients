@@ -45,6 +45,7 @@ const routes: Routes = [
         canActivate: [
           canAccessFeature(FeatureFlag.PM14505AdminConsoleIntegrationPage),
           isEnterpriseOrgGuard(false),
+          organizationPermissionsGuard(canAccessIntegrations),
         ],
         component: AdminConsoleIntegrationsComponent,
         data: {
@@ -105,6 +106,10 @@ function getOrganizationRoute(organization: Organization): string {
     return "settings";
   }
   return undefined;
+}
+
+function canAccessIntegrations(organization: Organization) {
+  return organization.canAccessIntegrations;
 }
 
 @NgModule({

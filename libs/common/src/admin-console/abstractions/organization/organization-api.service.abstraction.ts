@@ -1,3 +1,4 @@
+import { PlanType } from "@bitwarden/common/billing/enums";
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
@@ -40,6 +41,7 @@ export class OrganizationApiServiceAbstraction {
   getSubscription: (id: string) => Promise<OrganizationSubscriptionResponse>;
   getLicense: (id: string, installationId: string) => Promise<unknown>;
   getAutoEnrollStatus: (identifier: string) => Promise<OrganizationAutoEnrollStatusResponse>;
+  getPlanType: (id: string) => Promise<PlanType>;
   create: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
   createWithoutPayment: (
     request: OrganizationNoPaymentMethodCreateRequest,

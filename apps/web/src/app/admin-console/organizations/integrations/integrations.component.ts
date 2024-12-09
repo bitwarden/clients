@@ -1,9 +1,20 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, switchMap, from } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PlanType } from "@bitwarden/common/billing/enums";
 import { IntegrationType } from "@bitwarden/common/enums";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
-import { FilterIntegrationsPipe, IntegrationGridComponent, Integration } from "../../../shared/";
+import {
+  FilterIntegrationsPipe,
+  IntegrationGridComponent,
+  Integration,
+  IntegrationsAccessPipe,
+  IntegrationAccess,
+} from "../../../shared/";
 import { SharedModule } from "../../../shared/shared.module";
 import { SharedOrganizationModule } from "../shared";
 
@@ -17,13 +28,114 @@ import { SharedOrganizationModule } from "../shared";
     IntegrationGridComponent,
     HeaderModule,
     FilterIntegrationsPipe,
+    IntegrationsAccessPipe,
   ],
 })
-export class AdminConsoleIntegrationsComponent {
+export class AdminConsoleIntegrationsComponent implements OnInit {
   integrationsList: Integration[] = [];
+  integrationAccessList: IntegrationAccess[] = [];
   tabIndex: number;
+  organizationPlanType$: Observable<PlanType>;
 
-  constructor() {
+  ngOnInit(): void {
+    this.organizationPlanType$ = this.route.params.pipe(
+      switchMap((params) => this.organizationService.get$(params.organizationId)),
+      switchMap((org) => from(this.organizationApiService.getPlanType(org.id))),
+    );
+  }
+
+  constructor(
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private organizationService: OrganizationService,
+    private route: ActivatedRoute,
+  ) {
+    this.integrationAccessList = [
+      {
+        type: IntegrationType.SSO,
+        canAccess: [
+          PlanType.EnterpriseMonthly,
+          PlanType.EnterpriseMonthly2023,
+          PlanType.EnterpriseMonthly2020,
+          PlanType.EnterpriseAnnually,
+          PlanType.EnterpriseAnnually2023,
+          PlanType.EnterpriseAnnually2020,
+        ],
+      },
+      {
+        type: IntegrationType.SCIM,
+        canAccess: [
+          PlanType.EnterpriseAnnually,
+          PlanType.EnterpriseAnnually2023,
+          PlanType.EnterpriseAnnually2020,
+          PlanType.EnterpriseMonthly,
+          PlanType.EnterpriseMonthly2023,
+          PlanType.EnterpriseMonthly2020,
+          PlanType.TeamsMonthly,
+          PlanType.TeamsAnnually,
+        ],
+      },
+      {
+        type: IntegrationType.BWDC,
+        canAccess: [
+          PlanType.EnterpriseAnnually,
+          PlanType.EnterpriseAnnually2023,
+          PlanType.EnterpriseAnnually2020,
+          PlanType.EnterpriseMonthly,
+          PlanType.EnterpriseMonthly2023,
+          PlanType.EnterpriseMonthly2020,
+          PlanType.TeamsAnnually,
+          PlanType.TeamsAnnually2023,
+          PlanType.TeamsAnnually2020,
+          PlanType.TeamsAnnually2019,
+          PlanType.TeamsMonthly,
+          PlanType.TeamsMonthly2023,
+          PlanType.TeamsMonthly2020,
+          PlanType.TeamsMonthly2019,
+        ],
+      },
+      {
+        type: IntegrationType.EVENT,
+        canAccess: [
+          PlanType.EnterpriseAnnually,
+          PlanType.EnterpriseAnnually2023,
+          PlanType.EnterpriseAnnually2020,
+          PlanType.EnterpriseAnnually2019,
+          PlanType.EnterpriseMonthly,
+          PlanType.EnterpriseMonthly2023,
+          PlanType.EnterpriseMonthly2020,
+          PlanType.EnterpriseMonthly2019,
+          PlanType.TeamsAnnually,
+          PlanType.TeamsAnnually2023,
+          PlanType.TeamsAnnually2020,
+          PlanType.TeamsAnnually2019,
+          PlanType.TeamsMonthly,
+          PlanType.TeamsMonthly2023,
+          PlanType.TeamsMonthly2019,
+          PlanType.TeamsMonthly2020,
+        ],
+      },
+      {
+        type: IntegrationType.DEVICE,
+        canAccess: [
+          PlanType.EnterpriseAnnually,
+          PlanType.EnterpriseAnnually2023,
+          PlanType.EnterpriseAnnually2020,
+          PlanType.EnterpriseAnnually2019,
+          PlanType.EnterpriseMonthly,
+          PlanType.EnterpriseMonthly2023,
+          PlanType.EnterpriseMonthly2020,
+          PlanType.EnterpriseMonthly2019,
+          PlanType.TeamsAnnually,
+          PlanType.TeamsAnnually2023,
+          PlanType.TeamsAnnually2020,
+          PlanType.TeamsAnnually2019,
+          PlanType.TeamsMonthly,
+          PlanType.TeamsMonthly2023,
+          PlanType.TeamsMonthly2019,
+          PlanType.TeamsMonthly2020,
+        ],
+      },
+    ];
     this.integrationsList = [
       {
         name: "AD FS",
