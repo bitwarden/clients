@@ -3,10 +3,14 @@
 import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { first } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
+import { first, map } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { PasswordHistoryViewComponent } from "../../../../../../../../libs/vault/src/components/password-history-view/password-history-view.component";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -28,18 +32,20 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
   ],
 })
 export class PasswordHistoryV2Component implements OnInit {
-  protected cipherId: CipherId;
+  protected cipher: CipherView;
 
   constructor(
     private browserRouterHistory: PopupRouterCacheService,
     private route: ActivatedRoute,
+    private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.route.queryParams.pipe(first()).subscribe((params) => {
       if (params.cipherId) {
-        this.cipherId = params.cipherId;
+        void this.loadCipher(params.cipherId);
       } else {
         this.close();
       }
@@ -48,5 +54,23 @@ export class PasswordHistoryV2Component implements OnInit {
 
   close() {
     void this.browserRouterHistory.back();
+  }
+
+  /** Load the cipher based on the given Id */
+  private async loadCipher(cipherId: string) {
+    const cipher = await this.cipherService.get(cipherId);
+
+    const activeAccount = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a: { id: string | undefined }) => a)),
+    );
+
+    if (!activeAccount?.id) {
+      throw new Error("Active account is not available.");
+    }
+
+    const activeUserId = activeAccount.id as UserId;
+    this.cipher = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    );
   }
 }
