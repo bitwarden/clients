@@ -20,6 +20,7 @@ import { MaximumVaultTimeoutPolicyComponent } from "./admin-console/policies/max
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { FreeFamiliesSponsorshipPolicyComponent } from "./billing/policies/free-families-sponsorship.component";
+import { AccessIntelligenceModule } from "./tools/access-intelligence/access-intelligence.module";
 
 /**
  * This is the AppModule for the commercial version of Bitwarden.
@@ -41,6 +42,7 @@ import { FreeFamiliesSponsorshipPolicyComponent } from "./billing/policies/free-
     AppRoutingModule,
     OssRoutingModule,
     OrganizationsModule, // Must be after OssRoutingModule for competing routes to resolve properly
+    AccessIntelligenceModule,
     RouterModule,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
   ],
