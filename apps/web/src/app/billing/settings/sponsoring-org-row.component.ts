@@ -1,4 +1,4 @@
-import { formatDate } from "@angular/common";
+import { DatePipe, formatDate } from "@angular/common";
 import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
 import { firstValueFrom, map, Observable } from "rxjs";
 
@@ -10,7 +10,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
@@ -33,11 +32,11 @@ export class SponsoringOrgRowComponent implements OnInit {
     private apiService: ApiService,
     private i18nService: I18nService,
     private logService: LogService,
-    private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
     private toastService: ToastService,
     private configService: ConfigService,
     private policyService: PolicyService,
+    private datePipe: DatePipe,
   ) {}
 
   async ngOnInit() {
@@ -85,14 +84,16 @@ export class SponsoringOrgRowComponent implements OnInit {
     });
   }
 
-  get isSentAwaitingSync() {
-    return this.isSelfHosted && !this.sponsoringOrg.familySponsorshipLastSyncDate;
-  }
-
   private async doRevokeSponsorship() {
+    const content = this.i18nService.t(
+      "updatedRevokeSponsorshipConfirmation",
+      this.sponsoringOrg.familySponsorshipFriendlyName,
+      this.datePipe.transform(this.sponsoringOrg.familySponsorshipValidUntil, "mediumDate"),
+    );
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: `${this.i18nService.t("remove")} ${this.sponsoringOrg.familySponsorshipFriendlyName}?`,
-      content: { key: "revokeSponsorshipConfirmation" },
+      content,
       acceptButtonText: { key: "remove" },
       type: "warning",
     });
