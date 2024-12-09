@@ -10,6 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
   PasswordLoginCredentials,
   RegisterRouteService,
 } from "@bitwarden/auth/common";
@@ -31,7 +32,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import {
   AsyncActionsModule,
@@ -127,11 +127,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private registerRouteService: RegisterRouteService,
     private router: Router,
-    private syncService: SyncService,
     private toastService: ToastService,
     private logService: LogService,
     private validationService: ValidationService,
     private configService: ConfigService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -271,7 +271,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.syncService.fullSync(true);
+    await this.loginSuccessHandlerService.run(authResult.userId);
 
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
