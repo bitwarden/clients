@@ -693,7 +693,7 @@ export default class MainBackground {
     );
 
     this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
-    this.fileUploadService = new FileUploadService(this.logService);
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,

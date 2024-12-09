@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { ApiService } from "../../../abstractions/api.service";
 import {
   FileUploadApiMethods,
   FileUploadService as FileUploadServiceAbstraction,
@@ -16,8 +17,11 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   private azureFileUploadService: AzureFileUploadService;
   private bitwardenFileUploadService: BitwardenFileUploadService;
 
-  constructor(protected logService: LogService) {
-    this.azureFileUploadService = new AzureFileUploadService(logService);
+  constructor(
+    protected logService: LogService,
+    apiService: ApiService,
+  ) {
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService();
   }
 
