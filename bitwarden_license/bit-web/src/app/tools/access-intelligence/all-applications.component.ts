@@ -2,14 +2,16 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, firstValueFrom, map } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, switchMap, tap } from "rxjs";
 
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
   MemberCipherDetailsApiService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
+import {
+  ApplicationHealthReportDetail,
+  ApplicationHealthReportSummary,
+} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -58,28 +60,40 @@ export class AllApplicationsComponent implements OnInit {
   protected markingAsCritical = false;
   protected applicationSummary: ApplicationHealthReportSummary;
 
-  isCritialAppsFeatureEnabled = false;
+  isCritialAppsFeatureEnabled$: Observable<boolean>;
 
-  async ngOnInit() {
-    this.activatedRoute.paramMap
+  ngOnInit() {
+    // Combine route parameters and feature flag
+    combineLatest([
+      this.activatedRoute.paramMap.pipe(
+        switchMap((params) => {
+          const organizationId = params.get("organizationId");
+          if (!organizationId) {
+            this.loading = false;
+            return of(null);
+          }
+          return this.organizationService.get$(organizationId).pipe(
+            tap((org) => (this.organization = org)),
+            switchMap(() =>
+              this.riskInsightsReportService.generateApplicationsReport$(organizationId),
+            ),
+            tap((applicationsReport) => {
+              this.dataSource.data = applicationsReport;
+              this.applicationSummary =
+                this.riskInsightsReportService.generateApplicationsSummary(applicationsReport);
+              this.loading = false;
+            }),
+          );
+        }),
+      ),
+      this.configService.getFeatureFlag$(FeatureFlag.CriticalApps).pipe(),
+    ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
-          const organizationId = params.get("organizationId");
-          this.organization = await firstValueFrom(this.organizationService.get$(organizationId));
-          const applicationsReport =
-            await this.riskInsightsReportService.generateApplicationsReport(organizationId);
-          this.dataSource.data = applicationsReport;
-          this.applicationSummary =
-            this.riskInsightsReportService.generateApplicationsSummary(applicationsReport);
-          this.loading = false;
-        }),
+        map(([_, featureFlag]) => featureFlag),
+        tap((flag) => (this.isCritialAppsFeatureEnabled$ = of(flag))),
       )
       .subscribe();
-
-    this.isCritialAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
   }
 
   constructor(
@@ -106,22 +120,25 @@ export class AllApplicationsComponent implements OnInit {
     });
   };
 
-  markAppsAsCritical = async () => {
+  markAppsAsCritical() {
     // TODO: Send to API once implemented
     this.markingAsCritical = true;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.selectedIds.clear();
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("appsMarkedAsCritical"),
-        });
-        resolve(true);
-        this.markingAsCritical = false;
-      }, 1000);
-    });
-  };
+    of(true)
+      .pipe(
+        debounceTime(1000), // Simulate delay
+        tap(() => {
+          this.selectedIds.clear();
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("appsMarkedAsCritical"),
+          });
+          this.markingAsCritical = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
 
   trackByFunction(_: number, item: CipherView) {
     return item.id;

@@ -52,7 +52,7 @@
       type="button"
       buttonType="secondary"
       bitButton
-      *ngIf="isCritialAppsFeatureEnabled"
+      *ngIf="isCritialAppsFeatureEnabled$ | async"
       [disabled]="!selectedIds.size"
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
@@ -64,7 +64,7 @@
   <bit-table [dataSource]="dataSource">
     <ng-container header>
       <tr>
-        <th *ngIf="isCritialAppsFeatureEnabled"></th>
+        <th *ngIf="isCritialAppsFeatureEnabled$ | async"></th>
         <th bitSortable="name" bitCell>{{ "application" | i18n }}</th>
         <th bitSortable="atRiskPasswords" bitCell>{{ "atRiskPasswords" | i18n }}</th>
         <th bitSortable="totalPasswords" bitCell>{{ "totalPasswords" | i18n }}</th>
@@ -74,12 +74,12 @@
     </ng-container>
     <ng-template body let-rows$>
       <tr bitRow *ngFor="let r of rows$ | async; trackBy: trackByFunction">
-        <td *ngIf="isCritialAppsFeatureEnabled">
+        <td *ngIf="isCritialAppsFeatureEnabled$ | async">
           <input
             bitCheckbox
             type="checkbox"
-            [checked]="selectedIds.has(r.id)"
-            (change)="onCheckboxChange(r.id, $event)"
+            [checked]="selectedIds.has(r.applicationName)"
+            (change)="onCheckboxChange(r.applicationName, $event)"
           />
         </td>
         <td bitCell>
