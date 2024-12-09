@@ -18,7 +18,7 @@ export function NotificationFooter({
 const notificationFooterStyles = ({ theme }: { theme: Theme }) => css`
   display: flex;
   background-color: ${themes[theme].background.alt};
-  padding: ${spacing["1.5"]} 16px 16px 16px;
+  padding: ${spacing["1.5"]} ${spacing[3]} ${spacing[3]} ${spacing[3]};
 
   :last-child {
     border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};

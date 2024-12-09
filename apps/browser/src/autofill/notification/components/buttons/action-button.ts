@@ -41,18 +41,18 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
   padding: ${spacing["1"]} ${spacing["4"]};
+  width: 100%;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   font-weight: 700;
 
-  ${
-    disabled
-      ? `
+  ${disabled
+    ? `
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
   `
-      : `
+    : `
     background-color: ${themes[theme].primary["600"]};
     cursor: pointer;
     color: ${themes[theme].text.contrast};
@@ -61,7 +61,6 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
       border-color: ${themes[theme].primary["700"]};
       background-color: ${themes[theme].primary["700"]};
       color: ${themes[theme].text.contrast};
-  `
-  }
-  }
+    }
+  `}
 `;

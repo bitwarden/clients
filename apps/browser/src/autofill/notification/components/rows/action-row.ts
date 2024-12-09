@@ -32,6 +32,7 @@ const actionRowStyles = (theme: Theme) => css`
   background-color: ${themes[theme].background.DEFAULT};
   cursor: pointer;
   padding: ${spacing["2"]} ${spacing["3"]};
+  width: 100%;
   min-height: 40px;
   text-align: left;
   color: ${themes[theme].primary["600"]};
