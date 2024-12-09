@@ -217,10 +217,10 @@
     "message": "Parolu təsdiqlə"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "SSH açarının parolunu daxil edin."
+    "message": "SSH açarı üçün parolu daxil edin."
   },
   "enterSshKeyPassword": {
-    "message": "Parolu daxil et"
+    "message": "Parolu daxil edin"
   },
   "sshAgentUnlockRequired": {
     "message": "SSH açar tələbini təsdiqləmək üçün seyfinizin kilidini açın."
@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Server URL-si"
   },
+  "authenticationTimeout": {
+    "message": "Kimlik doğrulama vaxtı bitdi"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
+  },
   "selfHostBaseUrl": {
     "message": "Self-host server URL-si",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1393,7 +1399,7 @@
     "message": "Yaradıcı tarixçəsini təmizlə"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
+    "message": "Davam etsəniz, bütün girişlər yaradıcı tarixçəsindən həmişəlik silinəcək. Davam etmək istəyirsiniz?"
   },
   "clear": {
     "message": "Təmizlə",
@@ -1729,7 +1735,7 @@
     "message": "Bitwarden üçün doğrula."
   },
   "polkitConsentMessage": {
-    "message": "Bitwarden kilidini açmaq üçün kimliyi doğrula."
+    "message": "Bitwarden kilidini açmaq üçün kimliyi doğrulayın."
   },
   "unlockWithTouchId": {
     "message": "Touch ID kilidini aç"
@@ -2726,7 +2732,7 @@
     "message": "Cihazınıza bir bildiriş göndərildi"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazda uyuşduğuna əmin olun"
+    "message": "Lütfən hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun"
   },
   "needAnotherOptionV1": {
     "message": "Başqa bir seçimə ehtiyacınız var?"
@@ -2738,7 +2744,7 @@
     "message": "Barmaq izi ifadəsi"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "Tələbiniz təsdiqləndikdə bildiriş alacaqsınız"
+    "message": "Tələbiniz təsdiqləndikdə məlumatlandırılacaqsınız"
   },
   "needAnotherOption": {
     "message": "Cihazla giriş etmə, Bitwarden tətbiqinin ayarlarında qurulmalıdır. Başqa bir seçimə ehtiyacınız var?"
@@ -2899,13 +2905,13 @@
     "message": "Tövsiyə edilən Ayarlar Güncəlləməsi"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
+    "message": "Gələcəkdəki girişləri problemsiz etmək üçün bu cihazı xatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Cihaz təsdiqi tələb olunur"
+    "message": "Cihazın təsdiq olunması tələb olunur"
   },
   "selectAnApprovalOptionBelow": {
     "message": "Aşağıdan bir təsdiq seçimi edin"

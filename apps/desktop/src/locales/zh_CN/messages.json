@@ -208,19 +208,19 @@
     "message": "生成了新的 SSH 密钥"
   },
   "sshKeyWrongPassword": {
-    "message": "您输入的密码不正确。"
+    "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "导入"
+    "message": "Import"
   },
   "confirmSshKeyPassword": {
-    "message": "确认密码"
+    "message": "Confirm password"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "输入 SSH 密钥的密码。"
+    "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "输入密码"
+    "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
     "message": "请解锁您的密码库以批准 SSH 密钥请求。"
@@ -624,7 +624,7 @@
     "message": "创建账户"
   },
   "newToBitwarden": {
-    "message": "您是 Bitwarden 新手吗？"
+    "message": "Bitwarden 新手吗？"
   },
   "setAStrongPassword": {
     "message": "设置强密码"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "服务器 URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "自托管服务器 URL",
@@ -1387,13 +1393,13 @@
     "message": "密码历史记录"
   },
   "generatorHistory": {
-    "message": "生成器历史记录"
+    "message": "Generator history"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "清除生成器历史记录"
+    "message": "Clear generator history"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "clear": {
     "message": "清除",
@@ -1403,13 +1409,13 @@
     "message": "没有可列出的密码。"
   },
   "clearHistory": {
-    "message": "清除历史记录"
+    "message": "Clear history"
   },
   "nothingToShow": {
-    "message": "没有可显示的内容"
+    "message": "Nothing to show"
   },
   "nothingGeneratedRecently": {
-    "message": "您最近没有生成任何内容"
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "撤销"
@@ -1729,7 +1735,7 @@
     "message": "验证 Bitwarden。"
   },
   "polkitConsentMessage": {
-    "message": "验证以解锁 Bitwarden。"
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "使用触控 ID 解锁"
@@ -2478,7 +2484,7 @@
     "message": "生成电子邮件地址"
   },
   "spinboxBoundariesHint": {
-    "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2492,7 +2498,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2502,7 +2508,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2723,13 +2729,13 @@
     "message": "通知已发送到您的设备。"
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "通知已发送到您的设备"
+    "message": "A notification was sent to your device"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "需要其他选项吗？"
+    "message": "Need another option?"
   },
   "fingerprintMatchInfo": {
     "message": "请确保您的密码库已解锁，并且指纹短语与其他设备上的相匹配。"
@@ -2738,13 +2744,13 @@
     "message": "指纹短语"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "请求获得批准后，您将收到通知"
+    "message": "You will be notified once the request is approved"
   },
   "needAnotherOption": {
     "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？"
   },
   "viewAllLogInOptions": {
-    "message": "查看所有登录选项"
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "查看所有登录选项"
@@ -2866,7 +2872,7 @@
     "message": "检查已知的数据泄露是否包含此密码"
   },
   "loggedInExclamation": {
-    "message": "已登录！"
+    "message": "Logged in!"
   },
   "important": {
     "message": "重要事项："
@@ -2899,16 +2905,16 @@
     "message": "推荐的设置更新"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "记住此设备以便将来无缝登录"
+    "message": "Remember this device to make future logins seamless"
   },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
   "deviceApprovalRequiredV2": {
-    "message": "需要设备批准"
+    "message": "Device approval required"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "在下方选择一个批准选项"
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "记住此设备"
@@ -2963,7 +2969,7 @@
     "message": "缺少用户电子邮件"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "未找到活动的用户电子邮件。您将被注销。"
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "设备已信任"
