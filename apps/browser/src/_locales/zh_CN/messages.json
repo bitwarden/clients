@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "请输入您的验证器 App 中的 6 位数验证码。"
   },
+  "authenticationTimeout": {
+    "message": "身份验证超时"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "身份验证会话超时。请重新启动登录过程。"
+  },
   "enterVerificationCodeEmail": {
     "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
     "placeholders": {

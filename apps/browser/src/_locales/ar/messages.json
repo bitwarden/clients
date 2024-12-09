@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "أدخل رمز التحقق من 6 أرقام من تطبيق المصادقة الخاص بك."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "أدخل رمز التحقق المكون من 6 أرقام الذي تم إرساله إلى $EMAIL$.",
     "placeholders": {

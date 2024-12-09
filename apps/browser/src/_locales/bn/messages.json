@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "আপনার প্রমাণীকরণকারী অ্যাপ থেকে ৬ সংখ্যার যাচাইকরণ কোডটি প্রবেশ করুন।"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ এ ইমেইল করা ৬ সংখ্যার যাচাই কোডটি প্রবেশ করুন।",
     "placeholders": {

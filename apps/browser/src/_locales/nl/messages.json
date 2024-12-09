@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Voer de 6-cijferige verificatiecode uit je authenticatie-app in."
   },
+  "authenticationTimeout": {
+    "message": "Authenticatie-timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
+  },
   "enterVerificationCodeEmail": {
     "message": "Voer de 6-cijferige verificatiecode in die via e-mail is verstuurd naar $EMAIL$.",
     "placeholders": {

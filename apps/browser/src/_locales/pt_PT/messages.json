@@ -1269,7 +1269,7 @@
     "message": "Pode adquirir uma subscrição Premium no cofre web em bitwarden.com. Pretende visitar o site agora?"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web do Bitwarden."
+    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "É um membro Premium!"
@@ -1318,6 +1318,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
+  },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
   },
   "enterVerificationCodeEmail": {
     "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",

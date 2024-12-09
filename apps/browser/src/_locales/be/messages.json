@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Увядзіце 6 лічбаў праверачнага кода з вашай праграмы аўтэнтыфікацыі."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Увядзіце 6 лічбаў праверачнага кода, які быў адпраўлены на $EMAIL$.",
     "placeholders": {

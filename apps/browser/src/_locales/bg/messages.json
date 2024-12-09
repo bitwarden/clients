@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
   },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
+  },
   "enterVerificationCodeEmail": {
     "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
     "placeholders": {

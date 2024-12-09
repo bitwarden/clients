@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Insira o código de verificação de 6 dígitos do seu aplicativo de autenticação."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Insira o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
     "placeholders": {

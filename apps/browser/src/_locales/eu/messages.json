@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Sartu zure autentifikazio aplikazioaren 6 digituko egiaztatze kodea."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Sartu $EMAIL$-era bidalitako 6 digituko egiaztatze-kodea.",
     "placeholders": {

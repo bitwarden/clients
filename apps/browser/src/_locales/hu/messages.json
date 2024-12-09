@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Add meg a 6 számjegyű ellenőrző kódot a hitelesítő alkalmazásodból."
   },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
+  },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ email címre elküldött 6 számjegyű ellenőrző kód megadása.",
     "placeholders": {

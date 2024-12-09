@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Nhập mã xác nhận 6 chữ số từ ứng dụng xác thực của bạn."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Nhập mã xác nhận 6 chữ số đã được gửi tới email",
     "placeholders": {
