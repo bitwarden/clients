@@ -105,7 +105,7 @@
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
-    "eslint-plugin-storybook": "0.8.0",
+    "eslint-plugin-storybook": "0.11.1",
     "eslint-plugin-tailwindcss": "3.17.4",
     "html-loader": "5.1.0",
     "html-webpack-injector": "1.1.4",
