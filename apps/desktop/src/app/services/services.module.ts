@@ -44,7 +44,10 @@ import {
   AuthService,
   AuthService as AuthServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -93,6 +96,7 @@ import {
 
 import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
+import { DesktopPinService } from "../../auth/services/desktop-pin.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
@@ -228,12 +232,14 @@ const safeProviders: SafeProvider[] = [
     provide: ProcessReloadServiceAbstraction,
     useClass: DefaultProcessReloadService,
     deps: [
-      PinServiceAbstraction,
       MessagingServiceAbstraction,
       RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
       BiometricStateService,
       AccountServiceAbstraction,
+      LogService,
+      PlatformUtilsServiceAbstraction,
+      PinServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -365,6 +371,21 @@ const safeProviders: SafeProvider[] = [
     provide: LoginApprovalComponentServiceAbstraction,
     useClass: DesktopLoginApprovalComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PinServiceAbstraction,
+    useClass: DesktopPinService,
+    deps: [
+      AccountServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      EncryptService,
+      KdfConfigService,
+      KeyGenerationServiceAbstraction,
+      LogService,
+      MasterPasswordServiceAbstraction,
+      StateProvider,
+      StateServiceAbstraction,
+    ],
   }),
 ];
 

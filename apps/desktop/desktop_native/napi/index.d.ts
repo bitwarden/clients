@@ -122,6 +122,14 @@ export declare namespace ipc {
     send(message: string): number
   }
 }
+export declare namespace ephemeral_values {
+  export class EphemeralValueStoreWrapper {
+    constructor()
+    set(key: string, value: string): void
+    get(key: string): string | null
+    remove(key: string): void
+  }
+}
 export declare namespace autofill {
   export function runCommand(value: string): Promise<string>
 }
