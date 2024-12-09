@@ -1,7 +1,7 @@
-name: Build Desktop
+name: Build Desktop (PR Target)
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
@@ -37,9 +37,15 @@ defaults:
     shell: bash
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   electron-verify:
     name: Verify Electron Version
     runs-on: ubuntu-22.04
+    needs:
+      - check-run
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -61,6 +67,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    needs:
+      - check-run
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
@@ -162,7 +170,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm musl-dev musl-tools flatpak flatpak-builder
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
