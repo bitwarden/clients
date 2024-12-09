@@ -1,7 +1,16 @@
 import { Injectable } from "@angular/core";
-import { Subject, Observable, combineLatest, firstValueFrom, map } from "rxjs";
-import { mergeMap, take } from "rxjs/operators";
+import {
+  Subject,
+  Observable,
+  combineLatest,
+  firstValueFrom,
+  map,
+  mergeMap,
+  take,
+  switchMap,
+} from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -74,13 +83,18 @@ export class VaultBannersService {
     private platformUtilsService: PlatformUtilsService,
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
+    private accountService: AccountService,
   ) {
     this.pollUntilSynced();
     this.premiumBannerState = this.stateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY);
     this.sessionBannerState = this.stateProvider.getActive(BANNERS_DISMISSED_DISK_KEY);
 
     const premiumSources$ = combineLatest([
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+      ),
       this.premiumBannerState.state$,
     ]);
 

@@ -3,9 +3,10 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -50,9 +51,14 @@ export class PremiumComponent implements OnInit {
     private environmentService: EnvironmentService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
   protected setSelectedFile(event: Event) {
     const fileInputEl = <HTMLInputElement>event.target;
@@ -61,7 +67,10 @@ export class PremiumComponent implements OnInit {
   }
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
-    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(account.id))
+    ) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/user-subscription"]);

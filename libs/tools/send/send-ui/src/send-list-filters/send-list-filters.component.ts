@@ -1,10 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ChipSelectComponent } from "@bitwarden/components";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
@@ -23,8 +24,13 @@ export class SendListFiltersComponent implements OnDestroy {
   constructor(
     private sendListFiltersService: SendListFiltersService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
 
   ngOnDestroy(): void {

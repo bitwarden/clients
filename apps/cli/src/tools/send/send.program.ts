@@ -255,6 +255,7 @@ export class SendProgram extends BaseProgram {
           getCmd,
           this.serviceContainer.sendApiService,
           this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(encodedJson, options);
         this.processResponse(response);
@@ -328,6 +329,7 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.environmentService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     return await cmd.run(encodedJson, options);
   }

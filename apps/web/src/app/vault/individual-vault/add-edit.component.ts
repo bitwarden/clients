@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -120,7 +120,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.cleanUp();
 
     this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+      ),
     );
     if (this.showTotp()) {
       await this.totpUpdateCode();
