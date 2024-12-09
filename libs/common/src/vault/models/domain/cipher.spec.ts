@@ -57,6 +57,47 @@ describe("Cipher DTO", () => {
     });
   });
 
+  describe("Cipher", () => {
+    it("Throws error with invalid cipher key", async () => {
+      const cipher = new Cipher();
+      cipher.id = "id";
+      cipher.organizationId = "orgId";
+      cipher.folderId = "folderId";
+      cipher.edit = true;
+      cipher.viewPassword = true;
+      cipher.organizationUseTotp = true;
+      cipher.favorite = false;
+      cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+      cipher.type = CipherType.Login;
+      cipher.name = mockEnc("EncryptedString");
+      cipher.notes = mockEnc("EncryptedString");
+      cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
+      cipher.deletedDate = null;
+      cipher.reprompt = CipherRepromptType.None;
+      cipher.key = mockEnc("EncKey");
+
+      const loginView = new LoginView();
+      loginView.username = "username";
+      loginView.password = "password";
+
+      const login = mock<Login>();
+      login.decrypt.mockResolvedValue(loginView);
+      cipher.login = login;
+
+      const keyService = mock<KeyService>();
+      const encryptService = mock<EncryptService>();
+      const cipherService = mock<CipherService>();
+
+      encryptService.decryptToBytes.mockResolvedValue(null);
+
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+
+      await cipher.decrypt(await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId));
+
+      expect.toThrow("Failed to decrypt cipher key.");
+    });
+  });
+
   describe("LoginCipher", () => {
     let cipherData: CipherData;
 
