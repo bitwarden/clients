@@ -30,6 +30,7 @@
           (click)="onViewCipher(cipher)"
           (dblclick)="launchCipher(cipher)"
           [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
+          [attr.data-id]="cipher.id"
           class="{{ itemHeightClass }}"
         >
           <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
