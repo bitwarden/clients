@@ -27,6 +27,10 @@
     <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
     {{ "note" | i18n }}
   </a>
+  <a bitMenuItem (click)="newItemNavigate(cipherType.SshKey)" *ngIf="sshKeysEnabled">
+    <i class="bwi bwi-key" slot="start" aria-hidden="true"></i>
+    {{ "typeSshKey" | i18n }}
+  </a>
   <bit-menu-divider></bit-menu-divider>
   <button type="button" bitMenuItem (click)="openFolderDialog()">
     <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>

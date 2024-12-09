@@ -10,7 +10,6 @@ use bitwarden_russh::ssh_agent::{self, Key};
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
 mod platform_ssh_agent;
 
-pub mod generator;
 pub mod importer;
 
 #[derive(Clone)]
