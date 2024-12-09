@@ -13,7 +13,7 @@ futures = "=0.3.31"
 log = "=0.4.22"
 simplelog = "=0.12.2"
 tokio = { version = "=1.41.1", features = ["io-std", "io-util", "macros", "rt"] }
-tokio-util = { version = "=0.7.12", features = ["codec"] }
+tokio-util = { version = "=0.7.13", features = ["codec"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 embed_plist = "=1.2.2"
