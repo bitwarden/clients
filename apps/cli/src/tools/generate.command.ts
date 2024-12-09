@@ -33,7 +33,7 @@ export class GenerateCommand {
       includeNumber: normalizedOptions.includeNumber,
       minNumber: normalizedOptions.minNumber,
       minSpecial: normalizedOptions.minSpecial,
-      ambiguous: normalizedOptions.ambiguous,
+      ambiguous: !normalizedOptions.ambiguous,
     };
 
     const enforcedOptions = (await this.stateService.getIsAuthenticated())

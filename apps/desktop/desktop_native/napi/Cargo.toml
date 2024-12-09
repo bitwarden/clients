@@ -19,7 +19,7 @@ hex = "=0.4.3"
 anyhow = "=1.0.93"
 desktop_core = { path = "../core" }
 napi = { version = "=2.16.13", features = ["async"] }
-napi-derive = "=2.16.12"
+napi-derive = "=2.16.13"
 tokio = { version = "=1.41.1" }
 tokio-util = "=0.7.12"
 tokio-stream = "=0.1.15"

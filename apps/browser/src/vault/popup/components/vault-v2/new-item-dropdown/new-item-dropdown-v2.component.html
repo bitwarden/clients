@@ -3,19 +3,27 @@
   {{ "new" | i18n }}
 </button>
 <bit-menu #itemOptions>
-  <a bitMenuItem (click)="newItemNavigate(cipherType.Login)">
+  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.Login)">
     <i class="bwi bwi-globe" slot="start" aria-hidden="true"></i>
     {{ "typeLogin" | i18n }}
   </a>
-  <a bitMenuItem (click)="newItemNavigate(cipherType.Card)">
+  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.Card)">
     <i class="bwi bwi-credit-card" slot="start" aria-hidden="true"></i>
     {{ "typeCard" | i18n }}
   </a>
-  <a bitMenuItem (click)="newItemNavigate(cipherType.Identity)">
+  <a
+    bitMenuItem
+    [routerLink]="['/add-cipher']"
+    [queryParams]="buildQueryParams(cipherType.Identity)"
+  >
     <i class="bwi bwi-id-card" slot="start" aria-hidden="true"></i>
     {{ "typeIdentity" | i18n }}
   </a>
-  <a bitMenuItem (click)="newItemNavigate(cipherType.SecureNote)">
+  <a
+    bitMenuItem
+    [routerLink]="['/add-cipher']"
+    [queryParams]="buildQueryParams(cipherType.SecureNote)"
+  >
     <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
     {{ "note" | i18n }}
   </a>

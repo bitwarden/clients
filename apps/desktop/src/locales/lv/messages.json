@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Tika izveidota jauna SSH atslēga"
   },
+  "sshKeyWrongPassword": {
+    "message": "Ievadītā parole ir nepareiza."
+  },
+  "importSshKey": {
+    "message": "Ievietot"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Apstiprināt paroli"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Ievadīt SSH atslēgas paroli."
+  },
+  "enterSshKeyPassword": {
+    "message": "Ievadīt paroli"
+  },
   "sshAgentUnlockRequired": {
     "message": "Lūgums atslēgt savu glabātavu, lai apstiprinātu SSH atslēgas pieprasījumu."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Paroles izmaiņu vēsture"
   },
+  "generatorHistory": {
+    "message": "Veidotāja vēsture"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Iztīrīt veidotāja vēsturi"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Turpinot visi veidotāja vēstures ieraksti tiks neatgrieziniski izdzēsti. Vai tiešām turpināt?"
+  },
   "clear": {
     "message": "Notīrīt",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Nav paroļu, ko parādīt."
+  },
+  "clearHistory": {
+    "message": "Iztīrīt vēsturi"
+  },
+  "nothingToShow": {
+    "message": "Nav nekā, ko parādīt"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Pēdējā laikā nav nekas izveidots"
   },
   "undo": {
     "message": "Atsaukt"
@@ -2469,7 +2502,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu parles vārdkopu.",
+    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu paroles vārdkopu.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Uz jūsu ierīci ir nosūtīts paziņojums."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Uz ierīci tika nosūtīts paziņojums"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
+  },
+  "needAnotherOptionV1": {
+    "message": "Nepieciešama cita iespēja?"
+  },
   "fingerprintMatchInfo": {
     "message": "Lūgums pārliecināties, ka glabātava ir atslēgta un atpazīšanas vārdkopa ir tāda pati arī citā ierīcē."
   },
   "fingerprintPhraseHeader": {
     "message": "Atpazīšanas vārdkopa"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Tiks paziņots, tiklīdz pieprasījums būs apstiprināts"
+  },
   "needAnotherOption": {
     "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden lietotnes iestatījumos. Nepieciešama cita iespēja?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Skatīt visas pieteikšanās iespējas"
   },
   "viewAllLoginOptions": {
     "message": "Skatīt visas pieteikšanās iespējas"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Meklēt šo paroli zināmās datu noplūdēs"
   },
+  "loggedInExclamation": {
+    "message": "Pieteicies."
+  },
   "important": {
     "message": "Svarīgi:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Ieteicamie iestatījumu atjauninājumi"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
+  },
   "deviceApprovalRequired": {
     "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Nepieciešama ierīces apstiprināšana"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Zemāk jāatlasa apstiprināšnas iespēja"
   },
   "rememberThisDevice": {
     "message": "Atcerēties šo ierīci"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Trūkst lietotāja e-pasta adreses"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktīva lietotāja e-pasta adrese netika atrasta. Notiek atteikšanās."
   },
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"

@@ -125,7 +125,7 @@
     "process": "0.11.10",
     "remark-gfm": "4.0.0",
     "rimraf": "6.0.1",
-    "sass": "1.74.1",
+    "sass": "1.81.0",
     "sass-loader": "16.0.1",
     "storybook": "8.4.5",
     "style-loader": "3.3.4",

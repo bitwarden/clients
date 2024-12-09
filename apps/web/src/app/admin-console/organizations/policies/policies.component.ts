@@ -87,7 +87,6 @@ export class PoliciesComponent implements OnInit {
       data: {
         policy: policy,
         organizationId: this.organizationId,
-        policiesEnabledMap: this.policiesEnabledMap,
       },
     });
 

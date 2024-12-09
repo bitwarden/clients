@@ -1,4 +1,4 @@
-<bit-dialog dialogSize="large" [title]="'removeUsers' | i18n">
+<bit-dialog dialogSize="large" [title]="'removeMembers' | i18n">
   <ng-container bitDialogContent>
     <bit-callout type="danger" *ngIf="users.length <= 0">
       {{ "noSelectedUsersApplicable" | i18n }}
@@ -79,7 +79,7 @@
       [disabled]="loading"
       [bitAction]="submit"
     >
-      {{ "removeUsers" | i18n }}
+      {{ "removeMembers" | i18n }}
     </button>
     <button bitButton type="button" buttonType="secondary" bitDialogClose>
       {{ "close" | i18n }}

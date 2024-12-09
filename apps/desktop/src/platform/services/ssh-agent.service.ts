@@ -5,9 +5,11 @@ import {
   concatMap,
   EMPTY,
   filter,
+  firstValueFrom,
   from,
   map,
   of,
+  skip,
   Subject,
   switchMap,
   takeUntil,
@@ -17,6 +19,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -52,6 +55,7 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   async init() {
@@ -112,19 +116,34 @@ export class SshAgentService implements OnDestroy {
             ),
           ),
           // This concatMap handles showing the dialog to approve the request.
-          concatMap(([message, decryptedCiphers]) => {
+          concatMap(async ([message, ciphers]) => {
             const cipherId = message.cipherId as string;
+            const isListRequest = message.isListRequest as boolean;
             const requestId = message.requestId as number;
 
-            if (decryptedCiphers === undefined) {
-              return of(false).pipe(
-                switchMap((result) =>
-                  ipc.platform.sshAgent.signRequestResponse(requestId, Boolean(result)),
-                ),
+            if (isListRequest) {
+              const sshCiphers = ciphers.filter(
+                (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
               );
+              const keys = sshCiphers.map((cipher) => {
+                return {
+                  name: cipher.name,
+                  privateKey: cipher.sshKey.privateKey,
+                  cipherId: cipher.id,
+                };
+              });
+              await ipc.platform.sshAgent.setKeys(keys);
+              await ipc.platform.sshAgent.signRequestResponse(requestId, true);
+              return;
             }
 
-            const cipher = decryptedCiphers.find((cipher) => cipher.id == cipherId);
+            if (ciphers === undefined) {
+              ipc.platform.sshAgent
+                .signRequestResponse(requestId, false)
+                .catch((e) => this.logService.error("Failed to respond to SSH request", e));
+            }
+
+            const cipher = ciphers.find((cipher) => cipher.id == cipherId);
 
             ipc.platform.focusWindow();
             const dialogRef = ApproveSshRequestComponent.open(
@@ -133,15 +152,33 @@ export class SshAgentService implements OnDestroy {
               this.i18nService.t("unknownApplication"),
             );
 
-            return dialogRef.closed.pipe(
-              switchMap((result) => {
-                return ipc.platform.sshAgent.signRequestResponse(requestId, Boolean(result));
-              }),
-            );
+            const result = await firstValueFrom(dialogRef.closed);
+            return ipc.platform.sshAgent.signRequestResponse(requestId, result);
           }),
           takeUntil(this.destroy$),
         )
         .subscribe();
+
+      this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
+        next: (account) => {
+          this.logService.info("Active account changed, clearing SSH keys");
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+        error: (e: unknown) => {
+          this.logService.error("Error in active account observable", e);
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+        complete: () => {
+          this.logService.info("Active account observable completed, clearing SSH keys");
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+      });
 
       combineLatest([
         timer(0, this.SSH_REFRESH_INTERVAL),
@@ -150,7 +187,7 @@ export class SshAgentService implements OnDestroy {
         .pipe(
           concatMap(async ([, enabled]) => {
             if (!enabled) {
-              await ipc.platform.sshAgent.setKeys([]);
+              await ipc.platform.sshAgent.clearKeys();
               return;
             }
 

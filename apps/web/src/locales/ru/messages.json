@@ -6,7 +6,7 @@
     "message": "Критичные приложения"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Управление доступом"
   },
   "riskInsights": {
     "message": "Информация о рисках"
@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "История паролей"
   },
+  "generatorHistory": {
+    "message": "История генератора"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Очистить историю генератора"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Если вы продолжите, все записи будут навсегда удалены из истории генератора. Вы уверены, что хотите продолжить?"
+  },
   "noPasswordsInList": {
     "message": "Нет паролей для отображения."
+  },
+  "clearHistory": {
+    "message": "Очистить историю"
+  },
+  "nothingToShow": {
+    "message": "Нечего показать"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Вы ничего не создавали в последнее время"
   },
   "clear": {
     "message": "Очистить",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Все сессии деавторизованы"
   },
-  "accountIsManagedMessage": {
-    "message": "Управление этим аккаунтом осуществляет $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Этот аккаунт принадлежит $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Вход инициирован"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запомнить это устройство, чтобы в будущем авторизовываться быстрее"
   },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Требуется подтверждение устройства"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Выберите вариант подтверждения ниже"
   },
   "rememberThisDevice": {
     "message": "Запомнить это устройство"
@@ -8293,7 +8311,7 @@
     "message": "Отсутствует email пользователя"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Email активного пользователя не найден. Разлогиниваем."
   },
   "deviceTrusted": {
     "message": "Доверенное устройство"
@@ -8390,9 +8408,6 @@
   "collectionManagementDesc": {
     "message": "Управление настройками коллекций для организации"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Ограничить создание и удаление коллекций владельцам и администраторам"
-  },
   "limitCollectionCreationDesc": {
     "message": "Ограничить создание коллекций владельцам и администраторам"
   },
@@ -8430,7 +8445,7 @@
     "message": "Максимальная потенциальная стоимость сервисного аккаунта"
   },
   "loggedInExclamation": {
-    "message": "Вход выполнен!"
+    "message": "Выполнен вход!"
   },
   "beta": {
     "message": "Beta"

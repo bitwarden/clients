@@ -45,7 +45,7 @@ export abstract class BasePolicyComponent implements OnInit {
     return null;
   }
 
-  buildRequest(policiesEnabledMap: Map<PolicyType, boolean>) {
+  buildRequest() {
     const request = new PolicyRequest();
     request.enabled = this.enabled.value;
     request.type = this.policy.type;

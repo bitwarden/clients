@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Yeni bir SSH açarı yaradıldı"
   },
+  "sshKeyWrongPassword": {
+    "message": "Daxil etdiyiniz parol yanlışdır."
+  },
+  "importSshKey": {
+    "message": "Daxilə köçür"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolu təsdiqlə"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH açarının parolunu daxil edin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolu daxil et"
+  },
   "sshAgentUnlockRequired": {
     "message": "SSH açar tələbini təsdiqləmək üçün seyfinizin kilidini açın."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Parol tarixçəsi"
   },
+  "generatorHistory": {
+    "message": "Yaradıcı tarixçəsi"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Yaradıcı tarixçəsini təmizlə"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
+  },
   "clear": {
     "message": "Təmizlə",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Siyahılanacaq heç bir parol yoxdur."
+  },
+  "clearHistory": {
+    "message": "Tarixçəni təmizlə"
+  },
+  "nothingToShow": {
+    "message": "Göstəriləcək heç nə yoxdur"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Təzəlikcə heç nə yaratmamısınız"
   },
   "undo": {
     "message": "Geri al"
@@ -1738,7 +1771,7 @@
     "message": "Hesab silinə bilmir"
   },
   "cannotDeleteAccountDesc": {
-    "message": "Hesabınız bir təşkilata aid olduğu üçün bu əməliyyat icra edilə bilməz. Əlavə məlumat üçün təşkilatınızın administratoru ilə əlaqə saxlayın."
+    "message": "Hesabınız bir təşkilata aid olduğu üçün bu əməliyyat icra edilə bilməz. Əlavə məlumat üçün təşkilatınızın inzibatçısı ilə əlaqə saxlayın."
   },
   "accountDeleted": {
     "message": "Hesab silindi"
@@ -2219,7 +2252,7 @@
     "message": "Ana parolu güncəllə"
   },
   "updateMasterPasswordWarning": {
-    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir administrator tərəfindən dəyişdirildi. Seyfə müraciət etmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə müraciət etmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
@@ -2318,7 +2351,7 @@
     "message": "Avtomatik qeydiyyat"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Bu təşkilat, sizi \"parol sıfırlama\"da avtomatik olaraq qeydiyyata alan müəssisə siyasətinə sahibdir. Qeydiyyat, təşkilat administratorlarına ana parolunuzu dəyişdirmə icazəsi verəcək."
+    "message": "Bu təşkilat, sizi \"parol sıfırlama\"da avtomatik olaraq qeydiyyata alan müəssisə siyasətinə sahibdir. Qeydiyyat, təşkilat inzibatçılarına ana parolunuzu dəyişdirmə icazəsi verəcək."
   },
   "vaultExportDisabled": {
     "message": "Seyf xaricə köçürmə silindi"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Cihazınıza bir bildiriş göndərildi"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazda uyuşduğuna əmin olun"
+  },
+  "needAnotherOptionV1": {
+    "message": "Başqa bir seçimə ehtiyacınız var?"
+  },
   "fingerprintMatchInfo": {
     "message": "Lütfən seyfinizin kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun."
   },
   "fingerprintPhraseHeader": {
     "message": "Barmaq izi ifadəsi"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Tələbiniz təsdiqləndikdə bildiriş alacaqsınız"
+  },
   "needAnotherOption": {
     "message": "Cihazla giriş etmə, Bitwarden tətbiqinin ayarlarında qurulmalıdır. Başqa bir seçimə ehtiyacınız var?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Bütün giriş seçimlərinə bax"
   },
   "viewAllLoginOptions": {
     "message": "Bütün giriş seçimlərinə bax"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Bu parol üçün bilinən məlumat pozuntularını yoxlayın"
   },
+  "loggedInExclamation": {
+    "message": "Giriş edildi!"
+  },
   "important": {
     "message": "Vacib:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Tövsiyə edilən Ayarlar Güncəlləməsi"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
+  },
   "deviceApprovalRequired": {
     "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Cihaz təsdiqi tələb olunur"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Aşağıdan bir təsdiq seçimi edin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı xatırla"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "İstifadəçi e-poçtu əskikdir"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktiv istifadəçi e-poçtu tapılmadı. Hesabınızdan çıxış edilir."
   },
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"

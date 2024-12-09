@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "História hesla"
   },
+  "generatorHistory": {
+    "message": "História generátora"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Vymazať históriu generátora"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ak budete pokračovať, všetky položky z histórie generátora budu natrvalo vymazané. Naozaj chcete pokračovať?"
+  },
   "noPasswordsInList": {
     "message": "Neboli nájdené žiadne heslá."
+  },
+  "clearHistory": {
+    "message": "Vymazať históriu"
+  },
+  "nothingToShow": {
+    "message": "Nie je čo zobraziť"
+  },
+  "nothingGeneratedRecently": {
+    "message": "V poslednej dobe ste nič negenerovali"
   },
   "clear": {
     "message": "Vyčistiť",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Všetky sedenia odhlásené"
   },
-  "accountIsManagedMessage": {
-    "message": "Tento účet spravuje $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Tento účet vlastní $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Iniciované prihlásenie"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
   },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Vyžaduje sa schválenie zariadenia"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Vyberte možnosť schválenia nižšie"
   },
   "rememberThisDevice": {
     "message": "Zapamätať si toto zariadenie"
@@ -8293,7 +8311,7 @@
     "message": "Chýba e-mail používateľa"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "E-mail aktívneho používateľa sa nenašiel. Odhlasuje sa."
   },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Spravovať správanie zbierky pre organizáciu"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Obmedziť vytváranie a vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
   "limitCollectionCreationDesc": {
     "message": "Obmedziť vytváranie zbierky len pre vlastníkov a administrátorov"

@@ -1125,6 +1125,10 @@
     "message": "CẢNH BÁO",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Xác nhận xuất kho"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Nếu phát hiện biểu mẫu đăng nhập, thực hiện tự động điền khi trang web tải xong."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Cảnh báo:$CLOSETAG$ Các trang web bị xâm phạm hoặc không đáng tin cậy có thể lợi dụng tính năng tự động điền khi trang web được tải.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Các trang web bị xâm phạm hoặc không đáng tin cậy có thể khai thác tính năng tự động điền khi tải trang."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

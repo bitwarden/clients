@@ -1125,6 +1125,10 @@
     "message": "ПОПЕРЕДЖЕННЯ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Підтвердити експорт сховища"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Якщо виявлено форму входу, автоматично заповнювати її під час завантаження вебсторінки."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Обережно!$CLOSETAG$ Скомпрометовані або ненадійні вебсайти можуть використати функцію автозаповнення під час завантаження сторінки для завдання шкоди.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Скомпрометовані або ненадійні вебсайти можуть використати функцію автозаповнення під час завантаження сторінки для завдання шкоди."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Бета"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

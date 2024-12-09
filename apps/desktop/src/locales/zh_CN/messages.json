@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "生成了新的 SSH 密钥"
   },
+  "sshKeyWrongPassword": {
+    "message": "您输入的密码不正确。"
+  },
+  "importSshKey": {
+    "message": "导入"
+  },
+  "confirmSshKeyPassword": {
+    "message": "确认密码"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "输入 SSH 密钥的密码。"
+  },
+  "enterSshKeyPassword": {
+    "message": "输入密码"
+  },
   "sshAgentUnlockRequired": {
     "message": "请解锁您的密码库以批准 SSH 密钥请求。"
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "密码历史记录"
   },
+  "generatorHistory": {
+    "message": "生成器历史记录"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "清除生成器历史记录"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
+  },
   "clear": {
     "message": "清除",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "没有可列出的密码。"
+  },
+  "clearHistory": {
+    "message": "清除历史记录"
+  },
+  "nothingToShow": {
+    "message": "没有可显示的内容"
+  },
+  "nothingGeneratedRecently": {
+    "message": "您最近没有生成任何内容"
   },
   "undo": {
     "message": "撤销"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "通知已发送到您的设备"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
+  },
+  "needAnotherOptionV1": {
+    "message": "需要其他选项吗？"
+  },
   "fingerprintMatchInfo": {
     "message": "请确保您的密码库已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "fingerprintPhraseHeader": {
     "message": "指纹短语"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "请求获得批准后，您将收到通知"
+  },
   "needAnotherOption": {
     "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？"
+  },
+  "viewAllLogInOptions": {
+    "message": "查看所有登录选项"
   },
   "viewAllLoginOptions": {
     "message": "查看所有登录选项"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
   },
+  "loggedInExclamation": {
+    "message": "已登录！"
+  },
   "important": {
     "message": "重要事项："
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "推荐的设置更新"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "记住此设备以便将来无缝登录"
+  },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "需要设备批准"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "在下方选择一个批准选项"
   },
   "rememberThisDevice": {
     "message": "记住此设备"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "缺少用户电子邮件"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "未找到活动的用户电子邮件。您将被注销。"
   },
   "deviceTrusted": {
     "message": "设备已信任"

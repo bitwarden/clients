@@ -1125,6 +1125,10 @@
     "message": "AVERTISSEMENT",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Avertissement",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Confirmer l'export du coffre"
   },
@@ -1503,19 +1507,6 @@
   "enableAutoFillOnPageLoadDesc": {
     "message": "Si un formulaire de connexion est détecté, il sera saisi automatiquement lors du chargement de la page web."
   },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Attention :$CLOSETAG$ Les sites web compromis ou non fiables peuvent exploiter la saisie automatique lors du chargement de la page.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
-  },
   "experimentalFeature": {
     "message": "les sites web compromis ou non fiables peuvent exploiter la saisie automatique au chargement de la page."
   },
@@ -1852,7 +1843,7 @@
     "message": "Notes sécurisées"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Clés SSH"
   },
   "clear": {
     "message": "Effacer",
@@ -3288,16 +3279,16 @@
     "message": "S'ouvre dans une nouvelle fenêtre"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Mémorisez cet appareil pour faciliter les futures connexions"
   },
   "deviceApprovalRequired": {
     "message": "L'approbation de l'appareil est requise. Sélectionnez une option d'approbation ci-dessous :"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Autorisation de l'appareil requise"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Sélectionnez une option d'approbation ci-dessous"
   },
   "rememberThisDevice": {
     "message": "Se souvenir de cet appareil"
@@ -3373,7 +3364,7 @@
     "message": "Courriel de l'utilisateur manquant"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Courriel utilisateur actif introuvable. Déconnexion en cours."
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"
@@ -3812,7 +3803,7 @@
     "message": "Accès en cours"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Connecté !"
   },
   "passkeyNotCopied": {
     "message": "La clé d'identification (passkey) ne sera pas copiée"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Largeur de l'extension"
+  },
+  "wide": {
+    "message": "Large"
+  },
+  "extraWide": {
+    "message": "Très large"
   }
 }

@@ -23,10 +23,10 @@
     "message": "New to Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "使用密碼金鑰登入"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "使用單一登入"
   },
   "welcomeBack": {
     "message": "Welcome back"
@@ -241,7 +241,7 @@
     "message": "請求密碼提示"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "輸入您的帳號電子郵件，您的密碼提示會傳送給您"
+    "message": "輸入您帳戶的電子郵件，您的密碼提示會傳送給您"
   },
   "passwordHint": {
     "message": "密碼提示"
@@ -274,7 +274,7 @@
     "message": "變更主密碼"
   },
   "continueToWebApp": {
-    "message": "接下來造訪 Web App 嗎？"
+    "message": "接下來造訪網頁 App 嗎？"
   },
   "continueToWebAppDesc": {
     "message": "在 Web 應用程式上探索 Bitwarden 帳戶的更多功能。"
@@ -327,7 +327,7 @@
     "message": "Bitwarden 驗證器"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "您可以使用 Bitwarden 驗證器儲存驗證器金鑰，並為兩步驟驗證流程產生 TOTP 代碼。前往 bitwarden.com 網站以了解更多資訊。"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -828,13 +828,13 @@
     "message": "從目前網頁掃描驗證器二維碼"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "無縫兩步驟驗證"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。複製金鑰並貼上到此欄位。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。選擇相機圖示來截取此網站的驗證器QR code，或手動複製金鑰並貼上到此欄位。"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Learn more about authenticators"
@@ -894,7 +894,7 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "前往網頁 App 嗎？"
   },
   "editedFolder": {
     "message": "資料夾已儲存"
@@ -990,7 +990,7 @@
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
   "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+    "message": "在密碼庫介面中顯示支付卡自動填入建議"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示支付卡"
@@ -999,7 +999,7 @@
     "message": "於分頁頁面顯示信用卡以便於自動填入。"
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+    "message": "在密碼庫介面中顯示身分自動填入建議"
   },
   "showIdentitiesCurrentTab": {
     "message": "於分頁頁面顯示身分"
@@ -1089,7 +1089,7 @@
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "匯出自"
   },
   "exportVault": {
     "message": "匯出密碼庫"
@@ -1098,7 +1098,7 @@
     "message": "檔案格式"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "此檔案匯出將受密碼保護，需要檔案密碼才能解密。"
   },
   "filePassword": {
     "message": "檔案密碼"
@@ -1107,23 +1107,27 @@
     "message": "此密碼將用於匯出和匯入此檔案"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "使用衍生自您帳戶的使用者名稱與主密碼的加密金鑰，加密此匯出檔案，並限制只能匯入到目前的 Bitwarden 帳戶。"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "設定一組檔案密碼來加密匯出的資料，並使用此密碼解密以匯入至任意 Bitwarden 帳戶。"
   },
   "exportTypeHeading": {
     "message": "匯出類型"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "帳號已受限制"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "「檔案密碼」與「確認檔案密碼」不一致。"
   },
   "warning": {
     "message": "警告",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
+  },
+  "warningCapitalized": {
+    "message": "警告",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
     "message": "確認匯出密碼庫"
@@ -1144,7 +1148,7 @@
     "message": "已共用"
   },
   "bitwardenForBusinessPageDesc": {
-    "message": "Bitwarden for Business allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website."
+    "message": "Bitwarden 可讓您透過組織與其他人共用您的密碼庫項目。請造訪 bitwarden.com 網站以了解更多資訊。"
   },
   "moveToOrganization": {
     "message": "移動至組織 "
@@ -1205,7 +1209,7 @@
     "message": "檔案"
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "要分享的文件"
   },
   "selectFile": {
     "message": "選取檔案"
@@ -1241,7 +1245,7 @@
     "message": "用於檔案附件的 1 GB 加密儲存空間。"
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access."
+    "message": "緊急存取"
   },
   "premiumSignUpTwoStepOptions": {
     "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
@@ -1265,7 +1269,7 @@
     "message": "您可以在 bitwarden.com 網頁版密碼庫購買進階會員資格。現在要前往嗎？"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "您可以在 Bitwarden 網頁 App 的帳號設定中購買進階版。"
   },
   "premiumCurrentMember": {
     "message": "您目前為進階會員！"
@@ -1274,7 +1278,7 @@
     "message": "感謝您支持 Bitwarden 。"
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "升級到進階版並接收："
   },
   "premiumPrice": {
     "message": "每年只需 $PRICE$！",
@@ -1286,7 +1290,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "每年只需 $PRICE$！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "網頁載入時如果偵測到登入表單，則執行自動填入。"
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "被入侵或不被信任的網站，可能會濫用頁面載入的自動填入功能。"
@@ -2297,7 +2288,7 @@
     "message": "Please unlock this user in the desktop application and try again."
   },
   "biometricsNotAvailableTitle": {
-    "message": "Biometric unlock unavailable"
+    "message": "生物辨識解鎖不可用"
   },
   "biometricsNotAvailableDesc": {
     "message": "Biometric unlock is currently unavailable. Please try again later."
@@ -2330,7 +2321,7 @@
     "message": "某個組織原則已禁止您將項目匯入至您的個人密碼庫。"
   },
   "domainsTitle": {
-    "message": "Domains",
+    "message": "網域",
     "description": "A category title describing the concept of web domains"
   },
   "excludedDomains": {
@@ -2343,7 +2334,7 @@
     "message": "對於所有已登入的帳戶，Bitwarden 不會詢問是否儲存這些網域的登入資訊。您必須重新整理頁面變更才會生效。"
   },
   "websiteItemLabel": {
-    "message": "Website $number$ (URI)",
+    "message": "網站 $number$ (URI)",
     "placeholders": {
       "number": {
         "content": "$1",
@@ -2361,17 +2352,17 @@
     }
   },
   "excludedDomainsSavedSuccess": {
-    "message": "Excluded domain changes saved"
+    "message": "例外網域更改已儲存"
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "限制查看"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "在達到限額後，沒有人能查看此 Send。",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "剩餘 $ACCESSCOUNT$ 次查看次數",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -2385,7 +2376,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send 詳細資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "searchSends": {
@@ -2400,7 +2391,7 @@
     "message": "文字"
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "要分享的文字"
   },
   "sendTypeFile": {
     "message": "檔案"
@@ -2410,7 +2401,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "默認隱藏文字"
   },
   "maxAccessCountReached": {
     "message": "已達最大存取次數",
@@ -2426,7 +2417,7 @@
     "message": "密碼保護"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "複製連結"
   },
   "copySendLink": {
     "message": "複製 Send 連結",
@@ -2464,7 +2455,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "您確定要永久刪除此 Send 嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -2490,7 +2481,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "此 Send 將在指定的日期後被永久刪除。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -2527,7 +2518,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "新增一個用於收件人存取此 Send 的可選密碼。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2572,15 +2563,15 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSendSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send 創建成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
-    "message": "The Send will be available to anyone with the link for the next 1 hour.",
+    "message": "在接下來的 1 小時內，任何人都可以透過連結訪問此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHours": {
-    "message": "The Send will be available to anyone with the link for the next $HOURS$ hours.",
+    "message": "在接下來的 $HOURS$ 小時內，任何人都可以透過連結訪問此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "hours": {
@@ -2590,11 +2581,11 @@
     }
   },
   "sendExpiresInDaysSingle": {
-    "message": "The Send will be available to anyone with the link for the next 1 day.",
+    "message": "在接下來的 1 天內，任何人都可以透過連結訪問此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInDays": {
-    "message": "The Send will be available to anyone with the link for the next $DAYS$ days.",
+    "message": "在接下來的 $DAYS$ 天內，任何人都可以透過連結訪問此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -2604,7 +2595,7 @@
     }
   },
   "sendLinkCopied": {
-    "message": "Send link copied",
+    "message": "已複製 Send 連結",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -2612,11 +2603,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
+    "message": "彈出擴充程式？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
-    "message": "To create a file Send, you need to pop out the extension to a new window.",
+    "message": "要建立檔案 Send，您需要彈出擴充程式到新視窗。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLinuxChromiumFileWarning": {
@@ -2629,7 +2620,7 @@
     "message": "要使用 Safari 來選擇檔案，請點選此橫幅彈出至新視窗。"
   },
   "popOut": {
-    "message": "Pop out"
+    "message": "彈出"
   },
   "sendFileCalloutHeader": {
     "message": "在開始之前"
@@ -2665,7 +2656,7 @@
     "message": "對收件人隱藏我的電子郵件地址。"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "對查看者隱藏您的電子郵件地址。"
   },
   "sendOptionsPolicyInEffect": {
     "message": "一個或多個組織原則正影響您的 Send 選項。"
@@ -2683,7 +2674,7 @@
     "message": "需要驗證電子郵件"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "電子郵件已驗證"
   },
   "emailVerificationRequiredDesc": {
     "message": "您必須驗證您的電子郵件才能使用此功能。您可以在網頁密碼庫裡驗證您的電子郵件。"
@@ -2701,7 +2692,7 @@
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "您的組織停用了信任裝置加密。若要存取您的密碼庫，請設定主密碼。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自動註冊"
@@ -2725,7 +2716,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "$TOTAL$ 不足",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2744,7 +2735,7 @@
     "message": "分鐘"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "企業政策已套用至您的逾時選項中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -2760,7 +2751,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "最多 $HOURS$ 小時 $MINUTES$ 分鐘",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2773,7 +2764,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "逾時時間超出了您組織設定的此限制：最多 $HOURS$ 小時 $MINUTES$ 分鐘",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2869,10 +2860,10 @@
     }
   },
   "exportingOrganizationVaultTitle": {
-    "message": "Exporting organization vault"
+    "message": "正在匯出組織密碼庫"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "只會匯出與 $ORGANIZATION$ 相關的組織密碼庫資料。不包括個人密碼庫和其他組織中的項目。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2890,10 +2881,10 @@
     "message": "產生使用者名稱"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "生成電子郵件"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "數值必須在 $MIN$ 和 $MAX$ 之間。",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2907,7 +2898,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " 使用 $RECOMMENDED$ 或更多個字元產生更強的密碼。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2917,7 +2908,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " 使用 $RECOMMENDED$ 或更多個單字產生強的密碼短語。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2967,15 +2958,15 @@
     "message": "使用外部轉寄服務產生一個電子郵件別名。"
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "電子郵件網域",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "選擇一個所選服務支援的網域",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ 錯誤：$ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -2989,7 +2980,7 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Generated by Bitwarden.",
+    "message": "由 Bitwarden 生成。",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
@@ -3824,7 +3815,7 @@
     "message": "發起站點需要驗證。沒有主密碼的帳戶尚未開通此功能。"
   },
   "logInWithPasskeyQuestion": {
-    "message": "Log in with passkey?"
+    "message": "使用密碼金鑰登入？"
   },
   "passkeyAlreadyExists": {
     "message": "用於這個應用程式的密碼金鑰已經存在。"
@@ -3839,7 +3830,7 @@
     "message": "No matching logins for this site"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Search or save passkey as new login"
+    "message": "搜尋或將密碼金鑰儲存為新的登入資訊"
   },
   "confirm": {
     "message": "確認"
@@ -3851,10 +3842,10 @@
     "message": "將密碼金鑰儲存為新的登入資訊"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choose a login to save this passkey to"
+    "message": "選擇一個用於儲存此密碼金鑰的登入資訊"
   },
   "chooseCipherForPasskeyAuth": {
-    "message": "Choose a passkey to log in with"
+    "message": "選擇一個用於登入的密碼金鑰"
   },
   "passkeyItem": {
     "message": "密碼金鑰項目"
@@ -4064,17 +4055,17 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
-    "message": "Error saving credentials. Check console for details.",
+    "message": "保存憑證時發生錯誤。檢查控制台以了解詳細資訊。",
     "description": "Notification message for when saving credentials has failed."
   },
   "success": {
     "message": "Success"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "移除密碼金鑰"
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "密碼金鑰已移除"
   },
   "autofillSuggestions": {
     "message": "Autofill suggestions"
@@ -4221,7 +4212,7 @@
     "message": "Items with no folder"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "項目詳細資訊"
   },
   "itemName": {
     "message": "Item name"
@@ -4297,7 +4288,7 @@
     "message": "Are you sure you want to permanently delete this attachment?"
   },
   "premium": {
-    "message": "Premium"
+    "message": "進階版"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Free organizations cannot use attachments"
@@ -4321,7 +4312,7 @@
     }
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "個人資訊"
   },
   "identification": {
     "message": "Identification"
@@ -4411,10 +4402,10 @@
     "message": "If you've renewed it, update the card's information"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "信用卡詳細資料"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ 詳細資訊",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -4438,7 +4429,7 @@
     "message": "Data"
   },
   "passkeys": {
-    "message": "Passkeys",
+    "message": "密碼金鑰",
     "description": "A section header for a list of passkeys."
   },
   "passwords": {
@@ -4446,7 +4437,7 @@
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
-    "message": "Log in with passkey",
+    "message": "使用密碼金鑰登入",
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

@@ -1125,6 +1125,10 @@
     "message": "ВНИМАНИЕ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Предупреждение",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Подтвердить экспорт хранилища"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Если обнаружена форма входа, автозаполнение выполняется при загрузке веб-страницы."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Предупреждение:$CLOSETAG$ взломанные или недоверенные сайты могут использовать автозаполнение при загрузке страницы.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Взломанные или недоверенные сайты могут внедрить вредоносный код во время автозаполнения при загрузке страницы."
@@ -3288,16 +3279,16 @@
     "message": "Откроется в новом окне"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запомнить это устройство, чтобы в будущем авторизовываться быстрее"
   },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Требуется подтверждение устройства"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Выберите вариант подтверждения ниже"
   },
   "rememberThisDevice": {
     "message": "Запомнить это устройство"
@@ -3373,7 +3364,7 @@
     "message": "Отсутствует email пользователя"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Email активного пользователя не найден. Разлогиниваем."
   },
   "deviceTrusted": {
     "message": "Доверенное устройство"
@@ -3812,7 +3803,7 @@
     "message": "Доступ"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Выполнен вход!"
   },
   "passkeyNotCopied": {
     "message": "Passkey не будет скопирован"
@@ -4662,7 +4653,7 @@
     "message": "Теперь автозаполнение и поиск на вкладке Хранилище стали проще и интуитивно понятнее, чем когда-либо. Осмотритесь!"
   },
   "accountActions": {
-    "message": "Действия с аккаунтом"
+    "message": "Действия аккаунта"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Ширина расширения"
+  },
+  "wide": {
+    "message": "Широкое"
+  },
+  "extraWide": {
+    "message": "Очень широкое"
   }
 }

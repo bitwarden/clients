@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Une nouvelle clé SSH a été générée"
   },
+  "sshKeyWrongPassword": {
+    "message": "Le mot de passe saisi est incorrect."
+  },
+  "importSshKey": {
+    "message": "Importer"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirmez le mot de passe"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Entrez le mot de passe de la clé SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Entrez le mot de passe"
+  },
   "sshAgentUnlockRequired": {
     "message": "Veuillez déverrouiller votre coffre pour approuver la demande de clé SSH."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Historique du mot de passe"
   },
+  "generatorHistory": {
+    "message": "Historique du générateur"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Effacer l'historique du générateur"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer ?"
+  },
   "clear": {
     "message": "Effacer",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Aucun mot de passe à afficher."
+  },
+  "clearHistory": {
+    "message": "Effacer l'historique"
+  },
+  "nothingToShow": {
+    "message": "Rien à afficher"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Vous n'avez rien généré récemment"
   },
   "undo": {
     "message": "Annuler"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Une notification a été envoyée à votre appareil"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Assurez-vous que votre compte est déverrouillé et que la phrase d'empreinte digitale correspond à celle de l'autre appareil"
+  },
+  "needAnotherOptionV1": {
+    "message": "Besoin d'une autre option ?"
+  },
   "fingerprintMatchInfo": {
     "message": "Veuillez vous assurer que votre coffre est déverrouillé et que la phrase d'empreinte correspond à celle de l'autre appareil."
   },
   "fingerprintPhraseHeader": {
     "message": "Phrase d'empreinte"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Vous serez notifié une fois que la demande sera approuvée"
+  },
   "needAnotherOption": {
     "message": "La connexion avec l'appareil doit être configurée dans les paramètres de l'application Bitwarden. Besoin d'une autre option ?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Afficher toutes les options de connexion"
   },
   "viewAllLoginOptions": {
     "message": "Afficher toutes les options de connexion"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Vérifier les brèches de données connues pour ce mot de passe"
   },
+  "loggedInExclamation": {
+    "message": "Connecté !"
+  },
   "important": {
     "message": "Important :"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Une mise à jour des paramètres est recommandée"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Mémorisez cet appareil pour faciliter les futures connexions"
+  },
   "deviceApprovalRequired": {
     "message": "L'approbation de l'appareil est requise. Sélectionnez une option d'approbation ci-dessous:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Autorisation de l'appareil requise"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Sélectionnez une option d'approbation ci-dessous"
   },
   "rememberThisDevice": {
     "message": "Se souvenir de cet appareil"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "E-mail de l'utilisateur manquant"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Courriel utilisateur actif introuvable. Déconnexion en cours."
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"

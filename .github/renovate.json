@@ -40,6 +40,10 @@
       "matchPackageNames": ["core-foundation", "security-framework", "security-framework-sys"]
     },
     {
+      "groupName": "zbus",
+      "matchPackageNames": ["zbus", "zbus_polkit"]
+    },
+    {
       "matchPackageNames": [
         "base64-loader",
         "buffer",

@@ -1125,6 +1125,10 @@
     "message": "WAARSCHUWING",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Kluisexport bevestigen"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Als een inlogformulier wordt gedetecteerd, dan worden de inloggegevens automatisch ingevuld."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Waarschuwing:$CLOSETAG$ Geconpromitteerde of niet-vertrouwde websites kunnen het automatische invullen bij het laden van de pagina misbruiken.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Gehackte of onbetrouwbare websites kunnen auto-invullen tijdens het laden van de pagina misbruiken."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extensiebreedte"
+  },
+  "wide": {
+    "message": "Breed"
+  },
+  "extraWide": {
+    "message": "Extra breed"
   }
 }

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Parol tarixçəsi"
   },
+  "generatorHistory": {
+    "message": "Yaradıcı tarixçəsi"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Yaradıcı tarixçəsini təmizlə"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
+  },
   "noPasswordsInList": {
     "message": "Siyahılanacaq heç bir parol yoxdur."
+  },
+  "clearHistory": {
+    "message": "Tarixçəni təmizlə"
+  },
+  "nothingToShow": {
+    "message": "Göstəriləcək heç nə yoxdur"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Təzəlikcə heç nə yaratmamısınız"
   },
   "clear": {
     "message": "Təmizlə",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Bütün seansların səlahiyyəti götürüldü"
   },
-  "accountIsManagedMessage": {
-    "message": "Bu hesab $ORGANIZATIONNAME$ tərəfindən idarə olunur",
+  "accountIsOwnedMessage": {
+    "message": "$ORGANIZATIONNAME$ bu hesabın sahibidir",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Giriş başladıldı"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Cihaz təsdiqi tələb olunur"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Aşağıdan bir təsdiq seçimi edin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı xatırla"
@@ -8293,7 +8311,7 @@
     "message": "İstifadəçi e-poçtu əskikdir"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiv istifadəçi e-poçtu tapılmadı. Hesabınızdan çıxış edilir."
   },
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Təşkilat üçün kolleksiya davranışını idarə et"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Kolleksiya yaradılmasını və silinməsini sahibləri və adminləri ilə məhdudlaşdır"
   },
   "limitCollectionCreationDesc": {
     "message": "Kolleksiya yaradılmasını sahibləri və adminləri ilə məhdudlaşdır"

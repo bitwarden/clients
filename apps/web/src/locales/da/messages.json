@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Adgangskodehistorik"
   },
+  "generatorHistory": {
+    "message": "Generatorhistorik"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Ryd generatorhistorik"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Fortsætter man, slettes alle poster permanent fra generatorhistorikken. Sikker på, at handlingen skal udføres?"
+  },
   "noPasswordsInList": {
     "message": "Der er ingen adgangskoder at vise."
+  },
+  "clearHistory": {
+    "message": "Ryd historik"
+  },
+  "nothingToShow": {
+    "message": "Intet at vise"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Intet genereret for nylig"
   },
   "clear": {
     "message": "Ryd",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Godkendelser for alle sessioner fjernet"
   },
-  "accountIsManagedMessage": {
-    "message": "Denne konto håndteres af $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Denne konto ejes af $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Indlogning påbegyndt"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Husk denne enhed for at gøre fremtidige indlogninger gnidningsløse"
   },
   "deviceApprovalRequired": {
     "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Enhedsgodkendelse kræves"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Vælg en godkendelsesmulighed nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enhed"
@@ -8293,7 +8311,7 @@
     "message": "Brugers e-mail mangler"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiv bruger e-mail ikke fundet. Man logges ud."
   },
   "deviceTrusted": {
     "message": "Enhed betroet"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Håndtér samlingsadfærden for organisationen"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Begræns samlingsoprettelse og -sletning til ejere og admins"
   },
   "limitCollectionCreationDesc": {
     "message": "Begræns samlingsoprettelse til ejere og admins"

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Historique des mots de passe"
   },
+  "generatorHistory": {
+    "message": "Historique du générateur"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Effacer l'historique du générateur"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer?"
+  },
   "noPasswordsInList": {
     "message": "Aucun mot de passe à afficher."
+  },
+  "clearHistory": {
+    "message": "Effacer l'historique"
+  },
+  "nothingToShow": {
+    "message": "Rien à afficher"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Vous n'avez rien généré récemment"
   },
   "clear": {
     "message": "Effacer",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Toutes les sessions ont été révoquées"
   },
-  "accountIsManagedMessage": {
-    "message": "Ce compte est géré par $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Ce compte appartient à $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Connexion initiée"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Se souvenir de cet appareil pour rendre les connexions futures transparentes"
   },
   "deviceApprovalRequired": {
     "message": "L'approbation de l'appareil est requise. Sélectionnez une option d'approbation ci-dessous:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Autorisation de l'appareil requise"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Sélectionnez une option d'approbation ci-dessous"
   },
   "rememberThisDevice": {
     "message": "Se souvenir de cet appareil"
@@ -8293,7 +8311,7 @@
     "message": "Courriel de l'utilisateur manquant"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Courriel de l'utilisateur actif introuvable. Vous allez être déconnecté."
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Gérer le comportement de la collection pour l'organisation"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limiter la création et la suppression de la collection aux propriétaires et administrateurs"
   },
   "limitCollectionCreationDesc": {
     "message": "Limiter la création de collections aux propriétaires et administrateurs"

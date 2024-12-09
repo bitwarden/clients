@@ -17,15 +17,7 @@ import {
   standalone: true,
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
-  imports: [
-    DialogModule,
-    ButtonModule,
-    JslibModule,
-    GeneratorModule,
-    ItemModule,
-    ButtonModule,
-    LinkModule,
-  ],
+  imports: [DialogModule, ButtonModule, JslibModule, GeneratorModule, ItemModule, LinkModule],
 })
 export class CredentialGeneratorComponent {
   constructor(private dialogService: DialogService) {}

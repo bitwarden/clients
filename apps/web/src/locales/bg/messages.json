@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Хронология на паролата"
   },
+  "generatorHistory": {
+    "message": "История на генерирането"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Изчистване на историята на генериране"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
+  },
   "noPasswordsInList": {
     "message": "Няма пароли за показване."
+  },
+  "clearHistory": {
+    "message": "Изчистване на историята"
+  },
+  "nothingToShow": {
+    "message": "Няма нищо за показване"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Скоро не сте генерирали нищо"
   },
   "clear": {
     "message": "Изчистване",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Всички сесии са прекратени"
   },
-  "accountIsManagedMessage": {
-    "message": "Тази регистрация се управлява от $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Тази регистрация е притежание на $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Вписването е стартирано"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запомняне на това устройство, така че в бъдеще вписването да бъде по-лесно"
   },
   "deviceApprovalRequired": {
     "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Необходимо е одобрение на устройството"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Изберете начин за одобряване по-долу"
   },
   "rememberThisDevice": {
     "message": "Запомняне на това устройство"
@@ -8293,7 +8311,7 @@
     "message": "Липсва е-поща на потребителя"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Не е намерена е-поща на активен потребител. Ще бъдете отписан(а)."
   },
   "deviceTrusted": {
     "message": "Устройството е доверено"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Управление на поведението на колекциите за организацията"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Ограничаване на създаването и изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
   "limitCollectionCreationDesc": {
     "message": "Ограничаване на създаването на колекции, така че да може да се извършва само от собствениците и администраторите"

@@ -1125,6 +1125,10 @@
     "message": "警告",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "警告",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "确认密码库导出"
   },
@@ -1503,19 +1507,6 @@
   "enableAutoFillOnPageLoadDesc": {
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$警告：$CLOSETAG$不完整或不信任的网站可以利用页面加载时的自动填充功能。",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
-  },
   "experimentalFeature": {
     "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
   },
@@ -1852,7 +1843,7 @@
     "message": "安全笔记"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH 密钥"
   },
   "clear": {
     "message": "清除",
@@ -3288,16 +3279,16 @@
     "message": "在新窗口中打开"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "记住此设备以便将来无缝登录"
   },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "需要设备批准"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "在下方选择一个批准选项"
   },
   "rememberThisDevice": {
     "message": "记住此设备"
@@ -3373,7 +3364,7 @@
     "message": "缺少用户电子邮件"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "未找到活动的用户电子邮件。您将被注销。"
   },
   "deviceTrusted": {
     "message": "设备已信任"
@@ -3812,7 +3803,7 @@
     "message": "正在访问"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "已登录！"
   },
   "passkeyNotCopied": {
     "message": "通行密钥不会被复制"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta 版"
+  },
+  "extensionWidth": {
+    "message": "扩展宽度"
+  },
+  "wide": {
+    "message": "宽"
+  },
+  "extraWide": {
+    "message": "超宽"
   }
 }

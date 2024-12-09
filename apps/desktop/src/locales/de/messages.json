@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Ein neuer SSH-Schlüssel wurde generiert"
   },
+  "sshKeyWrongPassword": {
+    "message": "Dein eingegebenes Passwort ist falsch."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Passwort bestätigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Gib das Passwort für den SSH-Schlüssel ein."
+  },
+  "enterSshKeyPassword": {
+    "message": "Passwort eingeben"
+  },
   "sshAgentUnlockRequired": {
     "message": "Bitte entsperre deinen Tresor, um die SSH-Schlüsselanfrage zu genehmigen."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Passwortverlauf"
   },
+  "generatorHistory": {
+    "message": "Generator-Verlauf"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generator-Verlauf löschen"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Wenn du fortfährst, werden alle Einträge dauerhaft aus dem Generator-Verlauf gelöscht. Bist du sicher, dass du fortfahren möchtest?"
+  },
   "clear": {
     "message": "Leeren",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
+  },
+  "clearHistory": {
+    "message": "Verlauf löschen"
+  },
+  "nothingToShow": {
+    "message": "Nichts anzuzeigen"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Du hast in letzter Zeit nichts generiert"
   },
   "undo": {
     "message": "Rückgängig"
@@ -2445,7 +2478,7 @@
     "message": "E-Mail generieren"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2459,7 +2492,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Zeichen, um ein starkes Passwort zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2469,7 +2502,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Wörter, um eine starke Passphrase zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
+  },
+  "needAnotherOptionV1": {
+    "message": "Brauchst du eine andere Option?"
+  },
   "fingerprintMatchInfo": {
     "message": "Bitte stelle sicher, dass dein Tresor entsperrt ist und die Fingerabdruck-Phrase mit dem anderen Gerät übereinstimmt."
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerabdruck-Phrase"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
+  },
   "needAnotherOption": {
     "message": "Die Anmeldung über ein Gerät muss in den Einstellungen der Bitwarden App eingerichtet werden. Benötigst du eine andere Option?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Alle Anmeldeoptionen anzeigen"
   },
   "viewAllLoginOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Bekannte Datendiebstähle auf dieses Passwort überprüfen"
   },
+  "loggedInExclamation": {
+    "message": "Angemeldet!"
+  },
   "important": {
     "message": "Wichtig:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Empfohlene Aktualisierung der Einstellungen"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
+  },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Geräte-Genehmigung erforderlich"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Wähle unten eine Genehmigungsoption aus"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "E-Mail-Adresse des Benutzers fehlt"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktive Benutzer-E-Mail-Adresse nicht gefunden. Du wirst abgemeldet."
   },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"

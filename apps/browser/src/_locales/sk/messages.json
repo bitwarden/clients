@@ -1125,6 +1125,10 @@
     "message": "UPOZORNENIE",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Upozornenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Potvrdiť export trezoru"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ak je detekovaný prihlasovací formulár, automaticky vykonať vypĺňanie pri načítaní stránky."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Upozornenie:$CLOSETAG$ Kompromitované alebo nedôveryhodné webové stránky môžu využívať automatické vypĺňanie pri načítaní stránky.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Skompromitované alebo nedôveryhodné stránky môžu pri svojom načítaní zneužiť automatické dopĺňanie."
@@ -3288,16 +3279,16 @@
     "message": "Otvárať v novom okne"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
   },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Vyžaduje sa schválenie zariadenia"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Vyberte možnosť schválenia nižšie"
   },
   "rememberThisDevice": {
     "message": "Zapamätať si toto zariadenie"
@@ -3373,7 +3364,7 @@
     "message": "Chýba e-mail používateľa"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "E-mail aktívneho používateľa sa nenašiel. Odhlasuje sa."
   },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
@@ -3812,7 +3803,7 @@
     "message": "Pristupovanie"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Prihlásený!"
   },
   "passkeyNotCopied": {
     "message": "Prístupový kód sa neskopíruje"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Šírka rozšírenia"
+  },
+  "wide": {
+    "message": "Široké"
+  },
+  "extraWide": {
+    "message": "Extra široké"
   }
 }

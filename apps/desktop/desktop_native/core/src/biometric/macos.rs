@@ -18,7 +18,7 @@ impl super::BiometricTrait for Biometric {
         bail!("platform not supported");
     }
 
-    fn get_biometric_secret(
+    async fn get_biometric_secret(
         _service: &str,
         _account: &str,
         _key_material: Option<KeyMaterial>,
@@ -26,7 +26,7 @@ impl super::BiometricTrait for Biometric {
         bail!("platform not supported");
     }
 
-    fn set_biometric_secret(
+    async fn set_biometric_secret(
         _service: &str,
         _account: &str,
         _secret: &str,

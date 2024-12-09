@@ -15,7 +15,13 @@
       </div>
     </ng-container>
     <ng-container bitDialogFooter>
-      <button bitButton buttonType="primary" [disabled]="saveDisabled" bitFormButton type="submit">
+      <button
+        bitButton
+        buttonType="primary"
+        [disabled]="saveDisabled$ | async"
+        bitFormButton
+        type="submit"
+      >
         {{ "save" | i18n }}
       </button>
       <button bitButton buttonType="secondary" bitDialogClose type="button">

@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Генериран е нов SSH ключ"
   },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете парола"
+  },
   "sshAgentUnlockRequired": {
     "message": "Отключете трезора си, за да одобрите заявката за SSH ключ."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Хронология на паролата"
   },
+  "generatorHistory": {
+    "message": "История на генерирането"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Изчистване на историята на генериране"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
+  },
   "clear": {
     "message": "Изчистване",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Няма пароли за показване."
+  },
+  "clearHistory": {
+    "message": "Изчистване на историята"
+  },
+  "nothingToShow": {
+    "message": "Няма нищо за показване"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Скоро не сте генерирали нищо"
   },
   "undo": {
     "message": "Отмяна"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Към устройството Ви е изпратено известие"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
+  },
+  "needAnotherOptionV1": {
+    "message": "Предпочитате друг вариант?"
+  },
   "fingerprintMatchInfo": {
     "message": "Уверете се, че трезорът Ви е отключен и че Уникалната фраза съвпада с другото устройство."
   },
   "fingerprintPhraseHeader": {
     "message": "Уникална фраза"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Ще получите уведомление когато заявката бъде одобрена"
+  },
   "needAnotherOption": {
     "message": "Вписването с устройство трябва да е включено в настройките на приложението на Битуорден. Друга настройка ли търсите?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Вижте всички възможности за вписване"
   },
   "viewAllLoginOptions": {
     "message": "Вижте всички възможности за вписване"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Проверяване в известните случаи на изтекли данни за тази парола"
   },
+  "loggedInExclamation": {
+    "message": "Вписахте се!"
+  },
   "important": {
     "message": "Важно:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Препоръчителна промяна на настройките"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запомняне на това устройство, така че в бъдеще вписването да бъде по-лесно"
+  },
   "deviceApprovalRequired": {
     "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Необходимо е одобрение на устройството"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Изберете начин за одобряване по-долу"
   },
   "rememberThisDevice": {
     "message": "Запомняне на това устройство"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Липсва е-поща на потребителя"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Не е намерена е-поща на активен потребител. Ще бъдете отписан(а)."
   },
   "deviceTrusted": {
     "message": "Устройството е доверено"

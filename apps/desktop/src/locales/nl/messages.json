@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Nieuwe SSH-sleutel gegenereerd"
   },
+  "sshKeyWrongPassword": {
+    "message": "Het door jou ingevoerde wachtwoord is onjuist."
+  },
+  "importSshKey": {
+    "message": "Importeer"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Wachtwoord bevestigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Voer het wachtwoord voor de SSH-sleutel in."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wachtwoord invoeren"
+  },
   "sshAgentUnlockRequired": {
     "message": "Ontgrendel je kluis voor het goedkeuren van het SSH-sleutelverzoek."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Geschiedenis"
   },
+  "generatorHistory": {
+    "message": "Generatorgeschiedenis"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generatorgeschiedenis wissen"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Als je doorgaat, wis je definitief de geschiedenis van de generator. Weet je zeker dat je wilt doorgaan?"
+  },
   "clear": {
     "message": "Wissen",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Er zijn geen wachtwoorden om weer te geven."
+  },
+  "clearHistory": {
+    "message": "Geschiedenis wissen"
+  },
+  "nothingToShow": {
+    "message": "Niets weer te geven"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Je hebt de laatste tijd niets gegenereerd"
   },
   "undo": {
     "message": "Ongedaan maken"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Er is een melding naar je apparaat verzonden."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Er is een melding naar je apparaat verzonden"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Zorg ervoor dat je account is ontgrendeld en dat de vingerafdrukzin overeenkomt met het andere apparaat"
+  },
+  "needAnotherOptionV1": {
+    "message": "Nog een optie nodig?"
+  },
   "fingerprintMatchInfo": {
     "message": "Controleer of je kluis is ontgrendeld en de vingerafdrukzin overeenkomt met het andere apparaat."
   },
   "fingerprintPhraseHeader": {
     "message": "Vingerafdrukzin"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Je krijgt een melding zodra de aanvraag is goedgekeurd"
+  },
   "needAnotherOption": {
     "message": "Je moet Inloggen met apparaat instellen in de instellingen van de Bitwarden-app. Behoefte aan een andere mogelijkheid?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Alle inlogopties bekijken"
   },
   "viewAllLoginOptions": {
     "message": "Alle loginopties bekijken"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Bekende datalekken voor dit wachtwoord controleren"
   },
+  "loggedInExclamation": {
+    "message": "Ingelogd!"
+  },
   "important": {
     "message": "Belangrijk:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aanbevolen instellingen"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
+  },
   "deviceApprovalRequired": {
     "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Toestemming apparaat vereist"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Kies hieronder een goedkeuringsoptie"
   },
   "rememberThisDevice": {
     "message": "Dit apparaat onthouden"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Gebruikerse-mailadres ontbreekt"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-mailadres voor actieve gebruiker niet gevonden. Je wordt uitgelogd."
   },
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Passordoversyn"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "Det er ingen passord å syna."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Tøm",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "All sessions deauthorized"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
   },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"

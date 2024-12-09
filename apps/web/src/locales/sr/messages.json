@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Историја Лозинке"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "Нама лозинке у листи."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Очисти",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Одузето овлашћење свих сесија"
   },
-  "accountIsManagedMessage": {
-    "message": "Овим налогом управља $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Управљајте понашањем збирке за организацију"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Ограничите креирање и брисање збирке на власнике и администраторе"
   },
   "limitCollectionCreationDesc": {
     "message": "Ограничите креирање збирке на власнике и администраторе"

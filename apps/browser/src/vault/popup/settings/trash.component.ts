@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CalloutModule, NoItemsModule } from "@bitwarden/components";
@@ -27,6 +27,7 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
     CalloutModule,
     NoItemsModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrashComponent {
   protected deletedCiphers$ = this.vaultPopupItemsService.deletedCiphers$;

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "密碼歷史記錄"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "沒有可列出的密碼。"
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "清除",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "已取消所有工作階段授權"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "管理組織分類的行為"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "對擁有者和管理員限制集合的建立和刪除"
   },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"

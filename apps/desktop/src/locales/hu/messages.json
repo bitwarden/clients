@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Új SSH-kulcs jött létre."
   },
+  "sshKeyWrongPassword": {
+    "message": "A megadott jelszó helytelen."
+  },
+  "importSshKey": {
+    "message": "Importálás"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Jelszó megerősítése"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Írjuk be az SSH kulcshoz tartozó jelszót."
+  },
+  "enterSshKeyPassword": {
+    "message": "Jelszó megadása"
+  },
   "sshAgentUnlockRequired": {
     "message": "Az SSH-kulcskérés jóváhagyásához oldjuk fel a széfet."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Jelszó előzmények"
   },
+  "generatorHistory": {
+    "message": "Generátor előzmények"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generátor előzmények kiürítése"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ha folytatjuk, az összes bejegyzés véglegesen törlődik a generátor előzményeiből. Biztosan folytatjuk?"
+  },
   "clear": {
     "message": "Kiürítés",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Nincsenek listázható jelszavak."
+  },
+  "clearHistory": {
+    "message": "Előzmények törlése"
+  },
+  "nothingToShow": {
+    "message": "Nincs megjeleníthető elem"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Mostanában nem lett semmi generálva."
   },
   "undo": {
     "message": "Visszavonás"
@@ -2469,7 +2502,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " $RECOMMENDED$ vagy több szó erős jelmondat generálásához.",
+    "message": "Használjunk $RECOMMENDED$ vagy több szót erős jelmondat generálásához.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Egy értesítés lett elküldve az eszközre."
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Ellenőrizzük, hogy a széf feloldásra került és az ujjlenyomat kifejezés egyezik a másik eszközön levővel."
+  },
+  "needAnotherOptionV1": {
+    "message": "Másik opció szükséges?"
+  },
   "fingerprintMatchInfo": {
     "message": "Ellenőrizzük, hogy a széf feloldásra került és az Ujjlenyomat kifejezés egyezik a másik eszközön levővel."
   },
   "fingerprintPhraseHeader": {
     "message": "Ujjlenyomat kifejezés"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "A kérelem jóváhagyása után értesítés érkezik."
+  },
   "needAnotherOption": {
     "message": "Az eszközzel történő bejelentkezést a Biwarden mobilalkalmazás beállításaiban kell beállítani. Másik opcióra van szükség?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Összes bejelentkezési opció megtekintése"
   },
   "viewAllLoginOptions": {
     "message": "Összes bejelentkezési opció megtekintése"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Az ehhez a jelszóhoz tartozó ismert adatvédelmi incidensek ellenőrzése"
   },
+  "loggedInExclamation": {
+    "message": "Megtörtént a bejelentkezés."
+  },
   "important": {
     "message": "Fontos:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Ajánlott beállítások frissítése"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Emlékezés az eszközre, hogy zökkenőmentes legyen a jövőbeni bejelentkezés"
+  },
   "deviceApprovalRequired": {
     "message": "Az eszköz jóváhagyása szükséges. Válasszunk egy jóváhagyási lehetőséget lentebb:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Eszköz jóváhagyás szükséges"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Válasszunk lentebb egy jóváhagyási lehetőséget."
   },
   "rememberThisDevice": {
     "message": "Eszköz megjegyzése"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "A felhasználói email cím hiányzik."
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Az aktív felhasználói email cím nem található. Kijelentkeztetés történik."
   },
   "deviceTrusted": {
     "message": "Az eszköz megbízható."

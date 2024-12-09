@@ -1125,6 +1125,10 @@
     "message": "UZMANĪBU",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Brīdinājums",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Apstiprināt glabātavas satura izgūšanu"
   },
@@ -1503,19 +1507,6 @@
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ja tiek noteikta pieteikšanās veidne, tā tiks aizpildīta lapas ielādes brīdī."
   },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Brīdinājums:$CLOSETAG$ pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
-  },
   "experimentalFeature": {
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
@@ -1852,7 +1843,7 @@
     "message": "Drošās piezīmes"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH atslēgas"
   },
   "clear": {
     "message": "Notīrīt",
@@ -2917,7 +2908,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu parles vārdkopu.",
+    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu paroles vārdkopu.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3288,16 +3279,16 @@
     "message": "Atver jaunā logā"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
   },
   "deviceApprovalRequired": {
     "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Nepieciešama ierīces apstiprināšana"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Zemāk jāatlasa apstiprināšnas iespēja"
   },
   "rememberThisDevice": {
     "message": "Atcerēties šo ierīci"
@@ -3373,7 +3364,7 @@
     "message": "Trūkst lietotāja e-pasta adreses"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktīva lietotāja e-pasta adrese netika atrasta. Notiek atteikšanās."
   },
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"
@@ -3812,7 +3803,7 @@
     "message": "Piekļūst"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Pieteicies."
   },
   "passkeyNotCopied": {
     "message": "Piekļuves atslēga netiks ievietota starpliktuvē"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Paplašinājuma platums"
+  },
+  "wide": {
+    "message": "Plats"
+  },
+  "extraWide": {
+    "message": "Ļoti plats"
   }
 }

@@ -1125,6 +1125,10 @@
     "message": "FIGYELEM",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Figyelmeztetés",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Széf exportálás megerősítése"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ha egy bejelentkezési űrlap észlelésre került, az adatok automatikus kitöltése az oldal betöltésekor."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Az oldalbetöltésnél automatikus kitöltést a feltört vagy nem megbízhatató weboldalak kihasználhatják."
@@ -3288,16 +3279,16 @@
     "message": "Megnyitás új ablakban"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Emlékezés az eszközre, hogy zökkenőmentes legyen a jövőbeni bejelentkezés"
   },
   "deviceApprovalRequired": {
     "message": "Az eszköz jóváhagyása szükséges. Válasszunk egy jóváhagyási lehetőséget lentebb:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Eszköz jóváhagyás szükséges"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Válasszunk lentebb egy jóváhagyási lehetőséget."
   },
   "rememberThisDevice": {
     "message": "Eszköz megjegyzése"
@@ -3373,7 +3364,7 @@
     "message": "A felhasználói email cím hiányzik."
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Az aktív felhasználói email cím nem található. Jelentkezzünk ki."
   },
   "deviceTrusted": {
     "message": "Az eszköz megbízható."
@@ -3812,7 +3803,7 @@
     "message": "Elérés"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Megtörtént a bejelentkezés."
   },
   "passkeyNotCopied": {
     "message": "A hozzáférési kulcs nem kerül másolásra."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Béta"
+  },
+  "extensionWidth": {
+    "message": "Kiterjesztés szélesség"
+  },
+  "wide": {
+    "message": "Széles"
+  },
+  "extraWide": {
+    "message": "Extra széles"
   }
 }

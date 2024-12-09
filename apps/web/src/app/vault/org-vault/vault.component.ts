@@ -48,6 +48,7 @@ import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -252,6 +253,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -595,15 +597,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationApiService.getBilling(org.id),
+          this.organizationBillingService.getPaymentSource(org.id),
         ]),
       ),
-      map(([org, sub, billing]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-          org,
-          sub,
-          billing?.paymentSource,
-        );
+      map(([org, sub, paymentSource]) => {
+        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
       }),
     );
 

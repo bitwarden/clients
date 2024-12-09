@@ -1125,6 +1125,10 @@
     "message": "UYARI",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Uyarı",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Kasayı dışa aktarmayı onaylayın"
   },
@@ -1274,7 +1278,7 @@
     "message": "Bitwarden'ı desteklediğiniz için teşekkür ederiz."
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "Premium'a yükseltin ve şunları alın:"
   },
   "premiumPrice": {
     "message": "Bunların hepsi sadece yılda $PRICE$!",
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Sayfa yüklendiğinde giriş formu tespit edilirse otomatik olarak formu doldur."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Uyarı:$CLOSETAG$ Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir."
@@ -3288,16 +3279,16 @@
     "message": "Yeni pencerede açılır"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Sonraki girişleri kolaylaştırmak için bu cihazı hatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Cihazı onaylamanız gerekiyor"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Aşağıdan bir onay yöntemi seçin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı hatırla"
@@ -3373,7 +3364,7 @@
     "message": "Kullanıcının e-postası eksik"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktif kullanıcı e-postası bulunamadı. Çıkış yapılıyor."
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
@@ -3809,10 +3800,10 @@
     "message": "Geçiş anahtarı"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Erişim"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Giriş yapıldı!"
   },
   "passkeyNotCopied": {
     "message": "Geçiş anahtarı kopyalanmayacak"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Uzantı genişliği"
+  },
+  "wide": {
+    "message": "Geniş"
+  },
+  "extraWide": {
+    "message": "Ekstra geniş"
   }
 }

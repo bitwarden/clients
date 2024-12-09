@@ -20,16 +20,16 @@
     "message": "Konto loomine"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Esimene kord?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Logi sisse pääsuvõtmega"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Tere tulemast tagasi"
   },
   "setAStrongPassword": {
     "message": "Määra tugev parool"
@@ -84,7 +84,7 @@
     "message": "Liitu organisatsiooniga"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Liitu $ORGANIZATIONNAME$ organisatsiooniga",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -1125,6 +1125,10 @@
     "message": "HOIATUS",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Hoidla eksportimise kinnitamine"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Sisselogimise vormi tuvastamisel sisestatakse sinna kontoandmed automaatselt."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Häkitud või ebausaldusväärsed veebilehed võivad lehe laadimisel automaatset sisestamist kuritarvitada."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }
