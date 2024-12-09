@@ -247,30 +247,28 @@ pub mod sshagent {
 
     #[napi]
     pub async fn serve(
-        callback: ThreadsafeFunction<(String, bool), CalleeHandled>,
+        callback: ThreadsafeFunction<(Option<String>, bool, String), CalleeHandled>,
     ) -> napi::Result<SshAgentState> {
         let (auth_request_tx, mut auth_request_rx) =
-            tokio::sync::mpsc::channel::<(u32, (String, bool))>(32);
+            tokio::sync::mpsc::channel::<desktop_core::ssh_agent::SshAgentUIRequest>(32);
         let (auth_response_tx, auth_response_rx) =
             tokio::sync::broadcast::channel::<(u32, bool)>(32);
         let auth_response_tx_arc = Arc::new(Mutex::new(auth_response_tx));
         tokio::spawn(async move {
             let _ = auth_response_rx;
 
-            while let Some((request_id, (cipher_uuid, is_list_request))) =
-                auth_request_rx.recv().await
-            {
-                let cloned_request_id = request_id.clone();
-                let cloned_cipher_uuid = cipher_uuid.clone();
+            while let Some(request) = auth_request_rx.recv().await {
                 let cloned_response_tx_arc = auth_response_tx_arc.clone();
                 let cloned_callback = callback.clone();
                 tokio::spawn(async move {
-                    let request_id = cloned_request_id;
-                    let cipher_uuid = cloned_cipher_uuid;
                     let auth_response_tx_arc = cloned_response_tx_arc;
                     let callback = cloned_callback;
                     let promise_result: Result<Promise<bool>, napi::Error> = callback
-                        .call_async(Ok((cipher_uuid, is_list_request)))
+                        .call_async(Ok((
+                            request.cipher_id,
+                            request.is_list,
+                            request.process_name,
+                        )))
                         .await;
                     match promise_result {
                         Ok(promise_result) => match promise_result.await {
@@ -278,7 +276,7 @@ pub mod sshagent {
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
-                                    .send((request_id, result))
+                                    .send((request.request_id, result))
                                     .expect("should be able to send auth response to agent");
                             }
                             Err(e) => {
@@ -286,7 +284,7 @@ pub mod sshagent {
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
-                                    .send((request_id, false))
+                                    .send((request.request_id, false))
                                     .expect("should be able to send auth response to agent");
                             }
                         },
@@ -295,7 +293,7 @@ pub mod sshagent {
                             let _ = auth_response_tx_arc
                                 .lock()
                                 .await
-                                .send((request_id, false))
+                                .send((request.request_id, false))
                                 .expect("should be able to send auth response to agent");
                         }
                     }

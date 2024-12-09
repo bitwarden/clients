@@ -29,7 +29,7 @@ export class MainSshAgentService {
   init() {
     // handle sign request passing to UI
     sshagent
-      .serve(async (err: Error, cipherId: string, isListRequest: boolean) => {
+      .serve(async (err: Error, cipherId: string, isListRequest: boolean, processName: string) => {
         // clear all old (> SIGN_TIMEOUT) requests
         this.requestResponses = this.requestResponses.filter(
           (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
@@ -41,6 +41,7 @@ export class MainSshAgentService {
           cipherId,
           isListRequest,
           requestId: id_for_this_request,
+          processName,
         });
 
         const result = await firstValueFrom(

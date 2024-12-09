@@ -310,12 +310,16 @@ mod tests {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, secret).await.unwrap();
+        crate::password::set_password(test, test, secret)
+            .await
+            .unwrap();
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
                 .await
                 .unwrap();
-        crate::password::delete_password("test", "test").await.unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, secret);
     }
 
@@ -328,19 +332,24 @@ mod tests {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, &secret.to_string()).await.unwrap();
+        crate::password::set_password(test, test, &secret.to_string())
+            .await
+            .unwrap();
 
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
                 .await
                 .unwrap();
-        crate::password::delete_password("test", "test").await.unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, "secret");
     }
 
     #[tokio::test]
     async fn set_biometric_secret_requires_key() {
-        let result = <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "").await;
+        let result =
+            <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "").await;
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
