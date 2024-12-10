@@ -3,7 +3,7 @@ import { LayoutModule } from "@angular/cdk/layout";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
+import { InfiniteScrollDirective } from "ngx-infinite-scroll";
 
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core";
@@ -23,7 +23,7 @@ import { WildcardRoutingModule } from "./wildcard-routing.module";
     BrowserAnimationsModule,
     FormsModule,
     CoreModule,
-    InfiniteScrollModule,
+    InfiniteScrollDirective,
     DragDropModule,
     LayoutModule,
     OssRoutingModule,
