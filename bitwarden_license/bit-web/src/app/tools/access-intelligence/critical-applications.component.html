@@ -65,6 +65,7 @@
         <th bitSortable="totalPasswords" bitCell>{{ "totalPasswords" | i18n }}</th>
         <th bitSortable="atRiskMembers" bitCell>{{ "atRiskMembers" | i18n }}</th>
         <th bitSortable="totalMembers" bitCell>{{ "totalMembers" | i18n }}</th>
+        <th></th>
       </tr>
     </ng-container>
     <ng-template body let-rows$>
@@ -92,6 +93,21 @@
         </td>
         <td bitCell data-testid="total-membership">
           {{ r.totalMembers }}
+        </td>
+        <td bitCell>
+          <button
+            [bitMenuTriggerFor]="rowMenu"
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            appA11yTitle="{{ 'options' | i18n }}"
+          ></button>
+
+          <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="unmarkAsCriticalApp(r.name)">
+              <i aria-hidden="true" class="bwi bwi-star-f"></i> {{ "unmarkAsCriticalApp" | i18n }}
+            </button>
+          </bit-menu>
         </td>
       </tr>
     </ng-template>
