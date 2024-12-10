@@ -58,7 +58,7 @@
       buttonType="secondary"
       bitButton
       *ngIf="isCritialAppsFeatureEnabled"
-      [disabled]="!selectedIds.size"
+      [disabled]="!selectedUrls.size"
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
     >
@@ -83,8 +83,8 @@
           <input
             bitCheckbox
             type="checkbox"
-            [checked]="selectedIds.has(r.id)"
-            (change)="onCheckboxChange(r.id, $event)"
+            [checked]="selectedUrls.has(r.name)"
+            (change)="onCheckboxChange(r.name, $event)"
           />
         </td>
         <td bitCell>
