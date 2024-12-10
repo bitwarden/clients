@@ -1,6 +1,6 @@
-import { ScrollingModule } from "@angular/cdk/scrolling";
+import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { combineLatest, Observable, shareReplay, switchMap } from "rxjs";
@@ -17,6 +17,7 @@ import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-he
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultUiOnboardingService } from "../../services/vault-ui-onboarding.service";
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from "../vault-v2";
 import {
@@ -53,7 +54,9 @@ enum VaultState {
   ],
   providers: [VaultUiOnboardingService],
 })
-export class VaultV2Component implements OnInit, OnDestroy {
+export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
+
   cipherType = CipherType;
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
@@ -87,6 +90,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private vaultUiOnboardingService: VaultUiOnboardingService,
+    private vaultScrollPositionService: VaultPopupScrollPositionService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -112,9 +116,17 @@ export class VaultV2Component implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    if (this.virtualScrollElement) {
+      this.vaultScrollPositionService.start(this.virtualScrollElement);
+    }
+  }
+
   async ngOnInit() {
     await this.vaultUiOnboardingService.showOnboardingDialog();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.vaultScrollPositionService.stop();
+  }
 }
