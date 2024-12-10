@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Zadajte 6-miestny verifikačný kód z vašej overovacej aplikácie."
   },
+  "authenticationTimeout": {
+    "message": "Časový limit overenia"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
+  },
   "enterVerificationCodeEmail": {
     "message": "Zadajte 6-miestny verifikačný kód, ktorý vám bol zaslaný emailom",
     "placeholders": {

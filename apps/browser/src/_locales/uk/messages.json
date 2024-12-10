@@ -1126,7 +1126,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Попередження",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1318,6 +1318,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Введіть 6-значний код підтвердження з програми автентифікації."
+  },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -1843,7 +1849,7 @@
     "message": "Захищені нотатки"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Ключі SSH"
   },
   "clear": {
     "message": "Стерти",
@@ -3279,16 +3285,16 @@
     "message": "Відкривається у новому вікні"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потрібне підтвердження пристрою"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -3364,7 +3370,7 @@
     "message": "Немає адреси електронної пошти"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -3803,7 +3809,7 @@
     "message": "Доступ"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Ви увійшли!"
   },
   "passkeyNotCopied": {
     "message": "Ключ доступу не буде скопійовано"
@@ -4890,12 +4896,12 @@
     "message": "Бета"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Ширина вікна розширення"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Широке"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Дуже широке"
   }
 }

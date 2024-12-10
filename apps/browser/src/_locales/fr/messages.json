@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Saisissez le code de vérification à 6 chiffres depuis votre application d'authentification."
   },
+  "authenticationTimeout": {
+    "message": "Délai d'authentification dépassé"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "La session d'authentification a expiré. Veuillez redémarrer le processus de connexion."
+  },
   "enterVerificationCodeEmail": {
     "message": "Saisissez le code de vérification à 6 chiffres qui a été envoyé par courriel à $EMAIL$.",
     "placeholders": {

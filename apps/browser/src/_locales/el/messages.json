@@ -1319,6 +1319,12 @@
   "enterVerificationCodeApp": {
     "message": "Εισάγετε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης."
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "enterVerificationCodeEmail": {
     "message": "Εισάγετε τον 6ψήφιο κωδικό επαλήθευσης τον οποίο λάβατε στο $EMAIL$.",
     "placeholders": {
