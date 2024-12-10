@@ -16,7 +16,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -55,7 +54,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     organizationService: OrganizationService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
@@ -78,7 +76,6 @@ export class AddEditComponent extends BaseAddEditComponent {
       organizationService,
       logService,
       passwordRepromptService,
-      sendApiService,
       dialogService,
       datePipe,
       configService,
