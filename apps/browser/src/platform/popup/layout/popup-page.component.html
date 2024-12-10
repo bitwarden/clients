@@ -1,5 +1,8 @@
 <ng-content select="[slot=header]"></ng-content>
 <main class="tw-flex-1 tw-overflow-hidden tw-flex tw-flex-col tw-relative tw-bg-background-alt">
+  <div class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-solid">
+    <ng-content select="[slot=full-width-notice]"></ng-content>
+  </div>
   <div
     #nonScrollable
     class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-p-3 bit-compact:tw-p-2"
