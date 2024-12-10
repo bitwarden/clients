@@ -24,6 +24,8 @@ import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
 
 export class EditCommand {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
@@ -121,12 +123,12 @@ export class EditCommand {
 
     cipher.collectionIds = req;
     try {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
       const updatedCipher = await this.cipherService.saveCollectionsWithServer(cipher);
       const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+        await this.cipherService.getKeyForCipherKeyDecryption(
+          updatedCipher,
+          await firstValueFrom(this.activeUserId$),
+        ),
       );
       const res = new CipherResponse(decCipher);
       return Response.success(res);
@@ -136,7 +138,8 @@ export class EditCommand {
   }
 
   private async editFolder(id: string, req: FolderExport) {
-    const folder = await this.folderService.getFromState(id);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();
     }
@@ -144,12 +147,11 @@ export class EditCommand {
     let folderView = await folder.decrypt();
     folderView = FolderExport.toView(req, folderView);
 
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId.id);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
-      await this.folderApiService.save(encFolder);
-      const updatedFolder = await this.folderService.get(folder.id);
+      await this.folderApiService.save(encFolder, activeUserId);
+      const updatedFolder = await this.folderService.get(folder.id, activeUserId);
       const decFolder = await updatedFolder.decrypt();
       const res = new FolderResponse(decFolder);
       return Response.success(res);
