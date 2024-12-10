@@ -1033,6 +1033,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   /**
+   * Checks if multiple TOTP elements exist in the ciphers.
+   *
+   * @returns {boolean} - `true` if multiple TOTP elements are present.
+   */
+  private multipleTotpElements(): boolean {
+    return (
+      this.ciphers.filter((cipher) => cipher.login?.totpField && cipher.login?.totp).length > 1
+    );
+  }
+
+  /**
    * Builds the icon for a given cipher. Prioritizes the favicon from a given cipher url
    * and the default icon element within the extension. If neither are available, the
    * globe icon is used.
@@ -1161,7 +1172,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (cipher.login?.totpField && cipher.login?.totp) {
-      return this.buildTotpElement(cipher.login?.totp);
+      this.ciphers.filter((cipher) => cipher.login?.totpField && cipher.login?.totp).length > 1;
+      return this.buildTotpElement(
+        cipher.login?.totp,
+        this.multipleTotpElements(),
+        cipher.login?.username,
+      );
     }
     const subTitleText = this.getSubTitleText(cipher);
     const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
@@ -1178,7 +1194,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param totp - The TOTP code to display.
    */
 
-  private buildTotpElement(totpCode: string): HTMLDivElement | null {
+  private buildTotpElement(
+    totpCode: string,
+    multipleTotpElements: boolean,
+    username: string,
+  ): HTMLDivElement | null {
     if (!totpCode) {
       return null;
     }
@@ -1194,12 +1214,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     containerElement.appendChild(totpHeading);
 
-    const subtitleElement = document.createElement("span");
-    subtitleElement.classList.add("cipher-subtitle");
-    subtitleElement.textContent = formattedTotpCode;
-    subtitleElement.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
-    subtitleElement.setAttribute("data-testid", "totp-code");
-    containerElement.appendChild(subtitleElement);
+    if (multipleTotpElements) {
+      const subtitleElement = this.buildCipherSubtitleElement(username);
+      if (subtitleElement) {
+        containerElement.appendChild(subtitleElement);
+      }
+    }
+
+    const totpCodeSpan = document.createElement("span");
+    totpCodeSpan.classList.add("cipher-subtitle");
+    totpCodeSpan.textContent = formattedTotpCode;
+    totpCodeSpan.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
+    totpCodeSpan.setAttribute("data-testid", "totp-code");
+    containerElement.appendChild(totpCodeSpan);
 
     return containerElement;
   }
