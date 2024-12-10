@@ -6,7 +6,9 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { spacing } from "../../constants/styles";
 import { CipherData } from "../../types";
 
-import { CipherIcon, CipherInfo, CipherAction } from "./index";
+import { CipherAction } from "./cipher-action";
+import { CipherIcon } from "./cipher-icon";
+import { CipherInfo } from "./cipher-info";
 
 export function CipherItem({
   cipher,

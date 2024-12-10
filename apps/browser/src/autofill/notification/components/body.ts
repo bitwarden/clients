@@ -1,4 +1,4 @@
-import { css } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import { html, TemplateResult } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -15,7 +15,11 @@ export function NotificationBody({
   // @TODO get client vendor from context
   const isSafari = false;
 
-  return html` <div class=${notificationBodyStyles({ isSafari, theme })}>${children}</div> `;
+  return html`
+    <div class=${cx("notification-body", notificationBodyStyles({ isSafari, theme }))}>
+      ${children}
+    </div>
+  `;
 }
 
 const notificationBodyStyles = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
@@ -25,7 +29,6 @@ const notificationBodyStyles = ({ isSafari, theme }: { isSafari: boolean; theme:
   display: flex;
   flex-flow: column;
   background-color: ${themes[theme].background.alt};
-  padding: ${spacing["3"]};
   max-height: 123px;
   overflow-x: hidden;
   overflow-y: auto;

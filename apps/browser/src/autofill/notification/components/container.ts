@@ -4,17 +4,17 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { createAutofillOverlayCipherDataMock } from "../../spec/autofill-mocks";
-import { NotificationBarIframeInitData } from "../abstractions/notification-bar";
+import { NotificationBarIframeInitData, NotificationTypes } from "../abstractions/notification-bar";
 import { themes, spacing } from "../constants/styles";
 import { CipherData } from "../types";
 
-import { ActionRow } from "./action-row";
 import { NotificationBody } from "./body";
-import { ButtonRow } from "./buttons/button-row";
 import { CipherItem } from "./cipher";
 import { NotificationFooter } from "./footer";
 import { NotificationHeader } from "./header";
-import { ItemRow } from "./item-row";
+import { ActionRow } from "./rows/action-row";
+import { ButtonRow } from "./rows/button-row";
+import { ItemRow } from "./rows/item-row";
 
 export function NotificationContainer({
   handleCloseNotification,
@@ -30,8 +30,8 @@ export function NotificationContainer({
 
   // @TODO remove mock cipher for development
   const cipher = createAutofillOverlayCipherDataMock(1) as CipherData;
-  const actionType = "newLogin";
-  const itemText = actionType === "newLogin" ? "Save as new login" : null;
+
+  const itemText = type === NotificationTypes.Add ? "Save as new login" : null;
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
@@ -48,13 +48,36 @@ export function NotificationContainer({
             // @TODO move notificationType to `NotificationBody` component
             children: [
               // @TODO placeholder composition
-              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
-              ActionRow({ itemText, handleAction: () => {}, theme }),
-              ItemRow({ theme, children: CipherItem({ cipher, notificationType: "add", theme }) }),
+              ItemRow({
+                theme,
+                children: CipherItem({
+                  cipher,
+                  notificationType: type,
+                  theme,
+                  handleAction: () => {},
+                }),
+              }),
+              ItemRow({ theme, children: CipherItem({ cipher, notificationType: type, theme }) }),
+              ItemRow({
+                theme,
+                children: CipherItem({
+                  cipher,
+                  notificationType: type,
+                  theme,
+                  handleAction: () => {},
+                }),
+              }),
             ],
           })
         : null}
-      ${NotificationFooter({ theme, children: [ButtonRow({ theme })] })}
+      ${NotificationFooter({
+        theme,
+        children: [
+          NotificationTypes.Change
+            ? ButtonRow({ theme })
+            : ActionRow({ itemText, handleAction: () => {}, theme }),
+        ],
+      })}
     </div>
   `;
 }
@@ -65,20 +88,24 @@ const notificationContainerStyles = (theme: Theme) => css`
   border: 1px solid ${themes[theme].secondary["300"]};
   border-radius: ${spacing["4"]};
   box-shadow: -2px 4px 6px 0px #0000001a;
-  background: ${themes[theme].background.DEFAULT};
+  background-color: ${themes[theme].background.alt};
   width: 400px;
+
+  > .notification-body {
+    margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
+    padding-right: ${spacing["3"]};
+  }
 `;
 
 function getHeaderMessage(type: string, i18n: { [key: string]: string }) {
-  // @TODO create constants/types for `type`
   switch (type) {
-    case "add":
+    case NotificationTypes.Add:
       return i18n.saveAsNewLoginAction;
-    case "change":
+    case NotificationTypes.Change:
       return i18n.updateLoginPrompt;
-    case "unlock":
+    case NotificationTypes.Unlock:
       return "";
-    case "fileless-import":
+    case NotificationTypes.FilelessImport:
       return "";
     default:
       return null;
