@@ -114,6 +114,7 @@ export class OssServeConfigurator {
       this.serviceContainer.apiService,
       this.serviceContainer.folderApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
     );
     this.confirmCommand = new ConfirmCommand(
@@ -147,6 +148,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -164,6 +166,7 @@ export class OssServeConfigurator {
       this.sendGetCommand,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,

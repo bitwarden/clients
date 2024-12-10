@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OnInit, Directive } from "@angular/core";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -30,8 +31,13 @@ export class PremiumComponent implements OnInit {
     protected dialogService: DialogService,
     private environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
-    this.isPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.isPremium$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
 
   async ngOnInit() {

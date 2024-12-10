@@ -5,6 +5,7 @@ import * as path from "path";
 
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -23,6 +24,7 @@ export class SendCreateCommand {
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -86,7 +88,11 @@ export class SendCreateCommand {
           );
         }
 
-        if (!(await firstValueFrom(this.accountProfileService.hasPremiumFromAnySource$))) {
+        const hasPremium$ = this.accountService.activeAccount$.pipe(
+          switchMap(({id}) => this.accountProfileService.hasPremiumFromAnySource(id)
+          )
+        );
+        if (!(await firstValueFrom(hasPremium$))) {
           return Response.error("Premium status is required to use this feature.");
         }
 
