@@ -107,7 +107,7 @@
           *ngIf="
             filter.type !== 'trash' &&
             filter.collectionId !== Unassigned &&
-            selectedCollection?.node?.canEditItems(organization)
+            selectedCollection?.node?.canEditItems(organization, false)
           "
         >
           <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
