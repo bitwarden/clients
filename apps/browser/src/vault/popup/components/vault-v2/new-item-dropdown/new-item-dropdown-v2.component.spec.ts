@@ -1,141 +1,163 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { mock } from "jest-mock-extended";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
-import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
-import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 import { NewItemDropdownV2Component, NewItemInitialValues } from "./new-item-dropdown-v2.component";
 
 describe("NewItemDropdownV2Component", () => {
   let component: NewItemDropdownV2Component;
   let fixture: ComponentFixture<NewItemDropdownV2Component>;
-  const open = jest.fn();
-  const navigate = jest.fn();
+  let dialogServiceMock: jest.Mocked<DialogService>;
+  let browserApiMock: jest.Mocked<typeof BrowserApi>;
 
-  jest
-    .spyOn(BrowserApi, "getTabFromCurrentWindow")
-    .mockResolvedValue({ url: "https://example.com" } as chrome.tabs.Tab);
+  const mockTab = { url: "https://example.com" };
+
+  beforeAll(() => {
+    jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockTab as chrome.tabs.Tab);
+    jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+    jest.spyOn(Utils, "getHostname").mockReturnValue("example.com");
+  });
 
   beforeEach(async () => {
-    open.mockClear();
-    navigate.mockClear();
+    dialogServiceMock = mock<DialogService>();
+    dialogServiceMock.open.mockClear();
+
+    const activatedRouteMock = {
+      snapshot: { paramMap: { get: jest.fn() } },
+    };
+
+    const i18nServiceMock = mock<I18nService>();
+    const folderServiceMock = mock<FolderService>();
+    const folderApiServiceAbstractionMock = mock<FolderApiServiceAbstraction>();
+    const accountServiceMock = mock<AccountService>();
 
     await TestBed.configureTestingModule({
-      imports: [NewItemDropdownV2Component, MenuModule, ButtonModule, JslibModule, CommonModule],
-      providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: Router, useValue: { navigate } },
+      imports: [
+        CommonModule,
+        RouterLink,
+        ButtonModule,
+        MenuModule,
+        NoItemsModule,
+        NewItemDropdownV2Component,
       ],
-    })
-      .overrideProvider(DialogService, { useValue: { open } })
-      .compileComponents();
+      providers: [
+        { provide: DialogService, useValue: dialogServiceMock },
+        { provide: I18nService, useValue: i18nServiceMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: BrowserApi, useValue: browserApiMock },
+        { provide: FolderService, useValue: folderServiceMock },
+        { provide: FolderApiServiceAbstraction, useValue: folderApiServiceAbstractionMock },
+        { provide: AccountService, useValue: accountServiceMock },
+      ],
+    }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(NewItemDropdownV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it("opens new folder dialog", () => {
-    component.openFolderDialog();
-
-    expect(open).toHaveBeenCalledWith(AddEditFolderDialogComponent);
-  });
-
-  describe("new item", () => {
-    const emptyParams: AddEditQueryParams = {
-      collectionId: undefined,
-      organizationId: undefined,
-      folderId: undefined,
-    };
-
-    beforeEach(() => {
-      jest.spyOn(component, "newItemNavigate");
-    });
-
-    it("navigates to new login", async () => {
-      await component.newItemNavigate(CipherType.Login);
-
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: {
-          type: CipherType.Login.toString(),
-          name: "example.com",
-          uri: "https://example.com",
-          ...emptyParams,
-        },
-      });
-    });
-
-    it("navigates to new card", async () => {
-      await component.newItemNavigate(CipherType.Card);
-
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: { type: CipherType.Card.toString(), ...emptyParams },
-      });
-    });
-
-    it("navigates to new identity", async () => {
-      await component.newItemNavigate(CipherType.Identity);
-
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: { type: CipherType.Identity.toString(), ...emptyParams },
-      });
-    });
-
-    it("navigates to new note", async () => {
-      await component.newItemNavigate(CipherType.SecureNote);
-
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: { type: CipherType.SecureNote.toString(), ...emptyParams },
-      });
-    });
-
-    it("includes initial values", async () => {
+  describe("buildQueryParams", () => {
+    it("should build query params for a Login cipher when not popped out", async () => {
+      await component.ngOnInit();
       component.initialValues = {
         folderId: "222-333-444",
         organizationId: "444-555-666",
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      await component.newItemNavigate(CipherType.Login);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(Utils, "getHostname").mockReturnValue("example.com");
 
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: {
-          type: CipherType.Login.toString(),
-          folderId: "222-333-444",
-          organizationId: "444-555-666",
-          collectionId: "777-888-999",
-          uri: "https://example.com",
-          name: "example.com",
-        },
+      const params = component.buildQueryParams(CipherType.Login);
+
+      expect(params).toEqual({
+        type: CipherType.Login.toString(),
+        collectionId: "777-888-999",
+        organizationId: "444-555-666",
+        folderId: "222-333-444",
+        uri: "https://example.com",
+        name: "example.com",
       });
     });
 
-    it("does not include name or uri when the extension is popped out", async () => {
+    it("should build query params for a Login cipher when popped out", () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
 
+      const params = component.buildQueryParams(CipherType.Login);
+
+      expect(params).toEqual({
+        type: CipherType.Login.toString(),
+        collectionId: "777-888-999",
+      });
+    });
+
+    it("should build query params for a secure note", () => {
       component.initialValues = {
-        folderId: "222-333-444",
-        organizationId: "444-555-666",
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      await component.newItemNavigate(CipherType.Login);
+      const params = component.buildQueryParams(CipherType.SecureNote);
 
-      expect(navigate).toHaveBeenCalledWith(["/add-cipher"], {
-        queryParams: {
-          type: CipherType.Login.toString(),
-          folderId: "222-333-444",
-          organizationId: "444-555-666",
-          collectionId: "777-888-999",
-        },
+      expect(params).toEqual({
+        type: CipherType.SecureNote.toString(),
+        collectionId: "777-888-999",
+      });
+    });
+
+    it("should build query params for an Identity", () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
+      const params = component.buildQueryParams(CipherType.Identity);
+
+      expect(params).toEqual({
+        type: CipherType.Identity.toString(),
+        collectionId: "777-888-999",
+      });
+    });
+
+    it("should build query params for a Card", () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
+      const params = component.buildQueryParams(CipherType.Card);
+
+      expect(params).toEqual({
+        type: CipherType.Card.toString(),
+        collectionId: "777-888-999",
+      });
+    });
+
+    it("should build query params for a SshKey", () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
+      const params = component.buildQueryParams(CipherType.SshKey);
+
+      expect(params).toEqual({
+        type: CipherType.SshKey.toString(),
+        collectionId: "777-888-999",
       });
     });
   });

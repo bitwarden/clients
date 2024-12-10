@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "A new SSH key was generated"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Ιστορικό κωδικού πρόσβασης"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "Εκκαθάριση",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Δεν υπάρχουν κωδικοί στη λίστα."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Αναίρεση"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Μια ειδοποίηση έχει σταλεί στη συσκευή σας."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
     "message": "Παρακαλώ βεβαιωθείτε ότι το θησαυ/κιό σας είναι ξεκλείδωτο και η φράση δακτυλικών αποτυπωμάτων ταιριάζει με την άλλη συσκευή."
   },
   "fingerprintPhraseHeader": {
     "message": "Φράση δακτυλικών αποτυπωμάτων"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "needAnotherOption": {
     "message": "Η σύνδεση με τη χρήση συσκευής πρέπει να οριστεί στις ρυθμίσεις της εφαρμογής Bitwarden. Χρειάζεστε κάποια άλλη επιλογή;"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Δείτε όλες τις επιλογές σύνδεσης"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Ελέγξτε γνωστές διαρροές δεδομένων για αυτόν τον κωδικό"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Σημαντικό:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Ενημέρωση Προτεινόμενων Ρυθμίσεων"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Απαιτείται έγκριση συσκευής. Επιλέξτε μια επιλογή έγκρισης παρακάτω:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Απομνημόνευση αυτής της συσκευής"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Η διεύθυνση ηλ. ταχυδρομείου του χρήστη λείπει"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Αξιόπιστη συσκευή"

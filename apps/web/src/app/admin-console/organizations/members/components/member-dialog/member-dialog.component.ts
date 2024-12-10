@@ -579,7 +579,10 @@ export class MemberDialogComponent implements OnDestroy {
         key: "deleteOrganizationUser",
         placeholders: [this.params.name],
       },
-      content: { key: "deleteOrganizationUserWarning" },
+      content: {
+        key: "deleteOrganizationUserWarningDesc",
+        placeholders: [this.params.name],
+      },
       type: "warning",
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },

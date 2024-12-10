@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "A new SSH key was generated"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Cronologia delle password"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "Cancella",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Non ci sono password da mostrare."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Annulla"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
     "message": "Assicurati che la tua cassaforte sia sbloccata e che la frase impronta corrisponda sull'altro dispositivo."
   },
   "fingerprintPhraseHeader": {
     "message": "Frase impronta"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "needAnotherOption": {
     "message": "L'accesso con dispositivo deve essere abilitato nelle impostazioni dell'app Bitwarden. Ti serve un'altra opzione?"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Visualizza tutte le opzioni di accesso"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Controlla se la tua password è presente in una violazione dei dati"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Importante:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aggiornamento delle impostazioni consigliato"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Approvazione del dispositivo obbligatoria. Seleziona un'opzione di approvazione:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Ricorda questo dispositivo"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Email utente mancante"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Dispositivo fidato"

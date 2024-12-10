@@ -1125,6 +1125,10 @@
     "message": "ADVARSEL",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Advarsel",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Bekræft eksport af boks"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Registreres en loginformular, autoudfyld når websiden indlæses."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Advarsel:$CLOSETAG$ Kompromitterede eller ikke-betroede websteder kan misbruge autofyld ved sideindlæsning.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Kompromitterede eller ikke-betroede websteder kan misbruge autoudfyldning ved sideindlæsning."
@@ -3288,16 +3279,16 @@
     "message": "Åbnes i et nyt vindue"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Husk denne enhed for at gøre fremtidige indlogninger gnidningsløse"
   },
   "deviceApprovalRequired": {
     "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Enhedsgodkendelse kræves"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Vælg en godkendelsesmulighed nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enhed"
@@ -3373,7 +3364,7 @@
     "message": "Brugers e-mail mangler"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiv bruger e-mail ikke fundet. Man logges ud."
   },
   "deviceTrusted": {
     "message": "Enhed betroet"
@@ -3812,7 +3803,7 @@
     "message": "Tilgår"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Logget ind!"
   },
   "passkeyNotCopied": {
     "message": "Adgangsnøglen kopieres ikke"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Udvidelsesbredde"
+  },
+  "wide": {
+    "message": "Bred"
+  },
+  "extraWide": {
+    "message": "Ekstra bred"
   }
 }

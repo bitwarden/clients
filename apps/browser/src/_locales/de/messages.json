@@ -1125,6 +1125,10 @@
     "message": "ACHTUNG",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warnung",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Tresor-Export bestätigen"
   },
@@ -1503,19 +1507,6 @@
   "enableAutoFillOnPageLoadDesc": {
     "message": "Wenn eine Anmeldemaske erkannt wird, die Zugangsdaten automatisch ausfüllen während die Webseite lädt."
   },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warnung:$CLOSETAG$ Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden einer Seite missbrauchen.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
-  },
   "experimentalFeature": {
     "message": "Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden der Seite ausnutzen."
   },
@@ -1852,7 +1843,7 @@
     "message": "Sichere Notizen"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH-Schlüssel"
   },
   "clear": {
     "message": "Löschen",
@@ -2893,7 +2884,7 @@
     "message": "E-Mail generieren"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2907,7 +2898,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Zeichen, um ein starkes Passwort zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2917,7 +2908,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Wörter, um eine starke Passphrase zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3174,7 +3165,7 @@
     "message": "Benachrichtigung erneut senden"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Alle Anmeldeoptionen anzeigen"
   },
   "viewAllLoginOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
@@ -3183,16 +3174,16 @@
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Brauchst du eine andere Option?"
   },
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
@@ -3288,16 +3279,16 @@
     "message": "Wird in einem neuen Fenster geöffnet"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
   },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Geräte-Genehmigung erforderlich"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Wähle unten eine Genehmigungsoption aus"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -3373,7 +3364,7 @@
     "message": "E-Mail-Adresse des Benutzers fehlt"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktive Benutzer-E-Mail-Adresse nicht gefunden. Du wirst abgemeldet."
   },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
@@ -3812,7 +3803,7 @@
     "message": "Zugriff auf"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Angemeldet!"
   },
   "passkeyNotCopied": {
     "message": "Passkey wird nicht kopiert"
@@ -4306,13 +4297,13 @@
     "message": "Filter"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Tresor filtern"
   },
   "filterApplied": {
-    "message": "One filter applied"
+    "message": "Ein Filter angewendet"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
+    "message": "$COUNT$ Filter angewendet",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4893,9 +4884,18 @@
     "message": "Generiertes Passwort"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Kompaktmodus"
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Breite der Erweiterung"
+  },
+  "wide": {
+    "message": "Breit"
+  },
+  "extraWide": {
+    "message": "Extra breit"
   }
 }

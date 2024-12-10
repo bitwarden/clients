@@ -30,7 +30,7 @@
             <button type="button" bitMenuItem (click)="restore(cipher)">
               {{ "restore" | i18n }}
             </button>
-            <button type="button" bitMenuItem (click)="delete(cipher)">
+            <button type="button" bitMenuItem *appCanDeleteCipher="cipher" (click)="delete(cipher)">
               {{ "deleteForever" | i18n }}
             </button>
           </bit-menu>

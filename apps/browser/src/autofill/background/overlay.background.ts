@@ -362,8 +362,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuFido2Credentials.clear();
     this.storeInlineMenuFido2Credentials$.next(currentTab.id);
 
-    await this.generatePassword();
-
     const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);

@@ -1125,6 +1125,10 @@
     "message": "VAROVÁNÍ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Varování",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Potvrdit export trezoru"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Pokud je zjištěn přihlašovací formulář, automaticky se při načítání webové stránky vyplní přihlašovací údaje."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Varování:$CLOSETAG$ Kompromitované nebo nedůvěryhodné webové stránky mohou využívat automatické vyplňování při načítání stránky.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Kompromitované nebo nedůvěryhodné webové stránky mohou zneužívat automatické vyplňování při načítání stránky."
@@ -3288,16 +3279,16 @@
     "message": "Otevře se v novém okně"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Zapamatovat si toto zařízení pro bezproblémové budoucí přihlášení"
   },
   "deviceApprovalRequired": {
     "message": "Vyžaduje se schválení zařízení. Vyberte možnost schválení níže:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Vyžaduje se schválení zařízení"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Vyberte volbu schválení níže"
   },
   "rememberThisDevice": {
     "message": "Zapamatovat toto zařízení"
@@ -3373,7 +3364,7 @@
     "message": "Chybí e-mail uživatele"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktivní uživatelský e-mail nebyl nalezen. Budete odhlášeni."
   },
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"
@@ -3812,7 +3803,7 @@
     "message": "Přistupování"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Přihlášeno!"
   },
   "passkeyNotCopied": {
     "message": "Přístupový klíč nebude zkopírován"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Šířka rozšíření"
+  },
+  "wide": {
+    "message": "Šířka"
+  },
+  "extraWide": {
+    "message": "Extra široký"
   }
 }

@@ -1125,6 +1125,10 @@
     "message": "XƏBƏRDARLIQ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Xəbərdarlıq",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Seyfi xaricə köçürməyi təsdiqlə"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Giriş formu aşkarlananda, səhifə yüklənən zaman formu avto-doldurma icra edilsin."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Xəbərdarlıq:$CLOSETAG$ Təhlükəsizliyi pozulmuş və ya güvənilməyən veb saytlar, səhifə yüklənəndə avto-doldurmanı istifadə edə bilər.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Təhlükəli və ya güvənilməyən veb saytlar, səhifə yüklənərkən avto-doldurmanı istifadə edə bilər."
@@ -3288,16 +3279,16 @@
     "message": "Yeni bir pəncərədə açılır"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Cihaz təsdiqi tələb olunur"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Aşağıdan bir təsdiq seçimi edin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı xatırla"
@@ -3373,7 +3364,7 @@
     "message": "İstifadəçi e-poçtu əskikdir"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiv istifadəçi e-poçtu tapılmadı. Hesabınızdan çıxış edilir."
   },
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
@@ -3812,7 +3803,7 @@
     "message": "Müraciət edilir"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Giriş edildi!"
   },
   "passkeyNotCopied": {
     "message": "Keçid açarı kopyalanmır"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Uzantı eni"
+  },
+  "wide": {
+    "message": "Eni"
+  },
+  "extraWide": {
+    "message": "Ekstra enli"
   }
 }

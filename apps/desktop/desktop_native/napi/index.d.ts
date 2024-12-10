@@ -6,8 +6,6 @@
 export declare namespace passwords {
   /** Fetch the stored password from the keychain. */
   export function getPassword(service: string, account: string): Promise<string>
-  /** Fetch the stored password from the keychain that was stored with Keytar. */
-  export function getPasswordKeytar(service: string, account: string): Promise<string>
   /** Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /** Delete the stored password from the keychain. */
@@ -69,12 +67,13 @@ export declare namespace sshagent {
     status: SshKeyImportStatus
     sshKey?: SshKey
   }
-  export function serve(callback: (err: Error | null, arg: string) => any): Promise<SshAgentState>
+  export function serve(callback: (err: Error | null, arg0: string, arg1: boolean) => any): Promise<SshAgentState>
   export function stop(agentState: SshAgentState): void
   export function isRunning(agentState: SshAgentState): boolean
   export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
   export function lock(agentState: SshAgentState): void
   export function importKey(encodedKey: string, password: string): SshKeyImportResult
+  export function clearKeys(agentState: SshAgentState): void
   export function generateKeypair(keyAlgorithm: string): Promise<SshKey>
   export class SshAgentState {   }
 }
@@ -122,4 +121,7 @@ export declare namespace ipc {
      */
     send(message: string): number
   }
+}
+export declare namespace crypto {
+  export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }

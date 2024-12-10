@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Notified members"
   },
+  "revokeMembers": {
+    "message": "Revoke members"
+  },
+  "restoreMembers": {
+    "message": "Restore members"
+  },
+  "revokeMembersWarning":{
+    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Claimed account: Revoke access to Bitwarden account"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Unclaimed account: Revoke access to organization data"
+  },
+  "claimedAccount": {
+    "message": "Claimed account"
+  },
+  "unclaimedAccount": {
+    "message": "Unclaimed account"
+  },
+  "restoreMembersInstructions": {
+    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
+  },
+  "cannotRestoreAccessError":{
+    "message": "Cannot restore organization access"
+  },
   "allApplicationsWithCount": {
     "message": "All applications ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyIdentity": {
     "message": "Verify your Identity"
@@ -5610,6 +5643,12 @@
   "bulkFilteredMessage": {
     "message": "Excluded, not applicable for this action"
   },
+  "nonCompliantMembersTitle":{
+    "message": "Non-compliant members"
+  },
+  "nonCompliantMembersError":{
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Fingerprint"
   },
@@ -9715,9 +9754,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "When a member is deleted, their Bitwarden account and individual vault data will be permanently deleted. Collection data will remain in the organization. To reinstate them they must create an account and be onboarded again.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "This will permanently delete all items owned by $NAME$. Collection items are not impacted.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "This will permanently delete all items owned by the following members. Collection items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Deleted $NAME$",
@@ -9787,5 +9836,8 @@
   },
   "descriptorCode": {
     "message": "Descriptor code"
+  },
+  "removeMembers": {
+    "message": "Remove members"
   }
 }

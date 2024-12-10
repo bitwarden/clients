@@ -487,6 +487,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         this.organization.productTierType === ProductTierType.TeamsStarter ||
         this.organization.productTierType === ProductTierType.Families)
     ) {
+      if (!this.organization.canEditSubscription) {
+        await this.showSeatLimitReachedDialog();
+        return;
+      }
+
       const reference = openChangePlanDialog(this.dialogService, {
         data: {
           organizationId: this.organization.id,
@@ -742,7 +747,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         key: "deleteOrganizationUser",
         placeholders: [this.userNamePipe.transform(user)],
       },
-      content: { key: "deleteOrganizationUserWarning" },
+      content: {
+        key: "deleteOrganizationUserWarningDesc",
+        placeholders: [this.userNamePipe.transform(user)],
+      },
       type: "warning",
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },

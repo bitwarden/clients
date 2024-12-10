@@ -438,8 +438,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
       const successful = await this.trySetupBiometrics();
       this.form.controls.biometric.setValue(successful);
+      await this.biometricStateService.setBiometricUnlockEnabled(successful);
       if (!successful) {
-        await this.biometricStateService.setBiometricUnlockEnabled(false);
         await this.biometricStateService.setFingerprintValidated(false);
       }
     } else {

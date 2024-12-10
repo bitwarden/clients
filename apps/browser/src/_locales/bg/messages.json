@@ -1125,6 +1125,10 @@
     "message": "ВНИМАНИЕ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Внимание",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Потвърждаване на изнасянето на трезора"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "При засичане на формуляр за вписване при зареждането на уеб страницата автоматично да се попълват данните на съответстващата регистрация."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Внимание:$CLOSETAG$ Опасните или компроментирани уеб сайтове могат да се възползват от функционалността за автоматично попълване при зареждане на страницата.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Компроментирани и измамни уеб сайтове могат да се възползват от автоматичното попълване при зареждане на страницата."
@@ -3288,16 +3279,16 @@
     "message": "Отваря се в нов прозорец"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запомняне на това устройство, така че в бъдеще вписването да бъде по-лесно"
   },
   "deviceApprovalRequired": {
     "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Необходимо е одобрение на устройството"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Изберете начин за одобряване по-долу"
   },
   "rememberThisDevice": {
     "message": "Запомняне на това устройство"
@@ -3373,7 +3364,7 @@
     "message": "Липсва е-поща на потребителя"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Не е намерена е-поща на активен потребител. Ще бъдете отписан(а)."
   },
   "deviceTrusted": {
     "message": "Устройството е доверено"
@@ -3812,7 +3803,7 @@
     "message": "Използване на"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Вписахте се!"
   },
   "passkeyNotCopied": {
     "message": "Секретният ключ няма да бъде копиран"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Ширина на разширението"
+  },
+  "wide": {
+    "message": "Широко"
+  },
+  "extraWide": {
+    "message": "Много широко"
   }
 }

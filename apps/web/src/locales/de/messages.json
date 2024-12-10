@@ -985,7 +985,7 @@
     "message": "Die Anmeldung über ein Gerät muss in den Einstellungen der Bitwarden App eingerichtet werden. Benötigst du eine andere Option?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Brauchst du eine andere Option?"
   },
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
@@ -1309,7 +1309,7 @@
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Passwortverlauf"
   },
+  "generatorHistory": {
+    "message": "Generator-Verlauf"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generator-Verlauf löschen"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Wenn du fortfährst, werden alle Einträge dauerhaft aus dem Generator-Verlauf gelöscht. Bist du sicher, dass du fortfahren möchtest?"
+  },
   "noPasswordsInList": {
     "message": "Keine Passwörter vorhanden."
+  },
+  "clearHistory": {
+    "message": "Verlauf löschen"
+  },
+  "nothingToShow": {
+    "message": "Nichts anzuzeigen"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Du hast in letzter Zeit nichts generiert"
   },
   "clear": {
     "message": "Löschen",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Alle Sitzungen wurden abgemeldet"
   },
-  "accountIsManagedMessage": {
-    "message": "Dieses Konto wird von $ORGANIZATIONNAME$ verwaltet",
+  "accountIsOwnedMessage": {
+    "message": "Dieses Konto ist im Besitz von $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3397,7 +3415,7 @@
     }
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Alle Anmeldeoptionen anzeigen"
   },
   "viewAllLoginOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
@@ -4456,7 +4474,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
   },
   "free": {
     "message": "Free",
@@ -6392,7 +6410,7 @@
     "message": "Erforderlich, wenn die Entitäts-ID keine URL ist."
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "Dieses Angebot ist nicht mehr gültig. Kontaktiere die Administratoren deiner Organisation für weitere Informationen."
   },
   "openIdOptionalCustomizations": {
     "message": "Optionale Anpassungen"
@@ -6501,7 +6519,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Benutze $RECOMMENDED$ oder mehr Zeichen um ein starkes Passwort zu generieren.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Zeichen, um ein starkes Passwort zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6511,7 +6529,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Verwende $RECOMMENDED$ oder mehr Wörter, um eine starke Passphrase zu generieren.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -8052,16 +8070,16 @@
     "message": "Anmeldung eingeleitet"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
   },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Geräte-Genehmigung erforderlich"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Wähle unten eine Genehmigungsoption aus"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -8293,7 +8311,7 @@
     "message": "E-Mail-Adresse des Benutzers fehlt"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktive Benutzer-E-Mail-Adresse nicht gefunden. Du wirst abgemeldet."
   },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Verwalte das Sammlungsverhalten für die Organisation"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Sammlungserstellung und -löschung auf Eigentümer und Administratoren beschränken"
   },
   "limitCollectionCreationDesc": {
     "message": "Das Erstellen von Sammlungen auf Eigentümer und Administratoren beschränken"
@@ -9675,7 +9690,7 @@
     "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
   },
   "manageSubscriptionFromThe": {
-    "message": "verwalten",
+    "message": "Verwalte das Abonnement von",
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
@@ -9759,18 +9774,18 @@
     "message": "Erfolgreich gelöscht"
   },
   "freeFamiliesSponsorship": {
-    "message": "Remove Free Bitwarden Families sponsorship"
+    "message": "Kostenloses Bitwarden Families-Sponsoring entfernen"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Do not allow members to redeem a Families plan through this organization."
+    "message": "Erlaube Mitgliedern nicht, einen Families-Tarif über diese Organisation einzulösen."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Die Zahlung mit einem Bankkonto ist nur für Kunden in den Vereinigten Staaten möglich. Du musst dein Bankkonto verifizieren. Wir werden innerhalb der nächsten 1-2 Werktage eine Mikro-Einzahlung vornehmen. Gib den Code aus der Beschreibung dieser Einzahlung auf der Rechnungsseite der Organisation ein, um das Bankkonto zu verifizieren. Schlägt die Verifizierung des Bankkontos fehl, wird dies als versäumte Zahlung gewertet und dein Abonnement gesperrt."
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Wir haben eine Mikro-Einzahlung auf dein Bankkonto vorgenommen (dies kann 1-2 Werktage dauern). Gib den sechsstelligen Code ein, der mit \"SM\" beginnt und in der Einzahlungsbeschreibung steht. Schlägt die Verifizierung des Bankkontos fehl, wird dies als versäumte Zahlung gewertet und dein Abonnement gesperrt."
   },
   "descriptorCode": {
-    "message": "Descriptor code"
+    "message": "Beschreibungscode"
   }
 }

@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Byl vygenerován nový SSH klíč"
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo není správné."
+  },
+  "importSshKey": {
+    "message": "Importovat"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdit heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadejte heslo pro SSH klíč."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadejte heslo"
+  },
   "sshAgentUnlockRequired": {
     "message": "Pro schválení požadavku na SSH klíč odemkněte Váš trezor."
   },
@@ -878,7 +893,7 @@
     "message": "Přidejte další poskytovatele, kteří jsou lépe podporováni v různých zařízeních (například ověřovací aplikace)."
   },
   "twoStepOptions": {
-    "message": "Možnosti dvoufázového přihlášení"
+    "message": "Volby dvoufázového přihlášení"
   },
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Historie hesel"
   },
+  "generatorHistory": {
+    "message": "Historie generátoru"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Vymazat historii generátoru"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Pokud budete pokračovat, všechny položky budou trvale smazány z historie generátoru. Jste si jisti, že chcete pokračovat?"
+  },
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Nejsou k dispozici žádná hesla."
+  },
+  "clearHistory": {
+    "message": "Vymazat historii"
+  },
+  "nothingToShow": {
+    "message": "Nic k zobrazení"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Nedávno jste nic nevygenerovali"
   },
   "undo": {
     "message": "Zpět"
@@ -2020,7 +2053,7 @@
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "Zásady organizace ovlivňují možnosti vlastnictví."
+    "message": "Zásady organizace ovlivňují volby vlastnictví."
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Zásady organizace zablokovaly importování položek do Vašeho osobního trezoru."
@@ -2651,7 +2684,7 @@
     "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
   "neverLockWarning": {
-    "message": "Opravdu chcete použít volbu \"Nikdy\"? Nastavením možností uzamčení na \"Nikdy\" bude šifrovací klíč k trezoru uložen přímo ve Vašem zařízení. Pokud tuto možnost použijete, měli byste Vaše zařízení řádně zabezpečit a chránit."
+    "message": "Opravdu chcete použít volbu \"Nikdy\"? Nastavením volby uzamčení na \"Nikdy\" bude šifrovací klíč k trezoru uložen přímo ve Vašem zařízení. Pokud tuto možnost použijete, měli byste Vaše zařízení řádně zabezpečit a chránit."
   },
   "vault": {
     "message": "Trezor"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Na Vaše zařízení bylo odesláno oznámení"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Ujistěte se, že je Váš účet odemčen a fráze otisku prstu se shoduje s tou na druhém zařízení"
+  },
+  "needAnotherOptionV1": {
+    "message": "Potřebujete další volby?"
+  },
   "fingerprintMatchInfo": {
     "message": "Ujistěte se, že je Váš trezor odemčen a fráze otisku prstu se shodují s druhým zařízením."
   },
   "fingerprintPhraseHeader": {
     "message": "Fráze otisku prstu"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Budete upozorněni, jakmile bude žádost schválena"
+  },
   "needAnotherOption": {
     "message": "Přihlášení zařízením musí být nastaveno v aplikaci Bitwarden pro počítač. Potřebujete další volby?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Zobrazit všechny volby přihlášení"
   },
   "viewAllLoginOptions": {
     "message": "Zobrazit všechny volby přihlášení"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Zkontrolovat heslo, zda nebylo odhaleno"
   },
+  "loggedInExclamation": {
+    "message": "Přihlášeno!"
+  },
   "important": {
     "message": "Důležité:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Aktualizace doporučených nastavení"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Zapamatovat si toto zařízení pro bezproblémové budoucí přihlášení"
+  },
   "deviceApprovalRequired": {
-    "message": "Vyžaduje se schválení zařízení. Vyberte možnost schválení níže:"
+    "message": "Vyžaduje se schválení zařízení. Vyberte volbu schválení níže:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Vyžaduje se schválení zařízení"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vyberte volbu schválení níže"
   },
   "rememberThisDevice": {
     "message": "Zapamatovat toto zařízení"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Chybí e-mail uživatele"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktivní uživatelský e-mail nebyl nalezen. Budete odhlášeni."
   },
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"

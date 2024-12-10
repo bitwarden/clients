@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "A new SSH key was generated"
   },
+  "sshKeyWrongPassword": {
+    "message": "Girdiğiniz parola yanlış."
+  },
+  "importSshKey": {
+    "message": "İçe aktar"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolayı onaylayın"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH anahtarının parolasını girin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolayı girin"
+  },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Parola geçmişi"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "Temizle",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Listelenecek şifre yok."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Geri al"
@@ -2445,7 +2478,7 @@
     "message": "E-posta oluştur"
   },
   "spinboxBoundariesHint": {
-    "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Cihazınıza bir bildirim gönderildi"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
+  },
+  "needAnotherOptionV1": {
+    "message": "Başka bir seçeneğe mi ihtiyacınız var?"
+  },
   "fingerprintMatchInfo": {
     "message": "Lütfen kasanızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun."
   },
   "fingerprintPhraseHeader": {
     "message": "Parmak izi ifadesi"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "İsteğiniz onaylanınca size haber vereceğiz"
+  },
   "needAnotherOption": {
     "message": "Cihazla girişi Bitwarden mobil uygulamasının ayarlarından etkinleştirmelisiniz. Başka bir seçeneğe mi ihtiyacınız var?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Tüm giriş seçeneklerini gör"
   },
   "viewAllLoginOptions": {
     "message": "Tüm giriş seçeneklerini gör"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Bilinen veri ihlallerinde bu parolayı kontrol et"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Önemli:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Önerilen Ayarlar Güncellemesi"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı hatırla"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Kullanıcının e-postası eksik"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"

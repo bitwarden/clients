@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Bol vygenerovaný nový kľúč SSH"
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo je nesprávne."
+  },
+  "importSshKey": {
+    "message": "Importovať"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdiť heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadajte heslo pre kľúč SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadať heslo"
+  },
   "sshAgentUnlockRequired": {
     "message": "Prosím, odomknite svoj trezor, aby ste mohli schváliť žiadosť o kľúč SSH."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "História hesla"
   },
+  "generatorHistory": {
+    "message": "História generátora"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Vymazať históriu generátora"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ak budete pokračovať, všetky položky z histórie generátora budu natrvalo vymazané. Naozaj chcete pokračovať?"
+  },
   "clear": {
     "message": "Vyčistiť",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Neboli nájdené žiadne heslá."
+  },
+  "clearHistory": {
+    "message": "Vymazať históriu"
+  },
+  "nothingToShow": {
+    "message": "Nie je čo zobraziť"
+  },
+  "nothingGeneratedRecently": {
+    "message": "V poslednej dobe ste nič negenerovali"
   },
   "undo": {
     "message": "Späť"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Do vášho zariadenia bolo odoslané upozornenie"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
+  },
+  "needAnotherOptionV1": {
+    "message": "Potrebujete inú možnosť?"
+  },
   "fingerprintMatchInfo": {
     "message": "Skontrolujte, či je trezor odomknutý a či sa fráza odtlačku prsta zhoduje s druhým zariadením."
   },
   "fingerprintPhraseHeader": {
     "message": "Fráza odtlačku prsta"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Po schválení žiadosti budete informovaní"
+  },
   "needAnotherOption": {
     "message": "Prihlásenie pomocou zariadenia musí byť nastavené v nastaveniach aplikácie Bitwarden. Potrebujete inú možnosť?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Zobraziť všetky možnosti prihlásenia"
   },
   "viewAllLoginOptions": {
     "message": "Zobraziť všetky možnosti prihlásenia"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Skontrolovať známe úniky údajov pre toto heslo"
   },
+  "loggedInExclamation": {
+    "message": "Prihlásený!"
+  },
   "important": {
     "message": "Dôležité:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Odporúčaná aktualizácia nastavenia"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
+  },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Vyžaduje sa schválenie zariadenia"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vyberte možnosť schválenia nižšie"
   },
   "rememberThisDevice": {
     "message": "Zapamätať si toto zariadenie"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Chýba e-mail používateľa"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-mail aktívneho používateľa sa nenašiel. Odhlasuje sa."
   },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"

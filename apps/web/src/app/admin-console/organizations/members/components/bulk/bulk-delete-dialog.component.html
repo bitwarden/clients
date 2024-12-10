@@ -8,7 +8,7 @@
     </bit-callout>
     <ng-container *ngIf="!done">
       <bit-callout type="warning" *ngIf="users.length > 0 && !error">
-        <p bitTypography="body1">{{ "deleteOrganizationUserWarning" | i18n }}</p>
+        <p bitTypography="body1">{{ "deleteManyOrganizationUsersWarningDesc" | i18n }}</p>
       </bit-callout>
       <bit-table>
         <ng-container header>

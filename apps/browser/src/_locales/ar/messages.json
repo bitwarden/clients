@@ -3,39 +3,39 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "مدير كلمات المرور Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "في المنزل، في العمل، أو في أثناء التنقل، يقوم Bitwarden بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
-    "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزنتك الآمنة."
+    "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزانتك الآمنة."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "تم قَبُول الدعوة"
   },
   "createAccount": {
     "message": "إنشاء حساب"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "هل أنت جديد على Bitwarden؟"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "تسجيل الدخول باستخدام مفتاح المرور"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "استخدام تسجيل الدخول الأحادي"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "مرحبًا بعودتك"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "أنشئ كلمة مرور قوية"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "أكمل إنشاء حسابك عن طريق تعيين كلمة مرور"
   },
   "enterpriseSingleSignOn": {
     "message": "تسجيل الدخول الأُحادي للمؤسسات – SSO"
@@ -56,13 +56,13 @@
     "message": "كلمة المرور الرئيسية"
   },
   "masterPassDesc": {
-    "message": "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزنتك. من المهم جدا ألا تنسى كلمة المرور الرئيسية. لا توجد طريقة لاسترداد كلمة المرور في حال نسيتها."
+    "message": "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزانتك. من المهم جدا ألا تنسى كلمة المرور الرئيسية. لا توجد طريقة لاسترداد كلمة المرور في حال نسيتها."
   },
   "masterPassHintDesc": {
     "message": "يمكن أن يساعدك تلميح كلمة المرور الرئيسية في تذكر كلمة المرور الخاصة بك في حال نسيتها."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "إذا نسيت كلمة المرور الخاصة بك، يمكن إرسال تلميح كلمة المرور إلى بريدك الإلكتروني. الحد الأقصى لعدد الأحرف هو $CURRENT$/$MAXIMUM$.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -81,7 +81,7 @@
     "message": "تلميح كلمة المرور الرئيسية (إختياري)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "انضم إلى المنظمة"
   },
   "joinOrganizationName": {
     "message": "Join $ORGANIZATIONNAME$",
@@ -99,13 +99,13 @@
     "message": "علامة تبويب"
   },
   "vault": {
-    "message": "الخزنة"
+    "message": "الخزانة"
   },
   "myVault": {
-    "message": "خزنتي"
+    "message": "خزانتي"
   },
   "allVaults": {
-    "message": "جميع الخزنات"
+    "message": "جميع الخزانات"
   },
   "tools": {
     "message": "الأدوات"
@@ -217,10 +217,10 @@
     "message": "إضافة هوية"
   },
   "unlockVaultMenu": {
-    "message": "افتح خزنتك"
+    "message": "افتح خزانتك"
   },
   "loginToVaultMenu": {
-    "message": "تسجيل الدخول إلى خزنتك"
+    "message": "تسجيل الدخول إلى خزانتك"
   },
   "autoFillInfo": {
     "message": "لا توجد تسجيلات دخول متاحة للملء التلقائي في علامة تبويب المتصفح الحالية."
@@ -408,7 +408,7 @@
     "message": "المزامنة"
   },
   "syncVaultNow": {
-    "message": "مزامنة الخزنة الآن"
+    "message": "مزامنة الخزانة الآن"
   },
   "lastSync": {
     "message": "آخر مزامنة:"
@@ -534,7 +534,7 @@
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
-    "message": "البحث في الخزنة"
+    "message": "البحث في الخزانة"
   },
   "edit": {
     "message": "تعديل"
@@ -651,7 +651,7 @@
     "message": "قم بتأكيد هويتك"
   },
   "yourVaultIsLocked": {
-    "message": "خزنتك مقفلة. قم بتأكيد هويتك للمتابعة."
+    "message": "خزانتك مقفلة. قم بتأكيد هويتك للمتابعة."
   },
   "yourVaultIsLockedV2": {
     "message": "Your vault is locked"
@@ -682,7 +682,7 @@
     "message": "كلمة المرور الرئيسية غير صالحة"
   },
   "vaultTimeout": {
-    "message": "نفذ وقت الخزنة"
+    "message": "نفذ وقت الخزانة"
   },
   "vaultTimeout1": {
     "message": "Timeout"
@@ -888,7 +888,7 @@
     "message": "أُضيف المجلد"
   },
   "twoStepLoginConfirmation": {
-    "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزنة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
+    "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزانة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
   },
   "twoStepLoginConfirmationContent": {
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
@@ -984,7 +984,7 @@
     "message": "Save to vault options"
   },
   "addLoginNotificationDesc": {
-    "message": "اطلب إضافة عنصر إذا لم يُعثر عليه في خزنتك."
+    "message": "اطلب إضافة عنصر إذا لم يُعثر عليه في خزانتك."
   },
   "addLoginNotificationDescAlt": {
     "message": "اطلب إضافة عنصر إذا لم يتم العثور على عنصر في المخزن الخاص بك. ينطبق على جميع حسابات تسجيل الدخول."
@@ -1092,7 +1092,7 @@
     "message": "Export from"
   },
   "exportVault": {
-    "message": "تصدير الخزنة"
+    "message": "تصدير الخزانة"
   },
   "fileFormat": {
     "message": "صيغة الملف"
@@ -1125,11 +1125,15 @@
     "message": "تحذير",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
-    "message": "تأكيد تصدير الخزنة"
+    "message": "تأكيد تصدير الخزانة"
   },
   "exportWarningDesc": {
-    "message": "يحتوي هذا التصدير على بيانات خزنتك بتنسيق غير مشفر. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه مباشرة بعد انتهائك من استخدامه."
+    "message": "يحتوي هذا التصدير على بيانات خزانتك بتنسيق غير مشفر. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه مباشرة بعد انتهائك من استخدامه."
   },
   "encExportKeyWarningDesc": {
     "message": "يقوم هذا التصدير بتشفير بياناتك باستخدام مفتاح تشفير حسابك. إذا قمت بتدوير مفتاح تشفير حسابك يجب عليك التصدير مرة أخرى لأنك لن تتمكن من فك تشفير ملف التصدير هذا."
@@ -1138,7 +1142,7 @@
     "message": "مفاتيح تشفير الحساب فريدة من نوعها لكل حساب مستخدم Bitwarden، لذلك لا يمكنك استيراد تصدير مشفر إلى حساب آخر."
   },
   "exportMasterPassword": {
-    "message": "أدخل كلمة المرور الرئيسية لتصدير بيانات خزنتك."
+    "message": "أدخل كلمة المرور الرئيسية لتصدير بيانات خزانتك."
   },
   "shared": {
     "message": "مشترك"
@@ -1247,10 +1251,10 @@
     "message": "خيارات تسجيل الدخول بخطوتين المملوكة لجهات اخرى مثل YubiKey و Duo."
   },
   "ppremiumSignUpReports": {
-    "message": "نظافة كلمة المرور، صحة الحساب، وتقارير تسريبات البيانات للحفاظ على سلامة خزنتك."
+    "message": "نظافة كلمة المرور، صحة الحساب، وتقارير تسريبات البيانات للحفاظ على سلامة خزانتك."
   },
   "ppremiumSignUpTotp": {
-    "message": "مورد رمز التحقق (2FA) لتسجيل الدخول في خزنتك."
+    "message": "مورد رمز التحقق (2FA) لتسجيل الدخول في خزانتك."
   },
   "ppremiumSignUpSupport": {
     "message": "أولوية دعم العملاء."
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "إذا تم اكتشاف نموذج تسجيل الدخول، يتم التعبئة التلقائية عند تحميل صفحة الويب."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "مواقع المساومة أو غير الموثوق بها يمكن أن تستغل الملء التلقائي في تحميل الصفحة."
@@ -2108,7 +2099,7 @@
     "message": "Already have an account?"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزنتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
+    "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزانتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "تأكيد إجراء المهلة"
@@ -2686,7 +2677,7 @@
     "message": "Email verified"
   },
   "emailVerificationRequiredDesc": {
-    "message": "يجب عليك تأكيد بريدك الإلكتروني لاستخدام هذه الميزة. يمكنك تأكيد بريدك الإلكتروني في خزنة الويب."
+    "message": "يجب عليك تأكيد بريدك الإلكتروني لاستخدام هذه الميزة. يمكنك تأكيد بريدك الإلكتروني في خزانة الويب."
   },
   "updatedMasterPassword": {
     "message": "Updated master password"
@@ -2695,7 +2686,7 @@
     "message": "تحديث كلمة المرور الرئيسية"
   },
   "updateMasterPasswordWarning": {
-    "message": "تم تغيير كلمة المرور الرئيسية الخاصة بك مؤخرًا من قبل مسؤول في مؤسستك. من أجل الوصول إلى الخزنة، يجب عليك تحديثها الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. قد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
+    "message": "تم تغيير كلمة المرور الرئيسية الخاصة بك مؤخرًا من قبل مسؤول في مؤسستك. من أجل الوصول إلى الخزانة، يجب عليك تحديثها الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. قد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
@@ -2747,7 +2738,7 @@
     "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "سياسات مؤسستك تؤثر على مهلة الخزنة الخاص بك. الحد الأقصى المسموح به لمهلة الخزنة هو $HOURS$ ساعة/ساعات و $MINUTES$ دقيقة/دقائق",
+    "message": "سياسات مؤسستك تؤثر على مهلة الخزانة الخاص بك. الحد الأقصى المسموح به لمهلة الخزانة هو $HOURS$ ساعة/ساعات و $MINUTES$ دقيقة/دقائق.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2812,10 +2803,10 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "مهلة خزنتك تتجاوز القيود التي تضعها مؤسستك."
+    "message": "مهلة خزانتك تتجاوز القيود التي تضعها مؤسستك."
   },
   "vaultExportDisabled": {
-    "message": "تصدير الخزنة مُعطّل"
+    "message": "تصدير الخزانة مُعطّل"
   },
   "personalVaultExportPolicyInEffect": {
     "message": "واحدة أو أكثر من سياسات المؤسسة تمنعك من تصدير خزانتك الشخصية."
@@ -2857,7 +2848,7 @@
     "message": "انتهت مدة جلستك. يرجى العودة ومحاولة تسجيل الدخول مرة أخرى."
   },
   "exportingPersonalVaultTitle": {
-    "message": "جاري تصدير الخزنة الشخصية"
+    "message": "جاري تصدير الخزانة الشخصية"
   },
   "exportingIndividualVaultDescription": {
     "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
@@ -3168,7 +3159,7 @@
     "message": "عبارة بصمة الإصبع"
   },
   "fingerprintMatchInfo": {
-    "message": "الرجاء التأكد من أن الخزنة الخاصة بك غير مقفلة وأن عبارة بصمة الإصبع تتطابق على الجهاز الآخر."
+    "message": "الرجاء التأكد من أن الخزانة الخاصة بك غير مقفلة وأن عبارة بصمة الإصبع تتطابق على الجهاز الآخر."
   },
   "resendNotification": {
     "message": "إعادة إرسال الإشعار"
@@ -3794,7 +3785,7 @@
     }
   },
   "confirmVaultImport": {
-    "message": "تأكيد تصدير الخزنة"
+    "message": "تأكيد تصدير الخزانة"
   },
   "confirmVaultImportDesc": {
     "message": "هذا الملف محمي بكلمة مرور. الرجاء إدخال كلمة مرور الملف لاستيراد البيانات."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

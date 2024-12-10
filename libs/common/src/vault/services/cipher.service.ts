@@ -709,13 +709,9 @@ export class CipherService implements CipherServiceAbstraction {
     return new Cipher(updated[cipher.id as CipherId]);
   }
 
-  async updateWithServer(
-    cipher: Cipher,
-    orgAdmin?: boolean,
-    isNotClone?: boolean,
-  ): Promise<Cipher> {
+  async updateWithServer(cipher: Cipher, orgAdmin?: boolean): Promise<Cipher> {
     let response: CipherResponse;
-    if (orgAdmin && isNotClone) {
+    if (orgAdmin) {
       const request = new CipherRequest(cipher);
       response = await this.apiService.putCipherAdmin(cipher.id, request);
       const data = new CipherData(response, cipher.collectionIds);

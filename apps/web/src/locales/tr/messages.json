@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Parola geçmişi"
   },
+  "generatorHistory": {
+    "message": "Üreteç geçmişi"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Üreteç geçmişini temizle"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Devam ederseniz üreteç geçmişindeki tüm kayıtlar kalıcı olarak silinecektir. Devam etmek istediğinizden emin misiniz?"
+  },
   "noPasswordsInList": {
     "message": "Listelenecek parola yok."
+  },
+  "clearHistory": {
+    "message": "Geçmişi temizle"
+  },
+  "nothingToShow": {
+    "message": "Gösterilecek bir şey yok"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Yakın zamanda herhangi bir şey üretmediniz"
   },
   "clear": {
     "message": "Temizle",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Tüm oturumlar kapatıldı"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Bu hesap $ORGANIZATIONNAME$ kuruluşuna aittir",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "Giriş başlatıldı"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Sonraki girişleri kolaylaştırmak için bu cihazı hatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Cihazı onaylamanız gerekiyor"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Aşağıdan bir onay yöntemi seçin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı hatırla"
@@ -8293,7 +8311,7 @@
     "message": "Kullanıcının e-postası eksik"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktif kullanıcı e-postası bulunamadı. Çıkış yapılıyor."
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Kuruluş için toplama davranışını yönetin"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Koleksiyon oluşturma ve silme işlemlerini sahipler ve yöneticilerle sınırlandırın"
   },
   "limitCollectionCreationDesc": {
     "message": "Koleksiyon oluşturmayı sahipler ve yöneticilerle sınırlandırın"

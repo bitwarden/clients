@@ -63,17 +63,12 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     };
   }
 
-  buildRequest(policiesEnabledMap: Map<PolicyType, boolean>): Promise<PolicyRequest> {
-    const singleOrgEnabled = policiesEnabledMap.get(PolicyType.SingleOrg) ?? false;
-    if (this.enabled.value && !singleOrgEnabled) {
-      throw new Error(this.i18nService.t("requireSsoPolicyReqError"));
-    }
-
-    const data = this.buildRequestData();
-    if (data?.minutes == null || data?.minutes <= 0) {
+  async buildRequest(): Promise<PolicyRequest> {
+    const request = await super.buildRequest();
+    if (request.data?.minutes == null || request.data?.minutes <= 0) {
       throw new Error(this.i18nService.t("invalidMaximumVaultTimeout"));
     }
 
-    return super.buildRequest(policiesEnabledMap);
+    return request;
   }
 }

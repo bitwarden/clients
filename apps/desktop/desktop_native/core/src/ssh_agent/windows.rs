@@ -12,7 +12,7 @@ use super::BitwardenDesktopAgent;
 
 impl BitwardenDesktopAgent {
     pub async fn start_server(
-        auth_request_tx: tokio::sync::mpsc::Sender<(u32, String)>,
+        auth_request_tx: tokio::sync::mpsc::Sender<(u32, (String, bool))>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
     ) -> Result<Self, anyhow::Error> {
         let agent_state = BitwardenDesktopAgent {
@@ -21,6 +21,7 @@ impl BitwardenDesktopAgent {
             get_ui_response_rx: auth_response_rx,
             cancellation_token: CancellationToken::new(),
             request_id: Arc::new(tokio::sync::Mutex::new(0)),
+            needs_unlock: Arc::new(tokio::sync::Mutex::new(true)),
             is_running: Arc::new(tokio::sync::Mutex::new(true)),
         };
         let stream = named_pipe_listener_stream::NamedPipeServerStream::new(

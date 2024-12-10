@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Paroles izmaiņu vēsture"
   },
+  "generatorHistory": {
+    "message": "Veidotāja vēsture"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Iztīrīt veidotāja vēsturi"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Turpinot visi veidotāja vēstures ieraksti tiks neatgrieziniski izdzēsti. Vai tiešām turpināt?"
+  },
   "noPasswordsInList": {
     "message": "Nav paroļu, ko parādīt."
+  },
+  "clearHistory": {
+    "message": "Iztīrīt vēsturi"
+  },
+  "nothingToShow": {
+    "message": "Nav nekā, ko parādīt"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Pēdējā laikā nav nekas izveidots"
   },
   "clear": {
     "message": "Notīrīt",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Visu sesiju darbība ir atsaukta"
   },
-  "accountIsManagedMessage": {
-    "message": "Šo kontu pārvalda $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Šis konts pieder $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -6511,7 +6529,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu parles vārdkopu.",
+    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu paroles vārdkopu.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -8052,16 +8070,16 @@
     "message": "Uzsākta pieteikšanās"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
   },
   "deviceApprovalRequired": {
     "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Nepieciešama ierīces apstiprināšana"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Zemāk jāatlasa apstiprināšnas iespēja"
   },
   "rememberThisDevice": {
     "message": "Atcerēties šo ierīci"
@@ -8293,7 +8311,7 @@
     "message": "Trūkst lietotāja e-pasta adreses"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktīva lietotāja e-pasta adrese netika atrasta. Notiek atteikšanās."
   },
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Krājumu uzvedības pārvaldība apvienībā"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Ļaut krājumu izveidošanu un izdzēšanu tikai īpašniekiem un pārvaldniekiem"
   },
   "limitCollectionCreationDesc": {
     "message": "Ļaut krājumu izveidošanu tikai īpašniekiem un pārvaldītājiem"

@@ -1125,6 +1125,10 @@
     "message": "ΠΡΟΕΙΔΟΠΟΙΗΣΗ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Επιβεβαίωση εξαγωγής θησαυ/κίου"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Εάν εντοπιστεί φόρμα σύνδεσης, θα συμπληρωθεί αυτόματα κατά τη φόρτωση της σελίδας."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Προειδοποίηση:$CLOSETAG$ Οι παραβιασμένες ή μη αξιόπιστες ιστοσελίδες μπορούν να εκμεταλλευτούν την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Παραβιασμένοι ή μη αξιόπιστοι ιστότοποι μπορούν να εκμεταλλευτούν την αυτόματη συμπλήρωση κατά τη φόρτωση της σελίδας."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

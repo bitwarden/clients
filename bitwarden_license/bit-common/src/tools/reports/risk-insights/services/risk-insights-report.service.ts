@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { concatMap, first, from, map, Observable, zip } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -6,68 +7,22 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BadgeVariant } from "@bitwarden/components";
+
+import {
+  ApplicationHealthReportDetail,
+  ApplicationHealthReportSummary,
+  CipherHealthReportDetail,
+  CipherHealthReportUriDetail,
+  ExposedPasswordDetail,
+  MemberDetailsFlat,
+  WeakPasswordDetail,
+  WeakPasswordScore,
+} from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 
-export type ApplicationHealthReportSummary = {
-  totalMemberCount: number;
-  totalAtRiskMemberCount: number;
-  totalApplicationCount: number;
-  totalAtRiskApplicationCount: number;
-};
-
-export type ApplicationHealthReportDetail = {
-  applicationName: string;
-  passwordCount: number;
-  atRiskPasswordCount: number;
-  memberCount: number;
-  atRiskMemberCount: number;
-
-  memberDetails: MemberDetailsFlat[];
-  atRiskMemberDetails: MemberDetailsFlat[];
-};
-
-export type CipherHealthReportUriDetail = {
-  cipherId: string;
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: MemberDetailsFlat[];
-  trimmedUri: string;
-};
-
-export type CipherHealthReportDetail = CipherView & {
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: MemberDetailsFlat[];
-  trimmedUris: string[];
-};
-
-type WeakPasswordDetail = {
-  score: number;
-  detailValue: WeakPasswordScore;
-};
-
-type WeakPasswordScore = {
-  label: string;
-  badgeVariant: BadgeVariant;
-};
-
-type ExposedPasswordDetail = {
-  exposedXTimes: number;
-};
-
-export type MemberDetailsFlat = {
-  userName: string;
-  email: string;
-  cipherId: string;
-};
 @Injectable()
 export class RiskInsightsReportService {
-  passwordUseMap = new Map<string, number>();
-
   constructor(
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private auditService: AuditService,
@@ -80,17 +35,26 @@ export class RiskInsightsReportService {
    * Can be used in the Raw Data diagnostic tab (just exclude the members in the view)
    * and can be used in the raw data + members tab when including the members in the view
    * @param organizationId
-   * @returns
+   * @returns Cipher health report data with members and trimmed uris
    */
-  async generateRawDataReport(organizationId: string): Promise<CipherHealthReportDetail[]> {
-    const allCiphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
-    const memberCipherDetails =
-      await this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId);
-    const flattenedDetails: MemberDetailsFlat[] = memberCipherDetails.flatMap((dtl) =>
-      dtl.cipherIds.map((c) => this.getMemberDetailsFlat(dtl.userName, dtl.email, c)),
+  generateRawDataReport$(organizationId: string): Observable<CipherHealthReportDetail[]> {
+    const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
+    const memberCiphers$ = from(
+      this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
     );
 
-    return this.getCipherDetails(allCiphers, flattenedDetails);
+    const results$ = zip(allCiphers$, memberCiphers$).pipe(
+      map(([allCiphers, memberCiphers]) => {
+        const details: MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
+          dtl.cipherIds.map((c) => this.getMemberDetailsFlat(dtl.userName, dtl.email, c)),
+        );
+        return [allCiphers, details] as const;
+      }),
+      concatMap(([ciphers, flattenedDetails]) => this.getCipherDetails(ciphers, flattenedDetails)),
+      first(),
+    );
+
+    return results$;
   }
 
   /**
@@ -99,10 +63,14 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns Cipher health report data flattened to the uris
    */
-  async generateRawDataUriReport(organizationId: string): Promise<CipherHealthReportUriDetail[]> {
-    const cipherHealthDetails = await this.generateRawDataReport(organizationId);
+  generateRawDataUriReport$(organizationId: string): Observable<CipherHealthReportUriDetail[]> {
+    const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
+    const results$ = cipherHealthDetails$.pipe(
+      map((healthDetails) => this.getCipherUriDetails(healthDetails)),
+      first(),
+    );
 
-    return this.getCipherUriDetails(cipherHealthDetails);
+    return results$;
   }
 
   /**
@@ -111,11 +79,14 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns The all applications health report data
    */
-  async generateApplicationsReport(
-    organizationId: string,
-  ): Promise<ApplicationHealthReportDetail[]> {
-    const cipherHealthUriReport = await this.generateRawDataUriReport(organizationId);
-    return this.getApplicationHealthReport(cipherHealthUriReport);
+  generateApplicationsReport$(organizationId: string): Observable<ApplicationHealthReportDetail[]> {
+    const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
+    const results$ = cipherHealthUriReport$.pipe(
+      map((uriDetails) => this.getApplicationHealthReport(uriDetails)),
+      first(),
+    );
+
+    return results$;
   }
 
   /**
@@ -153,13 +124,21 @@ export class RiskInsightsReportService {
     memberDetails: MemberDetailsFlat[],
   ): Promise<CipherHealthReportDetail[]> {
     const cipherHealthReports: CipherHealthReportDetail[] = [];
-
+    const passwordUseMap = new Map<string, number>();
     for (const cipher of ciphers) {
       if (this.validateCipher(cipher)) {
         const weakPassword = this.findWeakPassword(cipher);
         // Looping over all ciphers needs to happen first to determine reused passwords over all ciphers.
         // Store in the set and evaluate later
-        this.findReusedPassword(cipher);
+        if (passwordUseMap.has(cipher.login.password)) {
+          passwordUseMap.set(
+            cipher.login.password,
+            (passwordUseMap.get(cipher.login.password) || 0) + 1,
+          );
+        } else {
+          passwordUseMap.set(cipher.login.password, 1);
+        }
+
         const exposedPassword = await this.findExposedPassword(cipher);
 
         // Get the cipher members
@@ -181,9 +160,7 @@ export class RiskInsightsReportService {
 
     // loop for reused passwords
     cipherHealthReports.forEach((detail) => {
-      detail.reusedPasswordCount = this.passwordUseMap.has(detail.id)
-        ? this.passwordUseMap.get(detail.id)
-        : 0;
+      detail.reusedPasswordCount = passwordUseMap.get(detail.login.password) ?? 0;
     });
     return cipherHealthReports;
   }
@@ -215,7 +192,7 @@ export class RiskInsightsReportService {
       const index = appReports.findIndex((item) => item.applicationName === uri.trimmedUri);
 
       let atRisk: boolean = false;
-      if (uri.exposedPasswordDetail || uri.weakPasswordDetail || uri.reusedPasswordCount > 0) {
+      if (uri.exposedPasswordDetail || uri.weakPasswordDetail || uri.reusedPasswordCount > 1) {
         atRisk = true;
       }
 
@@ -226,17 +203,6 @@ export class RiskInsightsReportService {
       }
     });
     return appReports;
-  }
-
-  private findReusedPassword(cipher: CipherView) {
-    if (this.passwordUseMap.has(cipher.login.password)) {
-      this.passwordUseMap.set(
-        cipher.login.password,
-        (this.passwordUseMap.get(cipher.login.password) || 0) + 1,
-      );
-    } else {
-      this.passwordUseMap.set(cipher.login.password, 1);
-    }
   }
 
   private async findExposedPassword(cipher: CipherView): Promise<ExposedPasswordDetail> {

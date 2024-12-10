@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "En ny SSH-nøgle er genereret"
   },
+  "sshKeyWrongPassword": {
+    "message": "Den angivne adgangskode er forkert."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Bekræft adgangskode"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Angiv adgangskoden til SSH-nøglen."
+  },
+  "enterSshKeyPassword": {
+    "message": "Angiv adgangskode"
+  },
   "sshAgentUnlockRequired": {
     "message": "Oplås boksen op for at godkende SSH-nøgleanmodningen."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Adgangskodehistorik"
   },
+  "generatorHistory": {
+    "message": "Generatorhistorik"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Ryd generatorhistorik"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Fortsætter man, slettes alle poster permanent fra generatorhistorikken. Sikker på, at handlingen skal udføres?"
+  },
   "clear": {
     "message": "Ryd",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Der er ingen kodeord at vise."
+  },
+  "clearHistory": {
+    "message": "Ryd historik"
+  },
+  "nothingToShow": {
+    "message": "Intet at vise"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Intet genereret for nylig"
   },
   "undo": {
     "message": "Fortryd"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "En notifikation er sendt til din enhed."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "En notifikation er sendt til enheden"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Sørg for, at boksen er oplåst, samt at fingeraftrykssætningen matcher på den anden enhed"
+  },
+  "needAnotherOptionV1": {
+    "message": "Behov for en anden mulighed?"
+  },
   "fingerprintMatchInfo": {
     "message": "Sørg for, at din boks er oplåst, og at fingeraftrykssætningen matcher den anden enheds."
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeraftrykssætning"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Man vil få besked, når anmodningen er godkendt"
+  },
   "needAnotherOption": {
     "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Vis alle indlogningsmuligheder"
   },
   "viewAllLoginOptions": {
     "message": "Vis alle indlogningsmuligheder"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Tjek kendte datalæk for denne adgangskode"
   },
+  "loggedInExclamation": {
+    "message": "Logget ind!"
+  },
   "important": {
     "message": "Vigtigt:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Anbefalet indstillingsopdatering"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Husk denne enhed for at gøre fremtidige indlogninger gnidningsløse"
+  },
   "deviceApprovalRequired": {
     "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Enhedsgodkendelse kræves"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vælg en godkendelsesmulighed nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enhed"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Brugers e-mail mangler"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktiv bruger e-mail ikke fundet. Man logges ud."
   },
   "deviceTrusted": {
     "message": "Enhed betroet"

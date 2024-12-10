@@ -20,16 +20,16 @@
     "message": "Стварыць уліковы запіс"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Упершыню ў Bitwarden?"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Выкарыстаць аднаразовы ўваход"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "З вяртаннем"
   },
   "setAStrongPassword": {
     "message": "Прызначыць надзейны пароль"
@@ -120,7 +120,7 @@
     "message": "Скапіяваць пароль"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Скапіяваць парольную фразу"
   },
   "copyNote": {
     "message": "Скапіяваць нататку"
@@ -153,13 +153,13 @@
     "message": "Скапіяваць нумар ліцэнзіі"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Скапіяваць прыватны ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Скапіяваць публічны ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Скапіяваць адбітак пальца"
   },
   "copyCustomField": {
     "message": "Скапіяваць $FIELD$",
@@ -177,7 +177,7 @@
     "message": "Скапіяваць нататкі"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Запоўніць",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -436,7 +436,7 @@
     "message": "Генерыраваць пароль"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Згенерыраваць парольную фразу"
   },
   "regeneratePassword": {
     "message": "Паўторна генерыраваць пароль"
@@ -600,7 +600,7 @@
     "message": "Адкрыць сайт"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Адкрыць сайт $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -855,7 +855,7 @@
     "message": "Увайсці"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Увайсці ў Bitwarden"
   },
   "restartRegistration": {
     "message": "Restart registration"
@@ -1124,6 +1124,10 @@
   "warning": {
     "message": "ПАПЯРЭДЖАННЕ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
+  },
+  "warningCapitalized": {
+    "message": "Папярэджанне",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
     "message": "Пацвердзіць экспартаванне сховішча"
@@ -1459,7 +1463,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Прапановы аўтазапаўнення"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Калі выяўлена форма ўваходу, то будзе выканана яе аўтазапаўненне падчас загрузкі вэб-старонкі."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Скампраметаваныя або ненадзейныя вэб-сайты могуць задзейнічаць функцыю аўтазапаўнення падчас загрузкі старонкі."
@@ -1774,7 +1765,7 @@
     "message": "Пасведчанне"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Ключ SSH"
   },
   "newItemHeader": {
     "message": "Новы $TYPE$",
@@ -1807,7 +1798,7 @@
     "message": "Гісторыя пароляў"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Гісторыя генератара"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
@@ -1852,7 +1843,7 @@
     "message": "Абароненыя нататкі"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Ключы SSH"
   },
   "clear": {
     "message": "Ачысціць",
@@ -1935,7 +1926,7 @@
     "message": "Ачысціць гісторыю"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Адсутнічаюць элементы для паказу"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

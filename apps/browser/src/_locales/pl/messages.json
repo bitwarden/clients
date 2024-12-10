@@ -1125,6 +1125,10 @@
     "message": "UWAGA",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Potwierdź eksportowanie sejfu"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Jeśli zostanie wykryty formularz logowania, automatycznie uzupełnij dane logowania po załadowaniu strony."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Ostrzeżenie:$CLOSETAG$ Niebezpieczne witryny są w stanie wykorzystać autouzupełnianie przy wczytywaniu strony.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Zaatakowane lub niezaufane witryny internetowe mogą wykorzystać funkcję autouzupełniania podczas wczytywania strony, aby wyrządzić szkody."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Geschiedenis"
   },
+  "generatorHistory": {
+    "message": "Generatorgeschiedenis"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generatorgeschiedenis wissen"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Als je doorgaat, wis je definitief de geschiedenis van de generator. Weet je zeker dat je wilt doorgaan?"
+  },
   "noPasswordsInList": {
     "message": "Er zijn geen wachtwoorden om weer te geven."
+  },
+  "clearHistory": {
+    "message": "Geschiedenis wissen"
+  },
+  "nothingToShow": {
+    "message": "Niets weer te geven"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Je hebt de laatste tijd niets gegenereerd"
   },
   "clear": {
     "message": "Wissen",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Autorisatie van alle sessies ingetrokken"
   },
-  "accountIsManagedMessage": {
-    "message": "Dit account wordt beheerd door $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Dit account is eigendom van $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Het gedrag van de collectie beheren voor de organisatie"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Aanmaken en verwijderen van collecties tot eigenaren en managers beperken"
   },
   "limitCollectionCreationDesc": {
     "message": "Aanmaken van collecties beperken tot eigenaren en managers"

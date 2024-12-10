@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Jelszóelőzmények"
   },
+  "generatorHistory": {
+    "message": "Generátor előzmények"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Generátor előzmények kiürítése"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ha folytatjuk, az összes bejegyzés véglegesen törlődik a generátor előzményeiből. Biztosan folytatjuk?"
+  },
   "noPasswordsInList": {
     "message": "Nincsenek listázható jelszavak."
+  },
+  "clearHistory": {
+    "message": "Előzmények törlése"
+  },
+  "nothingToShow": {
+    "message": "Nincs megjeleníthető elem"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Mostanában nem lett semmi generálva."
   },
   "clear": {
     "message": "Kiürítés",
@@ -1767,7 +1785,7 @@
   "sessionsDeauthorized": {
     "message": "Az összes munkamenet hitelesítése eldobásra került."
   },
-  "accountIsManagedMessage": {
+  "accountIsOwnedMessage": {
     "message": "Ezt a fiókot $ORGANIZATIONNAME$ kezeli.",
     "placeholders": {
       "organizationName": {
@@ -8052,16 +8070,16 @@
     "message": "A bejelentkezés elindításra került."
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Emlékezés az eszközre, hogy zökkenőmentes legyen a jövőbeni bejelentkezés"
   },
   "deviceApprovalRequired": {
     "message": "Az eszköz jóváhagyása szükséges. Válasszunk egy jóváhagyási lehetőséget lentebb:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Eszköz jóváhagyás szükséges"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Válasszunk lentebb egy jóváhagyási lehetőséget."
   },
   "rememberThisDevice": {
     "message": "Eszköz megjegyzése"
@@ -8293,7 +8311,7 @@
     "message": "A felhasználói email cím hiányzik."
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": ""
   },
   "deviceTrusted": {
     "message": "Az eszköz megbízható."
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Gyűjtési viselkedést kezelhet a szervezetnek"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "A gyűjtemény létrehozásának és törlésének korlátozása tulajdonosokra és adminisztrátorokra"
   },
   "limitCollectionCreationDesc": {
     "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra"

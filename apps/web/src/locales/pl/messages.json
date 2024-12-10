@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Historia hasła"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "Brak haseł."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Wyczyść",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Wszystkie sesje zostały zakończone"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8390,9 +8408,6 @@
   "collectionManagementDesc": {
     "message": "Zarządzaj zachowaniami kolekcji w organizacji"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Ogranicz tworzenie i usuwanie kolekcji dla właścicieli i administratorów"
-  },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"
   },
@@ -9138,7 +9153,7 @@
     }
   },
   "lowKDFIterationsBanner": {
-    "message": "Niska liczba itracjia KDF. Zwiększ liczbę iteracji, aby zwiększyć bezpieczeństwo Twojego konta."
+    "message": "Niska liczba iteracji KDF. Zwiększ liczbę iteracji, aby zwiększyć bezpieczeństwo Twojego konta."
   },
   "changeKDFSettings": {
     "message": "Zmień ustawienia KDF"

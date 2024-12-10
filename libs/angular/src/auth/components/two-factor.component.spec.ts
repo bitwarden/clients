@@ -86,9 +86,12 @@ describe("TwoFactorComponent", () => {
   };
 
   let selectedUserDecryptionOptions: BehaviorSubject<UserDecryptionOptions>;
+  let twoFactorTimeoutSubject: BehaviorSubject<boolean>;
 
   beforeEach(() => {
+    twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
     mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    mockLoginStrategyService.twoFactorTimeout$ = twoFactorTimeoutSubject;
     mockRouter = mock<Router>();
     mockI18nService = mock<I18nService>();
     mockApiService = mock<ApiService>();
@@ -491,5 +494,11 @@ describe("TwoFactorComponent", () => {
         });
       });
     });
+  });
+
+  it("navigates to the timeout route when timeout expires", async () => {
+    twoFactorTimeoutSubject.next(true);
+
+    expect(mockRouter.navigate).toHaveBeenCalledWith(["2fa-timeout"]);
   });
 });

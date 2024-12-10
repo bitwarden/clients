@@ -19,6 +19,13 @@ export class RendererCryptoFunctionService
     memory: number,
     parallelism: number,
   ): Promise<Uint8Array> {
+    if (typeof password === "string") {
+      password = new TextEncoder().encode(password);
+    }
+    if (typeof salt === "string") {
+      salt = new TextEncoder().encode(salt);
+    }
+
     return await ipc.platform.crypto.argon2(password, salt, iterations, memory, parallelism);
   }
 }

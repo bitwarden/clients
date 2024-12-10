@@ -527,10 +527,10 @@
     "description": "Search Secure Note type"
   },
   "searchVault": {
-    "message": "البحث في الخزنة"
+    "message": "البحث في الخزانة"
   },
   "searchMyVault": {
-    "message": "البحث في خزنتي"
+    "message": "البحث في خزانتي"
   },
   "searchOrganization": {
     "message": "البحث عن المؤسسة"
@@ -789,19 +789,19 @@
     "message": "أنا"
   },
   "myVault": {
-    "message": "خزنتي"
+    "message": "خزانتي"
   },
   "allVaults": {
-    "message": "جميع الخزنات"
+    "message": "جميع الخزانات"
   },
   "vault": {
-    "message": "الخزنة"
+    "message": "الخزانة"
   },
   "vaults": {
-    "message": "الخزنات"
+    "message": "الخزانات"
   },
   "vaultItems": {
-    "message": "عناصر الخزنة"
+    "message": "عناصر الخزانة"
   },
   "filter": {
     "message": "تصفية"
@@ -976,7 +976,7 @@
     "message": "لا"
   },
   "loginOrCreateNewAccount": {
-    "message": "قم بتسجيل الدخول أو أنشئ حساباً جديداً لتتمكن من الوصول إلى خزنتك السرية."
+    "message": "قم بتسجيل الدخول أو أنشئ حساباً جديداً لتتمكن من الوصول إلى خزانتك السرية."
   },
   "loginWithDevice": {
     "message": "تسجيل الدخول باستخدام جهاز"
@@ -1132,7 +1132,7 @@
     "message": "كلمة المرور الرئيسية"
   },
   "masterPassDesc": {
-    "message": "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزنتك. من المهم جدا ألا تنسى كلمة المرور الرئيسية. لا توجد طريقة لاسترداد كلمة المرور في حال نسيتها."
+    "message": "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزانتك. من المهم جدا ألا تنسى كلمة المرور الرئيسية. لا توجد طريقة لاسترداد كلمة المرور في حال نسيتها."
   },
   "masterPassImportant": {
     "message": "لا يمكن استعادة كلمة المرور الرئيسية إذا نسيتها!"
@@ -1500,7 +1500,7 @@
     "message": "تحذير"
   },
   "confirmVaultExport": {
-    "message": "تأكيد تصدير الخزنة"
+    "message": "تأكيد تصدير الخزانة"
   },
   "confirmSecretsExport": {
     "message": "Confirm secrets export"
@@ -1524,7 +1524,7 @@
     "message": "Export from"
   },
   "exportVault": {
-    "message": "تصدير الخزنة"
+    "message": "تصدير الخزانة"
   },
   "exportSecrets": {
     "message": "Export secrets"
@@ -1575,7 +1575,7 @@
     "message": "This file is password-protected. Please enter the file password to import data."
   },
   "exportSuccess": {
-    "message": "تم تصدير بيانات الخزنة الخاصة بك."
+    "message": "تم تصدير بيانات الخزانة الخاصة بك"
   },
   "passwordGenerator": {
     "message": "مولّد كلمات المرور"
@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "سجل كلمات المرور"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "There are no passwords to list."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "مسح",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "All sessions deauthorized"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -1777,7 +1795,7 @@
     }
   },
   "purgeVault": {
-    "message": "مسح الخزنة"
+    "message": "مسح الخزانة"
   },
   "purgedOrganizationVault": {
     "message": "Purged organization vault."
@@ -1940,7 +1958,7 @@
     "message": "التفضيلات"
   },
   "preferencesDesc": {
-    "message": "تخصيص تجرِبة خزنة الويب الخاصة بك."
+    "message": "تخصيص تجرِبة خزانة الويب الخاصة بك."
   },
   "preferencesUpdated": {
     "message": "Preferences saved"
@@ -1949,7 +1967,7 @@
     "message": "اللّغة"
   },
   "languageDesc": {
-    "message": "تغيير اللغة المستخدمة في خزنة الويب."
+    "message": "تغيير اللغة المستخدمة في خزانة الويب."
   },
   "enableFavicon": {
     "message": "إظهار أيقونات الموقع"
@@ -4313,7 +4331,7 @@
     "message": "عوامل التصفية"
   },
   "vaultTimeout": {
-    "message": "مهلة الخزنة"
+    "message": "مهلة الخزانة"
   },
   "vaultTimeout1": {
     "message": "Timeout"
@@ -4446,7 +4464,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "الرجاء التأكد من أن الخزنة الخاصة بك غير مقفلة وأن بصمة الإصبع تتطابق مع الجهاز الآخر."
+    "message": "الرجاء التأكد من أن الخزانة الخاصة بك غير مقفلة وأن بصمة الإصبع تتطابق مع الجهاز الآخر."
   },
   "fingerprintPhraseHeader": {
     "message": "بصمة الإصبع"
@@ -4579,13 +4597,13 @@
     "message": "User preference"
   },
   "vaultTimeoutAction": {
-    "message": "إجراء مهلة الخزنة"
+    "message": "إجراء مهلة الخزانة"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "الخزنة المقفلة تتطلب إعادة إدخال كلمة المرور الرئيسية الخاصة بك للوصول إليها مرة أخرى."
+    "message": "الخزانة المقفلة تتطلب إعادة إدخال كلمة المرور الرئيسية الخاصة بك للوصول إليها مرة أخرى."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "تسجيل الخروج من الخزنة يتطلب إعادة المصادقة للوصول إليها مرة أخرى."
+    "message": "تسجيل الخروج من الخزانة يتطلب إعادة المصادقة للوصول إليها مرة أخرى."
   },
   "lock": {
     "message": "قفل",
@@ -5557,7 +5575,7 @@
     "message": "المظهر"
   },
   "themeDesc": {
-    "message": "اختر مظهر خزنة الويب خاصتك."
+    "message": "اختر مظهر خزانة الويب خاصتك."
   },
   "themeSystem": {
     "message": "تلقائي"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
   },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"

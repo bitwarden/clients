@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "En ny SSH-nyckel har genererats"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Lösenordshistorik"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "Rensa",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Det finns inga lösenord att visa."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Ångra"
@@ -2445,7 +2478,7 @@
     "message": "Generate email"
   },
   "spinboxBoundariesHint": {
-    "message": "Värde måste vara mellan $MIN$ och $MAX$.",
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2459,7 +2492,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Använd minst $RECOMMENDED$ tecken för att generera ett starkt lösenord.",
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2469,7 +2502,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Använd minst $RECOMMENDED$ ord för att generera en stark lösenfras.",
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "En avisering har skickats till din enhet."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
     "message": "Se till att ditt valv är upplåst och att fingeravtrycksfrasen matchar på den andra enheten."
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeravtrycksfras"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "needAnotherOption": {
     "message": "\"Logga in med enhet\" måste ställas in i inställningarna i Bitwardens app. Behöver du ett annat alternativ?"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Visa alla inloggningsalternativ"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Kontrollera kända dataintrång för detta lösenord"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Viktigt:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Rekommenderade inställningsuppdateringar"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Godkännande av enhet krävs. Välj ett godkännandealternativ nedan:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Kom ihåg denna enhet"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Användarens e-postadress saknas"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Enhet betrodd"

@@ -17,9 +17,11 @@ pub mod importer;
 pub struct BitwardenDesktopAgent {
     keystore: ssh_agent::KeyStore,
     cancellation_token: CancellationToken,
-    show_ui_request_tx: tokio::sync::mpsc::Sender<(u32, String)>,
+    show_ui_request_tx: tokio::sync::mpsc::Sender<(u32, (String, bool))>,
     get_ui_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
     request_id: Arc<Mutex<u32>>,
+    /// before first unlock, or after account switching, listing keys should require an unlock to get a list of public keys
+    needs_unlock: Arc<Mutex<bool>>,
     is_running: Arc<tokio::sync::Mutex<bool>>,
 }
 
@@ -33,8 +35,30 @@ impl ssh_agent::Agent for BitwardenDesktopAgent {
         let request_id = self.get_request_id().await;
 
         let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
+        let message = (request_id, (ssh_key.cipher_uuid.clone(), false));
         self.show_ui_request_tx
-            .send((request_id, ssh_key.cipher_uuid.clone()))
+            .send(message)
+            .await
+            .expect("Should send request to ui");
+        while let Ok((id, response)) = rx_channel.recv().await {
+            if id == request_id {
+                return response;
+            }
+        }
+        false
+    }
+
+    async fn can_list(&self) -> bool {
+        if !*self.needs_unlock.lock().await{
+            return true;
+        }
+
+        let request_id = self.get_request_id().await;
+
+        let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
+        let message = (request_id, ("".to_string(), true));
+        self.show_ui_request_tx
+            .send(message)
             .await
             .expect("Should send request to ui");
         while let Ok((id, response)) = rx_channel.recv().await {
@@ -74,6 +98,8 @@ impl BitwardenDesktopAgent {
 
         let keystore = &mut self.keystore;
         keystore.0.write().expect("RwLock is not poisoned").clear();
+
+        *self.needs_unlock.blocking_lock() = false;
 
         for (key, name, cipher_id) in new_keys.iter() {
             match parse_key_safe(&key) {
@@ -116,6 +142,14 @@ impl BitwardenDesktopAgent {
             .for_each(|(_public_key, key)| {
                 key.private_key = None;
             });
+        Ok(())
+    }
+
+    pub fn clear_keys(&mut self) -> Result<(), anyhow::Error> {
+        let keystore = &mut self.keystore;
+        keystore.0.write().expect("RwLock is not poisoned").clear();
+        *self.needs_unlock.blocking_lock() = true;
+
         Ok(())
     }
 

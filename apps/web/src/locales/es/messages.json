@@ -27,10 +27,10 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Miembros notificados"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Todas las aplicaciones ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -42,7 +42,7 @@
     "message": "Create new login item"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Aplicaciones críticas ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -51,7 +51,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Miembros notificados ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -87,7 +87,7 @@
     "message": "Apps marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplicación"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -759,31 +759,31 @@
     "message": "Copy website"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Copiar notas"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copiar dirección"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copiar teléfono"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Copiar correo electrónico"
   },
   "copyCompany": {
     "message": "Copy company"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Copiar número de seguro social"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiar número de pasaporte"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiar número de licencia"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copiar nombre"
   },
   "me": {
     "message": "Yo"
@@ -952,7 +952,7 @@
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Enlace expirado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -1169,10 +1169,10 @@
     "message": "Configuración"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Correo electrónico de la cuenta"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Solicitar pista"
   },
   "requestPasswordHint": {
     "message": "Request password hint"
@@ -1221,7 +1221,7 @@
     "message": "Your new account has been created!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "¡Has iniciado sesión!"
   },
   "trialAccountCreated": {
     "message": "Cuenta creada con éxito."
@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Historial de contraseñas"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "No hay contraseñas que listar."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Limpiar",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Desautorizadas todas las sesiones"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8390,9 +8408,6 @@
   "collectionManagementDesc": {
     "message": "Administrar el comportamiento de la colección para la organización"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
-  },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"
   },
@@ -8654,16 +8669,16 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Añadir campo"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Editar campo"
   },
   "items": {
     "message": "Elementos"
   },
   "assignedSeats": {
-    "message": "Assigned seats"
+    "message": "Asientos asignados"
   },
   "assigned": {
     "message": "Asignado"
@@ -8678,16 +8693,16 @@
     "message": "Desvincular organización"
   },
   "manageSeats": {
-    "message": "MANAGE SEATS"
+    "message": "GESTIONAR ASIENTOS"
   },
   "manageSeatsDescription": {
     "message": "Adjustments to seats will be reflected in the next billing cycle."
   },
   "unassignedSeatsDescription": {
-    "message": "Unassigned seats"
+    "message": "Asientos no asignados"
   },
   "purchaseSeatDescription": {
-    "message": "Additional seats purchased"
+    "message": "Asientos adicionales comprados"
   },
   "assignedSeatCannotUpdate": {
     "message": "Assigned Seats can not be updated. Please contact your organization owner for assistance."

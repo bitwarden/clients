@@ -1,6 +1,5 @@
 import * as crypto from "crypto";
 
-import * as argon2 from "argon2";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -40,6 +39,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const nodePassword = this.toNodeValue(password);
     const nodeSalt = this.toNodeBuffer(this.toUint8Buffer(salt));
 
+    const argon2 = await import("argon2");
     const hash = await argon2.hash(nodePassword, {
       salt: nodeSalt,
       raw: true,

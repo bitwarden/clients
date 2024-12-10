@@ -229,11 +229,11 @@ describe("Cipher Service", () => {
   });
 
   describe("updateWithServer()", () => {
-    it("should call apiService.putCipherAdmin when orgAdmin and isNotClone params are true", async () => {
+    it("should call apiService.putCipherAdmin when orgAdmin param is true", async () => {
       const spy = jest
         .spyOn(apiService, "putCipherAdmin")
         .mockImplementation(() => Promise.resolve<any>(cipherObj.toCipherData()));
-      await cipherService.updateWithServer(cipherObj, true, true);
+      await cipherService.updateWithServer(cipherObj, true);
       const expectedObj = new CipherRequest(cipherObj);
 
       expect(spy).toHaveBeenCalled();
@@ -252,7 +252,7 @@ describe("Cipher Service", () => {
       expect(spy).toHaveBeenCalledWith(cipherObj.id, expectedObj);
     });
 
-    it("should call apiService.putPartialCipher when orgAdmin, isNotClone, and edit are false", async () => {
+    it("should call apiService.putPartialCipher when orgAdmin, and edit are false", async () => {
       cipherObj.edit = false;
       const spy = jest
         .spyOn(apiService, "putPartialCipher")

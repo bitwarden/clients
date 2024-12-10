@@ -27,7 +27,7 @@ export class MainSshAgentService {
   init() {
     // handle sign request passing to UI
     sshagent
-      .serve(async (err: Error, cipherId: string) => {
+      .serve(async (err: Error, cipherId: string, isListRequest: boolean) => {
         // clear all old (> SIGN_TIMEOUT) requests
         this.requestResponses = this.requestResponses.filter(
           (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
@@ -37,6 +37,7 @@ export class MainSshAgentService {
         const id_for_this_request = this.request_id;
         this.messagingService.send("sshagent.signrequest", {
           cipherId,
+          isListRequest,
           requestId: id_for_this_request,
         });
 
@@ -109,6 +110,12 @@ export class MainSshAgentService {
     ipcMain.handle("sshagent.lock", async (event: any) => {
       if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
         sshagent.lock(this.agentState);
+      }
+    });
+
+    ipcMain.handle("sshagent.clearkeys", async (event: any) => {
+      if (this.agentState != null) {
+        sshagent.clearKeys(this.agentState);
       }
     });
   }

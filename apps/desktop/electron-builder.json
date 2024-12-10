@@ -18,12 +18,7 @@
     "**/*",
     "!**/node_modules/@bitwarden/desktop-napi/**/*",
     "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node",
-
-    "!**/node_modules/argon2/**/*",
-    "**/node_modules/argon2/argon2.cjs",
-    "**/node_modules/argon2/package.json",
-    "**/node_modules/argon2/build/Release/argon2.node"
+    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
   "electronVersion": "32.1.1",
   "generateUpdatesFilesForAllChannels": true,
@@ -229,7 +224,7 @@
   },
   "deb": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "depends": ["libnotify4", "libxtst6", "libnss3", "libsecret-1-0", "libxss1"]
+    "depends": ["libnotify4", "libxtst6", "libnss3", "libxss1"]
   },
   "appImage": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"

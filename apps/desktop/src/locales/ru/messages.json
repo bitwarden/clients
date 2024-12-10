@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Был создан новый ключ SSH"
   },
+  "sshKeyWrongPassword": {
+    "message": "Введенный пароль неверен."
+  },
+  "importSshKey": {
+    "message": "Импорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Подтвердите пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введите пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введите пароль"
+  },
   "sshAgentUnlockRequired": {
     "message": "Пожалуйста, разблокируйте свое хранилище для подтверждения запроса ключа SSH."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "История паролей"
   },
+  "generatorHistory": {
+    "message": "История генератора"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Очистить историю генератора"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Если вы продолжите, все записи будут навсегда удалены из истории генератора. Вы уверены, что хотите продолжить?"
+  },
   "clear": {
     "message": "Очистить",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Нет паролей для отображения."
+  },
+  "clearHistory": {
+    "message": "Очистить историю"
+  },
+  "nothingToShow": {
+    "message": "Нечего показать"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Вы ничего не создавали в последнее время"
   },
   "undo": {
     "message": "Отменить"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "На ваше устройство было отправлено уведомление"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
+  },
+  "needAnotherOptionV1": {
+    "message": "Нужен другой вариант?"
+  },
   "fingerprintMatchInfo": {
     "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка совпадает на другом устройстве."
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Вы получите уведомление, когда запрос будет одобрен"
+  },
   "needAnotherOption": {
     "message": "Вход с устройства должен быть настроен в настройках мобильного приложения Bitwarden. Нужен другой вариант?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Посмотреть все варианты авторизации"
   },
   "viewAllLoginOptions": {
     "message": "Посмотреть все варианты авторизации"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Проверять известные случаи утечки данных для этого пароля"
   },
+  "loggedInExclamation": {
+    "message": "Выполнен вход!"
+  },
   "important": {
     "message": "Важно:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Рекомендуемое обновление настроек"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запомнить это устройство, чтобы в будущем авторизовываться быстрее"
+  },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Требуется подтверждение устройства"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Выберите вариант подтверждения ниже"
   },
   "rememberThisDevice": {
     "message": "Запомнить это устройство"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "Отсутствует email пользователя"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Email активного пользователя не найден. Разлогиниваем."
   },
   "deviceTrusted": {
     "message": "Доверенное устройство"

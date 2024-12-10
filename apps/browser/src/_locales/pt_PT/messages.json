@@ -1125,6 +1125,10 @@
     "message": "AVISO",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Aviso",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Confirmar a exportação do cofre"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Se for detetado um formulário de início de sessão, o preenchimento automático é efetuado quando a página Web é carregada."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Aviso:$CLOSETAG$ Aviso: Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Largura da extensão"
+  },
+  "wide": {
+    "message": "Ampla"
+  },
+  "extraWide": {
+    "message": "Muito ampla"
   }
 }

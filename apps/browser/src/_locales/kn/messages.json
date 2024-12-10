@@ -1125,6 +1125,10 @@
     "message": "ಎಚ್ಚರಿಕೆ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "ವಾಲ್ಟ್ ರಫ್ತು ಖಚಿತಪಡಿಸಿ"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "ಲಾಗಿನ್ ಫಾರ್ಮ್ ಪತ್ತೆಯಾದಲ್ಲಿ, ವೆಬ್ ಪುಟ ಲೋಡ್ ಆಗುವಾಗ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡಿ."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Compromised or untrusted websites can exploit autofill on page load."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Histórico de Senha"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "Não existem senhas para listar."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Limpar",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Todas as Sessões Desautorizadas"
   },
-  "accountIsManagedMessage": {
-    "message": "Esta conta é gerenciada por $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Gerenciar o comportamento da coleção para a organização"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limitar criação de coleção e exclusão a proprietários e administradores"
   },
   "limitCollectionCreationDesc": {
     "message": "Limitar criação de coleção e exclusão a proprietários e administradores"

@@ -1125,6 +1125,10 @@
     "message": "UPOZORENJE",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Potvrdi izvoz trezora"
   },
@@ -1502,19 +1506,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Nakon učitavanja web stranice, ako je otkriven obrazac za prijavu, auto-ispuni."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Upozorenje:$CLOSETAG$ Ugrožene ili nepouzdane web stranice mogu iskoristiti auto-ispunu prilikom učitavanja stranice.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Ugrožene ili nepouzdane web stranice mogu iskoristiti auto-ispunu prilikom učitavanja stranice."
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

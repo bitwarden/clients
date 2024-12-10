@@ -207,6 +207,21 @@
   "sshKeyGenerated": {
     "message": "Foi gerada uma nova chave SSH"
   },
+  "sshKeyWrongPassword": {
+    "message": "A palavra-passe que introduziu está incorreta."
+  },
+  "importSshKey": {
+    "message": "Importar"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirmar palavra-passe"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Introduza a palavra-passe para a chave SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Introduzir palavra-passe"
+  },
   "sshAgentUnlockRequired": {
     "message": "Por favor, desbloqueie o seu cofre para aprovar o pedido de chave SSH."
   },
@@ -1371,12 +1386,30 @@
   "passwordHistory": {
     "message": "Histórico de palavras-passe"
   },
+  "generatorHistory": {
+    "message": "Histórico do gerador"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Limpar o histórico do gerador"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão permanentemente eliminadas do histórico do gerador. Tem a certeza de que pretende continuar?"
+  },
   "clear": {
     "message": "Limpar",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Não existem palavras-passe para listar."
+  },
+  "clearHistory": {
+    "message": "Limpar histórico"
+  },
+  "nothingToShow": {
+    "message": "Nada a mostrar"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Não gerou nada recentemente"
   },
   "undo": {
     "message": "Anular"
@@ -2689,14 +2722,29 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Foi enviada uma notificação para o seu dispositivo"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
+  },
+  "needAnotherOptionV1": {
+    "message": "Precisa de outra opção?"
+  },
   "fingerprintMatchInfo": {
     "message": "Por favor, certifique-se de que o cofre está desbloqueado e que a frase de impressão digital corresponde à do outro dispositivo."
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de impressão digital"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Será notificado quando o pedido for aprovado"
+  },
   "needAnotherOption": {
     "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Ver todas as opções de início de sessão"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de início de sessão"
@@ -2817,6 +2865,9 @@
   "checkForBreaches": {
     "message": "Verificar violações de dados conhecidas para esta palavra-passe"
   },
+  "loggedInExclamation": {
+    "message": "Sessão iniciada!"
+  },
   "important": {
     "message": "Importante:"
   },
@@ -2847,8 +2898,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Atualização de definições recomendadas"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Memorizar este dispositivo para facilitar futuros inícios de sessão"
+  },
   "deviceApprovalRequired": {
     "message": "É necessária a aprovação do dispositivo. Selecione uma opção de aprovação abaixo:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Aprovação do dispositivo necessária"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Selecione uma opção de aprovação abaixo"
   },
   "rememberThisDevice": {
     "message": "Lembrar este dispositivo"
@@ -2901,6 +2961,9 @@
   },
   "userEmailMissing": {
     "message": "E-mail do utilizador em falta"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "O e-mail do utilizador ativo não foi encontrado. A terminar a sessão."
   },
   "deviceTrusted": {
     "message": "Dispositivo de confiança"

@@ -20,6 +20,7 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -114,9 +115,9 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
-
     private organizationApiService: OrganizationApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -144,15 +145,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationApiService.getBilling(org.id),
+          this.organizationBillingService.getPaymentSource(org.id),
         ]),
       ),
-      map(([org, sub, billing]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-          org,
-          sub,
-          billing?.paymentSource,
-        );
+      map(([org, sub, paymentSource]) => {
+        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
       }),
       takeUntil(this.destroy$),
     );

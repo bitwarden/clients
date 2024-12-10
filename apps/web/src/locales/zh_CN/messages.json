@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "密码历史记录"
   },
+  "generatorHistory": {
+    "message": "生成器历史记录"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "清除生成器历史记录"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
+  },
   "noPasswordsInList": {
     "message": "没有可列出的密码。"
+  },
+  "clearHistory": {
+    "message": "清除历史记录"
+  },
+  "nothingToShow": {
+    "message": "没有可显示的内容"
+  },
+  "nothingGeneratedRecently": {
+    "message": "您最近没有生成任何内容"
   },
   "clear": {
     "message": "清除",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "已取消所有会话授权"
   },
-  "accountIsManagedMessage": {
-    "message": "此账户由 $ORGANIZATIONNAME$ 管理",
+  "accountIsOwnedMessage": {
+    "message": "此账户由 $ORGANIZATIONNAME$ 拥有",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8052,16 +8070,16 @@
     "message": "登录已发起"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "记住此设备以便将来无缝登录"
   },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "需要设备批准"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "在下方选择一个批准选项"
   },
   "rememberThisDevice": {
     "message": "记住此设备"
@@ -8293,7 +8311,7 @@
     "message": "缺少用户电子邮件"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "未找到活动的用户电子邮件。您将被注销。"
   },
   "deviceTrusted": {
     "message": "设备已信任"
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "管理组织的集合行为"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "限制为仅所有者和管理员可以创建和删除集合"
   },
   "limitCollectionCreationDesc": {
     "message": "限制为仅所有者和管理员可以创建集合"
@@ -9759,18 +9774,18 @@
     "message": "删除成功"
   },
   "freeFamiliesSponsorship": {
-    "message": "删除免费的 Bitwarden 家庭赞助"
+    "message": "移除免费的 Bitwarden 家庭赞助"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "不允许成员通过此组织兑换家庭计划。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的语句描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账说明中以 \"SM\" 开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将失效。"
   },
   "descriptorCode": {
-    "message": "Descriptor code"
+    "message": "描述符代码"
   }
 }

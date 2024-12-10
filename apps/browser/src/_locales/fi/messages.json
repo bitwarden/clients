@@ -1125,6 +1125,10 @@
     "message": "VAROITUS",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Varoitus",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Vahvista holvin vienti"
   },
@@ -1503,19 +1507,6 @@
   "enableAutoFillOnPageLoadDesc": {
     "message": "Automaattinen täyttö suoritetaan sivun avautuessa, jos sivulla havaitaan kirjautumislomake."
   },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Varoitus:$CLOSETAG$ Vaarantuneet tai epäluotettavat sivustot voivat hyväksikäyttää sivun avautuessa suoritettavaa automaattista täyttöä.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
-  },
   "experimentalFeature": {
     "message": "Vaarantuneet tai epäluotettavat sivustot voivat hyväksikäyttää sivun avautuessa suoritettavaa automaattista täyttöä."
   },
@@ -1852,7 +1843,7 @@
     "message": "Salatut muistiot"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH-avaimet"
   },
   "clear": {
     "message": "Tyhjennä",
@@ -3186,7 +3177,7 @@
     "message": "Laitteeseesi lähetettiin ilmoitus"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Sinulle ilmoitetaan, kun pyyntö on hyväksytty"
@@ -3288,16 +3279,16 @@
     "message": "Avautuu uudessa ikkunassa"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Muista tämä laite tehdäksesi tulevista kirjautumisista saumattomia"
   },
   "deviceApprovalRequired": {
     "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Laitteen hyväksyntä vaaditaan"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Valitse hyväksyntävaihtoehto alla"
   },
   "rememberThisDevice": {
     "message": "Muista tämä laite"
@@ -3373,7 +3364,7 @@
     "message": "Käyttäjän sähköpostiosoite puuttuu"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiivista käyttäjän sähköpostiosoitetta ei löytynyt. Kirjaudutaan ulos."
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
@@ -3812,7 +3803,7 @@
     "message": "Avataan"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Kirjautuminen onnistui!"
   },
   "passkeyNotCopied": {
     "message": "Pääsyavainta ei kopioida"
@@ -4897,5 +4888,14 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

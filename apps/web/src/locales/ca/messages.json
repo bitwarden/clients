@@ -1642,8 +1642,26 @@
   "passwordHistory": {
     "message": "Historial de les contrasenyes"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "No hi ha cap contrasenya a llistar."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Esborra",
@@ -1767,8 +1785,8 @@
   "sessionsDeauthorized": {
     "message": "Totes les sessions estan desautoritzades"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -8389,9 +8407,6 @@
   },
   "collectionManagementDesc": {
     "message": "Administra el comportament de col·lecció per a l'organització"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limita la creació i la supressió de col·leccions als propietaris i administradors"
   },
   "limitCollectionCreationDesc": {
     "message": "Limit collection creation to owners and admins"
