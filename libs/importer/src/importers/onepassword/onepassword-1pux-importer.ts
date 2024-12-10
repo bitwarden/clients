@@ -8,6 +8,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -79,6 +80,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           case CategoryEnum.SocialSecurityNumber:
             cipher.type = CipherType.Identity;
             cipher.identity = new IdentityView();
+            break;
+          case CategoryEnum.SSH_Key:
+            cipher.type = CipherType.SshKey;
+            cipher.sshKey = new SshKeyView();
             break;
           default:
             break;
@@ -315,6 +320,14 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
             break;
           default:
             break;
+        }
+      } else if (cipher.type === CipherType.SshKey) {
+        if (valueKey === "sshKey") {
+          const { privateKey, metadata } = field.value.sshKey;
+          cipher.sshKey.privateKey = privateKey;
+          cipher.sshKey.publicKey = metadata.publicKey;
+          cipher.sshKey.keyFingerprint = metadata.fingerprint;
+          return;
         }
       }
 
