@@ -113,11 +113,11 @@ jobs:
       - name: Check Rust version
         run: rustup --version
 
-      - name: Install gnome-keyring
-        if: ${{ matrix.os=='ubuntu-latest' }}
+      - name: Install dependencies
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y gnome-keyring dbus-x11
+          sudo apt-get install -y gnome-keyring dbus-x11 libusb-1.0-0-dev libudev-dev
 
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -127,7 +127,7 @@ jobs:
         run: cargo build
 
       - name: Test Ubuntu
-        if: ${{ matrix.os=='ubuntu-latest' }}
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
           eval "$(dbus-launch --sh-syntax)"
