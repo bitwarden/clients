@@ -464,9 +464,51 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     firstValueFrom(simpleDialog.closed).then(this.handleDialogClose.bind(this));
   }
 
-  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
+  private async handleInviteDialog() {
+    const dialog = openUserAddEditDialog(this.dialogService, {
+      data: {
+        name: null,
+        organizationId: this.organization.id,
+        organizationUserId: null,
+        allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
+        usesKeyConnector: null,
+        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
+        initialTab: MemberDialogTab.Role,
+        numConfirmedMembers: this.dataSource.confirmedUserCount,
+        managedByOrganization: null,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load();
+    }
+  }
+
+  private async handleSeatLimitForFixedTiers() {
+    if (!this.organization.canEditSubscription) {
+      await this.showSeatLimitReachedDialog();
+      return;
+    }
+
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organization.id,
+        subscription: null,
+        productTierType: this.organization.productTierType,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Submitted) {
+      await this.load();
+    }
+  }
+
+  async invite() {
     if (
-      !user &&
       this.organization.hasReseller &&
       this.organization.seats === this.dataSource.confirmedUserCount
     ) {
@@ -475,52 +517,36 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         title: this.i18nService.t("seatLimitReached"),
         message: this.i18nService.t("contactYourProvider"),
       });
+
       return;
     }
 
-    // Invite User: Add Flow
-    // Click on user email: Edit Flow
-
-    // User attempting to invite new users in a free org with max users
     if (
-      !user &&
       this.dataSource.data.length === this.organization.seats &&
       (this.organization.productTierType === ProductTierType.Free ||
         this.organization.productTierType === ProductTierType.TeamsStarter ||
         this.organization.productTierType === ProductTierType.Families)
     ) {
-      if (!this.organization.canEditSubscription) {
-        await this.showSeatLimitReachedDialog();
-        return;
-      }
+      await this.handleSeatLimitForFixedTiers();
 
-      const reference = openChangePlanDialog(this.dialogService, {
-        data: {
-          organizationId: this.organization.id,
-          subscription: null,
-          productTierType: this.organization.productTierType,
-        },
-      });
-
-      const result = await lastValueFrom(reference.closed);
-
-      if (result === ChangePlanDialogResultType.Submitted) {
-        await this.load();
-      }
       return;
     }
 
+    await this.handleInviteDialog();
+  }
+
+  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         organizationId: this.organization.id,
-        organizationUserId: user != null ? user.id : null,
+        organizationUserId: user.id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        usesKeyConnector: user?.usesKeyConnector,
+        usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
         numConfirmedMembers: this.dataSource.confirmedUserCount,
-        managedByOrganization: user?.managedByOrganization,
+        managedByOrganization: user.managedByOrganization,
       },
     });
 
@@ -532,9 +558,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       case MemberDialogResult.Saved:
       case MemberDialogResult.Revoked:
       case MemberDialogResult.Restored:
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.load();
+        await this.load();
         break;
     }
   }
