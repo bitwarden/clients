@@ -2,23 +2,18 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs";
+import { of, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  CipherHealthReportUriDetail,
   MemberCipherDetailsApiService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
+import { CipherHealthReportUriDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  BadgeModule,
-  ContainerComponent,
-  TableDataSource,
-  TableModule,
-} from "@bitwarden/components";
+import { BadgeModule, TableDataSource, TableModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
@@ -26,15 +21,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
   standalone: true,
   selector: "tools-password-health-members-uri",
   templateUrl: "password-health-members-uri.component.html",
-  imports: [
-    BadgeModule,
-    CommonModule,
-    ContainerComponent,
-    PipesModule,
-    JslibModule,
-    HeaderModule,
-    TableModule,
-  ],
+  imports: [BadgeModule, CommonModule, PipesModule, JslibModule, HeaderModule, TableModule],
   providers: [MemberCipherDetailsApiService, RiskInsightsReportService],
 })
 export class PasswordHealthMembersURIComponent implements OnInit {
@@ -56,12 +43,20 @@ export class PasswordHealthMembersURIComponent implements OnInit {
     this.activatedRoute.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
+        switchMap((params) => {
           const organizationId = params.get("organizationId");
-          const report =
-            await this.riskInsightsReportService.generateRawDataUriReport(organizationId);
-          this.dataSource.data = report;
-          this.loading = false;
+          if (!organizationId) {
+            this.loading = false;
+            return of(null);
+          }
+          return this.riskInsightsReportService.generateRawDataUriReport$(organizationId).pipe(
+            tap((report) => {
+              if (report) {
+                this.dataSource.data = report;
+              }
+              this.loading = false;
+            }),
+          );
         }),
       )
       .subscribe();

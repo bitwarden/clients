@@ -2,13 +2,13 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, map } from "rxjs";
+import { debounceTime, of, switchMap, tap } from "rxjs";
 
 import {
-  CipherHealthReportDetail,
   MemberCipherDetailsApiService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
+import { CipherHealthReportDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SearchModule, TableDataSource, TableModule, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -48,11 +48,20 @@ export class PasswordHealthMembersComponent implements OnInit {
     this.activatedRoute.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
+        switchMap((params) => {
           const organizationId = params.get("organizationId");
-          const report = await this.riskInsightsReportService.generateRawDataReport(organizationId);
-          this.dataSource.data = report;
-          this.loading = false;
+          if (!organizationId) {
+            this.loading = false;
+            return of(null);
+          }
+          return this.riskInsightsReportService.generateRawDataReport$(organizationId).pipe(
+            tap((report) => {
+              if (report) {
+                this.dataSource.data = report;
+              }
+              this.loading = false;
+            }),
+          );
         }),
       )
       .subscribe();
