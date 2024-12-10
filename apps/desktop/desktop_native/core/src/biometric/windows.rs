@@ -1,4 +1,4 @@
-use std::{ffi::c_void, str::FromStr};
+use std::{ffi::c_void, str::FromStr, sync::{atomic::AtomicBool, Arc}};
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
@@ -104,7 +104,23 @@ impl super::BiometricTrait for Biometric {
         let challenge_buffer = CryptographicBuffer::CreateFromByteArray(&challenge)?;
         let async_operation = result.Credential()?.RequestSignAsync(&challenge_buffer)?;
         focus_security_prompt()?;
-        let signature = async_operation.get()?;
+
+        let done = Arc::new(AtomicBool::new(false));
+        let done_clone = done.clone();
+        let _ = tokio::task::spawn_blocking(move || {
+            loop {
+                if !done_clone.load(std::sync::atomic::Ordering::Relaxed) {
+                    let _ = focus_security_prompt();
+                    std::thread::sleep(std::time::Duration::from_millis(500));
+                } else {
+                    break;
+                }
+            }
+        });
+ 
+        let signature = async_operation.get();
+        done.store(true, std::sync::atomic::Ordering::Relaxed);
+        let signature = signature?;
 
         if signature.Status()? != KeyCredentialStatus::Success {
             return Err(anyhow!("Failed to sign data"));
@@ -168,9 +184,7 @@ fn random_challenge() -> [u8; 16] {
     challenge
 }
 
-/// Searches for a window that looks like a security prompt and set it as focused.
-///
-/// Gives up after 1.5 seconds with a delay of 500ms between each try.
+/// Searches for a window that looks like a security prompt and set it as focused..
 fn focus_security_prompt() -> Result<()> {
     unsafe fn try_find_and_set_focus(
         class_name: windows::core::PCSTR,
@@ -184,38 +198,14 @@ fn focus_security_prompt() -> Result<()> {
     }
 
     let class_name = s!("Credential Dialog Xaml Host");
-    retry::retry_with_index(Fixed::from_millis(500), |current_try| {
-        if current_try > 3 {
-            return retry::OperationResult::Err(());
-        }
-
-        unsafe { try_find_and_set_focus(class_name) }
-    })
-    .map_err(|_| anyhow!("Failed to find security prompt"))
+    unsafe { try_find_and_set_focus(class_name); }
+    Ok(())
 }
 
 fn set_focus(window: HWND) {
-    let mut pressed = false;
-
     unsafe {
-        // Simulate holding down Alt key to bypass windows limitations
-        //  https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getasynckeystate#return-value
-        //  The most significant bit indicates if the key is currently being pressed. This means the
-        //  value will be negative if the key is pressed.
-        if GetAsyncKeyState(VK_MENU.0 as i32) >= 0 {
-            pressed = true;
-            keybd_event(VK_MENU.0 as u8, 0, KEYEVENTF_EXTENDEDKEY, 0);
-        }
         SetForegroundWindow(window);
         SetFocus(window);
-        if pressed {
-            keybd_event(
-                VK_MENU.0 as u8,
-                0,
-                KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
-                0,
-            );
-        }
     }
 }
 
