@@ -27,6 +27,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { TrackEventDirective } from "./analytics/track-event.directive";
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
@@ -81,6 +82,7 @@ import { IconComponent } from "./vault/components/icon.component";
     IconModule,
     LinkModule,
     IconModule,
+    TrackEventDirective,
   ],
   declarations: [
     A11yInvalidDirective,

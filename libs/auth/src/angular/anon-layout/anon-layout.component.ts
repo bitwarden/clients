@@ -5,6 +5,7 @@ import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from 
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { TrackEventDirective } from "@bitwarden/angular/analytics/track-event.directive";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,7 +19,14 @@ import { BitwardenLogo, BitwardenShield } from "../icons";
   standalone: true,
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
-  imports: [IconModule, CommonModule, TypographyModule, SharedModule, RouterModule],
+  imports: [
+    IconModule,
+    CommonModule,
+    TypographyModule,
+    SharedModule,
+    RouterModule,
+    TrackEventDirective,
+  ],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
   @HostBinding("class")

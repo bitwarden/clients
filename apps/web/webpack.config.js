@@ -299,6 +299,8 @@ const devServer =
                   https://api.fastmail.com
                   https://api.forwardemail.net
                   http://localhost:5000
+                  https://plausible.io/api/event
+
                 ;object-src
                   'self'
                   blob:

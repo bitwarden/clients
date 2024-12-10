@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout, catchError, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { AnalyticsService } from "@bitwarden/angular/analytics/analytics.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -61,6 +62,8 @@ export class AppComponent implements OnDestroy, OnInit {
   private idleTimer: number = null;
   private isIdle = false;
   private destroy$ = new Subject<void>();
+
+  private analyticsService = inject(AnalyticsService);
 
   loading = false;
 
@@ -269,6 +272,8 @@ export class AppComponent implements OnDestroy, OnInit {
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
     ]);
+
+    void this.analyticsService.init();
   }
 
   ngOnDestroy() {
