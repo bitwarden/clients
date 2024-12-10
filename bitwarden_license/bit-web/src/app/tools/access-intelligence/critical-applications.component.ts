@@ -6,8 +6,16 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { debounceTime, map } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { UnmarkCriticalApplicationApiService } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SearchModule, TableDataSource, NoItemsModule, Icons } from "@bitwarden/components";
+import {
+  SearchModule,
+  TableDataSource,
+  NoItemsModule,
+  Icons,
+  ToastService,
+} from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/tools-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -21,6 +29,7 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
+  providers: [UnmarkCriticalApplicationApiService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<any>();
@@ -56,12 +65,31 @@ export class CriticalApplicationsComponent implements OnInit {
     });
   };
 
+  unmarkAsCriticalApp = async (hostname: string) => {
+    await this.unmarkCriticalApplicationApiService.unmarkCriticalApplication(
+      this.organizationId,
+      hostname,
+    );
+    this.toastService.showToast({
+      //  TODO uncomment when UnmarkCriticalApplicationApiService is properly implemented
+      // message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      // variant: "success",
+      // title: this.i18nService.t("Success"),
+      title: "API not yet implemented",
+      variant: "warning",
+      message: "API not yet implemented",
+    });
+    this.dataSource.data = this.dataSource.data.filter((app) => app.name !== hostname);
+  };
+
   constructor(
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
+    private unmarkCriticalApplicationApiService: UnmarkCriticalApplicationApiService,
+    protected toastService: ToastService,
   ) {
-    this.dataSource.data = []; //applicationTableMockData;
+    this.dataSource.data = applicationTableMockData;
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));

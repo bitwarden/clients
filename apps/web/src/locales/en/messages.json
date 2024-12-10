@@ -140,6 +140,12 @@
   "totalApplications": {
     "message": "Total applications"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "What type of item is this?"
   },
