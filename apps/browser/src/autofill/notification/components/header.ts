@@ -27,8 +27,7 @@ export function NotificationHeader({
 
   return html`
     <div class=${notificationHeaderStyles({ hasBody, theme })}>
-      ${showIcon ? BrandIcon({ isVaultLocked }) : null}
-      ${NotificationHeaderMessage({ message, theme })}
+      ${showIcon ? BrandIcon({ theme }) : null} ${NotificationHeaderMessage({ message, theme })}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
     </div>
   `;

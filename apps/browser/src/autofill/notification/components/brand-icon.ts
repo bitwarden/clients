@@ -1,18 +1,19 @@
-import { html, css } from "lit";
+import { css } from "@emotion/css";
+import { html } from "lit";
 
-export function BrandIcon({ iconLink, isVaultLocked }: { iconLink?: URL; isVaultLocked: boolean }) {
-  const iconImageURI = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
+import { Theme } from "@bitwarden/common/platform/enums";
 
-  // @TODO localize `alt` and other attributes
-  const Icon = html`<img style=${iconStyles} alt="Bitwarden" src=${iconImageURI} />`;
+import { BitwardenLogo } from "./icons";
+
+export function BrandIcon({ iconLink, theme }: { iconLink?: URL; theme: Theme }) {
+  const Icon = html`<div class=${iconStyles}>${BitwardenLogo({ theme })}</div>`;
 
   return iconLink ? html`<a href="${iconLink}" target="_blank" rel="noreferrer">${Icon}</a>` : Icon;
 }
 
 const iconStyles = css`
-  display: block;
-  width: 24px;
-  height: 24px;
+  > svg {
+    width: 20px;
+    height: fit-content;
+  }
 `;
