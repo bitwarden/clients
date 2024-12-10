@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject } from "rxjs";
 
 import { AbstractStorageService, StorageUpdate } from "../abstractions/storage.service";

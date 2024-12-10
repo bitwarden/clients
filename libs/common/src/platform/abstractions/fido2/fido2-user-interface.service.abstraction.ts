@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 /**
  * Parameters used to ask the user to confirm the creation of a new credential.
  */

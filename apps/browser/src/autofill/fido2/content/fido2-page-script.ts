@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageType } from "./messaging/message";

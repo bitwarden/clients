@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DeviceType } from "../../../../enums";
 import { View } from "../../../../models/view/view";
 import { DeviceResponse } from "../responses/device.response";

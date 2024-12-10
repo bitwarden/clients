@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";

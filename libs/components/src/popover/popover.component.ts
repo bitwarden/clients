@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { A11yModule } from "@angular/cdk/a11y";
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from "@angular/core";
 

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EventType } from "../../enums";
 import { CipherView } from "../../vault/models/view/cipher.view";
 

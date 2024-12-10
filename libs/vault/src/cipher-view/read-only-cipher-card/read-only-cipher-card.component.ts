@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AfterViewInit, Component, ContentChildren, QueryList } from "@angular/core";
 
 import { CardComponent, BitFormFieldComponent } from "@bitwarden/components";

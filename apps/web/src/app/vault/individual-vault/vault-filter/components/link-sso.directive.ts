@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AfterContentInit, Directive, HostListener, Input } from "@angular/core";
 
 import { SsoComponent } from "@bitwarden/angular/auth/components/sso.component";

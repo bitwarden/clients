@@ -11,7 +11,15 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -140,6 +148,7 @@ export default {
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),

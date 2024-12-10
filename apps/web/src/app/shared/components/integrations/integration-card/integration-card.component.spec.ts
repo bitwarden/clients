@@ -1,9 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { SYSTEM_THEME_OBSERVABLE } from "../../../../../../../libs/angular/src/services/injection-tokens";
-import { ThemeType } from "../../../../../../../libs/common/src/platform/enums";
-import { ThemeStateService } from "../../../../../../../libs/common/src/platform/theming/theme-state.service";
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { SharedModule } from "@bitwarden/components/src/shared";
+import { I18nPipe } from "@bitwarden/components/src/shared/i18n.pipe";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
@@ -19,7 +23,7 @@ describe("IntegrationCardComponent", () => {
     systemTheme$.next(ThemeType.Light);
 
     await TestBed.configureTestingModule({
-      declarations: [IntegrationCardComponent],
+      imports: [IntegrationCardComponent, SharedModule],
       providers: [
         {
           provide: ThemeStateService,
@@ -28,6 +32,14 @@ describe("IntegrationCardComponent", () => {
         {
           provide: SYSTEM_THEME_OBSERVABLE,
           useValue: systemTheme$,
+        },
+        {
+          provide: I18nPipe,
+          useValue: mock<I18nPipe>(),
+        },
+        {
+          provide: I18nService,
+          useValue: mock<I18nService>(),
         },
       ],
     }).compileComponents();
@@ -39,7 +51,6 @@ describe("IntegrationCardComponent", () => {
 
     component.name = "Integration Name";
     component.image = "test-image.png";
-    component.linkText = "Get started with integration";
     component.linkURL = "https://example.com/";
 
     fixture.detectChanges();
@@ -53,10 +64,8 @@ describe("IntegrationCardComponent", () => {
 
   it("renders card body", () => {
     const name = fixture.nativeElement.querySelector("h3");
-    const link = fixture.nativeElement.querySelector("a");
 
     expect(name.textContent).toBe("Integration Name");
-    expect(link.textContent.trim()).toBe("Get started with integration");
   });
 
   it("assigns external rel attribute", () => {

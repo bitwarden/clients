@@ -20,6 +20,7 @@ import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/va
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { SshAgentService } from "../../platform/services/ssh-agent.service";
 import { VersionService } from "../../platform/services/version.service";
@@ -45,6 +46,7 @@ export class InitService {
     private accountService: AccountService,
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
+    private autofillService: DesktopAutofillService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -82,6 +84,8 @@ export class InitService {
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      await this.autofillService.init();
     };
   }
 }

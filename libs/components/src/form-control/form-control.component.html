@@ -7,7 +7,7 @@
     class="tw-inline-flex tw-flex-col"
     [ngClass]="formControl.disabled ? 'tw-text-muted' : 'tw-text-main'"
   >
-    <span bitTypography="body1">
+    <span bitTypography="body2">
       <ng-content select="bit-label"></ng-content>
       <span *ngIf="required" class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
     </span>

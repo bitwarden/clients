@@ -48,6 +48,7 @@
     "dist:mac": "npm run build && npm run pack:mac",
     "dist:mac:mas": "npm run build && npm run pack:mac:mas",
     "dist:mac:masdev": "npm run build && npm run pack:mac:masdev",
+    "dist:mac:masdev:with-extension": "npm run build && npm run pack:mac:masdev:with-extension",
     "dist:win": "npm run build && npm run pack:win",
     "dist:win:ci": "npm run build && npm run pack:win:ci",
     "publish:lin": "npm run build && npm run clean:dist && electron-builder --linux --x64 -p always",

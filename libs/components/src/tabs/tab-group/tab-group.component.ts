@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { coerceNumberProperty } from "@angular/cdk/coercion";
 import {

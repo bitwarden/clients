@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { OrganizationDomainRequest } from "../../services/organization-domain/requests/organization-domain.request";

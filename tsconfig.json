@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": false,
     "pretty": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -43,6 +44,9 @@
     "plugins": [
       {
         "transform": "typescript-transform-paths"
+      },
+      {
+        "name": "typescript-strict-plugin"
       }
     ],
     "useDefineForClassFields": false

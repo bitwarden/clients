@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OrganizationId } from "@bitwarden/common/src/types/guid";
 
 import { MemberAccessExportItem } from "../view/member-access-export.view";

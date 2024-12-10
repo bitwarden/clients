@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectorRef,
@@ -210,7 +212,10 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected organizationsPaymentStatus$: Observable<FreeTrial[]> = combineLatest([
     this.organizationService.organizations$.pipe(
-      map((organizations) => organizations?.filter((org) => org.isOwner) ?? []),
+      map(
+        (organizations) =>
+          organizations?.filter((org) => org.isOwner && org.canViewBillingHistory) ?? [],
+      ),
     ),
     this.hasSubscription$,
   ]).pipe(
