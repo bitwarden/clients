@@ -3,17 +3,17 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricsStatus,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { LogService } from "../../../platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { HashPurpose } from "../../../platform/enums";
-import { KeySuffixOptions } from "../../../platform/enums/key-suffix-options.enum";
 import { UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { AccountService } from "../../abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
@@ -47,10 +47,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private userVerificationApiService: UserVerificationApiServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private pinService: PinServiceAbstraction,
-    private logService: LogService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private kdfConfigService: KdfConfigService,
+    private biometricsService: BiometricsService,
   ) {}
 
   async getAvailableVerificationOptions(
@@ -58,17 +56,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   ): Promise<UserVerificationOptions> {
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (verificationType === "client") {
-      const [
-        userHasMasterPassword,
-        isPinDecryptionAvailable,
-        biometricsLockSet,
-        biometricsUserKeyStored,
-      ] = await Promise.all([
-        this.hasMasterPasswordAndMasterKeyHash(userId),
-        this.pinService.isPinDecryptionAvailable(userId),
-        this.vaultTimeoutSettingsService.isBiometricLockSet(userId),
-        this.keyService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
-      ]);
+      const [userHasMasterPassword, isPinDecryptionAvailable, biometricsStatus] = await Promise.all(
+        [
+          this.hasMasterPasswordAndMasterKeyHash(userId),
+          this.pinService.isPinDecryptionAvailable(userId),
+          this.biometricsService.getBiometricsStatus(),
+        ],
+      );
 
       // note: we do not need to check this.platformUtilsService.supportsBiometric() because
       // we can just use the logic below which works for both desktop & the browser extension.
@@ -77,9 +71,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         client: {
           masterPassword: userHasMasterPassword,
           pin: isPinDecryptionAvailable,
-          biometrics:
-            biometricsLockSet &&
-            (biometricsUserKeyStored || !this.platformUtilsService.supportsSecureStorage()),
+          biometrics: biometricsStatus === BiometricsStatus.Available,
         },
         server: {
           masterPassword: false,
@@ -253,17 +245,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   private async verifyUserByBiometrics(): Promise<boolean> {
-    let userKey: UserKey;
-    // Biometrics crashes and doesn't return a value if the user cancels the prompt
-    try {
-      userKey = await this.keyService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
-    } catch (e) {
-      this.logService.error(`Biometrics User Verification failed: ${e.message}`);
-      // So, any failures should be treated as a failed verification
-      return false;
-    }
-
-    return userKey != null;
+    return this.biometricsService.authenticateWithBiometrics();
   }
 
   async requestOTP() {

@@ -95,7 +95,8 @@ import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-l
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
-import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
@@ -135,7 +136,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
     provide: BiometricsService,
-    useClass: ElectronBiometricsService,
+    useClass: RendererBiometricsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: DesktopBiometricsService,
+    useClass: RendererBiometricsService,
     deps: [],
   }),
   safeProvider(NativeMessagingService),
@@ -234,6 +240,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       BiometricStateService,
       AccountServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -295,6 +302,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       BiometricStateService,
       KdfConfigService,
+      DesktopBiometricsService,
     ],
   }),
   safeProvider({

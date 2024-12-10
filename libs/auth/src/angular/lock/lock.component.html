@@ -86,12 +86,13 @@
 
         <p class="tw-text-center">{{ "or" | i18n }}</p>
 
-        <ng-container *ngIf="unlockOptions.biometrics.enabled">
+        <ng-container *ngIf="showBiometrics">
           <button
             type="button"
             bitButton
             bitFormButton
             buttonType="secondary"
+            [disabled]="!biometricsAvailable"
             block
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >
@@ -156,12 +157,13 @@
 
         <p class="tw-text-center">{{ "or" | i18n }}</p>
 
-        <ng-container *ngIf="unlockOptions.biometrics.enabled">
+        <ng-container *ngIf="showBiometrics">
           <button
             type="button"
             bitButton
             bitFormButton
             buttonType="secondary"
+            [disabled]="!biometricsAvailable"
             block
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >

@@ -15,6 +15,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { BiometricsCommands } from "@bitwarden/key-management";
 
 import { MessageListener, isExternalMessage } from "../../../../libs/common/src/platform/messaging";
 import {
@@ -69,8 +70,10 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "biometricUnlock",
-        "biometricUnlockAvailable",
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];
@@ -181,13 +184,17 @@ export default class RuntimeBackground {
             break;
         }
         break;
-      case "biometricUnlock": {
-        const result = await this.main.biometricsService.authenticateBiometric();
-        return result;
+      case "authenticateWithBiometrics": {
+        return await this.main.biometricsService.authenticateWithBiometrics();
       }
-      case "biometricUnlockAvailable": {
-        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
-        return result;
+      case "getBiometricsStatus": {
+        return await this.main.biometricsService.getBiometricsStatus();
+      }
+      case "unlockWithBiometricsForUser": {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case "getBiometricsStatusForUser": {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(

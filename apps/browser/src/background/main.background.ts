@@ -206,6 +206,7 @@ import {
   BiometricStateService,
   BiometricsService,
   DefaultBiometricStateService,
+  DefaultKeyService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
 import {
@@ -238,7 +239,6 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
-import { BrowserKeyService } from "../key-management/browser-key.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -413,6 +413,7 @@ export default class MainBackground {
       await this.refreshMenu(true);
       if (this.systemService != null) {
         await this.systemService.clearPendingClipboard();
+        await this.biometricsService.setShouldAutopromptNow(false);
         await this.processReloadService.startProcessReload(this.authService);
       }
     };
@@ -646,7 +647,7 @@ export default class MainBackground {
       this.stateService,
     );
 
-    this.keyService = new BrowserKeyService(
+    this.keyService = new DefaultKeyService(
       this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
@@ -657,8 +658,6 @@ export default class MainBackground {
       this.stateService,
       this.accountService,
       this.stateProvider,
-      this.biometricStateService,
-      this.biometricsService,
       this.kdfConfigService,
     );
 
@@ -846,10 +845,8 @@ export default class MainBackground {
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
       this.pinService,
-      this.logService,
-      this.vaultTimeoutSettingsService,
-      this.platformUtilsService,
       this.kdfConfigService,
+      this.biometricsService,
     );
 
     this.vaultFilterService = new VaultFilterService(
@@ -879,6 +876,7 @@ export default class MainBackground {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      this.biometricsService,
       lockedCallback,
       logoutCallback,
     );
@@ -1069,6 +1067,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
       this.accountService,
+      this.logService,
     );
 
     // Other fields

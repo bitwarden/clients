@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { BiometricStateService } from "@bitwarden/key-management";
 
@@ -24,6 +25,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
