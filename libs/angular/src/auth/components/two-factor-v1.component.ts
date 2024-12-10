@@ -40,7 +40,7 @@ import { ToastService } from "@bitwarden/components";
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
 @Directive()
-export class TwoFactorComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
+export class TwoFactorComponentV1 extends CaptchaProtectedComponent implements OnInit, OnDestroy {
   token = "";
   remember = false;
   webAuthnReady = false;

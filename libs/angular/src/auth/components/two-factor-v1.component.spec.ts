@@ -34,11 +34,11 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
-import { TwoFactorComponent } from "./two-factor.component";
+import { TwoFactorComponentV1 } from "./two-factor-v1.component";
 
 // test component that extends the TwoFactorComponent
 @Component({})
-class TestTwoFactorComponent extends TwoFactorComponent {}
+class TestTwoFactorComponent extends TwoFactorComponentV1 {}
 
 interface TwoFactorComponentProtected {
   trustedDeviceEncRoute: string;
