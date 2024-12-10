@@ -1063,12 +1063,14 @@ export default class MainBackground {
     );
 
     this.processReloadService = new DefaultProcessReloadService(
-      this.pinService,
       this.messagingService,
       systemUtilsServiceReloadCallback,
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
       this.accountService,
+      this.logService,
+      this.platformUtilsService,
+      this.pinService,
     );
 
     // Other fields

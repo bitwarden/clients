@@ -2,10 +2,13 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { ClientType } from "@bitwarden/common/enums";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { BiometricStateService } from "@bitwarden/key-management";
 
-import { PinServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
@@ -18,15 +21,18 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
   private reloadInterval: any = null;
 
   constructor(
-    private pinService: PinServiceAbstraction,
     private messagingService: MessagingService,
     private reloadCallback: () => Promise<void> = null,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
+    private logService: LogService,
+    private platformUtilsService: PlatformUtilsService,
+    private pinService: PinServiceAbstraction,
   ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
+    this.logService.info("[ProcessReloadService] Starting process reload");
     const accounts = await firstValueFrom(this.accountService.accounts$);
     if (accounts != null) {
       const keys = Object.keys(accounts);
@@ -35,6 +41,9 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
           let status = await firstValueFrom(authService.authStatusFor$(userId as UserId));
           status = await authService.getAuthStatus(userId);
           if (status === AuthenticationStatus.Unlocked) {
+            this.logService.info(
+              `[ProcessReloadService] User ${userId} is unlocked, skipping process reload`,
+            );
             return;
           }
         }
@@ -43,15 +52,21 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
 
     // A reloadInterval has already been set and is executing
     if (this.reloadInterval != null) {
+      this.logService.info(`[ProcessReloadService] Process reload already in progress`);
       return;
     }
 
-    // If there is an active user, check if they have a pinKeyEncryptedUserKeyEphemeral. If so, prevent process reload upon lock.
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (userId != null) {
-      const ephemeralPin = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
-      if (ephemeralPin != null) {
-        return;
+    if (this.platformUtilsService.getClientType() !== ClientType.Desktop) {
+      // If there is an active user, check if they have a pinKeyEncryptedUserKeyEphemeral. If so, prevent process reload upon lock.
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId != null) {
+        const ephemeralPin = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
+        if (ephemeralPin != null) {
+          this.logService.info(
+            `[ProcessReloadService] User ${userId} has ephemeral pin, skipping process reload`,
+          );
+          return;
+        }
       }
     }
 
@@ -88,6 +103,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
         }
       }
 
+      this.logService.info("[ProcessReloadService] Sending message to os reload implementation");
       this.messagingService.send("reloadProcess");
       if (this.reloadCallback != null) {
         await this.reloadCallback();
@@ -95,6 +111,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       return;
     }
     if (this.reloadInterval == null) {
+      this.logService.info("[ProcessReloadService] Setting reload interval");
       this.reloadInterval = setInterval(async () => await this.executeProcessReload(), 1000);
     }
   }

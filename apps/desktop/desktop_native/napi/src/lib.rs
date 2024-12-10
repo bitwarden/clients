@@ -546,6 +546,41 @@ pub mod ipc {
 }
 
 #[napi]
+pub mod ephemeral_values {
+    use desktop_core::ephemeral_values::EphemeralValueStore as EphemeralValueStore;
+
+    #[napi]
+    pub struct EphemeralValueStoreWrapper {
+        store: EphemeralValueStore,
+    }
+
+    #[napi]
+    impl EphemeralValueStoreWrapper {
+
+        #[napi(constructor)]
+        pub fn new() -> napi::Result<Self> {
+            Ok(EphemeralValueStoreWrapper {
+                store: EphemeralValueStore::new(),
+            })
+        }
+
+        #[napi]
+        pub fn set(&mut self, key: String, value: String) {
+            self.store.set(key, value);
+        }
+
+        #[napi]
+        pub fn get(&self, key: String) -> Option<String> {
+            self.store.get(&key).cloned()
+        }
+
+        #[napi]
+        pub fn remove(&mut self, key: String) {
+            self.store.remove(&key);
+        }
+    }
+}
+#[napi]
 pub mod autofill {
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
