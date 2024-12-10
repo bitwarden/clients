@@ -49,7 +49,7 @@ export class FilePopoutUtilsService {
   }
 
   /**
-   * Determines whether to show a file popout callout message for Chromium-based browsers in Linux and Mac OS X Big Sur
+   * Determines whether to show a file popout callout message for Chromium-based browsers in Linux and Mac OS X
    * @param win - The window context in which the check should be performed.
    * @returns True if the extension is not in a sidebar or popout; otherwise, false.
    */
@@ -66,8 +66,6 @@ export class FilePopoutUtilsService {
   }
 
   private isUnsupportedMac(win: Window): boolean {
-    return (
-      this.platformUtilsService.isChrome() && win?.navigator?.appVersion.includes("Mac OS X 11")
-    );
+    return this.platformUtilsService.isChrome() && win?.navigator?.appVersion.includes("Mac OS X");
   }
 }

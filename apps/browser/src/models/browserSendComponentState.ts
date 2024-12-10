@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 

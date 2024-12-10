@@ -10,7 +10,7 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] DevOps:"
+      "commitMessagePrefix": "[deps] BRE:"
     },
     {
       "matchManagers": ["cargo"],

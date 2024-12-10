@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fet from "node-fetch";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";

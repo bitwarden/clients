@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BiometricKey } from "../../auth/types/biometric-key";
 import { Account } from "../models/domain/account";
 import { StorageOptions } from "../models/domain/storage-options";

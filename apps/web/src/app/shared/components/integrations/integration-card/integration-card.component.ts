@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -13,9 +15,13 @@ import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-t
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
+import { SharedModule } from "../../../shared.module";
+
 @Component({
-  selector: "sm-integration-card",
+  selector: "app-integration-card",
   templateUrl: "./integration-card.component.html",
+  standalone: true,
+  imports: [SharedModule],
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
@@ -24,7 +30,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   @Input() name: string;
   @Input() image: string;
   @Input() imageDarkMode?: string;
-  @Input() linkText: string;
   @Input() linkURL: string;
 
   /** Adds relevant `rel` attribute to external links */

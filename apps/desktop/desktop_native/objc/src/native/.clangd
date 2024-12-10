@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-fobjc-arc]

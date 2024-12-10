@@ -16,7 +16,7 @@ manual_test = []
 [dependencies]
 base64 = "=0.22.1"
 hex = "=0.4.3"
-anyhow = "=1.0.93"
+anyhow = "=1.0.94"
 desktop_core = { path = "../core" }
 napi = { version = "=2.16.13", features = ["async"] }
 napi-derive = "=2.16.13"

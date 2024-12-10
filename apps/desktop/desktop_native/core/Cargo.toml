@@ -21,9 +21,9 @@ sys = [
 
 [dependencies]
 aes = "=0.8.4"
-anyhow = "=1.0.93"
+anyhow = "=1.0.94"
 arboard = { version = "=3.4.1", default-features = false, features = [
-    "wayland-data-control",
+  "wayland-data-control",
 ] }
 argon2 = { version = "=0.5.3", features = ["zeroize"] }
 async-stream = "=0.3.6"
@@ -44,10 +44,10 @@ scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false, features = [
-    "encryption",
-    "ed25519",
-    "rsa",
-    "getrandom",
+  "encryption",
+  "ed25519",
+  "rsa",
+  "getrandom",
 ] }
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "b4e7f2fedbe3df8c35545feb000176d3e7b2bc32" }
 tokio = { version = "=1.41.1", features = ["io-util", "sync", "macros", "net"] }
@@ -81,6 +81,7 @@ keytar = "=0.1.6"
 core-foundation = { version = "=0.10.0", optional = true }
 security-framework = { version = "=3.0.0", optional = true }
 security-framework-sys = { version = "=2.12.0", optional = true }
+desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = "=0.3.3"

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subscription } from "rxjs";
 
 import { ScheduledTaskName } from "./scheduled-task-name.enum";

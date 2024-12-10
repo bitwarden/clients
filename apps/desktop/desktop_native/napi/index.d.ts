@@ -122,6 +122,9 @@ export declare namespace ipc {
     send(message: string): number
   }
 }
+export declare namespace autofill {
+  export function runCommand(value: string): Promise<string>
+}
 export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }

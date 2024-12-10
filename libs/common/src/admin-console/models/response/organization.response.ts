@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 import { PlanResponse } from "../../../billing/models/response/plan.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -35,6 +37,7 @@ export class OrganizationResponse extends BaseResponse {
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
+  useRiskInsights: boolean;
 
   constructor(response: any) {
     super(response);
@@ -75,5 +78,6 @@ export class OrganizationResponse extends BaseResponse {
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
+    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
   }
 }

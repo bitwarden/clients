@@ -29,7 +29,12 @@
       ],
       "@bitwarden/node/*": ["../../libs/node/src/*"],
       "@bitwarden/bit-common/*": ["../../bitwarden_license/bit-common/src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "include": ["src", "src/**/*.spec.ts"]
 }

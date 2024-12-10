@@ -9,7 +9,6 @@ export type Integration = {
    */
   imageDarkMode?: string;
   linkURL: string;
-  linkText: string;
   type: IntegrationType;
   /**
    * Shows the "New" badge until the defined date.

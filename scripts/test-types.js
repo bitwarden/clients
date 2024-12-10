@@ -21,9 +21,14 @@ const files = getFiles(path.join(__dirname, "..", "libs")).filter((file) => {
   return name === "tsconfig.spec.json";
 });
 
-concurrently(
-  files.map((file) => ({
+concurrently([
+  {
+    // run the strict type check plugin until we're fully converted, then update tsconfig.json to use strict
+    name: "typescript-strict-plugin",
+    command: "npx tsc-strict",
+  },
+  ...files.map((file) => ({
     name: path.basename(path.dirname(file)),
     command: `npx tsc --noEmit --project ${file}`,
   })),
-);
+]);

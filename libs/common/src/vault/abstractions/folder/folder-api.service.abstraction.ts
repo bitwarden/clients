@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Folder } from "../../models/domain/folder";
 import { FolderResponse } from "../../models/response/folder.response";
 

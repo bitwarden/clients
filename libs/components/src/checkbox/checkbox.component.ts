@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
@@ -22,10 +24,9 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-border",
     "tw-border-solid",
     "tw-border-secondary-500",
-    "tw-h-5",
-    "tw-w-5",
+    "tw-h-[1.12rem]",
+    "tw-w-[1.12rem]",
     "tw-mr-1.5",
-    "tw-bottom-[-1px]", // Fix checkbox looking off-center
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "before:tw-content-['']",
@@ -83,11 +84,11 @@ export class CheckboxComponent implements BitFormControlAbstraction {
 
   @HostBinding("style.--mask-image")
   protected maskImage =
-    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
+    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10" height="10" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
 
   @HostBinding("style.--indeterminate-mask-image")
   protected indeterminateImage =
-    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
+    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
   @HostBinding()
   @Input()
