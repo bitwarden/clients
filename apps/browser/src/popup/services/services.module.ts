@@ -150,7 +150,6 @@ import { ForegroundSyncService } from "../../platform/sync/foreground-sync.servi
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { ExtensionLockComponentService } from "../../services/extension-lock-component.service";
 import { ForegroundVaultTimeoutService } from "../../services/vault-timeout/foreground-vault-timeout.service";
-import { BrowserSendStateService } from "../../tools/popup/services/browser-send-state.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
@@ -469,11 +468,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
     useClass: UserNotificationSettingsService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: BrowserSendStateService,
-    useClass: BrowserSendStateService,
     deps: [StateProvider],
   }),
   safeProvider({
