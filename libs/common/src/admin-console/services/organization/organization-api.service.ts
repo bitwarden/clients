@@ -161,14 +161,15 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   async updatePasswordManagerSeats(
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
-  ): Promise<void> {
-    return this.apiService.send(
+  ): Promise<ProfileOrganizationResponse> {
+    const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/subscription",
       request,
       true,
-      false,
+      true,
     );
+    return new ProfileOrganizationResponse(r);
   }
 
   async updateSecretsManagerSubscription(
