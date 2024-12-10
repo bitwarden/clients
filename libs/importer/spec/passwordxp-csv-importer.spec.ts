@@ -3,9 +3,45 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { PasswordXPCsvImporter } from "../src/importers";
 import { ImportResult } from "../src/models/import-result";
 
+import { dutchHeaders } from "./test-data/passwordxp-csv/dutch-headers";
+import { germanHeaders } from "./test-data/passwordxp-csv/german-headers";
 import { noFolder } from "./test-data/passwordxp-csv/no-folder.csv";
 import { withFolders } from "./test-data/passwordxp-csv/passwordxp-with-folders.csv";
 import { withoutFolders } from "./test-data/passwordxp-csv/passwordxp-without-folders.csv";
+
+async function importLoginWithCustomFields(importer: PasswordXPCsvImporter, csvData: string) {
+  const result: ImportResult = await importer.parse(csvData);
+  expect(result.success).toBe(true);
+
+  const cipher = result.ciphers.shift();
+  expect(cipher.type).toBe(CipherType.Login);
+  expect(cipher.name).toBe("Title2");
+  expect(cipher.notes).toBe("Test Notes");
+  expect(cipher.login.username).toBe("Username2");
+  expect(cipher.login.password).toBe("12345678");
+  expect(cipher.login.uris[0].uri).toBe("http://URL2.com");
+
+  expect(cipher.fields.length).toBe(5);
+  let field = cipher.fields.shift();
+  expect(field.name).toBe("Account");
+  expect(field.value).toBe("Account2");
+
+  field = cipher.fields.shift();
+  expect(field.name).toBe("Modified");
+  expect(field.value).toBe("27-3-2024 08:11:21");
+
+  field = cipher.fields.shift();
+  expect(field.name).toBe("Created");
+  expect(field.value).toBe("27-3-2024 08:11:21");
+
+  field = cipher.fields.shift();
+  expect(field.name).toBe("Expire on");
+  expect(field.value).toBe("27-5-2024 08:11:21");
+
+  field = cipher.fields.shift();
+  expect(field.name).toBe("Modified by");
+  expect(field.value).toBe("someone");
+}
 
 describe("PasswordXPCsvImporter", () => {
   let importer: PasswordXPCsvImporter;
@@ -16,6 +52,12 @@ describe("PasswordXPCsvImporter", () => {
 
   it("should return success false if CSV data is null", async () => {
     const data = "";
+    const result: ImportResult = await importer.parse(data);
+    expect(result.success).toBe(false);
+  });
+
+  it("should return success false if CSV headers did not get translated", async () => {
+    const data = germanHeaders.replace("Titel;", "UnknownTitle;");
     const result: ImportResult = await importer.parse(data);
     expect(result.success).toBe(false);
   });
@@ -61,38 +103,16 @@ describe("PasswordXPCsvImporter", () => {
     expect(cipher.login.uris[0].uri).toBe("http://test");
   });
 
-  it("should parse CSV data and import unmapped columns as custom fields", async () => {
-    const result: ImportResult = await importer.parse(withoutFolders);
-    expect(result.success).toBe(true);
+  it("should parse CSV data with English headers and import unmapped columns as custom fields", async () => {
+    await importLoginWithCustomFields(importer, withoutFolders);
+  });
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.Login);
-    expect(cipher.name).toBe("Title2");
-    expect(cipher.notes).toBe("Test Notes");
-    expect(cipher.login.username).toBe("Username2");
-    expect(cipher.login.password).toBe("12345678");
-    expect(cipher.login.uris[0].uri).toBe("http://URL2.com");
+  it("should parse CSV data with German headers and import unmapped columns as custom fields", async () => {
+    await importLoginWithCustomFields(importer, germanHeaders);
+  });
 
-    expect(cipher.fields.length).toBe(5);
-    let field = cipher.fields.shift();
-    expect(field.name).toBe("Account");
-    expect(field.value).toBe("Account2");
-
-    field = cipher.fields.shift();
-    expect(field.name).toBe("Modified");
-    expect(field.value).toBe("27-3-2024 08:11:21");
-
-    field = cipher.fields.shift();
-    expect(field.name).toBe("Created");
-    expect(field.value).toBe("27-3-2024 08:11:21");
-
-    field = cipher.fields.shift();
-    expect(field.name).toBe("Expire on");
-    expect(field.value).toBe("27-5-2024 08:11:21");
-
-    field = cipher.fields.shift();
-    expect(field.name).toBe("Modified by");
-    expect(field.value).toBe("someone");
+  it("should parse CSV data with Dutch headers and import unmapped columns as custom fields", async () => {
+    await importLoginWithCustomFields(importer, dutchHeaders);
   });
 
   it("should parse CSV data with folders and assign items to them", async () => {
