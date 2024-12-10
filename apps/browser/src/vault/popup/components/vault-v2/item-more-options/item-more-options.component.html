@@ -21,7 +21,7 @@
     <button type="button" bitMenuItem (click)="toggleFavorite()">
       {{ favoriteText | i18n }}
     </button>
-    <ng-container *ngIf="canEdit">
+    <ng-container *ngIf="canEdit && canViewPassword">
       <a bitMenuItem (click)="clone()" *ngIf="canClone$ | async">
         {{ "clone" | i18n }}
       </a>
