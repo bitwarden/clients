@@ -4,14 +4,21 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+// eslint-disable-next-line no-restricted-imports -- used for dependency injection
+import {
+  CriticalAppsApiService,
+  PasswordHealthReportApplicationsResponse,
+} from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllApplicationsComponent } from "./all-applications.component";
+import { applicationTableMockData } from "./application-table.mock";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
 import { NotifiedMembersTableComponent } from "./notified-members-table.component";
 import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
@@ -45,10 +52,10 @@ export enum RiskInsightsTabType {
 export class RiskInsightsComponent implements OnInit {
   tabIndex: RiskInsightsTabType;
   dataLastUpdated = new Date();
-  isCritialAppsFeatureEnabled = false;
+  isCriticalAppsFeatureEnabled = false;
 
-  apps: any[] = [];
-  criticalApps: any[] = [];
+  apps: any[] = applicationTableMockData;
+  criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
   notifiedMembers: any[] = [];
 
   async refreshData() {
@@ -70,7 +77,7 @@ export class RiskInsightsComponent implements OnInit {
   };
 
   async ngOnInit() {
-    this.isCritialAppsFeatureEnabled = await this.configService.getFeatureFlag(
+    this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
     );
   }
@@ -79,9 +86,12 @@ export class RiskInsightsComponent implements OnInit {
     protected route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
+    private criticalAppsApiService: CriticalAppsApiService,
   ) {
     route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(tabIndex) ? tabIndex : RiskInsightsTabType.AllApps;
     });
+    const orgId = this.route.snapshot.paramMap.get("organizationId");
+    this.criticalApps$ = this.criticalAppsApiService.getAppsListForOrg(orgId);
   }
 }

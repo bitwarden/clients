@@ -22,10 +22,10 @@
   <bit-tab label="{{ 'allApplicationsWithCount' | i18n: apps.length }}">
     <tools-all-applications></tools-all-applications>
   </bit-tab>
-  <bit-tab *ngIf="isCritialAppsFeatureEnabled">
+  <bit-tab *ngIf="isCriticalAppsFeatureEnabled">
     <ng-template bitTabLabel>
       <i class="bwi bwi-star"></i>
-      {{ "criticalApplicationsWithCount" | i18n: criticalApps.length }}
+      {{ "criticalApplicationsWithCount" | i18n: (criticalApps$ | async)?.length ?? 0 }}
     </ng-template>
     <tools-critical-applications></tools-critical-applications>
   </bit-tab>
