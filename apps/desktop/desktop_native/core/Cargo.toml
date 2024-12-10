@@ -6,7 +6,7 @@ version = "0.0.0"
 publish = false
 
 [features]
-default = ["sys"]
+default = ["sys", "windows-focus"]
 manual_test = []
 
 sys = [
@@ -17,6 +17,11 @@ sys = [
   "dep:security-framework-sys",
   "dep:zbus",
   "dep:zbus_polkit",
+]
+
+windows-focus = [
+  "dep:widestring",
+  "dep:windows",
 ]
 
 [dependencies]
@@ -38,7 +43,6 @@ futures = "=0.3.31"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
 log = "=0.4.22"
 rand = "=0.8.5"
-retry = "=2.0.0"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"

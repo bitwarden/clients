@@ -1,13 +1,19 @@
 use aes::cipher::generic_array::GenericArray;
 use anyhow::{anyhow, Result};
 
+#[cfg(feature = "sys")]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
+#[cfg_attr(target_os = "windows", path = "windows.rs")]
 mod biometric;
 
-use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+#[cfg(feature = "sys")]
 pub use biometric::Biometric;
+
+#[cfg(target_os = "windows")]
+pub mod windows_focus;
+
+use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use sha2::{Digest, Sha256};
 
 use crate::crypto::{self, CipherString};
