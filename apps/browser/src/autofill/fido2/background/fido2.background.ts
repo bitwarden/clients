@@ -23,10 +23,11 @@ import { ScriptInjectorService } from "../../../platform/services/abstractions/s
 import { AbortManager } from "../../../vault/background/abort-manager";
 import { Fido2ContentScript, Fido2ContentScriptId } from "../enums/fido2-content-script.enum";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
+import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-user-interface.service";
 
 import {
-  Fido2Background as Fido2BackgroundInterface,
   Fido2BackgroundExtensionMessageHandlers,
+  Fido2Background as Fido2BackgroundInterface,
   Fido2ExtensionMessage,
   SharedFido2ScriptInjectionDetails,
   SharedFido2ScriptRegistrationOptions,
@@ -56,7 +57,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   constructor(
     private logService: LogService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
-    private fido2ClientService: Fido2ClientService,
+    private fido2ClientService: Fido2ClientService<BrowserFido2ParentWindowReference>,
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
     private configService: ConfigService,
