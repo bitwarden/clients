@@ -122,6 +122,10 @@ export class SshAgentService implements OnDestroy {
             const cipherId = message.cipherId as string;
             const isListRequest = message.isListRequest as boolean;
             const requestId = message.requestId as number;
+            let application = message.processName as string;
+            if (application == "") {
+              application = this.i18nService.t("unknownApplication");
+            }
 
             if (isListRequest) {
               const sshCiphers = ciphers.filter(
@@ -151,7 +155,7 @@ export class SshAgentService implements OnDestroy {
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
               cipher.name,
-              this.i18nService.t("unknownApplication"),
+              application,
             );
 
             const result = await firstValueFrom(dialogRef.closed);
