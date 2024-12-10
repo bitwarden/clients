@@ -1,9 +1,12 @@
-use std::{ffi::c_void, str::FromStr, sync::{atomic::AtomicBool, Arc}};
+use std::{
+    ffi::c_void,
+    str::FromStr,
+    sync::{atomic::AtomicBool, Arc},
+};
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use rand::RngCore;
-use retry::delay::Fixed;
 use sha2::{Digest, Sha256};
 use windows::{
     core::{factory, h, s, HSTRING},
@@ -18,10 +21,7 @@ use windows::{
         Foundation::HWND,
         System::WinRT::IUserConsentVerifierInterop,
         UI::{
-            Input::KeyboardAndMouse::{
-                keybd_event, GetAsyncKeyState, SetFocus, KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP,
-                VK_MENU,
-            },
+            Input::KeyboardAndMouse::SetFocus,
             WindowsAndMessaging::{FindWindowA, SetForegroundWindow},
         },
     },
@@ -103,21 +103,19 @@ impl super::BiometricTrait for Biometric {
 
         let challenge_buffer = CryptographicBuffer::CreateFromByteArray(&challenge)?;
         let async_operation = result.Credential()?.RequestSignAsync(&challenge_buffer)?;
-        focus_security_prompt()?;
+        focus_security_prompt();
 
         let done = Arc::new(AtomicBool::new(false));
         let done_clone = done.clone();
-        let _ = tokio::task::spawn_blocking(move || {
-            loop {
-                if !done_clone.load(std::sync::atomic::Ordering::Relaxed) {
-                    let _ = focus_security_prompt();
-                    std::thread::sleep(std::time::Duration::from_millis(500));
-                } else {
-                    break;
-                }
+        let _ = tokio::task::spawn_blocking(move || loop {
+            if !done_clone.load(std::sync::atomic::Ordering::Relaxed) {
+                focus_security_prompt();
+                std::thread::sleep(std::time::Duration::from_millis(500));
+            } else {
+                break;
             }
         });
- 
+
         let signature = async_operation.get();
         done.store(true, std::sync::atomic::Ordering::Relaxed);
         let signature = signature?;
@@ -184,28 +182,21 @@ fn random_challenge() -> [u8; 16] {
     challenge
 }
 
-/// Searches for a window that looks like a security prompt and set it as focused..
-fn focus_security_prompt() -> Result<()> {
-    unsafe fn try_find_and_set_focus(
-        class_name: windows::core::PCSTR,
-    ) -> retry::OperationResult<(), ()> {
-        let hwnd = unsafe { FindWindowA(class_name, None) };
-        if let Ok(hwnd) = hwnd {
-            set_focus(hwnd);
-            return retry::OperationResult::Ok(());
-        }
-        retry::OperationResult::Retry(())
-    }
-
+/// Searches for a window that looks like a security prompt and set it as focused.
+/// Only works when the process has permission to foreground, either by being in foreground
+/// Or by being given foreground permission https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
+pub fn focus_security_prompt() -> () {
     let class_name = s!("Credential Dialog Xaml Host");
-    unsafe { try_find_and_set_focus(class_name); }
-    Ok(())
+    let hwnd = unsafe { FindWindowA(class_name, None) };
+    if let Ok(hwnd) = hwnd {
+        set_focus(hwnd);
+    }
 }
 
 fn set_focus(window: HWND) {
     unsafe {
-        SetForegroundWindow(window);
-        SetFocus(window);
+        let _ = SetForegroundWindow(window);
+        let _ = SetFocus(window);
     }
 }
 
@@ -300,12 +291,16 @@ mod tests {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, secret).await.unwrap();
+        crate::password::set_password(test, test, secret)
+            .await
+            .unwrap();
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
                 .await
                 .unwrap();
-        crate::password::delete_password("test", "test").await.unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, secret);
     }
 
@@ -318,19 +313,24 @@ mod tests {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, &secret.to_string()).await.unwrap();
+        crate::password::set_password(test, test, &secret.to_string())
+            .await
+            .unwrap();
 
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
                 .await
                 .unwrap();
-        crate::password::delete_password("test", "test").await.unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, "secret");
     }
 
     #[tokio::test]
     async fn set_biometric_secret_requires_key() {
-        let result = <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "").await;
+        let result =
+            <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "").await;
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),

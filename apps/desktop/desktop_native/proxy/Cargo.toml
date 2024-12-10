@@ -15,11 +15,5 @@ simplelog = "=0.12.2"
 tokio = { version = "=1.41.1", features = ["io-std", "io-util", "macros", "rt"] }
 tokio-util = { version = "=0.7.12", features = ["codec"] }
 
-[target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "=0.58.0", features = [
-  "Win32_UI_Input_KeyboardAndMouse",
-  "Win32_UI_WindowsAndMessaging",
-]}
-
 [target.'cfg(target_os = "macos")'.dependencies]
 embed_plist = "=1.2.2"
