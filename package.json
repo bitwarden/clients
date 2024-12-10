@@ -132,7 +132,7 @@
     "tailwindcss": "3.4.16",
     "ts-jest": "29.2.2",
     "ts-loader": "9.5.1",
-    "tsconfig-paths-webpack-plugin": "4.1.0",
+    "tsconfig-paths-webpack-plugin": "4.2.0",
     "type-fest": "2.19.0",
     "typescript": "5.4.2",
     "typescript-strict-plugin": "^2.4.4",
