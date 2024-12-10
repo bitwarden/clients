@@ -6,7 +6,7 @@ version = "0.0.0"
 publish = false
 
 [features]
-default = ["sys"]
+default = ["sys", "windows-focus"]
 manual_test = []
 
 sys = [
@@ -17,6 +17,11 @@ sys = [
   "dep:security-framework-sys",
   "dep:zbus",
   "dep:zbus_polkit",
+]
+
+windows-focus = [
+  "dep:widestring",
+  "dep:windows",
 ]
 
 [dependencies]

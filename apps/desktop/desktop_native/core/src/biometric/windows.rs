@@ -9,7 +9,7 @@ use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 use windows::{
-    core::{factory, h, s, HSTRING},
+    core::{factory, h, HSTRING},
     Foundation::IAsyncOperation,
     Security::{
         Credentials::{
@@ -20,10 +20,6 @@ use windows::{
     Win32::{
         Foundation::HWND,
         System::WinRT::IUserConsentVerifierInterop,
-        UI::{
-            Input::KeyboardAndMouse::SetFocus,
-            WindowsAndMessaging::{FindWindowA, SetForegroundWindow},
-        },
     },
 };
 
@@ -32,7 +28,7 @@ use crate::{
     crypto::CipherString,
 };
 
-use super::{decrypt, encrypt};
+use super::{decrypt, encrypt, windows_focus::{focus_security_prompt, set_focus}};
 
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
@@ -182,23 +178,6 @@ fn random_challenge() -> [u8; 16] {
     challenge
 }
 
-/// Searches for a window that looks like a security prompt and set it as focused.
-/// Only works when the process has permission to foreground, either by being in foreground
-/// Or by being given foreground permission https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
-pub fn focus_security_prompt() -> () {
-    let class_name = s!("Credential Dialog Xaml Host");
-    let hwnd = unsafe { FindWindowA(class_name, None) };
-    if let Ok(hwnd) = hwnd {
-        set_focus(hwnd);
-    }
-}
-
-fn set_focus(window: HWND) {
-    unsafe {
-        let _ = SetForegroundWindow(window);
-        let _ = SetFocus(window);
-    }
-}
 
 #[cfg(test)]
 mod tests {

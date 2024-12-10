@@ -1,5 +1,5 @@
 pub mod autofill;
-#[cfg(feature = "sys")]
+#[cfg(any(target_os = "windows", feature = "sys"))]
 pub mod biometric;
 #[cfg(feature = "sys")]
 pub mod clipboard;

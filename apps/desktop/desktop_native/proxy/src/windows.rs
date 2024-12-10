@@ -14,7 +14,7 @@ pub fn allow_foreground() -> Arc<AtomicBool> {
         should_foreground_clone.store(false, Ordering::Relaxed);
 
         for _ in 0..60 {
-            desktop_core::biometric::focus_security_prompt();
+            desktop_core::biometric::windows_focus::focus_security_prompt();
             std::thread::sleep(std::time::Duration::from_millis(1000));
         }
     });
