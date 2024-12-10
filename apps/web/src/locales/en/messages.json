@@ -9801,8 +9801,8 @@
   "selfHostingTitleProper": {
     "message": "Self-Hosting"
   },
-  "verified-domain-single-org-warning" : {
-    "message": "Verifying a domain will turn on the single organization policy."
+  "claim-domain-single-org-warning" : {
+    "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
@@ -9902,5 +9902,62 @@
   },
   "removeMembers": {
     "message": "Remove members"
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
   }
 }

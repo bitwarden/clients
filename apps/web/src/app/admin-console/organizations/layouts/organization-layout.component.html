@@ -98,7 +98,7 @@
         *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'domainVerification' | i18n"
+        [text]="domainVerificationNavigationTextKey | i18n"
         route="settings/domain-verification"
         *ngIf="organization?.canManageDomainVerification"
       ></bit-nav-item>
