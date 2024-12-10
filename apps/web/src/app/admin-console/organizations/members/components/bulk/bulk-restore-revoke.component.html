@@ -29,25 +29,33 @@
     <ng-container *ngIf="!done">
       <ng-container *ngIf="accountDeprovisioning.enabled">
         <div *ngIf="users.length > 0 && !error && isRevoking">
-          <p>{{ "revokeMembersWarning" | i18n }}</p>
-          <ul>
-            <li>
-              {{ "claimedAccountRevoke" | i18n }}
-            </li>
-            <li>
-              {{ "unclaimedAccountRevoke" | i18n }}
-            </li>
-          </ul>
-          <p>
-            {{ "restoreMembersInstructions" | i18n }}
-          </p>
+          <ng-container *ngIf="hasManagedUsers && hasUnmanagedUsers">
+            <p>{{ "revokeMembersWarning" | i18n }}</p>
+            <ul>
+              <li>
+                {{ "claimedAccountRevoke" | i18n }}
+              </li>
+              <li>
+                {{ "unclaimedAccountRevoke" | i18n }}
+              </li>
+            </ul>
+            <p>
+              {{ "restoreMembersInstructions" | i18n }}
+            </p>
+          </ng-container>
+          <ng-container *ngIf="hasManagedUsers && !hasUnmanagedUsers">
+            <p>{{ "revokeManagedMembersWarning" | i18n }}</p>
+            <p>{{ "managedMembersRestoreInstructions" | i18n }}</p>
+          </ng-container>
           <p *ngIf="this.showNoMasterPasswordWarning">
             {{ "removeMembersWithoutMasterPasswordWarning" | i18n }}
           </p>
         </div>
       </ng-container>
 
-      <ng-container *ngIf="!accountDeprovisioning.enabled">
+      <ng-container
+        *ngIf="!accountDeprovisioning.enabled || (hasUnmanagedUsers && !hasManagedUsers)"
+      >
         <bit-callout type="warning" *ngIf="users.length > 0 && !error && isRevoking">
           <p>{{ "revokeUsersWarning" | i18n }}</p>
         </bit-callout>
@@ -57,7 +65,9 @@
         <ng-container header>
           <tr>
             <th bitCell class="tw-w-1/2">{{ "member" | i18n }}</th>
-            <th bitCell *ngIf="isRevoking">{{ "details" | i18n }}</th>
+            <th bitCell *ngIf="isRevoking && hasManagedUsers && hasUnmanagedUsers">
+              {{ "details" | i18n }}
+            </th>
             <th bitCell *ngIf="this.showNoMasterPasswordWarning">{{ "details" | i18n }}</th>
           </tr>
         </ng-container>
@@ -74,7 +84,7 @@
                 </div>
               </div>
             </td>
-            <td *ngIf="isRevoking" bitCell width="30">
+            <td *ngIf="isRevoking && hasManagedUsers && hasUnmanagedUsers" bitCell width="30">
               {{
                 user.managedByOrganization ? ("claimedAccount" | i18n) : ("unclaimedAccount" | i18n)
               }}

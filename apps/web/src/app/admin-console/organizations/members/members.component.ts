@@ -725,10 +725,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   protected async revokeUserConfirmationDialog(user: OrganizationUserView) {
+    const showManagedCopy = this.accountDeprovisioningEnabled && user.managedByOrganization;
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "revokeAccess", placeholders: [this.userNamePipe.transform(user)] },
-      content: this.i18nService.t("revokeUserConfirmation"),
-      acceptButtonText: { key: "revokeAccess" },
+      title: {
+        key: showManagedCopy ? "revokeManaged" : "revokeAccess",
+        placeholders: [this.userNamePipe.transform(user)],
+      },
+      content: this.i18nService.t(
+        showManagedCopy ? "revokeManagedUserConfirmation" : "revokeUserConfirmation",
+      ),
+      acceptButtonText: { key: showManagedCopy ? "revoke" : "revokeAccess" },
       type: "warning",
     });
 

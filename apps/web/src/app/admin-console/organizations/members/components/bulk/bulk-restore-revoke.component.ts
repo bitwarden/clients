@@ -36,6 +36,8 @@ export class BulkRestoreRevokeComponent {
   showNoMasterPasswordWarning = false;
   nonCompliantMembers: boolean = false;
   accountDeprovisioningEnabled$: Observable<boolean>;
+  hasManagedUsers: boolean = false;
+  hasUnmanagedUsers: boolean = false;
 
   constructor(
     protected i18nService: I18nService,
@@ -52,6 +54,9 @@ export class BulkRestoreRevokeComponent {
     this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
     );
+
+    this.hasManagedUsers = this.users.some((user) => user.managedByOrganization);
+    this.hasUnmanagedUsers = this.users.some((user) => !user.managedByOrganization);
   }
 
   get bulkTitle() {

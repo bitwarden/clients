@@ -29,6 +29,9 @@
   "notifiedMembers": {
     "message": "Notified members"
   },
+  "revokeManagedUserConfirmation": {
+    "message": "When a member with a claimed account is revoked, they no longer have access to their Bitwarden account. To restore a member's access, go to the Revoked tab."
+  },
   "revokeMembers": {
     "message": "Revoke members"
   },
@@ -37,6 +40,12 @@
   },
   "revokeMembersWarning":{
     "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
+  },
+  "revokeManagedMembersWarning":{
+    "message": "When a verified member is revoked, they no long have access to their Bitwarden account."
+  },
+  "managedMembersRestoreInstructions": {
+    "message": "To restore a member's access, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
   },
   "claimedAccountRevoke": {
     "message": "Claimed account: Revoke access to Bitwarden account"
@@ -2124,6 +2133,18 @@
   },
   "revokeAccess": {
     "message": "Revoke access"
+  },
+  "revoke": {
+    "message": "Revoke"
+  },
+  "revokeManaged": {
+    "message": "Revoke $MEMBER$",
+    "placeholders":{
+	"member": {
+            "content": "$1",
+	    "example": "test"
+	}
+    }
   },
   "twoStepLoginProviderEnabled": {
     "message": "This two-step login provider is active on your account."
