@@ -243,6 +243,20 @@ export class AppComponent implements OnDestroy, OnInit {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/remove-password"]);
             break;
+          case "syncOrganizationStatusChanged": {
+            const { organizationId, enabled } = message;
+            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              const updatedOrganization = {
+                ...organization,
+                enabled: enabled,
+              };
+              await this.organizationService.upsert(updatedOrganization);
+            }
+            break;
+          }
           default:
             break;
         }
