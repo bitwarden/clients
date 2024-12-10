@@ -28,6 +28,7 @@
         <input
           readonly
           bitInput
+          [disabled]="!this.cipher.viewPassword"
           type="password"
           [value]="field.value"
           aria-readonly="true"
@@ -36,6 +37,7 @@
         <button
           bitSuffix
           type="button"
+          [disabled]="!this.cipher.viewPassword"
           bitIconButton
           bitPasswordInputToggle
           (toggledChange)="logHiddenEvent($event)"
@@ -43,6 +45,7 @@
         <button
           bitIconButton="bwi-clone"
           bitSuffix
+          [disabled]="!this.cipher.viewPassword"
           type="button"
           [appCopyClick]="field.value"
           showToast
