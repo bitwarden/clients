@@ -17,6 +17,6 @@ export class TextDragDirective {
 
   @HostListener("dragstart", ["$event"])
   onDragStart(event: DragEvent) {
-    event.dataTransfer.setData("text", this.data);
+    event.dataTransfer?.setData("text", this.data);
   }
 }
