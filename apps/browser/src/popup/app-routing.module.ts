@@ -83,7 +83,6 @@ import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/cr
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
-import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -393,16 +392,18 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
+  {
     path: "add-send",
+    component: SendAddEditV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
+  },
+  {
     path: "edit-send",
+    component: SendAddEditV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "send-created",
     component: SendCreatedComponent,

@@ -1153,9 +1153,6 @@
   "moveToOrganization": {
     "message": "Move to organization"
   },
-  "share": {
-    "message": "Share"
-  },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ moved to $ORGNAME$",
     "placeholders": {
@@ -2401,15 +2398,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Max access count reached",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Expired"
-  },
-  "pendingDeletion": {
-    "message": "Pending deletion"
   },
   "passwordProtected": {
     "message": "Password protected"
@@ -2460,23 +2450,8 @@
     "message": "Edit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "What type of Send is this?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "A friendly name to describe this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "The file you want to send."
-  },
   "deletionDate": {
     "message": "Deletion date"
-  },
-  "deletionDateDesc": {
-    "message": "The Send will be permanently deleted on the specified date and time.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2484,10 +2459,6 @@
   },
   "expirationDate": {
     "message": "Expiration date"
-  },
-  "expirationDateDesc": {
-    "message": "If set, access to this Send will expire on the specified date and time.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 day"
@@ -2504,42 +2475,9 @@
   "custom": {
     "message": "Custom"
   },
-  "maximumAccessCount": {
-    "message": "Maximum Access Count"
-  },
-  "maximumAccessCountDesc": {
-    "message": "If set, users will no longer be able to access this Send once the maximum access count is reached.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Optionally require a password for users to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private notes about this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deactivate this Send so that no one can access it.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Copy this Send's link to clipboard upon save.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "The text you want to send."
-  },
-  "sendHideText": {
-    "message": "Hide this Send's text by default.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Current access count"
   },
   "createSend": {
     "message": "New Send",
@@ -2623,18 +2561,6 @@
   "sendFileCalloutHeader": {
     "message": "Before you start"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "To use a calendar style date picker",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "click here",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "to pop out your window.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "The expiration date provided is not valid."
   },
@@ -2650,14 +2576,8 @@
   "dateParsingError": {
     "message": "There was an error saving your deletion and expiration dates."
   },
-  "hideEmail": {
-    "message": "Hide my email address from recipients."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "One or more organization policies are affecting your Send options."
   },
   "passwordPrompt": {
     "message": "Master password re-prompt"
