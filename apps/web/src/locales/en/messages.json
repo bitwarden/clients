@@ -4739,6 +4739,12 @@
   "ssoLogInWithOrgIdentifier": {
     "message": "Log in using your organization's single sign-on portal. Please enter your organization's SSO identifier to begin."
   },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Enter your organization's SSO identifier to begin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
+  },
   "enterpriseSingleSignOn": {
     "message": "Enterprise single sign-on"
   },

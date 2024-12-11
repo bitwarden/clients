@@ -35,6 +35,13 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() hideFooter: boolean = false;
 
   /**
+   * Max width of the title area content
+   *
+   * @default null
+   */
+  @Input() titleAreaMaxWidth?: "md";
+
+  /**
    * Max width of the layout content
    *
    * @default 'md'
@@ -60,6 +67,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   async ngOnInit() {
     this.maxWidth = this.maxWidth ?? "md";
+    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? null;
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 

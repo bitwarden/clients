@@ -39,6 +39,7 @@ import {
   VaultIcon,
   LoginDecryptionOptionsComponent,
   DevicesIcon,
+  SsoComponent,
   TwoFactorTimeoutIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -62,7 +63,7 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent as AccountSecurityV1Component } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
-import { SsoComponent } from "../auth/popup/sso.component";
+import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
@@ -230,12 +231,40 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  {
-    path: "sso",
-    component: SsoComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
+  ...unauthUiRefreshSwap(
+    SsoComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "sso",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: { elevation: 1 } satisfies RouteDataProperties,
+    },
+    {
+      path: "sso",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: {
+        pageIcon: VaultIcon,
+        pageTitle: {
+          key: "enterpriseSingleSignOn",
+        },
+        pageSubtitle: {
+          key: "singleSignOnEnterOrgIdentifierText",
+        },
+        elevation: 1,
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      children: [
+        { path: "", component: SsoComponent },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+          data: {
+            overlayPosition: ExtensionDefaultOverlayPosition,
+          } satisfies EnvironmentSelectorRouteData,
+        },
+      ],
+    },
+  ),
   {
     path: "set-password",
     component: SetPasswordComponent,
