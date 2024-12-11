@@ -208,19 +208,19 @@
     "message": "Ein neuer SSH-Schlüssel wurde generiert"
   },
   "sshKeyWrongPassword": {
-    "message": "Dein eingegebenes Passwort ist falsch."
+    "message": "The password you entered is incorrect."
   },
   "importSshKey": {
     "message": "Import"
   },
   "confirmSshKeyPassword": {
-    "message": "Passwort bestätigen"
+    "message": "Confirm password"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Gib das Passwort für den SSH-Schlüssel ein."
+    "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Passwort eingeben"
+    "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
     "message": "Bitte entsperre deinen Tresor, um die SSH-Schlüsselanfrage zu genehmigen."
@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "Selbst gehostete Server-URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1387,13 +1393,13 @@
     "message": "Passwortverlauf"
   },
   "generatorHistory": {
-    "message": "Generator-Verlauf"
+    "message": "Generator history"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Generator-Verlauf löschen"
+    "message": "Clear generator history"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "Wenn du fortfährst, werden alle Einträge dauerhaft aus dem Generator-Verlauf gelöscht. Bist du sicher, dass du fortfahren möchtest?"
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "clear": {
     "message": "Leeren",
@@ -1403,13 +1409,13 @@
     "message": "Keine Einträge zum Anzeigen vorhanden."
   },
   "clearHistory": {
-    "message": "Verlauf löschen"
+    "message": "Clear history"
   },
   "nothingToShow": {
-    "message": "Nichts anzuzeigen"
+    "message": "Nothing to show"
   },
   "nothingGeneratedRecently": {
-    "message": "Du hast in letzter Zeit nichts generiert"
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Rückgängig"
@@ -2478,7 +2484,7 @@
     "message": "E-Mail generieren"
   },
   "spinboxBoundariesHint": {
-    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2492,7 +2498,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Verwende $RECOMMENDED$ oder mehr Zeichen, um ein starkes Passwort zu generieren.",
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2502,7 +2508,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Verwende $RECOMMENDED$ oder mehr Wörter, um eine starke Passphrase zu generieren.",
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2723,13 +2729,13 @@
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
+    "message": "A notification was sent to your device"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "Brauchst du eine andere Option?"
+    "message": "Need another option?"
   },
   "fingerprintMatchInfo": {
     "message": "Bitte stelle sicher, dass dein Tresor entsperrt ist und die Fingerabdruck-Phrase mit dem anderen Gerät übereinstimmt."
@@ -2738,13 +2744,13 @@
     "message": "Fingerabdruck-Phrase"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
+    "message": "You will be notified once the request is approved"
   },
   "needAnotherOption": {
     "message": "Die Anmeldung über ein Gerät muss in den Einstellungen der Bitwarden App eingerichtet werden. Benötigst du eine andere Option?"
   },
   "viewAllLogInOptions": {
-    "message": "Alle Anmeldeoptionen anzeigen"
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
@@ -2866,7 +2872,7 @@
     "message": "Bekannte Datendiebstähle auf dieses Passwort überprüfen"
   },
   "loggedInExclamation": {
-    "message": "Angemeldet!"
+    "message": "Logged in!"
   },
   "important": {
     "message": "Wichtig:"
@@ -2899,16 +2905,16 @@
     "message": "Empfohlene Aktualisierung der Einstellungen"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
+    "message": "Remember this device to make future logins seamless"
   },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Geräte-Genehmigung erforderlich"
+    "message": "Device approval required"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Wähle unten eine Genehmigungsoption aus"
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -2963,7 +2969,7 @@
     "message": "E-Mail-Adresse des Benutzers fehlt"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Aktive Benutzer-E-Mail-Adresse nicht gefunden. Du wirst abgemeldet."
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"

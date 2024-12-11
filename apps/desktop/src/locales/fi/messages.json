@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Palvelimen URL"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "Itse ylläpidetyn palvelimen URL-osoite",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1729,7 +1735,7 @@
     "message": "Vahvista Bitwarden."
   },
   "polkitConsentMessage": {
-    "message": "Avaa Bitwardenin lukitus tunnistautumalla."
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Avaa Touch ID:llä"
