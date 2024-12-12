@@ -12,7 +12,7 @@ export function CipherAction({
   theme,
 }: {
   handleAction?: (e: Event) => void;
-  notificationType: string;
+  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
 }) {
   return notificationType === NotificationTypes.Change
@@ -22,12 +22,10 @@ export function CipherAction({
         buttonText: "Update item",
         theme,
       })
-    : notificationType === NotificationTypes.Add
-      ? EditButton({
-          buttonAction: handleAction,
-          // @TODO localize
-          buttonText: "Edit item",
-          theme,
-        }) // @TODO add handleAction
-      : null; // @TODO null case should be handled by parent
+    : EditButton({
+        buttonAction: handleAction,
+        // @TODO localize
+        buttonText: "Edit item",
+        theme,
+      });
 }

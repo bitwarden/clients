@@ -1,17 +1,33 @@
+import { css } from "@emotion/css";
 import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { Globe } from "../icons";
 
+/**
+ * @param {string} props.color contextual color override if no icon URI is available
+ * @param {string} props.size valid CSS `width` value, represents the width-basis of the graphic, with height maintaining original aspect-ratio
+ */
 export function CipherIcon({
-  imageEnabled,
-  image: uri,
+  color,
+  size,
   theme,
+  uri,
 }: {
-  imageEnabled: boolean;
-  image: string;
+  color: string;
+  uri: string;
+  size: string;
   theme: Theme;
 }) {
-  return imageEnabled ? html`<img src=${uri} />` : Globe({ theme });
+  const iconClass = cipherIconStyle({ width: size });
+
+  return uri
+    ? html`<img class=${iconClass} src=${uri} />`
+    : html`<span class=${iconClass}>${Globe({ color, theme })}</span>`;
 }
+
+const cipherIconStyle = ({ width }: { width: string }) => css`
+  width: ${width};
+  height: fit-content;
+`;

@@ -40,7 +40,7 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
   user-select: none;
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
-  padding: ${spacing["1"]} ${spacing["4"]};
+  padding: ${spacing["1"]} ${spacing["3"]};
   width: 100%;
   overflow: hidden;
   text-align: center;

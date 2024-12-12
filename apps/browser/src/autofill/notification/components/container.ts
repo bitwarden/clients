@@ -28,16 +28,22 @@ export function NotificationContainer({
   const headerMessage = getHeaderMessage(type, i18n);
   const showBody = true;
 
-  // @TODO remove mock cipher for development
-  const cipher = createAutofillOverlayCipherDataMock(1) as CipherData;
-
+  // @TODO remove mock ciphers for development
+  const ciphers = [
+    createAutofillOverlayCipherDataMock(1),
+    { ...createAutofillOverlayCipherDataMock(2), icon: { imageEnabled: false } },
+    {
+      ...createAutofillOverlayCipherDataMock(3),
+      icon: { imageEnabled: true, image: "https://localhost:8443/icons/webtests.dev/icon.png" },
+    },
+  ] as CipherData[];
   const itemText = type === NotificationTypes.Add ? "Save as new login" : null;
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
-        hasBody: showBody,
+        showBottomBorder: showBody,
         isVaultLocked,
         message: headerMessage,
         theme,
@@ -45,42 +51,37 @@ export function NotificationContainer({
       ${showBody
         ? NotificationBody({
             theme,
+            customClasses: [notificationBodyClass],
             // @TODO move notificationType to `NotificationBody` component
-            children: [
-              // @TODO placeholder composition
+            children: ciphers.map((cipher) =>
               ItemRow({
                 theme,
                 children: CipherItem({
                   cipher,
                   notificationType: type,
                   theme,
-                  handleAction: () => {},
+                  handleAction: () => {
+                    window.alert("cipher item button pressed!");
+                  },
                 }),
               }),
-              ItemRow({ theme, children: CipherItem({ cipher, notificationType: type, theme }) }),
-              ItemRow({
-                theme,
-                children: CipherItem({
-                  cipher,
-                  notificationType: type,
-                  theme,
-                  handleAction: () => {},
-                }),
-              }),
-            ],
+            ),
           })
         : null}
       ${NotificationFooter({
         theme,
         children: [
-          NotificationTypes.Change
-            ? ButtonRow({ theme })
-            : ActionRow({ itemText, handleAction: () => {}, theme }),
+          type === NotificationTypes.Change
+            ? ActionRow({ itemText, handleAction: () => {}, theme })
+            : ButtonRow({ theme }),
         ],
       })}
     </div>
   `;
 }
+
+// @TODO rethink this
+const notificationBodyClass = "notification-body";
 
 const notificationContainerStyles = (theme: Theme) => css`
   position: absolute;
@@ -91,7 +92,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   background-color: ${themes[theme].background.alt};
   width: 400px;
 
-  > .notification-body {
+  > .${notificationBodyClass} {
     margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
     padding-right: ${spacing["3"]};
   }

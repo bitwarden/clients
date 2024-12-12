@@ -6,9 +6,11 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 
 export function NotificationBody({
+  customClasses = [],
   theme = ThemeTypes.Light,
   children,
 }: {
+  customClasses?: string[];
   theme: Theme;
   children: TemplateResult[];
 }) {
@@ -16,7 +18,7 @@ export function NotificationBody({
   const isSafari = false;
 
   return html`
-    <div class=${cx("notification-body", notificationBodyStyles({ isSafari, theme }))}>
+    <div class=${cx(...customClasses, notificationBodyStyles({ isSafari, theme }))}>
       ${children}
     </div>
   `;

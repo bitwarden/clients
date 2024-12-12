@@ -10,38 +10,45 @@ import { CloseButton } from "./buttons/close-button";
 import { NotificationHeaderMessage } from "./header-message";
 
 export function NotificationHeader({
-  handleCloseNotification,
-  hasBody,
   isVaultLocked,
   message,
+  showBottomBorder,
   theme = ThemeTypes.Light,
+  handleCloseNotification,
 }: {
-  handleCloseNotification: (e: Event) => void;
-  hasBody: boolean;
   isVaultLocked: boolean;
   message: string;
+  showBottomBorder: boolean;
   theme: Theme;
+  handleCloseNotification: (e: Event) => void;
 }) {
   const showIcon = true;
   const isDismissable = true;
 
   return html`
-    <div class=${notificationHeaderStyles({ hasBody, theme })}>
+    <div class=${notificationHeaderStyles({ showBottomBorder, theme })}>
       ${showIcon ? BrandIcon({ theme }) : null} ${NotificationHeaderMessage({ message, theme })}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
     </div>
   `;
 }
 
-const notificationHeaderStyles = ({ hasBody, theme }: { hasBody: boolean; theme: Theme }) => css`
+const notificationHeaderStyles = ({
+  showBottomBorder,
+  theme,
+}: {
+  showBottomBorder: boolean;
+  theme: Theme;
+}) => css`
   gap: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  background-color: ${themes[theme].background.alt};
   padding: 12px 16px 8px 16px;
   white-space: nowrap;
 
-  ${hasBody
+  ${showBottomBorder
     ? css`
         border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
       `
