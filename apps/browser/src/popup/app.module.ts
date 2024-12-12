@@ -35,7 +35,7 @@ import { AccountSecurityComponent } from "../auth/popup/settings/account-securit
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
 import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2CipherRowV1Component } from "../autofill/popup/fido2/fido2-cipher-row-v1.component";
 import { Fido2CipherRowComponent } from "../autofill/popup/fido2/fido2-cipher-row.component";
@@ -181,7 +181,7 @@ import "../platform/popup/locales";
     SyncComponent,
     TabsComponent,
     TabsV2Component,
-    TwoFactorComponent,
+    TwoFactorComponentV1,
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
     UserVerificationComponent,

@@ -1,4 +1,4 @@
-<form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
+<form [bitSubmit]="submitForm" [formGroup]="form" autocomplete="off">
   <app-two-factor-auth-email
     (token)="token = $event"
     *ngIf="selectedProviderType === providerType.Email"
@@ -32,24 +32,10 @@
     <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p>
     <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p>
   </ng-container>
-  <div [hidden]="!showCaptcha()">
-    <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
-  </div>
   <!-- Buttons -->
   <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3">
-    <button
-      type="submit"
-      buttonType="primary"
-      bitButton
-      bitFormButton
-      *ngIf="
-        selectedProviderType != null &&
-        selectedProviderType !== providerType.WebAuthn &&
-        selectedProviderType !== providerType.Duo &&
-        selectedProviderType !== providerType.OrganizationDuo
-      "
-    >
-      <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
+    <button type="submit" buttonType="primary" bitButton bitFormButton *ngIf="showContinueButton()">
+      <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "continue" | i18n }} </span>
     </button>
     <button
       type="button"

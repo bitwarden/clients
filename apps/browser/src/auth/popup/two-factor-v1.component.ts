@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, Subscription, firstValueFrom } from "rxjs";
 import { filter, first, takeUntil } from "rxjs/operators";
 
-import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
+import { TwoFactorComponentV1 as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor-v1.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
@@ -37,9 +37,9 @@ import { closeTwoFactorAuthPopout } from "./utils/auth-popout-window";
 
 @Component({
   selector: "app-two-factor",
-  templateUrl: "two-factor.component.html",
+  templateUrl: "two-factor-v1.component.html",
 })
-export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
+export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   inPopout = BrowserPopupUtils.inPopout(window);
 
