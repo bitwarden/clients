@@ -13,9 +13,11 @@
       class="tw-text-main tw-mb-0 tw-truncate"
     >
       {{ title }}
-      <span *ngIf="subtitle" class="tw-text-muted tw-font-normal tw-text-sm">
-        {{ subtitle }}
-      </span>
+      @if (subtitle) {
+        <span class="tw-text-muted tw-font-normal tw-text-sm">
+          {{ subtitle }}
+        </span>
+      }
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h1>
     <button
@@ -35,12 +37,11 @@
       'tw-min-h-60': loading,
     }"
   >
-    <div
-      *ngIf="loading"
-      class="tw-absolute tw-flex tw-h-full tw-w-full tw-items-center tw-justify-center"
-    >
-      <i class="bwi bwi-spinner bwi-spin bwi-lg" [attr.aria-label]="'loading' | i18n"></i>
-    </div>
+    @if (loading) {
+      <div class="tw-absolute tw-flex tw-h-full tw-w-full tw-items-center tw-justify-center">
+        <i class="bwi bwi-spinner bwi-spin bwi-lg" [attr.aria-label]="'loading' | i18n"></i>
+      </div>
+    }
     <div
       [ngClass]="{
         'tw-p-4': !disablePadding,

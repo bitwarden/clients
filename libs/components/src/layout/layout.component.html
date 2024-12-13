@@ -23,18 +23,23 @@
     <ng-content></ng-content>
 
     <!-- overlay backdrop for side-nav -->
-    <div
-      *ngIf="{
+    @if (
+      {
         open: sideNavService.open$ | async,
-      } as data"
-      class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
-      [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
-    >
+      };
+      as data
+    ) {
       <div
-        *ngIf="data.open"
-        (click)="sideNavService.toggle()"
-        class="tw-pointer-events-auto tw-h-full tw-w-full"
-      ></div>
-    </div>
+        class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
+        [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
+      >
+        @if (data.open) {
+          <div
+            (click)="sideNavService.toggle()"
+            class="tw-pointer-events-auto tw-h-full tw-w-full"
+          ></div>
+        }
+      </div>
+    }
   </main>
 </div>

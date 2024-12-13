@@ -1,11 +1,15 @@
 <div class="tw-inline-flex tw-flex-wrap tw-gap-2">
-  <ng-container *ngFor="let item of filteredItems; let last = last">
+  @for (item of filteredItems; track item; let last = $last) {
     <span bitBadge [variant]="variant" [truncate]="truncate">
       {{ item }}
     </span>
-    <span class="tw-sr-only" *ngIf="!last || isFiltered">, </span>
-  </ng-container>
-  <span *ngIf="isFiltered" bitBadge [variant]="variant">
-    {{ "plusNMore" | i18n: (items.length - filteredItems.length).toString() }}
-  </span>
+    @if (!last || isFiltered) {
+      <span class="tw-sr-only">, </span>
+    }
+  }
+  @if (isFiltered) {
+    <span bitBadge [variant]="variant">
+      {{ "plusNMore" | i18n: (items.length - filteredItems.length).toString() }}
+    </span>
+  }
 </div>
