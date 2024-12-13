@@ -77,11 +77,12 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView) {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
       this.additionalOptionsForm.patchValue({
-        notes: this.cipherFormContainer.originalCipherView.notes,
-        reprompt:
-          this.cipherFormContainer.originalCipherView.reprompt === CipherRepromptType.Password,
+        notes: prefillCipher.notes,
+        reprompt: prefillCipher.reprompt === CipherRepromptType.Password,
       });
     }
 

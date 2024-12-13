@@ -183,8 +183,10 @@ export class ItemDetailsSectionComponent implements OnInit {
       throw new Error("No organizations available for ownership.");
     }
 
-    if (this.originalCipherView) {
-      await this.initFromExistingCipher();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      await this.initFromExistingCipher(prefillCipher);
     } else {
       this.itemDetailsForm.setValue({
         name: this.initialValues?.name || "",
@@ -210,30 +212,37 @@ export class ItemDetailsSectionComponent implements OnInit {
       .subscribe();
   }
 
-  private async initFromExistingCipher() {
+  private async initFromExistingCipher(prefillCipher: CipherView) {
+    const { name, folderId, collectionIds } = prefillCipher;
+
     this.itemDetailsForm.setValue({
-      name: this.initialValues?.name ?? this.originalCipherView.name,
-      organizationId: this.originalCipherView.organizationId, // We do not allow changing ownership of an existing cipher.
-      folderId: this.initialValues?.folderId ?? this.originalCipherView.folderId,
+      name: name ? name : (this.initialValues?.name ?? ""),
+      organizationId: prefillCipher.organizationId, // We do not allow changing ownership of an existing cipher.
+      folderId: folderId ? folderId : (this.initialValues?.folderId ?? null),
       collectionIds: [],
-      favorite: this.originalCipherView.favorite,
+      favorite: prefillCipher.favorite,
     });
+
+    const initializedWithCachedCipher = this.cipherFormContainer.initializedWithCachedCipher();
 
     // Configure form for clone mode.
     if (this.config.mode === "clone") {
-      this.itemDetailsForm.controls.name.setValue(
-        this.originalCipherView.name + " - " + this.i18nService.t("clone"),
-      );
+      if (!initializedWithCachedCipher) {
+        this.itemDetailsForm.controls.name.setValue(
+          prefillCipher.name + " - " + this.i18nService.t("clone"),
+        );
+      }
 
-      if (!this.allowPersonalOwnership && this.originalCipherView.organizationId == null) {
+      if (!this.allowPersonalOwnership && prefillCipher.organizationId == null) {
         this.itemDetailsForm.controls.organizationId.setValue(this.defaultOwner);
       }
     }
 
-    await this.updateCollectionOptions(
-      this.initialValues?.collectionIds ??
-        (this.originalCipherView.collectionIds as CollectionId[]),
-    );
+    const prefillCollections = collectionIds?.length
+      ? (collectionIds as CollectionId[])
+      : (this.initialValues?.collectionIds ?? []);
+
+    await this.updateCollectionOptions(prefillCollections);
 
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
