@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
 /**
@@ -7,7 +6,6 @@ import { Component } from "@angular/core";
 @Component({
   selector: "bit-container",
   templateUrl: "container.component.html",
-  imports: [CommonModule],
   standalone: true,
 })
 export class ContainerComponent {}

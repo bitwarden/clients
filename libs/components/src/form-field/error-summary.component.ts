@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
+
 import { Component, Input } from "@angular/core";
 import { AbstractControl, UntypedFormGroup } from "@angular/forms";
 
@@ -8,15 +8,15 @@ import { I18nPipe } from "../shared/i18n.pipe";
 
 @Component({
   selector: "bit-error-summary",
-  template: ` <ng-container *ngIf="errorCount > 0">
+  template: ` @if (errorCount > 0) {
     <i class="bwi bwi-error"></i> {{ "fieldsNeedAttention" | i18n: errorString }}
-  </ng-container>`,
+  }`,
   host: {
     class: "tw-block tw-text-danger tw-mt-2",
     "aria-live": "assertive",
   },
   standalone: true,
-  imports: [NgIf, I18nPipe],
+  imports: [I18nPipe],
 })
 export class BitErrorSummary {
   @Input()

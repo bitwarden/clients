@@ -42,9 +42,11 @@ class KitchenSinkDialog {
 
     <p class="tw-mt-4">
       <bit-breadcrumbs>
-        <bit-breadcrumb *ngFor="let item of navItems" [icon]="item.icon" [route]="[item.route]">
-          {{ item.name }}
-        </bit-breadcrumb>
+        @for (item of navItems; track item) {
+          <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
+            {{ item.name }}
+          </bit-breadcrumb>
+        }
       </bit-breadcrumbs>
     </p>
 
