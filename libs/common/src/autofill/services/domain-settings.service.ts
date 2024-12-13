@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
   NeverDomains,
@@ -81,16 +84,30 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private defaultUriMatchStrategyState: ActiveUserState<UriMatchStrategySetting>;
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private configService: ConfigService,
+  ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
 
     this.neverDomainsState = this.stateProvider.getGlobal(NEVER_DOMAINS);
     this.neverDomains$ = this.neverDomainsState.state$.pipe(map((x) => x ?? null));
 
+    // Needs to be global to prevent pre-login injections
     this.blockedInteractionsUrisState = this.stateProvider.getGlobal(BLOCKED_INTERACTIONS_URIS);
-    this.blockedInteractionsUris$ = this.blockedInteractionsUrisState.state$.pipe(
-      map((x) => x ?? null),
+
+    this.blockedInteractionsUris$ = combineLatest([
+      this.blockedInteractionsUrisState.state$,
+      this.configService.getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain),
+    ]).pipe(
+      map(([blockedUris, blockBrowserInjectionsByDomainEnabled]) => {
+        if (!blockBrowserInjectionsByDomainEnabled) {
+          return null;
+        }
+
+        return blockedUris ?? null;
+      }),
     );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);
