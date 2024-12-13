@@ -411,7 +411,7 @@ const routes: Routes = [
     path: "blocked-domains",
     component: BlockedDomainsComponent,
     canActivate: [authGuard],
-    data: { state: "blocked-domains" } satisfies RouteDataProperties,
+    data: { elevation: 2 } satisfies RouteDataProperties,
   },
   ...extensionRefreshSwap(ExcludedDomainsV1Component, ExcludedDomainsComponent, {
     path: "excluded-domains",
