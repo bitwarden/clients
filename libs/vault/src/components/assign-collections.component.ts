@@ -289,12 +289,18 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    this.availableCollections = this.params.availableCollections.map((c) => ({
-      icon: "bwi-collection",
-      id: c.id,
-      labelName: c.name,
-      listName: c.name,
-    }));
+    const org = await this.organizationService.get(this.selectedOrgId);
+
+    this.availableCollections = this.params.availableCollections
+      .filter((collection) => {
+        return collection.canEditItems(org);
+      })
+      .map((c) => ({
+        icon: "bwi-collection",
+        id: c.id,
+        labelName: c.name,
+        listName: c.name,
+      }));
 
     // Select assigned collections for a single cipher.
     this.selectCollectionsAssignedToSingleCipher();
