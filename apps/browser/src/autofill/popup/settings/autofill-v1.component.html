@@ -255,7 +255,7 @@
       {{ "showIdentitiesCurrentTabDesc" | i18n }}
     </div>
   </div>
-  <div class="box list">
+  <div class="box list" *ngIf="blockBrowserInjectionsByDomainEnabled">
     <div class="box-content single-line">
       <button
         type="button"
