@@ -53,7 +53,7 @@ export class OrganizationApiServiceAbstraction {
   updatePasswordManagerSeats: (
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSecretsManagerSubscription: (
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
