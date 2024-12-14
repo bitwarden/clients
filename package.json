@@ -169,7 +169,7 @@
     "buffer": "6.0.3",
     "bufferutil": "4.0.8",
     "chalk": "4.1.2",
-    "commander": "11.1.0",
+    "commander": "12.1.0",
     "core-js": "3.39.0",
     "form-data": "4.0.0",
     "https-proxy-agent": "7.0.5",
