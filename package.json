@@ -83,7 +83,7 @@
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
     "@webcomponents/custom-elements": "1.6.0",
-    "@yao-pkg/pkg": "5.16.1",
+    "@yao-pkg/pkg": "6.1.1",
     "autoprefixer": "10.4.20",
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
