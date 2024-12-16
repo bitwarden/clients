@@ -12,6 +12,7 @@ export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
+  createdDate?: string;
 };
 
 export type Account = { id: UserId } & AccountInfo;
@@ -73,6 +74,13 @@ export abstract class AccountService {
    * @param emailVerified
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
+  /**
+   * Updates the `accounts$` observable with the creation date of the account.
+   *
+   * @param userId
+   * @param creationDate
+   */
+  abstract setAccountCreationDate(userId: UserId, creationDate: string): Promise<void>;
   /**
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId

@@ -70,7 +70,7 @@ describe("accountService", () => {
   let accountsState: FakeGlobalState<Record<UserId, AccountInfo>>;
   let activeAccountIdState: FakeGlobalState<UserId>;
   const userId = Utils.newGuid() as UserId;
-  const userInfo = { email: "email", name: "name", emailVerified: true };
+  const userInfo = { email: "email", name: "name", emailVerified: true, createdDate: "" };
 
   beforeEach(() => {
     messagingService = mock();
@@ -218,6 +218,35 @@ describe("accountService", () => {
 
     it("should not update if the email is the same", async () => {
       await sut.setAccountEmailVerified(userId, false);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+  });
+
+  describe("setAccountCreationDate", () => {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const initialState = { [userId]: userInfo };
+    initialState[userId].createdDate = yesterday.toISOString();
+
+    beforeEach(() => {
+      accountsState.stateSubject.next(initialState);
+    });
+
+    it("updates the account", async () => {
+      await sut.setAccountCreationDate(userId, today.toISOString());
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo, createdDate: today.toISOString() },
+      });
+    });
+
+    it("does not update if the email is the same", async () => {
+      await sut.setAccountCreationDate(userId, yesterday.toISOString());
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual(initialState);

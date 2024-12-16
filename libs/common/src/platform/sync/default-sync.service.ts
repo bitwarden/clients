@@ -191,6 +191,7 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountCreationDate(response.id, response.creationDate);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
