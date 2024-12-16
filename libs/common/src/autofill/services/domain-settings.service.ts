@@ -3,7 +3,6 @@
 import { combineLatest, map, Observable } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
   NeverDomains,
@@ -11,6 +10,7 @@ import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "../../models/domain/domain-service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   DOMAIN_SETTINGS_DISK,
@@ -99,7 +99,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     this.blockedInteractionsUris$ = combineLatest([
       this.blockedInteractionsUrisState.state$,
-      this.configService.getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain),
+      this.configService?.getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain),
     ]).pipe(
       map(([blockedUris, blockBrowserInjectionsByDomainEnabled]) => {
         if (!blockBrowserInjectionsByDomainEnabled) {

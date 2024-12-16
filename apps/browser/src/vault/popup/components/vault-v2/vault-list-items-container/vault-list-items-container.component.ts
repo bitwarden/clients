@@ -2,7 +2,15 @@
 // @ts-strict-ignore
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, EventEmitter, inject, Input, Output, OnInit } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  OnInit,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { map } from "rxjs";
 
@@ -93,7 +101,7 @@ export class VaultListItemsContainerComponent implements OnInit {
   /**
    * Indicators for the section.
    */
-  @Input() sectionIndicators: string[];
+  @Input() sectionIndicators: string[] = [];
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
