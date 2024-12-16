@@ -24,6 +24,7 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { flagEnabled } from "../platform/flags";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
@@ -74,6 +75,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private animationControlService: AnimationControlService,
     private logService: LogService,
     private sdkService: SdkService,
+    private biometricStateService: BiometricStateService,
   ) {
     if (flagEnabled("sdk")) {
       // Warn if the SDK for some reason can't be initialized
@@ -167,6 +169,7 @@ export class AppComponent implements OnInit, OnDestroy {
           } else if (msg.command === "reloadProcess") {
             if (this.platformUtilsService.isSafari()) {
               window.setTimeout(() => {
+                this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
             }
