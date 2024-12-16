@@ -151,7 +151,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getEmail(): Promise<string | null> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
-    if ("email$" in strategy) {
+    if (strategy && "email$" in strategy) {
       return await firstValueFrom(strategy.email$);
     }
     return null;
@@ -160,7 +160,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getMasterPasswordHash(): Promise<string | null> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
-    if ("serverMasterKeyHash$" in strategy) {
+    if (strategy && "serverMasterKeyHash$" in strategy) {
       return await firstValueFrom(strategy.serverMasterKeyHash$);
     }
     return null;
@@ -169,7 +169,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getSsoEmail2FaSessionToken(): Promise<string | null> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
-    if ("ssoEmail2FaSessionToken$" in strategy) {
+    if (strategy && "ssoEmail2FaSessionToken$" in strategy) {
       return await firstValueFrom(strategy.ssoEmail2FaSessionToken$);
     }
     return null;
@@ -178,7 +178,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getAccessCode(): Promise<string | null> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
-    if ("accessCode$" in strategy) {
+    if (strategy && "accessCode$" in strategy) {
       return await firstValueFrom(strategy.accessCode$);
     }
     return null;
@@ -187,7 +187,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async getAuthRequestId(): Promise<string | null> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
-    if ("authRequestId$" in strategy) {
+    if (strategy && "authRequestId$" in strategy) {
       return await firstValueFrom(strategy.authRequestId$);
     }
     return null;
