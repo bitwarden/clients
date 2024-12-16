@@ -74,18 +74,21 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
   }
 
   submit = async () => {
-    if (this.formGroup.controls.hasEmailAccess.value === 0) {
-      await this.router.navigate(["new-device-notice/setup"]);
-    } else if (this.formGroup.controls.hasEmailAccess.value === 1) {
-      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationNoticeState(
-        this.currentUserId,
-        {
-          last_dismissal: new Date(),
-          permanent_dismissal: false,
-        },
-      );
+    const doesNotHaveEmailAccess = this.formGroup.controls.hasEmailAccess.value === 0;
 
-      await this.router.navigate(["/vault"]);
+    await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationNoticeState(
+      this.currentUserId,
+      {
+        last_dismissal: new Date(),
+        permanent_dismissal: !doesNotHaveEmailAccess,
+      },
+    );
+
+    if (doesNotHaveEmailAccess) {
+      await this.router.navigate(["new-device-notice/setup"]);
+      return;
     }
+
+    await this.router.navigate(["/vault"]);
   };
 }
