@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { BiometricsDisableReason, UnlockOptions } from "@bitwarden/auth/angular";
+import { UnlockOptions } from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
@@ -11,7 +11,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, BiometricsService } from "@bitwarden/key-management";
+import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { DesktopLockComponentService } from "./desktop-lock-component.service";
 
@@ -140,11 +140,7 @@ describe("DesktopLockComponentService", () => {
   describe("getAvailableUnlockOptions$", () => {
     interface MockInputs {
       hasMasterPassword: boolean;
-      osSupportsBiometric: boolean;
-      biometricLockSet: boolean;
-      biometricReady: boolean;
-      hasBiometricEncryptedUserKeyStored: boolean;
-      platformSupportsSecureStorage: boolean;
+      biometricsStatus: BiometricsStatus;
       pinDecryptionAvailable: boolean;
     }
 
@@ -153,11 +149,7 @@ describe("DesktopLockComponentService", () => {
         // MP + PIN + Biometrics available
         {
           hasMasterPassword: true,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: true,
-          platformSupportsSecureStorage: true,
+          biometricsStatus: BiometricsStatus.Available,
           pinDecryptionAvailable: true,
         },
         {
@@ -169,7 +161,7 @@ describe("DesktopLockComponentService", () => {
           },
           biometrics: {
             enabled: true,
-            disableReason: null,
+            biometricsStatus: BiometricsStatus.Available,
           },
         },
       ],
@@ -177,11 +169,7 @@ describe("DesktopLockComponentService", () => {
         // PIN + Biometrics available
         {
           hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: true,
-          platformSupportsSecureStorage: true,
+          biometricsStatus: BiometricsStatus.Available,
           pinDecryptionAvailable: true,
         },
         {
@@ -193,43 +181,16 @@ describe("DesktopLockComponentService", () => {
           },
           biometrics: {
             enabled: true,
-            disableReason: null,
-          },
-        },
-      ],
-      [
-        // Biometrics available: user key stored with no secure storage
-        {
-          hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: true,
-          platformSupportsSecureStorage: false,
-          pinDecryptionAvailable: false,
-        },
-        {
-          masterPassword: {
-            enabled: false,
-          },
-          pin: {
-            enabled: false,
-          },
-          biometrics: {
-            enabled: true,
-            disableReason: null,
+            biometricsStatus: BiometricsStatus.Available,
           },
         },
       ],
       [
         // Biometrics available: no user key stored with no secure storage
+        // Biometric auth is available, but not unlock since there is no way to access the userkey
         {
           hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: false,
-          biometricReady: true,
-          platformSupportsSecureStorage: false,
+          biometricsStatus: BiometricsStatus.NotEnabledLocally,
           pinDecryptionAvailable: false,
         },
         {
@@ -240,8 +201,8 @@ describe("DesktopLockComponentService", () => {
             enabled: false,
           },
           biometrics: {
-            enabled: true,
-            disableReason: null,
+            enabled: false,
+            biometricsStatus: BiometricsStatus.NotEnabledLocally,
           },
         },
       ],
@@ -249,11 +210,7 @@ describe("DesktopLockComponentService", () => {
         // Biometrics not available: biometric not ready
         {
           hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: false,
-          platformSupportsSecureStorage: true,
+          biometricsStatus: BiometricsStatus.HardwareUnavailable,
           pinDecryptionAvailable: false,
         },
         {
@@ -265,55 +222,7 @@ describe("DesktopLockComponentService", () => {
           },
           biometrics: {
             enabled: false,
-            disableReason: BiometricsDisableReason.SystemBiometricsUnavailable,
-          },
-        },
-      ],
-      [
-        // Biometrics not available: biometric lock not set
-        {
-          hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: false,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: true,
-          platformSupportsSecureStorage: true,
-          pinDecryptionAvailable: false,
-        },
-        {
-          masterPassword: {
-            enabled: false,
-          },
-          pin: {
-            enabled: false,
-          },
-          biometrics: {
-            enabled: false,
-            disableReason: BiometricsDisableReason.EncryptedKeysUnavailable,
-          },
-        },
-      ],
-      [
-        // Biometrics not available: user key not stored
-        {
-          hasMasterPassword: false,
-          osSupportsBiometric: true,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: false,
-          biometricReady: true,
-          platformSupportsSecureStorage: true,
-          pinDecryptionAvailable: false,
-        },
-        {
-          masterPassword: {
-            enabled: false,
-          },
-          pin: {
-            enabled: false,
-          },
-          biometrics: {
-            enabled: false,
-            disableReason: BiometricsDisableReason.EncryptedKeysUnavailable,
+            biometricsStatus: BiometricsStatus.HardwareUnavailable,
           },
         },
       ],
@@ -321,11 +230,7 @@ describe("DesktopLockComponentService", () => {
         // Biometrics not available: OS doesn't support
         {
           hasMasterPassword: false,
-          osSupportsBiometric: false,
-          biometricLockSet: true,
-          hasBiometricEncryptedUserKeyStored: true,
-          biometricReady: true,
-          platformSupportsSecureStorage: true,
+          biometricsStatus: BiometricsStatus.PlatformUnsupported,
           pinDecryptionAvailable: false,
         },
         {
@@ -337,7 +242,7 @@ describe("DesktopLockComponentService", () => {
           },
           biometrics: {
             enabled: false,
-            disableReason: BiometricsDisableReason.NotSupportedOnOperatingSystem,
+            biometricsStatus: BiometricsStatus.PlatformUnsupported,
           },
         },
       ],
@@ -355,13 +260,8 @@ describe("DesktopLockComponentService", () => {
       );
 
       // Biometrics
-      biometricsService.supportsBiometric.mockResolvedValue(mockInputs.osSupportsBiometric);
-      vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(mockInputs.biometricLockSet);
-      keyService.hasUserKeyStored.mockResolvedValue(mockInputs.hasBiometricEncryptedUserKeyStored);
-      platformUtilsService.supportsSecureStorage.mockReturnValue(
-        mockInputs.platformSupportsSecureStorage,
-      );
-      biometricEnabledMock.mockResolvedValue(mockInputs.biometricReady);
+      // TODO: FIXME
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(mockInputs.biometricsStatus);
 
       //  PIN
       pinService.isPinDecryptionAvailable.mockResolvedValue(mockInputs.pinDecryptionAvailable);
