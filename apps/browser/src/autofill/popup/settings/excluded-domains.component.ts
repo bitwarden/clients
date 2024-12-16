@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   QueryList,
@@ -17,7 +15,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ButtonModule,
@@ -28,6 +25,7 @@ import {
   LinkModule,
   SectionComponent,
   SectionHeaderComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -62,7 +60,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
-  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>>;
+  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
+    new QueryList();
 
   accountSwitcherEnabled = false;
   dataIsPristine = true;
@@ -77,7 +76,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   constructor(
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -156,11 +155,11 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
         const validatedHost = Utils.getHostname(uri);
 
         if (!validatedHost) {
-          this.platformUtilsService.showToast(
-            "error",
-            null,
-            this.i18nService.t("excludedDomainsInvalidDomain", uri),
-          );
+          this.toastService.showToast({
+            message: this.i18nService.t("excludedDomainsInvalidDomain", uri),
+            title: "",
+            variant: "error",
+          });
 
           // Don't reset via `handleStateUpdate` to allow existing input value correction
           this.isLoading = false;
@@ -182,7 +181,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
       if (stateIsUnchanged) {
         // Reset UI state directly
         const constructedNeverDomainsState = this.storedExcludedDomains.reduce(
-          (neverDomains, uri) => ({ ...neverDomains, [uri]: null }),
+          (neverDomains: NeverDomains, uri: string) => ({ ...neverDomains, [uri]: null }),
           {},
         );
         this.handleStateUpdate(constructedNeverDomainsState);
@@ -190,13 +189,17 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
         await this.domainSettingsService.setNeverDomains(newExcludedDomainsSaveState);
       }
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("excludedDomainsSavedSuccess"),
-      );
+      this.toastService.showToast({
+        message: this.i18nService.t("excludedDomainsSavedSuccess"),
+        title: "",
+        variant: "success",
+      });
     } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("unexpectedError"));
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        title: "",
+        variant: "error",
+      });
 
       // Don't reset via `handleStateUpdate` to preserve input values
       this.isLoading = false;

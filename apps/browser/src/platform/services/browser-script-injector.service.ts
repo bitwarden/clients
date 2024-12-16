@@ -1,7 +1,6 @@
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,22 +17,12 @@ import {
 export class BrowserScriptInjectorService extends ScriptInjectorService {
   blockedDomains: Set<string> = null;
 
-  private destroy$ = new Subject<void>();
-
   constructor(
     private readonly domainSettingsService: DomainSettingsService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly logService: LogService,
   ) {
     super();
-
-    this.domainSettingsService.blockedInteractionsUris$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((neverDomains: NeverDomains) => {
-        if (neverDomains) {
-          this.blockedDomains = new Set(Object.keys(neverDomains));
-        }
-      });
   }
 
   /**
@@ -49,10 +38,20 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
       throw new Error("No file specified for script injection");
     }
 
+    const tab = tabId && (await BrowserApi.getTab(tabId));
+    const tabURL = tab?.url ? new URL(tab.url) : null;
+
     // Check if the tab URI is on the disabled URIs list
-    const tab = await BrowserApi.getTab(tabId);
-    const tabURL = tab.url ? new URL(tab.url) : null;
-    const injectionAllowedInTab = !(tabURL && this.blockedDomains?.has(tabURL.hostname));
+    let injectionAllowedInTab = true;
+    const blockedDomains = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+
+    if (blockedDomains && tabURL?.hostname) {
+      const blockedDomainsSet = new Set(Object.keys(blockedDomains));
+
+      injectionAllowedInTab = !(tabURL && blockedDomainsSet.has(tabURL.hostname));
+    }
 
     if (!injectionAllowedInTab) {
       throw new Error("This URI of this tab is on the blocked domains list.");

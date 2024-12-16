@@ -1,9 +1,22 @@
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  DomainSettingsService,
+  DefaultDomainSettingsService,
+} from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import {
+  FakeStateProvider,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
+import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 import { BrowserApi } from "../browser/browser-api";
 
 import {
@@ -12,8 +25,19 @@ import {
 } from "./abstractions/script-injector.service";
 import { BrowserScriptInjectorService } from "./browser-script-injector.service";
 
+const mockEquivalentDomains = [
+  ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
+  ["bitwarden.com", "bitwarden.co.uk", "sm-bitwarden.com"],
+  ["example.co.uk", "exampleapp.co.uk"],
+];
+
 describe("ScriptInjectorService", () => {
   const tabId = 1;
+  const tabMock = createChromeTabMock({ id: tabId });
+  const mockBlockedURI = new URL(tabMock.url);
+  jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
+  jest.spyOn(BrowserApi, "isManifestVersion");
+
   const combinedManifestVersionFile = "content/autofill-init.js";
   const mv2SpecificFile = "content/autofill-init-mv2.js";
   const mv2Details = { file: mv2SpecificFile };
@@ -23,14 +47,24 @@ describe("ScriptInjectorService", () => {
     runAt: "document_start",
   };
   const manifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
   let scriptInjectorService: BrowserScriptInjectorService;
-  jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
-  jest.spyOn(BrowserApi, "isManifestVersion");
-  const domainSettingsService = mock<DomainSettingsService>();
-  const platformUtilsService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const mockUserId = Utils.newGuid() as UserId;
+  const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
+  let configService: MockProxy<ConfigService>;
+  let domainSettingsService: DomainSettingsService;
+  const expectedBlockedURIError = new Error("This URI of this tab is on the blocked domains list.");
 
   beforeEach(() => {
+    jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
+    domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
+    domainSettingsService.blockedInteractionsUris$ = of(null);
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,
       platformUtilsService,
@@ -40,6 +74,76 @@ describe("ScriptInjectorService", () => {
 
   describe("inject", () => {
     describe("injection of a single script that functions in both manifest v2 and v3", () => {
+      it("injects the script in manifest v2 when given combined injection details", async () => {
+        manifestVersionSpy.mockReturnValue(2);
+
+        await scriptInjectorService.inject({
+          tabId,
+          injectDetails: {
+            file: combinedManifestVersionFile,
+            frame: "all_frames",
+            ...sharedInjectDetails,
+          },
+        });
+
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabId, {
+          ...sharedInjectDetails,
+          allFrames: true,
+          file: combinedManifestVersionFile,
+        });
+      });
+
+      it("injects the script in manifest v3 when given combined injection details", async () => {
+        manifestVersionSpy.mockReturnValue(3);
+
+        await scriptInjectorService.inject({
+          tabId,
+          injectDetails: {
+            file: combinedManifestVersionFile,
+            frame: 10,
+            ...sharedInjectDetails,
+          },
+        });
+
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(
+          tabId,
+          { ...sharedInjectDetails, frameId: 10, file: combinedManifestVersionFile },
+          { world: "ISOLATED" },
+        );
+      });
+
+      it("skips injecting the script in manifest v3 when the tab domain is a blocked domain", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
+        manifestVersionSpy.mockReturnValue(3);
+
+        await expect(
+          scriptInjectorService.inject({
+            tabId,
+            injectDetails: {
+              file: combinedManifestVersionFile,
+              frame: 10,
+              ...sharedInjectDetails,
+            },
+          }),
+        ).rejects.toThrow(expectedBlockedURIError);
+      });
+
+      it("skips injecting the script in manifest v2 when the tab domain is a blocked domain", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
+        manifestVersionSpy.mockReturnValue(2);
+
+        await expect(
+          scriptInjectorService.inject({
+            tabId,
+            injectDetails: {
+              file: combinedManifestVersionFile,
+              frame: "all_frames",
+              ...sharedInjectDetails,
+            },
+          }),
+        ).rejects.toThrow(expectedBlockedURIError);
+      });
+
       it("injects the script in manifest v2 when given combined injection details", async () => {
         manifestVersionSpy.mockReturnValue(2);
 

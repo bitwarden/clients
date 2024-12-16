@@ -62,7 +62,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   protected loading$ = this.vaultPopupItemsService.loading$;
   protected scriptInjectionIsBlocked = false;
   protected showScriptInjectionIsBlockedBanner = false;
-  protected autofillTabHostname: string = null;
+  protected autofillTabHostname: string | null = null;
   protected sectionIndicators: string[] = [];
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -151,20 +151,24 @@ export class VaultV2Component implements OnInit, OnDestroy {
   ngOnDestroy(): void {}
 
   handleScriptInjectionIsBlockedBannerDismiss() {
-    firstValueFrom(this.domainSettingsService.blockedInteractionsUris$)
-      .then((blockedURIs) => {
-        this.showScriptInjectionIsBlockedBanner = false;
-        this.domainSettingsService
-          .setBlockedInteractionsUris({
+    if (!this.autofillTabHostname) {
+      return;
+    }
+
+    try {
+      void firstValueFrom(this.domainSettingsService.blockedInteractionsUris$).then(
+        (blockedURIs) => {
+          this.showScriptInjectionIsBlockedBanner = false;
+          void this.domainSettingsService.setBlockedInteractionsUris({
             ...blockedURIs,
-            [this.autofillTabHostname]: { bannerIsDismissed: true },
-          })
-          .catch(() => {
-            /* no-op */
+            [this.autofillTabHostname as string]: { bannerIsDismissed: true },
           });
-      })
-      .catch(() => {
-        /* no-op */
-      });
+        },
+      );
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URI notification banner",
+      );
+    }
   }
 }

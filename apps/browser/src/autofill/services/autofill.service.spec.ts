@@ -98,6 +98,8 @@ describe("AutofillService", () => {
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(false));
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,
       platformUtilsService,
@@ -110,10 +112,10 @@ describe("AutofillService", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     autofillSettingsService.showInlineMenuCards$ = showInlineMenuCardsMock$;
     autofillSettingsService.showInlineMenuIdentities$ = showInlineMenuIdentitiesMock$;
+    autofillSettingsService.autofillOnPageLoad$ = of(true);
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
-    configService = mock<ConfigService>();
     messageListener = mock<MessageListener>();
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
@@ -389,6 +391,7 @@ describe("AutofillService", () => {
       );
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
+      jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
       jest
         .spyOn(autofillService, "getInlineMenuVisibility")
