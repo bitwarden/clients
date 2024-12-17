@@ -57,8 +57,6 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
-import { GeneratorComponent } from "../tools/popup/generator/generator.component";
-import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendListComponent } from "../tools/popup/send/components/send-list.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
 import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
@@ -164,8 +162,6 @@ import "../platform/popup/locales";
     LoginDecryptionOptionsComponentV1,
     NotificationsSettingsV1Component,
     AppearanceComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RegisterComponent,

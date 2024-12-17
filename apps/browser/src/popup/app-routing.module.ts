@@ -82,8 +82,6 @@ import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
-import { GeneratorComponent } from "../tools/popup/generator/generator.component";
-import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
 import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
 import { SendTypeComponent } from "../tools/popup/send/send-type.component";
@@ -339,15 +337,16 @@ const routes: Routes = [
   }),
   {
     path: "generator",
-    component: GeneratorComponent,
+    component: CredentialGeneratorComponent,
     canActivate: [authGuard],
     data: { elevation: 0 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(PasswordGeneratorHistoryComponent, CredentialGeneratorHistoryComponent, {
+  {
     path: "generator-history",
+    component: CredentialGeneratorHistoryComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "import",
     component: ImportBrowserV2Component,
@@ -735,11 +734,12 @@ const routes: Routes = [
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       }),
-      ...extensionRefreshSwap(GeneratorComponent, CredentialGeneratorComponent, {
+      {
         path: "generator",
+        component: CredentialGeneratorComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
-      }),
+      },
       ...extensionRefreshSwap(SettingsComponent, SettingsV2Component, {
         path: "settings",
         canActivate: [authGuard],
