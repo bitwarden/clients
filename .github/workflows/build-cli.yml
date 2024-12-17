@@ -163,14 +163,14 @@ jobs:
           matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
 
       - name: Upload unix zip asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload unix checksum asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -324,14 +324,14 @@ jobs:
             -t sha256 | Out-File -Encoding ASCII ./dist/bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${env:_PACKAGE_VERSION}.txt
 
       - name: Upload windows zip asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload windows checksum asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -339,7 +339,7 @@ jobs:
 
       - name: Upload Chocolatey asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/cli/dist/chocolatey/bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
@@ -350,7 +350,7 @@ jobs:
 
       - name: Upload NPM Build Directory asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
           path: apps/cli/bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
@@ -421,14 +421,14 @@ jobs:
         run: sudo snap remove bw
 
       - name: Upload snap asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload snap checksum asset
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: bw-snap-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: apps/cli/dist/snap/bw-snap-sha256-${{ env._PACKAGE_VERSION }}.txt
