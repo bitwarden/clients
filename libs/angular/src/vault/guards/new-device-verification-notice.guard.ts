@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { NewDeviceVerificationNoticeService } from "../../../../vault/src/services/new-device-verification-notice.service";
+import { VaultProfileService } from "../services/vault-profile.service";
 
 export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   route: ActivatedRouteSnapshot,
@@ -22,6 +23,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   const platformUtilsService = inject(PlatformUtilsService);
   const apiService = inject(ApiService);
   const policyService = inject(PolicyService);
+  const vaultProfileService = inject(VaultProfileService);
 
   if (route.queryParams["fromNewDeviceVerification"]) {
     return true;
@@ -39,7 +41,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   const has2FAEnabled = await hasATwoFactorProviderEnabled(apiService);
   const isSelfHosted = await platformUtilsService.isSelfHost();
   const requiresSSO = await isSSORequired(policyService);
-  const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(currentAcct);
+  const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(vaultProfileService);
 
   // When any of the following are true, the device verification notice is
   // not applicable for the user.
@@ -85,8 +87,11 @@ async function hasATwoFactorProviderEnabled(apiService: ApiService): Promise<boo
 }
 
 /** Returns true when the user's profile is less than a week old */
-async function profileIsLessThanWeekOld(account: Account): Promise<boolean> {
-  return !isMoreThan7DaysAgo(account.createdDate);
+async function profileIsLessThanWeekOld(
+  vaultProfileService: VaultProfileService,
+): Promise<boolean> {
+  const creationDate = await vaultProfileService.getProfileCreationDate();
+  return !isMoreThan7DaysAgo(creationDate);
 }
 
 /** Returns true when the user is required to login via SSO */

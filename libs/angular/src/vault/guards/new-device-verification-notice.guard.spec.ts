@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { NewDeviceVerificationNoticeService } from "../../../../vault/src/services/new-device-verification-notice.service";
+import { VaultProfileService } from "../services/vault-profile.service";
 
 import { NewDeviceVerificationNoticeGuard } from "./new-device-verification-notice.guard";
 
@@ -22,7 +23,6 @@ describe("NewDeviceVerificationNoticeGuard", () => {
 
   const account = {
     id: "account-id",
-    createdDate: eightDaysAgo.toISOString(),
   } as unknown as Account;
 
   const activeAccount$ = new BehaviorSubject<Account | null>(account);
@@ -33,6 +33,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   const getTwoFactorProviders = jest.fn().mockResolvedValue({ data: [] });
   const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
+  const getProfileCreationDate = jest.fn().mockResolvedValue(eightDaysAgo);
 
   beforeEach(() => {
     getFeatureFlag.mockClear();
@@ -40,11 +41,6 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     getTwoFactorProviders.mockClear();
     policyAppliesToActiveUser$.mockClear();
     createUrlTree.mockClear();
-
-    const eightDaysAgo = new Date();
-    eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
-
-    account.createdDate = eightDaysAgo.toISOString();
 
     TestBed.configureTestingModule({
       providers: [
@@ -55,6 +51,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
         { provide: PlatformUtilsService, useValue: { isSelfHost } },
         { provide: ApiService, useValue: { getTwoFactorProviders } },
         { provide: PolicyService, useValue: { policyAppliesToActiveUser$ } },
+        { provide: VaultProfileService, useValue: { getProfileCreationDate } },
       ],
     });
   });
@@ -127,10 +124,11 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     expect(policyAppliesToActiveUser$).toHaveBeenCalledWith(PolicyType.RequireSso);
   });
 
-  it("returns `true` when the account was created less than a week ago", async () => {
+  it("returns `true` when the profile was created less than a week ago", async () => {
     const sixDaysAgo = new Date();
     sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
-    account.createdDate = sixDaysAgo.toISOString();
+
+    getProfileCreationDate.mockResolvedValueOnce(sixDaysAgo);
 
     expect(await newDeviceGuard()).toBe(true);
   });
