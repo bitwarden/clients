@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Autofill identity"
   },
+  "fillVerificationCode": {
+    "message": "Fill verification code"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Fill Verification Code",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "പാസ്‌വേഡ് സൃഷ്ടിക്കുക (പകർത്തുക )"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "നിങ്ങളുടെ ഓതന്റിക്കേറ്റർ അപ്ലിക്കേഷനിൽ നിന്ന് 6 അക്ക സ്ഥിരീകരണ കോഡ് നൽകുക."
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ൽ ഇമെയിൽ ചെയ്ത 6 അക്ക സ്ഥിരീകരണ കോഡ് നൽകുക",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "View all log in options"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Unlock your account, opens in a new window",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Fill credentials for",

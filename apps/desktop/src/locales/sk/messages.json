@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL servera"
   },
+  "authenticationTimeout": {
+    "message": "Časový limit overenia"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
+  },
   "selfHostBaseUrl": {
     "message": "Adresa URL vlastného hostingu",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Overiť sa pre Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Overením odomknete Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Odomknúť s Touch ID"

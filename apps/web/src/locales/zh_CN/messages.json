@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "已通知的成员"
   },
+  "revokeMembers": {
+    "message": "撤销成员"
+  },
+  "restoreMembers": {
+    "message": "恢复成员"
+  },
+  "revokeMembersWarning": {
+    "message": "已声明和未声明账户的成员在被撤销时将有不同的结果："
+  },
+  "claimedAccountRevoke": {
+    "message": "已声明账户：撤销对 Bitwarden 账户的访问权限"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "未声明账户：撤销对组织数据的访问权限"
+  },
+  "claimedAccount": {
+    "message": "已声明账户"
+  },
+  "unclaimedAccount": {
+    "message": "未声明账户"
+  },
+  "restoreMembersInstructions": {
+    "message": "要恢复成员账户，请转到「已撤销」标签页。该过程可能需要几秒钟才能完成，并且无法中断或取消。"
+  },
+  "cannotRestoreAccessError": {
+    "message": "无法恢复组织访问权限"
+  },
   "allApplicationsWithCount": {
     "message": "所有应用程序（$COUNT$）",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "登录到 Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "身份验证超时"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "身份验证会话超时。请重新启动登录过程。"
   },
   "verifyIdentity": {
     "message": "验证您的身份"
@@ -2554,7 +2587,7 @@
     "message": "付款处理完毕后，添加的信用额度将出现在您的账户上。某些付款方式会延迟，并且可能比其他方式需要更长的时间来处理。"
   },
   "makeSureEnoughCredit": {
-    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从计费页面向您的账户添加信用额度。"
+    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "creditAppliedDesc": {
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动支付此账户的账单。"
@@ -2869,7 +2902,7 @@
     "message": "联系支持"
   },
   "updatedPaymentMethod": {
-    "message": "已更新付款方式。"
+    "message": "更新了付款方式。"
   },
   "purchasePremium": {
     "message": "购买高级版"
@@ -3201,7 +3234,7 @@
     "message": "外部 ID"
   },
   "externalIdDesc": {
-    "message": "外部 ID 是一个 Bitwarden 目录连接器和 API 使用的未经加密的参考。"
+    "message": "外部 ID 是一个 Bitwarden Directory Connector 和 API 使用的未经加密的参考。"
   },
   "nestCollectionUnder": {
     "message": "嵌套于集合下"
@@ -3870,30 +3903,30 @@
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的 Web 浏览器。网页密码库可能无法正常运行。"
   },
-  "freeTrialEndPrompt": {
-    "message": "您的免费试用将在 $COUNT$ 天后结束。要保留您的订阅，",
+  "freeTrialEndPromptCount": {
+    "message": "您的免费试用将于 $COUNT$ 天后结束。",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$，您的免费试用将在 $COUNT$ 天后结束。要保留您的订阅，",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$，您的免费试用将在明天结束。要保留您的订阅，",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$，您的免费试用将于 $COUNT$ 天后结束。",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$，您的免费试用将于明天结束。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3934,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "您的免费试用将在每天结束。要保留您的订阅，"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "您的免费试用将于明天结束。"
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$，您的免费试用将在今天结束。要保留您的订阅，",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$，您的免费试用将于今天结束。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3946,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "您的免费试用将在今天结束。要保留您的订阅，"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "您的免费试用将于今天结束。"
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "请添加一个付款方式。"
+  "clickHereToAddPaymentMethod": {
+    "message": "点击这里添加付款方式。"
   },
   "joinOrganization": {
     "message": "加入组织"
@@ -4705,6 +4738,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "要使用您组织的单点登录门户登录。请首先输入您组织的标识符。"
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "输入您组织的 SSO 标识符以开始"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "要使用您的 SSO 提供程序登录，请输入您组织的 SSO 标识符以开始。当您从新设备登录时，可能需要输入此 SSO 标识符。"
   },
   "enterpriseSingleSignOn": {
     "message": "企业单点登录"
@@ -5610,6 +5649,12 @@
   "bulkFilteredMessage": {
     "message": "已拒绝，不适用于此操作"
   },
+  "nonCompliantMembersTitle": {
+    "message": "不符合要求的成员"
+  },
+  "nonCompliantMembersError": {
+    "message": "不符合单一组织策略或两步登录策略的成员在他们遵守策略要求之前无法被恢复"
+  },
   "fingerprint": {
     "message": "指纹"
   },
@@ -6031,7 +6076,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "已回收免费计划"
+    "message": "重新认领免费计划"
   },
   "redeem": {
     "message": "兑换"
@@ -6116,9 +6161,6 @@
   },
   "emailSent": {
     "message": "电子邮件已发送"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "移除该账户后，家庭计划赞助将在计费周期结束时到期。在现有的赞助到期之前您将无法兑换新的赞助邀请。确定要继续吗？"
   },
   "removeSponsorshipSuccess": {
     "message": "赞助已移除"
@@ -6792,6 +6834,10 @@
     "message": "通过 SCIM 配置，使用您首选的身份提供程序自动配置用户和群组",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimIntegrationDescription": {
+    "message": "通过 SCIM 配置，使用您首选的身份提供程序自动配置用户和群组。查找支持的集成",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimEnabledCheckboxDesc": {
     "message": "启用 SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
@@ -6923,7 +6969,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 寻求帮助。"
+    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"
@@ -8986,44 +9032,99 @@
   "sdksDesc": {
     "message": "使用以下编程语言中的 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
   },
-  "setUpGithubActions": {
-    "message": "设置 Github Actions"
+  "ssoDescStart": {
+    "message": "配置",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "设置 Kubernetes"
+  "ssoDescEnd": {
+    "message": "为 Bitwarden（使用您的身份提供程序的实施指南）。",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "设置 GitLab CI/CD"
+  "userProvisioning": {
+    "message": "用户配置"
   },
-  "setUpAnsible": {
-    "message": "设置 Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "查看 Rust 存储库"
+  "scimIntegrationDescStart": {
+    "message": "配置 ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "查看 C# 存储库"
+  "scimIntegrationDescEnd": {
+    "message": "（跨域身份管理系统）（使用您的身份提供程序的实施指南）以自动向 Bitwarden 配置用户和群组。",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "查看 C++ 存储库"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "查看 JS WebAssembly 存储库"
+  "bwdcDesc": {
+    "message": "使用您的身份提供程序的实施指南配置 Bitwarden Directory Connector 以自动配置用户和群组。"
   },
-  "javaSDKRepo": {
-    "message": "查看 Java 存储库"
+  "eventManagement": {
+    "message": "事件管理"
   },
-  "pythonSDKRepo": {
-    "message": "查看 Python 存储库"
+  "eventManagementDesc": {
+    "message": "使用适合您平台的实施指南将 Bitwarden 事件日志与您的 SIEM（系统信息和事件管理）系统集成。"
   },
-  "phpSDKRepo": {
-    "message": "查看 php 存储库"
+  "deviceManagement": {
+    "message": "设备管理"
   },
-  "rubySDKRepo": {
-    "message": "查看 Ruby 存储库"
+  "deviceManagementDesc": {
+    "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
   },
-  "goSDKRepo": {
-    "message": "查看 Go 存储库"
+  "integrationCardTooltip": {
+    "message": "启动 $INTEGRATION$ 实施指南。",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "设置 $INTEGRATION$。",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "查看 $SDK$ 存储库",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "在新标签页中打开 $INTEGRATION$ 实施指南。",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "在新标签页中查看 $SDK$ 存储库。",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "在新标签页中设置 $INTEGRATION$ 实施指南。",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "创建一个新的客户组织作为提供商来管理。附加席位将反映在下一个计费周期中。"
@@ -9699,8 +9800,8 @@
   "selfHostingTitleProper": {
     "message": "自托管"
   },
-  "verified-domain-single-org-warning": {
-    "message": "验证域名将启用单一组织策略。"
+  "claim-domain-single-org-warning": {
+    "message": "声明域名将启用单一组织策略。"
   },
   "single-org-revoked-user-warning": {
     "message": "不符合要求的成员将被撤销。管理员可以在他们离开所有其他组织后恢复其成员资格。"
@@ -9715,9 +9816,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "当成员被删除时，他们的 Bitwarden 账户和个人密码库数据将被永久删除。集合数据将保留在组织中。要恢复它们，他们必须创建一个账户并重新加入。",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "这将永久删除 $NAME$ 拥有的所有项目。集合中的项目不受影响。",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "这将永久删除以下成员拥有的所有项目。集合中的项目不受影响。",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "删除了 $NAME$",
@@ -9787,5 +9898,90 @@
   },
   "descriptorCode": {
     "message": "描述符代码"
+  },
+  "removeMembers": {
+    "message": "移除成员"
+  },
+  "claimedDomains": {
+    "message": "已声明的域名"
+  },
+  "claimDomain": {
+    "message": "声明域名"
+  },
+  "reclaimDomain": {
+    "message": "重新声明域名"
+  },
+  "claimDomainNameInputHint": {
+    "message": "示例：mydomain.com。子域名需要单独的条目才能声明。"
+  },
+  "automaticClaimedDomains": {
+    "message": "自动声明域名"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden 将在前 72 小时内尝试声明域名 3 次。如果无法声明此域名，请检查主机中的 DNS 记录并手动声明。如果未声明，该域名将在 7 天内从您的组织中移除。"
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ 未声明。请检查 DNS 记录。",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "已声明"
+  },
+  "domainStatusUnderVerification": {
+    "message": "正在验证"
+  },
+  "claimedDomainsDesc": {
+    "message": "声明一个域名，以拥有电子邮件地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目才能声明。"
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ 已声明",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ 未声明",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "如果您移除 $EMAIL$，将无法兑换此家庭计划赞助，确定要继续吗？",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "如果您移除 $EMAIL$，此家庭计划赞助将终止，并且将于 $DATE$ 向已保存的付款方式收取 $40 + 相关税费。在 $DATE$ 之前您将无法兑换新的赞助。确定要继续吗？",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "域名已声明"
   }
 }

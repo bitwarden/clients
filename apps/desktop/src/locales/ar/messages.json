@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "رابط الخادم"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "رابط خادم الاستضافة الذاتية",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "تحقق من Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "مصادقة لفتح Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "فتح بواسطة معرف اللمس"

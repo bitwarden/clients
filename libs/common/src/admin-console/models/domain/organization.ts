@@ -360,4 +360,15 @@ export class Organization {
       familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
     });
   }
+
+  get canAccessIntegrations() {
+    return (
+      (this.productTierType === ProductTierType.Teams ||
+        this.productTierType === ProductTierType.Enterprise) &&
+      (this.isAdmin ||
+        this.permissions.manageUsers ||
+        this.permissions.manageGroups ||
+        this.permissions.accessEventLogs)
+    );
+  }
 }

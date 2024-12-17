@@ -26,7 +26,7 @@
     "message": "Keçid açarı ilə giriş et"
   },
   "useSingleSignOn": {
-    "message": "Tək daxil olma üsulunu istifadə et"
+    "message": "Vahid daxil olma üsulunu istifadə et"
   },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
@@ -38,7 +38,7 @@
     "message": "Bir parol təyin edərək hesabınızı yaratmağı başa çatdırın"
   },
   "enterpriseSingleSignOn": {
-    "message": "Müəssisə üçün tək daxil olma"
+    "message": "Müəssisə üçün vahid daxil olma"
   },
   "cancel": {
     "message": "İmtina"
@@ -191,6 +191,13 @@
   },
   "autoFillIdentity": {
     "message": "Kimliyi avto-doldur"
+  },
+  "fillVerificationCode": {
+    "message": "Fill verification code"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Fill Verification Code",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
     "message": "Parol yarat (kopyalandı)"
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Kimlik doğrulayıcı tətbiqindən 6 rəqəmli doğrulama kodunu daxil edin."
+  },
+  "authenticationTimeout": {
+    "message": "Kimlik doğrulama vaxtı bitdi"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ ünvanına göndərilən e-poçtdakı 6 rəqəmli doğrulama kodunu daxil edin.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Bütün giriş seçimlərinə bax"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Bütün giriş seçimlərinə bax"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Hesabınızın kilidini açın, yeni bir pəncərədə açılır",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Kimlik məlumatlarını doldur",

@@ -20,10 +20,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
@@ -69,7 +67,6 @@ export class OrganizationLayoutComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
-    private i18nService: I18nService,
   ) {}
 
   async ngOnInit() {
@@ -113,12 +110,7 @@ export class OrganizationLayoutComponent implements OnInit {
     this.integrationPageEnabled$ = combineLatest(
       this.organization$,
       this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
-    ).pipe(
-      map(
-        ([org, featureFlagEnabled]) =>
-          org.productTierType === ProductTierType.Enterprise && featureFlagEnabled,
-      ),
-    );
+    ).pipe(map(([org, featureFlagEnabled]) => featureFlagEnabled && org.canAccessIntegrations));
 
     this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
       FeatureFlag.AccountDeprovisioning,

@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automatikus kitöltés személyazonosság"
   },
+  "fillVerificationCode": {
+    "message": "Ellenőrző kód kitöltése"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Ellenőrző Kód kitöltése",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Jelszó generálás (másolt)"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Add meg a 6 számjegyű ellenőrző kódot a hitelesítő alkalmazásodból."
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ email címre elküldött 6 számjegyű ellenőrző kód megadása.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Oldjuk fel a fiók zárolását, új ablakban nyílik meg.",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Időalapú, egyszeri jelszó ellenőrző kód",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "A jelenlegi TOTP lejártáig hátralévő idő",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Töltse kia hitelesítő adatokat",

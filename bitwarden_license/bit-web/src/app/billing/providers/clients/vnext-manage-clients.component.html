@@ -29,7 +29,7 @@
       <td bitCell width="30">
         <bit-avatar [text]="row.organizationName" [id]="row.id" size="small"></bit-avatar>
       </td>
-      <td bitCell>
+      <td bitCell width="500">
         <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
           <a bitLink [routerLink]="['/organizations', row.organizationId]">{{
             row.organizationName
@@ -46,7 +46,7 @@
         <span class="tw-text-muted">{{ row.remainingSeats }}</span>
       </td>
       <td bitCell class="tw-whitespace-nowrap">
-        <span class="tw-text-muted">{{ row.plan }}</span>
+        <span class="tw-text-muted">{{ row.plan | replace: " (Monthly)" : "" }}</span>
       </td>
       <td bitCell class="tw-text-right">
         <button

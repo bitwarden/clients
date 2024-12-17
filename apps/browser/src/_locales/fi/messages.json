@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automaattitäytä henkilöllisyys"
   },
+  "fillVerificationCode": {
+    "message": "Fill verification code"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Fill Verification Code",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Luo salasana (leikepöydälle)"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Syötä todennussovelluksesi näyttämä kuusinumeroinen todennuskoodi."
+  },
+  "authenticationTimeout": {
+    "message": "Todennuksen aikakatkaisu"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
   },
   "enterVerificationCodeEmail": {
     "message": "Syötä osoitteeseen $EMAIL$ lähetetty kuusinumeroinen todennuskoodi.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Näytä kaikki kirjautumisvaihtoehdot"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Näytä kaikki kirjautumisvaihtoehdot"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Avaa tilisi lukitus. Avautuu uudessa ikkunassa.",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Täytä kirjautumistiedot kohteesta",
@@ -4890,12 +4911,12 @@
     "message": "Beta"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Laajennuksen leveys"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Leveä"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Erittäin leveä"
   }
 }

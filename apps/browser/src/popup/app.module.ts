@@ -33,7 +33,7 @@ import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent as AccountSecurityComponentV1 } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
-import { SsoComponent } from "../auth/popup/sso.component";
+import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
@@ -177,7 +177,7 @@ import "../platform/popup/locales";
     SettingsComponent,
     VaultSettingsComponent,
     ShareComponent,
-    SsoComponent,
+    SsoComponentV1,
     SyncComponent,
     TabsComponent,
     TabsV2Component,

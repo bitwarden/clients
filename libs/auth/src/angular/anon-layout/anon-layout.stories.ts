@@ -190,3 +190,22 @@ export const HideFooter: Story = {
     `,
   }),
 };
+
+export const WithTitleAreaMaxWidth: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      title: "This is a very long long title to demonstrate titleAreaMaxWidth set to 'md'",
+      subtitle:
+        "This is a very long subtitle that demonstrates how the max width container handles longer text content with the titleAreaMaxWidth input set to 'md'. Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, quod est?",
+    },
+    template: `
+      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" [titleAreaMaxWidth]="'md'">
+        <div>
+          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
+          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+      </auth-anon-layout>
+    `,
+  }),
+};

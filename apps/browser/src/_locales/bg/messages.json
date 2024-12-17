@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Самопопълваща се самоличност"
   },
+  "fillVerificationCode": {
+    "message": "Попълване на кода за потвърждаване"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Попълване на кода за потвърждаване",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Генериране на парола (копирана)"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
+  },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
   },
   "enterVerificationCodeEmail": {
     "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Вижте всички възможности за вписване"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Вижте всички възможности за вписване"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Отклюване на регистрацията, отваря се в нов прозорец",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Код за потвърждение на еднократната времево-ограничена парола",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Оставащо време преди изтичането на текущия код",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Попълване на данните за",
@@ -4884,10 +4905,10 @@
     "message": "Генерирана парола"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Компактен режим"
   },
   "beta": {
-    "message": "Beta"
+    "message": "Бета"
   },
   "extensionWidth": {
     "message": "Ширина на разширението"

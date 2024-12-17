@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Saisie automatique de l'identité"
   },
+  "fillVerificationCode": {
+    "message": "Remplir le code de vérification"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Remplir le code de vérification",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Générer un mot de passe (copié)"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Saisissez le code de vérification à 6 chiffres depuis votre application d'authentification."
+  },
+  "authenticationTimeout": {
+    "message": "Délai d'authentification dépassé"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "La session d'authentification a expiré. Veuillez redémarrer le processus de connexion."
   },
   "enterVerificationCodeEmail": {
     "message": "Saisissez le code de vérification à 6 chiffres qui a été envoyé par courriel à $EMAIL$.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Afficher toutes les options de connexion"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Afficher toutes les options de connexion"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Déverrouiller votre compte, s'ouvre dans une nouvelle fenêtre",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Code de vérification de mot de passe unique basé sur le temps",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Temps restant avant l'expiration du TOTP actuel",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Remplir les identifiants pour",

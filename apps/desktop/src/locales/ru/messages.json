@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL сервера"
   },
+  "authenticationTimeout": {
+    "message": "Тайм-аут аутентификации"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, перезапустите процесс авторизации."
+  },
   "selfHostBaseUrl": {
     "message": "URL собственного сервера",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Верификация для Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Для разблокировки Bitwarden пройдите аутентификацию."
   },
   "unlockWithTouchId": {
     "message": "Разблокировать с Touch ID"

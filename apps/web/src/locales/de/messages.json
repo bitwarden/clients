@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Benachrichtigte Mitglieder"
   },
+  "revokeMembers": {
+    "message": "Mitglieder widerrufen"
+  },
+  "restoreMembers": {
+    "message": "Mitglieder wiederherstellen"
+  },
+  "revokeMembersWarning": {
+    "message": "Mitglieder mit beanspruchten und unbeanspruchten Konten werden andere Ergebnisse haben, wenn sie widerrufen werden:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Beanspruchtes Konto: Zugriff auf Bitwarden-Konto widerrufen"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Unbeanspruchtes Konto: Zugriff auf Organisationsdaten widerrufen"
+  },
+  "claimedAccount": {
+    "message": "Beanspruchtes Konto"
+  },
+  "unclaimedAccount": {
+    "message": "Unbeanspruchtes Konto"
+  },
+  "restoreMembersInstructions": {
+    "message": "Um das Konto eines Mitglieds wiederherzustellen, wechsel zum Wiederrufen-Tab. Der Vorgang kann einige Sekunden dauern und kann nicht unterbrochen oder abgebrochen werden."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Organisationszugriff kann nicht wiederhergestellt werden"
+  },
   "allApplicationsWithCount": {
     "message": "Alle Anwendungen ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
+  },
+  "authenticationTimeout": {
+    "message": "Authentifizierungs-Timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
   "verifyIdentity": {
     "message": "Verifiziere deine Identität"
@@ -3870,30 +3903,30 @@
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
   },
-  "freeTrialEndPrompt": {
-    "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen. Um dein Abonnement zu behalten,",
+  "freeTrialEndPromptCount": {
+    "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, deine kostenlose Testversion endet in $COUNT$ Tagen. Um dein Abonnement zu behalten,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, deine kostenlose Testversion endet morgen. Um dein Abonnement zu behalten,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet in $COUNT$ Tagen.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet morgen.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3934,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Deine kostenlose Testversion endet morgen. Um dein Abonnement zu behalten,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Deine kostenlose Testversion endet morgen."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, deine kostenlose Testversion endet heute. Um dein Abonnement zu behalten,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet heute.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3946,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Deine kostenlose Testversion endet heute. Um dein Abonnement zu behalten,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Deine kostenlose Testversion endet heute."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "füge eine Zahlungsmethode hinzu."
+  "clickHereToAddPaymentMethod": {
+    "message": "Klick hier, um eine Zahlungsmethode hinzuzufügen."
   },
   "joinOrganization": {
     "message": "Organisation beitreten"
@@ -4705,6 +4738,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Melde dich über das Single Sign-on-Portal deiner Organisation an. Bitte gib die SSO-Kennung deiner Organisation ein, um zu beginnen."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Gib die SSO-Kennung deiner Organisation ein, um zu starten"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Um dich bei deinem SSO-Anbieter anzumelden, gib zunächst die SSO-Kennung deiner Organisation ein. Du musst diese SSO-Kennung möglicherweise eingeben, wenn du dich von einem neuen Gerät aus anmeldest."
   },
   "enterpriseSingleSignOn": {
     "message": "Enterprise Single Sign-on"
@@ -5610,6 +5649,12 @@
   "bulkFilteredMessage": {
     "message": "Ausgeschlossen, nicht anwendbar für diese Aktion."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Nicht konforme Mitglieder"
+  },
+  "nonCompliantMembersError": {
+    "message": "Mitglieder, die die Richtlinien für die Anmeldung bei einer Einzelorganisation oder für die Zwei-Faktor-Authentifizierung nicht einhalten, können nicht wiederhergestellt werden, bis sie die Anforderungen der Richtlinien erfüllen"
+  },
   "fingerprint": {
     "message": "Fingerabdruck"
   },
@@ -6116,9 +6161,6 @@
   },
   "emailSent": {
     "message": "E-Mail gesendet"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Nach dem Entfernen dieses Kontos läuft das Sponsoring des Families-Abonnements am Ende des Abrechnungszeitraums ab. Du wirst kein neues Sponsoringangebot einlösen können, bis das bestehende abläuft. Bist du sicher, dass du fortfahren möchtest?"
   },
   "removeSponsorshipSuccess": {
     "message": "Sponsoring entfernt"
@@ -6790,6 +6832,10 @@
   },
   "scimDescription": {
     "message": "Über SCIM-Bereitstellung automatisch Benutzer und Gruppen mit deinem bevorzugten Identitätsanbieter zur Verfügung stellen",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützte Integrationen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9032,99 @@
   "sdksDesc": {
     "message": "Verwende das Bitwarden Secrets Manager SDK in den folgenden Programmiersprachen, um deine eigenen Anwendungen zu erstellen."
   },
-  "setUpGithubActions": {
-    "message": "GitHub Actions einrichten"
+  "ssoDescStart": {
+    "message": "Konfiguriere",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes einrichten"
+  "ssoDescEnd": {
+    "message": "für Bitwarden mithilfe der Implementierungsanleitung für deinen Identitätsanbieter.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "GitLab CI/CD einrichten"
+  "userProvisioning": {
+    "message": "Benutzer-Bereitstellung"
   },
-  "setUpAnsible": {
-    "message": "Ansible einrichten"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust-Repository anzeigen"
+  "scimIntegrationDescStart": {
+    "message": "Konfiguriere ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "C#-Repository anzeigen"
+  "scimIntegrationDescEnd": {
+    "message": "(System für Cross-Domain Identity Management) zur automatischen Bereitstellung von Benutzern und Gruppen an Bitwarden mithilfe der Implementierungsanleitung für deinen Identitätsanbieter.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "C++-Repository anzeigen"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "JS WebAssembly-Repository anzeigen"
+  "bwdcDesc": {
+    "message": "Konfiguriere den Bitwarden Directory Connector so, dass Benutzer und Gruppen automatisch mithilfe der Implementierungsanleitung für deinen Identitätsanbieter bereitgestellt werden."
   },
-  "javaSDKRepo": {
-    "message": "Java-Repository anzeigen"
+  "eventManagement": {
+    "message": "Ereignisverwaltung"
   },
-  "pythonSDKRepo": {
-    "message": "Python-Repository anzeigen"
+  "eventManagementDesc": {
+    "message": "Integriere Bitwarden Ereignis-Protokolle in dein SIEM (Systeminformation und Eventmanagement), indem du die Implementierungsanleitung für deine Plattform verwendest."
   },
-  "phpSDKRepo": {
-    "message": "PHP-Repository anzeigen"
+  "deviceManagement": {
+    "message": "Geräteverwaltung"
   },
-  "rubySDKRepo": {
-    "message": "Ruby-Repository anzeigen"
+  "deviceManagementDesc": {
+    "message": "Konfiguriere die Geräteverwaltung für Bitwarden mithilfe der Implementierungsanleitung für deine Plattform."
   },
-  "goSDKRepo": {
-    "message": "Go-Repository anzeigen"
+  "integrationCardTooltip": {
+    "message": "$INTEGRATION$-Implementierungsanleitung starten.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "$INTEGRATION$ einrichten.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "$SDK$-Repository anzeigen",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "$INTEGRATION$-Implementierungsanleitung in einem neuen Tab öffnen.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "$SDK$-Repository in einem neuen Tab anzeigen.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "$INTEGRATION$-Implementierungsanleitung in einem neuen Tab einrichten.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Erstelle eine neue Kunden-Organisation, um sie als Anbieter zu verwalten. Zusätzliche Benutzerplätze werden im nächsten Abrechnungszeitraum berücksichtigt."
@@ -9699,8 +9800,8 @@
   "selfHostingTitleProper": {
     "message": "Selbst gehostet"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Die Domain-Verifizierung aktiviert die Richtlinie für einzelne Organisationen."
+  "claim-domain-single-org-warning": {
+    "message": "Die Domain-Beanspruchung aktiviert die Richtlinie für einzelne Organisationen."
   },
   "single-org-revoked-user-warning": {
     "message": "Nicht konforme Mitglieder werden gesperrt. Administratoren können Mitglieder wieder aufnehmen, sobald sie alle anderen Organisationen verlassen."
@@ -9715,9 +9816,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Wenn ein Mitglied gelöscht wird, werden sein Bitwarden-Konto und persönlichen Tresor-Daten dauerhaft gelöscht. Sammlungs-Daten bleiben in der Organisation. Um sie wiederherzustellen, müssen diese ein Konto erstellen und den Onboarding-Prozess erneut durchlaufen.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Dadurch werden dauerhaft alle Einträge im Besitz von $NAME$ gelöscht. Einträge aus Sammlungen sind nicht betroffen.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Dadurch werden alle Einträge der folgenden Mitglieder dauerhaft gelöscht. Einträge aus Sammlungen sind nicht betroffen.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ gelöscht",
@@ -9787,5 +9898,90 @@
   },
   "descriptorCode": {
     "message": "Beschreibungscode"
+  },
+  "removeMembers": {
+    "message": "Mitglieder entfernen"
+  },
+  "claimedDomains": {
+    "message": "Beanspruchte Domains"
+  },
+  "claimDomain": {
+    "message": "Domain beanspruchen"
+  },
+  "reclaimDomain": {
+    "message": "Domain erneut beanspruchen"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Beispiel: mydomain.com. Subdomains erfordern separate Einträge zur Beanspruchung."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatisch beanspruchte Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden wird in den ersten 72 Stunden 3 Mal versuchen, die Domain zu beanspruchen. Wenn die Domain nicht beansprucht werden kann, überprüfe den DNS-Eintrag auf deinem Host und beanspruche sie manuell. Die Domain wird in 7 Tagen aus deiner Organisation entfernt, wenn sie nicht beansprucht ist."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ nicht beansprucht. Überprüfe deine DNS-Einträge.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Beansprucht"
+  },
+  "domainStatusUnderVerification": {
+    "message": "In Verifizierung"
+  },
+  "claimedDomainsDesc": {
+    "message": "Beanspruche eine Domain um alle Mitgliedskonten zu besitzen, deren E-Mail-Adresse mit der Domain übereinstimmt. Mitglieder können beim Anmelden die SSO-Kennung überspringen. Administratoren können auch Mitgliedskonten löschen."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Die Eingabe ist kein gültiges Format. Format: mydomain.com. Subdomains erfordern separate Einträge, um beansprucht zu werden."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ beansprucht",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ nicht beansprucht",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Wenn du $EMAIL$ entfernst, kann das Sponsoring für diesen Families-Tarif nicht eingelöst werden. Bist du sicher, dass du fortfahren möchtest?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Wenn du $EMAIL$ entfernst, wird das Sponsoring für diesen Families-Tarif enden und die gespeicherte Zahlungsmethode am $DATE$ mit $40 + anfallende Steuern belastet. Du wirst bis zum $DATE$ kein neues Sponsoring einlösen können. Bist du sicher, dass du fortfahren möchtest?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
   }
 }

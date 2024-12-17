@@ -121,13 +121,7 @@
 
       <!-- Back button -->
       <ng-container *ngIf="shouldShowBackButton()">
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="toggleLoginUiState(LoginUiState.EMAIL_ENTRY)"
-        >
+        <button type="button" bitButton block buttonType="secondary" (click)="backButtonClicked()">
           {{ "back" | i18n }}
         </button>
       </ng-container>

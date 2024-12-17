@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "Todos os aplicativos"
+    "message": "Todas as aplicações"
   },
   "criticalApplications": {
     "message": "Aplicações críticas"
@@ -9,7 +9,7 @@
     "message": "Acessar a Inteligência"
   },
   "riskInsights": {
-    "message": "Insights de risco"
+    "message": "Intuições de risco"
   },
   "passwordRisk": {
     "message": "Risco de senha"
@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Membros notificados"
   },
+  "revokeMembers": {
+    "message": "Remover membro"
+  },
+  "restoreMembers": {
+    "message": "Restaurar membro"
+  },
+  "revokeMembersWarning": {
+    "message": "Membros com contas reivindicadas e não reivindicadas terão resultados diferentes quando forem removidos:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Conta criada: Revogar acesso à conta Bitwarden"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Conta não reivindicada: Revogar acesso aos dados da organização"
+  },
+  "claimedAccount": {
+    "message": "Conta reivindicada"
+  },
+  "unclaimedAccount": {
+    "message": "Conta não reivindicada"
+  },
+  "restoreMembersInstructions": {
+    "message": "Para restaurar a conta de um membro, vá para aba Revogado. O processo pode levar alguns segundos para ser concluído e não pode ser interrompido ou cancelado."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Não é possível restaurar acesso à organização"
+  },
   "allApplicationsWithCount": {
     "message": "Todas as aplicações ($COUNT$)",
     "placeholders": {
@@ -39,7 +66,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Criar novo item de acesso"
+    "message": "Criar item de \"login\""
   },
   "criticalApplicationsWithCount": {
     "message": "Aplicações críticas ($COUNT$)",
@@ -84,7 +111,7 @@
     "message": "Marcar aplicativo como crítico"
   },
   "appsMarkedAsCritical": {
-    "message": "Apps marcados como críticos"
+    "message": "Aplicativos marcados como críticos"
   },
   "application": {
     "message": "Aplicativo"
@@ -985,7 +1012,7 @@
     "message": "Login com dispositivo deve ser habilitado nas configurações do aplicativo móvel do Bitwarden. Necessita de outra opção?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Precisa de outra opção?"
   },
   "loginWithMasterPassword": {
     "message": "Entrar com senha mestra"
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Inicie a sessão no Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Tempo de autenticação esgotado"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de “login”."
   },
   "verifyIdentity": {
     "message": "Verifique sua identidade"
@@ -1306,10 +1339,10 @@
     "message": "Uma notificação foi enviada para seu dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Uma notificação foi enviada para seu dispositivo."
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Certifique-se que sua conta esteja desbloqueado e que a frase de impressão digital corresponda à do outro dispositivo."
   },
   "versionNumber": {
     "message": "Versão $VERSION_NUMBER$",
@@ -1643,25 +1676,25 @@
     "message": "Histórico de Senha"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Histórico do gerador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Limpar histórico do gerador"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Se continuar, todas as entradas serão permanentemente excluídas do histórico do gerador. Tem certeza que deseja continuar?"
   },
   "noPasswordsInList": {
     "message": "Não existem senhas para listar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Limpar histórico"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Nada a mostrar"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Você não gerou nada recentemente"
   },
   "clear": {
     "message": "Limpar",
@@ -1786,7 +1819,7 @@
     "message": "Todas as Sessões Desautorizadas"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Esta conta pertence a $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3415,7 +3448,7 @@
     }
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Ver todas as opções de “login”"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de login"
@@ -3870,30 +3903,30 @@
   "updateBrowserDesc": {
     "message": "Você está usando um navegador da Web não suportado. O cofre web pode não funcionar corretamente."
   },
-  "freeTrialEndPrompt": {
-    "message": "Seu teste gratuito termina em $COUNT$ dias. Para manter sua assinatura,",
+  "freeTrialEndPromptCount": {
+    "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, seu período de teste gratuito termina em $COUNT$ dias. Para manter sua assinatura,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, o seu teste gratuito termina amanhã. Para manter a sua assinatura,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3934,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "O seu teste gratuito termina amanhã. Para manter a sua assinatura,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Your free trial ends tomorrow."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, seu período de teste gratuito termina hoje. Para manter sua assinatura,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, your free trial ends today.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3946,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Seu teste gratuito termina hoje. Para manter sua assinatura,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Your free trial ends today."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "Adicione uma forma de pagamento."
+  "clickHereToAddPaymentMethod": {
+    "message": "Click here to add a payment method."
   },
   "joinOrganization": {
     "message": "Junte-se a Organização"
@@ -4474,7 +4507,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Você será notificado assim que o pedido for aprovado"
   },
   "free": {
     "message": "Gratuito",
@@ -4705,6 +4738,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Faça o login usando o portal de login único da sua organização. Por favor, insira o identificador da sua organização para começar."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Enter your organization's SSO identifier to begin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
   },
   "enterpriseSingleSignOn": {
     "message": "Iniciar Sessão Empresarial Única"
@@ -5610,6 +5649,12 @@
   "bulkFilteredMessage": {
     "message": "Excluído, não aplicável para esta ação."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Membros não compatíveis"
+  },
+  "nonCompliantMembersError": {
+    "message": "Os membros que não estão em conformidade com a política de “login” único ou de duas etapas não poderão ser restaurados até cumprirem os requisitos da política"
+  },
   "fingerprint": {
     "message": "Impressão digital"
   },
@@ -6117,9 +6162,6 @@
   "emailSent": {
     "message": "E-mail enviado"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "Depois de remover esta conta, o proprietário da organização das Famílias será responsável por essa assinatura e faturas relacionadas. Tem certeza de que quer continuar?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Patrocínio Removido"
   },
@@ -6410,7 +6452,7 @@
     "message": "Necessário se o ID da Entidade não for um URL."
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "Esta oferta não é mais válida. Entre em contato com os administradores da sua organização para obter mais informações."
   },
   "openIdOptionalCustomizations": {
     "message": "Personalizações opcionais"
@@ -6790,6 +6832,10 @@
   },
   "scimDescription": {
     "message": "Provisionar automaticamente usuários e grupos com seu provedor de identidade preferido via provisionamento de SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Provisionar automaticamente usuários e grupos com seu provedor de identidade preferido via provisionamento de SCIM. Encontre suporte para as integrações",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8070,16 +8116,16 @@
     "message": "Sessão iniciada"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Lembre-se deste dispositivo para permanecer conectado"
   },
   "deviceApprovalRequired": {
     "message": "Aprovação do dispositivo necessária. Selecione uma opção de aprovação abaixo:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Aprovação do dispositivo necessária"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Selecione uma opção de aprovação abaixo"
   },
   "rememberThisDevice": {
     "message": "Lembrar deste dispositivo"
@@ -8311,7 +8357,7 @@
     "message": "E-mail do usuário ausente"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Endereço eletrônico de usuário ativo não encontrado. Você será desconectado"
   },
   "deviceTrusted": {
     "message": "Dispositivo confiável"
@@ -8986,44 +9032,99 @@
   "sdksDesc": {
     "message": "Utilize o Bitwarden Secrets Manager SDK nas seguintes linguagens de programação para construir seus próprios aplicativos."
   },
-  "setUpGithubActions": {
-    "message": "Configurar ações do Github"
+  "ssoDescStart": {
+    "message": "Configurar",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Configurar Kubernetes"
+  "ssoDescEnd": {
+    "message": "Para o Bitwarden usar o guia de implementação Para o seu provedor de identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Configurar GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Provisionamento de usuário"
   },
-  "setUpAnsible": {
-    "message": "Configurar Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Visualizar repositório Rust"
+  "scimIntegrationDescStart": {
+    "message": "Configurar",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Visualizar repositório C#"
+  "scimIntegrationDescEnd": {
+    "message": "(Sistema de Gerenciamento de Identidade de Domínio) para fornecer automaticamente usuários e grupos ao Bitwarden usando o guia de implementação do seu Provedor de Identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Visualizar repositório C++"
+  "bwdc": {
+    "message": "Conector de Diretório Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Visualizar repositório WebAssembly JS"
+  "bwdcDesc": {
+    "message": "Configure o conector de diretório do Bitwarden para fornecer automaticamente usuários e grupos usando o guia de implementação para o seu provedor de identidade."
   },
-  "javaSDKRepo": {
-    "message": "Ver repositório Java"
+  "eventManagement": {
+    "message": "Gerenciador de eventos"
   },
-  "pythonSDKRepo": {
-    "message": "Ver repositório Python"
+  "eventManagementDesc": {
+    "message": "Integre os logs de eventos do Bitwarden ao seu sistema SIEM (informações do sistema e gerenciamento de eventos) utilizando o guia de implementação da sua plataforma."
   },
-  "phpSDKRepo": {
-    "message": "Ver repositório PHP"
+  "deviceManagement": {
+    "message": "Gerenciamento do dispositivo"
   },
-  "rubySDKRepo": {
-    "message": "Ver repositório Ruby"
+  "deviceManagementDesc": {
+    "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
   },
-  "goSDKRepo": {
-    "message": "Visualizar repositório Go"
+  "integrationCardTooltip": {
+    "message": "Inicie o guia de implementação $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Configure $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Visualizar repositório Rust",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "Abrir guia de implementação $INTEGRATION$ em uma nova aba.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "Veja o repositório $SDK$ em uma nova guia.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "Configurar guia de implementação $INTEGRATION$ em uma nova aba.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de cliente para gerenciar como um Provedor. Posições adicionais serão refletidas no próximo ciclo de faturamento."
@@ -9699,8 +9800,8 @@
   "selfHostingTitleProper": {
     "message": "Auto-hospedado"
   },
-  "verified-domain-single-org-warning": {
-    "message": "A verificação de um domínio ativará a política de organização única."
+  "claim-domain-single-org-warning": {
+    "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
     "message": "Membros não conformes serão revogados. Os administradores podem restaurar os membros assim que saírem de todas as outras organizações."
@@ -9715,9 +9816,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Quando um membro é excluído, sua conta no Bitwarden e os dados individuais do cofre serão excluídos permanentemente. Os dados da coleção permanecerão na organização. Para restabelecê-los, eles devem criar uma conta e ser integrados novamente.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Isto irá excluir permanentemente todos os itens pertencentes a $NAME$. Os itens de coleção não são impactados.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Isto irá excluir permanentemente todos os itens pertencentes a $NAME$. Os itens de coleção não são impactados.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ Excluído",
@@ -9774,18 +9885,103 @@
     "message": "Excluído com sucesso"
   },
   "freeFamiliesSponsorship": {
-    "message": "Remove Free Bitwarden Families sponsorship"
+    "message": "Remova o patrocínio das famílias do Bitwarden"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Do not allow members to redeem a Families plan through this organization."
+    "message": "Não permita que os membros resgatem um plano de Famílias por meio desta organização."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Você será obrigado a verificar sua conta bancária. Nós faremos um micro-depósito nos próximos 1-2 dias úteis. Digite o código do descritor da instrução a partir deste depósito na página de faturamento da organização para verificar a conta bancária. A não verificação da conta bancária resultará em um pagamento não atendido e sua assinatura será suspensa."
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Fizemos um microdepósito em sua conta bancária (isso pode levar 1-2 dias úteis). Digite o código de seis dígitos começando com 'SM' encontrado na descrição de depósito. A não verificação da conta bancária resultará em um pagamento não atendido e sua assinatura será suspensa."
   },
   "descriptorCode": {
-    "message": "Descriptor code"
+    "message": "Código do descritor"
+  },
+  "removeMembers": {
+    "message": "Remover membro?"
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
   }
 }

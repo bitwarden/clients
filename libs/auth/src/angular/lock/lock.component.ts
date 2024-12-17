@@ -37,7 +37,11 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricStateService,
+  UserAsymmetricKeysRegenerationService,
+} from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../common/abstractions";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
@@ -139,6 +143,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
 
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
@@ -532,10 +537,18 @@ export class LockV2Component implements OnInit, OnDestroy {
     // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
     await this.syncService.fullSync(false);
 
+    await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
+
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();
+      /**
+       * In a passkey flow, the `previousUrl` will still be `/fido2?<queryParams>` at this point
+       * because the `/lockV2` route doesn't save the URL in the `BrowserRouterService`. This is
+       * handled by the `doNotSaveUrl` property on the `lockV2` route in `app-routing.module.ts`.
+       */
       if (previousUrl) {
         await this.router.navigateByUrl(previousUrl);
+        return;
       }
     }
 

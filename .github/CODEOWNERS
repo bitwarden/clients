@@ -105,7 +105,8 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
-
+# SSH Agent
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
 ## Component Library ##
 .storybook @bitwarden/team-design-system
@@ -137,9 +138,6 @@ apps/browser/store/locales/en
 apps/cli/src/locales/en/messages.json
 apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
-
-## Ssh agent temporary co-codeowner
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-platform-dev @bitwarden/wg-ssh-keys
 
 ## BRE team owns these workflows ##
 .github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre

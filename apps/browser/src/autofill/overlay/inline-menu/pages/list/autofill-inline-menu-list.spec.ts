@@ -140,6 +140,31 @@ describe("AutofillInlineMenuList", () => {
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
+      it("creates the view for a totp field", () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            inlineMenuFillType: CipherType.Login,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(5, {
+                type: CipherType.Login,
+                login: {
+                  totp: "123456",
+                  totpField: true,
+                },
+              }),
+            ],
+          }),
+        );
+
+        const cipherSubtitleElement = autofillInlineMenuList[
+          "inlineMenuListContainer"
+        ].querySelector('[data-testid="totp-code"]');
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+        expect(cipherSubtitleElement).not.toBeNull();
+        expect(cipherSubtitleElement.textContent).toBe("123 456");
+      });
+
       it("creates the views for a list of card ciphers", () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({

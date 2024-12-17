@@ -177,7 +177,7 @@
     "message": "Kopiuj notatki"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Wypełnij",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -191,6 +191,13 @@
   },
   "autoFillIdentity": {
     "message": "Autouzupełnianie tożsamości"
+  },
+  "fillVerificationCode": {
+    "message": "Fill verification code"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Fill Verification Code",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
     "message": "Wygeneruj hasło (do schowka)"
@@ -999,7 +1006,7 @@
     "message": "Pokaż elementy karty na stronie głównej, aby ułatwić autouzupełnianie."
   },
   "showIdentitiesInVaultView": {
-    "message": "Pokaż tożsamośći jako sugestie autouzupełniania w widoku sejfu"
+    "message": "Pokaż tożsamości jako sugestie autouzupełniania w widoku sejfu"
   },
   "showIdentitiesCurrentTab": {
     "message": "Pokaż tożsamości na stronie głównej"
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Wpisz 6-cyfrowy kod weryfikacyjny z aplikacji uwierzytelniającej."
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "enterVerificationCodeEmail": {
     "message": "Wpisz 6-cyfrowy kod weryfikacyjny, który został przesłany na adres $EMAIL$.",
@@ -1765,7 +1778,7 @@
     "message": "Tożsamość"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Klucz SSH"
   },
   "newItemHeader": {
     "message": "Nowy $TYPE$",
@@ -1798,13 +1811,13 @@
     "message": "Historia hasła"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historia generatora"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Wyczyść historię generatora"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Jeśli zatwierdzisz, wszystkie wygenerowane hasła zostaną usunięte z historii generatora. Czy chcesz kontynuować mimo to?"
   },
   "back": {
     "message": "Powrót"
@@ -1843,7 +1856,7 @@
     "message": "Bezpieczne notatki"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Klucze SSH"
   },
   "clear": {
     "message": "Wyczyść",
@@ -1926,10 +1939,10 @@
     "message": "Wyczyść historię"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Brak zawartości do pokazania"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Nic nie zostało wygenerowane przez ciebie w ostatnim czasie"
   },
   "remove": {
     "message": "Usuń"
@@ -2884,7 +2897,7 @@
     "message": "Generate email"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Wartość musi być pomiędzy $MIN$ a $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2898,7 +2911,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Użyj $RECOMMENDED$ znaków lub więcej, aby wygenerować silne hasło.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2908,7 +2921,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Użyj $RECOMMENDED$ słów lub więcej, aby wygenerować silne hasło.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3167,8 +3180,8 @@
   "viewAllLogInOptions": {
     "message": "View all log in options"
   },
-  "viewAllLoginOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+  "viewAllLoginOptionsV1": {
+    "message": "View all log in options"
   },
   "notificationSentDevice": {
     "message": "Powiadomienie zostało wysłane na urządzenie."
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Odblokuj swoje konto, otwiera się w nowym oknie",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Wypełnij dane logowania dla",
@@ -4665,28 +4686,28 @@
     "message": "Do tego ustalenia zastosowano wymogi polityki przedsiębiorstw"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Klucz prywatny"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Klucz publiczny"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Typ klucza"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048-Bitowy"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072-Bitowy"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096-Bitowy"
   },
   "retry": {
     "message": "Powtórz"
@@ -4731,7 +4752,7 @@
     "message": "Uwierzytelnianie"
   },
   "fillGeneratedPassword": {
-    "message": "Fill generated password",
+    "message": "Uzupełnij wygenerowanym hasłem",
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
@@ -4884,18 +4905,18 @@
     "message": "Generated password"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Tryb kompaktowy"
   },
   "beta": {
     "message": "Beta"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Szerokość rozszerzenia"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Szerokie"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Bardzo szerokie"
   }
 }

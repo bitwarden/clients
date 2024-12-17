@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Identität automatisch ausfüllen"
   },
+  "fillVerificationCode": {
+    "message": "Verifizierungscode eingeben"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Verifizierungscode eingeben",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Passwort generieren (kopiert)"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Gib den 6-stelligen Verifizierungscode aus deiner Authenticator App ein."
+  },
+  "authenticationTimeout": {
+    "message": "Authentifizierungs-Timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
   "enterVerificationCodeEmail": {
     "message": "Gib den 6-stelligen Bestätigungscode ein, der an $EMAIL$ gesendet wurde.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Dein Konto entsperren, öffnet sich in einem neuen Fenster",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Zeitbasierter einmaliger Passwort-Verifizierungscode",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Verbleibende Zeit bis zum Ablauf des aktuellen TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Zugangsdaten ausfüllen für",

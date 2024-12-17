@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "自动填充身份"
   },
+  "fillVerificationCode": {
+    "message": "填写验证码"
+  },
+  "fillVerificationCodeAria": {
+    "message": "填写验证码",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "生成密码（并复制）"
   },
@@ -345,7 +352,7 @@
     "message": "免费 Bitwarden 家庭"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页应用中兑换此优惠。"
+    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页 App 中兑换此优惠。"
   },
   "version": {
     "message": "版本"
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "请输入您的验证器 App 中的 6 位数验证码。"
+  },
+  "authenticationTimeout": {
+    "message": "身份验证超时"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "身份验证会话超时。请重新启动登录过程。"
   },
   "enterVerificationCodeEmail": {
     "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "查看所有登录选项"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "查看所有登录选项"
   },
   "notificationSentDevice": {
@@ -3574,6 +3587,14 @@
     "message": "解锁您的账户（在新窗口中打开）",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
+  "totpCodeAria": {
+    "message": "基于时间的一次性密码验证码",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "TOTP 到期前剩余时间",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
+  },
   "fillCredentialsFor": {
     "message": "为其填写凭据",
     "description": "Screen reader text for when overlay item is in focused"
@@ -3705,7 +3726,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 寻求帮助。"
+    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 DUO 并按照步骤完成登录。"

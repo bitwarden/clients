@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Membros notificados"
   },
+  "revokeMembers": {
+    "message": "Revogar membros"
+  },
+  "restoreMembers": {
+    "message": "Restaurar membros"
+  },
+  "revokeMembersWarning": {
+    "message": "Os membros com contas reclamadas e não reclamadas terão resultados diferentes quando revogadas:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Conta reclamada: Revogar o acesso à conta do Bitwarden"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Conta não reclamada: Revogar o acesso aos dados da organização"
+  },
+  "claimedAccount": {
+    "message": "Conta reclamada"
+  },
+  "unclaimedAccount": {
+    "message": "Conta não reclamada"
+  },
+  "restoreMembersInstructions": {
+    "message": "Para restaurar a conta de um membro, aceda ao separador Revogado. O processo pode demorar alguns segundos a ser concluído e não pode ser interrompido ou cancelado."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Não é possível restaurar o acesso à organização"
+  },
   "allApplicationsWithCount": {
     "message": "Todas as aplicações ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
   },
   "verifyIdentity": {
     "message": "Verifique a sua identidade"
@@ -3870,30 +3903,30 @@
   "updateBrowserDesc": {
     "message": "Está a utilizar um navegador web não suportado. O cofre web pode não funcionar corretamente."
   },
-  "freeTrialEndPrompt": {
-    "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias. Para manter a sua subscrição,",
+  "freeTrialEndPromptCount": {
+    "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, o vosso período experimental gratuito termina dentro de $COUNT$ dias. Para manterem a vossa subscrição,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, o vosso período experimental gratuito termina amanhã. Para manterem a vossa subscrição,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina dentro de $COUNT$ dias.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina amanhã.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3934,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "O seu período experimental gratuito termina amanhã. Para manter a sua subscrição,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "O seu período experimental gratuito termina amanhã."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, o vosso período experimental gratuito termina hoje. Para manterem a vossa subscrição,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina hoje.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3946,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "O seu período experimental gratuito termina hoje. Para manter a sua subscrição,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "O seu período experimental gratuito termina hoje."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "adicione um método de pagamento."
+  "clickHereToAddPaymentMethod": {
+    "message": "Clique aqui para adicionar um método de pagamento."
   },
   "joinOrganization": {
     "message": "Aderir à organização"
@@ -4705,6 +4738,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Inicie sessão utilizando o portal de início de sessão único da sua organização. Por favor, introduza o identificador SSO da sua organização para começar."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Introduza o identificador SSO da sua organização para começar"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Para iniciar sessão com o seu fornecedor de SSO, introduza o identificador de SSO da sua organização para começar. Poderá ser necessário introduzir este identificador SSO quando iniciar sessão a partir de um novo dispositivo."
   },
   "enterpriseSingleSignOn": {
     "message": "Início de sessão único para empresas"
@@ -5610,6 +5649,12 @@
   "bulkFilteredMessage": {
     "message": "Excluído, não aplicável a esta ação"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Membros não conformes"
+  },
+  "nonCompliantMembersError": {
+    "message": "Os membros que não estejam em conformidade com a política de organização única ou de verificação de dois passos não podem ser restaurados até cumprirem os requisitos da política"
+  },
   "fingerprint": {
     "message": "Impressão digital"
   },
@@ -6116,9 +6161,6 @@
   },
   "emailSent": {
     "message": "E-mail enviado"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Depois de remover esta conta, o patrocínio do plano Familiar expirará no final do período de faturação. Não será possível resgatar uma nova oferta de patrocínio até que a existente expire. Tem a certeza de que pretende continuar?"
   },
   "removeSponsorshipSuccess": {
     "message": "Patrocínio removido"
@@ -6790,6 +6832,10 @@
   },
   "scimDescription": {
     "message": "Aprovisione automaticamente utilizadores e grupos com o seu fornecedor de identidade preferido através do aprovisionamento SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Aprovisione automaticamente utilizadores e grupos com o seu fornecedor de identidade preferido através do aprovisionamento SCIM. Encontre integrações suportadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9032,99 @@
   "sdksDesc": {
     "message": "Utilize o SDK do Gestor de Segredos do Bitwarden nas seguintes linguagens de programação para criar as suas próprias aplicações."
   },
-  "setUpGithubActions": {
-    "message": "Configurar ações do GitHub"
+  "ssoDescStart": {
+    "message": "Configurar",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Configurar o Kubernetes"
+  "ssoDescEnd": {
+    "message": "para o Bitwarden utilizando o guia de implementação do seu fornecedor de identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Configurar o GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Provisionamento de utilizadores"
   },
-  "setUpAnsible": {
-    "message": "Configurar o Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Ver o repositório Rust"
+  "scimIntegrationDescStart": {
+    "message": "Configure o ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Ver repositório de C#"
+  "scimIntegrationDescEnd": {
+    "message": "(Sistema de Gestão de Identidades entre Domínios) para fornecer automaticamente utilizadores e grupos ao Bitwarden utilizando o guia de implementação do seu fornecedor de identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Ver repositório de C++"
+  "bwdc": {
+    "message": "Conector de diretório do Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Ver repositório de JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Configure o Conector de diretório Bitwarden para aprovisionar automaticamente utilizadores e grupos utilizando o guia de implementação do seu fornecedor de identidade."
   },
-  "javaSDKRepo": {
-    "message": "Ver repositório de Java"
+  "eventManagement": {
+    "message": "Gestão de eventos"
   },
-  "pythonSDKRepo": {
-    "message": "Ver repositório de Python"
+  "eventManagementDesc": {
+    "message": "Integre os registos de eventos Bitwarden com o seu sistema SIEM (Informações do Sistema e Gestão de Eventos) utilizando o guia de implementação da sua plataforma."
   },
-  "phpSDKRepo": {
-    "message": "Ver repositório de php"
+  "deviceManagement": {
+    "message": "Gestão de dispositivos"
   },
-  "rubySDKRepo": {
-    "message": "Ver repositório de Ruby"
+  "deviceManagementDesc": {
+    "message": "Configure a gestão de dispositivos do Bitwarden utilizando o guia de implementação da sua plataforma."
   },
-  "goSDKRepo": {
-    "message": "Ver repositório de Go"
+  "integrationCardTooltip": {
+    "message": "Lançar o guia de implementação da $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Configurar a $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Ver o repositório $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "abrir o guia de implementação da $INTEGRATION$ num novo separador.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "ver o repositório $SDK$ num novo separador.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "configurar o guia de implementação da $INTEGRATION$ num novo separador.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de clientes para gerir como Fornecedor. Os lugares adicionais serão refletidos na próxima faturação."
@@ -9699,8 +9800,8 @@
   "selfHostingTitleProper": {
     "message": "Auto-hospedagem"
   },
-  "verified-domain-single-org-warning": {
-    "message": "A verificação de um domínio ativará a política de organização única."
+  "claim-domain-single-org-warning": {
+    "message": "A reivindicação de um domínio ativará a política de organização única."
   },
   "single-org-revoked-user-warning": {
     "message": "Os membros não conformes serão revogados. Os administradores podem restaurar os membros quando estes saírem de todas as outras organizações."
@@ -9715,9 +9816,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Quando um membro é eliminado, a sua conta Bitwarden e os dados individuais do cofre serão permanentemente eliminados. Os dados da coleção permanecerão na organização. Para os reintegrar, têm de criar uma conta e ser novamente integrados.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes a $NAME$. Os itens da coleção não são afetados.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes aos seguintes membros. Os itens da coleção não são afetados.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ eliminado",
@@ -9787,5 +9898,90 @@
   },
   "descriptorCode": {
     "message": "Código descritor"
+  },
+  "removeMembers": {
+    "message": "Remover membros"
+  },
+  "claimedDomains": {
+    "message": "Domínios reivindicados"
+  },
+  "claimDomain": {
+    "message": "Reivindicar domínio"
+  },
+  "reclaimDomain": {
+    "message": "Recuperar domínio"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Exemplo: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicados."
+  },
+  "automaticClaimedDomains": {
+    "message": "Domínios reivindicados automaticamente"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "O Bitwarden tentará reivindicar o domínio 3 vezes durante as primeiras 72 horas. Se o domínio não puder ser reivindicado, verifique o registo DNS no seu anfitrião e reivindique manualmente. O domínio será removido da sua organização em 7 dias se não for reivindicado."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ não reivindicado. Verifique o seu registo DNS.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Reivindicado"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Sob verificação"
+  },
+  "claimedDomainsDesc": {
+    "message": "Reivindique um domínio para possuir todas as contas de membros cujo endereço de e-mail corresponda ao domínio. Os membros poderão ignorar o identificador SSO quando iniciarem sessão. Os administradores também poderão eliminar contas de membros."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "O campo não é um formato válido. Formato: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicado."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ reivindicado",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ não reivindicado",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Se remover $EMAIL$, o patrocínio deste plano Familiar não pode ser resgatado. Tem a certeza de que pretende continuar?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Se remover $EMAIL$, o patrocínio deste plano Familiar terminará e o método de pagamento guardado será cobrado $40 + imposto aplicável a $DATE$. Não será possível resgatar um novo patrocínio até $DATE$. Tem a certeza de que pretende continuar?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domínio reivindicado"
   }
 }

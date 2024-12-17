@@ -150,12 +150,16 @@ export class InlineMenuFieldQualificationService
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
   private inlineMenuFieldQualificationFlagSet = false;
+  private inlineMenuTotpFeatureFlag = false;
 
   constructor() {
-    void sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag").then(
-      (getInlineMenuFieldQualificationFlag) =>
-        (this.inlineMenuFieldQualificationFlagSet = !!getInlineMenuFieldQualificationFlag?.result),
-    );
+    void Promise.all([
+      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
+      sendExtensionMessage("getInlineMenuTotpFeatureFlag"),
+    ]).then(([fieldQualificationFlag, totpFeatureFlag]) => {
+      this.inlineMenuFieldQualificationFlagSet = !!fieldQualificationFlag?.result;
+      this.inlineMenuTotpFeatureFlag = !!totpFeatureFlag?.result;
+    });
   }
 
   /**
@@ -169,8 +173,15 @@ export class InlineMenuFieldQualificationService
       return this.isFieldForLoginFormFallback(field);
     }
 
-    if (this.isTotpField(field)) {
-      return false;
+    /**
+     * Autofill does not fill password type totp input fields
+     */
+    if (this.inlineMenuTotpFeatureFlag) {
+      const isTotpField = this.isTotpField(field);
+      const passwordType = field.type === "password";
+      if (isTotpField && !passwordType) {
+        return true;
+      }
     }
 
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
@@ -987,7 +998,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  private isTotpField = (field: AutofillField): boolean => {
+  isTotpField = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }

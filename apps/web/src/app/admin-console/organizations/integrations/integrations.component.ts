@@ -1,7 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { IntegrationType } from "@bitwarden/common/enums";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -21,11 +25,21 @@ import { SharedOrganizationModule } from "../shared";
     FilterIntegrationsPipe,
   ],
 })
-export class AdminConsoleIntegrationsComponent {
+export class AdminConsoleIntegrationsComponent implements OnInit {
   integrationsList: Integration[] = [];
   tabIndex: number;
+  organization$: Observable<Organization>;
 
-  constructor() {
+  ngOnInit(): void {
+    this.organization$ = this.route.params.pipe(
+      switchMap((params) => this.organizationService.get$(params.organizationId)),
+    );
+  }
+
+  constructor(
+    private route: ActivatedRoute,
+    private organizationService: OrganizationService,
+  ) {
     this.integrationsList = [
       {
         name: "AD FS",

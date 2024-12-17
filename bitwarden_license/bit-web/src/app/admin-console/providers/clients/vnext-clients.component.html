@@ -43,10 +43,10 @@
         <th bitCell></th>
       </ng-container>
       <ng-template bitRowDef let-row>
-        <td bitCell>
+        <td bitCell width="30">
           <bit-avatar [text]="row.organizationName" [id]="row.id" size="small"></bit-avatar>
         </td>
-        <td bitCell>
+        <td bitCell width="500">
           <a [routerLink]="['/organizations', row.organizationId]">{{ row.organizationName }}</a>
         </td>
         <td bitCell>

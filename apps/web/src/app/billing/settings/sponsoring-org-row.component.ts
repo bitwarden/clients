@@ -12,7 +12,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
@@ -35,7 +34,6 @@ export class SponsoringOrgRowComponent implements OnInit {
     private apiService: ApiService,
     private i18nService: I18nService,
     private logService: LogService,
-    private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
     private toastService: ToastService,
     private configService: ConfigService,
@@ -87,14 +85,21 @@ export class SponsoringOrgRowComponent implements OnInit {
     });
   }
 
-  get isSentAwaitingSync() {
-    return this.isSelfHosted && !this.sponsoringOrg.familySponsorshipLastSyncDate;
-  }
-
   private async doRevokeSponsorship() {
+    const content = this.sponsoringOrg.familySponsorshipValidUntil
+      ? this.i18nService.t(
+          "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
+          this.sponsoringOrg.familySponsorshipFriendlyName,
+          formatDate(this.sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale),
+        )
+      : this.i18nService.t(
+          "updatedRevokeSponsorshipConfirmationForSentSponsorship",
+          this.sponsoringOrg.familySponsorshipFriendlyName,
+        );
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: `${this.i18nService.t("remove")} ${this.sponsoringOrg.familySponsorshipFriendlyName}?`,
-      content: { key: "revokeSponsorshipConfirmation" },
+      title: `${this.i18nService.t("removeSponsorship")}?`,
+      content,
       acceptButtonText: { key: "remove" },
       type: "warning",
     });

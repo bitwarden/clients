@@ -30,11 +30,13 @@ import {
   LockIcon,
   TwoFactorTimeoutIcon,
   UserLockIcon,
+  SsoKeyIcon,
   LoginViaAuthRequestComponent,
   DevicesIcon,
   RegistrationUserAddIcon,
   RegistrationLockAltIcon,
   RegistrationExpiredLinkIcon,
+  SsoComponent,
   VaultIcon,
   LoginDecryptionOptionsComponent,
 } from "@bitwarden/auth/angular";
@@ -68,7 +70,7 @@ import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
-import { SsoComponent } from "./auth/sso.component";
+import { SsoComponentV1 } from "./auth/sso-v1.component";
 import { CompleteTrialInitiationComponent } from "./auth/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./auth/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
@@ -436,27 +438,57 @@ const routes: Routes = [
           },
         ],
       },
-      {
-        path: "sso",
-        canActivate: [unauthGuardFn()],
-        data: {
-          pageTitle: {
-            key: "enterpriseSingleSignOn",
-          },
-          titleId: "enterpriseSingleSignOn",
-        } satisfies RouteDataProperties & AnonLayoutWrapperData,
-        children: [
-          {
-            path: "",
-            component: SsoComponent,
-          },
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
-          },
-        ],
-      },
+      ...unauthUiRefreshSwap(
+        SsoComponentV1,
+        SsoComponent,
+        {
+          path: "sso",
+          canActivate: [unauthGuardFn()],
+          data: {
+            pageTitle: {
+              key: "enterpriseSingleSignOn",
+            },
+            titleId: "enterpriseSingleSignOn",
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+          children: [
+            {
+              path: "",
+              component: SsoComponentV1,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+        },
+        {
+          path: "sso",
+          canActivate: [unauthGuardFn()],
+          data: {
+            pageTitle: {
+              key: "singleSignOn",
+            },
+            titleId: "enterpriseSingleSignOn",
+            pageSubtitle: {
+              key: "singleSignOnEnterOrgIdentifierText",
+            },
+            titleAreaMaxWidth: "md",
+            pageIcon: SsoKeyIcon,
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+          children: [
+            {
+              path: "",
+              component: SsoComponent,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+        },
+      ),
       {
         path: "login",
         canActivate: [unauthGuardFn()],

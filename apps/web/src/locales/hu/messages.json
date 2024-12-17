@@ -29,6 +29,33 @@
   "notifiedMembers": {
     "message": "Értesített tagok"
   },
+  "revokeMembers": {
+    "message": "Tagok eltávolítása"
+  },
+  "restoreMembers": {
+    "message": "Tagok visszaállítása"
+  },
+  "revokeMembersWarning": {
+    "message": "Az igényelt és nem igényelt fiókokkal rendelkező tagok visszavonása esetén eltérő eredményeket érnek el:"
+  },
+  "claimedAccountRevoke": {
+    "message": "Igényelt fiók: A Bitwarden fiókhoz hozzáférés visszavonása"
+  },
+  "unclaimedAccountRevoke": {
+    "message": "Nem igényelt fiók: A szervezeti adatokhoz hozzáférés visszavonása"
+  },
+  "claimedAccount": {
+    "message": "Igényelt fiók"
+  },
+  "unclaimedAccount": {
+    "message": "Nem-igényelt fiók"
+  },
+  "restoreMembersInstructions": {
+    "message": "Egy tag fiókjának visszaállításához lépjünk a Visszavont fülre. A folyamat néhány másodpercig tarthat és nem lehet megszakítani vagy törölni."
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nem lehet visszaállítani a szervezeti hozzáférést."
+  },
   "allApplicationsWithCount": {
     "message": "Összes alkalmazás ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1136,12 @@
   },
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
@@ -3870,30 +3903,30 @@
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
   },
-  "freeTrialEndPrompt": {
-    "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget. Az előfizetés fenntartásához",
+  "freeTrialEndPromptCount": {
+    "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, az ingyenes próbaidőszak $COUNT$ nap múlva lejár. Az előfizetés fenntartásához",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, az ingyenes próbaidőszak holnap véget ér. Az előfizetés fenntartásához",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, az ingyenes próbaidőszak $COUNT$ nap múlva lejár.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, az ingyenes próbaidőszak holnap lejár.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3934,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Az ingyenes próbaidőszak holnap véget ér. Az előfizetés fenntartásához"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Az ingyenes próbaidőszak holnap lejár."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, az ingyenes próbaidőszak holnap véget ér. Az előfizetés fenntartásához",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, az ingyenes próbaidőszak ma lejár.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3946,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Az ingyenes próbaidőszak ma véget ér. Az előfizetés fenntartásához"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Az ingyenes próbaidőszak ma lejár."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "adjunk hozzá egy fizetési módot."
+  "clickHereToAddPaymentMethod": {
+    "message": "Kattintás ide egy fizetési mód hozzáadásához."
   },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
@@ -4705,6 +4738,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Bejelentkezés a szervezeti önálló portálba. A kezdéshez meg kell adni a szervezeti azonosítót."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "A kezdéshez adjuk meg a szervezet egyszeri bejelentkezési azonosítóját."
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Az SSO szolgáltatóval bejelentkezéshez adjuk meg a szervezet SSO azonosítót. Előfordulhat, hogy meg kell adni ezt az SSO azonosítót új eszközről bejelentkezéskor."
   },
   "enterpriseSingleSignOn": {
     "message": "Vállalati önálló bejelentkezés"
@@ -5610,6 +5649,12 @@
   "bulkFilteredMessage": {
     "message": "Kizárva, nem alkalmazható erre a műveletre."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Nem megfelelő tagok"
+  },
+  "nonCompliantMembersError": {
+    "message": "Azok a tagok, amelyek nem felelnek meg az egy szervezeti vagy kétlépcsős bejelentkezési szabályzatnak, nem állíthatók vissza mindaddig, amíg nem felelnek meg a szabályzat követelményeinek."
+  },
   "fingerprint": {
     "message": "Ujjlenyomat"
   },
@@ -6116,9 +6161,6 @@
   },
   "emailSent": {
     "message": "Az email elküldésre került."
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "A fiók eltávolítása után a Családok szervezetének tulajdonosa lesz felelős az előfizetésért és a kapcsolódó számlákért. Biztosan folytatjuk?"
   },
   "removeSponsorshipSuccess": {
     "message": "A szponzoráció eltávolításra került."
@@ -6790,6 +6832,10 @@
   },
   "scimDescription": {
     "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül. Támogatott integrációk keresése",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9032,99 @@
   "sdksDesc": {
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
   },
-  "setUpGithubActions": {
-    "message": "Set up Github Actions"
+  "ssoDescStart": {
+    "message": "Konfigurálás",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes beüzemelése"
+  "ssoDescEnd": {
+    "message": "a Bitwarden számára az azonosítás szolgáltató megvalósítási útmutató használatával.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Set up GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Felhasználói kiépítés"
   },
-  "setUpAnsible": {
-    "message": "Set up Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust tár megtekintése"
+  "scimIntegrationDescStart": {
+    "message": "Konfigurálás ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "View C# repository"
+  "scimIntegrationDescEnd": {
+    "message": "(Rendszer a tartományok közötti azonosítás kezeléshez), hogy automatikusan biztosítson felhasználókat és csoportokat a Bitwarden számára az azonostíás szolgáltató megvalósítási útmutatója segítségével.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "View C++ repository"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "View JS WebAssembly repository"
+  "bwdcDesc": {
+    "message": "Konfigurálja a Bitwarden Directory Connector szolgáltatást úgy, hogy automatikusan biztosítson felhasználókat és csoportokat az identitásszolgáltató megvalósítási útmutatója segítségével."
   },
-  "javaSDKRepo": {
-    "message": "View Java repository"
+  "eventManagement": {
+    "message": "Esemény kezelés"
   },
-  "pythonSDKRepo": {
-    "message": "View Python repository"
+  "eventManagementDesc": {
+    "message": "Integrálja a Bitwarden eseménynaplókat a SIEM (rendszerinformációs és esemény kezelési) rendszerrel a platform megvalósítási útmutatója segítségével."
   },
-  "phpSDKRepo": {
-    "message": "View php repository"
+  "deviceManagement": {
+    "message": "Eszközkezelés"
   },
-  "rubySDKRepo": {
-    "message": "View Ruby repository"
+  "deviceManagementDesc": {
+    "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
-  "goSDKRepo": {
-    "message": "View Go repository"
+  "integrationCardTooltip": {
+    "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "$INTEGRATION$ beüzemelése.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "$SDK$ tár megtekintése",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "$INTEGRATION$ megvalósítási útmutató megnyitása egy új fülön.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "$SDK$ tár megtekintése egy új fülön.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "$INTEGRATION$ megvalósítási útmutató beüzemelése egy új fülön.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
@@ -9699,7 +9800,7 @@
   "selfHostingTitleProper": {
     "message": "Saját üzemeltetés"
   },
-  "verified-domain-single-org-warning": {
+  "claim-domain-single-org-warning": {
     "message": "A tartomány ellenőrzése bekapcsolja az önálló szervezet házirendjét."
   },
   "single-org-revoked-user-warning": {
@@ -9715,9 +9816,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Amikor egy tag törlésre kerül, a Bitwarden fiókjuk és az egyéni széf adataik véglegesen törlésre kerülnek. A gyűjtési adatok a szervezetben maradnak. A visszaállításukhoz egy fiókot kell létrehozni és újra be kell lépni.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Ezzel véglegesen törlésre kerül $NAME$ tulajdonában lévő összes elem. A gyűjtemény elemeit ez nem érinti.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Ezzel véglegesen törlésre kerül a következő tagok tulajdonában lévő összes elem. A gyűjtemény elemeit ez nem érinti.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ törlésre került.",
@@ -9787,5 +9898,90 @@
   },
   "descriptorCode": {
     "message": "Leíró kód"
+  },
+  "removeMembers": {
+    "message": "Tagok eltávolítása"
+  },
+  "claimedDomains": {
+    "message": "Igényelt tartományok"
+  },
+  "claimDomain": {
+    "message": "Tartomány igénylés"
+  },
+  "reclaimDomain": {
+    "message": "Tartomány visszaszerzés"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Példa: valami.hu. Az altartományokhoz külön bejegyzések szükségesek az ellenőrzéshez."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatikusan igényelt tartományok"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "A Bitwarden az első 72 óra során 3 alkalommal kísérli meg a tartomány ellenőrzését. Ha a tartomány nem ellenőrizhető, ellenőrizésre kerül a DNS rekordt a kiszolgálón és az ellenőrzés manuálisan történik. A tartomány 7 napon belül eltávolításra kerül, ha nem kerül igénylésre."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ nincs igényelve. Ellenőrizzük a DNS rekordot.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Igényelve"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Ellenőrzés alatt"
+  },
+  "claimedDomainsDesc": {
+    "message": "Igényeljünk egy tartományt az összes olyan tagfiók birtoklásához, amelynek email címe megegyezik a tartománnyal A tagok bejelentkezéskor kihagyhatják az egyszeri bejelentkezési azonosítót. Az adminisztrátorok törölhetik a tagfiókokat is."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "A bemeneti formátum nem érvényes. Formátum: valami.hu Az altartományokhoz külön bejegyzések szükségesek az igényléshez."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ igénylésre került.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ nem került igénylésre.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Ha eltávolítjuk $EMAIL$ email címet, a családi csomag szponzorálása nem váltható be. Biztosan folytatjuk?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Ha eltávolítjuk $EMAIL$ fiókot, a családi csomag szponzorálása megszűnik és a mentett fizetési módot több, mint 40 amerikai dollár vonatkozó adóval lesz megterhelve: $DATE$. $DATE$ időpontig nem válthatunk be új szponzorációt. Biztosan folytatjuk?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "A tartomány követelésre került."
   }
 }

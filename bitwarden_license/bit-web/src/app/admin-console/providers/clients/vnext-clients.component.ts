@@ -53,8 +53,8 @@ const DisallowedPlanTypes = [
   ],
 })
 export class vNextClientsComponent {
-  providerId: string;
-  addableOrganizations: Organization[];
+  providerId: string = "";
+  addableOrganizations: Organization[] = [];
   loading = true;
   manageOrganizations = false;
   showAddExisting = false;
@@ -79,8 +79,8 @@ export class vNextClientsComponent {
       this.searchControl.setValue(queryParams.search);
     });
 
-    this.activatedRoute.parent.params
-      .pipe(
+    this.activatedRoute.parent?.params
+      ?.pipe(
         switchMap((params) => {
           this.providerId = params.providerId;
           return this.providerService.get$(this.providerId).pipe(
@@ -125,7 +125,7 @@ export class vNextClientsComponent {
       await this.webProviderService.detachOrganization(this.providerId, organization.id);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("detachedOrganization", organization.organizationName),
       });
       await this.load();

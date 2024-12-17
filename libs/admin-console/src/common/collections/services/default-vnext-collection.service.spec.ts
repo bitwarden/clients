@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of, ReplaySubject } from "rxjs";
+import { first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -87,7 +87,7 @@ describe("DefaultvNextCollectionService", () => {
         [org2]: orgKey2,
       });
 
-      const result = await firstValueFrom(collectionService.decryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
       // Assert emitted values
       expect(result.length).toBe(2);
@@ -121,10 +121,37 @@ describe("DefaultvNextCollectionService", () => {
       cryptoKeys.next({});
 
       const encryptedCollections = await firstValueFrom(
-        collectionService.encryptedCollections$(of(userId)),
+        collectionService.encryptedCollections$(userId),
       );
 
       expect(encryptedCollections.length).toBe(0);
+    });
+
+    it("handles undefined orgKeys", (done) => {
+      // Arrange test data
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+
+      const org2 = Utils.newGuid() as OrganizationId;
+      const collection2 = collectionDataFactory(org2);
+
+      // Emit a non-null value after the first undefined value has propagated
+      // This will cause the collections to emit, calling done()
+      cryptoKeys.pipe(first()).subscribe((val) => {
+        cryptoKeys.next({});
+      });
+
+      collectionService
+        .decryptedCollections$(userId)
+        .pipe(takeWhile((val) => val.length != 2))
+        .subscribe({ complete: () => done() });
+
+      // Arrange dependencies
+      void setEncryptedState([collection1, collection2]).then(() => {
+        // Act: emit undefined
+        cryptoKeys.next(undefined);
+        keyService.activeUserOrgKeys$ = of(undefined);
+      });
     });
   });
 
@@ -137,7 +164,7 @@ describe("DefaultvNextCollectionService", () => {
       // Arrange dependencies
       await setEncryptedState([collection1, collection2]);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
       expect(result.length).toBe(2);
       expect(result).toIncludeAllPartialMembers([
@@ -156,7 +183,7 @@ describe("DefaultvNextCollectionService", () => {
       await setEncryptedState(null);
 
       const decryptedCollections = await firstValueFrom(
-        collectionService.encryptedCollections$(of(userId)),
+        collectionService.encryptedCollections$(userId),
       );
       expect(decryptedCollections.length).toBe(0);
     });
@@ -176,7 +203,7 @@ describe("DefaultvNextCollectionService", () => {
 
       await collectionService.upsert([updatedCollection1, newCollection3], userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(3);
       expect(result).toIncludeAllPartialMembers([
         {
@@ -201,7 +228,7 @@ describe("DefaultvNextCollectionService", () => {
 
       await collectionService.upsert(collection1, userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
       expect(result).toIncludeAllPartialMembers([
         {
@@ -224,7 +251,7 @@ describe("DefaultvNextCollectionService", () => {
         userId,
       );
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
       expect(result).toIncludeAllPartialMembers([
         {
@@ -241,15 +268,11 @@ describe("DefaultvNextCollectionService", () => {
     await collectionService.clearDecryptedState(userId);
 
     // Encrypted state remains
-    const encryptedState = await firstValueFrom(
-      collectionService.encryptedCollections$(of(userId)),
-    );
+    const encryptedState = await firstValueFrom(collectionService.encryptedCollections$(userId));
     expect(encryptedState.length).toEqual(2);
 
     // Decrypted state is cleared
-    const decryptedState = await firstValueFrom(
-      collectionService.decryptedCollections$(of(userId)),
-    );
+    const decryptedState = await firstValueFrom(collectionService.decryptedCollections$(userId));
     expect(decryptedState.length).toEqual(0);
   });
 
@@ -260,15 +283,11 @@ describe("DefaultvNextCollectionService", () => {
     await collectionService.clear(userId);
 
     // Encrypted state is cleared
-    const encryptedState = await firstValueFrom(
-      collectionService.encryptedCollections$(of(userId)),
-    );
+    const encryptedState = await firstValueFrom(collectionService.encryptedCollections$(userId));
     expect(encryptedState.length).toEqual(0);
 
     // Decrypted state is cleared
-    const decryptedState = await firstValueFrom(
-      collectionService.decryptedCollections$(of(userId)),
-    );
+    const decryptedState = await firstValueFrom(collectionService.decryptedCollections$(userId));
     expect(decryptedState.length).toEqual(0);
   });
 
@@ -280,7 +299,7 @@ describe("DefaultvNextCollectionService", () => {
 
       await collectionService.delete(collection1.id, userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toEqual(1);
       expect(result[0]).toMatchObject({ id: collection2.id });
     });
@@ -293,7 +312,7 @@ describe("DefaultvNextCollectionService", () => {
 
       await collectionService.delete([collection1.id, collection3.id], userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toEqual(1);
       expect(result[0]).toMatchObject({ id: collection2.id });
     });
@@ -304,7 +323,7 @@ describe("DefaultvNextCollectionService", () => {
 
       await collectionService.delete(collection1.id, userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(of(userId)));
+      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toEqual(0);
     });
   });

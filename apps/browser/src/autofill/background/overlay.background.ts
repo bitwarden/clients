@@ -204,6 +204,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
+    refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
   };
 
   constructor(
@@ -464,7 +465,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.showPasskeysLabelsWithinInlineMenu = false;
 
     if (this.shouldShowInlineMenuAccountCreation()) {
-      inlineMenuCipherData = this.buildInlineMenuAccountCreationCiphers(
+      inlineMenuCipherData = await this.buildInlineMenuAccountCreationCiphers(
         inlineMenuCiphersArray,
         true,
       );
@@ -485,7 +486,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param inlineMenuCiphersArray - Array of inline menu ciphers
    * @param showFavicons - Identifies whether favicons should be shown
    */
-  private buildInlineMenuAccountCreationCiphers(
+  private async buildInlineMenuAccountCreationCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
   ) {
@@ -497,7 +498,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.type === CipherType.Login) {
         accountCreationLoginCiphers.push(
-          this.buildCipherData({
+          await this.buildCipherData({
             inlineMenuCipherId,
             cipher,
             showFavicons,
@@ -517,7 +518,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
 
       inlineMenuCipherData.push(
-        this.buildCipherData({
+        await this.buildCipherData({
           inlineMenuCipherId,
           cipher,
           showFavicons,
@@ -561,13 +562,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (!passkeysEnabled || !(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
         inlineMenuCipherData.push(
-          this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
+          await this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
         );
         continue;
       }
 
       passkeyCipherData.push(
-        this.buildCipherData({
+        await this.buildCipherData({
           inlineMenuCipherId,
           cipher,
           showFavicons,
@@ -577,7 +578,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.login?.password && cipher.login.username) {
         inlineMenuCipherData.push(
-          this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
+          await this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
         );
       }
     }
@@ -620,6 +621,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
+  private isTotpFieldForCurrentField(): boolean {
+    if (!this.focusedFieldData) {
+      return false;
+    }
+    const { tabId, frameId } = this.focusedFieldData;
+    const pageDetailsMap = this.pageDetailsForTab[tabId];
+    if (!pageDetailsMap || !pageDetailsMap.has(frameId)) {
+      return false;
+    }
+    const pageDetail = pageDetailsMap.get(frameId);
+    return (
+      pageDetail?.details?.fields?.every((field) =>
+        this.inlineMenuFieldQualificationService.isTotpField(field),
+      ) || false
+    );
+  }
+
   /**
    * Builds the cipher data for the inline menu list.
    *
@@ -630,14 +648,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param hasPasskey - Identifies whether the cipher has a FIDO2 credential
    * @param identityData - Pre-created identity data
    */
-  private buildCipherData({
+  private async buildCipherData({
     inlineMenuCipherId,
     cipher,
     showFavicons,
     showInlineMenuAccountCreation,
     hasPasskey,
     identityData,
-  }: BuildCipherDataParams): InlineMenuCipherData {
+  }: BuildCipherDataParams): Promise<InlineMenuCipherData> {
     const inlineMenuData: InlineMenuCipherData = {
       id: inlineMenuCipherId,
       name: cipher.name,
@@ -649,8 +667,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
+      const totpCode = await this.totpService.getCode(cipher.login?.totp);
+      const totpCodeTimeInterval = this.totpService.getTimeInterval(cipher.login?.totp);
       inlineMenuData.login = {
         username: cipher.login.username,
+        totp: totpCode,
+        totpField: this.isTotpFieldForCurrentField(),
+        totpCodeTimeInterval: totpCodeTimeInterval,
         passkey: hasPasskey
           ? {
               rpName: cipher.login.fido2Credentials[0].rpName,
@@ -1980,35 +2003,39 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private getInlineMenuTranslations() {
     if (!this.inlineMenuPageTranslations) {
       const translationKeys = [
+        "addNewCardItemAria",
+        "addNewIdentityItemAria",
+        "addNewLoginItemAria",
+        "addNewVaultItem",
+        "authenticating",
+        "cardNumberEndsWith",
+        "fillCredentialsFor",
+        "fillGeneratedPassword",
+        "fillVerificationCode",
+        "fillVerificationCodeAria",
+        "generatedPassword",
+        "lowercaseAriaLabel",
+        "logInWithPasskeyAriaLabel",
+        "newCard",
+        "newIdentity",
+        "newItem",
+        "newLogin",
+        "noItemsToShow",
         "opensInANewWindow",
+        "passkeys",
+        "passwordRegenerated",
+        "passwords",
+        "regeneratePassword",
+        "saveLoginToBitwarden",
         "toggleBitwardenVaultOverlay",
-        "unlockYourAccountToViewAutofillSuggestions",
+        "totpCodeAria",
+        "totpSecondsSpanAria",
         "unlockAccount",
         "unlockAccountAria",
-        "fillCredentialsFor",
+        "unlockYourAccountToViewAutofillSuggestions",
+        "uppercaseAriaLabel",
         "username",
         "view",
-        "noItemsToShow",
-        "newItem",
-        "addNewVaultItem",
-        "newLogin",
-        "addNewLoginItemAria",
-        "newCard",
-        "addNewCardItemAria",
-        "newIdentity",
-        "addNewIdentityItemAria",
-        "cardNumberEndsWith",
-        "passkeys",
-        "passwords",
-        "logInWithPasskeyAriaLabel",
-        "authenticating",
-        "fillGeneratedPassword",
-        "regeneratePassword",
-        "passwordRegenerated",
-        "saveLoginToBitwarden",
-        "lowercaseAriaLabel",
-        "uppercaseAriaLabel",
-        "generatedPassword",
         ...Object.values(specialCharacterToKeyMap),
       ];
       this.inlineMenuPageTranslations = translationKeys.reduce(

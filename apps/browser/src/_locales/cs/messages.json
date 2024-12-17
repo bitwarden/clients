@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automaticky vyplnit identitu"
   },
+  "fillVerificationCode": {
+    "message": "Vyplnit ověřovací kód"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Vyplnit ověřovací kód",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Vygenerovat heslo a zkopírovat do schránky"
   },
@@ -1318,6 +1325,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Zadejte 6místný kód z ověřovací aplikace."
+  },
+  "authenticationTimeout": {
+    "message": "Časový limit ověření"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
   },
   "enterVerificationCodeEmail": {
     "message": "Zadejte 6místný kód z e-mailu, který byl zaslán na $EMAIL$.",
@@ -3167,7 +3180,7 @@
   "viewAllLogInOptions": {
     "message": "Zobrazit všechny volby přihlášení"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Zobrazit všechny volby přihlášení"
   },
   "notificationSentDevice": {
@@ -3573,6 +3586,14 @@
   "unlockAccountAria": {
     "message": "Odemknout účet, otevře se v novém okně",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Ověřovací kód TOTP",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Zbývající čas před vypršením aktuálního TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Vyplnit přihlašovací údaje pro",

@@ -27,7 +27,7 @@
     "message": "Сигурносна белешка"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH кључ"
   },
   "folders": {
     "message": "Фасцикле"
@@ -181,31 +181,31 @@
     "message": "Адреса"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Приватни кључ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Јавни кључ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Отисак"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Врста кључа"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048-бита"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072-бита"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096-бита"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "Генерисан је нови SSH кључ"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
@@ -223,19 +223,19 @@
     "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Откључајте свој сеф да бисте одобрили захтев за SSH кључ."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "Захтев за SSH кључем је истекао."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Упали SSH агент"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Омогућите SSH агенту да потписује SSH захтеве директно из вашег Bitwarden сефа."
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "SSH агент је услуга намењена програмерима која вам омогућава да потпишете SSH захтеве директно из вашег Bitwarden сефа."
   },
   "premiumRequired": {
     "message": "Потребан Премијум"
@@ -461,10 +461,10 @@
     "message": "Копирај лозинку"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "Регенеришите SSH кључ"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "Копирајте SSH приватни кључ"
   },
   "copyPassphrase": {
     "message": "Копирај приступну фразу",
@@ -624,7 +624,7 @@
     "message": "Креирај налог"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Нови сте у Bitwarden-у?"
   },
   "setAStrongPassword": {
     "message": "Поставите јаку лозинку"
@@ -636,16 +636,16 @@
     "message": "Пријавите се"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Пријавите се на Bitwarden"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Пријавите се са приступним кључем"
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "Пријавите се са уређајем"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Употребити једнократну пријаву"
   },
   "submit": {
     "message": "Пошаљи"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "УРЛ Сервера"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "УРЛ сервера који се самостално хостује",
@@ -1728,9 +1734,6 @@
   "windowsHelloConsentMessage": {
     "message": "Потврди за Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Аутентификујте се да бисте откључали Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Откључај са Touch ID"
   },
@@ -1768,10 +1771,10 @@
     "message": "Брисање налога је трајно. Не може се поништити."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "Није могуће избрисати налог"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Ова радња се не може довршити јер је ваш налог у власништву организације. Обратите се администратору своје организације за додатне детаље."
   },
   "accountDeleted": {
     "message": "Налог обрисан"
@@ -3360,34 +3363,34 @@
     "message": "Нису пронађени портови за SSO пријаву."
   },
   "authorize": {
-    "message": "Authorize"
+    "message": "Ауторизуј"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Одбиј"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirm SSH key usage"
+    "message": "Потврдите употребу SSH кључа"
   },
   "sshkeyApprovalMessageInfix": {
-    "message": "is requesting access to"
+    "message": "тражи приступ"
   },
   "unknownApplication": {
-    "message": "An application"
+    "message": "Апликација"
   },
   "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
+    "message": "Увоз лозинке заштићене SSH кључом још увек није подржано"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH кључ је неважећи"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Тип SSH кључа није подржан"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Увезите кључ из оставе"
   },
   "sshKeyPasted": {
-    "message": "SSH key imported successfully"
+    "message": "SSH кључ је успешно увезен"
   },
   "fileSavedToDevice": {
     "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."

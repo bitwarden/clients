@@ -37,6 +37,8 @@ import {
   RegisterRouteService,
   AuthRequestApiService,
   DefaultAuthRequestApiService,
+  DefaultLoginSuccessHandlerService,
+  LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -281,6 +283,10 @@ import {
   DefaultBiometricStateService,
   KdfConfigService,
   DefaultKdfConfigService,
+  UserAsymmetricKeysRegenerationService,
+  DefaultUserAsymmetricKeysRegenerationService,
+  UserAsymmetricKeysRegenerationApiService,
+  DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
@@ -1397,6 +1403,29 @@ const safeProviders: SafeProvider[] = [
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider(NewDeviceVerificationNoticeService),
+  safeProvider({
+    provide: UserAsymmetricKeysRegenerationApiService,
+    useClass: DefaultUserAsymmetricKeysRegenerationApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: UserAsymmetricKeysRegenerationService,
+    useClass: DefaultUserAsymmetricKeysRegenerationService,
+    deps: [
+      KeyServiceAbstraction,
+      CipherServiceAbstraction,
+      UserAsymmetricKeysRegenerationApiService,
+      LogService,
+      SdkService,
+      ApiServiceAbstraction,
+      ConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: LoginSuccessHandlerService,
+    useClass: DefaultLoginSuccessHandlerService,
+    deps: [SyncService, UserAsymmetricKeysRegenerationService],
+  }),
 ];
 
 @NgModule({

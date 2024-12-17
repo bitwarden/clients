@@ -27,37 +27,14 @@
     </bit-callout>
 
     <ng-container *ngIf="!done">
-      <ng-container *ngIf="accountDeprovisioning.enabled">
-        <div *ngIf="users.length > 0 && !error && isRevoking">
-          <p>{{ "revokeMembersWarning" | i18n }}</p>
-          <ul>
-            <li>
-              {{ "claimedAccountRevoke" | i18n }}
-            </li>
-            <li>
-              {{ "unclaimedAccountRevoke" | i18n }}
-            </li>
-          </ul>
-          <p>
-            {{ "restoreMembersInstructions" | i18n }}
-          </p>
-          <p *ngIf="this.showNoMasterPasswordWarning">
-            {{ "removeMembersWithoutMasterPasswordWarning" | i18n }}
-          </p>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="!accountDeprovisioning.enabled">
-        <bit-callout type="warning" *ngIf="users.length > 0 && !error && isRevoking">
-          <p>{{ "revokeUsersWarning" | i18n }}</p>
-        </bit-callout>
-      </ng-container>
+      <bit-callout type="warning" *ngIf="users.length > 0 && !error && isRevoking">
+        <p>{{ "revokeUsersWarning" | i18n }}</p>
+      </bit-callout>
 
       <bit-table *ngIf="accountDeprovisioning.enabled">
         <ng-container header>
           <tr>
             <th bitCell class="tw-w-1/2">{{ "member" | i18n }}</th>
-            <th bitCell *ngIf="isRevoking">{{ "details" | i18n }}</th>
             <th bitCell *ngIf="this.showNoMasterPasswordWarning">{{ "details" | i18n }}</th>
           </tr>
         </ng-container>
@@ -73,11 +50,6 @@
                   <small class="tw-block tw-text-muted" *ngIf="user.name">{{ user.name }}</small>
                 </div>
               </div>
-            </td>
-            <td *ngIf="isRevoking" bitCell width="30">
-              {{
-                user.managedByOrganization ? ("claimedAccount" | i18n) : ("unclaimedAccount" | i18n)
-              }}
             </td>
             <td bitCell *ngIf="this.showNoMasterPasswordWarning">
               <span class="tw-block tw-lowercase tw-text-muted">

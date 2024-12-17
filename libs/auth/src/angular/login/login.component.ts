@@ -10,6 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
   PasswordLoginCredentials,
   RegisterRouteService,
 } from "@bitwarden/auth/common";
@@ -31,7 +32,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import {
   AsyncActionsModule,
@@ -127,16 +127,19 @@ export class LoginComponent implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private registerRouteService: RegisterRouteService,
     private router: Router,
-    private syncService: SyncService,
     private toastService: ToastService,
     private logService: LogService,
     private validationService: ValidationService,
     private configService: ConfigService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
 
   async ngOnInit(): Promise<void> {
+    // Add popstate listener to listen for browser back button clicks
+    window.addEventListener("popstate", this.handlePopState);
+
     // TODO: remove this when the UnauthenticatedExtensionUIRefresh feature flag is removed.
     this.listenForUnauthUiRefreshFlagChanges();
 
@@ -148,6 +151,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Remove popstate listener
+    window.removeEventListener("popstate", this.handlePopState);
+
     if (this.clientType === ClientType.Desktop) {
       // TODO: refactor to not use deprecated broadcaster service.
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
@@ -228,11 +234,14 @@ export class LoginComponent implements OnInit, OnDestroy {
                 message: this.i18nService.t("invalidMasterPassword"),
               },
             });
+          } else {
+            // Allow other 400 responses to be handled by toast
+            this.validationService.showError(error);
           }
           break;
         }
         default: {
-          // Allow all other errors to be handled by toast
+          // Allow all other error codes to be handled by toast
           this.validationService.showError(error);
         }
       }
@@ -271,7 +280,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.syncService.fullSync(true);
+    await this.loginSuccessHandlerService.run(authResult.userId);
 
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
@@ -559,4 +568,28 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.clientType !== ClientType.Browser
     );
   }
+
+  /**
+   * Handle the back button click to transition back to the email entry state.
+   */
+  protected async backButtonClicked() {
+    // Replace the history so the "forward" button doesn't show (which wouldn't do anything)
+    history.pushState(null, "", window.location.pathname);
+    await this.toggleLoginUiState(LoginUiState.EMAIL_ENTRY);
+  }
+
+  /**
+   * Handle the popstate event to transition back to the email entry state when the back button is clicked.
+   * @param event - The popstate event.
+   */
+  private handlePopState = (event: PopStateEvent) => {
+    if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
+      // Prevent default navigation
+      event.preventDefault();
+      // Replace the history so the "forward" button doesn't show (which wouldn't do anything)
+      history.pushState(null, "", window.location.pathname);
+      // Transition back to email entry state
+      void this.toggleLoginUiState(LoginUiState.EMAIL_ENTRY);
+    }
+  };
 }

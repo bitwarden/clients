@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bienvenido de nuevo"
   },
   "moveToOrgDesc": {
     "message": "Elige una organización a la que deseas mover este objeto. Moviendo a una organización transfiere la propiedad del objeto a esa organización. Ya no serás el dueño directo de este objeto una vez que haya sido movido."
@@ -181,16 +181,16 @@
     "message": "Dirección"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Clave privada"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Clave pública"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Tipo de clave"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -208,19 +208,19 @@
     "message": "A new SSH key was generated"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "La contraseña introducida es incorrecta."
   },
   "importSshKey": {
     "message": "Import"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirmar contraseña"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Introducir la contraseña"
   },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
@@ -229,7 +229,7 @@
     "message": "SSH key request timed out."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Habilitar agente SSH"
   },
   "enableSshAgentDesc": {
     "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
@@ -498,7 +498,7 @@
     "message": "Carácteres especiales (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "Incluir",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
@@ -518,7 +518,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Incluir números",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -624,7 +624,7 @@
     "message": "Crear cuenta"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "¿Nuevo en Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "Establece una contraseña fuerte"
@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL del servidor"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1070,13 +1076,13 @@
     "message": "Your account is locked"
   },
   "or": {
-    "message": "or"
+    "message": "o"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Desbloquear con biométricos"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Desbloquear con contraseña maestra"
   },
   "unlock": {
     "message": "Desbloquear"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Verificar para Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Desbloquear con Touch ID"

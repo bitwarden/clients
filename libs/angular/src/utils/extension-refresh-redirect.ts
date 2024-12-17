@@ -16,7 +16,7 @@ export function extensionRefreshRedirect(redirectUrl: string): () => Promise<boo
     const shouldRedirect = await configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
     if (shouldRedirect) {
       const currentNavigation = router.getCurrentNavigation();
-      const queryParams = currentNavigation?.extras?.queryParams || {};
+      const queryParams = currentNavigation?.extractedUrl?.queryParams || {};
 
       // Preserve query params when redirecting as it is likely that the refreshed component
       // will be consuming the same query params.

@@ -65,7 +65,9 @@ impl BitwardenDesktopAgent {
                     "[SSH Agent Native Module] Could not remove existing socket file: {}",
                     e
                 );
-                return;
+                if e.kind() != std::io::ErrorKind::NotFound {
+                    return;
+                }
             }
 
             match UnixListener::bind(sockname) {
