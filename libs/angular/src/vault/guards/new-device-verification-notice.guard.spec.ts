@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -30,7 +29,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   const createUrlTree = jest.fn();
   const getFeatureFlag = jest.fn().mockResolvedValue(null);
   const isSelfHost = jest.fn().mockResolvedValue(false);
-  const getTwoFactorProviders = jest.fn().mockResolvedValue({ data: [] });
+  const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
   const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
   const getProfileCreationDate = jest.fn().mockResolvedValue(eightDaysAgo);
@@ -38,7 +37,8 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   beforeEach(() => {
     getFeatureFlag.mockClear();
     isSelfHost.mockClear();
-    getTwoFactorProviders.mockClear();
+    getProfileCreationDate.mockClear();
+    getProfileTwoFactorEnabled.mockClear();
     policyAppliesToActiveUser$.mockClear();
     createUrlTree.mockClear();
 
@@ -49,9 +49,11 @@ describe("NewDeviceVerificationNoticeGuard", () => {
         { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: PlatformUtilsService, useValue: { isSelfHost } },
-        { provide: ApiService, useValue: { getTwoFactorProviders } },
         { provide: PolicyService, useValue: { policyAppliesToActiveUser$ } },
-        { provide: VaultProfileService, useValue: { getProfileCreationDate } },
+        {
+          provide: VaultProfileService,
+          useValue: { getProfileCreationDate, getProfileTwoFactorEnabled },
+        },
       ],
     });
   });
@@ -85,7 +87,8 @@ describe("NewDeviceVerificationNoticeGuard", () => {
 
       expect(getFeatureFlag).not.toHaveBeenCalled();
       expect(isSelfHost).not.toHaveBeenCalled();
-      expect(getTwoFactorProviders).not.toHaveBeenCalled();
+      expect(getProfileTwoFactorEnabled).not.toHaveBeenCalled();
+      expect(getProfileCreationDate).not.toHaveBeenCalled();
       expect(policyAppliesToActiveUser$).not.toHaveBeenCalled();
     });
   });
@@ -106,7 +109,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   });
 
   it("returns `true` when 2FA is enabled", async () => {
-    getTwoFactorProviders.mockResolvedValueOnce({ data: [{ enabled: false }, { enabled: true }] });
+    getProfileTwoFactorEnabled.mockResolvedValueOnce(true);
 
     expect(await newDeviceGuard()).toBe(true);
   });

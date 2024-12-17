@@ -8,7 +8,9 @@ describe("VaultProfileService", () => {
   let service: VaultProfileService;
   const hardcodedDateString = "2024-02-24T12:00:00Z";
 
-  const getProfile = jest.fn().mockResolvedValue({ creationDate: hardcodedDateString });
+  const getProfile = jest
+    .fn()
+    .mockResolvedValue({ creationDate: hardcodedDateString, twoFactorEnabled: true });
 
   beforeEach(() => {
     getProfile.mockClear();
@@ -41,6 +43,24 @@ describe("VaultProfileService", () => {
     const date = await service.getProfileCreationDate();
 
     expect(date.toISOString()).toBe("2024-02-24T12:00:00.000Z");
+    expect(getProfile).not.toHaveBeenCalled();
+  });
+
+  it("calls `getProfile` when stored 2FA property is not stored", async () => {
+    expect(service["profile2FAEnabled"]).toBeNull();
+
+    const twoFactorEnabled = await service.getProfileTwoFactorEnabled();
+
+    expect(twoFactorEnabled).toBe(true);
+    expect(getProfile).toHaveBeenCalled();
+  });
+
+  it("does not call `getProfile` when 2FA property is already stored", async () => {
+    service["profile2FAEnabled"] = false;
+
+    const twoFactorEnabled = await service.getProfileTwoFactorEnabled();
+
+    expect(twoFactorEnabled).toBe(false);
     expect(getProfile).not.toHaveBeenCalled();
   });
 });

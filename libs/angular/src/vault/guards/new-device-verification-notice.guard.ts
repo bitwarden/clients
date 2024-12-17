@@ -2,7 +2,6 @@ import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
 import { Observable, firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,7 +20,6 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   const newDeviceVerificationNoticeService = inject(NewDeviceVerificationNoticeService);
   const accountService = inject(AccountService);
   const platformUtilsService = inject(PlatformUtilsService);
-  const apiService = inject(ApiService);
   const policyService = inject(PolicyService);
   const vaultProfileService = inject(VaultProfileService);
 
@@ -38,7 +36,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return router.createUrlTree(["/login"]);
   }
 
-  const has2FAEnabled = await hasATwoFactorProviderEnabled(apiService);
+  const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService);
   const isSelfHosted = await platformUtilsService.isSelfHost();
   const requiresSSO = await isSSORequired(policyService);
   const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(vaultProfileService);
@@ -80,10 +78,10 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 };
 
 /** Returns true has one 2FA provider enabled */
-async function hasATwoFactorProviderEnabled(apiService: ApiService): Promise<boolean> {
-  const twoFactorProviders = await apiService.getTwoFactorProviders();
-
-  return twoFactorProviders.data.some((provider) => provider.enabled);
+async function hasATwoFactorProviderEnabled(
+  vaultProfileService: VaultProfileService,
+): Promise<boolean> {
+  return vaultProfileService.getProfileTwoFactorEnabled();
 }
 
 /** Returns true when the user's profile is less than a week old */
