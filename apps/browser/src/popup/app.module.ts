@@ -59,10 +59,6 @@ import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-
 import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
-import { SendListComponent } from "../tools/popup/send/components/send-list.component";
-import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
-import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
-import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { SettingsComponent } from "../tools/popup/settings/settings.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
@@ -169,10 +165,6 @@ import "../platform/popup/locales";
     PasswordHistoryComponent,
     PremiumComponent,
     RegisterComponent,
-    SendAddEditComponent,
-    SendGroupingsComponent,
-    SendListComponent,
-    SendTypeComponent,
     SetPasswordComponent,
     SettingsComponent,
     VaultSettingsComponent,
