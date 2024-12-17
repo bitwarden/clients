@@ -7,6 +7,8 @@ import { firstValueFrom, map, Observable } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -19,7 +21,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { NewDeviceVerificationNoticeService } from "./../../services/new-device-verification-notice.service";
+import {
+  NewDeviceVerificationNotice,
+  NewDeviceVerificationNoticeService,
+} from "./../../services/new-device-verification-notice.service";
 
 @Component({
   standalone: true,
@@ -56,6 +61,7 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
     private accountService: AccountService,
     private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
     private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
   ) {
     this.isDesktop = this.platformUtilsService.getClientType() === ClientType.Desktop;
   }
@@ -76,17 +82,40 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
   submit = async () => {
     const doesNotHaveEmailAccess = this.formGroup.controls.hasEmailAccess.value === 0;
 
-    await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationNoticeState(
-      this.currentUserId,
-      {
-        last_dismissal: new Date(),
-        permanent_dismissal: !doesNotHaveEmailAccess,
-      },
-    );
-
     if (doesNotHaveEmailAccess) {
       await this.router.navigate(["new-device-notice/setup"]);
       return;
+    }
+
+    const tempNoticeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.NewDeviceVerificationTemporaryDismiss,
+    );
+    const permNoticeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.NewDeviceVerificationPermanentDismiss,
+    );
+
+    let newNoticeState: NewDeviceVerificationNotice | null = null;
+
+    // When the temporary flag is enabled, only update the `last_dismissal`
+    if (tempNoticeFlag) {
+      newNoticeState = {
+        last_dismissal: new Date(),
+        permanent_dismissal: false,
+      };
+    } else if (permNoticeFlag) {
+      // When the per flag is enabled, only update the `last_dismissal`
+      newNoticeState = {
+        last_dismissal: new Date(),
+        permanent_dismissal: true,
+      };
+    }
+
+    // This shouldn't occur as the user shouldn't get here unless one of the flags is active.
+    if (newNoticeState) {
+      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationNoticeState(
+        this.currentUserId,
+        newNoticeState,
+      );
     }
 
     await this.router.navigate(["/vault"]);
