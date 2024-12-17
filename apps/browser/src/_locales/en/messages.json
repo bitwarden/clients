@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Rate the extension"
   },
-  "rateExtensionDesc": {
-    "message": "Please consider helping us out with a good review!"
-  },
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
   },

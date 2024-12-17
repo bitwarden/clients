@@ -46,14 +46,14 @@
         <td bitCell width="30">
           <bit-avatar [text]="row.organizationName" [id]="row.id" size="small"></bit-avatar>
         </td>
-        <td bitCell width="500">
+        <td bitCell width="325">
           <a [routerLink]="['/organizations', row.organizationId]">{{ row.organizationName }}</a>
         </td>
         <td bitCell>
           <span>{{ row.userCount }}</span>
           <span *ngIf="row.seats != null"> / {{ row.seats }}</span>
         </td>
-        <td bitCell>
+        <td bitCell width="150">
           <span>{{ row.plan }}</span>
         </td>
         <td class="table-list-options" *ngIf="manageOrganizations">

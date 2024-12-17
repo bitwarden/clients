@@ -8,7 +8,7 @@ import { Toast as BaseToastrComponent } from "ngx-toastr";
       [title]="options?.payload?.title"
       [variant]="options?.payload?.variant"
       [message]="options?.payload?.message"
-      [progressWidth]="width"
+      [progressWidth]="width()"
       (onClose)="remove()"
     ></bit-toast>
   `,
