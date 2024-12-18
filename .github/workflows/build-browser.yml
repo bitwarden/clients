@@ -169,7 +169,7 @@ jobs:
           zip -r browser-source.zip browser-source
 
       - name: Upload browser source
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
@@ -203,7 +203,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Chrome MV3 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-chrome.zip
@@ -214,7 +214,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Edge artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-edge-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-edge.zip
@@ -225,7 +225,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Edge MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: DO-NOT-USE-FOR-PROD-dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-edge.zip
@@ -236,7 +236,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Firefox artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-firefox-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-firefox.zip
@@ -247,7 +247,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Firefox MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: DO-NOT-USE-FOR-PROD-dist-firefox-MV3-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-firefox.zip
@@ -258,7 +258,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Opera artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-opera-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-opera.zip
@@ -269,7 +269,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload Opera MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: DO-NOT-USE-FOR-PROD-dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/dist-opera.zip
@@ -405,7 +405,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/dist-safari.zip
