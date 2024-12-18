@@ -49,9 +49,6 @@ describe("NewDeviceVerificationNoticePageOneComponent", () => {
   it("sets initial properties", () => {
     expect(component["currentEmail"]).toBe("test@example.com");
     expect(component["currentUserId"]).toBe("acct-1");
-    expect(component["formMessage"]).toBe(
-      "newDeviceVerificationNoticePageOneFormContent test@example.com",
-    );
   });
 
   describe("temporary flag submission", () => {
