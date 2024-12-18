@@ -40,6 +40,7 @@ import {
   CipherViewComponent,
 } from "@bitwarden/vault";
 
+import { CipherFormComponent } from "../../../../../../../libs/vault/src/cipher-form/components/cipher-form.component";
 import { SharedModule } from "../../../shared/shared.module";
 import {
   AttachmentDialogCloseResult,
@@ -126,6 +127,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    */
   @ViewChild("dialogContent")
   protected dialogContent: ElementRef<HTMLElement>;
+
+  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
 
   /**
    * Tracks if the cipher was ever modified while the dialog was open. Used to ensure the dialog emits the correct result
@@ -370,6 +373,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       result.action === AttachmentDialogResult.Removed ||
       result.action === AttachmentDialogResult.Uploaded
     ) {
+      const updatedCipher = await this.cipherService.get(this.formConfig.originalCipher?.id);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const updatedCipherView = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      );
+
+      this.cipherFormComponent.patchCipher((currentCipher) => {
+        currentCipher.attachments = updatedCipherView.attachments;
+        currentCipher.revisionDate = updatedCipherView.revisionDate;
+
+        return currentCipher;
+      });
+
       this._cipherModified = true;
     }
   };
