@@ -1,6 +1,6 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -27,9 +27,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return true;
   }
 
-  const currentAcct$: Observable<Account | null> = accountService.activeAccount$.pipe(
-    map((acct) => acct),
-  );
+  const currentAcct$: Observable<Account | null> = accountService.activeAccount$;
   const currentAcct = await firstValueFrom(currentAcct$);
 
   if (!currentAcct) {
