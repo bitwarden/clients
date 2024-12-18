@@ -10,6 +10,8 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
 export class VaultProfileService {
   private apiService = inject(ApiService);
 
+  private profileId: string | null = null;
+
   /** Profile creation stored as a string. */
   private profileCreatedDate: string | null = null;
 
@@ -47,6 +49,7 @@ export class VaultProfileService {
   private async fetchAndCacheProfile(): Promise<ProfileResponse> {
     const profile = await this.apiService.getProfile();
 
+    this.profileId = profile.id;
     this.profileCreatedDate = profile.creationDate;
     this.profile2FAEnabled = profile.twoFactorEnabled;
 
