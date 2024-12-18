@@ -9,13 +9,11 @@ describe("VaultProfileService", () => {
   const userId = "profile-id";
   const hardcodedDateString = "2024-02-24T12:00:00Z";
 
-  const getProfile = jest
-    .fn()
-    .mockResolvedValue({
-      creationDate: hardcodedDateString,
-      twoFactorEnabled: true,
-      id: "new-user-id",
-    });
+  const getProfile = jest.fn().mockResolvedValue({
+    creationDate: hardcodedDateString,
+    twoFactorEnabled: true,
+    id: "new-user-id",
+  });
 
   beforeEach(() => {
     getProfile.mockClear();
