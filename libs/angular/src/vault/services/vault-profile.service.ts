@@ -6,7 +6,13 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
 @Injectable({
   providedIn: "root",
 })
-/** Class to provide profile level details without having to call the API each time.  */
+/**
+ * Class to provide profile level details without having to call the API each time.
+ * NOTE: This is a temporary service and can be replaced once the `UnauthenticatedExtensionUIRefresh` flag goes live.
+ * The `UnauthenticatedExtensionUIRefresh` introduces a sync that takes place upon logging in. These details can then
+ * be added to account object and retrieved from there.
+ * TODO: PM-16202
+ */
 export class VaultProfileService {
   private apiService = inject(ApiService);
 
