@@ -2,14 +2,13 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -43,19 +42,15 @@ import {
   ],
 })
 export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
-  protected formMessage: string | null = "";
   protected formGroup = this.formBuilder.group({
     hasEmailAccess: new FormControl(0),
   });
   protected isDesktop: boolean;
-  readonly currentAcct$: Observable<Account | null> = this.accountService.activeAccount$.pipe(
-    map((acct) => acct),
-  );
-  private currentEmail: string = "";
+  readonly currentAcct$: Observable<Account | null> = this.accountService.activeAccount$;
+  protected currentEmail: string = "";
   private currentUserId: UserId | null = null;
 
   constructor(
-    private i18nService: I18nService,
     private formBuilder: FormBuilder,
     private router: Router,
     private accountService: AccountService,
@@ -73,10 +68,6 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
     }
     this.currentEmail = currentAcct.email;
     this.currentUserId = currentAcct.id;
-    this.formMessage = this.i18nService.t(
-      "newDeviceVerificationNoticePageOneFormContent",
-      this.currentEmail,
-    );
   }
 
   submit = async () => {

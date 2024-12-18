@@ -10,7 +10,9 @@
       'md:tw-flex md:tw-flex-col md:tw-items-center md:!tw-rounded-b-none': !isDesktop,
     }"
   >
-    <p bitTypography="body2" class="text-muted md:tw-w-9/12">{{ formMessage }}</p>
+    <p bitTypography="body2" class="text-muted md:tw-w-9/12">
+      {{ "newDeviceVerificationNoticePageOneFormContent" | i18n: this.currentEmail }}
+    </p>
 
     <bit-radio-group formControlName="hasEmailAccess" class="md:tw-w-9/12">
       <bit-radio-button id="option_A" [value]="0">
