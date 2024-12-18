@@ -6,6 +6,8 @@ import { firstValueFrom, Observable } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -25,6 +27,7 @@ import { NewDeviceVerificationNoticeService } from "../../services/new-device-ve
 export class NewDeviceVerificationNoticePageTwoComponent implements OnInit {
   protected isWeb: boolean;
   protected isDesktop: boolean;
+  protected permanentFlagEnabled = false;
   readonly currentAcct$: Observable<Account | null> = this.accountService.activeAccount$;
   private currentUserId: UserId | null = null;
   private env$: Observable<Environment> = this.environmentService.environment$;
@@ -35,12 +38,17 @@ export class NewDeviceVerificationNoticePageTwoComponent implements OnInit {
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
+    private configService: ConfigService,
   ) {
     this.isWeb = this.platformUtilsService.getClientType() === ClientType.Web;
     this.isDesktop = this.platformUtilsService.getClientType() === ClientType.Desktop;
   }
 
   async ngOnInit() {
+    this.permanentFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.NewDeviceVerificationPermanentDismiss,
+    );
+
     const currentAcct = await firstValueFrom(this.currentAcct$);
     if (!currentAcct) {
       return;

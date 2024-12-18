@@ -8,6 +8,7 @@
   (click)="navigateToTwoStepLogin($event)"
   buttonType="primary"
   class="tw-w-full tw-mt-4"
+  data-testid="two-factor"
 >
   {{ "turnOnTwoStepLogin" | i18n }}
   <i
@@ -23,6 +24,7 @@
   (click)="navigateToChangeAcctEmail($event)"
   buttonType="secondary"
   class="tw-w-full tw-mt-4"
+  data-testid="change-email"
 >
   {{ "changeAcctEmail" | i18n }}
   <i
@@ -32,8 +34,8 @@
   ></i>
 </a>
 
-<div class="tw-flex tw-justify-center tw-mt-6">
-  <a bitLink linkType="primary" (click)="remindMeLaterSelect()">
+<div class="tw-flex tw-justify-center tw-mt-6" *ngIf="!permanentFlagEnabled">
+  <a bitLink linkType="primary" (click)="remindMeLaterSelect()" data-testid="remind-me-later">
     {{ "remindMeLater" | i18n }}
   </a>
 </div>
