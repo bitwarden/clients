@@ -34,10 +34,13 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return router.createUrlTree(["/login"]);
   }
 
-  const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService);
+  const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
   const isSelfHosted = await platformUtilsService.isSelfHost();
   const requiresSSO = await isSSORequired(policyService);
-  const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(vaultProfileService);
+  const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
+    vaultProfileService,
+    currentAcct.id,
+  );
 
   // When any of the following are true, the device verification notice is
   // not applicable for the user.
@@ -78,15 +81,17 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 /** Returns true has one 2FA provider enabled */
 async function hasATwoFactorProviderEnabled(
   vaultProfileService: VaultProfileService,
+  userId: string,
 ): Promise<boolean> {
-  return vaultProfileService.getProfileTwoFactorEnabled();
+  return vaultProfileService.getProfileTwoFactorEnabled(userId);
 }
 
 /** Returns true when the user's profile is less than a week old */
 async function profileIsLessThanWeekOld(
   vaultProfileService: VaultProfileService,
+  userId: string,
 ): Promise<boolean> {
-  const creationDate = await vaultProfileService.getProfileCreationDate();
+  const creationDate = await vaultProfileService.getProfileCreationDate(userId);
   return !isMoreThan7DaysAgo(creationDate);
 }
 

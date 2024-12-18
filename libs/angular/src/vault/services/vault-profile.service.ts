@@ -10,7 +10,7 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
 export class VaultProfileService {
   private apiService = inject(ApiService);
 
-  private profileId: string | null = null;
+  private userId: string | null = null;
 
   /** Profile creation stored as a string. */
   private profileCreatedDate: string | null = null;
@@ -23,8 +23,8 @@ export class VaultProfileService {
    * Note: `Date`s are mutable in JS, creating a new
    * instance is important to avoid unwanted changes.
    */
-  async getProfileCreationDate(): Promise<Date> {
-    if (this.profileCreatedDate) {
+  async getProfileCreationDate(userId: string): Promise<Date> {
+    if (this.profileCreatedDate && userId === this.userId) {
       return Promise.resolve(new Date(this.profileCreatedDate));
     }
 
@@ -36,8 +36,8 @@ export class VaultProfileService {
   /**
    * Returns whether there is a 2FA provider on the profile.
    */
-  async getProfileTwoFactorEnabled(): Promise<boolean> {
-    if (this.profile2FAEnabled !== null) {
+  async getProfileTwoFactorEnabled(userId: string): Promise<boolean> {
+    if (this.profile2FAEnabled !== null && userId === this.userId) {
       return Promise.resolve(this.profile2FAEnabled);
     }
 
@@ -49,7 +49,7 @@ export class VaultProfileService {
   private async fetchAndCacheProfile(): Promise<ProfileResponse> {
     const profile = await this.apiService.getProfile();
 
-    this.profileId = profile.id;
+    this.userId = profile.id;
     this.profileCreatedDate = profile.creationDate;
     this.profile2FAEnabled = profile.twoFactorEnabled;
 
