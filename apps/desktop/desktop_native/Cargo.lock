@@ -551,16 +551,6 @@ dependencies = [
 
 [[package]]
 name = "core-foundation"
-version = "0.9.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91e195e091a93c46f7102ec7818a2aa394e1e1771c3ab4825963fa03e45afb8f"
-dependencies = [
- "core-foundation-sys",
- "libc",
-]
-
-[[package]]
-name = "core-foundation"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b55271e5c8c478ad3f38ad24ef34923091e0548492a266d19b3c0b4d82574c63"
@@ -768,7 +758,7 @@ dependencies = [
  "bitwarden-russh",
  "byteorder",
  "cbc",
- "core-foundation 0.10.0",
+ "core-foundation",
  "desktop_objc",
  "dirs",
  "ed25519",
@@ -827,7 +817,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "cc",
- "core-foundation 0.9.4",
+ "core-foundation",
  "glob",
  "thiserror",
  "tokio",
@@ -2275,12 +2265,12 @@ dependencies = [
 
 [[package]]
 name = "security-framework"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9d0283c0a4a22a0f1b0e4edca251aa20b92fc96eaa09b84bec052f9415e9d71"
+checksum = "81d3f8c9bfcc3cbb6b0179eb57042d75b1582bdc65c3cb95f3fa999509c03cbc"
 dependencies = [
  "bitflags",
- "core-foundation 0.10.0",
+ "core-foundation",
  "core-foundation-sys",
  "libc",
  "security-framework-sys",
@@ -2288,9 +2278,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework-sys"
-version = "2.12.0"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea4a292869320c0272d7bc55a5a6aafaff59b4f63404a003887b679a2e05b4b6"
+checksum = "1863fd3768cd83c56a7f60faa4dc0d403f1b6df0a38c3c25f44b7894e45370d5"
 dependencies = [
  "core-foundation-sys",
  "libc",
