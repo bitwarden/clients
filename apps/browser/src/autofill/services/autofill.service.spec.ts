@@ -98,7 +98,11 @@ describe("AutofillService", () => {
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
     showInlineMenuCardsMock$ = new BehaviorSubject(false);
     showInlineMenuIdentitiesMock$ = new BehaviorSubject(false);
@@ -132,7 +136,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
