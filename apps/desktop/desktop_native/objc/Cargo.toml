@@ -11,7 +11,7 @@ default = []
 [dependencies]
 anyhow = "=1.0.94"
 thiserror = "=1.0.69"
-tokio = "1.39.1"
+tokio = "1.42.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "=0.9.4"
