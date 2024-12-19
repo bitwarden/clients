@@ -61,7 +61,7 @@ impl NamedPipeServerStream {
                             }
                         };
 
-                        let peer_info = peerinfo::gather::get_peer_info(pid as u32);
+                        let peer_info = peerinfo::gather::get_peer_info(pid);
                         let peer_info = match peer_info {
                             Err(err) => {
                                 println!("Failed getting process info for pid {} {}", pid, err);

@@ -100,7 +100,7 @@ mod objc {
             }
         };
 
-        return true;
+        true
     }
 }
 
@@ -115,7 +115,7 @@ pub async fn run_command(input: String) -> Result<String> {
     unsafe { objc::runCommand(context.as_ptr(), c_input.as_ptr()) };
 
     // Convert output from ObjC code to Rust string
-    let objc_output = rx.await?.try_into()?;
+    let objc_output = rx.await?;
 
     // Convert output from ObjC code to Rust string
     // let objc_output = output.try_into()?;
