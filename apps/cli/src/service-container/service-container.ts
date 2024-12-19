@@ -864,19 +864,5 @@ export class ServiceContainer {
     }
 
     this.inited = true;
-
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      let supported = false;
-      try {
-        supported = await firstValueFrom(this.sdkService.supported$);
-      } catch (e) {
-        // Do nothing.
-      }
-
-      if (!supported) {
-        this.sdkService.failedToInitialize("cli").catch((e) => this.logService.error(e));
-      }
-    }
   }
 }

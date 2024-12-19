@@ -3,7 +3,6 @@
 import {
   combineLatest,
   concatMap,
-  firstValueFrom,
   Observable,
   shareReplay,
   map,
@@ -34,41 +33,15 @@ import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { EncryptedString } from "../../models/domain/enc-string";
 
-export class RecoverableSDKError extends Error {
-  sdk: BitwardenClient;
-  timeout: number;
-
-  constructor(sdk: BitwardenClient, timeout: number) {
-    super(`SDK took ${timeout}s to initialize`);
-
-    this.sdk = sdk;
-    this.timeout = timeout;
-  }
-}
-
 export class DefaultSdkService implements SdkService {
   private sdkClientCache = new Map<UserId, Observable<BitwardenClient>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       const settings = this.toSettings(env);
-      try {
-        return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
-      } catch (e) {
-        if (e instanceof RecoverableSDKError) {
-          await this.failedToInitialize("sdk", e);
-          return e.sdk;
-        }
-        throw e;
-      }
+      return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
-  );
-
-  supported$ = this.client$.pipe(
-    concatMap(async (client) => {
-      return client.echo("bitwarden wasm!") === "bitwarden wasm!";
-    }),
   );
 
   version$ = this.client$.pipe(
@@ -153,31 +126,6 @@ export class DefaultSdkService implements SdkService {
 
     this.sdkClientCache.set(userId, client$);
     return client$;
-  }
-
-  async failedToInitialize(category: string, error?: Error): Promise<void> {
-    // Only log on cloud instances
-    if (
-      this.platformUtilsService.isDev() ||
-      !(await firstValueFrom(this.environmentService.environment$)).isCloud
-    ) {
-      return;
-    }
-
-    return this.apiService.send(
-      "POST",
-      "/wasm-debug",
-      {
-        category: category,
-        error: error?.message,
-      },
-      false,
-      false,
-      null,
-      (headers) => {
-        headers.append("SDK-Version", "1.0.0");
-      },
-    );
   }
 
   private async initializeClient(
