@@ -135,11 +135,13 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
   }
 
-  async ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+  ngOnInit() {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
-      await this.initNewCipher();
+      this.initNewCipher();
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
@@ -162,7 +164,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     }
   }
 
-  private async initNewCipher() {
+  private initNewCipher() {
     this.loginDetailsForm.patchValue({
       username: this.initialValues?.username || "",
       password: this.initialValues?.password || "",

@@ -130,8 +130,9 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
       this.initNewCipher();
     }
