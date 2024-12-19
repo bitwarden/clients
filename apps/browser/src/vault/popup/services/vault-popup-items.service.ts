@@ -164,15 +164,12 @@ export class VaultPopupItemsService {
 
   /**
    * List of favorite ciphers that are not currently suggested for autofill.
-   * Ciphers are sorted by last used date, then by name.
+   * Ciphers are sorted by name.
    */
   favoriteCiphers$: Observable<PopupCipherView[]> = this.autoFillCiphers$.pipe(
     withLatestFrom(this._filteredCipherList$),
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
-    ),
-    map((ciphers) =>
-      ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)),
     ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
