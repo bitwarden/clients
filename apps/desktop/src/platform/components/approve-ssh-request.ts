@@ -17,6 +17,8 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 export interface ApproveSshRequestParams {
   cipherName: string;
   applicationName: string;
+  isAgentForwarding: boolean;
+  action: string;
 }
 
 @Component({
@@ -44,11 +46,27 @@ export class ApproveSshRequestComponent {
     private formBuilder: FormBuilder,
   ) {}
 
-  static open(dialogService: DialogService, cipherName: string, applicationName: string) {
+  static open(
+    dialogService: DialogService,
+    cipherName: string,
+    applicationName: string,
+    isAgentForwarding: boolean,
+    isSignRequest: boolean,
+    isGitSignRequest: boolean,
+  ) {
+    let actioni18nKey = "sshActionLogin";
+    if (isGitSignRequest) {
+      actioni18nKey = "sshActionGitSign";
+    } else if (isSignRequest) {
+      actioni18nKey = "sshActionSign";
+    }
+
     return dialogService.open<boolean, ApproveSshRequestParams>(ApproveSshRequestComponent, {
       data: {
         cipherName,
         applicationName,
+        isAgentForwarding,
+        action: actioni18nKey,
       },
     });
   }
