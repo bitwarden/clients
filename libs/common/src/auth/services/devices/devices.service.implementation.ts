@@ -65,4 +65,11 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
       ),
     ).pipe(map((deviceResponse: DeviceResponse) => new DeviceView(deviceResponse)));
   }
+
+  /**
+   * @description Deactivates a device
+   */
+  deactivateDevice$(deviceId: string): Observable<void> {
+    return defer(() => this.devicesApiService.deactivateDevice(deviceId));
+  }
 }
