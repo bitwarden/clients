@@ -5,7 +5,6 @@ import {
   DesktopDefaultOverlayPosition,
   EnvironmentSelectorComponent,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
@@ -39,6 +38,9 @@ import {
   DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  TwoFactorAuthComponent,
+  TwoFactorTimeoutComponent,
+  TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
@@ -47,7 +49,6 @@ import {
   VaultIcons,
 } from "@bitwarden/vault";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { HintComponent } from "../auth/hint.component";
@@ -59,8 +60,7 @@ import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorAuthComponent } from "../auth/two-factor-auth.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
@@ -87,8 +87,16 @@ const routes: Routes = [
     canActivate: [lockGuard()],
     canMatch: [extensionRefreshRedirect("/lockV2")],
   },
-  ...twofactorRefactorSwap(
-    TwoFactorComponent,
+  {
+    path: "login-with-device",
+    component: LoginViaAuthRequestComponent,
+  },
+  {
+    path: "admin-approval-requested",
+    component: LoginViaAuthRequestComponent,
+  },
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
     AnonLayoutWrapperComponent,
     {
       path: "2fa",
@@ -96,11 +104,11 @@ const routes: Routes = [
     {
       path: "2fa",
       component: AnonLayoutWrapperComponent,
+      canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
       children: [
         {
           path: "",
           component: TwoFactorAuthComponent,
-          canActivate: [unauthGuardFn()],
         },
       ],
     },

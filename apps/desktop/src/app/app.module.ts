@@ -20,7 +20,7 @@ import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../platform/services/ssh-agent.service";
 import { PremiumComponent } from "../vault/app/accounts/premium.component";
@@ -92,8 +92,8 @@ import { SendComponent } from "./tools/send/send.component";
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
-    TwoFactorComponent,
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
     VaultComponent,

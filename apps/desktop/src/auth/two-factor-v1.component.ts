@@ -4,7 +4,7 @@ import { Component, Inject, NgZone, OnDestroy, ViewChild, ViewContainerRef } fro
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
+import { TwoFactorComponentV1 as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor-v1.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
@@ -35,10 +35,10 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
 
 @Component({
   selector: "app-two-factor",
-  templateUrl: "two-factor.component.html",
+  templateUrl: "two-factor-v1.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDestroy {
+export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
 

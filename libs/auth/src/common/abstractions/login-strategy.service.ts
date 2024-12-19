@@ -67,6 +67,7 @@ export abstract class LoginStrategyServiceAbstraction {
    */
   logInTwoFactor: (
     twoFactor: TokenTwoFactorRequest,
+    // TODO: PM-15162 - deprecate captchaResponse
     captchaResponse: string,
   ) => Promise<AuthResult>;
   /**

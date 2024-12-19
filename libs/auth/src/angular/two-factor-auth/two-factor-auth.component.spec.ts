@@ -19,40 +19,31 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
 // test component that extends the TwoFactorAuthComponent
 @Component({})
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
-interface TwoFactorComponentProtected {
-  trustedDeviceEncRoute: string;
-  changePasswordRoute: string;
-  forcePasswordResetRoute: string;
-  successRoute: string;
-}
-
 describe("TwoFactorComponent", () => {
   let component: TestTwoFactorComponent;
-  let _component: TwoFactorComponentProtected;
 
   let fixture: ComponentFixture<TestTwoFactorComponent>;
   const userId = "userId" as UserId;
@@ -64,7 +55,6 @@ describe("TwoFactorComponent", () => {
   let mockApiService: MockProxy<ApiService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockWin: MockProxy<Window>;
-  let mockEnvironmentService: MockProxy<EnvironmentService>;
   let mockStateService: MockProxy<StateService>;
   let mockLogService: MockProxy<LogService>;
   let mockTwoFactorService: MockProxy<TwoFactorService>;
@@ -72,11 +62,13 @@ describe("TwoFactorComponent", () => {
   let mockLoginEmailService: MockProxy<LoginEmailServiceAbstraction>;
   let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let mockConfigService: MockProxy<ConfigService>;
   let mockMasterPasswordService: FakeMasterPasswordService;
   let mockAccountService: FakeAccountService;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
+  let mockTwoFactorAuthCompService: MockProxy<TwoFactorAuthComponentService>;
+  let mockSyncService: MockProxy<SyncService>;
+  let mockMessagingService: MockProxy<MessagingService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -98,10 +90,6 @@ describe("TwoFactorComponent", () => {
     mockApiService = mock<ApiService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockWin = mock<Window>();
-    const mockEnvironment = mock<Environment>();
-    mockEnvironment.getWebVaultUrl.mockReturnValue("http://example.com");
-    mockEnvironmentService = mock<EnvironmentService>();
-    mockEnvironmentService.environment$ = new BehaviorSubject(mockEnvironment);
 
     mockStateService = mock<StateService>();
     mockLogService = mock<LogService>();
@@ -110,11 +98,13 @@ describe("TwoFactorComponent", () => {
     mockLoginEmailService = mock<LoginEmailServiceAbstraction>();
     mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
-    mockConfigService = mock<ConfigService>();
     mockAccountService = mockAccountServiceWith(userId);
     mockMasterPasswordService = new FakeMasterPasswordService();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
+    mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
+    mockSyncService = mock<SyncService>();
+    mockMessagingService = mock<MessagingService>();
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -171,7 +161,6 @@ describe("TwoFactorComponent", () => {
         { provide: ApiService, useValue: mockApiService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: WINDOW, useValue: mockWin },
-        { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: StateService, useValue: mockStateService },
         {
           provide: ActivatedRoute,
@@ -191,17 +180,18 @@ describe("TwoFactorComponent", () => {
           useValue: mockUserDecryptionOptionsService,
         },
         { provide: SsoLoginServiceAbstraction, useValue: mockSsoLoginService },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: TwoFactorAuthComponentService, useValue: mockTwoFactorAuthCompService },
+        { provide: SyncService, useValue: mockSyncService },
+        { provide: MessagingService, useValue: mockMessagingService },
       ],
     });
 
     fixture = TestBed.createComponent(TestTwoFactorComponent);
     component = fixture.componentInstance;
-    _component = component as any;
   });
 
   afterEach(() => {
@@ -221,9 +211,9 @@ describe("TwoFactorComponent", () => {
 
       // Assert
       expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith([_component.changePasswordRoute], {
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["set-password"], {
         queryParams: {
-          identifier: component.orgIdentifier,
+          identifier: component.orgSsoIdentifier,
         },
       });
     });
@@ -235,9 +225,9 @@ describe("TwoFactorComponent", () => {
       await component.submit();
 
       // expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith([_component.forcePasswordResetRoute], {
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["update-temp-password"], {
         queryParams: {
-          identifier: component.orgIdentifier,
+          identifier: component.orgSsoIdentifier,
         },
       });
     });
@@ -247,14 +237,17 @@ describe("TwoFactorComponent", () => {
     describe("submit", () => {
       const token = "testToken";
       const remember = false;
-      const captchaToken = "testCaptchaToken";
+      const currentAuthTypeSubject = new BehaviorSubject<AuthenticationType>(
+        AuthenticationType.Password,
+      );
 
       beforeEach(() => {
         component.token = token;
         component.remember = remember;
-        component.captchaToken = captchaToken;
 
         selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
+
+        mockLoginStrategyService.currentAuthType$ = currentAuthTypeSubject.asObservable();
       });
 
       it("calls authService.logInTwoFactor with correct parameters when form is submitted", async () => {
@@ -267,43 +260,8 @@ describe("TwoFactorComponent", () => {
         // Assert
         expect(mockLoginStrategyService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          captchaToken,
+          null, // captcha token not supported
         );
-      });
-
-      it("should return when handleCaptchaRequired returns true", async () => {
-        // Arrange
-        const captchaSiteKey = "testCaptchaSiteKey";
-        const authResult = new AuthResult();
-        authResult.captchaSiteKey = captchaSiteKey;
-
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
-
-        // Note: the any casts are required b/c typescript cant recognize that
-        // handleCaptureRequired is a method on TwoFactorComponent b/c it is inherited
-        // from the CaptchaProtectedComponent
-        const handleCaptchaRequiredSpy = jest
-          .spyOn<any, any>(component, "handleCaptchaRequired")
-          .mockReturnValue(true);
-
-        // Act
-        const result = await component.submit();
-
-        // Assert
-        expect(handleCaptchaRequiredSpy).toHaveBeenCalled();
-        expect(result).toBeUndefined();
-      });
-
-      it("calls onSuccessfulLogin when defined", async () => {
-        // Arrange
-        component.onSuccessfulLogin = jest.fn().mockResolvedValue(undefined);
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-
-        // Act
-        await component.submit();
-
-        // Assert
-        expect(component.onSuccessfulLogin).toHaveBeenCalled();
       });
 
       it("calls loginEmailService.clearValues() when login is successful", async () => {
@@ -341,9 +299,9 @@ describe("TwoFactorComponent", () => {
 
           await component.submit();
 
-          expect(mockRouter.navigate).not.toHaveBeenCalledWith([_component.changePasswordRoute], {
+          expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-password"], {
             queryParams: {
-              identifier: component.orgIdentifier,
+              identifier: component.orgSsoIdentifier,
             },
           });
         });
@@ -369,30 +327,42 @@ describe("TwoFactorComponent", () => {
         });
       });
 
-      it("calls onSuccessfulLoginNavigate when the callback is defined", async () => {
-        // Arrange
-        component.onSuccessfulLoginNavigate = jest.fn().mockResolvedValue(undefined);
+      it("navigates to the component's defined success route (vault is default) when the login is successful", async () => {
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
 
         // Act
         await component.submit();
 
         // Assert
-        expect(component.onSuccessfulLoginNavigate).toHaveBeenCalled();
-      });
-
-      it("navigates to the component's defined success route when the login is successful and onSuccessfulLoginNavigate is undefined", async () => {
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-
-        // Act
-        await component.submit();
-
-        // Assert
-        expect(component.onSuccessfulLoginNavigate).not.toBeDefined();
-
         expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-        expect(mockRouter.navigate).toHaveBeenCalledWith([_component.successRoute], undefined);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["vault"], {
+          queryParams: {
+            identifier: component.orgSsoIdentifier,
+          },
+        });
       });
+
+      it.each([
+        [AuthenticationType.Sso, "lock"],
+        [AuthenticationType.UserApiKey, "lock"],
+      ])(
+        "navigates to the lock component when the authentication type is %s",
+        async (authType, expectedRoute) => {
+          mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
+          currentAuthTypeSubject.next(authType);
+
+          // Act
+          await component.submit();
+
+          // Assert
+          expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+          expect(mockRouter.navigate).toHaveBeenCalledWith(["lock"], {
+            queryParams: {
+              identifier: component.orgSsoIdentifier,
+            },
+          });
+        },
+      );
     });
   });
 
@@ -405,17 +375,15 @@ describe("TwoFactorComponent", () => {
     describe("submit", () => {
       const token = "testToken";
       const remember = false;
-      const captchaToken = "testCaptchaToken";
 
       beforeEach(() => {
         component.token = token;
         component.remember = remember;
-        component.captchaToken = captchaToken;
       });
 
       describe("Trusted Device Encryption scenarios", () => {
         beforeEach(() => {
-          mockConfigService.getFeatureFlag.mockResolvedValue(true);
+          mockTwoFactorAuthCompService.closeWindow = undefined;
         });
 
         describe("Given Trusted Device Encryption is enabled and user needs to set a master password", () => {
@@ -428,7 +396,7 @@ describe("TwoFactorComponent", () => {
             mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
           });
 
-          it("navigates to the component's defined trusted device encryption route and sets correct flag when user doesn't have a MP and key connector isn't enabled", async () => {
+          it("navigates to the login-initiated route and sets correct flag when user doesn't have a MP and key connector isn't enabled", async () => {
             // Act
             await component.submit();
 
@@ -439,10 +407,7 @@ describe("TwoFactorComponent", () => {
             );
 
             expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-            expect(mockRouter.navigate).toHaveBeenCalledWith(
-              [_component.trustedDeviceEncRoute],
-              undefined,
-            );
+            expect(mockRouter.navigate).toHaveBeenCalledWith(["login-initiated"]);
           });
         });
 
@@ -480,23 +445,11 @@ describe("TwoFactorComponent", () => {
             mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
           });
 
-          it("navigates to the component's defined trusted device encryption route when login is successful and onSuccessfulLoginTdeNavigate is undefined", async () => {
+          it("navigates to the login-initiated route when login is successful", async () => {
             await component.submit();
 
             expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-            expect(mockRouter.navigate).toHaveBeenCalledWith(
-              [_component.trustedDeviceEncRoute],
-              undefined,
-            );
-          });
-
-          it("calls onSuccessfulLoginTdeNavigate instead of router.navigate when the callback is defined", async () => {
-            component.onSuccessfulLoginTdeNavigate = jest.fn().mockResolvedValue(undefined);
-
-            await component.submit();
-
-            expect(mockRouter.navigate).not.toHaveBeenCalled();
-            expect(component.onSuccessfulLoginTdeNavigate).toHaveBeenCalled();
+            expect(mockRouter.navigate).toHaveBeenCalledWith(["login-initiated"]);
           });
         });
       });

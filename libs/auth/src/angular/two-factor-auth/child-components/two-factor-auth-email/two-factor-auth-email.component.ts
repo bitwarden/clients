@@ -25,6 +25,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-component.service";
+
 @Component({
   standalone: true,
   selector: "app-two-factor-auth-email",
@@ -59,9 +61,12 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected apiService: ApiService,
     protected appIdService: AppIdService,
     private toastService: ToastService,
+    private twoFactorAuthEmailComponentService: TwoFactorAuthEmailComponentService,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    await this.twoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa?.();
+
     const providerData = await this.twoFactorService.getProviders().then((providers) => {
       return providers.get(TwoFactorProviderType.Email);
     });

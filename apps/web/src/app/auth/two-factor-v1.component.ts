@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
-import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
+import { TwoFactorComponentV1 as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor-v1.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
@@ -35,10 +35,10 @@ import {
 
 @Component({
   selector: "app-two-factor",
-  templateUrl: "two-factor.component.html",
+  templateUrl: "two-factor-v1.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
+export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
   formGroup = this.formBuilder.group({
