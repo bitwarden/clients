@@ -4,13 +4,13 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { DefaultCipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { cipherData } from "./reports-ciphers.mock";
 import { WeakPasswordsReportComponent } from "./weak-passwords-report.component";
@@ -45,8 +45,8 @@ describe("WeakPasswordsReportComponent", () => {
           useValue: organizationService,
         },
         {
-          provide: ModalService,
-          useValue: mock<ModalService>(),
+          provide: DialogService,
+          useValue: mock<DialogService>(),
         },
         {
           provide: PasswordRepromptService,
@@ -59,6 +59,10 @@ describe("WeakPasswordsReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: DefaultCipherFormConfigService,
+          useValue: mock<DefaultCipherFormConfigService>(),
         },
       ],
       schemas: [],
