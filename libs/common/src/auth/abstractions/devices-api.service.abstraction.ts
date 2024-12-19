@@ -36,4 +36,10 @@ export abstract class DevicesApiServiceAbstraction {
    * @param deviceIdentifier - current device identifier
    */
   postDeviceTrustLoss: (deviceIdentifier: string) => Promise<void>;
+
+  /**
+   * Deactivates a device
+   * @param deviceId - The device ID
+   */
+  deactivateDevice: (deviceId: string) => Promise<void>;
 }

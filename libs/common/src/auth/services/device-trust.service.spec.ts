@@ -1,5 +1,5 @@
 import { matches, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, lastValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
@@ -733,6 +733,39 @@ describe("deviceTrustService", () => {
           );
         });
       });
+    });
+  });
+
+  describe("getCurrentDevice$", () => {
+    beforeEach(() => {
+      appIdService.getAppId.mockResolvedValue("test_device_identifier");
+    });
+
+    it("returns the current device when found", async () => {
+      const mockDevice = new DeviceResponse({
+        Id: "test-id",
+        Name: "Firefox",
+        Identifier: "test_device_identifier",
+        Type: DeviceType.FirefoxBrowser,
+        CreationDate: "2024-12-12",
+      });
+
+      devicesApiService.getDeviceByIdentifier.mockResolvedValue(mockDevice);
+
+      const device = await lastValueFrom(deviceTrustService.getCurrentDevice$());
+      expect(device).toEqual(mockDevice);
+    });
+
+    it("returns null when device is not found", async () => {
+      devicesApiService.getDeviceByIdentifier.mockResolvedValue(null as unknown as DeviceResponse);
+
+      const device = await lastValueFrom(deviceTrustService.getCurrentDevice$());
+
+      expect(device).toBeNull();
+      expect(appIdService.getAppId).toHaveBeenCalled();
+      expect(devicesApiService.getDeviceByIdentifier).toHaveBeenCalledWith(
+        "test_device_identifier",
+      );
     });
   });
 
