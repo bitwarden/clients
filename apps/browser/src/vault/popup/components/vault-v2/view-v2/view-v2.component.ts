@@ -45,6 +45,7 @@ import { PopOutComponent } from "../../../../../platform/popup/components/pop-ou
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserViewPasswordHistoryService } from "../../../services/browser-view-password-history.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
 
 import { PopupFooterComponent } from "./../../../../../platform/popup/layout/popup-footer.component";
@@ -109,6 +110,7 @@ export class ViewV2Component {
     private popupRouterCacheService: PopupRouterCacheService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
+    private popupScrollPositionService: VaultPopupScrollPositionService,
   ) {
     this.subscribeToParams();
   }
@@ -201,6 +203,7 @@ export class ViewV2Component {
       return false;
     }
 
+    this.popupScrollPositionService.stop(true);
     await this.popupRouterCacheService.back();
 
     this.toastService.showToast({
