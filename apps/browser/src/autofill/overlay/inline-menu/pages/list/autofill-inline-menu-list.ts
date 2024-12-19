@@ -413,6 +413,29 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Filters the ciphers to include only TOTP-related ones if the field is a TOTP field.
+   * If the field is a TOTP field but no TOTP is present, it returns an empty array.
+   *
+   * @param ciphers - The list of ciphers to filter.
+   * @returns The filtered list of ciphers or an empty list if no valid TOTP ciphers are present.
+   */
+  private getFilteredCiphersForTotpField(ciphers: InlineMenuCipherData[]): InlineMenuCipherData[] {
+    if (!ciphers?.length) {
+      return [];
+    }
+
+    const isTotpField =
+      this.inlineMenuFillType === CipherType.Login &&
+      ciphers.some((cipher) => cipher.login?.totpField);
+
+    if (isTotpField) {
+      return ciphers.filter((cipher) => cipher.login?.totp);
+    }
+
+    return ciphers;
+  }
+
+  /**
    * Updates the list items with the passed ciphers.
    * If no ciphers are passed, the no results inline menu is built.
    *
@@ -427,12 +450,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    this.ciphers = ciphers;
+    this.ciphers = this.getFilteredCiphersForTotpField(ciphers);
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
     this.resetInlineMenuContainer();
 
-    if (!ciphers?.length) {
+    if (!this.ciphers?.length) {
       this.buildNoResultsInlineMenuList();
       return;
     }
