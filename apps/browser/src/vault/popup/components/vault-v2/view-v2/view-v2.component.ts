@@ -146,18 +146,15 @@ export class ViewV2Component {
   setHeader(type: CipherType) {
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
       case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
       case CipherType.Identity:
-        return this.i18nService.t(
-          "viewItemHeader",
-          this.i18nService.t("typeIdentity").toLowerCase(),
-        );
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
       case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
       case CipherType.SshKey:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
     }
   }
 
