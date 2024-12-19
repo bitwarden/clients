@@ -1,9 +1,10 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -35,6 +36,7 @@ jest.mock("rxjs", () => {
 describe("FilelessImporterBackground ", () => {
   let filelessImporterBackground: FilelessImporterBackground;
   const configService = mock<ConfigService>();
+  const domainSettingsService = mock<DomainSettingsService>();
   const authService = mock<AuthService>();
   const policyService = mock<PolicyService>();
   const notificationBackground = mock<NotificationBackground>();
@@ -43,9 +45,15 @@ describe("FilelessImporterBackground ", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
   let scriptInjectorService: BrowserScriptInjectorService;
+  let tabMock: chrome.tabs.Tab;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    domainSettingsService.blockedInteractionsUris$ = of(null);
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     filelessImporterBackground = new FilelessImporterBackground(
       configService,
       authService,
@@ -75,12 +83,13 @@ describe("FilelessImporterBackground ", () => {
 
     beforeEach(() => {
       lpImporterPort = createPortSpyMock(FilelessImportPort.LpImporter);
+      tabMock = lpImporterPort.sender.tab;
+      jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
       manifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
       executeScriptInTabSpy = jest.spyOn(BrowserApi, "executeScriptInTab").mockResolvedValue(null);
       jest.spyOn(authService, "getAuthStatus").mockResolvedValue(AuthenticationStatus.Unlocked);
       jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
       jest.spyOn(filelessImporterBackground as any, "removeIndividualVault");
-      (firstValueFrom as jest.Mock).mockResolvedValue(false);
     });
 
     it("ignores the port connection if the port name is not present in the set of filelessImportNames", async () => {
@@ -93,6 +102,7 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("posts a message to the port indicating that the fileless import feature is disabled if the user's auth status is not unlocked", async () => {
+      (firstValueFrom as jest.Mock).mockResolvedValue(false);
       jest.spyOn(authService, "getAuthStatus").mockResolvedValue(AuthenticationStatus.Locked);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);
@@ -129,6 +139,7 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("posts a message to the port indicating that the fileless import feature is enabled", async () => {
+      (firstValueFrom as jest.Mock).mockResolvedValue(false);
       triggerRuntimeOnConnectEvent(lpImporterPort);
       await flushPromises();
 
@@ -152,6 +163,7 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("triggers an injection of the `lp-suppress-import-download-script-append-mv2.js` script in manifest v2", async () => {
+      (firstValueFrom as jest.Mock).mockResolvedValueOnce(false);
       manifestVersionSpy.mockReturnValue(2);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);

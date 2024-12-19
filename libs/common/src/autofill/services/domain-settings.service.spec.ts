@@ -1,4 +1,7 @@
+import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { Utils } from "../../platform/misc/utils";
@@ -8,8 +11,10 @@ import { DefaultDomainSettingsService, DomainSettingsService } from "./domain-se
 
 describe("DefaultDomainSettingsService", () => {
   let domainSettingsService: DomainSettingsService;
+  const configServiceMock = mock<ConfigService>();
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  let mockConfigService: MockProxy<ConfigService>;
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
 
   const mockEquivalentDomains = [
@@ -19,10 +24,12 @@ describe("DefaultDomainSettingsService", () => {
   ];
 
   beforeEach(() => {
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, mockConfigService);
+    jest.spyOn(configServiceMock, "getFeatureFlag$").mockReturnValue(of(false));
 
     jest.spyOn(domainSettingsService, "getUrlEquivalentDomains");
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
+    domainSettingsService.blockedInteractionsUris$ = of(null);
   });
 
   describe("getUrlEquivalentDomains", () => {

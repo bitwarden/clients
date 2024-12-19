@@ -12,6 +12,7 @@ import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -61,6 +62,7 @@ describe("OverlayBackground", () => {
   let overlayBackground: LegacyOverlayBackground;
   const cipherService = mock<CipherService>();
   const autofillService = mock<AutofillService>();
+  let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
 
@@ -92,7 +94,7 @@ describe("OverlayBackground", () => {
   };
 
   beforeEach(() => {
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;

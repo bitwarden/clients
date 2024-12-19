@@ -1,3 +1,6 @@
+import { firstValueFrom } from "rxjs";
+
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,7 +15,10 @@ import {
 } from "./abstractions/script-injector.service";
 
 export class BrowserScriptInjectorService extends ScriptInjectorService {
+  blockedDomains: Set<string> = null;
+
   constructor(
+    private readonly domainSettingsService: DomainSettingsService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly logService: LogService,
   ) {
@@ -30,6 +36,25 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
     const file = this.getScriptFile(config);
     if (!file) {
       throw new Error("No file specified for script injection");
+    }
+
+    const tab = tabId && (await BrowserApi.getTab(tabId));
+    const tabURL = tab?.url ? new URL(tab.url) : null;
+
+    // Check if the tab URI is on the disabled URIs list
+    let injectionAllowedInTab = true;
+    const blockedDomains = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+
+    if (blockedDomains && tabURL?.hostname) {
+      const blockedDomainsSet = new Set(Object.keys(blockedDomains));
+
+      injectionAllowedInTab = !(tabURL && blockedDomainsSet.has(tabURL.hostname));
+    }
+
+    if (!injectionAllowedInTab) {
+      throw new Error("This URI of this tab is on the blocked domains list.");
     }
 
     const injectionDetails = this.buildInjectionDetails(injectDetails, file);
