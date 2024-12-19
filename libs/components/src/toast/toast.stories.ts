@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -24,7 +22,7 @@ const toastServiceExampleTemplate = `
 })
 export class ToastServiceExampleComponent {
   @Input()
-  toastOptions: ToastOptions;
+  toastOptions?: ToastOptions;
 
   constructor(protected toastService: ToastService) {}
 }
@@ -40,7 +38,7 @@ export default {
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers,
+        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {
