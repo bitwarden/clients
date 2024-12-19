@@ -6,7 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { LockComponent as BaseLockComponent } from "@bitwarden/angular/key-management/components/lock.component";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -40,7 +40,7 @@ import {
   BiometricStateService,
 } from "@bitwarden/key-management";
 
-import { BiometricsService } from "../key-management/biometrics/biometrics.service";
+import { BiometricsService } from "../../biometrics/biometrics.service";
 
 import { LockComponent } from "./lock.component";
 

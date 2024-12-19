@@ -34,6 +34,7 @@
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
+      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
       "@bitwarden/vault": ["../../libs/vault/src"]
     },
     "plugins": [
