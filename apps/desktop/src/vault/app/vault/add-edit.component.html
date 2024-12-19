@@ -512,16 +512,6 @@
                     [ngClass]="{ 'bwi-eye': !showPrivateKey, 'bwi-eye-slash': showPrivateKey }"
                   ></i>
                 </button>
-                <button
-                  type="button"
-                  class="row-btn"
-                  appStopClick
-                  appA11yTitle="{{ 'regenerateSshKey' | i18n }}"
-                  (click)="generateSshKey()"
-                  *ngIf="cipher.edit || !editMode"
-                >
-                  <i class="bwi bwi-lg bwi-generate" aria-hidden="true"></i>
-                </button>
               </div>
             </div>
             <div class="box-content-row box-content-row-flex" appBoxRow>

@@ -21,7 +21,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SshKeyPasswordPromptComponent } from "@bitwarden/importer/ui";
@@ -56,7 +55,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
-    private toastService: ToastService,
+    toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
   ) {
     super(
@@ -78,6 +77,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
     );
   }
 
@@ -114,17 +114,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     await super.load();
-
-    if (!this.editMode || this.cloneMode) {
-      // Creating an ssh key directly while filtering to the ssh key category
-      // must force a key to be set. SSH keys must never be created with an empty private key field
-      if (
-        this.cipher.type === CipherType.SshKey &&
-        (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
-      ) {
-        await this.generateSshKey(false);
-      }
-    }
   }
 
   onWindowHidden() {
@@ -154,21 +143,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.platformUtilsService.launchUri(
       "https://bitwarden.com/help/managing-items/#protect-individual-items",
     );
-  }
-
-  async generateSshKey(showNotification: boolean = true) {
-    const sshKey = await ipc.platform.sshAgent.generateKey("ed25519");
-    this.cipher.sshKey.privateKey = sshKey.privateKey;
-    this.cipher.sshKey.publicKey = sshKey.publicKey;
-    this.cipher.sshKey.keyFingerprint = sshKey.keyFingerprint;
-
-    if (showNotification) {
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("sshKeyGenerated"),
-      });
-    }
   }
 
   async importSshKeyFromClipboard(password: string = "") {
@@ -229,12 +203,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     });
 
     return await lastValueFrom(dialog.closed);
-  }
-
-  async typeChange() {
-    if (this.cipher.type === CipherType.SshKey) {
-      await this.generateSshKey();
-    }
   }
 
   truncateString(value: string, length: number) {

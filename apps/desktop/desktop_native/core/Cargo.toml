@@ -26,12 +26,10 @@ arboard = { version = "=3.4.1", default-features = false, features = [
   "wayland-data-control",
 ] }
 argon2 = { version = "=0.5.3", features = ["zeroize"] }
-async-stream = "=0.3.6"
 base64 = "=0.22.1"
 byteorder = "=1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 homedir = "=0.3.4"
-libc = "=0.2.162"
 pin-project = "=1.1.7"
 dirs = "=5.0.1"
 futures = "=0.3.31"
@@ -55,7 +53,6 @@ tokio-stream = { version = "=0.1.15", features = ["net"] }
 tokio-util = { version = "=0.7.12", features = ["codec"] }
 thiserror = "=1.0.69"
 typenum = "=1.17.0"
-rand_chacha = "=0.3.1"
 pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
 rsa = "=0.9.6"
 ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
@@ -87,6 +84,7 @@ desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = "=0.3.3"
+libc = "=0.2.162"
 
 zbus = { version = "=4.4.0", optional = true }
 zbus_polkit = { version = "=4.0.0", optional = true }

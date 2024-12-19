@@ -16,7 +16,7 @@ import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
-import { ClientType, EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -40,7 +40,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { generate_ssh_key } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 @Directive()
@@ -130,6 +131,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected datePipe: DatePipe,
     protected configService: ConfigService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    protected toastService: ToastService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -206,7 +208,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.canUseReprompt = await this.passwordRepromptService.enabled();
 
     const sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
-    if (this.platformUtilsService.getClientType() == ClientType.Desktop && sshKeysEnabled) {
+    if (sshKeysEnabled) {
       this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
     }
   }
@@ -339,6 +341,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
+
+    if (!this.editMode || this.cloneMode) {
+      // Creating an ssh key directly while filtering to the ssh key category
+      // must force a key to be set. SSH keys must never be created with an empty private key field
+      if (
+        this.cipher.type === CipherType.SshKey &&
+        (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
+      ) {
+        await this.generateSshKey(false);
+      }
+    }
   }
 
   async submit(): Promise<boolean> {
@@ -785,5 +798,26 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+
+  async generateSshKey(showNotification: boolean = true) {
+    const sshKey = generate_ssh_key("Ed25519");
+    this.cipher.sshKey.privateKey = sshKey.private_key;
+    this.cipher.sshKey.publicKey = sshKey.public_key;
+    this.cipher.sshKey.keyFingerprint = sshKey.key_fingerprint;
+
+    if (showNotification) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
+  }
+
+  async typeChange() {
+    if (this.cipher.type === CipherType.SshKey) {
+      await this.generateSshKey();
+    }
   }
 }
