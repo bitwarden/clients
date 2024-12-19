@@ -7,9 +7,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -32,7 +35,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as CollectionService;
 
   const folderService = {
-    folderViews$,
+    folderViews$: () => folderViews$,
   } as unknown as FolderService;
 
   const cipherService = {
@@ -59,6 +62,8 @@ describe("VaultPopupListFiltersService", () => {
     decryptedCollections$.next([]);
     policyAppliesToActiveUser$.next(false);
     policyService.policyAppliesToActiveUser$.mockClear();
+
+    const accountService = mockAccountServiceWith("userId" as UserId);
 
     collectionService.getAllNested = () => Promise.resolve([]);
     TestBed.configureTestingModule({
@@ -92,6 +97,10 @@ describe("VaultPopupListFiltersService", () => {
           useValue: { getGlobal: () => ({ state$, update }) },
         },
         { provide: FormBuilder, useClass: FormBuilder },
+        {
+          provide: AccountService,
+          useValue: accountService,
+        },
       ],
     });
 
