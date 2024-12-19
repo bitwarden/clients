@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../../types/guid";
+import { Rc } from "../../misc/reference-counting/rc";
 
 export abstract class SdkService {
   /**
@@ -34,7 +35,7 @@ export abstract class SdkService {
    *
    * @param userId
    */
-  abstract userClient$(userId: UserId): Observable<BitwardenClient>;
+  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
 
   abstract failedToInitialize(category: string, error?: Error): Promise<void>;
 }

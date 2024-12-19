@@ -32,6 +32,7 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
+import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 
 export class RecoverableSDKError extends Error {
@@ -47,7 +48,7 @@ export class RecoverableSDKError extends Error {
 }
 
 export class DefaultSdkService implements SdkService {
-  private sdkClientCache = new Map<UserId, Observable<BitwardenClient>>();
+  private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
@@ -87,7 +88,7 @@ export class DefaultSdkService implements SdkService {
     private userAgent: string = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<BitwardenClient | undefined> {
+  userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
     // TODO: Figure out what happens when the user logs out
     if (this.sdkClientCache.has(userId)) {
       return this.sdkClientCache.get(userId);
@@ -117,32 +118,31 @@ export class DefaultSdkService implements SdkService {
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(([env, account, kdfParams, privateKey, userKey, orgKeys]) => {
         // Create our own observable to be able to implement clean-up logic
-        return new Observable<BitwardenClient>((subscriber) => {
-          let client: BitwardenClient;
-
+        return new Observable<Rc<BitwardenClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
             if (privateKey == null || userKey == null) {
               return undefined;
             }
 
             const settings = this.toSettings(env);
-            client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+            const client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
 
             await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
 
             return client;
           };
 
+          let client: Rc<BitwardenClient>;
           createAndInitializeClient()
             .then((c) => {
-              client = c;
-              subscriber.next(c);
+              client = c === undefined ? undefined : new Rc(c);
+              subscriber.next(client);
             })
             .catch((e) => {
               subscriber.error(e);
             });
 
-          return () => client?.free();
+          return () => client?.markForDisposal();
         });
       }),
       tap({
