@@ -160,3 +160,6 @@ apps/web/src/locales/en/messages.json
 **/*.Dockerfile
 **/.dockerignore
 **/entrypoint.sh
+
+## No ownership of package-lock.json to support automerge
+apps/desktop/native-messaging-test-runner/package-lock.json
