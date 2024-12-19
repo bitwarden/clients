@@ -16,7 +16,6 @@ mod platform_ssh_agent;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod peercred_unix_listener_stream;
 
-pub mod generator;
 pub mod importer;
 pub mod peerinfo;
 #[derive(Clone)]

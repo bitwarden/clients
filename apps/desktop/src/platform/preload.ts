@@ -58,9 +58,6 @@ const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
   },
-  generateKey: async (keyAlgorithm: string): Promise<ssh.SshKey> => {
-    return await ipcRenderer.invoke("sshagent.generatekey", { keyAlgorithm });
-  },
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");
   },
