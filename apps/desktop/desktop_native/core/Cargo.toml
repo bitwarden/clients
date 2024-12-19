@@ -88,5 +88,5 @@ desktop_objc = { path = "../objc" }
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = "=0.3.3"
 
-zbus = { version = "=4.4.0", optional = true }
-zbus_polkit = { version = "=4.0.0", optional = true }
+zbus = { version = "=5.2.0", optional = true }
+zbus_polkit = { version = "=5.0.0", optional = true }
