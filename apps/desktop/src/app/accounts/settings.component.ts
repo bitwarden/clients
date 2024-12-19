@@ -58,6 +58,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showSshAgentOption = false;
+  showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
 
@@ -165,6 +166,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const startToTrayKey = isMac ? "startToMenuBar" : "startToTray";
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
+
+    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = isMac;
