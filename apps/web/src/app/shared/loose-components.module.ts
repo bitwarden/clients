@@ -6,6 +6,7 @@ import {
   VaultTimeoutInputComponent,
 } from "@bitwarden/auth/angular";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
+import { DefaultCipherFormConfigService } from "@bitwarden/vault";
 
 import { OrganizationLayoutComponent } from "../admin-console/organizations/layouts/organization-layout.component";
 import { EventsComponent as OrgEventsComponent } from "../admin-console/organizations/manage/events.component";
@@ -244,5 +245,6 @@ import { SharedModule } from "./shared.module";
     HeaderModule,
     DangerZoneComponent,
   ],
+  providers: [DefaultCipherFormConfigService],
 })
 export class LooseComponentsModule {}
