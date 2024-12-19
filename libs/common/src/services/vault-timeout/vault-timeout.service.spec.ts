@@ -334,7 +334,7 @@ describe("VaultTimeoutService", () => {
 
       // Active users should have additional steps ran
       expect(searchService.clearIndex).toHaveBeenCalled();
-      expect(folderService.clearCache).toHaveBeenCalled();
+      expect(folderService.clearDecryptedFolderState).toHaveBeenCalled();
 
       expectUserToHaveLoggedOut("3"); // They have chosen logout as their action and it's available, log them out
       expectUserToHaveLoggedOut("4"); // They may have had lock as their chosen action but it's not available to them so logout
