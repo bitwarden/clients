@@ -88,7 +88,6 @@ import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
-import { TabsComponent } from "./tabs.component";
 
 // Register the locales for the application
 import "../platform/popup/locales";
@@ -177,7 +176,6 @@ import "../platform/popup/locales";
     ShareComponent,
     SsoComponentV1,
     SyncComponent,
-    TabsComponent,
     TabsV2Component,
     TwoFactorComponent,
     TwoFactorOptionsComponent,
