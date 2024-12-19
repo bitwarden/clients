@@ -144,11 +144,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
             await this.vaultFilterComponent.reloadOrganizations();
             break;
-          case "refreshCiphers":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.vaultItemsComponent.refresh();
-            break;
           case "modalShown":
             this.showingModal = true;
             break;
@@ -495,9 +490,19 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     let madeAttachmentChanges = false;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onUploadedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onUploadedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onDeletedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onDeletedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {

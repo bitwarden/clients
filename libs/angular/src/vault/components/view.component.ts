@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -140,13 +140,14 @@ export class ViewComponent implements OnDestroy, OnInit {
   async load() {
     this.cleanUp();
 
-    const cipher = await this.cipherService.get(this.cipherId);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    // Grab individual cipher from `cipherViews$` for the most up-to-date information
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$.pipe(
+        map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+        filter((cipher) => !!cipher),
+      ),
     );
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$,
     );
@@ -165,7 +166,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     if (
       this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
-      (cipher.organizationUseTotp || this.canAccessPremium)
+      (this.cipher.organizationUseTotp || this.canAccessPremium)
     ) {
       await this.totpUpdateCode();
       const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
