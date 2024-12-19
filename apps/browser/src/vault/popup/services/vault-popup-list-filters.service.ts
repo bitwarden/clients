@@ -295,10 +295,13 @@ export class VaultPopupListFiltersService {
 
           if (noFolder) {
             // Update `name` of the "no folder" option to "Items with no folder"
-            noFolder.name = this.i18nService.t("itemsWithNoFolder");
+            const updatedNoFolder = {
+              ...noFolder,
+              name: this.i18nService.t("itemsWithNoFolder"),
+            };
 
             // Move the "no folder" option to the end of the list
-            arrangedFolders = [...folders.filter((f) => f.id !== null), noFolder];
+            arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
           }
           return [filters, arrangedFolders, cipherViews];
         }),

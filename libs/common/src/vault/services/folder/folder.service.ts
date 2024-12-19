@@ -1,7 +1,6 @@
-import { merge } from "rxjs";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
+import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
