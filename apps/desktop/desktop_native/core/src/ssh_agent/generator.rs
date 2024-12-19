@@ -2,7 +2,11 @@ use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use ssh_key::{Algorithm, HashAlg, LineEnding};
 
-use super::importer::SshKey;
+pub struct SshKey {
+    pub private_key: String,
+    pub public_key: String,
+    pub key_fingerprint: String,
+}
 
 pub async fn generate_keypair(key_algorithm: String) -> Result<SshKey, anyhow::Error> {
     // sourced from cryptographically secure entropy source, with sources for all targets: https://docs.rs/getrandom

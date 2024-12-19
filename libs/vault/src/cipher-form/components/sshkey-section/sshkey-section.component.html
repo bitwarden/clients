@@ -15,6 +15,13 @@
         data-testid="toggle-privateKey-visibility"
         bitPasswordInputToggle
       ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        data-testid="import-privateKey"
+        (click)="importSshKeyFromClipboard()"
+      ></button>
     </bit-form-field>
 
     <bit-form-field>

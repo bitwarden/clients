@@ -17,7 +17,6 @@ mod platform_ssh_agent;
 mod peercred_unix_listener_stream;
 
 pub mod generator;
-pub mod importer;
 pub mod peerinfo;
 #[derive(Clone)]
 pub struct BitwardenDesktopAgent {
