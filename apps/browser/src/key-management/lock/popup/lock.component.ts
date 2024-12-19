@@ -4,7 +4,7 @@ import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { LockComponent as BaseLockComponent } from "@bitwarden/angular/key-management/components/lock.component";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -33,9 +33,9 @@ import {
   BiometricStateService,
 } from "@bitwarden/key-management";
 
-import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
-import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
-import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-session-data";
+import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
+import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
+import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 
 @Component({
   selector: "app-lock",

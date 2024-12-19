@@ -26,7 +26,6 @@ import {
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockV2Component,
   LockIcon,
   TwoFactorTimeoutIcon,
   UserLockIcon,
@@ -41,6 +40,7 @@ import {
   LoginDecryptionOptionsComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockV2Component } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -56,7 +56,6 @@ import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizatio
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
-import { LockComponent } from "./auth/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "./auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "./auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "./auth/login/login-via-auth-request-v1.component";
@@ -83,6 +82,7 @@ import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.compo
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
+import { LockComponent } from "./key-management/lock/components/lock.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";

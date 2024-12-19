@@ -23,7 +23,6 @@ import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
@@ -50,6 +49,7 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumComponent } from "../billing/popup/settings/premium.component";
+import { LockComponent } from "../key-management/lock/popup/lock.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
 import { HeaderComponent } from "../platform/popup/header.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";

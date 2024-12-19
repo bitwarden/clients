@@ -3,9 +3,9 @@
 import { Component, OnInit, inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
-import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { LockComponent as BaseLockComponent } from "@bitwarden/angular/key-management/components/lock.component";
 
-import { SharedModule } from "../shared";
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-lock",

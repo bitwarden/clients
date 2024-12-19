@@ -26,7 +26,6 @@ import {
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockV2Component,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -44,6 +43,7 @@ import {
   TwoFactorTimeoutIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockV2Component } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -60,7 +60,6 @@ import {
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
@@ -84,6 +83,7 @@ import { NotificationsSettingsV1Component } from "../autofill/popup/settings/not
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { PremiumComponent } from "../billing/popup/settings/premium.component";
+import { LockComponent } from "../key-management/lock/popup/lock.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";

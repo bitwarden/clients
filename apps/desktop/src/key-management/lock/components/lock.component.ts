@@ -4,7 +4,7 @@ import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
-import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { LockComponent as BaseLockComponent } from "@bitwarden/angular/key-management/components/lock.component";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";

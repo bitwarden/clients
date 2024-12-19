@@ -23,7 +23,6 @@ import {
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockV2Component,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -41,6 +40,7 @@ import {
   TwoFactorTimeoutIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockV2Component } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -51,7 +51,6 @@ import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-fa
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
@@ -62,6 +61,7 @@ import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { TwoFactorAuthComponent } from "../auth/two-factor-auth.component";
 import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
+import { LockComponent } from "../key-management/lock/components/lock.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
 import { SendComponent } from "./tools/send/send.component";

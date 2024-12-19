@@ -24,6 +24,7 @@
       "@bitwarden/importer/core": ["../../libs/importer/src"],
       "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
+      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
       "@bitwarden/platform": ["../../libs/platform/src"],
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
