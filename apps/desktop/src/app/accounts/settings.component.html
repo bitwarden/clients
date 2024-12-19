@@ -334,7 +334,7 @@
                 </div>
                 <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
               </div>
-              <div class="form-group">
+              <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">
                     <input
