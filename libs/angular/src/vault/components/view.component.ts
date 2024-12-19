@@ -148,7 +148,7 @@ export class ViewComponent implements OnDestroy, OnInit {
       await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
     this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;

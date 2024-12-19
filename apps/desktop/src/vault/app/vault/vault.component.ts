@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil, switchMap } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -18,6 +18,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -107,11 +108,17 @@ export class VaultComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.componentIsDestroyed$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.componentIsDestroyed$),
+      )
       .subscribe((canAccessPremium: boolean) => {
         this.userHasPremiumAccess = canAccessPremium;
       });

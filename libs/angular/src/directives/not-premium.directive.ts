@@ -1,6 +1,7 @@
 import { Directive, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 /**
@@ -14,11 +15,19 @@ export class NotPremiumDirective implements OnInit {
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+
+    if (!account) {
+      this.viewContainer.createEmbeddedView(this.templateRef);
+      return;
+    }
+
     const premium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     );
 
     if (premium) {
