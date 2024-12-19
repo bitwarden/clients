@@ -35,7 +35,7 @@ libc = "=0.2.162"
 pin-project = "=1.1.7"
 dirs = "=5.0.1"
 futures = "=0.3.31"
-interprocess = { version = "=2.2.1", features = ["tokio"] }
+interprocess = { version = "=2.2.2", features = ["tokio"] }
 log = "=0.4.22"
 rand = "=0.8.5"
 retry = "=2.0.0"
