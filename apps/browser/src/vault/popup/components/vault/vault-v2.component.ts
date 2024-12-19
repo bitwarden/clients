@@ -1,15 +1,17 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { combineLatest, Observable, shareReplay, switchMap } from "rxjs";
+import { filter, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, Icons, NoItemsModule } from "@bitwarden/components";
-import { VaultIcons } from "@bitwarden/vault";
+import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
+import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -50,6 +52,7 @@ enum VaultState {
     NewItemDropdownV2Component,
     ScrollingModule,
     VaultHeaderV2Component,
+    DecryptionFailureDialogComponent,
   ],
   providers: [VaultUiOnboardingService],
 })
@@ -87,6 +90,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private vaultUiOnboardingService: VaultUiOnboardingService,
+    private destroyRef: DestroyRef,
+    private cipherService: CipherService,
+    private dialogService: DialogService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -114,6 +120,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.vaultUiOnboardingService.showOnboardingDialog();
+
+    this.cipherService.failedToDecryptCiphers$
+      .pipe(
+        filter((ciphers) => ciphers != null),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((cipherIds) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, { cipherIds: cipherIds! });
+      });
   }
 
   ngOnDestroy(): void {}

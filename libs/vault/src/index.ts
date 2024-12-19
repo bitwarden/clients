@@ -14,5 +14,6 @@ export {
 
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
+export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 
 export * as VaultIcons from "./icons";

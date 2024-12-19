@@ -26,6 +26,13 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
+  /**
+   * Observable that emits an array of cipher IDs that failed to decrypt. A `null` value indicates that
+   * the latest encrypted ciphers have not been decrypted yet and that decryption is in progress.
+   *
+   * An empty array indicates that all ciphers were successfully decrypted.
+   */
+  failedToDecryptCiphers$: Observable<CipherId[] | null>;
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,
