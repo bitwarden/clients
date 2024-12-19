@@ -6,18 +6,16 @@ version = "0.0.0"
 publish = false
 
 [features]
-default = ["sys"]
-manual_test = []
-
-sys = [
+default = [
   "dep:widestring",
   "dep:windows",
   "dep:core-foundation",
   "dep:security-framework",
   "dep:security-framework-sys",
   "dep:zbus",
-  "dep:zbus_polkit",
+  "dep:zbus_polkit"
 ]
+manual_test = []
 
 [dependencies]
 aes = "=0.8.4"
@@ -38,7 +36,6 @@ futures = "=0.3.31"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
 log = "=0.4.22"
 rand = "=0.8.5"
-retry = "=2.0.0"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
 sha2 = "=0.10.8"
