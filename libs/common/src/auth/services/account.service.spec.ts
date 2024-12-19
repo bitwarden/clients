@@ -69,6 +69,7 @@ describe("accountService", () => {
   let sut: AccountServiceImplementation;
   let accountsState: FakeGlobalState<Record<UserId, AccountInfo>>;
   let activeAccountIdState: FakeGlobalState<UserId>;
+  let accountActivityState: FakeGlobalState<Record<UserId, Date>>;
   const userId = Utils.newGuid() as UserId;
   const userInfo = { email: "email", name: "name", emailVerified: true };
 
@@ -81,6 +82,7 @@ describe("accountService", () => {
 
     accountsState = globalStateProvider.getFake(ACCOUNT_ACCOUNTS);
     activeAccountIdState = globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID);
+    accountActivityState = globalStateProvider.getFake(ACCOUNT_ACTIVITY);
   });
 
   afterEach(() => {
@@ -256,6 +258,7 @@ describe("accountService", () => {
     beforeEach(() => {
       accountsState.stateSubject.next({ [userId]: userInfo });
       activeAccountIdState.stateSubject.next(userId);
+      accountActivityState.stateSubject.next({ [userId]: new Date(1) });
     });
 
     it("should emit null if no account is provided", async () => {
@@ -268,6 +271,34 @@ describe("accountService", () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       expect(sut.switchAccount("unknown" as UserId)).rejects.toThrowError("Account does not exist");
+    });
+
+    it("should change active account when switched to the new account", async () => {
+      const newUserId = Utils.newGuid() as UserId;
+      accountsState.stateSubject.next({ [newUserId]: userInfo });
+
+      await sut.switchAccount(newUserId);
+
+      await expect(firstValueFrom(sut.activeAccount$)).resolves.toEqual({
+        id: newUserId,
+        ...userInfo,
+      });
+      await expect(firstValueFrom(sut.accountActivity$)).resolves.toEqual({
+        [userId]: new Date(1),
+        [newUserId]: expect.toAlmostEqual(new Date(), 1000),
+      });
+    });
+
+    it("should not change active account when already switched to the same account", async () => {
+      await sut.switchAccount(userId);
+
+      await expect(firstValueFrom(sut.activeAccount$)).resolves.toEqual({
+        id: userId,
+        ...userInfo,
+      });
+      await expect(firstValueFrom(sut.accountActivity$)).resolves.toEqual({
+        [userId]: new Date(1),
+      });
     });
   });
 

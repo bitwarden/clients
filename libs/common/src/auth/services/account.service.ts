@@ -7,6 +7,9 @@ import {
   shareReplay,
   combineLatest,
   Observable,
+  filter,
+  timeout,
+  of,
 } from "rxjs";
 
 import {
@@ -149,21 +152,28 @@ export class AccountServiceImplementation implements InternalAccountService {
   async switchAccount(userId: UserId | null): Promise<void> {
     let updateActivity = false;
     await this.activeAccountIdState.update(
-      (_, accounts) => {
-        if (userId == null) {
-          // indicates no account is active
-          return null;
-        }
-
-        if (accounts?.[userId] == null) {
-          throw new Error("Account does not exist");
-        }
+      (_, __) => {
         updateActivity = true;
         return userId;
       },
       {
-        combineLatestWith: this.accounts$,
-        shouldUpdate: (id) => {
+        combineLatestWith: this.accountsState.state$.pipe(
+          filter((accounts) => {
+            if (userId == null) {
+              // Don't worry about accounts when we are about to set active user to null
+              return true;
+            }
+
+            return accounts?.[userId] != null;
+          }),
+          // If we don't get the desired account with enough time, just return empty as that will result in the same error
+          timeout({ first: 1000, with: () => of({} as Record<UserId, AccountInfo>) }),
+        ),
+        shouldUpdate: (id, accounts) => {
+          if (userId != null && accounts?.[userId] == null) {
+            throw new Error("Account does not exist");
+          }
+
           // update only if userId changes
           return id !== userId;
         },
