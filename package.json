@@ -87,7 +87,7 @@
     "autoprefixer": "10.4.20",
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
-    "browserslist": "4.23.2",
+    "browserslist": "4.24.3",
     "chromatic": "11.20.0",
     "concurrently": "9.1.0",
     "copy-webpack-plugin": "12.0.2",
