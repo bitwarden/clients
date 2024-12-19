@@ -363,6 +363,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   protected async validateEmail(): Promise<boolean> {
     this.formGroup.controls.email.markAsTouched();
+    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
     return this.formGroup.controls.email.valid;
   }
 
@@ -412,11 +413,10 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Set the email value from the input field.
    * @param event The event object from the input field.
    */
-  onEmailBlur(event: Event) {
+  onEmailInput(event: Event) {
     const emailInput = event.target as HTMLInputElement;
     this.formGroup.controls.email.setValue(emailInput.value);
-    // Call setLoginEmail so that the email is pre-populated when navigating to the "enter password" screen.
-    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
+    this.loginEmailService.setLoginEmail(emailInput.value);
   }
 
   isLoginWithPasskeySupported() {
@@ -432,9 +432,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     // TODO: remove when email verification flag is removed
     const registerRoute = await firstValueFrom(this.registerRoute$);
 
+    // Mark email field as touched to trigger validation
+    this.emailFormControl.markAsTouched();
+
+    // Only pass email if form control is valid
     if (this.emailFormControl.valid) {
       await this.router.navigate([registerRoute], {
-        queryParams: { email: this.emailFormControl.value },
+        queryParams: { email: this.emailFormControl.value?.trim() },
       });
       return;
     }
@@ -448,6 +452,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.loginEmailService.saveEmailSettings();
   }
 
+  /**
+   * Continue button clicked.
+   * Adds the login url to the browser's history so that the back button can be used to go back to the email entry state.
+   * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
+   */
+  protected async continueClicked() {
+    // Add a new entry to the browser's history so that there is a history entry to go back to
+    history.pushState({}, "", window.location.href);
+    await this.continue();
+  }
+
+  /**
+   * Continue to the master password entry state (only if email is validated)
+   */
   protected async continue(): Promise<void> {
     if (await this.validateEmail()) {
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
@@ -573,23 +591,47 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Handle the back button click to transition back to the email entry state.
    */
   protected async backButtonClicked() {
-    // Replace the history so the "forward" button doesn't show (which wouldn't do anything)
-    history.pushState(null, "", window.location.pathname);
-    await this.toggleLoginUiState(LoginUiState.EMAIL_ENTRY);
+    history.back();
   }
 
   /**
    * Handle the popstate event to transition back to the email entry state when the back button is clicked.
+   * Also handles the case where the user clicks the forward button.
    * @param event - The popstate event.
    */
-  private handlePopState = (event: PopStateEvent) => {
+  private handlePopState = async (event: PopStateEvent) => {
     if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
-      // Prevent default navigation
+      // Prevent default navigation when the browser's back button is clicked
       event.preventDefault();
-      // Replace the history so the "forward" button doesn't show (which wouldn't do anything)
-      history.pushState(null, "", window.location.pathname);
       // Transition back to email entry state
       void this.toggleLoginUiState(LoginUiState.EMAIL_ENTRY);
+    } else if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
+      // Prevent default navigation when the browser's forward button is clicked
+      event.preventDefault();
+      // Continue to the master password entry state
+      await this.continue();
     }
   };
+
+  /**
+   * Handle the SSO button click.
+   * @param event - The event object.
+   */
+  async handleSsoClick() {
+    const email = this.formGroup.value.email;
+
+    // User's don't necessarily need to enter an email to use SSO, but if they do we should validate it
+    if (!email || (await this.validateEmail())) {
+      await this.saveEmailSettings();
+      if (this.clientType === ClientType.Web) {
+        await this.router.navigate(["/sso"], {
+          queryParams: email ? { email } : {},
+        });
+      } else {
+        await this.launchSsoBrowserWindow(
+          this.clientType === ClientType.Browser ? "browser" : "desktop",
+        );
+      }
+    }
+  }
 }
