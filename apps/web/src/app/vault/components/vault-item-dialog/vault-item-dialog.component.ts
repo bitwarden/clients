@@ -4,7 +4,7 @@ import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -181,7 +181,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Flag to indicate if the user has access to attachments via a premium subscription.
    * @protected
    */
-  protected canAccessAttachments$ = this.billingAccountProfileStateService.hasPremiumFromAnySource$;
+  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;

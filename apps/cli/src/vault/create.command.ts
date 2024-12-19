@@ -136,10 +136,15 @@ export class CreateCommand {
       return Response.notFound();
     }
 
-    if (
-      cipher.organizationId == null &&
-      !(await firstValueFrom(this.accountProfileService.hasPremiumFromAnySource$))
-    ) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    const canAccessPremium = await firstValueFrom(
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
+    );
+
+    if (cipher.organizationId == null && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 
@@ -152,9 +157,6 @@ export class CreateCommand {
     }
 
     try {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,

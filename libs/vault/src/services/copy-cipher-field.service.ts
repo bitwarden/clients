@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -89,6 +90,7 @@ export class CopyCipherFieldService {
     private totpService: TotpService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -150,10 +152,13 @@ export class CopyCipherFieldService {
    * Determines if TOTP generation is allowed for a cipher and user.
    */
   async totpAllowed(cipher: CipherView): Promise<boolean> {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     return (
       (cipher?.login?.hasTotp ?? false) &&
       (cipher.organizationUseTotp ||
-        (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumFromAnySource$)))
+        (await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
+        )))
     );
   }
 }

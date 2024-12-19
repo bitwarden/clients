@@ -209,7 +209,7 @@ export class AttachmentsComponent implements OnInit {
     );
 
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.canAccessAttachments = canAccessPremium || this.cipher.organizationId != null;
 
