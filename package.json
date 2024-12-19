@@ -59,7 +59,7 @@
     "@storybook/manager-api": "8.4.7",
     "@storybook/theming": "8.4.7",
     "@types/argon2-browser": "1.18.4",
-    "@types/chrome": "0.0.280",
+    "@types/chrome": "0.0.287",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.12",
