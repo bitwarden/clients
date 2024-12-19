@@ -16,3 +16,5 @@ export { DownloadAttachmentComponent } from "./components/download-attachment/do
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 
 export * as VaultIcons from "./icons";
+
+export * from "./tasks";
