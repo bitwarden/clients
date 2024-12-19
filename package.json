@@ -35,12 +35,12 @@
     "libs/*"
   ],
   "devDependencies": {
-    "@angular-devkit/build-angular": "17.3.11",
+    "@angular-devkit/build-angular": "19.0.6",
     "@angular-eslint/eslint-plugin": "17.5.3",
     "@angular-eslint/eslint-plugin-template": "17.5.3",
     "@angular-eslint/schematics": "17.5.3",
     "@angular-eslint/template-parser": "17.5.3",
-    "@angular/cli": "17.3.11",
+    "@angular/cli": "19.0.6",
     "@angular/compiler-cli": "17.3.12",
     "@angular/elements": "17.3.12",
     "@babel/core": "7.24.9",
@@ -48,7 +48,7 @@
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "3.7.1",
-    "@ngtools/webpack": "17.3.11",
+    "@ngtools/webpack": "19.0.6",
     "@storybook/addon-a11y": "8.4.7",
     "@storybook/addon-actions": "8.4.7",
     "@storybook/addon-designs": "8.0.4",
