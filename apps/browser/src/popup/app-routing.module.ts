@@ -25,7 +25,7 @@ import {
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockV2Component,
+  LockComponent,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -54,7 +54,6 @@ import {
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
@@ -170,13 +169,6 @@ const routes: Routes = [
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  {
-    path: "lock",
-    component: LockComponent,
-    canActivate: [lockGuard()],
-    canMatch: [extensionRefreshRedirect("/lockV2")],
-    data: { elevation: 1, doNotSaveUrl: true } satisfies RouteDataProperties,
-  },
   ...twofactorRefactorSwap(
     TwoFactorComponent,
     AnonLayoutWrapperComponent,
@@ -647,8 +639,8 @@ const routes: Routes = [
         ],
       },
       {
-        path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
+        path: "lock",
+        canActivate: [lockGuard()],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -659,19 +651,19 @@ const routes: Routes = [
           elevation: 1,
           /**
            * This ensures that in a passkey flow the `/fido2?<queryParams>` URL does not get
-           * overwritten in the `BrowserRouterService` by the `/lockV2` route. This way, after
+           * overwritten in the `BrowserRouterService` by the `/lock` route. This way, after
            * unlocking, the user can be redirected back to the `/fido2?<queryParams>` URL.
            *
            * Also, this prevents a routing loop when using biometrics to unlock the vault in MV2 (Firefox),
            * locking up the browser (https://bitwarden.atlassian.net/browse/PM-16116). This involves the
-           * `popup-router-cache.service` pushing the `lockV2` route to the history.
+           * `popup-router-cache.service` pushing the `lock` route to the history.
            */
           doNotSaveUrl: true,
         } satisfies ExtensionAnonLayoutWrapperData & RouteDataProperties,
         children: [
           {
             path: "",
-            component: LockV2Component,
+            component: LockComponent,
           },
         ],
       },

@@ -15,14 +15,13 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockV2Component,
+  LockComponent,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -45,7 +44,6 @@ import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-fa
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
@@ -74,12 +72,6 @@ const routes: Routes = [
     pathMatch: "full",
     children: [], // Children lets us have an empty component.
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
-  },
-  {
-    path: "lock",
-    component: LockComponent,
-    canActivate: [lockGuard()],
-    canMatch: [extensionRefreshRedirect("/lockV2")],
   },
   ...twofactorRefactorSwap(
     TwoFactorComponent,
@@ -340,8 +332,8 @@ const routes: Routes = [
         ],
       },
       {
-        path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
+        path: "lock",
+        canActivate: [lockGuard()],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -352,7 +344,7 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: LockV2Component,
+            component: LockComponent,
           },
         ],
       },
