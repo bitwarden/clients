@@ -13,6 +13,7 @@ import {
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
 import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
+import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -40,6 +41,11 @@ import {
   LoginDecryptionOptionsComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  NewDeviceVerificationNoticePageOneComponent,
+  NewDeviceVerificationNoticePageTwoComponent,
+  VaultIcons,
+} from "@bitwarden/vault";
 
 import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { flagEnabled, Flags } from "../utils/flags";
@@ -696,9 +702,36 @@ const routes: Routes = [
     ],
   },
   {
+    path: "new-device-notice",
+    component: AnonLayoutWrapperComponent,
+    canActivate: [],
+    children: [
+      {
+        path: "",
+        component: NewDeviceVerificationNoticePageOneComponent,
+        data: {
+          pageIcon: VaultIcons.ExclamationTriangle,
+          pageTitle: {
+            key: "importantNotice",
+          },
+        },
+      },
+      {
+        path: "setup",
+        component: NewDeviceVerificationNoticePageTwoComponent,
+        data: {
+          pageIcon: VaultIcons.UserLock,
+          pageTitle: {
+            key: "setupTwoStepLogin",
+          },
+        },
+      },
+    ],
+  },
+  {
     path: "",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), authGuard],
+    canActivate: [deepLinkGuard(), authGuard, NewDeviceVerificationNoticeGuard],
     children: [
       {
         path: "vault",

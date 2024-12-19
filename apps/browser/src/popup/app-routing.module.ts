@@ -19,6 +19,7 @@ import {
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
+import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -43,6 +44,11 @@ import {
   TwoFactorTimeoutIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  NewDeviceVerificationNoticePageOneComponent,
+  NewDeviceVerificationNoticePageTwoComponent,
+  VaultIcons,
+} from "@bitwarden/vault";
 
 import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
@@ -715,6 +721,33 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
+  {
+    path: "new-device-notice",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    children: [
+      {
+        path: "",
+        component: NewDeviceVerificationNoticePageOneComponent,
+        data: {
+          pageIcon: VaultIcons.ExclamationTriangle,
+          pageTitle: {
+            key: "importantNotice",
+          },
+        },
+      },
+      {
+        path: "setup",
+        component: NewDeviceVerificationNoticePageTwoComponent,
+        data: {
+          pageIcon: VaultIcons.UserLock,
+          pageTitle: {
+            key: "setupTwoStepLogin",
+          },
+        },
+      },
+    ],
+  },
   ...extensionRefreshSwap(TabsComponent, TabsV2Component, {
     path: "tabs",
     data: { elevation: 0 } satisfies RouteDataProperties,
@@ -734,7 +767,7 @@ const routes: Routes = [
       },
       ...extensionRefreshSwap(VaultFilterComponent, VaultV2Component, {
         path: "vault",
-        canActivate: [authGuard],
+        canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       }),
