@@ -7,6 +7,7 @@ import { NotificationsService } from "@bitwarden/common/abstractions/notificatio
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -50,6 +51,7 @@ export default class RuntimeBackground {
     private messageListener: MessageListener,
     private accountService: AccountService,
     private readonly lockService: LockService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -74,6 +76,7 @@ export default class RuntimeBackground {
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
         "getInlineMenuTotpFeatureFlag",
+        "getUserPremiumStatus",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -197,6 +200,12 @@ export default class RuntimeBackground {
       }
       case "getInlineMenuFieldQualificationFeatureFlag": {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
+      }
+      case "getUserPremiumStatus": {
+        const result = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+        );
+        return result;
       }
       case "getInlineMenuTotpFeatureFlag": {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuTotp);
