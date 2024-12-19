@@ -3,6 +3,10 @@ import { Component } from "@angular/core";
 import { map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogData,
+} from "@bitwarden/angular/vault/components";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -19,10 +23,6 @@ import { NoItemsModule } from "../../../../../../libs/components/src/no-items/no
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import {
-  AddEditFolderDialogComponent,
-  AddEditFolderDialogData,
-} from "../components/vault-v2/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 @Component({
   standalone: true,

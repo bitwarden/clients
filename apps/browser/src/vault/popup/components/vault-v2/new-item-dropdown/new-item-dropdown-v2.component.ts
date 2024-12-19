@@ -5,6 +5,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AddEditFolderDialogComponent } from "@bitwarden/angular/vault/components";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -13,7 +14,6 @@ import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitward
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
-import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export interface NewItemInitialValues {
   folderId?: string;

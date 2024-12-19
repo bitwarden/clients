@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AddEditFolderDialogComponent } from "@bitwarden/angular/vault/components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -14,7 +15,6 @@ import { DialogService } from "@bitwarden/components";
 
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
-import { AddEditFolderDialogComponent } from "../components/vault-v2/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 import { FoldersV2Component } from "./folders-v2.component";
 
@@ -24,8 +24,8 @@ import { FoldersV2Component } from "./folders-v2.component";
   template: `<ng-content></ng-content>`,
 })
 class MockPopupHeaderComponent {
-  @Input() pageTitle: string;
-  @Input() backAction: () => void;
+  @Input() pageTitle: string = "";
+  @Input() backAction: () => void = () => {};
 }
 
 @Component({
@@ -34,7 +34,7 @@ class MockPopupHeaderComponent {
   template: `<ng-content></ng-content>`,
 })
 class MockPopupFooterComponent {
-  @Input() pageTitle: string;
+  @Input() pageTitle: string = "";
 }
 
 describe("FoldersV2Component", () => {

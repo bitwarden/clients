@@ -425,6 +425,18 @@
   "editFolder": {
     "message": "Edit folder"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Base domain",
     "description": "Domain name. Example: website.com"
