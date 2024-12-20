@@ -2,8 +2,16 @@
 // @ts-strict-ignore
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, EventEmitter, inject, Input, Output } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import {
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  OnInit,
+} from "@angular/core";
+import { Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -40,7 +48,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    RouterLink,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
@@ -50,7 +57,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
 })
-export class VaultListItemsContainerComponent {
+export class VaultListItemsContainerComponent implements OnInit {
   private compactModeService = inject(CompactModeService);
 
   /**
@@ -71,6 +78,8 @@ export class VaultListItemsContainerComponent {
     map((enabled) => (enabled ? 53 : 59)),
   );
 
+  protected showAutofillBlockedIndicator = false;
+
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch
    * @private
@@ -88,6 +97,11 @@ export class VaultListItemsContainerComponent {
    */
   @Input()
   title: string;
+
+  /**
+   * Indicators for the section.
+   */
+  @Input() sectionIndicators: string[] = [];
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
@@ -140,6 +154,12 @@ export class VaultListItemsContainerComponent {
     private cipherService: CipherService,
     private router: Router,
   ) {}
+
+  ngOnInit() {
+    this.showAutofillBlockedIndicator = !!this.sectionIndicators?.find(
+      (i) => i === "autofillDisabled",
+    );
+  }
 
   /**
    * Launches the login cipher in a new browser tab.

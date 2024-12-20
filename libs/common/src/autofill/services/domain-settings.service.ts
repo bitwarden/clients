@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import {
   NeverDomains,
@@ -8,6 +10,7 @@ import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "../../models/domain/domain-service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   DOMAIN_SETTINGS_DISK,
@@ -23,9 +26,19 @@ const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
 });
 
+// Domain exclusion list for notifications
 const NEVER_DOMAINS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "neverDomains", {
   deserializer: (value: NeverDomains) => value ?? null,
 });
+
+// Domain exclusion list for content script injections
+const BLOCKED_INTERACTIONS_URIS = new KeyDefinition(
+  DOMAIN_SETTINGS_DISK,
+  "blockedInteractionsUris",
+  {
+    deserializer: (value: NeverDomains) => value ?? null,
+  },
+);
 
 const EQUIVALENT_DOMAINS = new UserKeyDefinition(DOMAIN_SETTINGS_DISK, "equivalentDomains", {
   deserializer: (value: EquivalentDomains) => value ?? null,
@@ -46,6 +59,8 @@ export abstract class DomainSettingsService {
   setShowFavicons: (newValue: boolean) => Promise<void>;
   neverDomains$: Observable<NeverDomains>;
   setNeverDomains: (newValue: NeverDomains) => Promise<void>;
+  blockedInteractionsUris$: Observable<NeverDomains>;
+  setBlockedInteractionsUris: (newValue: NeverDomains) => Promise<void>;
   equivalentDomains$: Observable<EquivalentDomains>;
   setEquivalentDomains: (newValue: EquivalentDomains, userId: UserId) => Promise<void>;
   defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
@@ -60,18 +75,40 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private neverDomainsState: GlobalState<NeverDomains>;
   readonly neverDomains$: Observable<NeverDomains>;
 
+  private blockedInteractionsUrisState: GlobalState<NeverDomains>;
+  readonly blockedInteractionsUris$: Observable<NeverDomains>;
+
   private equivalentDomainsState: ActiveUserState<EquivalentDomains>;
   readonly equivalentDomains$: Observable<EquivalentDomains>;
 
   private defaultUriMatchStrategyState: ActiveUserState<UriMatchStrategySetting>;
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private configService: ConfigService,
+  ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
 
     this.neverDomainsState = this.stateProvider.getGlobal(NEVER_DOMAINS);
     this.neverDomains$ = this.neverDomainsState.state$.pipe(map((x) => x ?? null));
+
+    // Needs to be global to prevent pre-login injections
+    this.blockedInteractionsUrisState = this.stateProvider.getGlobal(BLOCKED_INTERACTIONS_URIS);
+
+    this.blockedInteractionsUris$ = combineLatest([
+      this.blockedInteractionsUrisState.state$,
+      this.configService?.getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain),
+    ]).pipe(
+      map(([blockedUris, blockBrowserInjectionsByDomainEnabled]) => {
+        if (!blockBrowserInjectionsByDomainEnabled) {
+          return null;
+        }
+
+        return blockedUris ?? null;
+      }),
+    );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);
     this.equivalentDomains$ = this.equivalentDomainsState.state$.pipe(map((x) => x ?? null));
@@ -88,6 +125,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   async setNeverDomains(newValue: NeverDomains): Promise<void> {
     await this.neverDomainsState.update(() => newValue);
+  }
+
+  async setBlockedInteractionsUris(newValue: NeverDomains): Promise<void> {
+    await this.blockedInteractionsUrisState.update(() => newValue);
   }
 
   async setEquivalentDomains(newValue: EquivalentDomains, userId: UserId): Promise<void> {
