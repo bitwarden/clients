@@ -140,12 +140,12 @@ describe("AutofillInlineMenuList", () => {
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
-      it("creates the view for a totp field", () => {
+      it("creates the view for a totp field", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
             inlineMenuFillType: CipherType.Login,
             ciphers: [
-              createAutofillOverlayCipherDataMock(5, {
+              createAutofillOverlayCipherDataMock(1, {
                 type: CipherType.Login,
                 login: {
                   totp: "123456",
@@ -155,6 +155,8 @@ describe("AutofillInlineMenuList", () => {
             ],
           }),
         );
+
+        await flushPromises();
 
         const cipherSubtitleElement = autofillInlineMenuList[
           "inlineMenuListContainer"
