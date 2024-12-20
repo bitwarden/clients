@@ -1715,6 +1715,12 @@
   "logBackIn": {
     "message": "Please log back in."
   },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },  
   "logBackInOthersToo": {
     "message": "Please log back in. If you are using other Bitwarden applications log out and back in to those as well."
   },
@@ -3764,6 +3770,15 @@
   },
   "device": {
     "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
   },
   "creatingAccountOn": {
     "message": "Creating account on"
@@ -8236,6 +8251,18 @@
   "approveRequest": {
     "message": "Approve request"
   },
+  "deviceApproved": {
+    "message": "Device approved"
+  },
+  "deviceRemoved": {
+    "message": "Device removed"
+  },
+  "removeDevice": {
+    "message": "Remove device"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Are you sure you want to remove this device?"
+  },
   "noDeviceRequests": {
     "message": "No device requests"
   },
@@ -9926,6 +9953,12 @@
   },
   "removeMembers": {
     "message": "Remove members"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "deviceListDescription": {
+    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
   },
   "claimedDomains": {
     "message": "Claimed domains"

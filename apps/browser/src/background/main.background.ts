@@ -770,7 +770,10 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.devicesService = new DevicesServiceImplementation(this.devicesApiService);
+    this.devicesService = new DevicesServiceImplementation(
+      this.devicesApiService,
+      this.appIdService,
+    );
 
     this.authRequestService = new AuthRequestService(
       this.appIdService,

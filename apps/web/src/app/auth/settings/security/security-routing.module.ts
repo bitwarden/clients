@@ -4,6 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { ChangePasswordComponent } from "../change-password.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
 
+import { DeviceManagementComponent } from "./device-management.component";
 import { SecurityKeysComponent } from "./security-keys.component";
 import { SecurityComponent } from "./security.component";
 
@@ -28,6 +29,11 @@ const routes: Routes = [
         path: "security-keys",
         component: SecurityKeysComponent,
         data: { titleId: "keys" },
+      },
+      {
+        path: "device-management",
+        component: DeviceManagementComponent,
+        data: { titleId: "devices" },
       },
     ],
   },
