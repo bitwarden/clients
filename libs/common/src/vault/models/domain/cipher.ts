@@ -134,10 +134,17 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const model = new CipherView(this);
     let bypassValidation = true;
 
+    // If the cipher has a key, we'll attempt to decrypt it with the user/org encryption key
+    // and use that as the key to decrypt the cipher data.
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
-      encKey = new SymmetricCryptoKey(await encryptService.decryptToBytes(this.key, encKey));
-      bypassValidation = false;
+      const cipherKey = await encryptService.decryptToBytes(this.key, encKey);
+      if (cipherKey !== null) {
+        encKey = new SymmetricCryptoKey(cipherKey);
+        bypassValidation = false;
+      } else {
+        throw new Error("Failed to decrypt cipher key.");
+      }
     }
 
     await this.decryptObj(
