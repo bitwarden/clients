@@ -65,7 +65,7 @@
     "commander": "11.1.0",
     "form-data": "4.0.0",
     "https-proxy-agent": "7.0.5",
-    "inquirer": "8.2.6",
+    "inquirer": "12.3.0",
     "jsdom": "25.0.1",
     "jszip": "3.10.1",
     "koa": "2.15.3",
