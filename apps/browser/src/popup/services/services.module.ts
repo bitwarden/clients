@@ -70,6 +70,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
@@ -145,6 +146,7 @@ import { BrowserScriptInjectorService } from "../../platform/services/browser-sc
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { BrowserSdkClientFactory } from "../../platform/services/sdk/browser-sdk-client-factory";
+import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
@@ -566,10 +568,15 @@ const safeProviders: SafeProvider[] = [
     deps: [MessageSender, MessageListener],
   }),
   safeProvider({
+    provide: SdkLoadService,
+    useClass: BrowserSdkLoadService,
+    deps: [PlatformUtilsService, ApiService, EnvironmentService, LogService],
+  }),
+  safeProvider({
     provide: SdkClientFactory,
-    useFactory: (logService: LogService) =>
-      flagEnabled("sdk") ? new BrowserSdkClientFactory(logService) : new NoopSdkClientFactory(),
-    deps: [LogService],
+    useFactory: () =>
+      flagEnabled("sdk") ? new BrowserSdkClientFactory() : new NoopSdkClientFactory(),
+    deps: [],
   }),
   safeProvider({
     provide: LoginEmailService,
