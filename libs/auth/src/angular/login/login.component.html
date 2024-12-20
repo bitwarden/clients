@@ -20,7 +20,7 @@
         formControlName="email"
         bitInput
         appAutofocus
-        (blur)="onEmailBlur($event)"
+        (input)="onEmailInput($event)"
         (keyup.enter)="continue()"
       />
     </bit-form-field>
@@ -33,7 +33,7 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      <button type="button" bitButton block buttonType="primary" (click)="continue()">
+      <button type="button" bitButton block buttonType="primary" (click)="continueClicked()">
         {{ "continue" | i18n }}
       </button>
 
@@ -54,33 +54,10 @@
       </ng-container>
 
       <!-- Button to Login with SSO -->
-      <ng-container *ngIf="clientType === ClientType.Web">
-        <a
-          bitButton
-          block
-          buttonType="secondary"
-          routerLink="/sso"
-          [queryParams]="formGroup.value.email ? { email: formGroup.value.email } : {}"
-          (click)="saveEmailSettings()"
-        >
-          <i class="bwi bwi-provider tw-mr-1"></i>
-          {{ "useSingleSignOn" | i18n }}
-        </a>
-      </ng-container>
-      <ng-container *ngIf="clientType === ClientType.Browser || clientType === ClientType.Desktop">
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="
-            launchSsoBrowserWindow(clientType === ClientType.Browser ? 'browser' : 'desktop')
-          "
-        >
-          <i class="bwi bwi-provider tw-mr-1"></i>
-          {{ "useSingleSignOn" | i18n }}
-        </button>
-      </ng-container>
+      <button type="button" bitButton block buttonType="secondary" (click)="handleSsoClick()">
+        <i class="bwi bwi-provider tw-mr-1"></i>
+        {{ "useSingleSignOn" | i18n }}
+      </button>
     </div>
   </div>
 

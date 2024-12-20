@@ -1,12 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 
 import { RegisterComponent as BaseRegisterComponent } from "@bitwarden/angular/auth/components/register.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  LoginEmailServiceAbstraction,
+  LoginStrategyServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -29,13 +30,14 @@ import { AcceptOrganizationInviteService } from "../organization-invite/accept-o
   templateUrl: "./register-form.component.html",
 })
 export class RegisterFormComponent extends BaseRegisterComponent implements OnInit {
-  @Input() queryParamEmail: string;
-  @Input() queryParamFromOrgInvite: boolean;
-  @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions;
-  @Input() referenceDataValue: ReferenceEventRequest;
+  @Input() queryParamEmail: string | undefined;
+  @Input() queryParamFromOrgInvite: boolean | undefined;
+  @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions | undefined;
+  @Input() referenceDataValue: ReferenceEventRequest | undefined;
 
   showErrorSummary = false;
-  characterMinimumMessage: string;
+  characterMinimumMessage: string = "";
+  referenceData: ReferenceEventRequest | undefined;
 
   constructor(
     formValidationErrorService: FormValidationErrorsService,
@@ -55,6 +57,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
     dialogService: DialogService,
     acceptOrgInviteService: AcceptOrganizationInviteService,
     toastService: ToastService,
+    loginEmailService: LoginEmailServiceAbstraction,
   ) {
     super(
       formValidationErrorService,
@@ -72,6 +75,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
       auditService,
       dialogService,
       toastService,
+      loginEmailService,
     );
     this.modifyRegisterRequest = async (request: RegisterRequest) => {
       // Org invites are deep linked. Non-existent accounts are redirected to the register page.
@@ -87,7 +91,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
 
   async ngOnInit() {
     await super.ngOnInit();
-    this.referenceData = this.referenceDataValue;
+    this.referenceData = this.referenceDataValue ?? undefined;
     if (this.queryParamEmail) {
       this.formGroup.get("email")?.setValue(this.queryParamEmail);
     }
