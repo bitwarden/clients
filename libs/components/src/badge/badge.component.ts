@@ -65,7 +65,7 @@ export class BadgeComponent implements FocusableElement {
       "disabled:tw-cursor-not-allowed",
     ]
       .concat(styles[this.variant])
-      .concat(this.hasHoverEffects ? hoverStyles[this.variant] : [])
+      .concat(this.hasHoverEffects ? [...hoverStyles[this.variant], "tw-min-w-10"] : [])
       .concat(this.truncate ? this.maxWidthClass : []);
   }
   @HostBinding("attr.title") get titleAttr() {
