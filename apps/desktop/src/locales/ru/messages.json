@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
+  },
+  "importantNotice": {
+    "message": "Важное уведомление"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настроить двухэтапную аутентификацию"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
+  },
+  "remindMeLater": {
+    "message": "Напомнить позже"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Нет, не знаю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, я имею надежный доступ к своей электронной почте"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включить двухэтапную аутентификацию"
+  },
+  "changeAcctEmail": {
+    "message": "Изменить email аккаунта"
   }
 }
