@@ -4,9 +4,10 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concatMap, from, Observable, of } from "rxjs";
+import { combineLatest, concatMap, from, Observable, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -60,14 +61,22 @@ export class PremiumV2Component {
     private syncService: SyncService,
     private toastService: ToastService,
     private tokenService: TokenService,
+    private accountService: AccountService,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
-    this.hasPremiumFromAnyOrganization$ =
-      this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$;
+    this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id),
+      ),
+    );
 
     combineLatest([
-      this.billingAccountProfileStateService.hasPremiumPersonally$,
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+        ),
+      ),
       this.environmentService.cloudWebVaultUrl$,
     ])
       .pipe(

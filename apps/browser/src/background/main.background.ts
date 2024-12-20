@@ -793,6 +793,8 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -1223,6 +1225,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(

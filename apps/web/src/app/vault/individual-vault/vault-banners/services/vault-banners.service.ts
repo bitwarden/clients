@@ -1,7 +1,17 @@
 import { Injectable } from "@angular/core";
-import { Subject, Observable, combineLatest, firstValueFrom, map } from "rxjs";
-import { mergeMap, take } from "rxjs/operators";
+import {
+  Subject,
+  Observable,
+  combineLatest,
+  firstValueFrom,
+  map,
+  mergeMap,
+  take,
+  switchMap,
+  of,
+} from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -74,15 +84,23 @@ export class VaultBannersService {
     private platformUtilsService: PlatformUtilsService,
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
+    private accountService: AccountService,
   ) {
     this.pollUntilSynced();
     this.premiumBannerState = this.stateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY);
     this.sessionBannerState = this.stateProvider.getActive(BANNERS_DISMISSED_DISK_KEY);
 
-    const premiumSources$ = combineLatest([
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
-      this.premiumBannerState.state$,
-    ]);
+    const premiumSources$ = this.accountService.activeAccount$.pipe(
+      take(1),
+      switchMap((account) => {
+        return combineLatest([
+          account
+            ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+            : of(false),
+          this.premiumBannerState.state$,
+        ]);
+      }),
+    );
 
     this.shouldShowPremiumBanner$ = this.syncCompleted$.pipe(
       take(1), // Wait until the first sync is complete before considering the premium status
