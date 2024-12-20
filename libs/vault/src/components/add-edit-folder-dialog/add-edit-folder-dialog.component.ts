@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
@@ -35,6 +33,11 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+export enum AddEditFolderDialogResult {
+  Created = "created",
+  Deleted = "deleted",
+}
+
 export type AddEditFolderDialogData = {
   /** When provided, dialog will display edit folder variant */
   editFolderConfig?: { folder: FolderView };
@@ -56,12 +59,12 @@ export type AddEditFolderDialogData = {
   ],
 })
 export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
-  @ViewChild(BitSubmitDirective) private bitSubmit: BitSubmitDirective;
-  @ViewChild("submitBtn") private submitBtn: ButtonComponent;
+  @ViewChild(BitSubmitDirective) private bitSubmit?: BitSubmitDirective;
+  @ViewChild("submitBtn") private submitBtn?: ButtonComponent;
 
-  folder: FolderView;
+  folder: FolderView = new FolderView();
 
-  variant: "add" | "edit";
+  variant: "add" | "edit" = "add";
 
   folderForm = this.formBuilder.group({
     name: ["", Validators.required],
@@ -79,14 +82,13 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     private i18nService: I18nService,
     private logService: LogService,
     private dialogService: DialogService,
-    private dialogRef: DialogRef,
+    private dialogRef: DialogRef<AddEditFolderDialogResult>,
     @Inject(DIALOG_DATA) private data?: AddEditFolderDialogData,
   ) {}
 
   ngOnInit(): void {
-    this.variant = this.data?.editFolderConfig ? "edit" : "add";
-
-    if (this.variant === "edit") {
+    if (this.data?.editFolderConfig) {
+      this.variant = "edit";
       this.folderForm.controls.name.setValue(this.data.editFolderConfig.folder.name);
       this.folder = this.data.editFolderConfig.folder;
     } else {
@@ -96,7 +98,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
+    this.bitSubmit?.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
       if (!this.submitBtn) {
         return;
       }
@@ -111,21 +113,21 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
       return;
     }
 
-    this.folder.name = this.folderForm.controls.name.value;
+    this.folder.name = this.folderForm.controls.name.value ?? "";
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId.id);
+      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId!.id);
       const folder = await this.folderService.encrypt(this.folder, userKey);
       await this.folderApiService.save(folder);
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("editedFolder"),
       });
 
-      this.close();
+      this.close(AddEditFolderDialogResult.Created);
     } catch (e) {
       this.logService.error(e);
     }
@@ -147,18 +149,25 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
       await this.folderApiService.delete(this.folder.id);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("deletedFolder"),
       });
     } catch (e) {
       this.logService.error(e);
     }
 
-    this.close();
+    this.close(AddEditFolderDialogResult.Deleted);
   };
 
   /** Close the dialog */
-  private close() {
-    this.dialogRef.close();
+  private close(result: AddEditFolderDialogResult) {
+    this.dialogRef.close(result);
+  }
+
+  static open(dialogService: DialogService, data?: AddEditFolderDialogData) {
+    return dialogService.open<AddEditFolderDialogResult, AddEditFolderDialogData>(
+      AddEditFolderDialogComponent,
+      { data },
+    );
   }
 }

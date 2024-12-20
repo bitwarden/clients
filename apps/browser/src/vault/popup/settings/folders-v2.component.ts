@@ -11,7 +11,7 @@ import {
   DialogService,
   IconButtonModule,
 } from "@bitwarden/components";
-import { VaultIcons } from "@bitwarden/vault";
+import { AddEditFolderDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { ItemGroupComponent } from "../../../../../../libs/components/src/item/item-group.component";
 import { ItemModule } from "../../../../../../libs/components/src/item/item.module";
@@ -19,10 +19,6 @@ import { NoItemsModule } from "../../../../../../libs/components/src/no-items/no
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import {
-  AddEditFolderDialogComponent,
-  AddEditFolderDialogData,
-} from "../components/vault-v2/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 @Component({
   standalone: true,
@@ -67,8 +63,6 @@ export class FoldersV2Component {
     // If a folder is provided, the edit variant should be shown
     const editFolderConfig = folder ? { folder } : undefined;
 
-    this.dialogService.open<unknown, AddEditFolderDialogData>(AddEditFolderDialogComponent, {
-      data: { editFolderConfig },
-    });
+    AddEditFolderDialogComponent.open(this.dialogService, { editFolderConfig });
   }
 }

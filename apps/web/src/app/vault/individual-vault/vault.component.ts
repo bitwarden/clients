@@ -73,6 +73,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
   CipherFormConfig,
   CollectionAssignmentResult,
   DefaultCipherFormConfigService,
@@ -113,7 +115,6 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import { FolderAddEditDialogResult, openFolderAddEditDialog } from "./folder-add-edit.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
@@ -569,20 +570,18 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.filterComponent.filters?.organizationFilter?.action(orgNode);
   }
 
-  addFolder = async (): Promise<void> => {
-    openFolderAddEditDialog(this.dialogService);
+  addFolder = (): void => {
+    AddEditFolderDialogComponent.open(this.dialogService);
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
-    const dialog = openFolderAddEditDialog(this.dialogService, {
-      data: {
-        folderId: folder.id,
-      },
+    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
+      editFolderConfig: { folder },
     });
 
-    const result = await lastValueFrom(dialog.closed);
+    const result = await lastValueFrom(dialogRef.closed);
 
-    if (result === FolderAddEditDialogResult.Deleted) {
+    if (result === AddEditFolderDialogResult.Deleted) {
       await this.router.navigate([], {
         queryParams: { folderId: null },
         queryParamsHandling: "merge",
