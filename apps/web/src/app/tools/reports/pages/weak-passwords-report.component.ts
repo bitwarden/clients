@@ -56,6 +56,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     this.weakPasswordCiphers = [];
     this.filterStatus = [0];
     this.findWeakPasswords(allCiphers);
+    this.weakPasswordCiphers = this.sortCiphers(this.weakPasswordCiphers, "score", false);
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {
@@ -107,6 +108,29 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       }
     });
     this.filterCiphersByOrg(this.weakPasswordCiphers);
+  }
+
+  onSortChange(field: string, event: Event) {
+    const target = event.target as HTMLInputElement;
+    const ascending = target.checked;
+    this.weakPasswordCiphers = this.sortCiphers(this.weakPasswordCiphers, field, ascending);
+  }
+
+  protected sortCiphers(
+    ciphers: ReportResult[],
+    field: string,
+    ascending: boolean,
+  ): ReportResult[] {
+    return ciphers.sort((a, b) => {
+      const aValue = a[field as keyof ReportResult];
+      const bValue = b[field as keyof ReportResult];
+
+      if (aValue === bValue) {
+        return 0;
+      }
+      const comparison = aValue > bValue ? 1 : -1;
+      return ascending ? comparison : -comparison;
+    });
   }
 
   protected canManageCipher(c: CipherView): boolean {
