@@ -16,6 +16,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,7 +27,7 @@ import { KeyService } from "@bitwarden/key-management";
 export class AttachmentsComponent implements OnInit {
   @Input() cipherId: string;
   @Input() viewOnly: boolean;
-  @Output() onUploadedAttachment = new EventEmitter();
+  @Output() onUploadedAttachment = new EventEmitter<CipherView>();
   @Output() onDeletedAttachment = new EventEmitter();
   @Output() onReuploadedAttachment = new EventEmitter();
 
@@ -34,7 +35,7 @@ export class AttachmentsComponent implements OnInit {
   cipherDomain: Cipher;
   canAccessAttachments: boolean;
   formPromise: Promise<any>;
-  deletePromises: { [id: string]: Promise<any> } = {};
+  deletePromises: { [id: string]: Promise<CipherData> } = {};
   reuploadPromises: { [id: string]: Promise<any> } = {};
   emergencyAccessId?: string = null;
   protected componentName = "";
@@ -92,7 +93,7 @@ export class AttachmentsComponent implements OnInit {
         await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
       );
       this.platformUtilsService.showToast("success", null, this.i18nService.t("attachmentSaved"));
-      this.onUploadedAttachment.emit();
+      this.onUploadedAttachment.emit(this.cipher);
     } catch (e) {
       this.logService.error(e);
     }
@@ -121,7 +122,16 @@ export class AttachmentsComponent implements OnInit {
 
     try {
       this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id);
-      await this.deletePromises[attachment.id];
+      const updatedCipher = await this.deletePromises[attachment.id];
+
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const cipher = new Cipher(updatedCipher);
+      this.cipher = await cipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+      );
+
       this.platformUtilsService.showToast("success", null, this.i18nService.t("deletedAttachment"));
       const i = this.cipher.attachments.indexOf(attachment);
       if (i > -1) {
@@ -132,7 +142,7 @@ export class AttachmentsComponent implements OnInit {
     }
 
     this.deletePromises[attachment.id] = null;
-    this.onDeletedAttachment.emit();
+    this.onDeletedAttachment.emit(this.cipher);
   }
 
   async download(attachment: AttachmentView) {

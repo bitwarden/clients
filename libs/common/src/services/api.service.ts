@@ -685,7 +685,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, false);
+    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
   }
 
   deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
