@@ -19,8 +19,6 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
-// TODO: This should be moved to the directory of whatever team takes this on
-
 export class DesktopFido2UserInterfaceService
   implements Fido2UserInterfaceServiceAbstraction<void>
 {

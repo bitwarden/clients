@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Оцінити розширення"
   },
-  "rateExtensionDesc": {
-    "message": "Розкажіть іншим про свої враження, залишивши хороший відгук!"
-  },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не підтримує копіювання даних в буфер обміну. Скопіюйте вручну."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показувати кількість пропозицій автозаповнення на піктограмі розширення"
   },
+  "showQuickCopyActions": {
+    "message": "Показати дії швидкого копіювання у сховищі"
+  },
   "systemDefault": {
     "message": "Типово (система)"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Бета"
+  },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
   },
   "extensionWidth": {
     "message": "Ширина вікна розширення"

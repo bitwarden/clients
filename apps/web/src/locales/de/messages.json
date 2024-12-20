@@ -6,7 +6,7 @@
     "message": "Kritische Anwendungen"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Zugriff auf Informationen"
   },
   "riskInsights": {
     "message": "Risiko-Überblick"
@@ -34,24 +34,6 @@
   },
   "restoreMembers": {
     "message": "Mitglieder wiederherstellen"
-  },
-  "revokeMembersWarning": {
-    "message": "Mitglieder mit beanspruchten und unbeanspruchten Konten werden andere Ergebnisse haben, wenn sie widerrufen werden:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Beanspruchtes Konto: Zugriff auf Bitwarden-Konto widerrufen"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unbeanspruchtes Konto: Zugriff auf Organisationsdaten widerrufen"
-  },
-  "claimedAccount": {
-    "message": "Beanspruchtes Konto"
-  },
-  "unclaimedAccount": {
-    "message": "Unbeanspruchtes Konto"
-  },
-  "restoreMembersInstructions": {
-    "message": "Um das Konto eines Mitglieds wiederherzustellen, wechsel zum Wiederrufen-Tab. Der Vorgang kann einige Sekunden dauern und kann nicht unterbrochen oder abgebrochen werden."
   },
   "cannotRestoreAccessError": {
     "message": "Organisationszugriff kann nicht wiederhergestellt werden"
@@ -3900,6 +3882,9 @@
   "updateBrowser": {
     "message": "Browser aktualisieren"
   },
+  "generatingRiskInsights": {
+    "message": "Deine Risikoübersicht wird generiert..."
+  },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
   },
@@ -6835,7 +6820,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimIntegrationDescription": {
-    "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützte Integrationen",
+    "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützten Integrationen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Beschreibungscode"
   },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Richte die zweistufige Anmeldung ein"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden wird einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten ab Februar 2025 zu überprüfen."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die zweistufige Anmeldung als eine alternative Methode einrichten, um deinen Account zu schützen, oder ändere deine E-Mail-Adresse zu einer, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Aktiviere die zweistufige Anmeldung"
+  },
+  "changeAcctEmail": {
+    "message": "Ändere die E-Mail-Adresse des Kontos"
+  },
   "removeMembers": {
     "message": "Mitglieder entfernen"
   },
@@ -9982,6 +10003,9 @@
     }
   },
   "domainClaimed": {
-    "message": "Domain claimed"
+    "message": "Beanspruchte Domain"
+  },
+  "organizationNameMaxLength": {
+    "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   }
 }

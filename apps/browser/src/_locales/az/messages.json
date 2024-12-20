@@ -193,10 +193,10 @@
     "message": "Kimliyi avto-doldur"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Doğrulama kodunu doldur"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Doğrulama Kodunu Doldur",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -647,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Uzantını qiymətləndir"
-  },
-  "rateExtensionDesc": {
-    "message": "Gözəl bir rəy ilə bizə dəstək ola bilərsiniz!"
   },
   "browserNotSupportClipboard": {
     "message": "Veb brauzeriniz lövhəyə kopyalamağı dəstəkləmir. Əvəzində əllə kopyalayın."
@@ -3588,11 +3585,11 @@
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
-    "message": "Time-based One-Time Password Verification Code",
+    "message": "Vaxt əsaslı Təkistifadəlik Parol Doğrulama Kodu",
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
-    "message": "Time remaining before current TOTP expires",
+    "message": "Hazırkı TOTP-nin bitməsinə qalan vaxt",
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "systemDefault": {
     "message": "İlkin sistem"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Vacib bildiriş"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki addımlı girişi qur"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra xatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Xeyr, edə bilmirəm"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki addımlı girişi işə sal"
+  },
+  "changeAcctEmail": {
+    "message": "Hesabın e-poçtunu dəyişdir"
   },
   "extensionWidth": {
     "message": "Uzantı eni"

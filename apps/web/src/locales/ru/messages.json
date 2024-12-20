@@ -35,26 +35,8 @@
   "restoreMembers": {
     "message": "Восстановление пользователей"
   },
-  "revokeMembersWarning": {
-    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Claimed account: Revoke access to Bitwarden account"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unclaimed account: Revoke access to organization data"
-  },
-  "claimedAccount": {
-    "message": "Claimed account"
-  },
-  "unclaimedAccount": {
-    "message": "Unclaimed account"
-  },
-  "restoreMembersInstructions": {
-    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
-  },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Невозможно восстановить доступ к организации"
   },
   "allApplicationsWithCount": {
     "message": "Все приложения ($COUNT$)",
@@ -1596,7 +1578,7 @@
     "message": "Ограничено аккаунтом"
   },
   "passwordProtected": {
-    "message": "Пароль защищен"
+    "message": "Защищено паролем"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Пароль к файлу\" и \"Подтверждение пароля к файлу\" не совпадают."
@@ -3900,6 +3882,9 @@
   "updateBrowser": {
     "message": "Обновить браузер"
   },
+  "generatingRiskInsights": {
+    "message": "Генерирование информации о рисках..."
+  },
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
   },
@@ -5650,10 +5635,10 @@
     "message": "Исключено, не применимо для данного действия."
   },
   "nonCompliantMembersTitle": {
-    "message": "Non-compliant members"
+    "message": "Участники, не отвечающие требованиям"
   },
   "nonCompliantMembersError": {
-    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+    "message": "Участники, не соответствующие требованиям политики единой организации или двухэтапной аутентификации, не могут быть восстановлены, пока они не будут соответствовать требованиям политики"
   },
   "fingerprint": {
     "message": "Отпечаток"
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Код дескриптора"
   },
+  "importantNotice": {
+    "message": "Важное уведомление"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настроить двухэтапную аутентификацию"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
+  },
+  "remindMeLater": {
+    "message": "Напомнить позже"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Нет, не знаю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, я имею надежный доступ к своей электронной почте"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включить двухэтапную аутентификацию"
+  },
+  "changeAcctEmail": {
+    "message": "Изменить email аккаунта"
+  },
   "removeMembers": {
     "message": "Удалить участников"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Домен зарегистрирован"
+  },
+  "organizationNameMaxLength": {
+    "message": "Название организации не может превышать 50 символов."
   }
 }

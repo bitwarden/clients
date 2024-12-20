@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Възстановяване на достъпа на членове"
   },
-  "revokeMembersWarning": {
-    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Claimed account: Revoke access to Bitwarden account"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unclaimed account: Revoke access to organization data"
-  },
-  "claimedAccount": {
-    "message": "Claimed account"
-  },
-  "unclaimedAccount": {
-    "message": "Unclaimed account"
-  },
-  "restoreMembersInstructions": {
-    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
-  },
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Обновяване на браузъра"
+  },
+  "generatingRiskInsights": {
+    "message": "Създаване на Вашата информация относно рисковете…"
   },
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Код от описанието"
   },
+  "importantNotice": {
+    "message": "Важно съобщение"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настройте двустепенно удостоверяване"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
+  },
+  "remindMeLater": {
+    "message": "Напомнете ми по-късно"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, нямам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, имам достъп до е-пощата си"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включване на двустепенното удостоверяване"
+  },
+  "changeAcctEmail": {
+    "message": "Промяна на е-пощата"
+  },
   "removeMembers": {
     "message": "Премахване на членовете"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Домейнът е присвоен"
+  },
+  "organizationNameMaxLength": {
+    "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   }
 }

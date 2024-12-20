@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Ohodnotit rozšíření"
   },
-  "rateExtensionDesc": {
-    "message": "Pomozte nám napsáním dobré recenze!"
-  },
   "browserNotSupportClipboard": {
     "message": "Váš webový prohlížeč nepodporuje automatické kopírování do schránky. Musíte ho zkopírovat ručně."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobrazit počet návrhů automatického vyplňování přihlášení na ikoně rozšíření"
   },
+  "showQuickCopyActions": {
+    "message": "Zobrazit akce rychlé kopie v trezoru"
+  },
   "systemDefault": {
     "message": "Systémový výchozí"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Důležité upozornění"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavit dvoufázové přihlášení"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
+  },
+  "remindMeLater": {
+    "message": "Připomenout později"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ne, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ano, ke svému e-mailu mám přístup"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnout dvoufázové přihlášení"
+  },
+  "changeAcctEmail": {
+    "message": "Změnit e-mail účtu"
   },
   "extensionWidth": {
     "message": "Šířka rozšíření"

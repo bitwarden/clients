@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Оцени овај додатак"
   },
-  "rateExtensionDesc": {
-    "message": "Молимо вас да размотрите да нам помогнете уз добру оцену!"
-  },
   "browserNotSupportClipboard": {
     "message": "Ваш прегледач не подржава једноставно копирање у клипборду. Уместо тога копирајте га ручно."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Прикажи број предлога за ауто-попуњавање пријаве на икони додатка"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "systemDefault": {
     "message": "Системски подразумевано"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Бета"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   },
   "extensionWidth": {
     "message": "Ширина додатка"

@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Avaliar a extensão"
   },
-  "rateExtensionDesc": {
-    "message": "Por favor, considere ajudar-nos com uma boa avaliação!"
-  },
   "browserNotSupportClipboard": {
     "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
   },
@@ -3821,7 +3818,7 @@
     "message": "Chave de acesso"
   },
   "accessing": {
-    "message": "A aceder"
+    "message": "A aceder a"
   },
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostrar o número de sugestões de preenchimento automático de credenciais no ícone da extensão"
   },
+  "showQuickCopyActions": {
+    "message": "Mostrar ações de cópia rápida no cofre"
+  },
   "systemDefault": {
     "message": "Predefinição do sistema"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Definir a verificação de dois passos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
+  },
+  "remindMeLater": {
+    "message": "Lembrar-me mais tarde"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não, não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar a verificação de dois passos"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar o e-mail da conta"
   },
   "extensionWidth": {
     "message": "Largura da extensão"

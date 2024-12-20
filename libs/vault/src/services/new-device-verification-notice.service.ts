@@ -57,7 +57,7 @@ export class NewDeviceVerificationNoticeService {
   }
 
   async updateNewDeviceVerificationNoticeState(
-    userId: UserId,
+    userId: UserId | null,
     newState: NewDeviceVerificationNotice,
   ): Promise<void> {
     await this.noticeState(userId).update(() => {

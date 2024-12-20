@@ -23,19 +23,19 @@
     "message": "New to Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Zaloguj się używając passkey"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Użyj jednokrotnego logowania"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Witaj ponownie"
   },
   "setAStrongPassword": {
     "message": "Ustaw silne hasło"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Ukończ tworzenie konta poprzez utworzenie hasła"
+    "message": "Ukończ tworzenie konta poprzez ustawienie hasła"
   },
   "enterpriseSingleSignOn": {
     "message": "Logowanie jednokrotne"
@@ -120,7 +120,7 @@
     "message": "Kopiuj hasło"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopiuj frazę bezpieczeństwa"
   },
   "copyNote": {
     "message": "Kopiuj notatkę"
@@ -153,13 +153,13 @@
     "message": "Kopiuj numer licencji"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Skopiuj klucz prywatny"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Skopiuj klucz publiczny"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Skopiuj odcisk palca"
   },
   "copyCustomField": {
     "message": "Kopiuj $FIELD$",
@@ -193,10 +193,10 @@
     "message": "Autouzupełnianie tożsamości"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Wypełnij kod weryfikacyjny"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Wypełnij kod weryfikacyjny",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -443,7 +443,7 @@
     "message": "Wygeneruj hasło"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Wygenruj frazę zabezpieczającą"
   },
   "regeneratePassword": {
     "message": "Wygeneruj ponownie hasło"
@@ -607,7 +607,7 @@
     "message": "Otwórz stronę"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Otwórz stronę internetową $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -647,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Oceń rozszerzenie"
-  },
-  "rateExtensionDesc": {
-    "message": "Wesprzyj nas pozytywną opinią!"
   },
   "browserNotSupportClipboard": {
     "message": "Przeglądarka nie obsługuje łatwego kopiowania schowka. Skopiuj element ręcznie."
@@ -862,7 +859,7 @@
     "message": "Zaloguj się"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Zaloguj się do Bitwarden"
   },
   "restartRegistration": {
     "message": "Zrestartuj rejestrację"
@@ -1133,7 +1130,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Ostrzeżenie",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1327,7 +1324,7 @@
     "message": "Wpisz 6-cyfrowy kod weryfikacyjny z aplikacji uwierzytelniającej."
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Limit czasu uwierzytelniania"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
@@ -1450,7 +1447,7 @@
     "message": "Adres URL serwera"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "URL samodzielnie hostowanego serwera",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -2531,7 +2528,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Zabezpiecz tę wiadomość hasłem, które będzie wymagane, aby uzyskać do niej dostęp.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2616,7 +2613,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
+    "message": "Otworzyć rozszerzenie w nowym oknie?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
@@ -2894,7 +2891,7 @@
     "message": "Wygeneruj nazwę użytkownika"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Wygeneruj e-mail"
   },
   "spinboxBoundariesHint": {
     "message": "Wartość musi być pomiędzy $MIN$ a $MAX$.",
@@ -2971,11 +2968,11 @@
     "message": "Wygeneruj alias adresu e-mail z zewnętrznej usługi przekierowania."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "Domena adresu e-mail",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Wybierz domenę, która jest obsługiwana przez wybraną usługę",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -3178,16 +3175,16 @@
     "message": "Wyślij ponownie powiadomienie"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Zobacz wszystkie sposoby logowania"
   },
   "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
+    "message": "Zobacz wszystkie sposoby logowania"
   },
   "notificationSentDevice": {
     "message": "Powiadomienie zostało wysłane na urządzenie."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Powiadomienie zostało wysłane na twoje urządzenie"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
@@ -3196,7 +3193,7 @@
     "message": "You will be notified once the request is approved"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Potrzebujesz innego sposobu?"
   },
   "loginInitiated": {
     "message": "Logowanie rozpoczęte"
@@ -3292,16 +3289,16 @@
     "message": "Otwiera w nowym oknie"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Zapamiętaj to urządzenie, aby przyszłe logowania były bezproblemowe"
   },
   "deviceApprovalRequired": {
     "message": "Wymagane zatwierdzenie urządzenia. Wybierz opcję zatwierdzenia poniżej:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Wymagane zatwierdzenie urządzenia"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Wybierz opcję zatwierdzenia poniżej"
   },
   "rememberThisDevice": {
     "message": "Zapamiętaj to urządzenie"
@@ -3377,7 +3374,7 @@
     "message": "Brak adresu e-mail użytkownika"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Nie znaleziono aktywnego adresu e-mail. Trwa wylogowanie."
   },
   "deviceTrusted": {
     "message": "Zaufano urządzeniu"
@@ -3592,7 +3589,7 @@
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
-    "message": "Time remaining before current TOTP expires",
+    "message": "Pozostały czas do wygaśnięcia bieżącego TOTP",
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
@@ -3824,7 +3821,7 @@
     "message": "Uzyskiwanie dostępu"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Zalogowano!"
   },
   "passkeyNotCopied": {
     "message": "Passkey nie zostanie skopiowany"
@@ -4318,13 +4315,13 @@
     "message": "Filtry"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Filtruj sejf"
   },
   "filterApplied": {
-    "message": "One filter applied"
+    "message": "Zastosowano jeden filtr"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
+    "message": "$COUNT$ filtrów zastosowanych",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Pokaż liczbę sugestii autouzupełniania logowania na ikonie rozszerzenia"
   },
+  "showQuickCopyActions": {
+    "message": "Pokaż akcje szybkiego kopiowania w Sejfie"
+  },
   "systemDefault": {
     "message": "Domyślny systemu"
   },
@@ -4692,7 +4692,7 @@
     "message": "Klucz publiczny"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Odcisk palca"
   },
   "sshKeyAlgorithm": {
     "message": "Typ klucza"
@@ -4701,13 +4701,13 @@
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bitowy"
+    "message": "RSA 2048-bitowy"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bitowy"
+    "message": "RSA 3072-bitowy"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bitowy"
+    "message": "RSA 4096-bitowy"
   },
   "retry": {
     "message": "Powtórz"
@@ -4756,19 +4756,19 @@
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Hasło zostało ponownie wygenerowane",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+    "message": "Zapisać dane logowania w Bitwarden?",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
-    "message": "Space",
+    "message": "Spacja",
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
-    "message": "Tilde",
+    "message": "Tylda",
     "description": "Represents the ~ key in screen reader content as a readable word"
   },
   "backtickCharacterDescriptor": {
@@ -4776,23 +4776,23 @@
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
-    "message": "Exclamation mark",
+    "message": "Wykrzyknik",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
-    "message": "At sign",
+    "message": "Małpa",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "Hashtag",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
-    "message": "Dollar sign",
+    "message": "Znak dolara",
     "description": "Represents the $ key in screen reader content as a readable word"
   },
   "percentSignCharacterDescriptor": {
-    "message": "Percent sign",
+    "message": "Znak procenta",
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
@@ -4804,23 +4804,23 @@
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "Gwiazdka",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "Prawy nawias okrągły",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "Prawy nawias okrągły",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "Znak podkreślenia",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "Myślnik",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
@@ -4828,27 +4828,27 @@
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "Znak równości",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "Lewy nawias klamrowy",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "Prawy nawias klamrowy",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "Lewy nawias kwadratowy",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "Prawy nawias kwadratowy",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "Pionowa kreska",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
@@ -4856,39 +4856,39 @@
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "Dwukropek",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "Średnik",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "Cudzysłów",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "Apostrof",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "Mniejszy niż",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "Większy niż",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "Przecinek",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
-    "message": "Period",
+    "message": "Kropka",
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "Znak zapytania",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
@@ -4896,19 +4896,55 @@
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
-    "message": "Lowercase"
+    "message": "Małe litery"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Wielkie litery"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Wygenerowane hasło"
   },
   "compactMode": {
     "message": "Tryb kompaktowy"
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   },
   "extensionWidth": {
     "message": "Szerokość rozszerzenia"

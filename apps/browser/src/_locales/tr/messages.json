@@ -421,10 +421,10 @@
     "message": "Son eşitleme:"
   },
   "passGen": {
-    "message": "Parola üretici"
+    "message": "Parola üreteci"
   },
   "generator": {
-    "message": "Oluşturucu",
+    "message": "Üreteç",
     "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Uzantıyı değerlendirin"
   },
-  "rateExtensionDesc": {
-    "message": "İyi bir yorum yazarak bizi destekleyebilirsiniz."
-  },
   "browserNotSupportClipboard": {
     "message": "Web tarayıcınız panoya kopyalamayı desteklemiyor. Parolayı elle kopyalayın."
   },
@@ -844,7 +841,7 @@
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
   },
   "copyTOTP": {
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
@@ -1327,10 +1324,10 @@
     "message": "Kimlik doğrulama uygulamanızdaki 6 haneli doğrulama kodunu girin."
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Kimlik doğrulama zaman aşımı"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Kimlik doğrulama oturumu zaman aşımına uğradı. Lütfen giriş sürecini yeniden başlatın."
   },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ adresine e-postayla gönderdiğimiz 6 haneli doğrulama kodunu girin.",
@@ -1435,7 +1432,7 @@
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "İleri düzey yapılandırma için her hizmetin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
@@ -3181,7 +3178,7 @@
     "message": "Tüm giriş seçeneklerini gör"
   },
   "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
+    "message": "Tüm giriş seçeneklerini gör"
   },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
@@ -4318,13 +4315,13 @@
     "message": "Filtreler"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Kasayı filtrele"
   },
   "filterApplied": {
-    "message": "One filter applied"
+    "message": "1 filtre uygulandı"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
+    "message": "$COUNT$ filtre uygulandı",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Otomatik öneri sayısını uzantı simgesinde göster"
   },
+  "showQuickCopyActions": {
+    "message": "Kasada hızlı kopyalama komutlarını göster"
+  },
   "systemDefault": {
     "message": "Sistem varsayılanı"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Önemli uyarı"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki adımlı girişi ayarla"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra hatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ adresinize sağlıklı bir şekilde erişebiliyor musunuz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Hayır, erişemiyorum"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki adımlı girişi etkinleştir"
+  },
+  "changeAcctEmail": {
+    "message": "Hesap e-postasını değiştir"
   },
   "extensionWidth": {
     "message": "Uzantı genişliği"

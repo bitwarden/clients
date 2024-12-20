@@ -1433,7 +1433,7 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs:
       - linux
       - windows

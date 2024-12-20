@@ -1,6 +1,7 @@
 use aes::cipher::generic_array::GenericArray;
 use anyhow::{anyhow, Result};
 
+#[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
@@ -41,6 +42,7 @@ pub trait BiometricTrait {
     ) -> Result<String>;
 }
 
+#[allow(unused)]
 fn encrypt(secret: &str, key_material: &KeyMaterial, iv_b64: &str) -> Result<String> {
     let iv = base64_engine
         .decode(iv_b64)?
@@ -52,9 +54,10 @@ fn encrypt(secret: &str, key_material: &KeyMaterial, iv_b64: &str) -> Result<Str
     Ok(encrypted.to_string())
 }
 
+#[allow(unused)]
 fn decrypt(secret: &CipherString, key_material: &KeyMaterial) -> Result<String> {
     if let CipherString::AesCbc256_B64 { iv, data } = secret {
-        let decrypted = crypto::decrypt_aes256(&iv, &data, key_material.derive_key()?)?;
+        let decrypted = crypto::decrypt_aes256(iv, data, key_material.derive_key()?)?;
 
         Ok(String::from_utf8(decrypted)?)
     } else {

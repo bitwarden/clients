@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Tagok visszaállítása"
   },
-  "revokeMembersWarning": {
-    "message": "Az igényelt és nem igényelt fiókokkal rendelkező tagok visszavonása esetén eltérő eredményeket érnek el:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Igényelt fiók: A Bitwarden fiókhoz hozzáférés visszavonása"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Nem igényelt fiók: A szervezeti adatokhoz hozzáférés visszavonása"
-  },
-  "claimedAccount": {
-    "message": "Igényelt fiók"
-  },
-  "unclaimedAccount": {
-    "message": "Nem-igényelt fiók"
-  },
-  "restoreMembersInstructions": {
-    "message": "Egy tag fiókjának visszaállításához lépjünk a Visszavont fülre. A folyamat néhány másodpercig tarthat és nem lehet megszakítani vagy törölni."
-  },
   "cannotRestoreAccessError": {
     "message": "Nem lehet visszaállítani a szervezeti hozzáférést."
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Böngésző frissítése"
+  },
+  "generatingRiskInsights": {
+    "message": "A kockázati betekintések generálása..."
   },
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Leíró kód"
   },
+  "importantNotice": {
+    "message": "Fontos megjegyzés"
+  },
+  "setupTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés szükséges"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
+  },
+  "remindMeLater": {
+    "message": "Emlékeztetés később"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nem, nem érem el"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés bekapcsolása"
+  },
+  "changeAcctEmail": {
+    "message": "Fiók email cím megváltoztatása"
+  },
   "removeMembers": {
     "message": "Tagok eltávolítása"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "A tartomány követelésre került."
+  },
+  "organizationNameMaxLength": {
+    "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   }
 }

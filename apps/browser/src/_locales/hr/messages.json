@@ -20,16 +20,16 @@
     "message": "Stvori račun"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Novi u Bitwardenu?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Prijava pristupnim ključem"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Jedinstvena prijava (SSO)"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Dobro došli natrag"
   },
   "setAStrongPassword": {
     "message": "Postavi jaku lozinku"
@@ -84,7 +84,7 @@
     "message": "Pridruži se organizaciji"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Pidruži se $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -120,7 +120,7 @@
     "message": "Kopiraj lozinku"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopiraj fraznu lozinku"
   },
   "copyNote": {
     "message": "Kopiraj bilješku"
@@ -153,13 +153,13 @@
     "message": "Kopiraj OIB"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiraj privatni ključ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiraj javni ključ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopiraj otisak prsta"
   },
   "copyCustomField": {
     "message": "Kopiraj $FIELD$",
@@ -177,7 +177,7 @@
     "message": "Kopiraj bilješke"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Ispuni",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -193,10 +193,10 @@
     "message": "Auto-ispuna identiteta"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Ispuni kôd za provjeru"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Ispuni kôd za provjeru",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -284,7 +284,7 @@
     "message": "Nastavi na web aplikaciju?"
   },
   "continueToWebAppDesc": {
-    "message": "Pronađi viđe značajki svojeg Bitwarden računa u web aplikaciji."
+    "message": "Pronađi više značajki svojeg Bitwarden računa u web aplikaciji."
   },
   "continueToHelpCenter": {
     "message": "Nastavi u centar za pomoć?"
@@ -349,10 +349,10 @@
     "message": "Stvori laka i sigurna iskustva prijave bez tradicionalnih lozinki uz Passwordless.dev. Saznaj više na web stranici bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "Besplatan obiteljski Bitwarden"
+    "message": "Besplatni Bitwarden Families"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "Ispunjavaš uvjete za besplatni obiteljski Bitwarden. Iskoristi ovu ponudu u web aplikaciji već danas."
+    "message": "Ispunjavaš uvjete za besplatni Bitwarden Families. Iskoristi ovu ponudu u web aplikaciji već danas."
   },
   "version": {
     "message": "Verzija"
@@ -443,7 +443,7 @@
     "message": "Generiraj lozinku"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generiraj frazu lozinke"
   },
   "regeneratePassword": {
     "message": "Ponovno generiraj lozinku"
@@ -607,7 +607,7 @@
     "message": "Pokreni web stranicu"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Otvori stranicu $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -647,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Ocijeni proširenje"
-  },
-  "rateExtensionDesc": {
-    "message": "Razmotri da nam pomogneš dobrom recenzijom!"
   },
   "browserNotSupportClipboard": {
     "message": "Web preglednik ne podržava jednostavno kopiranje međuspremnika. Umjesto toga ručno kopirajte."
@@ -804,7 +801,7 @@
     "message": "Poslali smo e-poštu s podsjetnikom glavne lozinke."
   },
   "verificationCodeRequired": {
-    "message": "Potvrdni kôd je obavezan."
+    "message": "Kôd za provjeru je obavezan."
   },
   "webauthnCancelOrTimeout": {
     "message": "Autentifikacija je otkazana ili je trajala predugo. Molimo pokušaj ponovno."
@@ -862,7 +859,7 @@
     "message": "Prijavi se"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Prijavi se u Bitwarden"
   },
   "restartRegistration": {
     "message": "Ponovno pokreni registraciju"
@@ -1133,7 +1130,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Upozorenje",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1312,7 +1309,7 @@
     "message": "Automatski kopiraj TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Ako za prijavu postoji autentifikatorski ključ, kopiraj TOTP kontrolni kôd u međuspremnik nakon auto-ispune prijave."
+    "message": "Ako za prijavu postoji autentifikatorski ključ, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Traži biometrijsku autentifikaciju pri pokretanju"
@@ -1324,16 +1321,16 @@
     "message": "Za korištenje ove značajke potrebno je Premium članstvo."
   },
   "enterVerificationCodeApp": {
-    "message": "Unesi 6-znamenkasti kontrolni kôd iz autentifikatorske aplikacije."
+    "message": "Unesi 6-znamenkasti kôd za provjeru iz autentifikatorske aplikacije."
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Istek vremena za autentifikaciju"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Sesija za autentifikaciju je istekla. Ponovi proces prijave."
   },
   "enterVerificationCodeEmail": {
-    "message": "Unesi 6-znamenkasti kontrolni kôd poslan e-poštom na $EMAIL$.",
+    "message": "Unesi 6-znamenkasti kôd za provjeru poslan e-poštom na $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1450,7 +1447,7 @@
     "message": "URL poslužitelja"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "URL vlastitog poslužitelja",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -1482,10 +1479,10 @@
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Display identities as suggestions"
+    "message": "Prikaži identitete kao prijedloge"
   },
   "showInlineMenuCardsLabel": {
-    "message": "Display cards as suggestions"
+    "message": "Prikaži platne kartice kao prijedloge"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Prikaži prijedloge kada je odabrana ikona"
@@ -1604,7 +1601,7 @@
     "description": "This describes a value that is 'linked' (tied) to another value."
   },
   "popup2faCloseMessage": {
-    "message": "Ako klikneš izvan iskočnog prozora, za provjeru kontrolnog kôda iz e-pošte, on će se zatvoriti. Želiš li ovaj iskočni prozor otvoriti u novom prozoru kako se ne bi zatvorio?"
+    "message": "Ako klikneš izvan iskočnog prozora, za provjeru kôda za provjeru iz e-pošte, on će se zatvoriti. Želiš li ovaj iskočni prozor otvoriti u novom prozoru kako se ne bi zatvorio?"
   },
   "popupU2fCloseMessage": {
     "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
@@ -1679,7 +1676,7 @@
     "message": "prosinac"
   },
   "securityCode": {
-    "message": "Kontrolni broj"
+    "message": "Sigurnosni kôd"
   },
   "ex": {
     "message": "npr."
@@ -1778,7 +1775,7 @@
     "message": "Identitet"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH ključ"
   },
   "newItemHeader": {
     "message": "Novi $TYPE$",
@@ -1811,13 +1808,13 @@
     "message": "Povijest"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Povijest generatora"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Očisti povijest generatora"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Cijela povijest generatora biti će trajno izbirsana. Sigurno želiš nastaviti?"
   },
   "back": {
     "message": "Natrag"
@@ -1856,7 +1853,7 @@
     "message": "Sigurne bilješke"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH ključevi"
   },
   "clear": {
     "message": "Očisti",
@@ -1939,10 +1936,10 @@
     "message": "Očisti povijest"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ništa za prikazati"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Ništa nije generirano"
   },
   "remove": {
     "message": "Ukloni"
@@ -2531,7 +2528,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Dodaj opcionalnu lozinku za primatelje ovog Senda.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2729,7 +2726,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "od $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2894,10 +2891,10 @@
     "message": "Generiraj korisničko ime"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Generiraj e-poštu"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Vrijednost mora biti u rasponu $MIN$ - $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2911,7 +2908,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Koristi $RECOMMENDED$ i više znakova za generiranje jake lozinke.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2921,7 +2918,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Koristi $RECOMMENDED$ i više riječi za generiranje jake frazne lozinke.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2971,11 +2968,11 @@
     "message": "Generiraj pseudonim e-pošte s vanjskom uslugom prosljeđivanja."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "Domena e-pošte",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Odaberi domenu koju podržava odabrani servis",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -3178,25 +3175,25 @@
     "message": "Ponovno pošalji obavijest"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Pogledaj sve mogućnosti prijave"
   },
   "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
+    "message": "Pogledaj sve mogućnosti prijave"
   },
   "notificationSentDevice": {
     "message": "Obavijest je poslana na tvoj uređaj."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Obavijest je poslana na tvoj uređaj"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Provjeri je li trezor otključan i slaže li se jedinstvena fraza s drugim uređajem"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Dobiti ćeš obavijest kada je tvoj zahtjev odobren"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Trebaš drugu opciju?"
   },
   "loginInitiated": {
     "message": "Prijava pokrenuta"
@@ -3292,16 +3289,16 @@
     "message": "Otvara u novom prozoru"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Zapamti ovaj uređaj kako bi buduće prijave bile brže"
   },
   "deviceApprovalRequired": {
     "message": "Potrebno je odobriti uređaj. Odaberi metodu odobravanja:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Potrebno odobrenje uređaja"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Odaberi opciju odobrenja"
   },
   "rememberThisDevice": {
     "message": "Zapamti ovaj uređaj"
@@ -3377,7 +3374,7 @@
     "message": "Nedostaje e-pošta korisnika"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Nije pronađena e-pošta aktivnog korisnika. Odjava u tijeku..."
   },
   "deviceTrusted": {
     "message": "Uređaj pouzdan"
@@ -3588,11 +3585,11 @@
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
-    "message": "Time-based One-Time Password Verification Code",
+    "message": "Kôd za provjeru jednokratne lozinka zasnovane na vremenu (TOTP) ",
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
-    "message": "Time remaining before current TOTP expires",
+    "message": "Preostalo vrijeme koda za provjeru",
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
@@ -3824,7 +3821,7 @@
     "message": "Pristupanje"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Prijava uspješna!"
   },
   "passkeyNotCopied": {
     "message": "Pristupni ključ neće biti kopiran"
@@ -4288,7 +4285,7 @@
     "message": "Najveća veličina datoteke je 500 MB"
   },
   "deleteAttachmentName": {
-    "message": "Izbriši privitak",
+    "message": "Izbriši privitak $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4318,13 +4315,13 @@
     "message": "Filtri"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Filtriraj trezor"
   },
   "filterApplied": {
-    "message": "One filter applied"
+    "message": "Uključen jedan filter"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
+    "message": "Uključeno filtera: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4656,13 +4653,13 @@
     "message": "Lokacija stavke"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Send datoteke"
   },
   "fileSends": {
     "message": "Send datoteke"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Send teksta"
   },
   "textSends": {
     "message": "Send tekstovi"
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Prikaži broj prijedloga auto-ispune na ikoni proširenja"
   },
+  "showQuickCopyActions": {
+    "message": "Prikaži akcije brzog kopiranja na trezoru"
+  },
   "systemDefault": {
     "message": "Zadano sustavom"
   },
@@ -4686,16 +4686,16 @@
     "message": "Pravila tvrtke primijenjena su na ovu postavku"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Privatni ključ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Javni ključ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Otisak prsta"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Vrsta ključa"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -4752,171 +4752,207 @@
     "message": "Autentifikacija"
   },
   "fillGeneratedPassword": {
-    "message": "Fill generated password",
+    "message": "Ispuni generiranu lozinku",
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Lozinka re-generirana",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+    "message": "Spremi prijavu u Bitwarden?",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
-    "message": "Space",
+    "message": "Razmak",
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
-    "message": "Tilde",
+    "message": "znak ˜",
     "description": "Represents the ~ key in screen reader content as a readable word"
   },
   "backtickCharacterDescriptor": {
-    "message": "Backtick",
+    "message": "znak `",
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
-    "message": "Exclamation mark",
+    "message": "znak !",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
-    "message": "At sign",
+    "message": "znak @",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "znak #",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
-    "message": "Dollar sign",
+    "message": "znak $",
     "description": "Represents the $ key in screen reader content as a readable word"
   },
   "percentSignCharacterDescriptor": {
-    "message": "Percent sign",
+    "message": "znak %",
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "znak ^",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
-    "message": "Ampersand",
+    "message": "znak &",
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "znak *",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "lijeva zagrada (",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "desna zagrada )",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "donja crtica _",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "crtica -",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
-    "message": "Plus",
+    "message": "znak +",
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "znak =",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "znak {",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "znak }",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "znak [",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "zank ]",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "znak |",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
-    "message": "Back slash",
+    "message": "znak \\",
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "znak :",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "znak ;",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "znak \"",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "znak '",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "znak <",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "znak >",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "znak ,",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
-    "message": "Period",
+    "message": "znak .",
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "znak ?",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
-    "message": "Forward slash",
+    "message": "znak /",
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
-    "message": "Lowercase"
+    "message": "Mala slova"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Velika slova"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Generiraj lozinku"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Kompaktni način"
   },
   "beta": {
     "message": "Beta"
   },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Širina proširenja"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Široko"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Ekstra široko"
   }
 }

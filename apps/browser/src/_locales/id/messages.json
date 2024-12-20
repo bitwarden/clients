@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Pengelola Sandi",
+    "message": "Pengelola Sandi Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -193,10 +193,10 @@
     "message": "Autofill identitas"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Isikan kode verifikasi"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Isikan Kode Verifikasi",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -647,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Nilai Ekstensi"
-  },
-  "rateExtensionDesc": {
-    "message": "Mohon pertimbangkan membantu kami dengan ulasan yang baik!"
   },
   "browserNotSupportClipboard": {
     "message": "Peramban Anda tidak mendukung menyalin clipboard dengan mudah. Salin secara manual."
@@ -3181,7 +3178,7 @@
     "message": "Lihat semua pilihan masuk"
   },
   "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
+    "message": "Lihat semua pilihan masuk"
   },
   "notificationSentDevice": {
     "message": "Sebuah pemberitahuan dikirim ke perangkat Anda."
@@ -3588,11 +3585,11 @@
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
-    "message": "Time-based One-Time Password Verification Code",
+    "message": "Kode Verifikasi Kata Sandi Sekali-Waktu Berbasis Waktu",
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
-    "message": "Time remaining before current TOTP expires",
+    "message": "Waktu tersisa sebelum TOTP sekarang kadaluwarsa",
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
@@ -4339,10 +4336,10 @@
     "message": "Pengenalan"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Info kontak"
   },
   "downloadAttachment": {
-    "message": "Download - $ITEMNAME$",
+    "message": "Unduh - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -4351,23 +4348,23 @@
     }
   },
   "cardNumberEndsWith": {
-    "message": "card number ends with",
+    "message": "nomor kartu berakhiran",
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Kredensial login"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Kunci Otentikator"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Pilihan isi otomatis"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Situs web (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "$COUNT$ Situs web (URI)",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -4377,16 +4374,16 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Situs web ditambahkan"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Tambah situs web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Hapus situs web"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Bawaan ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -4396,7 +4393,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Tampilkan deteksi kecocokan $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4405,7 +4402,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Sembunyikan deteksi kecocokan $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4414,19 +4411,19 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Isi otomatis ketika halaman dimuat?"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Kartu kadaluwarsa"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Jika Anda telah memperpanjangnya, perbarui informasi kartu"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Rincian kartu"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Rincian $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -4435,43 +4432,43 @@
     }
   },
   "enableAnimations": {
-    "message": "Enable animations"
+    "message": "Nyalakan animasi"
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "Tampilkan animasi"
   },
   "addAccount": {
-    "message": "Add account"
+    "message": "Tambah akun"
   },
   "loading": {
-    "message": "Loading"
+    "message": "Memuat"
   },
   "data": {
     "message": "Data"
   },
   "passkeys": {
-    "message": "Passkeys",
+    "message": "Kunci sandi",
     "description": "A section header for a list of passkeys."
   },
   "passwords": {
-    "message": "Passwords",
+    "message": "Kata Sandi",
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
-    "message": "Log in with passkey",
+    "message": "Masuk dengan kunci sandi",
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
-    "message": "Assign"
+    "message": "Terapkan"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Hanya anggota organisasi dengan akses ke koleksi berikut yang dapat melihat isinya."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Hanya anggota organisasi dengan akses ke koleksi berikut yang dapat melihat isinya."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Anda telah memilih $TOTAL_COUNT$ benda. Anda tidak dapat memperbarui $READONLY_COUNT$ dari benda karena Anda tidak memiliki izin untuk menyunting.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4483,37 +4480,37 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Tambahkan bidang"
   },
   "add": {
-    "message": "Add"
+    "message": "Tambah"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Jenis bidang"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Label bidang"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Gunakan bidang teks untuk data seperti pertanyaan keamanan"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Gunakan bidang tersembunyi untuk data sensitif seperti kata sandi"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Gunakan kotak centang jika Anda ingin mengisi sebuah kotak centang di formullir, seperti mengingat surel"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Gunakan bidang tertaut ketika Anda mengalami masalah pengisian otomatis untuk situs web tertentu."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Masukkan id, name, aria-label, atau placeholder html dari bidang."
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Sunting bidang"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Sunting $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4522,7 +4519,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Hapus $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4531,7 +4528,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "$LABEL$ ditambahkan",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4540,7 +4537,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Urutkan $LABEL$. Gunakan tombol panah untuk memindahkan benda ke atas atau ke bawah.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "systemDefault": {
     "message": "System default"
   },
@@ -4768,155 +4768,191 @@
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
-    "message": "Tilde",
+    "message": "Tanda gelombang",
     "description": "Represents the ~ key in screen reader content as a readable word"
   },
   "backtickCharacterDescriptor": {
-    "message": "Backtick",
+    "message": "Tanda petik terbalik",
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
-    "message": "Exclamation mark",
+    "message": "Tanda seru",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
-    "message": "At sign",
+    "message": "Tanda pada",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "Tanda pagar",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
-    "message": "Dollar sign",
+    "message": "Tanda dolar",
     "description": "Represents the $ key in screen reader content as a readable word"
   },
   "percentSignCharacterDescriptor": {
-    "message": "Percent sign",
+    "message": "Tanda persen",
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "Tanda sisipan",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
-    "message": "Ampersand",
+    "message": "Tanda dan",
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "Tanda bintang",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "Tanda kurung kiri",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "Tanda kurung kanan",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "Garis bawah",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "Tanda penghubung",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
-    "message": "Plus",
+    "message": "Tanda tambah",
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "Tanda sama dengan",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "Kurung kurawal kiri",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "Kurung kurawal kanan",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "Tanda kurung siku kiri",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "Tanda kurung siku kanan",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "Garis tegak lurus",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
-    "message": "Back slash",
+    "message": "Garis miring terbalik",
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "Tanda titik dua",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "Tanda titik koma",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "Tanda petik ganda",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "Tanda petik tunggal",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "Tanda kurang dari",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "Tanda lebih besar dari",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "Tanda koma",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
-    "message": "Period",
+    "message": "Tanda titik",
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "Tanda tanya",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
-    "message": "Forward slash",
+    "message": "Tanda garis miring ke depan",
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
-    "message": "Lowercase"
+    "message": "Huruf kecil"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Huruf kapital"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Kata sandi yang dihasilkan"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Mode ringkas"
   },
   "beta": {
     "message": "Beta"
   },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Lebar ekstensi"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Lebar"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Ekstra lebar"
   }
 }

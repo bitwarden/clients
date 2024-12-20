@@ -2813,6 +2813,254 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 </div>
 `;
 
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user renders correctly when there are multiple TOTP elements with username displayed 1`] = `
+<div
+  class="inline-menu-list-container theme_light"
+>
+  <ul
+    class="inline-menu-list-actions"
+    role="list"
+  >
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: user1"
+          aria-label="fillCredentialsFor website login 1"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+          >
+            <div
+              style="position: relative;"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 29 29"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                
+          
+                <circle
+                  class="circle-color"
+                  cx="14.5"
+                  cy="14.5"
+                  fill="none"
+                  r="12.5"
+                  stroke-dasharray="78.5"
+                  stroke-dashoffset="78.5"
+                  stroke-width="3"
+                  style="stroke-dashoffset: NaN;"
+                  transform="rotate(-90 14.5 14.5)"
+                />
+                
+          
+                <circle
+                  class="circle-color"
+                  cx="14.5"
+                  cy="14.5"
+                  fill="none"
+                  r="14"
+                  stroke-width="1"
+                />
+                
+      
+              </svg>
+              <span
+                aria-label=""
+                bittypography="helper"
+                class="totp-sec-span"
+              >
+                NaN
+              </span>
+            </div>
+          </span>
+          <div
+            class="cipher-details"
+          >
+            <span
+              aria-label=""
+              class="cipher-name"
+            />
+            <span
+              class="cipher-subtitle"
+              title="user1"
+            >
+              user1
+            </span>
+            <span
+              aria-label=""
+              class="cipher-subtitle"
+              data-testid="totp-code"
+            >
+              123 456
+            </span>
+          </div>
+        </button>
+        <button
+          aria-label="view website login 1, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+    <li
+      class="inline-menu-list-actions-item"
+      role="listitem"
+    >
+      <div
+        class="cipher-container"
+      >
+        <button
+          aria-description="username: user2"
+          aria-label="fillCredentialsFor website login 2"
+          class="fill-cipher-button inline-menu-list-action"
+          tabindex="-1"
+        >
+          <span
+            aria-hidden="true"
+            class="cipher-icon"
+          >
+            <div
+              style="position: relative;"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 29 29"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                
+          
+                <circle
+                  class="circle-color"
+                  cx="14.5"
+                  cy="14.5"
+                  fill="none"
+                  r="12.5"
+                  stroke-dasharray="78.5"
+                  stroke-dashoffset="78.5"
+                  stroke-width="3"
+                  style="stroke-dashoffset: NaN;"
+                  transform="rotate(-90 14.5 14.5)"
+                />
+                
+          
+                <circle
+                  class="circle-color"
+                  cx="14.5"
+                  cy="14.5"
+                  fill="none"
+                  r="14"
+                  stroke-width="1"
+                />
+                
+      
+              </svg>
+              <span
+                aria-label=""
+                bittypography="helper"
+                class="totp-sec-span"
+              >
+                NaN
+              </span>
+            </div>
+          </span>
+          <div
+            class="cipher-details"
+          >
+            <span
+              aria-label=""
+              class="cipher-name"
+            />
+            <span
+              class="cipher-subtitle"
+              title="user2"
+            >
+              user2
+            </span>
+            <span
+              aria-label=""
+              class="cipher-subtitle"
+              data-testid="totp-code"
+            >
+              654 321
+            </span>
+          </div>
+        </button>
+        <button
+          aria-label="view website login 2, opensInANewWindow"
+          class="view-cipher-button"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="20"
+            viewBox="0 0 20 20"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g
+              clip-path="url(#a)"
+            >
+              <path
+                d="M16.587 7.932H5.9a.455.455 0 0 1-.31-.12.393.393 0 0 1-.127-.287c0-.108.046-.211.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.076.128.179.128.287a.393.393 0 0 1-.128.288.455.455 0 0 1-.31.119Zm0 2.474H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm0 2.468H5.9a.455.455 0 0 1-.31-.119.393.393 0 0 1-.127-.287c0-.108.046-.212.128-.288a.455.455 0 0 1 .309-.119h10.687c.117 0 .228.043.31.12.082.075.128.179.128.287a.393.393 0 0 1-.128.287.455.455 0 0 1-.31.12Zm2.163-8.103v10.457H1.25V4.771h17.5Zm0-1.162H1.25a1.3 1.3 0 0 0-.884.34A1.122 1.122 0 0 0 0 4.772v10.457c0 .308.132.604.366.822a1.3 1.3 0 0 0 .884.34h17.5a1.3 1.3 0 0 0 .884-.34c.234-.218.366-.514.366-.822V4.771c0-.308-.132-.603-.366-.821a1.3 1.3 0 0 0-.884-.34ZM3.213 8.01c.287 0 .52-.217.52-.484s-.234-.483-.52-.483c-.288 0-.52.216-.52.483s.233.483.52.483Zm0 4.903c.287 0 .52-.217.52-.484 0-.266-.234-.483-.52-.483-.287 0-.52.216-.52.483s.233.484.52.484Zm0-2.452c.287 0 .52-.216.52-.483 0-.268-.234-.484-.52-.484-.288 0-.52.216-.52.484 0 .267.233.483.52.483Z"
+                fill="#175DDC"
+              />
+            </g>
+            <defs>
+              <clippath
+                id="a"
+              >
+                <path
+                  d="M0 .113h20v19.773H0z"
+                  fill="#fff"
+                />
+              </clippath>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </li>
+  </ul>
+</div>
+`;
+
 exports[`AutofillInlineMenuList initAutofillInlineMenuList the locked inline menu for an unauthenticated user creates the views for the locked inline menu 1`] = `
 <div
   class="inline-menu-list-container theme_light"

@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Ohodnotiť rozšírenie"
   },
-  "rateExtensionDesc": {
-    "message": "Prosíme, zvážte napísanie pozitívnej recenzie!"
-  },
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobraziť počet odporúčaných prihlasovacích údajov na ikone rozšírenia"
   },
+  "showQuickCopyActions": {
+    "message": "Zobraziť akcie rýchleho kopírovania v trezore"
+  },
   "systemDefault": {
     "message": "Predvolené systémom"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavenie dvojstupňového prihlásenia"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
   },
   "extensionWidth": {
     "message": "Šírka rozšírenia"

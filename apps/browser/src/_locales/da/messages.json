@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Bedøm udvidelsen"
   },
-  "rateExtensionDesc": {
-    "message": "Overvej om du vil hjælpe os med en god anmeldelse!"
-  },
   "browserNotSupportClipboard": {
     "message": "Din webbrowser understøtter ikke udklipsholder kopiering. Kopiér det manuelt i stedet."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Vis antal login-autoudfyldningsforslag på udvidelsesikon"
   },
+  "showQuickCopyActions": {
+    "message": "Vis hurtig-kopihandlinger på Boks"
+  },
   "systemDefault": {
     "message": "Systemstandard"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Vigtig notits"
+  },
+  "setupTwoStepLogin": {
+    "message": "Opsæt totrins-login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
+  },
+  "remindMeLater": {
+    "message": "Påmind senere"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nej, jeg gør ikke"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, e-mailadressen kan pålideligt tilgås"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Slå totrins-login til"
+  },
+  "changeAcctEmail": {
+    "message": "Skift kontoe-mailadresse"
   },
   "extensionWidth": {
     "message": "Udvidelsesbredde"

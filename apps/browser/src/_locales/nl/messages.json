@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Deze extensie beoordelen"
   },
-  "rateExtensionDesc": {
-    "message": "Je kunt ons helpen door een goede recensie achter te laten!"
-  },
   "browserNotSupportClipboard": {
     "message": "Je webbrowser ondersteunt kopiëren naar plakbord niet. Kopieer handmatig."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Aantal login-autofill-suggesties op het extensie-pictogram weergeven"
   },
+  "showQuickCopyActions": {
+    "message": "Toon snelle kopieeracties in de kluis"
+  },
   "systemDefault": {
     "message": "Systeemstandaard"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Belangrijke mededeling"
+  },
+  "setupTwoStepLogin": {
+    "message": "Tweestapsaanmelding instellen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
+  },
+  "remindMeLater": {
+    "message": "Herinner me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nee, dat heb ik niet"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Tweestapsaanmelding inschakelen"
+  },
+  "changeAcctEmail": {
+    "message": "E-mailadres van het account veranderen"
   },
   "extensionWidth": {
     "message": "Extensiebreedte"

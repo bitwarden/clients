@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Restaurar membros"
   },
-  "revokeMembersWarning": {
-    "message": "Os membros com contas reclamadas e não reclamadas terão resultados diferentes quando revogadas:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Conta reclamada: Revogar o acesso à conta do Bitwarden"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Conta não reclamada: Revogar o acesso aos dados da organização"
-  },
-  "claimedAccount": {
-    "message": "Conta reclamada"
-  },
-  "unclaimedAccount": {
-    "message": "Conta não reclamada"
-  },
-  "restoreMembersInstructions": {
-    "message": "Para restaurar a conta de um membro, aceda ao separador Revogado. O processo pode demorar alguns segundos a ser concluído e não pode ser interrompido ou cancelado."
-  },
   "cannotRestoreAccessError": {
     "message": "Não é possível restaurar o acesso à organização"
   },
@@ -964,7 +946,7 @@
     "message": "Nível de acesso"
   },
   "accessing": {
-    "message": "A aceder"
+    "message": "A aceder a"
   },
   "loggedOut": {
     "message": "Sessão terminada"
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Atualizar navegador"
+  },
+  "generatingRiskInsights": {
+    "message": "A gerar as suas perceções de riscos..."
   },
   "updateBrowserDesc": {
     "message": "Está a utilizar um navegador web não suportado. O cofre web pode não funcionar corretamente."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Código descritor"
   },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Definir a verificação de dois passos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
+  },
+  "remindMeLater": {
+    "message": "Lembrar-me mais tarde"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não, não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar a verificação de dois passos"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar o e-mail da conta"
+  },
   "removeMembers": {
     "message": "Remover membros"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Domínio reivindicado"
+  },
+  "organizationNameMaxLength": {
+    "message": "O nome da organização não pode exceder 50 caracteres."
   }
 }

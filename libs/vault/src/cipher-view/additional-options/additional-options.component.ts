@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
@@ -31,5 +29,5 @@ import {
   ],
 })
 export class AdditionalOptionsComponent {
-  @Input() notes: string;
+  @Input() notes: string = "";
 }

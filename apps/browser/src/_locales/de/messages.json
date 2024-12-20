@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Erweiterung bewerten"
   },
-  "rateExtensionDesc": {
-    "message": "Wir würden uns freuen, wenn du uns mit einer positiven Bewertung helfen könntest!"
-  },
   "browserNotSupportClipboard": {
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Vorschläge zum Auto-Ausfüllen von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
+  "showQuickCopyActions": {
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
+  },
   "systemDefault": {
     "message": "Systemstandard"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Richte die zweistufige Anmeldung ein"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden wird einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten ab Februar 2025 zu überprüfen."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die zweistufige Anmeldung als eine alternative Methode einrichten, um deinen Account zu schützen, oder ändere deine E-Mail-Adresse zu einer, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Aktiviere die zweistufige Anmeldung"
+  },
+  "changeAcctEmail": {
+    "message": "Ändere die E-Mail-Adresse des Kontos"
   },
   "extensionWidth": {
     "message": "Breite der Erweiterung"

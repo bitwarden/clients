@@ -298,6 +298,7 @@ import {
   IndividualVaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { NewDeviceVerificationNoticeService } from "../../../vault/src/services/new-device-verification-notice.service";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { ViewCacheService } from "../platform/abstractions/view-cache.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
@@ -1383,7 +1384,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyServiceAbstraction,
-      ApiServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1401,6 +1401,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction],
   }),
+  safeProvider(NewDeviceVerificationNoticeService),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationApiService,
     useClass: DefaultUserAsymmetricKeysRegenerationApiService,

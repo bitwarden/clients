@@ -648,9 +648,6 @@
   "rateExtension": {
     "message": "Noter l'extension"
   },
-  "rateExtensionDesc": {
-    "message": "Merci de nous aider en mettant une bonne note !"
-  },
   "browserNotSupportClipboard": {
     "message": "Votre navigateur web ne supporte pas la copie rapide depuis le presse-papier. Copiez-le manuellement à la place."
   },
@@ -4679,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Afficher le nombre de suggestions de saisie automatique d'identifiant sur l'icône d'extension"
   },
+  "showQuickCopyActions": {
+    "message": "Afficher les actions de copie rapide dans le coffre"
+  },
   "systemDefault": {
     "message": "Par défaut"
   },
@@ -4909,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   },
   "extensionWidth": {
     "message": "Largeur de l'extension"
