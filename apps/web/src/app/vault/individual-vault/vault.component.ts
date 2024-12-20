@@ -29,6 +29,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
@@ -75,6 +76,7 @@ import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
@@ -144,6 +146,7 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -436,6 +439,17 @@ export class VaultComponent implements OnInit, OnDestroy {
                 action = "view";
               }
 
+              if (action == "showFailedToDecrypt") {
+                DecryptionFailureDialogComponent.open(this.dialogService, {
+                  cipherIds: [cipherId as CipherId],
+                });
+                await this.router.navigate([], {
+                  queryParams: { itemId: null, cipherId: null, action: null },
+                  queryParamsHandling: "merge",
+                });
+                return;
+              }
+
               if (action === "view") {
                 await this.viewCipherById(cipherId);
               } else {
@@ -457,6 +471,20 @@ export class VaultComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    firstSetup$
+      .pipe(
+        switchMap(() => this.cipherService.failedToDecryptCiphers$),
+        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
 
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
 

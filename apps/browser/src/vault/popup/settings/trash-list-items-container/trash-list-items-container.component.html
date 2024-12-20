@@ -27,7 +27,12 @@
             [bitMenuTriggerFor]="moreOptions"
           ></button>
           <bit-menu #moreOptions>
-            <button type="button" bitMenuItem (click)="restore(cipher)">
+            <button
+              type="button"
+              bitMenuItem
+              (click)="restore(cipher)"
+              *ngIf="!cipher.decryptionFailure"
+            >
               {{ "restore" | i18n }}
             </button>
             <button type="button" bitMenuItem *appCanDeleteCipher="cipher" (click)="delete(cipher)">

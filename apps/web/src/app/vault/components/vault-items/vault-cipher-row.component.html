@@ -4,7 +4,7 @@
     type="checkbox"
     bitCheckbox
     appStopProp
-    [disabled]="disabled"
+    [disabled]="disabled || cipher.decryptionFailure"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
     [attr.aria-label]="'vaultItemSelect' | i18n"
@@ -20,7 +20,7 @@
       class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
       [disabled]="disabled"
       [routerLink]="[]"
-      [queryParams]="{ itemId: cipher.id, action: extensionRefreshEnabled ? 'view' : null }"
+      [queryParams]="{ itemId: cipher.id, action: clickAction }"
       queryParamsHandling="merge"
       [replaceUrl]="extensionRefreshEnabled"
       title="{{ 'editItemWithName' | i18n: cipher.name }}"
@@ -76,6 +76,25 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
+    *ngIf="cipher.decryptionFailure"
+    [disabled]="disabled || !canManageCollection"
+    [bitMenuTriggerFor]="corruptedCipherOptions"
+    size="small"
+    bitIconButton="bwi-ellipsis-v"
+    type="button"
+    appA11yTitle="{{ 'options' | i18n }}"
+    appStopProp
+  ></button>
+  <bit-menu #corruptedCipherOptions>
+    <button bitMenuItem *ngIf="canManageCollection" (click)="deleteCipher()" type="button">
+      <span class="tw-text-danger">
+        <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+        {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}
+      </span>
+    </button>
+  </bit-menu>
+  <button
+    *ngIf="!cipher.decryptionFailure"
     [disabled]="disabled || disableMenu"
     [bitMenuTriggerFor]="cipherOptions"
     size="small"

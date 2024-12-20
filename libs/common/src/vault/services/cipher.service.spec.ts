@@ -413,5 +413,19 @@ describe("Cipher Service", () => {
         "New user key is required to rotate ciphers",
       );
     });
+
+    it("throws if the user has any failed to decrypt ciphers", async () => {
+      const badCipher = new CipherView(cipherObj);
+      badCipher.id = "Cipher 3";
+      badCipher.organizationId = null;
+      badCipher.decryptionFailure = true;
+      decryptedCiphers.next({
+        ...decryptedCiphers.value,
+        [badCipher.id]: badCipher,
+      });
+      await expect(
+        cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId),
+      ).rejects.toThrow("Cannot rotate ciphers with decryption failures");
+    });
   });
 });

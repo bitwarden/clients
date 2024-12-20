@@ -109,6 +109,13 @@ export class CipherService implements CipherServiceAbstraction {
   cipherViews$: Observable<CipherView[] | null>;
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
 
+  /**
+   * Observable that emits an array of cipherViews that failed to decrypt. Does not emit until decryption has completed.
+   *
+   * An empty array indicates that all ciphers were successfully decrypted.
+   */
+  failedToDecryptCiphers$: Observable<CipherView[]>;
+
   private localDataState: ActiveUserState<Record<CipherId, LocalData>>;
   private encryptedCiphersState: ActiveUserState<Record<CipherId, CipherData>>;
   private decryptedCiphersState: ActiveUserState<Record<CipherId, CipherView>>;
@@ -143,6 +150,13 @@ export class CipherService implements CipherServiceAbstraction {
       switchMap(() => merge(this.forceCipherViews$, this.getAllDecrypted())),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    this.failedToDecryptCiphers$ = this.cipherViews$.pipe(
+      filter((ciphers) => ciphers != null),
+      map((ciphers) => ciphers.filter((c) => c.decryptionFailure)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
     this.addEditCipherInfo$ = this.addEditCipherInfoState.state$;
   }
 
@@ -1274,6 +1288,10 @@ export class CipherService implements CipherServiceAbstraction {
     const ciphers = await firstValueFrom(this.cipherViews$);
     if (!ciphers) {
       return encryptedCiphers;
+    }
+
+    if (ciphers.some((c) => c.decryptionFailure)) {
+      throw new Error("Cannot rotate ciphers with decryption failures");
     }
 
     const userCiphers = ciphers.filter((c) => c.organizationId == null);
