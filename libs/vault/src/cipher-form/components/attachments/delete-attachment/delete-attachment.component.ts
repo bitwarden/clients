@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
@@ -24,10 +22,10 @@ import {
 })
 export class DeleteAttachmentComponent {
   /** Id of the cipher associated with the attachment */
-  @Input({ required: true }) cipherId: string;
+  @Input({ required: true }) cipherId!: string;
 
   /** The attachment that is can be deleted */
-  @Input({ required: true }) attachment: AttachmentView;
+  @Input({ required: true }) attachment!: AttachmentView;
 
   /** Emits when the attachment is successfully deleted */
   @Output() onDeletionSuccess = new EventEmitter<void>();
@@ -56,7 +54,7 @@ export class DeleteAttachmentComponent {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("deletedAttachment"),
       });
 

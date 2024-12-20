@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Jsonify } from "type-fest";
@@ -17,8 +15,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 // If a user dismisses the notice, use "last_dismissal" to wait 7 days before re-prompting
 // permanent_dismissal will be checked if the user should never see the notice again
 export class NewDeviceVerificationNotice {
-  last_dismissal: Date;
-  permanent_dismissal: boolean;
+  last_dismissal: Date | null = null;
+  permanent_dismissal: boolean | null = null;
 
   constructor(obj: Partial<NewDeviceVerificationNotice>) {
     if (obj == null) {
@@ -52,12 +50,12 @@ export class NewDeviceVerificationNoticeService {
     return this.stateProvider.getUser(userId, NEW_DEVICE_VERIFICATION_NOTICE_KEY);
   }
 
-  noticeState$(userId: UserId): Observable<NewDeviceVerificationNotice> {
+  noticeState$(userId: UserId): Observable<NewDeviceVerificationNotice | null> {
     return this.noticeState(userId).state$;
   }
 
   async updateNewDeviceVerificationNoticeState(
-    userId: UserId | null,
+    userId: UserId,
     newState: NewDeviceVerificationNotice,
   ): Promise<void> {
     await this.noticeState(userId).update(() => {

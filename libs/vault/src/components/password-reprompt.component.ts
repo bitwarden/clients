@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -51,6 +49,12 @@ export class PasswordRepromptComponent {
   ) {}
 
   submit = async () => {
+    // Exit early when a master password is not provided.
+    // The form field required error will be shown to users in these cases.
+    if (!this.formGroup.value.masterPassword) {
+      return;
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
 
     if (userId == null) {
