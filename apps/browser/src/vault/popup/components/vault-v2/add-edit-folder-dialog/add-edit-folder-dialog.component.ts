@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -67,6 +67,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     name: ["", Validators.required],
   });
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -114,10 +115,10 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     this.folder.name = this.folderForm.controls.name.value;
 
     try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId.id);
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
       const folder = await this.folderService.encrypt(this.folder, userKey);
-      await this.folderApiService.save(folder);
+      await this.folderApiService.save(folder, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -144,7 +145,8 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     }
 
     try {
-      await this.folderApiService.delete(this.folder.id);
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+      await this.folderApiService.delete(this.folder.id, activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,

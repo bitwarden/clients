@@ -30,6 +30,8 @@ import { CipherResponse } from "./models/cipher.response";
 import { FolderResponse } from "./models/folder.response";
 
 export class CreateCommand {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
@@ -86,9 +88,7 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
       const newCipher = await this.cipherService.createWithServer(cipher);
@@ -152,9 +152,7 @@ export class CreateCommand {
     }
 
     try {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
@@ -171,12 +169,12 @@ export class CreateCommand {
   }
 
   private async createFolder(req: FolderExport) {
-    const activeAccountId = await firstValueFrom(this.accountService.activeAccount$);
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeAccountId.id);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
-      await this.folderApiService.save(folder);
-      const newFolder = await this.folderService.get(folder.id);
+      await this.folderApiService.save(folder, activeUserId);
+      const newFolder = await this.folderService.get(folder.id, activeUserId);
       const decFolder = await newFolder.decrypt();
       const res = new FolderResponse(decFolder);
       return Response.success(res);

@@ -1,10 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
-import { makeStaticByteArray } from "../../../../spec";
+import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
-import { FakeActiveUserState } from "../../../../spec/fake-state";
+import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -17,7 +17,7 @@ import { CipherService } from "../../abstractions/cipher.service";
 import { FolderData } from "../../models/data/folder.data";
 import { FolderView } from "../../models/view/folder.view";
 import { FolderService } from "../../services/folder/folder.service";
-import { FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
+import { FOLDER_DECRYPTED_FOLDERS, FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
 
 describe("Folder Service", () => {
   let folderService: FolderService;
@@ -30,7 +30,7 @@ describe("Folder Service", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let folderState: FakeActiveUserState<Record<string, FolderData>>;
+  let folderState: FakeSingleUserState<Record<string, FolderData>>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -42,11 +42,9 @@ describe("Folder Service", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     i18nService.collator = new Intl.Collator("en");
+    i18nService.t.mockReturnValue("No Folder");
 
-    keyService.hasUserKey.mockResolvedValue(true);
-    keyService.getUserKeyWithLegacySupport.mockResolvedValue(
-      new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
-    );
+    keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     encryptService.decryptToUtf8.mockResolvedValue("DEC");
 
     folderService = new FolderService(
@@ -57,10 +55,53 @@ describe("Folder Service", () => {
       stateProvider,
     );
 
-    folderState = stateProvider.activeUser.getFake(FOLDER_ENCRYPTED_FOLDERS);
+    folderState = stateProvider.singleUser.getFake(mockUserId, FOLDER_ENCRYPTED_FOLDERS);
 
     // Initial state
-    folderState.nextState({ "1": folderData("1", "test") });
+    folderState.nextState({ "1": folderData("1") });
+  });
+
+  describe("folders$", () => {
+    it("emits encrypted folders from state", async () => {
+      const folder1 = folderData("1");
+      const folder2 = folderData("2");
+
+      await stateProvider.setUserState(
+        FOLDER_ENCRYPTED_FOLDERS,
+        Object.fromEntries([folder1, folder2].map((f) => [f.id, f])),
+        mockUserId,
+      );
+
+      const result = await firstValueFrom(folderService.folders$(mockUserId));
+
+      expect(result.length).toBe(2);
+      expect(result).toIncludeAllPartialMembers([
+        { id: "1", name: makeEncString("ENC_STRING_1") },
+        { id: "2", name: makeEncString("ENC_STRING_2") },
+      ]);
+    });
+  });
+
+  describe("folderView$", () => {
+    it("emits decrypted folders from state", async () => {
+      const folder1 = folderData("1");
+      const folder2 = folderData("2");
+
+      await stateProvider.setUserState(
+        FOLDER_ENCRYPTED_FOLDERS,
+        Object.fromEntries([folder1, folder2].map((f) => [f.id, f])),
+        mockUserId,
+      );
+
+      const result = await firstValueFrom(folderService.folderViews$(mockUserId));
+
+      expect(result.length).toBe(3);
+      expect(result).toIncludeAllPartialMembers([
+        { id: "1", name: "DEC" },
+        { id: "2", name: "DEC" },
+        { name: "No Folder" },
+      ]);
+    });
   });
 
   it("encrypt", async () => {
@@ -83,105 +124,83 @@ describe("Folder Service", () => {
 
   describe("get", () => {
     it("exists", async () => {
-      const result = await folderService.get("1");
+      const result = await folderService.get("1", mockUserId);
 
       expect(result).toEqual({
         id: "1",
-        name: {
-          encryptedString: "test",
-          encryptionType: 0,
-        },
+        name: makeEncString("ENC_STRING_" + 1),
         revisionDate: null,
       });
     });
 
     it("not exists", async () => {
-      const result = await folderService.get("2");
+      const result = await folderService.get("2", mockUserId);
 
       expect(result).toBe(undefined);
     });
   });
 
   it("upsert", async () => {
-    await folderService.upsert(folderData("2", "test 2"));
+    await folderService.upsert(folderData("2"), mockUserId);
 
-    expect(await firstValueFrom(folderService.folders$)).toEqual([
+    expect(await firstValueFrom(folderService.folders$(mockUserId))).toEqual([
       {
         id: "1",
-        name: {
-          encryptedString: "test",
-          encryptionType: 0,
-        },
+        name: makeEncString("ENC_STRING_" + 1),
         revisionDate: null,
       },
       {
         id: "2",
-        name: {
-          encryptedString: "test 2",
-          encryptionType: 0,
-        },
+        name: makeEncString("ENC_STRING_" + 2),
         revisionDate: null,
       },
     ]);
   });
 
   it("replace", async () => {
-    await folderService.replace({ "2": folderData("2", "test 2") }, mockUserId);
+    await folderService.replace({ "4": folderData("4") }, mockUserId);
 
-    expect(await firstValueFrom(folderService.folders$)).toEqual([
+    expect(await firstValueFrom(folderService.folders$(mockUserId))).toEqual([
       {
-        id: "2",
-        name: {
-          encryptedString: "test 2",
-          encryptionType: 0,
-        },
+        id: "4",
+        name: makeEncString("ENC_STRING_" + 4),
         revisionDate: null,
       },
     ]);
   });
 
   it("delete", async () => {
-    await folderService.delete("1");
+    await folderService.delete("1", mockUserId);
 
-    expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
+    expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(0);
   });
 
-  it("clearCache", async () => {
-    await folderService.clearCache();
-
-    expect((await firstValueFrom(folderService.folders$)).length).toBe(1);
-    expect((await firstValueFrom(folderService.folderViews$)).length).toBe(0);
-  });
-
-  describe("clear", () => {
+  describe("clearDecryptedFolderState", () => {
     it("null userId", async () => {
-      await folderService.clear();
-
-      expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
-      expect((await firstValueFrom(folderService.folderViews$)).length).toBe(0);
+      await expect(folderService.clearDecryptedFolderState(null)).rejects.toThrow(
+        "User ID is required.",
+      );
     });
 
-    /**
-     * TODO: Fix this test to address the problem where the fakes for the active user state is not
-     * updated as expected
-     */
-    // it("matching userId", async () => {
-    //   stateService.getUserId.mockResolvedValue("1");
-    //   await folderService.clear("1" as UserId);
+    it("userId provided", async () => {
+      await folderService.clearDecryptedFolderState(mockUserId);
 
-    //   expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
-    // });
+      expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(1);
+      expect(
+        (await firstValueFrom(stateProvider.getUserState$(FOLDER_DECRYPTED_FOLDERS, mockUserId)))
+          .length,
+      ).toBe(0);
+    });
+  });
 
-    /**
-     * TODO: Fix this test to address the problem where the fakes for the active user state is not
-     * updated as expected
-     */
-    // it("mismatching userId", async () => {
-    //   await folderService.clear("12" as UserId);
+  it("clear", async () => {
+    await folderService.clear(mockUserId);
 
-    //   expect((await firstValueFrom(folderService.folders$)).length).toBe(1);
-    //   expect((await firstValueFrom(folderService.folderViews$)).length).toBe(2);
-    // });
+    expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(0);
+
+    const folderViews = await firstValueFrom(folderService.folderViews$(mockUserId));
+    expect(folderViews.length).toBe(1);
+    expect(folderViews[0].id).toBeNull(); // Should be the "No Folder" folder
   });
 
   describe("getRotatedData", () => {
@@ -207,10 +226,10 @@ describe("Folder Service", () => {
     });
   });
 
-  function folderData(id: string, name: string) {
+  function folderData(id: string) {
     const data = new FolderData({} as any);
     data.id = id;
-    data.name = name;
+    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString;
 
     return data;
   }

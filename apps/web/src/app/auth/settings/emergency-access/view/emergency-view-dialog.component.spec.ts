@@ -6,7 +6,11 @@ import { mock } from "jest-mock-extended";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -29,6 +33,8 @@ describe("EmergencyViewDialogComponent", () => {
     card: {},
   } as CipherView;
 
+  const accountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
+
   beforeEach(async () => {
     open.mockClear();
     close.mockClear();
@@ -43,6 +49,7 @@ describe("EmergencyViewDialogComponent", () => {
         { provide: DialogService, useValue: { open } },
         { provide: DialogRef, useValue: { close } },
         { provide: DIALOG_DATA, useValue: { cipher: mockCipher } },
+        { provide: AccountService, useValue: accountService },
       ],
     }).compileComponents();
 
