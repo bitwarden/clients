@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as path from "path";
+import * as url from "url";
 
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
 import { firstValueFrom } from "rxjs";
@@ -8,6 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { cleanUserAgent, isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -45,6 +47,11 @@ export class TrayMain {
       {
         label: this.i18nService.t("showHide"),
         click: () => this.toggleWindow(),
+      },
+      {
+        visible: isDev(),
+        label: "Fake Popup",
+        click: () => this.fakePopup(),
       },
       { type: "separator" },
       {
@@ -183,7 +190,7 @@ export class TrayMain {
         this.hideDock();
       }
     } else {
-      this.windowMain.win.show();
+      this.windowMain.show();
       if (this.isDarwin()) {
         this.showDock();
       }
@@ -195,5 +202,39 @@ export class TrayMain {
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
     }
+  }
+
+  /**
+   * This method is used to test modal behavior during development and could be removed in the future.
+   * @returns
+   */
+  private async fakePopup() {
+    if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
+      await this.windowMain.createWindow("modal-app");
+      return;
+    }
+
+    // Restyle existing
+    const existingWin = this.windowMain.win;
+
+    await this.desktopSettingsService.setInModalMode(true);
+    await existingWin.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: "/passkeys",
+        query: {
+          redirectUrl: "/passkeys",
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(existingWin.webContents.userAgent),
+      },
+    );
+    existingWin.once("ready-to-show", () => {
+      existingWin.show();
+    });
   }
 }
