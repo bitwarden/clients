@@ -37,12 +37,7 @@ impl Stream for PeercredUnixListenerStream {
                             ))));
                         }
                     },
-                    Err(err) => {
-                        return Poll::Ready(Some(Err(io::Error::new(
-                            io::ErrorKind::Other,
-                            format!("Failed to get peer credentials: {}", err),
-                        ))));
-                    }
+                    Err(_) => return Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
                 };
                 let peer_info = peerinfo::gather::get_peer_info(pid as u32);
                 match peer_info {
