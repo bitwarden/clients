@@ -171,6 +171,14 @@ export class DesktopSettingsService {
     );
   }
 
+  /**
+   * This is used to clear the setting on application start to make sure we don't end up
+   * stuck in modal mode if the application is force-closed in modal mode.
+   */
+  async resetInModalMode() {
+    await this.inModalModeState.update(() => false);
+  }
+
   async setHardwareAcceleration(enabled: boolean) {
     await this.hwState.update(() => enabled);
   }
