@@ -1,209 +1,132 @@
-const { existsSync, readFileSync } = require('fs')
-const { join } = require('path')
+const { existsSync } = require("fs");
+const { join } = require("path");
 
-const { platform, arch } = process
+const { platform, arch } = process;
 
-let nativeBinding = null
-let localFileExisted = false
-let loadError = null
+let nativeBinding = null;
+let localFileExisted = false;
+let loadError = null;
 
-function isMusl() {
-  // For Node 10
-  if (!process.report || typeof process.report.getReport !== 'function') {
-    try {
-      return readFileSync('/usr/bin/ldd', 'utf8').includes('musl')
-    } catch (e) {
-      return true
+function loadFirstAvailable(localFiles, nodeModule) {
+  for (const localFile of localFiles) {
+    if (existsSync(join(__dirname, localFile))) {
+      return require(`./${localFile}`);
     }
-  } else {
-    const { glibcVersionRuntime } = process.report.getReport().header
-    return !glibcVersionRuntime
   }
+
+  require(nodeModule);
 }
 
 switch (platform) {
-  case 'android':
+  case "android":
     switch (arch) {
-      case 'arm64':
-        localFileExisted = existsSync(join(__dirname, 'desktop_napi.android-arm64.node'))
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.android-arm64.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-android-arm64')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
-      case 'arm':
-        localFileExisted = existsSync(join(__dirname, 'desktop_napi.android-arm-eabi.node'))
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.android-arm-eabi.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-android-arm-eabi')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
+      case "arm64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.android-arm64.node"],
+          "@bitwarden/desktop-napi-android-arm64",
+        );
+        break;
+      case "arm":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.android-arm.node"],
+          "@bitwarden/desktop-napi-android-arm",
+        );
+        break;
       default:
-        throw new Error(`Unsupported architecture on Android ${arch}`)
+        throw new Error(`Unsupported architecture on Android ${arch}`);
     }
-    break
-  case 'win32':
+    break;
+  case "win32":
     switch (arch) {
-      case 'x64':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.win32-x64-msvc.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.win32-x64-msvc.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-win32-x64-msvc')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
-      case 'ia32':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.win32-ia32-msvc.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.win32-ia32-msvc.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-win32-ia32-msvc')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
-      case 'arm64':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.win32-arm64-msvc.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.win32-arm64-msvc.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-win32-arm64-msvc')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
+      case "x64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.win32-x64-msvc.node"],
+          "@bitwarden/desktop-napi-win32-x64-msvc",
+        );
+        break;
+      case "ia32":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.win32-ia32-msvc.node"],
+          "@bitwarden/desktop-napi-win32-ia32-msvc",
+        );
+        break;
+      case "arm64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.win32-arm64-msvc.node"],
+          "@bitwarden/desktop-napi-win32-arm64-msvc",
+        );
+        break;
       default:
-        throw new Error(`Unsupported architecture on Windows: ${arch}`)
+        throw new Error(`Unsupported architecture on Windows: ${arch}`);
     }
-    break
-  case 'darwin':
+    break;
+  case "darwin":
     switch (arch) {
-      case 'x64':
-        localFileExisted = existsSync(join(__dirname, 'desktop_napi.darwin-x64.node'))
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.darwin-x64.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-darwin-x64')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
-      case 'arm64':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.darwin-arm64.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.darwin-arm64.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-darwin-arm64')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
+      case "x64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.darwin-x64.node"],
+          "@bitwarden/desktop-napi-darwin-x64",
+        );
+        break;
+      case "arm64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.darwin-arm64.node"],
+          "@bitwarden/desktop-napi-darwin-arm64",
+        );
+        break;
       default:
-        throw new Error(`Unsupported architecture on macOS: ${arch}`)
+        throw new Error(`Unsupported architecture on macOS: ${arch}`);
     }
-    break
-  case 'freebsd':
-    if (arch !== 'x64') {
-      throw new Error(`Unsupported architecture on FreeBSD: ${arch}`)
-    }
-    localFileExisted = existsSync(join(__dirname, 'desktop_napi.freebsd-x64.node'))
-    try {
-      if (localFileExisted) {
-        nativeBinding = require('./desktop_napi.freebsd-x64.node')
-      } else {
-        nativeBinding = require('@bitwarden/desktop-napi-freebsd-x64')
-      }
-    } catch (e) {
-      loadError = e
-    }
-    break
-  case 'linux':
+    break;
+  case "freebsd":
+    nativeBinding = loadFirstAvailable(
+      ["desktop_napi.freebsd-x64.node"],
+      "@bitwarden/desktop-napi-freebsd-x64",
+    );
+    break;
+  case "linux":
     switch (arch) {
-      case 'x64':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.linux-x64-musl.node')
-        )
+      case "x64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.linux-x64-musl.node", "desktop_napi.linux-x64-gnu.node"],
+          "@bitwarden/desktop-napi-linux-x64-musl",
+        );
+        break;
+      case "arm64":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.linux-arm64-musl.node", "desktop_napi.linux-arm64-gnu.node"],
+          "@bitwarden/desktop-napi-linux-arm64-musl",
+        );
+        break;
+      case "arm":
+        nativeBinding = loadFirstAvailable(
+          ["desktop_napi.linux-arm-musl.node", "desktop_napi.linux-arm-gnu.node"],
+          "@bitwarden/desktop-napi-linux-arm-musl",
+        );
+        localFileExisted = existsSync(join(__dirname, "desktop_napi.linux-arm-gnueabihf.node"));
         try {
           if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.linux-x64-musl.node')
+            nativeBinding = require("./desktop_napi.linux-arm-gnueabihf.node");
           } else {
-            nativeBinding = require('@bitwarden/desktop-napi-linux-x64-musl')
+            nativeBinding = require("@bitwarden/desktop-napi-linux-arm-gnueabihf");
           }
         } catch (e) {
-          loadError = e
+          loadError = e;
         }
-        break
-      case 'arm64':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.linux-arm64-musl.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.linux-arm64-musl.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-linux-arm64-musl')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
-      case 'arm':
-        localFileExisted = existsSync(
-          join(__dirname, 'desktop_napi.linux-arm-gnueabihf.node')
-        )
-        try {
-          if (localFileExisted) {
-            nativeBinding = require('./desktop_napi.linux-arm-gnueabihf.node')
-          } else {
-            nativeBinding = require('@bitwarden/desktop-napi-linux-arm-gnueabihf')
-          }
-        } catch (e) {
-          loadError = e
-        }
-        break
+        break;
       default:
-        throw new Error(`Unsupported architecture on Linux: ${arch}`)
+        throw new Error(`Unsupported architecture on Linux: ${arch}`);
     }
-    break
+    break;
   default:
-    throw new Error(`Unsupported OS: ${platform}, architecture: ${arch}`)
+    throw new Error(`Unsupported OS: ${platform}, architecture: ${arch}`);
 }
 
 if (!nativeBinding) {
   if (loadError) {
-    throw loadError
+    throw loadError;
   }
-  throw new Error(`Failed to load native binding`)
+  throw new Error(`Failed to load native binding`);
 }
 
-module.exports = nativeBinding
+module.exports = nativeBinding;
