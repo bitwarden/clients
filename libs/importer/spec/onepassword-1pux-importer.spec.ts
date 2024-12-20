@@ -26,6 +26,7 @@ import { SanitizedExport } from "./test-data/onepassword-1pux/sanitized-export";
 import { SecureNoteData } from "./test-data/onepassword-1pux/secure-note";
 import { ServerData } from "./test-data/onepassword-1pux/server";
 import { SoftwareLicenseData } from "./test-data/onepassword-1pux/software-license";
+import { SSH_KeyData } from "./test-data/onepassword-1pux/ssh-key";
 import { SSNData } from "./test-data/onepassword-1pux/ssn";
 import { WirelessRouterData } from "./test-data/onepassword-1pux/wireless-router";
 
@@ -666,6 +667,26 @@ describe("1Password 1Pux Importer", () => {
     validateCustomField(cipher.fields, "medication", "Insuline");
     validateCustomField(cipher.fields, "dosage", "1");
     validateCustomField(cipher.fields, "medication notes", "multiple times a day");
+  });
+
+  it("should parse category 114 - SSH Key", async () => {
+    const importer = new OnePassword1PuxImporter();
+    const jsonString = JSON.stringify(SSH_KeyData);
+    const result = await importer.parse(jsonString);
+    expect(result != null).toBe(true);
+    const cipher = result.ciphers.shift();
+    expect(cipher.type).toEqual(CipherType.SshKey);
+    expect(cipher.name).toEqual("Some SSH Key");
+    expect(cipher.notes).toEqual("SSH Key Note");
+    expect(cipher.sshKey.privateKey).toEqual(
+      "-----BEGIN PRIVATE KEY-----\nMFECAQEwBQYDK2VwBCIEIDn1BgTbZ/5UUeGLIfVV+qLBOvEsS3XMK6Twzw2Dkukq\ngSEAlrKdxRVVQrBndt4bHEZAz3xsymfM9Vf2QfZ823QxUbM=\n-----END PRIVATE KEY-----\n",
+    );
+    expect(cipher.sshKey.publicKey).toEqual(
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJayncUVVUKwZ3beGxxGQM98bMpnzPVX9kH2fNt0MVGz",
+    );
+    expect(cipher.sshKey.keyFingerprint).toEqual(
+      "SHA256:/9qSxXuic8kaVBhwv3c8PuetiEpaOgIp7xHNCbcSuN8",
+    );
   });
 
   it("should create folders", async () => {
