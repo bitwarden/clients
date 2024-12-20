@@ -18,3 +18,5 @@ export { NewDeviceVerificationNoticePageOneComponent } from "./components/new-de
 export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-two.component";
 
 export * as VaultIcons from "./icons";
+
+export * from "./tasks";
