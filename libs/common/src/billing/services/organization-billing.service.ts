@@ -127,6 +127,25 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
+  async restartSubscription(
+    organizationId: string,
+    subscription: SubscriptionInformation,
+  ): Promise<void> {
+    const request = new OrganizationCreateRequest();
+
+    const organizationKeys = await this.makeOrganizationKeys();
+
+    this.setOrganizationKeys(request, organizationKeys);
+
+    this.setOrganizationInformation(request, subscription.organization);
+
+    this.setPlanInformation(request, subscription.plan);
+
+    this.setPaymentInformation(request, subscription.payment);
+
+    await this.billingApiService.restartSubscription(organizationId, request);
+  }
+
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
     const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);

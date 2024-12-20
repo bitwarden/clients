@@ -1,16 +1,19 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading">
     <span bitDialogTitle class="tw-font-semibold">
-      {{ "upgradeFreeOrganization" | i18n: currentPlanName }}
+      {{ dialogHeaderName }}
     </span>
     <div bitDialogContent>
       <p>{{ "upgradePlans" | i18n }}</p>
       <div class="tw-mb-3 tw-flex tw-justify-between">
-        <span class="tw-text-lg tw-pr-1 tw-font-bold">{{ "selectAPlan" | i18n }}</span>
+        <span [hidden]="isSubscriptionCanceled" class="tw-text-lg tw-pr-1 tw-font-bold">{{
+          "selectAPlan" | i18n
+        }}</span>
         <!-- Discount Badge -->
         <div class="tw-flex tw-items-center tw-gap-2">
           <span
             class="tw-mr-1"
+            [hidden]="isSubscriptionCanceled"
             *ngIf="
               this.discountPercentageFromSub > 0
                 ? discountPercentageFromSub
@@ -69,7 +72,10 @@
           >
             <div class="tw-relative">
               <div
-                *ngIf="selectableProduct.productTier === productTypes.Enterprise"
+                *ngIf="
+                  selectableProduct.productTier === productTypes.Enterprise &&
+                  !isSubscriptionCanceled
+                "
                 class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-bold tw-py-1"
                 [ngClass]="{
                   'tw-bg-primary-700 !tw-text-contrast': selectableProduct === selectedPlan,
@@ -330,9 +336,15 @@
         <br />
       </ng-container>
       <!-- Payment info -->
-      <ng-container *ngIf="formGroup.value.productTier !== productTypes.Free">
+      <ng-container
+        *ngIf="formGroup.value.productTier !== productTypes.Free || isSubscriptionCanceled"
+      >
         <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
-        <p *ngIf="!showPayment && (paymentSource || billing?.paymentSource)">
+        <p
+          *ngIf="
+            !showPayment && (paymentSource || billing?.paymentSource) && !isSubscriptionCanceled
+          "
+        >
           <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
           {{
             deprecateStripeSourcesAPI
@@ -344,23 +356,11 @@
           </span>
           <a></a>
         </p>
-        <app-payment
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            !deprecateStripeSourcesAPI
-          "
-          [hideCredit]="true"
-        ></app-payment>
-        <app-payment-v2
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            deprecateStripeSourcesAPI
-          "
-          [showAccountCredit]="false"
-        >
+        <app-payment *ngIf="shouldShowPaymentOptions()" [hideCredit]="true"></app-payment>
+        <app-payment-v2 *ngIf="shouldShowDeprecatedPaymentOptions()" [showAccountCredit]="false">
         </app-payment-v2>
         <app-tax-info
-          *ngIf="showPayment || upgradeRequiresPaymentMethod || isPaymentSourceEmpty()"
+          *ngIf="canShowPaymentDetails()"
           (onCountryChanged)="changedCountry()"
         ></app-tax-info>
         <div id="price" class="tw-mt-4">
