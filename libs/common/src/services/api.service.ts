@@ -10,8 +10,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 
+import { VaultTimeoutSettingsService } from "../../../key-management/src/vault-timeout/abstractions/vault-timeout-settings.service";
+import { VaultTimeoutAction } from "../../../key-management/src/vault-timeout/enums/vault-timeout-action.enum";
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -105,7 +106,6 @@ import { SubscriptionResponse } from "../billing/models/response/subscription.re
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeviceType } from "../enums";
-import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";

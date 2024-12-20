@@ -32,8 +32,6 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -44,7 +42,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -59,14 +56,21 @@ import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricStateService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+  VaultTimeoutAction,
+  VaultTimeout,
+} from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";

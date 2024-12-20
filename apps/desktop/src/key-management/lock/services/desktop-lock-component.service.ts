@@ -5,12 +5,15 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, BiometricsService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/key-management";
 import {
   BiometricsDisableReason,
   LockComponentService,

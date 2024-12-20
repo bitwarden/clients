@@ -2,7 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -18,7 +17,6 @@ import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/resp
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,7 +35,12 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";

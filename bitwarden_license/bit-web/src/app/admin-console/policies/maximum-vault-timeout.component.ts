@@ -5,8 +5,8 @@ import { FormBuilder, FormControl } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { VaultTimeoutAction } from "@bitwarden/key-management";
 import {
   BasePolicy,
   BasePolicyComponent,

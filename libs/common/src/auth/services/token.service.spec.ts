@@ -3,8 +3,12 @@ import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 
+import { VaultTimeoutAction } from "../../../../key-management/src/vault-timeout/enums/vault-timeout-action.enum";
+import {
+  VaultTimeout,
+  VaultTimeoutStringType,
+} from "../../../../key-management/src/vault-timeout/types/vault-timeout.type";
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -14,7 +18,6 @@ import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";

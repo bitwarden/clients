@@ -12,7 +12,6 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -23,12 +22,16 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,

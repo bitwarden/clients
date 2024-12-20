@@ -5,7 +5,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import {
   Account,
   AccountInfo,
@@ -19,7 +18,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, VaultTimeoutSettingsService } from "@bitwarden/key-management";
 
 import { lockGuard } from "./lock.guard";
 

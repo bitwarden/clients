@@ -4,24 +4,24 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
+import { SearchService } from "@bitwarden/common/src/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/src/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/src/auth/abstractions/auth.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/master-password.service.abstraction";
+import { MessagingService } from "@bitwarden/common/src/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/src/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/src/platform/abstractions/state.service";
+import { StateEventRunnerService } from "@bitwarden/common/src/platform/state";
+import { UserId } from "@bitwarden/common/src/types/guid";
+import { CipherService } from "@bitwarden/common/src/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/src/vault/abstractions/folder/folder.service.abstraction";
 
-import { SearchService } from "../../abstractions/search.service";
-import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout.service";
-import { AccountService } from "../../auth/abstractions/account.service";
-import { AuthService } from "../../auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
-import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { MessagingService } from "../../platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
-import { StateService } from "../../platform/abstractions/state.service";
-import { StateEventRunnerService } from "../../platform/state";
-import { UserId } from "../../types/guid";
-import { CipherService } from "../../vault/abstractions/cipher.service";
-import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { VaultTimeoutSettingsService } from "./abstractions/vault-timeout-settings.service";
+import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "./abstractions/vault-timeout.service";
+import { VaultTimeoutAction } from "./enums/vault-timeout-action.enum";
 
 export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   private inited = false;

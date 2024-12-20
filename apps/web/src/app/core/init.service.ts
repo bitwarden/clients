@@ -14,8 +14,10 @@ import { StateService as StateServiceAbstraction } from "@bitwarden/common/platf
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
-import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+import {
+  DefaultVaultTimeoutService,
+  KeyService as KeyServiceAbstraction,
+} from "@bitwarden/key-management";
 
 import { VersionService } from "../platform/version.service";
 
@@ -24,7 +26,7 @@ export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
     private notificationsService: NotificationsServiceAbstraction,
-    private vaultTimeoutService: VaultTimeoutService,
+    private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,

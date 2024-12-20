@@ -7,8 +7,6 @@ import { firstValueFrom } from "rxjs";
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/key-management/components/lock.component";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -31,6 +29,8 @@ import {
   KeyService,
   BiometricsService,
   BiometricStateService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
 } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";

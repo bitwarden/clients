@@ -6,7 +6,7 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
+import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../../../key-management/src/vault-timeout/abstractions/vault-timeout-settings.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";

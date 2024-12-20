@@ -5,7 +5,11 @@ import { Opaque } from "type-fest";
 
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { VaultTimeoutAction } from "../../../../key-management/src/vault-timeout/enums/vault-timeout-action.enum";
+import {
+  VaultTimeout,
+  VaultTimeoutStringType,
+} from "../../../../key-management/src/vault-timeout/types/vault-timeout.type";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -22,7 +26,6 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 

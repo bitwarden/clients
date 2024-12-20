@@ -4,23 +4,23 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { DialogService } from "@bitwarden/components";
 import {
   VaultTimeout,
+  VaultTimeoutAction,
   VaultTimeoutOption,
+  VaultTimeoutSettingsService,
   VaultTimeoutStringType,
-} from "@bitwarden/common/types/vault-timeout.type";
-import { DialogService } from "@bitwarden/components";
+} from "@bitwarden/key-management";
 
 @Component({
   selector: "app-preferences",

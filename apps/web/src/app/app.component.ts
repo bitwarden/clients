@@ -11,7 +11,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -32,7 +31,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService, VaultTimeoutService } from "@bitwarden/key-management";
 
 import { flagEnabled } from "../utils/flags";
 

@@ -30,7 +30,6 @@ import {
 import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -97,7 +96,6 @@ import { WindowStorageService } from "@bitwarden/common/platform/storage/window-
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import {
@@ -113,6 +111,8 @@ import {
   KeyService,
   BiometricStateService,
   BiometricsService,
+  VaultTimeoutStringType,
+  VaultTimeoutService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management/angular";
 import { PasswordRepromptService } from "@bitwarden/vault";

@@ -84,12 +84,13 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
-import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
   BiometricsService,
+  VaultTimeout,
+  VaultTimeoutStringType,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management/angular";
 

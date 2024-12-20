@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { VaultTimeoutSettingsService, VaultTimeoutStringType } from "@bitwarden/key-management";
 
 import { VaultTimeoutInputComponent } from "./vault-timeout-input.component";
 

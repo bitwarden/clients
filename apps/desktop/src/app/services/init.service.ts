@@ -16,9 +16,11 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+import {
+  DefaultVaultTimeoutService,
+  KeyService as KeyServiceAbstraction,
+} from "@bitwarden/key-management";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
@@ -31,7 +33,7 @@ export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
     private syncService: SyncServiceAbstraction,
-    private vaultTimeoutService: VaultTimeoutService,
+    private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,

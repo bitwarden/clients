@@ -46,8 +46,6 @@ import { EventCollectionService as EventCollectionServiceAbstraction } from "@bi
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   InternalOrganizationServiceAbstraction,
@@ -225,8 +223,6 @@ import { EventCollectionService } from "@bitwarden/common/services/event/event-c
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -287,6 +283,10 @@ import {
   DefaultUserAsymmetricKeysRegenerationService,
   UserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationApiService,
+  VaultTimeoutSettingsService,
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutService,
+  DefaultVaultTimeoutService,
 } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
@@ -446,7 +446,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       GlobalStateProvider,
       BillingAccountProfileStateService,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
     ],
@@ -675,7 +675,7 @@ const safeProviders: SafeProvider[] = [
       REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
       LogService,
       LOGOUT_CALLBACK,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
     ],
   }),
   safeProvider({
@@ -740,8 +740,8 @@ const safeProviders: SafeProvider[] = [
     deps: [MessageListener],
   }),
   safeProvider({
-    provide: VaultTimeoutSettingsServiceAbstraction,
-    useClass: VaultTimeoutSettingsService,
+    provide: VaultTimeoutSettingsService,
+    useClass: DefaultVaultTimeoutSettingsService,
     deps: [
       AccountServiceAbstraction,
       PinServiceAbstraction,
@@ -756,8 +756,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: VaultTimeoutService,
-    useClass: VaultTimeoutService,
+    provide: DefaultVaultTimeoutService,
+    useClass: DefaultVaultTimeoutService,
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
@@ -769,7 +769,7 @@ const safeProviders: SafeProvider[] = [
       SearchServiceAbstraction,
       StateServiceAbstraction,
       AuthServiceAbstraction,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
       StateEventRunnerService,
       TaskSchedulerService,
       LogService,
@@ -778,8 +778,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: VaultTimeoutServiceAbstraction,
-    useExisting: VaultTimeoutService,
+    provide: VaultTimeoutService,
+    useExisting: DefaultVaultTimeoutService,
   }),
   safeProvider({
     provide: SsoLoginServiceAbstraction,
@@ -975,7 +975,7 @@ const safeProviders: SafeProvider[] = [
       UserDecryptionOptionsServiceAbstraction,
       PinServiceAbstraction,
       LogService,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
       PlatformUtilsServiceAbstraction,
       KdfConfigService,
     ],

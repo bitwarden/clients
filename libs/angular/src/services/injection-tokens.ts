@@ -13,7 +13,7 @@ import {
 import { Theme } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
-import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
+import { VaultTimeout } from "@bitwarden/key-management";
 
 declare const tag: unique symbol;
 /**

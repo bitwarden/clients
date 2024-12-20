@@ -7,7 +7,6 @@ import {
 } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
@@ -16,7 +15,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ClientType } from "@bitwarden/common/enums";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, VaultTimeoutSettingsService } from "@bitwarden/key-management";
 
 /**
  * Only allow access to this route if the vault is locked.

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
@@ -32,15 +34,15 @@ import {
   USER_KEY,
 } from "../../common/src/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "../../common/src/platform/state";
-import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
 import { CsprngArray } from "../../common/src/types/csprng";
 import { OrganizationId, UserId } from "../../common/src/types/guid";
 import { UserKey, MasterKey } from "../../common/src/types/key";
-import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
 import { DefaultKeyService } from "./key.service";
+import { VaultTimeoutStringType } from "./vault-timeout/types/vault-timeout.type";
+import { VAULT_TIMEOUT } from "./vault-timeout/vault-timeout-settings.state";
 
 describe("keyService", () => {
   let keyService: DefaultKeyService;

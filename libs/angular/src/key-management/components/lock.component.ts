@@ -7,8 +7,6 @@ import { concatMap, map, take, takeUntil } from "rxjs/operators";
 
 import { PinServiceAbstraction, PinLockType } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -41,6 +39,8 @@ import {
   KeyService,
   BiometricStateService,
   BiometricsService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
 } from "@bitwarden/key-management";
 
 @Directive()

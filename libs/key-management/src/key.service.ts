@@ -40,7 +40,6 @@ import {
   USER_KEY,
 } from "../../common/src/platform/services/key-state/user-key.state";
 import { ActiveUserState, StateProvider } from "../../common/src/platform/state";
-import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
 import { CsprngArray } from "../../common/src/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "../../common/src/types/guid";
 import {
@@ -52,7 +51,6 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "../../common/src/types/key";
-import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
@@ -61,6 +59,8 @@ import {
   UserPrivateKeyDecryptionFailedError,
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
+import { VaultTimeoutStringType } from "./vault-timeout/types/vault-timeout.type";
+import { VAULT_TIMEOUT } from "./vault-timeout/vault-timeout-settings.state";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;

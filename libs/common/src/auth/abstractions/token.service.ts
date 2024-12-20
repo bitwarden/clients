@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { VaultTimeoutAction } from "../../../../key-management/src/vault-timeout/enums/vault-timeout-action.enum";
+import { VaultTimeout } from "../../../../key-management/src/vault-timeout/types/vault-timeout.type";
 import { UserId } from "../../types/guid";
-import { VaultTimeout } from "../../types/vault-timeout.type";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 import { DecodedAccessToken } from "../services/token.service";
 

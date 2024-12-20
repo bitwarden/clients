@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { VaultTimeoutService } from "@bitwarden/key-management";
 
 import { DefaultLockService } from "./lock.service";
 

@@ -3,11 +3,13 @@
 import { firstValueFrom } from "rxjs";
 
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/key-management";
 
 const IdleInterval = 60 * 5; // 5 minutes
 

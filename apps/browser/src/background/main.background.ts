@@ -20,7 +20,6 @@ import { EventCollectionService as EventCollectionServiceAbstraction } from "@bi
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -159,7 +158,6 @@ import { EventCollectionService } from "@bitwarden/common/services/event/event-c
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -170,7 +168,6 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -205,8 +202,12 @@ import {
   BiometricsService,
   DefaultBiometricStateService,
   DefaultKdfConfigService,
+  DefaultVaultTimeoutService,
+  DefaultVaultTimeoutSettingsService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
 } from "@bitwarden/key-management";
 import {
   IndividualVaultExportService,
@@ -267,7 +268,6 @@ import { BrowserStorageServiceProvider } from "../platform/storage/browser-stora
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
@@ -298,8 +298,8 @@ export default class MainBackground {
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   collectionService: CollectionService;
-  vaultTimeoutService?: VaultTimeoutService;
-  vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
+  vaultTimeoutService?: DefaultVaultTimeoutService;
+  vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
@@ -671,7 +671,7 @@ export default class MainBackground {
     this.organizationService = new OrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
-    this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
+    this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.pinService,
       this.userDecryptionOptionsService,
@@ -867,7 +867,7 @@ export default class MainBackground {
 
     this.vaultSettingsService = new VaultSettingsService(this.stateProvider);
 
-    this.vaultTimeoutService = new VaultTimeoutService(
+    this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
       this.cipherService,

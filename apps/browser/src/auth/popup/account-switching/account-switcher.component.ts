@@ -5,13 +5,10 @@ import { Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LockService } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -22,6 +19,11 @@ import {
   SectionComponent,
   SectionHeaderComponent,
 } from "@bitwarden/components";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/key-management";
 
 import { enableAccountSwitching } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";

@@ -6,7 +6,6 @@ import { BehaviorSubject, Observable, Subject, firstValueFrom } from "rxjs";
 import { concatMap, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,7 +14,6 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,13 +24,17 @@ import { KeySuffixOptions, ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  VaultTimeout,
-  VaultTimeoutOption,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  BiometricStateService,
+  VaultTimeout,
+  VaultTimeoutAction,
+  VaultTimeoutOption,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";

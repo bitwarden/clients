@@ -4,13 +4,13 @@ import * as FormData from "form-data";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import * as fe from "node-fetch";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/key-management";
 
 (global as any).fetch = fe.default;
 (global as any).Request = fe.Request;

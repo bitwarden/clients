@@ -1,7 +1,9 @@
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { UserKeyDefinition } from "../../platform/state";
-import { VaultTimeout } from "../../types/vault-timeout.type";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { UserKeyDefinition } from "@bitwarden/common/src/platform/state";
 
+import { VaultTimeoutAction } from "./enums/vault-timeout-action.enum";
+import { VaultTimeout } from "./types/vault-timeout.type";
 import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
 
 describe.each([

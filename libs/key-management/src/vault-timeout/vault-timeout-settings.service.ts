@@ -19,21 +19,21 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/src/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/src/auth/abstractions/token.service";
+import { LogService } from "@bitwarden/common/src/platform/abstractions/log.service";
+import { StateProvider } from "@bitwarden/common/src/platform/state";
+import { UserId } from "@bitwarden/common/src/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../admin-console/enums";
-import { Policy } from "../../admin-console/models/domain/policy";
-import { AccountService } from "../../auth/abstractions/account.service";
-import { TokenService } from "../../auth/abstractions/token.service";
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { LogService } from "../../platform/abstractions/log.service";
-import { StateProvider } from "../../platform/state";
-import { UserId } from "../../types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
+import { KeyService } from "../abstractions/key.service";
 
+import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "./abstractions/vault-timeout-settings.service";
+import { VaultTimeoutAction } from "./enums/vault-timeout-action.enum";
+import { VaultTimeout, VaultTimeoutStringType } from "./types/vault-timeout.type";
 import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
 
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {

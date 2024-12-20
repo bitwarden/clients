@@ -34,7 +34,6 @@ import {
   PinServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -84,7 +83,6 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/s
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -94,6 +92,8 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricStateService,
   BiometricsService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management/angular";
 
