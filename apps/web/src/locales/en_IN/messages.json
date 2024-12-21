@@ -2964,7 +2964,7 @@
     "description": "Free as in 'free beer'."
   },
   "planDescFree": {
-    "message": "For testing or personal users to share with $COUNT$ other users.",
+    "message": "For testing or personal users to share with $COUNT$ other user.",
     "placeholders": {
       "count": {
         "content": "$1",
