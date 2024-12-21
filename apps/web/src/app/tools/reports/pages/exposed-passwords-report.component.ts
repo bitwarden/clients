@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,7 +7,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
@@ -25,18 +25,20 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     protected cipherService: CipherService,
     protected auditService: AuditService,
     protected organizationService: OrganizationService,
-    modalService: ModalService,
+    dialogService: DialogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    cipherFormConfigService: CipherFormConfigService,
   ) {
     super(
       cipherService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       organizationService,
       i18nService,
       syncService,
+      cipherFormConfigService,
     );
   }
 
