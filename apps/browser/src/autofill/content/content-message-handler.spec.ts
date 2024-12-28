@@ -5,6 +5,17 @@ import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onb
 import { postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 
 describe("ContentMessageHandler", () => {
+  const broadcastChannelClose = jest.fn();
+  let channelMessageListenerCallback: (event: any) => void;
+  global.BroadcastChannel = jest.fn().mockImplementation(() => {
+    return {
+      close: broadcastChannelClose,
+      addEventListener: jest.fn((type, callback) => {
+        channelMessageListenerCallback = callback;
+      }),
+    };
+  });
+
   const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
   let portOnDisconnectAddListenerCallback: CallableFunction;
   chrome.runtime.connect = jest.fn(() =>
@@ -105,12 +116,59 @@ describe("ContentMessageHandler", () => {
     });
   });
 
+  describe("handled channel messages", () => {
+    it("ignores the message to the extension background if it is not present in the forwardCommands list", () => {
+      channelMessageListenerCallback({ data: { command: "someOtherCommand" } });
+
+      expect(sendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("sends an authResult message", () => {
+      channelMessageListenerCallback({
+        data: {
+          command: "authResult",
+          lastpass: true,
+          code: "code",
+          state: "state",
+        },
+      });
+
+      expect(sendMessageSpy).toHaveBeenCalledWith({
+        command: "authResult",
+        code: "code",
+        state: "state",
+        lastpass: true,
+      });
+    });
+
+    it("sends the source as referrer if available", () => {
+      channelMessageListenerCallback({
+        data: {
+          command: "authResult",
+          lastpass: true,
+          code: "code",
+          state: "state",
+          source: "source",
+        },
+      });
+
+      expect(sendMessageSpy).toHaveBeenCalledWith({
+        command: "authResult",
+        code: "code",
+        state: "state",
+        lastpass: true,
+        referrer: "source",
+      });
+    });
+  });
+
   describe("extension disconnect action", () => {
     it("removes the window message listener and the extension message listener", () => {
       const removeEventListenerSpy = jest.spyOn(window, "removeEventListener");
 
       portOnDisconnectAddListenerCallback(mock<chrome.runtime.Port>());
 
+      expect(broadcastChannelClose).toHaveBeenCalledTimes(1);
       expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
       expect(removeEventListenerSpy).toHaveBeenCalledWith("message", expect.any(Function));
       expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledTimes(1);
