@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
+
 import {
   Component,
   ContentChildren,
@@ -36,7 +36,7 @@ let nextId = 0;
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
   standalone: true,
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, NgIf],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;

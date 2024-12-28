@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 
@@ -39,7 +38,6 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
     IconDirective,
     ButtonComponent,
     BitFormButtonDirective,
-    NgIf,
   ],
 })
 export class SimpleConfigurableDialogComponent {

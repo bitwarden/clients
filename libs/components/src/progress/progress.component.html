@@ -7,13 +7,12 @@
     attr.aria-valuenow="{{ barWidth }}"
     [ngStyle]="{ width: barWidth + '%' }"
   >
-    <div
-      *ngIf="displayText"
-      class="tw-flex tw-h-full tw-flex-wrap tw-items-center tw-overflow-hidden"
-    >
-      <!-- If text is too long to fit, wrap it below to hide -->
-      <div class="tw-h-full">&nbsp;</div>
-      <div class="tw-pr-1">{{ textContent }}</div>
-    </div>
+    @if (displayText) {
+      <div class="tw-flex tw-h-full tw-flex-wrap tw-items-center tw-overflow-hidden">
+        <!-- If text is too long to fit, wrap it below to hide -->
+        <div class="tw-h-full">&nbsp;</div>
+        <div class="tw-pr-1">{{ textContent }}</div>
+      </div>
+    }
   </div>
 </div>

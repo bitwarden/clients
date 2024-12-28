@@ -44,6 +44,7 @@ export type ChipSelectOption<T> = Option<T> & {
       multi: true,
     },
   ],
+  preserveWhitespaces: false,
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
   @ViewChild(MenuComponent) menu: MenuComponent;

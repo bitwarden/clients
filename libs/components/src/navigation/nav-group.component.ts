@@ -28,6 +28,7 @@ import { SideNavService } from "./side-nav.service";
   ],
   standalone: true,
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
+  preserveWhitespaces: false,
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
   @ContentChildren(NavBaseComponent, {

@@ -14,22 +14,24 @@ import { DialogModule } from "../../dialog.module";
 
 @Component({
   template: `
-    <div *ngFor="let group of dialogs">
-      <h2>{{ group.title }}</h2>
-      <div class="tw-mb-4 tw-flex tw-flex-row tw-gap-2">
-        <button
-          *ngFor="let dialog of group.dialogs"
-          bitButton
-          (click)="openSimpleConfigurableDialog(dialog)"
-        >
-          {{ dialog.title }}
-        </button>
+    @for (group of dialogs; track group) {
+      <div>
+        <h2>{{ group.title }}</h2>
+        <div class="tw-mb-4 tw-flex tw-flex-row tw-gap-2">
+          @for (dialog of group.dialogs; track dialog) {
+            <button bitButton (click)="openSimpleConfigurableDialog(dialog)">
+              {{ dialog.title }}
+            </button>
+          }
+        </div>
       </div>
-    </div>
+    }
 
-    <bit-callout *ngIf="showCallout" [type]="calloutType" title="Dialog Close Result">
-      {{ dialogCloseResult }}
-    </bit-callout>
+    @if (showCallout) {
+      <bit-callout [type]="calloutType" title="Dialog Close Result">
+        {{ dialogCloseResult }}
+      </bit-callout>
+    }
   `,
 })
 class StoryDialogComponent {

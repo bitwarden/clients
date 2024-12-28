@@ -1,5 +1,5 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
-<ng-container *ngIf="!hideIfEmpty || nestedNavComponents.length > 0">
+@if (!hideIfEmpty || nestedNavComponents.length > 0) {
   <bit-nav-item
     [text]="text"
     [icon]="icon"
@@ -29,28 +29,29 @@
         [attr.aria-label]="['toggleCollapse' | i18n, text].join(' ')"
       ></button>
     </ng-template>
-
     <!-- Show toggle to the left for trees otherwise to the right -->
-    <ng-container slot="start" *ngIf="variant === 'tree'">
-      <ng-container *ngTemplateOutlet="button"></ng-container>
-    </ng-container>
-    <ng-container slot="end">
-      <ng-content select="[slot=end]"></ng-content>
-      <ng-container *ngIf="variant !== 'tree'">
+    @if (variant === "tree") {
+      <ng-container slot="start">
         <ng-container *ngTemplateOutlet="button"></ng-container>
       </ng-container>
+    }
+    <ng-container slot="end">
+      <ng-content select="[slot=end]"></ng-content>
+      @if (variant !== "tree") {
+        <ng-container *ngTemplateOutlet="button"></ng-container>
+      }
     </ng-container>
   </bit-nav-item>
-
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
-  <ng-container *ngIf="sideNavService.open$ | async">
-    <div
-      *ngIf="open"
-      [attr.id]="contentId"
-      [attr.aria-label]="[text, 'submenu' | i18n].join(' ')"
-      role="group"
-    >
-      <ng-content></ng-content>
-    </div>
-  </ng-container>
-</ng-container>
+  @if (sideNavService.open$ | async) {
+    @if (open) {
+      <div
+        [attr.id]="contentId"
+        [attr.aria-label]="[text, 'submenu' | i18n].join(' ')"
+        role="group"
+      >
+        <ng-content></ng-content>
+      </div>
+    }
+  }
+}
