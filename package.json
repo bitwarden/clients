@@ -62,7 +62,7 @@
     "@types/chrome": "0.0.280",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/inquirer": "8.2.10",
-    "@types/jest": "29.5.12",
+    "@types/jest": "29.5.14",
     "@types/jquery": "3.5.32",
     "@types/jsdom": "21.1.7",
     "@types/koa": "2.15.0",
