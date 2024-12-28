@@ -173,7 +173,7 @@
     "core-js": "3.39.0",
     "form-data": "4.0.0",
     "https-proxy-agent": "7.0.5",
-    "inquirer": "8.2.6",
+    "inquirer": "12.3.0",
     "jquery": "3.7.1",
     "jsdom": "25.0.1",
     "jszip": "3.10.1",
