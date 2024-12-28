@@ -183,7 +183,15 @@ export class TrayMain {
         this.hideDock();
       }
     } else {
-      this.windowMain.win.show();
+      if (this.windowMain.win.isFullScreen()) {
+        this.windowMain.win.setFullScreen(false);
+        this.windowMain.win.once("leave-full-screen", () => {
+          this.windowMain.win.setFullScreen(true);
+          this.windowMain.win.show();
+        });
+      } else {
+        this.windowMain.win.show();
+      }
       if (this.isDarwin()) {
         this.showDock();
       }
