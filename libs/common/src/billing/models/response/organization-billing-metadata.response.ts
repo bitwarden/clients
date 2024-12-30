@@ -7,9 +7,9 @@ export class OrganizationBillingMetadataResponse extends BaseResponse {
   isSubscriptionUnpaid: boolean;
   hasSubscription: boolean;
   hasOpenInvoice: boolean;
-  invoiceDueDate: Date | null;
-  invoiceCreatedDate: Date | null;
-  subPeriodEndDate: Date | null;
+  invoiceDueDate: Date;
+  invoiceCreatedDate: Date;
+  subPeriodEndDate: Date;
 
   constructor(response: any) {
     super(response);
