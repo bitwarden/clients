@@ -454,9 +454,6 @@
   "length": {
     "message": "Lengde"
   },
-  "passwordMinLength": {
-    "message": "﻿Minimum passordlengde"
-  },
   "uppercase": {
     "message": "Store bokstaver (A–Å)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minste antall spesialtegn"
-  },
-  "avoidAmbChar": {
-    "message": "Unngå tvetydige tegn",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Vis identitetselementer på fanesiden for enkel auto-utfylling."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Tøm utklippstavlen",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Flytt til organisasjon"
-  },
-  "share": {
-    "message": "Del"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ flyttet til $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klon"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "En eller flere av virksomhetens regler påvirker generatorinnstillingene dine."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Søk i Send-ene",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Legg til Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Tekst"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Maksimalt antall tilganger nådd",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Utløpt"
-  },
-  "pendingDeletion": {
-    "message": "Venter på sletting"
   },
   "passwordProtected": {
     "message": "Passord beskyttet"
@@ -2472,23 +2447,8 @@
     "message": "Rediger Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Hvilken type Send er dette?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Et vennlig navn for å beskrive dette Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Filen du vil send."
-  },
   "deletionDate": {
     "message": "Dato for sletting"
-  },
-  "deletionDateDesc": {
-    "message": "Send-en vil bli slettet permanent på den angitte dato og klokkeslett.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Utløpsdato"
-  },
-  "expirationDateDesc": {
-    "message": "Hvis satt, vil tilgang til denne Send gå ut på angitt dato og klokkeslett.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 dag"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Egendefinert"
   },
-  "maximumAccessCount": {
-    "message": "Maksimal antall tilganger"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Hvis satt, vil ikke brukere lenger ha tilgang til dette Send når maksimal antall tilgang er nådd.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Eventuelt krever et passord for brukere å få tilgang til denne Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private notater om denne Send-en.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deaktiver denne Send-en, slik at ingen får tilgang til den.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Kopier denne Send-ens lenke til utklippstavlen når den har blitt lagret.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teksten du ønsker å sende."
-  },
-  "sendHideText": {
-    "message": "Skjul denne Send-ens tekst som standard.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Antall nåværende tilganger"
   },
   "createSend": {
     "message": "Lag en ny Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Før du starter"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Hvis du vil bruke en kalenderstil-datovelger",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "kilkk her",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "å pope ut vinduet.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Utløpsdatoen angitt er ikke gyldig."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Det oppstod en feil ved lagring av slettingen og utløpsdatoene."
   },
-  "hideEmail": {
-    "message": "Skjul min e-postadresse fra mottakere."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "En eller flere av virksomhetens regler påvirker generatorinnstillingene dine."
   },
   "passwordPrompt": {
     "message": "Forespørsel om hovedpassord på nytt"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Feil"
   },
-  "regenerateUsername": {
-    "message": "Regenerer brukernavn"
-  },
   "generateUsername": {
     "message": "Generer brukernavn"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Brukernavntype"
-  },
   "plusAddressedEmail": {
     "message": "Pluss-adressert e-post",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Navn på nettside"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Hva vil du generere?"
-  },
-  "passwordType": {
-    "message": "Passordtype"
   },
   "service": {
     "message": "Tjeneste"
