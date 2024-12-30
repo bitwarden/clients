@@ -454,9 +454,6 @@
   "length": {
     "message": "Ilgis"
   },
-  "passwordMinLength": {
-    "message": "Minimalus slaptažodžio ilgis"
-  },
   "uppercase": {
     "message": "Didžiosiomis (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Mažiausiai simbolių"
-  },
-  "avoidAmbChar": {
-    "message": "Vengti dviprasmiškų simbolių",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Pateikti tapatybės elementų skirtuko puslapyje, kad būtų lengva automatiškai užpildyti."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Išvalyti iškarpinę",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Perkelti į organizaciją"
-  },
-  "share": {
-    "message": "Bendrinti"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ perkelta(s) į $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klonuoti"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Viena ar daugiau organizacijos politikų turi įtakos Jūsų generatoriaus nustatymams."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Ieškoti „Sends“",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Pridėti „Send“",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Tekstas"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Pasiektas maksimalus prisijungimų skaičius",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Nebegalioja"
-  },
-  "pendingDeletion": {
-    "message": "Laukiama ištrynimo"
   },
   "passwordProtected": {
     "message": "Apsaugota slaptažodžiu"
@@ -2472,23 +2447,8 @@
     "message": "Redaguoti „Send“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Kokio tai tipo „Send“?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Draugiškas pavadinimas, apibūdinantis šį „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Failas, kurį norite siųsti."
-  },
   "deletionDate": {
     "message": "Ištrynimo data"
-  },
-  "deletionDateDesc": {
-    "message": "Nurodytos datos ir laiko metu „Send“ bus bus ištrinta visam laikui.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Galiojimo data"
-  },
-  "expirationDateDesc": {
-    "message": "Jei nustatyta, prieiga prie šio „Send“ nustos galioti nurodyta data ir laikui.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 d"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Pasirinktinis"
   },
-  "maximumAccessCount": {
-    "message": "Maksimalus prisijungimų skaičius"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Jei nustatyta, vartotojai nebegalės pasiekti šio „Send“, kai bus pasiektas maksimalus prisijungimų skaičius.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Pasirinktinai reikalauti slaptažodžio, kad vartotojai galėtų pasiekti šį „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Asmeninės pastabos apie šį „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Išjunkite šį „Send“, kad niekas negalėtų jo pasiekti.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Išsaugant šį „Send“ nukopijuokite nuorodą į mainų sritį.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Tekstas, kurį norite siųsti."
-  },
-  "sendHideText": {
-    "message": "Pagal numatytuosius nustatymus slėpti šį „Send“ tekstą.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Dabartinis prisijungimų skaičius"
   },
   "createSend": {
     "message": "Naujas Siuntinys",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Prieš pradedant"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Norint pasinaudoti kalendoriaus stiliaus datos pasirinkikliu",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "spauskite čia",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "iškelti atskirame lange.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Nurodytas galiojimo laikas negalioja."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Išsaugant jūsų ištrynimo ir galiojimo datas įvyko klaida."
   },
-  "hideEmail": {
-    "message": "Slėpti mano el. pašto adresą nuo gavėjų."
-  },
   "hideYourEmail": {
     "message": "Slėpkite savo el. pašto adresą nuo žiūrėtojų."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Viena ar daugiau organizacijos politikų turi įtakos Jūsų „Send“ nustatymams."
   },
   "passwordPrompt": {
     "message": "Iš naujo prašoma pagrindinio slaptažodžio"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Klaida"
   },
-  "regenerateUsername": {
-    "message": "Pergeneruoti vartotojo vardą iš naujo"
-  },
   "generateUsername": {
     "message": "Generuoti vartotojo vardą"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Vartotojo prisijungimo vardo tipas"
-  },
   "plusAddressedEmail": {
     "message": "Plius adresuotas el. paštas",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Svetainės pavadinimas"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Ką norėtumėte sugeneruoti?"
-  },
-  "passwordType": {
-    "message": "Slaptažodžio tipas"
   },
   "service": {
     "message": "Paslauga"

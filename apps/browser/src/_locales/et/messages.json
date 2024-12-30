@@ -454,9 +454,6 @@
   "length": {
     "message": "Pikkus"
   },
-  "passwordMinLength": {
-    "message": "Lühim lubatud parooli pikkus"
-  },
   "uppercase": {
     "message": "Suurtäht (A-Z) ",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Vähim arv spetsiaalmärke"
-  },
-  "avoidAmbChar": {
-    "message": "Väldi ebamääraseid kirjamärke",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Väldi raskesti eristatavaid tähti ja sümboleid",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Kuvab \"Kaart\" vaates identiteete, et neid saaks kiiresti sisestada"
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Lõikelaua sisu kustutamine",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Teisalda organisatsiooni"
-  },
-  "share": {
-    "message": "Jaga"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ teisaldati $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Kloon"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Organisatsiooni seaded mõjutavad parooli genereerija sätteid."
-  },
   "passwordGenerator": {
     "message": "Parooli genereerija"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Otsi Sende",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Lisa Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Tekst"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Maksimaalne ligipääsude arv on saavutatud",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Aegunud"
-  },
-  "pendingDeletion": {
-    "message": "Kustutamise ootel"
   },
   "passwordProtected": {
     "message": "Parooliga kaitstud"
@@ -2472,23 +2447,8 @@
     "message": "Muuda Sendi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Mis tüüpi Send see on?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Sisesta Sendi nimi (kohustuslik).",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Fail, mida soovid saata."
-  },
   "deletionDate": {
     "message": "Kustutamise kuupäev"
-  },
-  "deletionDateDesc": {
-    "message": "Send kustutatakse määratud kuupäeval ja kellaajal jäädavalt.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Aegumiskuupäev"
-  },
-  "expirationDateDesc": {
-    "message": "Selle valimisel ei pääse sellele Sendile enam pärast määratud kuupäeva ligi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 päev"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Kohandatud"
   },
-  "maximumAccessCount": {
-    "message": "Maksimaalne ligipääsude arv"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Selle valimisel ei saa kasutajad pärast maksimaalse ligipääsude arvu saavutamist sellele Sendile enam ligi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Soovi korral nõua parooli, millega Sendile ligi pääseb.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privaatne märkus selle Sendi kohta.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Keela see Send, et keegi ei pääseks sellele ligi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Kopeeri Sendi salvestamisel link lõikelauale.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Tekst, mida soovid saata."
-  },
-  "sendHideText": {
-    "message": "Vaikeolekus peida selle Sendi tekst.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hetkeline ligipääsude arv"
   },
   "createSend": {
     "message": "Loo uus Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Enne alustamist"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Kalendri stiilis kuupäeva valimiseks",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "kliki siia,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "et avada Bitwarden uues aknas.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Valitud aegumiskuupäev ei ole õige."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Kustutamis- ja aegumiskuupäevade salvestamisel ilmnes tõrge."
   },
-  "hideEmail": {
-    "message": "Ära näita saajatele minu e-posti aadressi."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Organisatsiooni seaded mõjutavad sinu Sendi sätteid."
   },
   "passwordPrompt": {
     "message": "Nõutav on ülemparool"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Viga"
   },
-  "regenerateUsername": {
-    "message": "Genereeri kasutajanimi uuesti"
-  },
   "generateUsername": {
     "message": "Genereeri kasutajanimi"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Kasutajanime tüüp"
-  },
   "plusAddressedEmail": {
     "message": "Plussiga e-posti aadress",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Veebilehe nimi"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mida sa soovid genereerida?"
-  },
-  "passwordType": {
-    "message": "Parooli tüüp"
   },
   "service": {
     "message": "Teenus"
