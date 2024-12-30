@@ -301,11 +301,6 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
-  parameters: {
-    // Chromatic has been reporting diffs on these stories where the item rows are not all fully loaded.
-    // Trying this out to test the theory that it's taking a screenshot too quickly.
-    // chromatic: { delay: 6000 },
-  },
   decorators: [
     moduleMetadata({
       imports: [
