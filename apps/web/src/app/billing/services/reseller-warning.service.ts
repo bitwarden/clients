@@ -34,7 +34,7 @@ export class ResellerWarningService {
         message: this.i18nService.t(
           "resellerPastDueWarning",
           organization.providerName,
-          this.formatDate(gracePeriodEnd),
+          gracePeriodEnd ? this.formatDate(gracePeriodEnd) : "",
         ),
       } as ResellerWarning;
     }
@@ -59,7 +59,7 @@ export class ResellerWarningService {
         message: this.i18nService.t(
           "resellerRenewalWarning",
           organization.providerName,
-          this.formatDate(organizationBillingMetadata.subPeriodEndDate),
+          this.formatDate(organizationBillingMetadata.subPeriodEndDate ?? ""),
         ),
       } as ResellerWarning;
     }
