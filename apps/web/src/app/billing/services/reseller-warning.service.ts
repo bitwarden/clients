@@ -26,7 +26,9 @@ export class ResellerWarningService {
 
     // Check for past due warning first (highest priority)
     if (this.shouldShowPastDueWarning(organizationBillingMetadata)) {
-      const gracePeriodEnd = this.getGracePeriodEndDate(organizationBillingMetadata.invoiceDueDate);
+      const gracePeriodEnd = organizationBillingMetadata.invoiceDueDate
+        ? this.getGracePeriodEndDate(organizationBillingMetadata.invoiceDueDate)
+        : null;
       return {
         type: "warning",
         message: this.i18nService.t(
@@ -68,7 +70,14 @@ export class ResellerWarningService {
   private shouldShowRenewalWarning(
     organizationBillingMetadata: OrganizationBillingMetadataResponse,
   ): boolean {
-    const renewalDate = new Date(organizationBillingMetadata.subPeriodEndDate);
+    const renewalDate = organizationBillingMetadata.subPeriodEndDate
+      ? new Date(organizationBillingMetadata.subPeriodEndDate)
+      : null;
+
+    if (renewalDate == null) {
+      return false;
+    }
+
     const daysUntilRenewal = Math.ceil(
       (renewalDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
     );
@@ -95,13 +104,19 @@ export class ResellerWarningService {
     return invoiceDueDate <= new Date() && !organizationBillingMetadata.isSubscriptionUnpaid;
   }
 
-  private getGracePeriodEndDate(dueDate: Date): Date {
+  private getGracePeriodEndDate(dueDate: Date | null): Date | null {
+    if (!dueDate) {
+      return null;
+    }
     const gracePeriodEnd = new Date(dueDate);
     gracePeriodEnd.setDate(gracePeriodEnd.getDate() + this.GRACE_PERIOD_DAYS);
     return gracePeriodEnd;
   }
 
-  private formatDate(date: Date | string): string {
+  private formatDate(date: Date | string | null): string {
+    if (!date) {
+      return "";
+    }
     return new Date(date).toLocaleDateString();
   }
 }
