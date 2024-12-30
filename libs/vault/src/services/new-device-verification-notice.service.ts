@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Jsonify } from "type-fest";
@@ -55,7 +57,7 @@ export class NewDeviceVerificationNoticeService {
   }
 
   async updateNewDeviceVerificationNoticeState(
-    userId: UserId,
+    userId: UserId | null,
     newState: NewDeviceVerificationNotice,
   ): Promise<void> {
     await this.noticeState(userId).update(() => {

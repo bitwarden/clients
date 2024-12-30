@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
 import * as koa from "koa";
@@ -155,6 +157,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.searchService,
       this.serviceContainer.encryptService,
+      this.serviceContainer.apiService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,

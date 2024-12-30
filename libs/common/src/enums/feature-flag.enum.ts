@@ -31,15 +31,18 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
-  AccessIntelligence = "pm-13227-access-intelligence",
-  Pm13322AddPolicyDefinitions = "pm-13322-add-policy-definitions",
+  PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
   CriticalApps = "pm-14466-risk-insights-critical-application",
   TrialPaymentOptional = "PM-8163-trial-payment",
   SecurityTasks = "security-tasks",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   DisableFreeFamiliesSponsorship = "PM-12274-disable-free-families-sponsorship",
+  InlineMenuTotp = "inline-menu-totp",
+  MacOsNativeCredentialSync = "macos-native-credential-sync",
   PM11360RemoveProviderExportPermission = "pm-11360-remove-provider-export-permission",
+  PM12443RemovePagingLogic = "pm-12443-remove-paging-logic",
+  PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -81,15 +84,18 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
-  [FeatureFlag.AccessIntelligence]: FALSE,
-  [FeatureFlag.Pm13322AddPolicyDefinitions]: FALSE,
+  [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.DisableFreeFamiliesSponsorship]: FALSE,
+  [FeatureFlag.InlineMenuTotp]: FALSE,
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.PM11360RemoveProviderExportPermission]: FALSE,
+  [FeatureFlag.PM12443RemovePagingLogic]: FALSE,
+  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

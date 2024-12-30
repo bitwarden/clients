@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FakeGlobalStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { MockProxy, mock } from "jest-mock-extended";
 

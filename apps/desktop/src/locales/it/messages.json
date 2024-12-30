@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL del server"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "URL server autogestito",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Verifica per Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Autenticazione per sbloccare Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Sblocca con Touch ID"

@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Сповіщення учасників"
   },
+  "revokeMembers": {
+    "message": "Відкликати учасників"
+  },
+  "restoreMembers": {
+    "message": "Відновити учасників"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Не вдається відновити доступ до організації"
+  },
   "allApplicationsWithCount": {
     "message": "Всі програми ($COUNT$)",
     "placeholders": {
@@ -1110,6 +1119,12 @@
   "logInToBitwarden": {
     "message": "Увійти в Bitwarden"
   },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
+  },
   "verifyIdentity": {
     "message": "Підтвердьте свою особу"
   },
@@ -1643,25 +1658,25 @@
     "message": "Історія паролів"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Історія генератора"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Очистити історію генератора"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
   },
   "noPasswordsInList": {
     "message": "Немає паролів."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Очистити історію"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Немає даних для показу"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Ви нічого не генерували останнім часом"
   },
   "clear": {
     "message": "Стерти",
@@ -1786,7 +1801,7 @@
     "message": "Усі сеанси завершено"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Цим обліковим записом володіє $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3867,33 +3882,36 @@
   "updateBrowser": {
     "message": "Оновити браузер"
   },
+  "generatingRiskInsights": {
+    "message": "Генерується інформація щодо ризиків..."
+  },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
   },
-  "freeTrialEndPrompt": {
-    "message": "Ваш безплатний пробний період завершується через $COUNT$ днів. Щоб продовжити передплату,",
+  "freeTrialEndPromptCount": {
+    "message": "Ваш безплатний пробний період завершується через $COUNT$ днів.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується через $COUNT$ днів. Щоб продовжити передплату,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується завтра. Щоб продовжити передплату,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується через $COUNT$ днів.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується завтра.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3919,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Ваш безплатний пробний період завершується завтра. Щоб продовжити передплату,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Ваш безплатний пробний період завершується завтра."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується сьогодні. Щоб продовжити передплату,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, ваш безплатний пробний період завершується сьогодні.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3931,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Ваш безплатний пробний період завершується сьогодні. Щоб продовжити передплату,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Ваш безплатний пробний період завершується сьогодні."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "додайте спосіб оплати."
+  "clickHereToAddPaymentMethod": {
+    "message": "Натисніть тут, щоб додати спосіб оплати."
   },
   "joinOrganization": {
     "message": "Приєднатися до організації"
@@ -4705,6 +4723,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Виконуйте вхід з використанням порталу єдиного входу вашої організації. Щоб почати, введіть SSO-ідентифікатор вашої організації."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Введіть ідентифікатор SSO вашої організації, щоб почати"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Щоб увійти зі своїм провайдером SSO, спершу введіть ідентифікатор SSO організації. Можливо, вам доведеться ввести цей ідентифікатор SSO під час входу в систему з нового пристрою."
   },
   "enterpriseSingleSignOn": {
     "message": "Єдиний корпоративний вхід (SSO)"
@@ -5610,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Виключено, не застосовується для цієї дії"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Учасники, які не відповідають вимогам"
+  },
+  "nonCompliantMembersError": {
+    "message": "Учасників, які не відповідають вимогам єдиної організації або політиці двоетапної перевірки, не можна відновити доки вони не дотримуватимуться вимог політики"
+  },
   "fingerprint": {
     "message": "Цифровий відбиток"
   },
@@ -6116,9 +6146,6 @@
   },
   "emailSent": {
     "message": "Лист надіслано"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Після вилучення цього облікового запису, спонсорування сімейного плану завершиться в кінці платіжного періоду. Ви не зможете запитати нову пропозицію спонсорування доки чинна не завершиться. Ви дійсно хочете продовжити?"
   },
   "removeSponsorshipSuccess": {
     "message": "Спонсорування вилучено"
@@ -6785,11 +6812,15 @@
     "message": "Необхідна передплата преміум"
   },
   "scim": {
-    "message": "Забезпечення SCIM",
+    "message": "Розгортання SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
     "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM. Знайти підтримувані інтеграції",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8070,16 +8101,16 @@
     "message": "Ініційовано вхід"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потрібне підтвердження пристрою"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -8311,7 +8342,7 @@
     "message": "Немає адреси електронної пошти"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -8986,44 +9017,99 @@
   "sdksDesc": {
     "message": "Використовуйте SDK менеджера секретів Bitwarden із зазначеними мовами програмування для створення власних програм."
   },
-  "setUpGithubActions": {
-    "message": "Налаштувати дії для Github"
+  "ssoDescStart": {
+    "message": "Налаштувати",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Налаштувати Kubernetes"
+  "ssoDescEnd": {
+    "message": "для Bitwarden, використовуючи посібник із впровадження для вашого провайдера ідентифікації.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Налаштувати GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Розгортання користувача"
   },
-  "setUpAnsible": {
-    "message": "Налаштувати Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Переглянути репозиторій Rust"
+  "scimIntegrationDescStart": {
+    "message": "Налаштувати ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Перегляд репозиторію C#"
+  "scimIntegrationDescEnd": {
+    "message": "(система керування ідентифікаційними даними між доменами), щоб автоматично розгортати користувачів та групи в Bitwarden, використовуючи посібник із впровадження для вашого провайдера ідентифікації.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Перегляд репозиторію C++"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Перегляд репозиторію JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Налаштуйте Bitwarden Directory Connector, щоб автоматично розгортати користувачів та групи, використовуючи посібник із впровадження для вашого провайдера ідентифікації."
   },
-  "javaSDKRepo": {
-    "message": "Перегляд репозиторію Java"
+  "eventManagement": {
+    "message": "Керування подіями"
   },
-  "pythonSDKRepo": {
-    "message": "Перегляд репозиторію Python"
+  "eventManagementDesc": {
+    "message": "Інтегруйте журнали подій Bitwarden з вашою SIEM (керування системною інформацією та подіями), використовуючи посібник із впровадження для вашої платформи."
   },
-  "phpSDKRepo": {
-    "message": "Перегляд репозиторію php"
+  "deviceManagement": {
+    "message": "Керування пристроями"
   },
-  "rubySDKRepo": {
-    "message": "Перегляд репозиторію Ruby"
+  "deviceManagementDesc": {
+    "message": "Налаштуйте керування пристроями для Bitwarden, використовуючи посібник із впровадження для вашої платформи."
   },
-  "goSDKRepo": {
-    "message": "Перегляд репозиторію Go"
+  "integrationCardTooltip": {
+    "message": "Відкрити посібник із впровадження $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Налаштувати $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Переглянути репозиторій $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "відкрийте посібник із впровадження $INTEGRATION$ в новій вкладці.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "перегляньте репозиторій $SDK$ у новій вкладці.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "налаштуйте посібник із впровадження $INTEGRATION$ в новій вкладці.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Створіть нову організацію клієнта, щоб керувати нею як провайдер. Додаткові місця будуть відображені в наступному платіжному циклі."
@@ -9699,8 +9785,8 @@
   "selfHostingTitleProper": {
     "message": "Власне розміщення"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Підтвердження домену ввімкне політику єдиної організації."
+  "claim-domain-single-org-warning": {
+    "message": "Під час заявлення домену буде ввімкнено політику єдиної організації."
   },
   "single-org-revoked-user-warning": {
     "message": "Невідповідних учасників буде відкликано. Адміністратори зможуть відновити учасників, коли ті покинуть всі інші організації."
@@ -9715,9 +9801,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Якщо учасник видаляється, його обліковий запис Bitwarden разом з даними особистого сховища також остаточно видаляється. Дані збірок залишаються в організації. Щоб їх відновити, учасник повинен створити обліковий запис і приєднатися до організації знову.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Ця дія призведе до остаточного видалення усіх записів, якими володіє $NAME$. Це не вплине на збірки.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Ця дія призведе до остаточного видалення усіх записів, якими володіють зазначені учасники. Це не вплине на збірки.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Видалено $NAME$",
@@ -9780,12 +9876,136 @@
     "message": "Не дозволяти учасникам отримувати сімейний тарифний план через цю організацію."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Оплата з банківським рахунком доступна тільки для клієнтів у США. Вам необхідно буде підтвердити свій банківський рахунок. Ми здійснимо мікродепозит протягом наступних 1-2 робочих днів. Введіть код дескриптора з цього депозиту на сторінці оплати організації, щоб підтвердити банківський рахунок. Неможливість засвідчення банківського рахунку призведе до втрати платежу та припинення вашої передплати."
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Ми зробили мікродепозит на ваш банківський рахунок (це може зайняти 1-2 робочих дні). Введіть код із 6 цифр, що починається з \"SM\", який ви побачите в описі депозиту. Неможливість засвідчення банківського рахунку призведе до втрати платежу і припинення вашої передплати."
   },
   "descriptorCode": {
-    "message": "Descriptor code"
+    "message": "Код дескриптора"
+  },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
+  "removeMembers": {
+    "message": "Вилучити учасників"
+  },
+  "claimedDomains": {
+    "message": "Заявлені домени"
+  },
+  "claimDomain": {
+    "message": "Заявити домен"
+  },
+  "reclaimDomain": {
+    "message": "Повторно заявити домен"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Зразок: mydomain.com. Для піддоменів потрібно заявити окремі записи."
+  },
+  "automaticClaimedDomains": {
+    "message": "Автоматично заявлені домени"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden намагатиметься заявити домен 3 рази впродовж 72 годин. Якщо не вдасться заявити домен, перевірте DNS-запис у вашого провайдера й заявіть його вручну. Якщо домен не буде заявлено протягом 7 днів, його буде вилучено з вашої організації."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ не заявлено. Перевірте свої DNS-записи.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Заявлено"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Проходить перевірку"
+  },
+  "claimedDomainsDesc": {
+    "message": "Заявіть домен, щоб володіти всіма обліковими записами учасників, адреси е-пошти яких відповідають цьому домену. Учасники матимуть змогу пропустити ідентифікацію SSO під час входу в систему. Адміністратори також зможуть видаляти облікові записи учасників."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Неправильний формат введення. Правильний формат: mydomain.com. Для заявлення піддоменів потрібно ввести окремі записи."
+  },
+  "domainClaimedEvent": {
+    "message": "Домен $DOMAIN$ заявлено",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "Домен $DOMAIN$ не заявлено",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Якщо ви видалите $EMAIL$, спонсорство для цього сімейного плану не можна буде використати. Ви дійсно хочете продовжити?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Якщо ви видалите $EMAIL$, спонсорство для цього сімейного плану припиниться, а зі збереженого способу оплати буде стягнуто $40 + належний податок станом на $DATE$. Ви не зможете отримати нове спонсорство до $DATE$. Справді продовжити?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Домен заявлено"
+  },
+  "organizationNameMaxLength": {
+    "message": "Назва організації не може перевищувати 50 символів."
   }
 }

@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "自动填充身份"
   },
+  "fillVerificationCode": {
+    "message": "填写验证码"
+  },
+  "fillVerificationCodeAria": {
+    "message": "填写验证码",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "生成密码（并复制）"
   },
@@ -345,7 +352,7 @@
     "message": "免费 Bitwarden 家庭"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页应用中兑换此优惠。"
+    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页 App 中兑换此优惠。"
   },
   "version": {
     "message": "版本"
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "为本扩展打分"
-  },
-  "rateExtensionDesc": {
-    "message": "请给我们好评！"
   },
   "browserNotSupportClipboard": {
     "message": "您的浏览器不支持剪贴板简单复制，请手动复制。"
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "请输入您的验证器 App 中的 6 位数验证码。"
+  },
+  "authenticationTimeout": {
+    "message": "身份验证超时"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "身份验证会话超时。请重新启动登录过程。"
   },
   "enterVerificationCodeEmail": {
     "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
@@ -2358,7 +2368,7 @@
     "message": "限制查看"
   },
   "limitSendViewsHint": {
-    "message": "在达到限额后，任何人无法查看此 Send。",
+    "message": "达到限额后，任何人无法查看此 Send。",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "查看所有登录选项"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "查看所有登录选项"
   },
   "notificationSentDevice": {
@@ -3544,7 +3554,7 @@
     "message": "切换侧边导航"
   },
   "skipToContent": {
-    "message": "跳转到正文"
+    "message": "跳转到内容"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden 自动填充菜单按钮",
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "解锁您的账户（在新窗口中打开）",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "基于时间的一次性密码验证码",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "TOTP 到期前剩余时间",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "为其填写凭据",
@@ -3705,7 +3723,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 寻求帮助。"
+    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 DUO 并按照步骤完成登录。"
@@ -4480,7 +4498,7 @@
     "message": "对于如密码之类的敏感数据，请使用隐藏型字段"
   },
   "checkBoxHelpText": {
-    "message": "如果您想自动勾选表单复选框（例如记住电子邮件地址），请使用复选框"
+    "message": "如果您想自动勾选表单复选框（例如记住电子邮件地址），请使用复选框型"
   },
   "linkedHelpText": {
     "message": "当您处理特定网站的自动填充问题时，请使用链接型字段。"
@@ -4657,6 +4675,9 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "在扩展图标上显示自动填充建议的登录的数量"
+  },
+  "showQuickCopyActions": {
+    "message": "在密码库上显示快速复制操作"
   },
   "systemDefault": {
     "message": "跟随系统"
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta 版"
+  },
+  "importantNotice": {
+    "message": "重要通知"
+  },
+  "setupTwoStepLogin": {
+    "message": "设置两步登录"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮件地址发送一个代码，以验证从新设备上的登录。"
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮件地址更改为您可以访问的电子邮件地址。"
+  },
+  "remindMeLater": {
+    "message": "稍后提醒我"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "您可以可靠地访问您的电子邮件地址 $EMAIL$ 吗？",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "不，我不能"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "是的，我可以可靠地访问我的电子邮件地址"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "开启两步登录"
+  },
+  "changeAcctEmail": {
+    "message": "更改账户电子邮件"
   },
   "extensionWidth": {
     "message": "扩展宽度"

@@ -217,7 +217,7 @@
     "message": "Wachtwoord bevestigen"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Voer het wachtwoord voor de SSH-sleutel in."
+    "message": "Voer het wachtwoord voor de SSH sleutel in."
   },
   "enterSshKeyPassword": {
     "message": "Wachtwoord invoeren"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authenticatie-timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "De inlogsessie is verlopen. Start het inlogproces opnieuw op."
   },
   "selfHostBaseUrl": {
     "message": "URL zelfgehoste server",
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Verifiëren voor Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Verifieer om Bitwarden te ontgrendelen."
   },
   "unlockWithTouchId": {
     "message": "Ontgrendelen met Touch ID"

@@ -118,6 +118,7 @@
           type="button"
           class="box-content-row"
           appStopClick
+          *ngIf="isSshKeysEnabled"
           (click)="selectType(cipherType.SshKey)"
         >
           <div class="row-main">

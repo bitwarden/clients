@@ -1,15 +1,14 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
 import { RiskInsightsComponent } from "./risk-insights.component";
 
 const routes: Routes = [
   {
     path: "risk-insights",
-    canActivate: [canAccessFeature(FeatureFlag.AccessIntelligence)],
+    canActivate: [organizationPermissionsGuard((org) => org.useRiskInsights)],
     component: RiskInsightsComponent,
     data: {
       titleId: "RiskInsights",

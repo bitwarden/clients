@@ -174,6 +174,9 @@ jobs:
   build-containers:
     name: Build Docker images
     runs-on: ubuntu-22.04
+    permissions:
+      security-events: write
+      id-token: write
     needs:
       - setup
       - build-artifacts
@@ -270,6 +273,7 @@ jobs:
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
+        id: build-docker
         uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: apps/web
@@ -279,10 +283,39 @@ jobs:
           tags: ${{ steps.image-name.outputs.name }}
           secrets: |
             "GH_PAT=${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}"
+      
+      - name: Install Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+
+      - name: Sign image with Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        env:
+          DIGEST: ${{ steps.build-docker.outputs.digest }}
+          TAGS: ${{ steps.image-name.outputs.name }}
+        run: |
+          IFS="," read -a tags <<< "${TAGS}"
+          images=""
+          for tag in "${tags[@]}"; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
+
+      - name: Scan Docker image
+        id: container-scan
+        uses: anchore/scan-action@5ed195cc06065322983cae4bb31e2a751feb86fd # v5.2.0
+        with:
+          image: ${{ steps.image-name.outputs.name }}
+          fail-build: false
+          output-format: sarif
+
+      - name: Upload Grype results to GitHub
+        uses: github/codeql-action/upload-sarif@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
+        with:
+          sarif_file: ${{ steps.container-scan.outputs.sarif }}
 
       - name: Log out of Docker
         run: docker logout
-
 
   crowdin-push:
     name: Crowdin Push

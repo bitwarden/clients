@@ -205,7 +205,7 @@
     "message": "RSA 4096-Bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "一組SSH金鑰已在之前生成了"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
@@ -223,19 +223,19 @@
     "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "請解鎖密碼庫以核准SSh金鑰的請求"
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "SSH金鑰請求超時"
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "啟用SSH代理"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "啟用SSBitwardenH代理以從 Bitwarden 密碼庫簽發SSH請求"
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
   },
   "premiumRequired": {
     "message": "需要進階會員資格"
@@ -323,7 +323,7 @@
     "message": "產生密碼"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "產生密碼片語"
   },
   "type": {
     "message": "類型"
@@ -461,13 +461,13 @@
     "message": "複製密碼"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "重新產生密碼片語"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "複製SSH私鑰"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "複製密碼片語",
     "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
@@ -498,11 +498,11 @@
     "message": "特殊字元 (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "包含",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "包含大寫字元",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -518,7 +518,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "包含數字",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -526,7 +526,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "包含特殊字元",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -561,11 +561,11 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "避免易混淆的字元",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "企業原則之要求已在你的產生器選項中生效",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -624,22 +624,22 @@
     "message": "建立帳戶"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "第一次使用 Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "設定一個強密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "設定密碼以完成帳號創建"
   },
   "logIn": {
     "message": "登入"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "登入 Bitwarden"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "以通行密鑰 (passkey) 登入"
   },
   "loginWithDevice": {
     "message": "Log in with device"
@@ -694,7 +694,7 @@
     "message": "加入組織"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "加入 $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -767,7 +767,7 @@
     "message": "Your new account has been created!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "你已經登入!"
   },
   "masterPassSent": {
     "message": "已寄出包含您主密碼提示的電子郵件。"
@@ -800,7 +800,7 @@
     "message": "必須填入驗證碼。"
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "驗證已被取消或時間過長。請再試一次。"
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "伺服器 URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "驗證 Bitwarden。"
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "使用 Touch ID 解鎖"

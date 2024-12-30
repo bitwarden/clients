@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
@@ -58,13 +60,13 @@ export class GetCommand extends DownloadCommand {
     private keyService: KeyService,
     encryptService: EncryptService,
     private searchService: SearchService,
-    private apiService: ApiService,
+    protected apiService: ApiService,
     private organizationService: OrganizationService,
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
   ) {
-    super(encryptService);
+    super(encryptService, apiService);
   }
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {

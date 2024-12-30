@@ -217,7 +217,7 @@
     "message": "Jelszó megerősítése"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Írjuk be az SSH kulcshoz tartozó jelszót."
+    "message": "Adjuk meg az SSH kulcs jelszót."
   },
   "enterSshKeyPassword": {
     "message": "Jelszó megadása"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "Szerver webcím"
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással leállt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "selfHostBaseUrl": {
     "message": "Saját üzemeltetésű szerver webcím",
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden ellenőrzés."
-  },
-  "polkitConsentMessage": {
-    "message": "Hitelesítés a Bitwarden feloldásához."
   },
   "unlockWithTouchId": {
     "message": "Feloldás Touch ID segítségével"

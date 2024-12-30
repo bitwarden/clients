@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -7,7 +9,9 @@ import { first, switchMap, takeUntil } from "rxjs/operators";
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -62,6 +66,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   selectedOrganization: string = null;
   showCollections = true;
 
+  isSshKeysEnabled = false;
+
   private loadedTimeout: number;
   private selectedTimeout: number;
   private preventSelected = false;
@@ -95,6 +101,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     private location: Location,
     private vaultFilterService: VaultFilterService,
     private vaultBrowserStateService: VaultBrowserStateService,
+    private configService: ConfigService,
   ) {
     this.noFolderListSize = 100;
   }
@@ -166,6 +173,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       .subscribe((isSearchable) => {
         this.isSearchable = isSearchable;
       });
+
+    this.isSshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
   }
 
   ngOnDestroy() {

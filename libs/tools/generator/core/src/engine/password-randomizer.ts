@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 import { GenerationRequest } from "@bitwarden/common/tools/types";
 

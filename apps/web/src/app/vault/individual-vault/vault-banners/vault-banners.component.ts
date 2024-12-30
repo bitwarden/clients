@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
@@ -69,14 +71,14 @@ export class VaultBannersComponent implements OnInit {
   freeTrialMessage(organization: FreeTrial) {
     if (organization.remainingDays >= 2) {
       return this.i18nService.t(
-        "freeTrialEndPromptAboveTwoDays",
+        "freeTrialEndPromptMultipleDays",
         organization.organizationName,
         organization.remainingDays.toString(),
       );
     } else if (organization.remainingDays === 1) {
-      return this.i18nService.t("freeTrialEndPromptForOneDay", organization.organizationName);
+      return this.i18nService.t("freeTrialEndPromptTomorrow", organization.organizationName);
     } else {
-      return this.i18nService.t("freeTrialEndPromptForLessThanADay", organization.organizationName);
+      return this.i18nService.t("freeTrialEndPromptToday", organization.organizationName);
     }
   }
 

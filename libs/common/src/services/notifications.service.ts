@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as signalR from "@microsoft/signalr";
 import * as signalRMsgPack from "@microsoft/signalr-protocol-msgpack";
 import { firstValueFrom, Subscription } from "rxjs";
@@ -214,6 +216,11 @@ export class NotificationsService implements NotificationsServiceAbstraction {
           this.messagingService.send("openLoginApproval", {
             notificationId: notification.payload.id,
           });
+        }
+        break;
+      case NotificationType.SyncOrganizationStatusChanged:
+        if (isAuthenticated) {
+          await this.syncService.fullSync(true);
         }
         break;
       default:

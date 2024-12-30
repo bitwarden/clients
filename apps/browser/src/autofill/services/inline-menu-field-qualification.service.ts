@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
@@ -148,12 +150,19 @@ export class InlineMenuFieldQualificationService
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
   private inlineMenuFieldQualificationFlagSet = false;
+  private inlineMenuTotpFeatureFlag = false;
+  private premiumEnabled = false;
 
   constructor() {
-    void sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag").then(
-      (getInlineMenuFieldQualificationFlag) =>
-        (this.inlineMenuFieldQualificationFlagSet = !!getInlineMenuFieldQualificationFlag?.result),
-    );
+    void Promise.all([
+      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
+      sendExtensionMessage("getInlineMenuTotpFeatureFlag"),
+      sendExtensionMessage("getUserPremiumStatus"),
+    ]).then(([fieldQualificationFlag, totpFeatureFlag, premiumStatus]) => {
+      this.inlineMenuFieldQualificationFlagSet = !!fieldQualificationFlag?.result;
+      this.inlineMenuTotpFeatureFlag = !!totpFeatureFlag?.result;
+      this.premiumEnabled = !!premiumStatus?.result;
+    });
   }
 
   /**
@@ -167,8 +176,16 @@ export class InlineMenuFieldQualificationService
       return this.isFieldForLoginFormFallback(field);
     }
 
-    if (this.isTotpField(field)) {
-      return false;
+    /**
+     * Totp inline menu is available only for premium users.
+     */
+    if (this.inlineMenuTotpFeatureFlag && this.premiumEnabled) {
+      const isTotpField = this.isTotpField(field);
+      // Autofill does not fill totp inputs with a "password" `type` attribute value
+      const passwordType = field.type === "password";
+      if (isTotpField && !passwordType) {
+        return true;
+      }
     }
 
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
@@ -985,7 +1002,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  private isTotpField = (field: AutofillField): boolean => {
+  isTotpField = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }

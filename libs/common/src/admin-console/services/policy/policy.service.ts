@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { UserKeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";

@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -13,7 +15,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -29,7 +30,7 @@ import { AddEditComponent as BaseAddEditComponent } from "../../../../vault/indi
   selector: "app-org-vault-add-edit",
   templateUrl: "../../../../vault/individual-vault/add-edit.component.html",
 })
-export class EmergencyAddEditCipherComponent extends BaseAddEditComponent {
+export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implements OnInit {
   originalCipher: Cipher = null;
   viewOnly = true;
   protected override componentName = "app-org-vault-add-edit";
@@ -50,7 +51,6 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent {
     passwordRepromptService: PasswordRepromptService,
     organizationService: OrganizationService,
     logService: LogService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
@@ -73,7 +73,6 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent {
       organizationService,
       logService,
       passwordRepromptService,
-      sendApiService,
       dialogService,
       datePipe,
       configService,
@@ -84,6 +83,14 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent {
 
   async load() {
     this.title = this.i18nService.t("viewItem");
+  }
+
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+    // The base component `ngOnInit` calculates the `viewOnly` property based on cipher properties
+    // In the case of emergency access, `viewOnly` should always be true, set it manually here after
+    // the base `ngOnInit` is complete.
+    this.viewOnly = true;
   }
 
   protected async loadCipher() {

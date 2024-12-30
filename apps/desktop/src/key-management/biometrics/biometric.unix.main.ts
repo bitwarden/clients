@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { spawn } from "child_process";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -85,8 +87,8 @@ export default class BiometricUnixMain implements OsBiometricService {
   }
 
   async authenticateBiometric(): Promise<boolean> {
-    const hwnd = this.windowMain.win.getNativeWindowHandle();
-    return await biometrics.prompt(hwnd, this.i18nservice.t("polkitConsentMessage"));
+    const hwnd = Buffer.from("");
+    return await biometrics.prompt(hwnd, "");
   }
 
   async osSupportsBiometric(): Promise<boolean> {
@@ -96,10 +98,14 @@ export default class BiometricUnixMain implements OsBiometricService {
     // This could be dynamically detected on dbus in the future.
     // We should check if a libsecret implementation is available on the system
     // because otherwise we cannot offlod the protected userkey to secure storage.
-    return (await passwords.isAvailable()) && !isSnapStore();
+    return await passwords.isAvailable();
   }
 
   async osBiometricsNeedsSetup(): Promise<boolean> {
+    if (isSnapStore()) {
+      return false;
+    }
+
     // check whether the polkit policy is loaded via dbus call to polkit
     return !(await biometrics.available());
   }

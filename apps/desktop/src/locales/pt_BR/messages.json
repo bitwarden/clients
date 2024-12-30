@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL do Servidor"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-host",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1728,9 +1734,6 @@
   "windowsHelloConsentMessage": {
     "message": "Verifique para o Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Autentice para desbloquear o Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Desbloquear com o Touch ID"
   },
@@ -2492,7 +2495,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": "",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {

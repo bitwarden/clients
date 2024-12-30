@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   combineLatestWith,
   distinctUntilChanged,
@@ -6,6 +8,7 @@ import {
   Observable,
   shareReplay,
   Subscription,
+  BehaviorSubject,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -68,7 +71,7 @@ import {
   CACHE_KEY,
 } from "./login-strategy.state";
 
-const sessionTimeoutLength = 2 * 60 * 1000; // 2 minutes
+const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private sessionTimeoutSubscription: Subscription;
@@ -76,6 +79,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private loginStrategyCacheState: GlobalState<CacheData | null>;
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string>;
+  private twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
+
+  twoFactorTimeout$: Observable<boolean> = this.twoFactorTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy
@@ -123,7 +129,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     );
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.loginStrategySessionTimeout,
-      () => this.clearCache(),
+      async () => {
+        this.twoFactorTimeoutSubject.next(true);
+        try {
+          await this.clearCache();
+        } catch (e) {
+          this.logService.error("Failed to clear cache during session timeout", e);
+        }
+      },
     );
 
     this.currentAuthType$ = this.currentAuthnTypeState.state$;
@@ -189,6 +202,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult> {
     await this.clearCache();
+    this.twoFactorTimeoutSubject.next(false);
 
     await this.currentAuthnTypeState.update((_) => credentials.type);
 
@@ -273,6 +287,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
+    this.twoFactorTimeoutSubject.next(false);
     await this.clearSessionTimeout();
   }
 

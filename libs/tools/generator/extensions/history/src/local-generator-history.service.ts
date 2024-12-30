@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { filter, map } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";

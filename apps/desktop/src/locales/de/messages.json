@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "authenticationTimeout": {
+    "message": "Authentifizierungs-Timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
+  },
   "selfHostBaseUrl": {
     "message": "Selbst gehostete Server-URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Für Bitwarden verifizieren."
-  },
-  "polkitConsentMessage": {
-    "message": "Authentifizieren, um Bitwarden zu entsperren."
   },
   "unlockWithTouchId": {
     "message": "Mit Touch ID entsperren"

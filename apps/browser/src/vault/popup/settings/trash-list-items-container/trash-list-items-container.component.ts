@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -17,7 +19,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -29,10 +31,12 @@ import { PasswordRepromptService } from "@bitwarden/vault";
     JslibModule,
     SectionComponent,
     SectionHeaderComponent,
+    CanDeleteCipherDirective,
     MenuModule,
     IconButtonModule,
     TypographyModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrashListItemsContainerComponent {
   /**

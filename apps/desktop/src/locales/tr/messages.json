@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Sunucu URL'si"
   },
+  "authenticationTimeout": {
+    "message": "Kimlik doğrulama zaman aşımı"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Kimlik doğrulama oturumu zaman aşımına uğradı. Lütfen giriş sürecini yeniden başlatın."
+  },
   "selfHostBaseUrl": {
     "message": "Kendi kendine barındırılan sunucu URL'si",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1387,13 +1393,13 @@
     "message": "Parola geçmişi"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Üreteç geçmişi"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Üreteç geçmişini temizle"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Devam ederseniz üreteç geçmişindeki tüm kayıtlar kalıcı olarak silinecektir. Devam etmek istediğinizden emin misiniz?"
   },
   "clear": {
     "message": "Temizle",
@@ -1403,13 +1409,13 @@
     "message": "Listelenecek şifre yok."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Geçmişi temizle"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Gösterilecek bir şey yok"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Yakın zamanda herhangi bir şey üretmediniz"
   },
   "undo": {
     "message": "Geri al"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden için doğrulayın."
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Kilidi Touch ID ile aç"
@@ -2478,7 +2481,7 @@
     "message": "E-posta oluştur"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2866,7 +2869,7 @@
     "message": "Bilinen veri ihlallerinde bu parolayı kontrol et"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Giriş yapıldı!"
   },
   "important": {
     "message": "Önemli:"
@@ -2899,16 +2902,16 @@
     "message": "Önerilen Ayarlar Güncellemesi"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Sonraki girişleri kolaylaştırmak için bu cihazı hatırla"
   },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Cihazı onaylamanız gerekiyor"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Aşağıdan bir onay yöntemi seçin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı hatırla"
@@ -2963,7 +2966,7 @@
     "message": "Kullanıcının e-postası eksik"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktif kullanıcı e-postası bulunamadı. Çıkış yapılıyor."
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"

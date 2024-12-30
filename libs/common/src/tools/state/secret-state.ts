@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
 import { EncString } from "../../platform/models/domain/enc-string";

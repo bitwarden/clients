@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Notified members"
   },
+  "revokeMembers": {
+    "message": "Revoke members"
+  },
+  "restoreMembers": {
+    "message": "Restore members"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Cannot restore organization access"
+  },
   "allApplicationsWithCount": {
     "message": "Όλες οι εφαρμογές ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1118,12 @@
   },
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyIdentity": {
     "message": "Επαληθεύστε την ταυτότητά σας"
@@ -3867,33 +3882,36 @@
   "updateBrowser": {
     "message": "Ενημερώστε τον Browser"
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "updateBrowserDesc": {
     "message": "Χρησιμοποιείτε ένα μη υποστηριζόμενο browser. Το web vault ενδέχεται να μην λειτουργεί σωστά."
   },
-  "freeTrialEndPrompt": {
-    "message": "Your free trial ends in $COUNT$ days. To maintain your subscription,",
+  "freeTrialEndPromptCount": {
+    "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days. To maintain your subscription,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow. To maintain your subscription,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3919,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Your free trial ends tomorrow. To maintain your subscription,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Your free trial ends tomorrow."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, your free trial ends today. To maintain your subscription,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, your free trial ends today.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3931,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Your free trial ends today. To maintain your subscription,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Your free trial ends today."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "add a payment method."
+  "clickHereToAddPaymentMethod": {
+    "message": "Click here to add a payment method."
   },
   "joinOrganization": {
     "message": "Εγγραφή στον οργανισμό"
@@ -4705,6 +4723,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Συνδεθείτε χρησιμοποιώντας την πύλη μεμονωμένης σύνδεσης του οργανισμού σας. Εισάγετε το αναγνωριστικό του οργανισμού σας για να ξεκινήσετε."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Enter your organization's SSO identifier to begin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
   },
   "enterpriseSingleSignOn": {
     "message": "Ενιαία είσοδος για επιχειρήσεις"
@@ -5610,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Εξαιρείται, δεν ισχύει για αυτήν την ενέργεια."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Non-compliant members"
+  },
+  "nonCompliantMembersError": {
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Αποτύπωμα"
   },
@@ -6116,9 +6146,6 @@
   },
   "emailSent": {
     "message": "Το Email Εστάλη"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Μετά την αφαίρεση αυτού του λογαριασμού, η χορηγία του προγράμματος «Families» θα λήξει στο τέλος της περιόδου χρέωσης. Δεν θα μπορείτε να εξαργυρώσετε μια νέα προσφορά χορηγίας μέχρι να λήξει η υπάρχουσα. Θέλετε σίγουρα να συνεχίσετε;"
   },
   "removeSponsorshipSuccess": {
     "message": "Χορηγία Αφαιρέθηκε"
@@ -6790,6 +6817,10 @@
   },
   "scimDescription": {
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9017,99 @@
   "sdksDesc": {
     "message": "Χρησιμοποιήστε το SDK του Bitwarden Secrets Manager στις ακόλουθες γλώσσες προγραμματισμού για να αναπτύξετε τις δικές σας εφαρμογές."
   },
-  "setUpGithubActions": {
-    "message": "Ρύθμιση Github Actions"
+  "ssoDescStart": {
+    "message": "Configure",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Ρύθμιση Kubernetes"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Ρύθμιση GitLab CI/CD"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "setUpAnsible": {
-    "message": "Ρύθμιση Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Προβολή αποθετηρίου Rust"
+  "scimIntegrationDescStart": {
+    "message": "Configure ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Προβολή αποθετηρίου C#"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Προβολή αποθετηρίου C++"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Προβολή αποθετηρίου JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "javaSDKRepo": {
-    "message": "Προβολή αποθετηρίου Java"
+  "eventManagement": {
+    "message": "Event management"
   },
-  "pythonSDKRepo": {
-    "message": "Προβολή αποθετηρίου Python"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "Προβολή αποθετηρίου php"
+  "deviceManagement": {
+    "message": "Device management"
   },
-  "rubySDKRepo": {
-    "message": "Προβολή αποθετηρίου Ruby"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Προβολή αποθετηρίου Go"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
@@ -9699,8 +9785,8 @@
   "selfHostingTitleProper": {
     "message": "Self-Hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Verifying a domain will turn on the single organization policy."
+  "claim-domain-single-org-warning": {
+    "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
@@ -9715,9 +9801,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "When a member is deleted, their Bitwarden account and individual vault data will be permanently deleted. Collection data will remain in the organization. To reinstate them they must create an account and be onboarded again.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "This will permanently delete all items owned by $NAME$. Collection items are not impacted.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "This will permanently delete all items owned by the following members. Collection items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Deleted $NAME$",
@@ -9787,5 +9883,129 @@
   },
   "descriptorCode": {
     "message": "Descriptor code"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "removeMembers": {
+    "message": "Remove members"
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
   }
 }

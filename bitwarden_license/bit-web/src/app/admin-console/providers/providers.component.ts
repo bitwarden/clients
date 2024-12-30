@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";

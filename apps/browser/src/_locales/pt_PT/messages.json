@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Preencher automaticamente identidade"
   },
+  "fillVerificationCode": {
+    "message": "Preencher código de verificação"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Preencher código de verificação",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Gerar palavra-passe (copiada)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Avaliar a extensão"
-  },
-  "rateExtensionDesc": {
-    "message": "Por favor, considere ajudar-nos com uma boa avaliação!"
   },
   "browserNotSupportClipboard": {
     "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
@@ -1269,7 +1273,7 @@
     "message": "Pode adquirir uma subscrição Premium no cofre web em bitwarden.com. Pretende visitar o site agora?"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web do Bitwarden."
+    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "É um membro Premium!"
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
+  },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
   },
   "enterVerificationCodeEmail": {
     "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Ver todas as opções de início de sessão"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Ver todas as opções de início de sessão"
   },
   "notificationSentDevice": {
@@ -3574,6 +3584,14 @@
     "message": "Desbloqueie a sua conta, abre numa nova janela",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
+  "totpCodeAria": {
+    "message": "Código de verificação de palavra-passe única com base no tempo",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Tempo restante antes da TOTP atual expirar",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
+  },
   "fillCredentialsFor": {
     "message": "Preencher as credenciais para",
     "description": "Screen reader text for when overlay item is in focused"
@@ -3800,7 +3818,7 @@
     "message": "Chave de acesso"
   },
   "accessing": {
-    "message": "A aceder"
+    "message": "A aceder a"
   },
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostrar o número de sugestões de preenchimento automático de credenciais no ícone da extensão"
   },
+  "showQuickCopyActions": {
+    "message": "Mostrar ações de cópia rápida no cofre"
+  },
   "systemDefault": {
     "message": "Predefinição do sistema"
   },
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Definir a verificação de dois passos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
+  },
+  "remindMeLater": {
+    "message": "Lembrar-me mais tarde"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não, não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar a verificação de dois passos"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar o e-mail da conta"
   },
   "extensionWidth": {
     "message": "Largura da extensão"

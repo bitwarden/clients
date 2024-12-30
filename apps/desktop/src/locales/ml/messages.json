@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "സെർവർ യു ർ ൽ"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden വേണ്ടി പരിശോധിച്ചുറപ്പിക്കുക."
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Touch ID ഉപയോഗിച്ച് അൺലോക്കുചെയ്യുക"

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectorRef,
@@ -181,7 +183,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
   private activeUserId: UserId;
-  protected organizationsPaymentStatus: FreeTrial[] = [];
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -207,6 +208,40 @@ export class VaultComponent implements OnInit, OnDestroy {
         ),
       ),
     ),
+  );
+
+  protected organizationsPaymentStatus$: Observable<FreeTrial[]> = combineLatest([
+    this.organizationService.organizations$.pipe(
+      map(
+        (organizations) =>
+          organizations?.filter((org) => org.isOwner && org.canViewBillingHistory) ?? [],
+      ),
+    ),
+    this.hasSubscription$,
+  ]).pipe(
+    switchMap(([ownerOrgs, hasSubscription]) => {
+      if (!ownerOrgs || ownerOrgs.length === 0 || !hasSubscription) {
+        return of([]);
+      }
+      return combineLatest(
+        ownerOrgs.map((org) =>
+          combineLatest([
+            this.organizationApiService.getSubscription(org.id),
+            this.organizationBillingService.getPaymentSource(org.id),
+          ]).pipe(
+            map(([subscription, paymentSource]) => {
+              return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+                org,
+                subscription,
+                paymentSource,
+              );
+            }),
+          ),
+        ),
+      );
+    }),
+    map((results) => results.filter((result) => result.shownBanner)),
+    shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   constructor(
@@ -425,36 +460,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
 
-    const organizationsPaymentStatus$ = combineLatest([
-      this.organizationService.organizations$,
-      this.hasSubscription$,
-    ]).pipe(
-      switchMap(([allOrganizations, hasSubscription]) => {
-        if (!allOrganizations || allOrganizations.length === 0 || !hasSubscription) {
-          return of([]);
-        }
-        return combineLatest(
-          allOrganizations
-            .filter((org) => org.isOwner && hasSubscription)
-            .map((org) =>
-              combineLatest([
-                this.organizationApiService.getSubscription(org.id),
-                this.organizationBillingService.getPaymentSource(org.id),
-              ]).pipe(
-                map(([subscription, paymentSource]) => {
-                  return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
-                    org,
-                    subscription,
-                    paymentSource,
-                  );
-                }),
-              ),
-            ),
-        );
-      }),
-      map((results) => results.filter((result) => result.shownBanner)),
-    );
-
     firstSetup$
       .pipe(
         switchMap(() => this.refresh$),
@@ -468,7 +473,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             ciphers$,
             collections$,
             selectedCollection$,
-            organizationsPaymentStatus$,
           ]),
         ),
         takeUntil(this.destroy$),
@@ -482,7 +486,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           ciphers,
           collections,
           selectedCollection,
-          organizationsPaymentStatus,
         ]) => {
           this.filter = filter;
           this.canAccessPremium = canAccessPremium;
@@ -498,7 +501,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           this.showBulkMove = filter.type !== "trash";
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
-          this.organizationsPaymentStatus = organizationsPaymentStatus;
           this.performingInitialLoad = false;
           this.refreshing = false;
         },

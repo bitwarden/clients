@@ -4,14 +4,17 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { SharedModule } from "@bitwarden/components/src/shared";
+import {
+  IntegrationCardComponent,
+  IntegrationGridComponent,
+} from "@bitwarden/web-vault/app/shared";
+
 import { SYSTEM_THEME_OBSERVABLE } from "../../../../../../libs/angular/src/services/injection-tokens";
 import { I18nService } from "../../../../../../libs/common/src/platform/abstractions/i18n.service";
 import { ThemeType } from "../../../../../../libs/common/src/platform/enums";
 import { ThemeStateService } from "../../../../../../libs/common/src/platform/theming/theme-state.service";
-import { I18nPipe } from "../../../../../../libs/components/src/shared/i18n.pipe";
 
-import { IntegrationCardComponent } from "./integration-card/integration-card.component";
-import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
 import { IntegrationsComponent } from "./integrations.component";
 
 @Component({
@@ -31,18 +34,12 @@ describe("IntegrationsComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        IntegrationsComponent,
-        IntegrationGridComponent,
-        IntegrationCardComponent,
-        MockHeaderComponent,
-        MockNewMenuComponent,
-        I18nPipe,
-      ],
+      declarations: [IntegrationsComponent, MockHeaderComponent, MockNewMenuComponent],
+      imports: [IntegrationGridComponent, IntegrationCardComponent, SharedModule],
       providers: [
         {
           provide: I18nService,
-          useValue: mock<I18nService>({ t: (key) => key }),
+          useValue: mock<I18nService>(),
         },
         {
           provide: ThemeStateService,

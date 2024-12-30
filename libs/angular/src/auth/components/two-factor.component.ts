@@ -1,4 +1,7 @@
-import { Directive, Inject, OnDestroy, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Directive, Inject, OnInit, OnDestroy } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
@@ -68,6 +71,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected changePasswordRoute = "set-password";
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
+  protected twoFactorTimeoutRoute = "2fa-timeout";
 
   get isDuoProvider(): boolean {
     return (
@@ -99,6 +103,21 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
+
+    // Add subscription to twoFactorTimeout$ and navigate to twoFactorTimeoutRoute if expired
+    this.loginStrategyService.twoFactorTimeout$
+      .pipe(takeUntilDestroyed())
+      .subscribe(async (expired) => {
+        if (!expired) {
+          return;
+        }
+
+        try {
+          await this.router.navigate([this.twoFactorTimeoutRoute]);
+        } catch (err) {
+          this.logService.error(`Failed to navigate to ${this.twoFactorTimeoutRoute} route`, err);
+        }
+      });
   }
 
   async ngOnInit() {

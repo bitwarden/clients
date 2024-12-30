@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automātiski aizpildīt identitāti"
   },
+  "fillVerificationCode": {
+    "message": "Aizpildīt apliecinājuma kodu"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Aizpildīt apliecinājuma kodu",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Izveidot paroli (tiks ievietota starpliktuvē)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Novērtēt paplašinājumu"
-  },
-  "rateExtensionDesc": {
-    "message": "Lūgums apsvērt palīdzēt mums ar labu atsauksmi."
   },
   "browserNotSupportClipboard": {
     "message": "Pārlūks neatbalsta vienkāršo ievietošanu starpliktuvē. Tā vietā tas jāievieto starpliktuvē pašrocīgi."
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
+  },
+  "authenticationTimeout": {
+    "message": "Autentificēšanās noildze"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
   },
   "enterVerificationCodeEmail": {
     "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Skatīt visas pieteikšanās iespējas"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Skatīt visas pieteikšanās iespējas"
   },
   "notificationSentDevice": {
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "Atslēgt savu kontu, tiks atvērts jaunā logā",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Laikā balstīts vienreizējas izmantošanas paroles apliecināšanas kods",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Atlikušais laiks, pirms beigsies pašreizējā TOTP derīgums",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Aizpildīt pieteikšanās datus",
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
   },
+  "showQuickCopyActions": {
+    "message": "Glabātavā rādīt ātrās kopēšanas darbības"
+  },
   "systemDefault": {
     "message": "Sistēmas noklusējums"
   },
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Svarīgs paziņojums"
+  },
+  "setupTwoStepLogin": {
+    "message": "Iestatīt divpakāpju pieteikšanos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos no jaunām ierīcēm."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve."
+  },
+  "remindMeLater": {
+    "message": "Atgādināt man vēlāk"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Vai ir uzticama piekļuve savai e-pasta adresei $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nē, nav"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Jā, varu uzticami piekļūt savam e-pastam"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ieslēgt divpakāpju pieteikšanos"
+  },
+  "changeAcctEmail": {
+    "message": "Mainīt konta e-pasta adresi"
   },
   "extensionWidth": {
     "message": "Paplašinājuma platums"

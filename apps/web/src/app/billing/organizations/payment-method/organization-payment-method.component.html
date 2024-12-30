@@ -9,12 +9,12 @@
   {{ freeTrialData.message }}
   <a
     bitLink
-    linkType="contrast"
+    linkType="secondary"
     (click)="changePayment()"
     class="tw-cursor-pointer"
     rel="noreferrer noopener"
   >
-    {{ "routeToPaymentMethodTrigger" | i18n }}
+    {{ "clickHereToAddPaymentMethod" | i18n }}
   </a>
 </bit-banner>
 <app-header></app-header>

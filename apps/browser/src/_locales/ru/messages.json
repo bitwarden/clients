@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Автозаполнение личности"
   },
+  "fillVerificationCode": {
+    "message": "Заполнить код подтверждения"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Заполнить код подтверждения",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Сгенерировать пароль (с копированием)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Оценить расширение"
-  },
-  "rateExtensionDesc": {
-    "message": "Пожалуйста, подумайте о том, чтобы помочь нам хорошим отзывом!"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
+  },
+  "authenticationTimeout": {
+    "message": "Таймаут аутентификации"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
   },
   "enterVerificationCodeEmail": {
     "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Посмотреть все варианты авторизации"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Посмотреть все варианты авторизации"
   },
   "notificationSentDevice": {
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "Разблокируйте ваш аккаунт, откроется в новом окне",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Код подтверждения, основанный на времени",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Время, оставшееся до истечения срока действия текущего TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Заполнить учетные данные",
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
   },
+  "showQuickCopyActions": {
+    "message": "Показать быстрые действия копирования в хранилище"
+  },
   "systemDefault": {
     "message": "Системный"
   },
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Важное уведомление"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настроить двухэтапную аутентификацию"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
+  },
+  "remindMeLater": {
+    "message": "Напомнить позже"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Нет, не знаю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, я имею надежный доступ к своей электронной почте"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включить двухэтапную аутентификацию"
+  },
+  "changeAcctEmail": {
+    "message": "Изменить email аккаунта"
   },
   "extensionWidth": {
     "message": "Ширина расширения"

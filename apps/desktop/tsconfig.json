@@ -35,6 +35,11 @@
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/vault": ["../../libs/vault/src"]
     },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ],
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {

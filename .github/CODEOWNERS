@@ -4,10 +4,6 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-## Secrets Manager team files ##
-bitwarden_license/bit-web/src/app/secrets-manager @bitwarden/team-secrets-manager-dev
-apps/web/src/app/secrets-manager/ @bitwarden/team-secrets-manager-dev
-
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev
 apps/cli/src/auth @bitwarden/team-auth-dev
@@ -87,6 +83,19 @@ apps/web/src/utils/ @bitwarden/team-platform-dev
 apps/web/src/app/core @bitwarden/team-platform-dev
 apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
+# Workflows
+.github/workflows/brew-bump-desktop.yml @bitwarden/team-platform-dev
+.github/workflows/build-browser.yml @bitwarden/team-platform-dev
+.github/workflows/build-cli.yml @bitwarden/team-platform-dev
+.github/workflows/build-desktop.yml @bitwarden/team-platform-dev
+.github/workflows/build-web.yml @bitwarden/team-platform-dev
+.github/workflows/chromatic.yml @bitwarden/team-platform-dev
+.github/workflows/lint.yml @bitwarden/team-platform-dev
+.github/workflows/locales-lint.yml @bitwarden/team-platform-dev
+.github/workflows/repository-management.yml @bitwarden/team-platform-dev
+.github/workflows/scan.yml @bitwarden/team-platform-dev
+.github/workflows/test.yml @bitwarden/team-platform-dev
+.github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
@@ -96,7 +105,8 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
-
+# SSH Agent
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
 ## Component Library ##
 .storybook @bitwarden/team-design-system
@@ -107,6 +117,8 @@ apps/web/src/app/layouts @bitwarden/team-design-system
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
+apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
 
 ## Key management team files ##
 apps/desktop/src/key-management @bitwarden/team-key-management-dev
@@ -127,9 +139,6 @@ apps/cli/src/locales/en/messages.json
 apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
 
-## Ssh agent temporary co-codeowner
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-platform-dev @bitwarden/wg-ssh-keys
-
 ## BRE team owns these workflows ##
 .github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre
 .github/workflows/deploy-web.yml @bitwarden/dept-bre
@@ -145,8 +154,6 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-platform-dev @bit
 .github/workflows/release-desktop-beta.yml
 .github/workflows/release-desktop.yml
 .github/workflows/release-web.yml
-.github/workflows/version-auto-bump.yml
-.github/workflows/version-bump.yml
 
 ## Docker files have shared ownership ##
 **/Dockerfile

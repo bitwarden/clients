@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
@@ -17,7 +19,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -52,7 +53,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     private ngZone: NgZone,
     logService: LogService,
     organizationService: OrganizationService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
@@ -73,7 +73,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       logService,
       passwordRepromptService,
       organizationService,
-      sendApiService,
       dialogService,
       window,
       datePipe,

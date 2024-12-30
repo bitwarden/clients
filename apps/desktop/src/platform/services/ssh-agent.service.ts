@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   catchError,
@@ -120,6 +122,10 @@ export class SshAgentService implements OnDestroy {
             const cipherId = message.cipherId as string;
             const isListRequest = message.isListRequest as boolean;
             const requestId = message.requestId as number;
+            let application = message.processName as string;
+            if (application == "") {
+              application = this.i18nService.t("unknownApplication");
+            }
 
             if (isListRequest) {
               const sshCiphers = ciphers.filter(
@@ -149,7 +155,7 @@ export class SshAgentService implements OnDestroy {
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
               cipher.name,
-              this.i18nService.t("unknownApplication"),
+              application,
             );
 
             const result = await firstValueFrom(dialogRef.closed);
@@ -198,7 +204,10 @@ export class SshAgentService implements OnDestroy {
             }
 
             const sshCiphers = ciphers.filter(
-              (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
+              (cipher) =>
+                cipher.type === CipherType.SshKey &&
+                !cipher.isDeleted &&
+                cipher.organizationId === null,
             );
             const keys = sshCiphers.map((cipher) => {
               return {

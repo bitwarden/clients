@@ -11,7 +11,12 @@
       "@src/*": ["src/*"],
       "@bitwarden/node/*": ["../../../libs/node/src/*"],
       "@bitwarden/common/*": ["../../../libs/common/src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "exclude": ["node_modules"]
 }

@@ -40,15 +40,14 @@ describe("unauthUiRefreshRedirect", () => {
   it("returns UrlTree when UnauthenticatedExtensionUIRefresh flag is enabled and preserves query params", async () => {
     configService.getFeatureFlag.mockResolvedValue(true);
 
-    const queryParams = { test: "test" };
+    const urlTree = new UrlTree();
+    urlTree.queryParams = { test: "test" };
 
     const navigation: Navigation = {
-      extras: {
-        queryParams: queryParams,
-      },
+      extras: {},
       id: 0,
       initialUrl: new UrlTree(),
-      extractedUrl: new UrlTree(),
+      extractedUrl: urlTree,
       trigger: "imperative",
       previousNavigation: undefined,
     };
@@ -60,6 +59,8 @@ describe("unauthUiRefreshRedirect", () => {
     expect(configService.getFeatureFlag).toHaveBeenCalledWith(
       FeatureFlag.UnauthenticatedExtensionUIRefresh,
     );
-    expect(router.createUrlTree).toHaveBeenCalledWith(["/redirect"], { queryParams });
+    expect(router.createUrlTree).toHaveBeenCalledWith(["/redirect"], {
+      queryParams: urlTree.queryParams,
+    });
   });
 });

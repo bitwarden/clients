@@ -46,6 +46,7 @@
     "../../apps/web/src/**/*.spec.ts",
     "../../libs/common/src/platform/services/**/*.worker.ts",
 
-    "src/**/*.stories.ts"
+    "src/**/*.stories.ts",
+    "src/**/*.spec.ts"
   ]
 }

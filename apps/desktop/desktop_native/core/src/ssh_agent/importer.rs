@@ -27,61 +27,43 @@ pub fn import_key(
     password: String,
 ) -> Result<SshKeyImportResult, anyhow::Error> {
     match encoded_key.lines().next() {
-        Some(PKCS1_HEADER) => {
-            return Ok(SshKeyImportResult {
-                status: SshKeyImportStatus::UnsupportedKeyType,
+        Some(PKCS1_HEADER) => Ok(SshKeyImportResult {
+            status: SshKeyImportStatus::UnsupportedKeyType,
+            ssh_key: None,
+        }),
+        Some(PKCS8_UNENCRYPTED_HEADER) => match import_pkcs8_key(encoded_key, None) {
+            Ok(result) => Ok(result),
+            Err(_) => Ok(SshKeyImportResult {
+                status: SshKeyImportStatus::ParsingError,
                 ssh_key: None,
-            });
-        }
-        Some(PKCS8_UNENCRYPTED_HEADER) => {
-            return match import_pkcs8_key(encoded_key, None) {
-                Ok(result) => Ok(result),
-                Err(_) => Ok(SshKeyImportResult {
+            }),
+        },
+        Some(PKCS8_ENCRYPTED_HEADER) => match import_pkcs8_key(encoded_key, Some(password)) {
+            Ok(result) => Ok(result),
+            Err(err) => match err {
+                SshKeyImportError::PasswordRequired => Ok(SshKeyImportResult {
+                    status: SshKeyImportStatus::PasswordRequired,
+                    ssh_key: None,
+                }),
+                SshKeyImportError::WrongPassword => Ok(SshKeyImportResult {
+                    status: SshKeyImportStatus::WrongPassword,
+                    ssh_key: None,
+                }),
+                SshKeyImportError::ParsingError => Ok(SshKeyImportResult {
                     status: SshKeyImportStatus::ParsingError,
                     ssh_key: None,
                 }),
-            };
-        }
-        Some(PKCS8_ENCRYPTED_HEADER) => match import_pkcs8_key(encoded_key, Some(password)) {
-            Ok(result) => {
-                return Ok(result);
-            }
-            Err(err) => match err {
-                SshKeyImportError::PasswordRequired => {
-                    return Ok(SshKeyImportResult {
-                        status: SshKeyImportStatus::PasswordRequired,
-                        ssh_key: None,
-                    });
-                }
-                SshKeyImportError::WrongPassword => {
-                    return Ok(SshKeyImportResult {
-                        status: SshKeyImportStatus::WrongPassword,
-                        ssh_key: None,
-                    });
-                }
-                SshKeyImportError::ParsingError => {
-                    return Ok(SshKeyImportResult {
-                        status: SshKeyImportStatus::ParsingError,
-                        ssh_key: None,
-                    });
-                }
             },
         },
-        Some(OPENSSH_HEADER) => {
-            return import_openssh_key(encoded_key, password);
-        }
-        Some(_) => {
-            return Ok(SshKeyImportResult {
-                status: SshKeyImportStatus::ParsingError,
-                ssh_key: None,
-            });
-        }
-        None => {
-            return Ok(SshKeyImportResult {
-                status: SshKeyImportStatus::ParsingError,
-                ssh_key: None,
-            });
-        }
+        Some(OPENSSH_HEADER) => import_openssh_key(encoded_key, password),
+        Some(_) => Ok(SshKeyImportResult {
+            status: SshKeyImportStatus::ParsingError,
+            ssh_key: None,
+        }),
+        None => Ok(SshKeyImportResult {
+            status: SshKeyImportStatus::ParsingError,
+            ssh_key: None,
+        }),
     }
 }
 
@@ -152,14 +134,14 @@ fn import_pkcs8_key(
             let pk: Ed25519Keypair =
                 Ed25519Keypair::from(Ed25519PrivateKey::from_bytes(&pk.secret_key));
             let private_key = ssh_key::private::PrivateKey::from(pk);
-            return Ok(SshKeyImportResult {
+            Ok(SshKeyImportResult {
                 status: SshKeyImportStatus::Success,
                 ssh_key: Some(SshKey {
                     private_key: private_key.to_openssh(LineEnding::LF).unwrap().to_string(),
                     public_key: private_key.public_key().to_string(),
                     key_fingerprint: private_key.fingerprint(HashAlg::Sha256).to_string(),
                 }),
-            });
+            })
         }
         KeyType::Rsa => {
             let pk: rsa::RsaPrivateKey = match password {
@@ -179,7 +161,7 @@ fn import_pkcs8_key(
             match rsa_keypair {
                 Ok(rsa_keypair) => {
                     let private_key = ssh_key::private::PrivateKey::from(rsa_keypair);
-                    return Ok(SshKeyImportResult {
+                    Ok(SshKeyImportResult {
                         status: SshKeyImportStatus::Success,
                         ssh_key: Some(SshKey {
                             private_key: private_key
@@ -189,22 +171,18 @@ fn import_pkcs8_key(
                             public_key: private_key.public_key().to_string(),
                             key_fingerprint: private_key.fingerprint(HashAlg::Sha256).to_string(),
                         }),
-                    });
+                    })
                 }
-                Err(_) => {
-                    return Ok(SshKeyImportResult {
-                        status: SshKeyImportStatus::ParsingError,
-                        ssh_key: None,
-                    });
-                }
+                Err(_) => Ok(SshKeyImportResult {
+                    status: SshKeyImportStatus::ParsingError,
+                    ssh_key: None,
+                }),
             }
         }
-        _ => {
-            return Ok(SshKeyImportResult {
-                status: SshKeyImportStatus::UnsupportedKeyType,
-                ssh_key: None,
-            });
-        }
+        _ => Ok(SshKeyImportResult {
+            status: SshKeyImportStatus::UnsupportedKeyType,
+            ssh_key: None,
+        }),
     }
 }
 

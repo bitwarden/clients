@@ -220,7 +220,7 @@
     "message": "Въведете паролата за SSH-ключа."
   },
   "enterSshKeyPassword": {
-    "message": "Въведете парола"
+    "message": "Въведете паролата"
   },
   "sshAgentUnlockRequired": {
     "message": "Отключете трезора си, за да одобрите заявката за SSH ключ."
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
+  },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
   },
   "selfHostBaseUrl": {
     "message": "Адрес на собствения сървър",
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Потвърждаване за Битуорден."
-  },
-  "polkitConsentMessage": {
-    "message": "Идентифицирайте се, за да отключите Битуорден."
   },
   "unlockWithTouchId": {
     "message": "Отключване с Touch ID"

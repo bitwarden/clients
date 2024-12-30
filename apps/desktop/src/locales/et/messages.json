@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Serveri URL"
   },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Kinnita Bitwardenisse sisselogimine."
-  },
-  "polkitConsentMessage": {
-    "message": "Autentiteeri ennast Bitwardeni avamiseks."
   },
   "unlockWithTouchId": {
     "message": "Lukusta lahti Touch ID-ga"

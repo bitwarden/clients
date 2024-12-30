@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Известени членове"
   },
+  "revokeMembers": {
+    "message": "Отнемане на достъпа на членове"
+  },
+  "restoreMembers": {
+    "message": "Възстановяване на достъпа на членове"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Cannot restore organization access"
+  },
   "allApplicationsWithCount": {
     "message": "Всички приложения ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1118,12 @@
   },
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
+  },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
   },
   "verifyIdentity": {
     "message": "Потвърдете самоличността си"
@@ -3867,33 +3882,36 @@
   "updateBrowser": {
     "message": "Обновяване на браузъра"
   },
+  "generatingRiskInsights": {
+    "message": "Създаване на Вашата информация относно рисковете…"
+  },
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
   },
-  "freeTrialEndPrompt": {
-    "message": "Вашият безплатен пробен период приключва след $COUNT$ дни. Ако искате да продължите абонамента си,",
+  "freeTrialEndPromptCount": {
+    "message": "Вашият безплатен пробен период приключва след $COUNT$ дни.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва след $COUNT$ дни. Ако искате да продължите абонамента си,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва утре. Ако искате да продължите абонамента си,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва след $COUNT$ дни.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва утре.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3919,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Вашият безплатен пробен период приключва утре. Ако искате да продължите абонамента си,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Вашият безплатен пробен период приключва утре."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва днес. Ако искате да продължите абонамента си,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, Вашият безплатен пробен период приключва днес.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3931,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Вашият безплатен пробен период приключва днес. Ако искате да продължите абонамента си,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Вашият безплатен пробен период приключва днес."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "добавете разплащателен метод."
+  "clickHereToAddPaymentMethod": {
+    "message": "Натиснете тук, за да добавите средство за разплащане."
   },
   "joinOrganization": {
     "message": "Присъединяване към организация"
@@ -4705,6 +4723,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Вписване чрез портала на организацията ви за еднократна идентификация. За да продължите, въведете идентификатора на организацията."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "За да започнете, въведете идентификатора за еднократно удостоверяване на организацията си"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "За да се впишете със своя доставчик на еднократно удостоверяване, въведете идентификатора за еднократно удостоверяване на организацията си. Може да се наложи да въвеждате този идентификатор когато се вписвате на ново устройство."
   },
   "enterpriseSingleSignOn": {
     "message": "Еднократна идентификация (SSO)"
@@ -5610,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Изключени като неподходящи за това действие."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Non-compliant members"
+  },
+  "nonCompliantMembersError": {
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Отпечатък"
   },
@@ -6116,9 +6146,6 @@
   },
   "emailSent": {
     "message": "Писмото е изпратено"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "After removing this account, the Families plan sponsorship will expire at the end of the billing period. You will not be able to redeem a new sponsorship offer until the existing one expires. Are you sure you want to continue?"
   },
   "removeSponsorshipSuccess": {
     "message": "Спонсорството е премахнато"
@@ -6790,6 +6817,10 @@
   },
   "scimDescription": {
     "message": "Предоставете на потребителите и групите си автоматично удостоверяване със своя предпочитан доставчик на удостоверителни данни като използвате удостоверяване чрез SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Предоставете на потребителите и групите си автоматично удостоверяване със своя предпочитан доставчик на удостоверителни данни като използвате удостоверяване чрез SCIM. Разгледайте поддържаните такива.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9017,99 @@
   "sdksDesc": {
     "message": "Използвайте набора за разработка (SDK) за Управлението на тайни на Битуорден със следните програмни езици, за да създадете свои собствени приложения."
   },
-  "setUpGithubActions": {
-    "message": "Настройка на действия в Github"
+  "ssoDescStart": {
+    "message": "Настройте",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Настройка на Kubernetes"
+  "ssoDescEnd": {
+    "message": "за Битуорден, използвайки ръководството за внедряване на своя доставчик на удостоверителни данни.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Настройка на GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Удостоверяване на потребителите"
   },
-  "setUpAnsible": {
-    "message": "Настройка на Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Преглед на хранилището за Rust"
+  "scimIntegrationDescStart": {
+    "message": "Настройте ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Преглед на хранилището за C#"
+  "scimIntegrationDescEnd": {
+    "message": "(система за управление на идентичностите между различни домейни), за да удостоверявате автоматично потребителите и групите в Битуорден чрез ръководството за внедряване на Вашия доставчик на удостоверителни данни.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Преглед на хранилището за C++"
+  "bwdc": {
+    "message": "Свързване на директории в Битуорден"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Преглед на хранилището за JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Настройте Свързването на директории в Битуорден, за да удостоверявате автоматично потребителите и групите в Битуорден чрез ръководството за внедряване на Вашия доставчик на удостоверителни данни."
   },
-  "javaSDKRepo": {
-    "message": "Преглед на хранилището за Java"
+  "eventManagement": {
+    "message": "Управление на събития"
   },
-  "pythonSDKRepo": {
-    "message": "Преглед на хранилището за Python"
+  "eventManagementDesc": {
+    "message": "Внедрете журналите на събитията на Битуорден в своята система SIEM (за управление на системна информация и събития), като използвате ръководството за внедряване за платформата си."
   },
-  "phpSDKRepo": {
-    "message": "Преглед на хранилището за php"
+  "deviceManagement": {
+    "message": "Управление на устройства"
   },
-  "rubySDKRepo": {
-    "message": "Преглед на хранилището за Ruby"
+  "deviceManagementDesc": {
+    "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
   },
-  "goSDKRepo": {
-    "message": "Преглед на хранилището за Go"
+  "integrationCardTooltip": {
+    "message": "Стартиране на ръководството за внедряване за $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Настройка на $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Преглед на хранилището на $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "отваряне на ръководството за внедряване на $INTEGRATION$ в нов раздел.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "преглед на хранилището на $SDK$ в нов раздел.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "настройване на ръководството за внедряване на $INTEGRATION$ в нов раздел.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Създайте нова организация, която да управлявате като доставчик. Допълнителните места ще бъдат отразени в следващия платежен период."
@@ -9699,8 +9785,8 @@
   "selfHostingTitleProper": {
     "message": "Собствен хостинг"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Проверката на домейн ще включи и политиката за единствена организация."
+  "claim-domain-single-org-warning": {
+    "message": "Присвояването на домейн ще включи и политиката за единствена организация."
   },
   "single-org-revoked-user-warning": {
     "message": "На членовете, които не отговарят на това условие, ще бъдат отнети правомощията. Администраторите могат да възстановяват правомощията на членовете, след като те напуснат всички останали организации."
@@ -9715,9 +9801,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Когато даден член бъде изтрит, неговата регистрация в Битуорден, както и данните от трезора му, ще бъдат изтрити завинаги. Данните за колекции ще останат в организацията. Ако искате да го върнете, той трябва да си създаде нова регистрация и да бъде включен отново.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Това действие ще изтрие завинаги всички елементи, притежавани от $NAME$. Елементите в колекции няма да бъдат засегнати.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Това действие ще изтрие завинаги всички елементи, притежавани от следните членове. Елементите в колекции няма да бъдат засегнати.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Изтрито: $NAME$",
@@ -9787,5 +9883,129 @@
   },
   "descriptorCode": {
     "message": "Код от описанието"
+  },
+  "importantNotice": {
+    "message": "Важно съобщение"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настройте двустепенно удостоверяване"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
+  },
+  "remindMeLater": {
+    "message": "Напомнете ми по-късно"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, нямам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, имам достъп до е-пощата си"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включване на двустепенното удостоверяване"
+  },
+  "changeAcctEmail": {
+    "message": "Промяна на е-пощата"
+  },
+  "removeMembers": {
+    "message": "Премахване на членовете"
+  },
+  "claimedDomains": {
+    "message": "Присвоени домейни"
+  },
+  "claimDomain": {
+    "message": "Присвояване на домейн"
+  },
+  "reclaimDomain": {
+    "message": "Повторно присвояване на домейн"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде присвоен."
+  },
+  "automaticClaimedDomains": {
+    "message": "Автоматично присвоени домейни"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Битуорден ще се опита да присвои домейна 3 пъти през първите 72 часа. Ако той не може да бъде присвоен, проверете записа за DNS в сървъра си и направете присвояването ръчно. Домейнът ще бъде премахнат от организацията Ви след 7 дни, ако не бъде присвоен."
+  },
+  "domainNotClaimed": {
+    "message": "Домейнът $DOMAIN$ не е присвоен. Проверете записите в DNS.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Присвоен"
+  },
+  "domainStatusUnderVerification": {
+    "message": "В процес на проверка"
+  },
+  "claimedDomainsDesc": {
+    "message": "Присвоете домейн, за да получите притежание върху всички членски акаунти, чиито е-пощи са с адрес от този домейн. Членовете ще могат да пропускат еднократното удостоверяване при вписване. Администраторите ще могат също така да изтриват членските акаунти."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Неправилен формат. Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде присвоен."
+  },
+  "domainClaimedEvent": {
+    "message": "Домейнът $DOMAIN$ е присвоен",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "Домейнът $DOMAIN$ не е присвоен",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Ако премахнете $EMAIL$, спонсорирането за този семеен план няма да може да бъде получено. Наистина ли искате да продължите?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Ако премахнете $EMAIL$, спонсорирането за този семеен план ще бъде прекратено и от запазеното средство за разплащане ще бъдат взети 40$ + съответния данък на $DATE$. Няма да можете да получите друго спонсориране до $DATE$. Наистина ли искате да продължите?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Домейнът е присвоен"
+  },
+  "organizationNameMaxLength": {
+    "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   }
 }

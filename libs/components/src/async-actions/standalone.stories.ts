@@ -56,12 +56,11 @@ export default {
   decorators: [
     moduleMetadata({
       declarations: [
-        BitActionDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
       ],
-      imports: [ButtonModule, IconButtonModule],
+      imports: [ButtonModule, IconButtonModule, BitActionDirective],
       providers: [
         {
           provide: ValidationService,

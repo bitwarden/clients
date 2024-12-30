@@ -5,8 +5,14 @@
 
   <read-only-cipher-card>
     <bit-form-field *ngIf="cipher.identity.fullName">
-      <bit-label>{{ "name" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.fullName" readonly data-testid="name" />
+      <bit-label [appTextDrag]="cipher.identity.fullName">{{ "name" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="fullName"
+        [value]="cipher.identity.fullName"
+        readonly
+        data-testid="name"
+      />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -19,8 +25,14 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="cipher.identity.username">
-      <bit-label>{{ "username" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.username" readonly data-testid="username" />
+      <bit-label [appTextDrag]="cipher.identity.username">{{ "username" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="username"
+        [value]="cipher.identity.username"
+        readonly
+        data-testid="username"
+      />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -32,8 +44,14 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="cipher.identity.company">
-      <bit-label>{{ "company" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.company" readonly data-testid="company" />
+      <bit-label [appTextDrag]="cipher.identity.company">{{ "company" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="company"
+        [value]="cipher.identity.company"
+        readonly
+        data-testid="company"
+      />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -55,8 +73,15 @@
 
   <read-only-cipher-card>
     <bit-form-field *ngIf="cipher.identity.ssn">
-      <bit-label>{{ "ssn" | i18n }}</bit-label>
-      <input bitInput type="password" [value]="cipher.identity.ssn" readonly data-testid="ssn" />
+      <bit-label [appTextDrag]="cipher.identity.ssn">{{ "ssn" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="ssn"
+        type="password"
+        [value]="cipher.identity.ssn"
+        readonly
+        data-testid="ssn"
+      />
       <button
         type="button"
         bitIconButton
@@ -76,8 +101,11 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="cipher.identity.passportNumber">
-      <bit-label>{{ "passportNumber" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="cipher.identity.passportNumber">{{
+        "passportNumber" | i18n
+      }}</bit-label>
       <input
+        id="passportNumber"
         bitInput
         type="password"
         [value]="cipher.identity.passportNumber"
@@ -103,8 +131,16 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="cipher.identity.licenseNumber">
-      <bit-label>{{ "licenseNumber" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.licenseNumber" readonly data-testid="license" />
+      <bit-label [appTextDrag]="cipher.identity.licenseNumber">{{
+        "licenseNumber" | i18n
+      }}</bit-label>
+      <input
+        bitInput
+        id="licenseNumber"
+        [value]="cipher.identity.licenseNumber"
+        readonly
+        data-testid="license"
+      />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -126,8 +162,8 @@
 
   <read-only-cipher-card>
     <bit-form-field *ngIf="cipher.identity.email">
-      <bit-label>{{ "email" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.email" readonly data-testid="email" />
+      <bit-label [appTextDrag]="cipher.identity.email">{{ "email" | i18n }}</bit-label>
+      <input bitInput id="email" [value]="cipher.identity.email" readonly data-testid="email" />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -140,8 +176,8 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="cipher.identity.phone">
-      <bit-label>{{ "phone" | i18n }}</bit-label>
-      <input bitInput [value]="cipher.identity.phone" readonly data-testid="phone" />
+      <bit-label [appTextDrag]="cipher.identity.phone">{{ "phone" | i18n }}</bit-label>
+      <input bitInput id="phone" [value]="cipher.identity.phone" readonly data-testid="phone" />
       <button
         type="button"
         bitIconButton="bwi-clone"
@@ -154,9 +190,10 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="addressFields">
-      <bit-label>{{ "address" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="addressFields">{{ "address" | i18n }}</bit-label>
       <textarea
         bitInput
+        id="address"
         class="tw-resize-none"
         [value]="addressFields"
         [rows]="addressRows"

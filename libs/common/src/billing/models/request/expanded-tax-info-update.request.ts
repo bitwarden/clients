@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TaxInformation } from "@bitwarden/common/billing/models/domain/tax-information";
 
 import { TaxInfoUpdateRequest } from "./tax-info-update.request";

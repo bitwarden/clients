@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   FormBuilder,
@@ -8,6 +10,7 @@ import {
   AsyncValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
+import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -23,6 +26,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
+
+import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
 
 interface RequestSponsorshipForm {
   selectedSponsorshipOrgId: FormControl<string>;
@@ -60,6 +65,8 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private policyService: PolicyService,
+    private freeFamiliesPolicyService: FreeFamiliesPolicyService,
+    private router: Router,
   ) {
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       selectedSponsorshipOrgId: new FormControl("", {
@@ -84,6 +91,8 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
     );
 
     if (this.isFreeFamilyFlagEnabled) {
+      await this.preventAccessToFreeFamiliesPage();
+
       this.availableSponsorshipOrgs$ = combineLatest([
         this.organizationService.organizations$,
         this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy),
@@ -138,6 +147,17 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._destroy.next();
     this._destroy.complete();
+  }
+
+  private async preventAccessToFreeFamiliesPage() {
+    const showFreeFamiliesPage = await firstValueFrom(
+      this.freeFamiliesPolicyService.showFreeFamilies$,
+    );
+
+    if (!showFreeFamiliesPage) {
+      await this.router.navigate(["/"]);
+      return;
+    }
   }
 
   submit = async () => {

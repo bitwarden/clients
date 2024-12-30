@@ -138,7 +138,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm
+          sudo apt-get -y install pkg-config libxss-dev rpm
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic

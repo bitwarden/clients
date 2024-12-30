@@ -208,19 +208,19 @@
     "message": "Uusi SSH-avain luotiin"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Syöttämäsi salasana on virheellinen."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Tuo"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Vahvista salasana"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Syötä SSH-avaimen salasana."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Syötä salasana"
   },
   "sshAgentUnlockRequired": {
     "message": "Ole hyvä ja avaa holvisi hyväksyäksesi SSH-avainpyynnön."
@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Palvelimen URL"
   },
+  "authenticationTimeout": {
+    "message": "Todennuksen aikakatkaisu"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
+  },
   "selfHostBaseUrl": {
     "message": "Itse ylläpidetyn palvelimen URL-osoite",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1387,13 +1393,13 @@
     "message": "Salasanahistoria"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Generaattorihistoria"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Tyhjennä generaattorihistoria"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Jos jatkat, kaikki generaattorihistorian kohteet poistetaan. Haluatko varmasti jatkaa?"
   },
   "clear": {
     "message": "Tyhjennä",
@@ -1403,13 +1409,13 @@
     "message": "Ei näytettäviä salasanoja."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Tyhjennä historia"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ei näytettävää"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Et ole luonut mitään hiljattain"
   },
   "undo": {
     "message": "Kumoa"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Vahvista Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Avaa Bitwardenin lukitus tunnistautumalla."
   },
   "unlockWithTouchId": {
     "message": "Avaa Touch ID:llä"
@@ -2478,7 +2481,7 @@
     "message": "Luo sähköpostiosoite"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2492,7 +2495,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Käytä $RECOMMENDED$ tai useampaa merkkiä vahvan salasanan luomiseksi.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2502,7 +2505,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Käytä $RECOMMENDED$ tai useampaa sanaa vahvan salalauseen luomiseksi.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2723,13 +2726,13 @@
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Laitteeseesi lähetettiin ilmoitus"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Tarvitsetko toisen vaihtoehdon?"
   },
   "fingerprintMatchInfo": {
     "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen."
@@ -2738,13 +2741,13 @@
     "message": "Tunnistelauseke"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Ilmoitamme sinulle, kun pyyntösi on hyväksytty"
   },
   "needAnotherOption": {
     "message": "Laitteella kirjautuminen on määritettävä Bitwarden-sovelluksen asetuksista. Tarvitsetko eri vaihtoehdon?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Näytä kaikki kirjautumisvaihtoehdot"
   },
   "viewAllLoginOptions": {
     "message": "Näytä kaikki kirjautumisvaihtoehdot"
@@ -2899,16 +2902,16 @@
     "message": "Suositeltava asetusmuutos"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Muista tämä laite tehdäksesi tulevista kirjautumisista helpompaa"
   },
   "deviceApprovalRequired": {
     "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Laitteen hyväksyntä vaaditaan"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Valitse hyväksyntävaihtoehto alta"
   },
   "rememberThisDevice": {
     "message": "Muista tämä laite"
@@ -2963,7 +2966,7 @@
     "message": "Käyttäjän sähköpostiosoite puuttuu"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiivista käyttäjän sähköpostiosoitetta ei löytynyt. Kirjaudutaan ulos."
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
@@ -3363,7 +3366,7 @@
     "message": "Valtuuta"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Estä"
   },
   "sshkeyApprovalTitle": {
     "message": "Vahvista SSH-avainkäyttö"

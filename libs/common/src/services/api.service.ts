@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -1946,7 +1948,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 

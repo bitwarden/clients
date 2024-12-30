@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automatické vyplnenie identity"
   },
+  "fillVerificationCode": {
+    "message": "Vyplniť overovací kód"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Vyplniť overovací kód",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Vygenerovať heslo (skopírované)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Ohodnotiť rozšírenie"
-  },
-  "rateExtensionDesc": {
-    "message": "Prosíme, zvážte napísanie pozitívnej recenzie!"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Zadajte 6-miestny verifikačný kód z vašej overovacej aplikácie."
+  },
+  "authenticationTimeout": {
+    "message": "Časový limit overenia"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
   },
   "enterVerificationCodeEmail": {
     "message": "Zadajte 6-miestny verifikačný kód, ktorý vám bol zaslaný emailom",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Zobraziť všetky možnosti prihlásenia"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Zobraziť všetky možnosti prihlásenia"
   },
   "notificationSentDevice": {
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "Odomknúť konto v novom okne",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Overovací kód TOTP",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Čas zostávajúci do vypršania aktuálneho TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Vyplňte prihlasovacie údaje pre",
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobraziť počet odporúčaných prihlasovacích údajov na ikone rozšírenia"
   },
+  "showQuickCopyActions": {
+    "message": "Zobraziť akcie rýchleho kopírovania v trezore"
+  },
   "systemDefault": {
     "message": "Predvolené systémom"
   },
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavenie dvojstupňového prihlásenia"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
   },
   "extensionWidth": {
     "message": "Šírka rozšírenia"

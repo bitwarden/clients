@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Servera URL"
   },
+  "authenticationTimeout": {
+    "message": "Autentificēšanās noildze"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
+  },
   "selfHostBaseUrl": {
     "message": "Pašmitināta servera URL",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1409,7 +1415,7 @@
     "message": "Nav nekā, ko parādīt"
   },
   "nothingGeneratedRecently": {
-    "message": "Pēdējā laikā nav nekas izveidots"
+    "message": "Pēdējā laikā nekas nav izveidots"
   },
   "undo": {
     "message": "Atsaukt"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Apstiprināt Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Autentificēt, lai atslēgtu Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Atslēgt ar Touch ID"
@@ -2492,7 +2495,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Jāizmanto $RECOMMENDED$ vai vairāk rakstzīmju, la izveidotu spēcīgu paroli.",
+    "message": " Jāizmanto $RECOMMENDED$ vai vairāk rakstzīmju, lai izveidotu spēcīgu paroli.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2502,7 +2505,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai aizveidotu spēcīgu paroles vārdkopu.",
+    "message": " Jāizmanto $RECOMMENDED$ vai vairāk vārdu, lai izveidotu spēcīgu paroles vārdkopu.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -140,7 +142,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     });
 
     this.freeTrial$ = org$.pipe(
-      filter((org) => org.isOwner),
+      filter((org) => org.isOwner && org.canViewBillingHistory && org.canViewSubscription),
       switchMap((org) =>
         combineLatest([
           of(org),

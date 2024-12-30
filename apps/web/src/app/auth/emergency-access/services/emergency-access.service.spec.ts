@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 

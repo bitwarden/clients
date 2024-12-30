@@ -27,7 +27,12 @@
       ],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "include": ["src", "src/**/*.spec.ts"]
 }

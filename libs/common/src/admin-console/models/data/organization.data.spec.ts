@@ -56,6 +56,7 @@ describe("ORGANIZATIONS state", () => {
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
+        useRiskInsights: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

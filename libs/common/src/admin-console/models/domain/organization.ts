@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { ProductTierType } from "../../../billing/enums";
@@ -81,6 +83,7 @@ export class Organization {
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
   userIsManagedByOrganization: boolean;
+  useRiskInsights: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -137,6 +140,7 @@ export class Organization {
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
+    this.useRiskInsights = obj.useRiskInsights;
   }
 
   get canAccess() {
@@ -355,5 +359,16 @@ export class Organization {
       familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
       familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
     });
+  }
+
+  get canAccessIntegrations() {
+    return (
+      (this.productTierType === ProductTierType.Teams ||
+        this.productTierType === ProductTierType.Enterprise) &&
+      (this.isAdmin ||
+        this.permissions.manageUsers ||
+        this.permissions.manageGroups ||
+        this.permissions.accessEventLogs)
+    );
   }
 }

@@ -262,13 +262,6 @@ describe("VaultPopupItemsService", () => {
       });
     });
 
-    it("should sort by last used then by name", (done) => {
-      service.favoriteCiphers$.subscribe((ciphers) => {
-        expect(cipherServiceMock.sortCiphersByLastUsedThenName).toHaveBeenCalled();
-        done();
-      });
-    });
-
     it("should filter favoriteCiphers$ down to search term", (done) => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";

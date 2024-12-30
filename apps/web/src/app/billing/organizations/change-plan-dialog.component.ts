@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
@@ -348,7 +350,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     switch (cardState) {
       case PlanCardState.Selected: {
         return [
-          "tw-group",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",

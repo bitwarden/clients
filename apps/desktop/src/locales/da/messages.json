@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "authenticationTimeout": {
+    "message": "Godkendelsestimeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
+  },
   "selfHostBaseUrl": {
     "message": "URL til selv-hostet server",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bekræft for Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Godkend for at oplåse Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Oplås med Touch ID"

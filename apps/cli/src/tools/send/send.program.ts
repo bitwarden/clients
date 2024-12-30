@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
@@ -106,6 +108,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.platformUtilsService,
           this.serviceContainer.environmentService,
           this.serviceContainer.sendApiService,
+          this.serviceContainer.apiService,
         );
         const response = await cmd.run(url, options);
         this.processResponse(response);
@@ -188,6 +191,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.environmentService,
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -247,6 +251,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.environmentService,
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,

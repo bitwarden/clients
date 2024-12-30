@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Автозаповнення посвідчень"
   },
+  "fillVerificationCode": {
+    "message": "Заповнити код підтвердження"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Заповнити код підтвердження",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Генерувати пароль (з копіюванням)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Оцінити розширення"
-  },
-  "rateExtensionDesc": {
-    "message": "Розкажіть іншим про свої враження, залишивши хороший відгук!"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не підтримує копіювання даних в буфер обміну. Скопіюйте вручну."
@@ -1126,7 +1130,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Попередження",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Введіть 6-значний код підтвердження з програми автентифікації."
+  },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -1843,7 +1853,7 @@
     "message": "Захищені нотатки"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Ключі SSH"
   },
   "clear": {
     "message": "Стерти",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Переглянути всі варіанти входу"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Переглянути всі варіанти входу"
   },
   "notificationSentDevice": {
@@ -3279,16 +3289,16 @@
     "message": "Відкривається у новому вікні"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потрібне підтвердження пристрою"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -3364,7 +3374,7 @@
     "message": "Немає адреси електронної пошти"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "Розблокування облікового запису – відкриється нове вікно",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Код підтвердження одноразового пароля",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Час, що залишився до завершення чинного TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Заповнити облікові дані для",
@@ -3803,7 +3821,7 @@
     "message": "Доступ"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Ви увійшли!"
   },
   "passkeyNotCopied": {
     "message": "Ключ доступу не буде скопійовано"
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показувати кількість пропозицій автозаповнення на піктограмі розширення"
   },
+  "showQuickCopyActions": {
+    "message": "Показати дії швидкого копіювання у сховищі"
+  },
   "systemDefault": {
     "message": "Типово (система)"
   },
@@ -4889,13 +4910,49 @@
   "beta": {
     "message": "Бета"
   },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Ширина вікна розширення"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Широке"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Дуже широке"
   }
 }

@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -33,8 +36,9 @@ export class SendReceiveCommand extends DownloadCommand {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
+    apiService: ApiService,
   ) {
-    super(encryptService);
+    super(encryptService, apiService);
   }
 
   async run(url: string, options: OptionValues): Promise<Response> {

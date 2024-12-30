@@ -18,7 +18,7 @@
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Tiedot päivitetty viimeksi: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -28,6 +28,15 @@
   },
   "notifiedMembers": {
     "message": "Ilmoitetut jäsenet"
+  },
+  "revokeMembers": {
+    "message": "Kumoa jäsenet"
+  },
+  "restoreMembers": {
+    "message": "Palauta jäsenet"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Cannot restore organization access"
   },
   "allApplicationsWithCount": {
     "message": "Kaikki sovellukset ($COUNT$)",
@@ -60,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "Sovelluksia ei löytynyt organisaatiosta $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -72,7 +81,7 @@
     "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
   },
   "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+    "message": "Et ole merkinnyt yhtään sovellusta Kriittiseksi"
   },
   "noCriticalAppsDescription": {
     "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
@@ -985,7 +994,7 @@
     "message": "Laitteella kirjautuminen on määritettävä Bitwarden-sovelluksen asetuksista. Tarvitsetko eri vaihtoehdon?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Tarvitsetko toisen vaihtoehdon?"
   },
   "loginWithMasterPassword": {
     "message": "Kirjaudu pääsalasanalla"
@@ -1109,6 +1118,12 @@
   },
   "logInToBitwarden": {
     "message": "Kirjaudu Bitwardeniin"
+  },
+  "authenticationTimeout": {
+    "message": "Todennuksen aikakatkaisu"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
   },
   "verifyIdentity": {
     "message": "Vahvista henkilöllisyytesi"
@@ -1306,7 +1321,7 @@
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Laitteeseesi lähetettiin ilmoitus"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
@@ -1643,25 +1658,25 @@
     "message": "Salasanahistoria"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Generaattorihistoria"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Tyhjennä generaattorihistoria"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Jos jatkat, kaikki generaattorihistorian kohteet poistetaan. Haluatko varmasti jatkaa?"
   },
   "noPasswordsInList": {
     "message": "Näytettäviä salasanoja ei ole."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Tyhjennä historia"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ei näytettävää"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Et ole luonut mitään hiljattain"
   },
   "clear": {
     "message": "Tyhjennä",
@@ -1771,7 +1786,7 @@
     "message": "Ole varovainen! Näitä toimintoja ei ole mahdollista kumota!"
   },
   "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
+    "message": "Ole varoivainen. Tätä ei ole mahdollista perua!"
   },
   "deauthorizeSessions": {
     "message": "Mitätöi kaikki istunnot"
@@ -1786,7 +1801,7 @@
     "message": "Kaikki istunnot mitätöitiin"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Tämän tilin omistaa $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3867,33 +3882,36 @@
   "updateBrowser": {
     "message": "Päivitä selain"
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "updateBrowserDesc": {
     "message": "Käytät selainta, jota ei tueta. Verkkoholvi ei välttämättä toimi oikein."
   },
-  "freeTrialEndPrompt": {
-    "message": "Your free trial ends in $COUNT$ days. To maintain your subscription,",
+  "freeTrialEndPromptCount": {
+    "message": "Ilmainen kokeilujakso päättyy $COUNT$ päivän kuluttua.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days. To maintain your subscription,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow. To maintain your subscription,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, ilmainen kokeilujakso päättyy $COUNT$ päivän kuluttua.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, ilmainen kokeilujaksosi päättyy huomenna.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3919,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Your free trial ends tomorrow. To maintain your subscription,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Ilmainen kokeilujaksosi päättyy huomenna."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, your free trial ends today. To maintain your subscription,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, ilmainen kokeilujaksosi päättyy tänään.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3931,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Ilmainen kokeilujaksosi päättyy tänään. Säilyttääksesi tilauksesi,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Ilmainen kokeilujaksosi päättyy tänään."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "lisää maksutapa."
+  "clickHereToAddPaymentMethod": {
+    "message": "Click here to add a payment method."
   },
   "joinOrganization": {
     "message": "Liity organisaatioon"
@@ -4474,7 +4492,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Ilmoitamme sinulle kun pyyntösi on hyväksytty"
   },
   "free": {
     "message": "Ilmainen",
@@ -4705,6 +4723,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Kirjaudu organisaatiosi kertakirjautumisportaalista. Aloita syöttämällä organisaatiosi kertakirjautumistunniste."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Enter your organization's SSO identifier to begin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
   },
   "enterpriseSingleSignOn": {
     "message": "Yrityksen kertakirjautuminen"
@@ -5610,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Ohitettu, ei koske tätä toimintoa"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Jäsenet jotka eivät täytä vaatimuksia"
+  },
+  "nonCompliantMembersError": {
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Sormenjälki"
   },
@@ -6117,9 +6147,6 @@
   "emailSent": {
     "message": "Sähköposti lähetettiin"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "Tilin poiston jälkeen Families-tilauksen sponsorointi päättyy kuluvan laskutusjakson lopussa. Et voi lunastaa uuttaa sponsorointitarjousta ennen nykyisen päättymistä. Haluatko varmasti jatkaa?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Sponsorointi poistettiin"
   },
@@ -6410,7 +6437,7 @@
     "message": "Vaaditaan, jos Entity ID ei ole kelvollinen URL-osoite."
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "Tämä tarjous ei ole enää voimassa. Ota yhteyttä organisaation ylläpitäjiin saadaksesi lisätietoja."
   },
   "openIdOptionalCustomizations": {
     "message": "Valinnaiset mukautukset"
@@ -6505,7 +6532,7 @@
     "message": "Luo sähköpostiosoite"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6519,7 +6546,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Käytä $RECOMMENDED$ tai useampaa merkkiä vahvan salasanan luomiseksi.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6529,7 +6556,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Käytä $RECOMMENDED$ tai useampaa sanaa vahvan salalauseen luomiseksi.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6648,7 +6675,7 @@
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Valitse verkkotunnus, jota valittu palvelu tukee",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -6790,6 +6817,10 @@
   },
   "scimDescription": {
     "message": "Provisioi käyttäjät ja ryhmät automaattisesti haluamasi identiteettitoimittajan kanssa SCIM-provisioinnilla",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8070,7 +8101,7 @@
     "message": "Kirjautuminen aloitettu"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Muista tämä laite tehdäksesi tulevista kirjautumisista helpompaa"
   },
   "deviceApprovalRequired": {
     "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
@@ -8311,7 +8342,7 @@
     "message": "Käyttäjän sähköpostiosoite puuttuu"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Aktiivista käyttäjän sähköpostiosoitetta ei löytynyt. Kirjaudutaan ulos."
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
@@ -8986,44 +9017,99 @@
   "sdksDesc": {
     "message": "Bitwardenin Salaisuushallinnan SDK:n avulla voit kehittää omia sovelluksiasi seuraavilla ohjelmointikielillä."
   },
-  "setUpGithubActions": {
-    "message": "Määritä GitHub Actions"
+  "ssoDescStart": {
+    "message": "Konfiguroi",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Määritä Kubernetes"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Määritä GitLab CI/CD"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "setUpAnsible": {
-    "message": "Määritä Ansible"
+  "scimIntegration": {
+    "message": "SCIM-käyttäjähallinta"
   },
-  "rustSDKRepo": {
-    "message": "Näytä Rust-arkisto"
+  "scimIntegrationDescStart": {
+    "message": "Konfiguroi ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Näytä C#-arkisto"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Näytä C++-arkisto"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Näytä JS WebAssembly -arkisto"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "javaSDKRepo": {
-    "message": "Näytä Java-arkisto"
+  "eventManagement": {
+    "message": "Tapahtumahallinta"
   },
-  "pythonSDKRepo": {
-    "message": "Näytä Python-arkisto"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "Näytä php-arkisto"
+  "deviceManagement": {
+    "message": "Laitehallinta"
   },
-  "rubySDKRepo": {
-    "message": "Näytä Ruby-arkisto"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Näytä Go-arkisto"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Määritä $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Luo uusi asiakasorganisaatio, jota hallitset toimittajana. Uudet käyttäjäpaikat näkyvät seuraavalla laskutusjaksolla."
@@ -9699,8 +9785,8 @@
   "selfHostingTitleProper": {
     "message": "Itse ylläpidetty"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Verifying a domain will turn on the single organization policy."
+  "claim-domain-single-org-warning": {
+    "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
@@ -9715,9 +9801,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "When a member is deleted, their Bitwarden account and individual vault data will be permanently deleted. Collection data will remain in the organization. To reinstate them they must create an account and be onboarded again.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "This will permanently delete all items owned by $NAME$. Collection items are not impacted.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "This will permanently delete all items owned by the following members. Collection items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ poistettiin",
@@ -9787,5 +9883,129 @@
   },
   "descriptorCode": {
     "message": "Descriptor code"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "removeMembers": {
+    "message": "Poista jäsenet"
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
   }
 }

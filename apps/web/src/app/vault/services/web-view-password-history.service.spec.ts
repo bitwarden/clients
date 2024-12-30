@@ -1,7 +1,7 @@
 import { Overlay } from "@angular/cdk/overlay";
 import { TestBed } from "@angular/core/testing";
 
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { openPasswordHistoryDialog } from "../individual-vault/password-history.component";
@@ -35,10 +35,10 @@ describe("WebViewPasswordHistoryService", () => {
 
   describe("viewPasswordHistory", () => {
     it("calls openPasswordHistoryDialog with the correct parameters", async () => {
-      const mockCipherId = "cipher-id" as CipherId;
-      await service.viewPasswordHistory(mockCipherId);
+      const mockCipher = { id: "cipher-id" } as CipherView;
+      await service.viewPasswordHistory(mockCipher);
       expect(openPasswordHistoryDialog).toHaveBeenCalledWith(dialogService, {
-        data: { cipherId: mockCipherId },
+        data: { cipher: mockCipher },
       });
     });
   });

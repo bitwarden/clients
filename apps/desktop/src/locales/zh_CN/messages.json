@@ -624,7 +624,7 @@
     "message": "创建账户"
   },
   "newToBitwarden": {
-    "message": "您是 Bitwarden 新手吗？"
+    "message": "Bitwarden 新手吗？"
   },
   "setAStrongPassword": {
     "message": "设置强密码"
@@ -918,6 +918,12 @@
   },
   "baseUrl": {
     "message": "服务器 URL"
+  },
+  "authenticationTimeout": {
+    "message": "身份验证超时"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "身份验证会话超时。请重新启动登录过程。"
   },
   "selfHostBaseUrl": {
     "message": "自托管服务器 URL",
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "验证 Bitwarden。"
-  },
-  "polkitConsentMessage": {
-    "message": "验证以解锁 Bitwarden。"
   },
   "unlockWithTouchId": {
     "message": "使用触控 ID 解锁"
@@ -2905,7 +2908,7 @@
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
   "deviceApprovalRequiredV2": {
-    "message": "需要设备批准"
+    "message": "已请求设备批准"
   },
   "selectAnApprovalOptionBelow": {
     "message": "在下方选择一个批准选项"
@@ -3127,7 +3130,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 寻求帮助。"
+    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"

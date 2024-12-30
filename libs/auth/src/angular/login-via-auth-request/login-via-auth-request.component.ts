@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -10,6 +12,7 @@ import {
   AuthRequestServiceAbstraction,
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
@@ -32,7 +35,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
@@ -86,9 +88,9 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
-    private syncService: SyncService,
     private toastService: ToastService,
     private validationService: ValidationService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
 
@@ -483,7 +485,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     await this.deviceTrustService.trustDeviceIfRequired(activeAccount.id);
 
-    await this.handleSuccessfulLoginNavigation();
+    await this.handleSuccessfulLoginNavigation(userId);
   }
 
   /**
@@ -553,17 +555,17 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     } else if (loginResponse.forcePasswordReset != ForceSetPasswordReason.None) {
       await this.router.navigate(["update-temp-password"]);
     } else {
-      await this.handleSuccessfulLoginNavigation();
+      await this.handleSuccessfulLoginNavigation(loginResponse.userId);
     }
   }
 
-  private async handleSuccessfulLoginNavigation() {
+  private async handleSuccessfulLoginNavigation(userId: UserId) {
     if (this.flow === Flow.StandardAuthRequest) {
       // Only need to set remembered email on standard login with auth req flow
       await this.loginEmailService.saveEmailSettings();
     }
 
-    await this.syncService.fullSync(true);
+    await this.loginSuccessHandlerService.run(userId);
     await this.router.navigate(["vault"]);
   }
 }

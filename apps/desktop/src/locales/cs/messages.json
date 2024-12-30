@@ -919,6 +919,12 @@
   "baseUrl": {
     "message": "URL serveru"
   },
+  "authenticationTimeout": {
+    "message": "Časový limit ověření"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
+  },
   "selfHostBaseUrl": {
     "message": "Adresa URL serveru vlastního hostování",
     "description": "Label for field requesting a self-hosted integration service URL"
@@ -1727,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Ověřte se pro Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Ověřte se pro odemknutí Bitwardenu."
   },
   "unlockWithTouchId": {
     "message": "Odemknout pomocí Touch ID"

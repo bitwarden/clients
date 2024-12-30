@@ -80,7 +80,13 @@
       <bit-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
         <ng-container *ngIf="format === 'bitwardencsv' || format === 'bitwardenjson'">
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/export-your-data/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/export-your-data/"
+          >
             https://bitwarden.com/help/export-your-data/</a
           >
         </ng-container>

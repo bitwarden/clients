@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -108,6 +110,7 @@ export class AutofillComponent implements OnInit {
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
+  clickItemsVaultView: boolean = false;
   autofillKeyboardHelperText: string;
   accountSwitcherEnabled: boolean = false;
 
@@ -204,6 +207,10 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
+    );
+
+    this.clickItemsVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
     );
   }
 
@@ -410,5 +417,9 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateClickItemsVaultView() {
+    await this.vaultSettingsService.setClickItemsToAutofillVaultView(this.clickItemsVaultView);
   }
 }

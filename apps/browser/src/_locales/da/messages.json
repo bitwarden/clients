@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Autoudfyld identitet"
   },
+  "fillVerificationCode": {
+    "message": "Udfyld bekræftelseskode"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Udfyld bekræftelseskode",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Generér adgangskode (kopieret)"
   },
@@ -640,9 +647,6 @@
   },
   "rateExtension": {
     "message": "Bedøm udvidelsen"
-  },
-  "rateExtensionDesc": {
-    "message": "Overvej om du vil hjælpe os med en god anmeldelse!"
   },
   "browserNotSupportClipboard": {
     "message": "Din webbrowser understøtter ikke udklipsholder kopiering. Kopiér det manuelt i stedet."
@@ -1318,6 +1322,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Indtast den 6-cifrede verifikationskode fra din autentificerings-app."
+  },
+  "authenticationTimeout": {
+    "message": "Godkendelsestimeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
   },
   "enterVerificationCodeEmail": {
     "message": "Indtast den 6-cifrede verifikationskode, der blev sendt til $EMAIL$.",
@@ -3167,7 +3177,7 @@
   "viewAllLogInOptions": {
     "message": "Vis alle indlogningsmuligheder"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Vis alle indlogningsmuligheder"
   },
   "notificationSentDevice": {
@@ -3573,6 +3583,14 @@
   "unlockAccountAria": {
     "message": "Oplås kontoen, åbnes i et nyt vindue",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Tidsbaseret engangs adgangskodebekræftelseskode",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Resterende tid før udløb af aktuel TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Angiv legitimationsoplysninger for",
@@ -4658,6 +4676,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Vis antal login-autoudfyldningsforslag på udvidelsesikon"
   },
+  "showQuickCopyActions": {
+    "message": "Vis hurtig-kopihandlinger på Boks"
+  },
   "systemDefault": {
     "message": "Systemstandard"
   },
@@ -4888,6 +4909,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Vigtig notits"
+  },
+  "setupTwoStepLogin": {
+    "message": "Opsæt totrins-login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
+  },
+  "remindMeLater": {
+    "message": "Påmind senere"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nej, jeg gør ikke"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, e-mailadressen kan pålideligt tilgås"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Slå totrins-login til"
+  },
+  "changeAcctEmail": {
+    "message": "Skift kontoe-mailadresse"
   },
   "extensionWidth": {
     "message": "Udvidelsesbredde"

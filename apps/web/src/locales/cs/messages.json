@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Obeznámení členové"
   },
+  "revokeMembers": {
+    "message": "Odvolat členy"
+  },
+  "restoreMembers": {
+    "message": "Obnovit členy"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nelze obnovit přístup organizace"
+  },
   "allApplicationsWithCount": {
     "message": "Všechny aplikace ($COUNT$)",
     "placeholders": {
@@ -1109,6 +1118,12 @@
   },
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
+  },
+  "authenticationTimeout": {
+    "message": "Časový limit ověření"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
   },
   "verifyIdentity": {
     "message": "Ověřte svou totožnost"
@@ -3867,33 +3882,36 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
+  "generatingRiskInsights": {
+    "message": "Generování poznatků o rizicích..."
+  },
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
   },
-  "freeTrialEndPrompt": {
-    "message": "Vaše zkušební verze končí za $COUNT$ dnů. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptCount": {
+    "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí za $COUNT$ dnů. Chcete-li si zachovat předplatné,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí zítra. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí za $COUNT$ dnů.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí zítra.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +3919,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Vaše zkušební verze končí zítra. Chcete-li si zachovat předplatné,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Vaše zkušební verze končí zítra."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí dnes. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí dnes.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +3931,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Vaše zkušební verze končí dnes. Chcete-li si zachovat předplatné,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Vaše zkušební verze končí dnes."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "přidejte platební metodu."
+  "clickHereToAddPaymentMethod": {
+    "message": "Klepněte zde pro přidání platební metody."
   },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
@@ -4705,6 +4723,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Přihlaste se pomocí přihlašovacího portálu Vaší organizace. Chcete-li začít, zadejte identifikátor Vaší organizace."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Chcete-li začít, zadejte SSO identifikátor Vaší organizace"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Chcete-li se přihlásit u poskytovatele SSO, zadejte nejprve SSO identifikátor Vaší organizace. Možná budete muset zadat tento identifikátor SSO při přihlášení z nového zařízení."
   },
   "enterpriseSingleSignOn": {
     "message": "Jednotné podnikové přihlášení"
@@ -5610,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Vyloučené, neplatí pro tuto akci"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Nevyhovující členové"
+  },
+  "nonCompliantMembersError": {
+    "message": "Členové, kteří nevyhovují zásadám jednotného přihlašování nebo dvoufázového přihlašování, nemohou být obnoveni, dokud nedodrží požadavky těchto zásad."
+  },
   "fingerprint": {
     "message": "Otisk prstu"
   },
@@ -6116,9 +6146,6 @@
   },
   "emailSent": {
     "message": "E-mail byl odeslán"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Po odebrání tohoto účtu vyprší sponzorování rodinného plánu na konci fakturační doby. Nebudete moci uplatnit novou nabídku sponzorování, dokud stávající neskončí. Opravdu chcete pokračovat?"
   },
   "removeSponsorshipSuccess": {
     "message": "Sponzorství bylo odebráno"
@@ -6790,6 +6817,10 @@
   },
   "scimDescription": {
     "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM. Najde podporované integrace.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8986,44 +9017,99 @@
   "sdksDesc": {
     "message": "Použije SDK Správce tajných klíčů Bitwarden v následujících programovacích jazycích k vytvoření vlastních aplikací."
   },
-  "setUpGithubActions": {
-    "message": "Nastavit akce GitHubu"
+  "ssoDescStart": {
+    "message": "Nastavit",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Nastavit Kubernetes"
+  "ssoDescEnd": {
+    "message": "Bitwarden pomocí průvodce implementací Vašeho poskytovatele identity.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Nastavit GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Zajišťování uživatele"
   },
-  "setUpAnsible": {
-    "message": "Nastavit Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Zobrazit repozitář Rust"
+  "scimIntegrationDescStart": {
+    "message": "Nastavit ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Zobrazit repozitář C#"
+  "scimIntegrationDescEnd": {
+    "message": "(Systém pro správu identity napříč doménami) automaticky poskytuje uživatelům a skupinám Bitwarden pomocí prováděcího průvodce pro Vašeho poskytovatele identity.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Zobrazit repozitář C++"
+  "bwdc": {
+    "message": "Konektor adresáře Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Zobrazit repozitář JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Nastaví konektor adresáře Bitwarden tak, aby automaticky poskytoval uživatele a skupiny pomocí implementačního průvodce pro Vašeho poskytovatele identity."
   },
-  "javaSDKRepo": {
-    "message": "Zobrazit repozitář Java"
+  "eventManagement": {
+    "message": "Správa událostí"
   },
-  "pythonSDKRepo": {
-    "message": "Zobrazit repozitář Python"
+  "eventManagementDesc": {
+    "message": "Integruje logy událostí Bitwardenu do systému SIEM (systémové informace a správu událostí) pomocí implementačního průvodce Vaší platformy."
   },
-  "phpSDKRepo": {
-    "message": "Zobrazit repozitář PHP"
+  "deviceManagement": {
+    "message": "Správa zařízení"
   },
-  "rubySDKRepo": {
-    "message": "Zobrazit repozitář Ruby"
+  "deviceManagementDesc": {
+    "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
   },
-  "goSDKRepo": {
-    "message": "Zobrazit repozitář Go"
+  "integrationCardTooltip": {
+    "message": "Spustí průvodce implementací $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Nastaví $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Zobrazit repozitář $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "otevře průvodce implementací $INTEGRATION$ na nové kartě.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "zobrazí repozitář $SDK$ na nové kartě.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "nastaví průvodce implementací $INTEGRATION$ na nové kartě.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
@@ -9699,8 +9785,8 @@
   "selfHostingTitleProper": {
     "message": "Vlastní hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Ověřením domény se zapnou zásady jediné organizace."
+  "claim-domain-single-org-warning": {
+    "message": "Uplatněním domény se zapnou zásady jediné organizace."
   },
   "single-org-revoked-user-warning": {
     "message": "Nevyhovujícím členům bude členství zrušeno. Správci mohou obnovit členy, jakmile opustí všechny ostatní organizace."
@@ -9715,9 +9801,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Pokud je člen smazán, jeho účet Bitwarden a individuální údaje z trezoru budou trvale smazány. Data kolekce zůstanou v organizaci. Pro jejich obnovení si musí vytvořit účet a být znovu zařazen do systému.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky kolekcí nejsou ovlivněny.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky kolekcí nejsou ovlivněny.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ - smazán",
@@ -9787,5 +9883,129 @@
   },
   "descriptorCode": {
     "message": "Kód z popisu"
+  },
+  "importantNotice": {
+    "message": "Důležité upozornění"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavit dvoufázové přihlášení"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
+  },
+  "remindMeLater": {
+    "message": "Připomenout později"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ne, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ano, ke svému e-mailu mám přístup"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnout dvoufázové přihlášení"
+  },
+  "changeAcctEmail": {
+    "message": "Změnit e-mail účtu"
+  },
+  "removeMembers": {
+    "message": "Odebrat členy"
+  },
+  "claimedDomains": {
+    "message": "Uplatněné domény"
+  },
+  "claimDomain": {
+    "message": "Uplatnit doménu"
+  },
+  "reclaimDomain": {
+    "message": "Znovu uplatnit doménu"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Příklad: mojedoména.cz. Poddomény vyžadují samostatné záznamy, které je třeba ověřit."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automaticky uplatněné domény"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden se pokusí uplatnit doménu třikrát během prvních 72 hodin. Pokud doménu nelze uplatnit, zkontrolujte záznam DNS v hostitelském počítači a uplatněte ji ručně. Pokud se doménu nepodaří uplatnit, bude z Vaší organizace odebrána do 7 dnů."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ nebyla uplatněna. Zkontrolujte DNS záznamy.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Uplatněno"
+  },
+  "domainStatusUnderVerification": {
+    "message": "V ověřování"
+  },
+  "claimedDomainsDesc": {
+    "message": "Uplatněním domény získáte všechny členské účty, jejichž e-mailová adresa se shoduje s doménou. Členové budou moci při přihlašování přeskočit identifikátor SSO. Správci budou moci členské účty také mazat."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Vstup není platný formát. Příklad: mojedoména.cz.Poddomény vyžadují samostatné záznamy, které je třeba uplatnit."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$: uplatněno",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$: neuplatněno",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Pokud odeberte $EMAIL$, nelze sponzorství pro tento rodinný plán uplatnit. Opravdu chcete pokračovat?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Pokud odeberete $EMAIL$, sponzorství tohoto rodinného plánu bude ukončeno. Z uloženého způsobu platby bude účtováno 40 USD + příslušná daň a to dne $DATE$. Nové sponzorství budete moci uplatnit až od $DATE$. Jste si jisti, že chcete pokračovat?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Doména uplatněna"
+  },
+  "organizationNameMaxLength": {
+    "message": "Název organizace nesmí přesáhnout 50 znaků."
   }
 }

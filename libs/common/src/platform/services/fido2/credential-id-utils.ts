@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
 
