@@ -285,7 +285,7 @@
     "message": "许可证号码"
   },
   "email": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "phone": {
     "message": "电话"
@@ -777,7 +777,7 @@
     "message": "复制电话号码"
   },
   "copyEmail": {
-    "message": "复制电子邮件地址"
+    "message": "复制电子邮箱"
   },
   "copyCompany": {
     "message": "复制公司信息"
@@ -1135,7 +1135,7 @@
     "message": "提交"
   },
   "emailAddressDesc": {
-    "message": "使用您的电子邮件地址登录。"
+    "message": "使用您的电子邮箱地址登录。"
   },
   "yourName": {
     "message": "您的姓名"
@@ -1184,7 +1184,7 @@
     "message": "设置"
   },
   "accountEmail": {
-    "message": "账户邮件地址"
+    "message": "账户电子邮箱"
   },
   "requestHint": {
     "message": "请求提示"
@@ -1193,22 +1193,22 @@
     "message": "请求密码提示"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "输入您的账户电子邮件地址，您的密码提示将发送给您"
+    "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
   "passwordHint": {
     "message": "密码提示"
   },
   "enterEmailToGetHint": {
-    "message": "输入您账户的电子邮件地址来接收主密码提示。"
+    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
   },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
   },
   "emailRequired": {
-    "message": "必须填写电子邮件地址。"
+    "message": "必须填写电子邮箱地址。"
   },
   "invalidEmail": {
-    "message": "无效的电子邮件地址。"
+    "message": "无效的电子邮箱地址。"
   },
   "masterPasswordRequired": {
     "message": "必须填写主密码。"
@@ -1242,7 +1242,7 @@
     "message": "账户创建成功。"
   },
   "masterPassSent": {
-    "message": "我们已经为您发送了包含主密码提示的邮件。"
+    "message": "我们已经为您发送了包含主密码提示的电子邮件。"
   },
   "unexpectedError": {
     "message": "发生意外错误。"
@@ -1251,7 +1251,7 @@
     "message": "请选择一个将来的过期日期。"
   },
   "emailAddress": {
-    "message": "电子邮件地址"
+    "message": "电子邮箱地址"
   },
   "yourVaultIsLockedV2": {
     "message": "您的密码库已锁定"
@@ -1339,7 +1339,7 @@
     "message": "请输入您的验证器 App 中的 6 位数验证码。"
   },
   "enterVerificationCodeEmail": {
-    "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
+    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1407,7 +1407,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "为您的组织使用 Duo Security 的 Duo 移动应用、短信、电话或 U2F 安全钥匙来进行验证。",
+    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "u2fDesc": {
@@ -1426,10 +1426,10 @@
     "message": "（迁移自 FIDO）"
   },
   "emailTitle": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "emailDescV2": {
-    "message": "输入发送到您的电子邮箱的代码。"
+    "message": "请输入发送到您的电子邮箱的代码。"
   },
   "continue": {
     "message": "继续"
@@ -1686,19 +1686,19 @@
     "message": "账户已保存"
   },
   "changeEmail": {
-    "message": "修改电子邮件地址"
+    "message": "更改电子邮箱"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "继续操作将更改您的账户电子邮件地址。这不会更改用于双重身份验证的电子邮件地址。您可以在两步登录设置中更改它。"
+    "message": "继续操作将更改您的账户电子邮箱地址。这不会更改用于双重身份验证的电子邮箱地址。您可以在两步登录设置中更改它。"
   },
   "newEmail": {
-    "message": "新电子邮件地址"
+    "message": "新的电子邮箱"
   },
   "code": {
     "message": "代码"
   },
   "changeEmailDesc": {
-    "message": "我们已将验证码发送到 $EMAIL$。请检查您的电子邮件，在下方输入验证码，以确认更改您的电子邮件地址。",
+    "message": "我们已将验证码发送到 $EMAIL$。请检查您的电子邮箱，在下方输入验证码，以确认更改您的电子邮箱地址。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1710,7 +1710,7 @@
     "message": "接下来将会注销您当前的会话，要求您重新登录。其他设备上的活动会话可能会继续保持最多一小时。"
   },
   "emailChanged": {
-    "message": "电子邮件已保存"
+    "message": "电子邮箱已保存"
   },
   "logBackIn": {
     "message": "请重新登录。"
@@ -1792,7 +1792,7 @@
     "message": "取消会话授权"
   },
   "deauthorizeSessionsDesc": {
-    "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共电脑或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
+    "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
   },
   "deauthorizeSessionsWarning": {
     "message": "接下来将会注销您当前的会话，并要求您重新登录。如果有设置两步登录，也需要重新认证。其他设备上的活动会话可能会继续保持最多一小时。"
@@ -2168,7 +2168,7 @@
     "message": "添加一个新的 YubiKey 到您的账户"
   },
   "twoFactorYubikeyPlugIn": {
-    "message": "将 YubiKey 插入您电脑的 USB 端口。"
+    "message": "将 YubiKey 插入计算机的 USB 端口。"
   },
   "twoFactorYubikeySelectKey": {
     "message": "在下面选择第一个空的 YubiKey 输入字段。"
@@ -2183,10 +2183,10 @@
     "message": "由于平台的限制，YubiKey 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 YubiKey 时可以访问您的账户。支持的平台："
   },
   "twoFactorYubikeySupportUsb": {
-    "message": "具有 USB 端口的设备上的网页版密码库、桌面应用程序、CLI 以及浏览器扩展都可以使用您的 YubiKey。"
+    "message": "具有可使用 YubiKey 的 USB 端口的设备上的网页版密码库、桌面应用程序、CLI 以及浏览器扩展。"
   },
   "twoFactorYubikeySupportMobile": {
-    "message": "具有兼容 NFC 或数据端口的设备上的移动应用程序可以使用您的 YubiKey。"
+    "message": "具有 NFC 功能或可使用 YubiKey 的数据端口的设备上的移动应用程序。"
   },
   "yubikeyX": {
     "message": "YubiKey $INDEX$",
@@ -2243,10 +2243,10 @@
     "message": "API 主机名"
   },
   "twoFactorEmailDesc": {
-    "message": "按照以下步骤设置使用电子邮件的两步登录："
+    "message": "按照以下步骤设置使用电子邮箱的两步登录："
   },
   "twoFactorEmailEnterEmail": {
-    "message": "输入您希望接收验证码的电子邮件地址"
+    "message": "输入您希望用于接收验证码的电子邮箱"
   },
   "twoFactorEmailEnterCode": {
     "message": "输入电子邮件中的 6 位数验证码"
@@ -2488,7 +2488,7 @@
     "message": "泄露的账户可能会暴露您的个人信息。通过启用 2FA 或创建更强大的密码来保护被泄露的账户。"
   },
   "breachCheckUsernameEmail": {
-    "message": "检查您使用的任何用户名或电子邮件地址。"
+    "message": "检查您使用的任何用户名或电子邮箱地址。"
   },
   "checkBreaches": {
     "message": "检查泄漏情况"
@@ -2908,7 +2908,7 @@
     "message": "若要创建基于本地托管的组织，您需要上传有效的许可证文件。"
   },
   "accountEmailMustBeVerified": {
-    "message": "您必须验证账户的电子邮件地址。"
+    "message": "必须验证您的账户电子邮箱地址。"
   },
   "newOrganizationDesc": {
     "message": "组织允许您与他人共享您的密码库的部分内容，以及管理特定实体（例如家族、小型团队或大型公司）的相关用户。"
@@ -2923,7 +2923,7 @@
     "message": "此账户由商业用户拥有。"
   },
   "billingEmail": {
-    "message": "计费电子邮箱地址"
+    "message": "计费电子邮箱"
   },
   "businessName": {
     "message": "公司名称"
@@ -3117,7 +3117,7 @@
     }
   },
   "trialConfirmationEmail": {
-    "message": "我们已经发送一封确认邮件到您的团队的计费电子邮箱 "
+    "message": "我们已经发送了一封确认邮件到您的团队的计费电子邮箱 "
   },
   "monthly": {
     "message": "每月"
@@ -3255,10 +3255,10 @@
     }
   },
   "inviteUserDesc": {
-    "message": "在下面输入 Bitwarden 账户的电子邮件地址，以邀请新用户加入您的组织。如果他们没有 Bitwarden 账户，将会提示他们创建一个。"
+    "message": "在下面输入 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们没有 Bitwarden 账户，将会提示他们创建一个。"
   },
   "inviteMultipleEmailDesc": {
-    "message": "通过逗号分隔，最多输入 $COUNT$ 个电子邮件地址。",
+    "message": "通过逗号分隔，最多输入 $COUNT$ 个电子邮箱。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3279,7 +3279,7 @@
     "message": "已确认"
   },
   "clientOwnerEmail": {
-    "message": "客户所有者电子邮件"
+    "message": "客户所有者电子邮箱"
   },
   "owner": {
     "message": "所有者"
@@ -3766,7 +3766,7 @@
     "message": "设备"
   },
   "creatingAccountOn": {
-    "message": "正创建账户于"
+    "message": "创建账户至"
   },
   "checkYourEmail": {
     "message": "检查您的电子邮箱"
@@ -3784,7 +3784,7 @@
     "message": "返回"
   },
   "toEditYourEmailAddress": {
-    "message": "编辑您的电子邮件地址。"
+    "message": "编辑您的电子邮箱地址。"
   },
   "view": {
     "message": "查看"
@@ -3853,37 +3853,37 @@
     "message": "结束日期"
   },
   "verifyEmail": {
-    "message": "验证电子邮件"
+    "message": "验证电子邮箱"
   },
   "verifyEmailDesc": {
-    "message": "验证您账户的电子邮件地址来解锁所有功能。"
+    "message": "验证您的账户电子邮箱地址以解锁所有功能。"
   },
   "verifyEmailFirst": {
-    "message": "首先必须验证您账户的电子邮件地址。"
+    "message": "首先必须验证您的账户电子邮箱地址。"
   },
   "checkInboxForVerification": {
-    "message": "检查您的电子邮件收件箱以获取验证链接。"
+    "message": "检查您的电子邮箱收件箱以获取验证链接。"
   },
   "emailVerified": {
-    "message": "账户电子邮件已验证"
+    "message": "账户电子邮箱已验证"
   },
   "emailVerifiedV2": {
     "message": "电子邮箱已验证"
   },
   "emailVerifiedFailed": {
-    "message": "无法验证您的电子邮件。尝试发送新的验证电子邮件。"
+    "message": "无法验证您的电子邮箱。尝试发送新的验证电子邮件。"
   },
   "emailVerificationRequired": {
-    "message": "需要验证电子邮件"
+    "message": "需要验证电子邮箱"
   },
   "emailVerificationRequiredDesc": {
-    "message": "您必须验证您的电子邮件才能使用此功能。"
+    "message": "您必须验证电子邮箱才能使用此功能。"
   },
   "updateBrowser": {
     "message": "更新浏览器"
   },
   "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+    "message": "正在生成风险洞察..."
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的 Web 浏览器。网页密码库可能无法正常运行。"
@@ -3959,7 +3959,7 @@
     "message": "邀请已接受"
   },
   "inviteAcceptedDesc": {
-    "message": "管理员确认您的成员资格后，您将能访问此组织。到时我们将向您发送电子邮件通知。"
+    "message": "管理员确认您的成员资格后，您就可以访问此组织了。届时我们会向您发送一封电子邮件。"
   },
   "inviteInitAcceptedDesc": {
     "message": "您现在可以访问这个组织了。"
@@ -3977,7 +3977,7 @@
     }
   },
   "rememberEmail": {
-    "message": "记住电子邮件地址"
+    "message": "记住电子邮箱"
   },
   "recoverAccountTwoStepDesc": {
     "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停用账户上的所有两步登录提供程序。"
@@ -3992,7 +3992,7 @@
     "message": "进一步了解"
   },
   "deleteRecoverDesc": {
-    "message": "请在下面输入您的电子邮件地址以恢复和删除您的账户。"
+    "message": "请在下面输入您的电子邮箱地址以恢复和删除您的账户。"
   },
   "deleteRecoverEmailSent": {
     "message": "如果您的账户存在，我们已经向您发送了电子邮件，其中包含了进一步说明。"
@@ -4286,7 +4286,7 @@
     "message": "为了提高安全性，我们更改了加密方案。请在下方输入您的主密码以立即更新您的加密密钥。"
   },
   "updateEncryptionKeyWarning": {
-    "message": "更新加密密钥后，您需要注销所有正在使用的 Bitwarden 应用（比如手机版应用或者浏览器扩展）后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但是，可能会有所延迟。"
+    "message": "更新加密密钥后，您需要注销所有正在使用的 Bitwarden 应用（比如移动 App 或者浏览器扩展）后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但是，可能会有所延迟。"
   },
   "updateEncryptionKeyExportWarning": {
     "message": "您保存的任何已加密导出也将变为无效。"
@@ -4331,7 +4331,7 @@
     "message": "若继续，代表您同意"
   },
   "and": {
-    "message": "以及"
+    "message": "和"
   },
   "acceptPolicies": {
     "message": "选中此框表示您同意："
@@ -4343,7 +4343,7 @@
     "message": "服务条款"
   },
   "privacyPolicy": {
-    "message": "隐私条款"
+    "message": "隐私政策"
   },
   "filters": {
     "message": "筛选"
@@ -4722,7 +4722,7 @@
     "message": "组织标识符"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "要使用您组织的单点登录门户登录。请首先输入您组织的标识符。"
+    "message": "使用您组织的单点登录门户登录。请输入您组织的 SSO 标识符以开始。"
   },
   "singleSignOnEnterOrgIdentifier": {
     "message": "输入您组织的 SSO 标识符以开始"
@@ -4924,7 +4924,7 @@
     "message": "确定移除此密码？"
   },
   "hideEmail": {
-    "message": "对收件人隐藏我的电子邮件地址。"
+    "message": "对收件人隐藏我的电子邮箱地址。"
   },
   "disableThisSend": {
     "message": "停用此 Send 则任何人无法访问它。",
@@ -5005,7 +5005,7 @@
     "message": "编辑紧急联系人"
   },
   "inviteEmergencyContactDesc": {
-    "message": "通过在下面输入他们的 Bitwarden 账户电子邮件地址来邀请新的紧急联系人。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
+    "message": "通过在下面输入他们的 Bitwarden 账户电子邮箱地址来邀请新的紧急联系人。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "emergencyAccessRecoveryInitiated": {
     "message": "紧急访问已发起"
@@ -5059,7 +5059,7 @@
     }
   },
   "emergencyInviteAcceptedDesc": {
-    "message": "身份确认后，您可以访问该用户的紧急选项。当发生这种情况时，我们会向您发送一封电子邮件。"
+    "message": "身份确认后，您就可以访问该用户的紧急选项了。届时我们会向您发送一封电子邮件。"
   },
   "requestAccess": {
     "message": "请求访问权限"
@@ -5158,14 +5158,14 @@
     "message": "可以管理组织策略的组织成员豁免此策略。"
   },
   "disableHideEmail": {
-    "message": "在创建或编辑 Send 时，始终向收件人显示成员的电子邮件地址。",
+    "message": "在创建或编辑 Send 时，始终向收件人显示成员的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptionsPolicyInEffect": {
     "message": "以下组织策略目前正起作用："
   },
   "sendDisableHideEmailInEffect": {
-    "message": "用户在创建或编辑 Send 时不允许隐藏他们的电子邮件地址。",
+    "message": "创建或编辑 Send 时，不允许用户对收件人隐藏他们的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "modifiedPolicyId": {
@@ -5405,7 +5405,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
-    "message": "Bitwarden 成员 $USER_IDENTIFIER$ 与您共享了以下内容",
+    "message": "Bitwarden 成员 $USER_IDENTIFIER$ 与您分享了以下内容",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5418,7 +5418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
-    "message": "创建此 Send 的 Bitwarden 用户已选择隐藏他们的电子邮件地址。在使用或下载此链接的内容之前，应确保您信任此链接的来源。",
+    "message": "创建此 Send 的 Bitwarden 用户已选择隐藏他们的电子邮箱地址。在使用或下载其内容之前，您应确保信任此链接的来源。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDateIsInvalid": {
@@ -5693,7 +5693,7 @@
     "message": "服务用户可以访问和管理所有客户组织。"
   },
   "providerInviteUserDesc": {
-    "message": "通过在下面输入他们的 Bitwarden 账户电子邮件地址，以邀请新用户加入您的提供商。如果他们还没有 Bitwarden 账户，将提示他们创建一个。"
+    "message": "通过在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的提供商。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "joinProvider": {
     "message": "加入提供商"
@@ -5965,7 +5965,7 @@
     "message": "自定义用户 ID 声明类型"
   },
   "additionalEmailClaimTypes": {
-    "message": "电子邮件声明类型"
+    "message": "电子邮箱声明类型"
   },
   "additionalNameClaimTypes": {
     "message": "自定义名称声明类型"
@@ -6043,7 +6043,7 @@
     "message": "免费 Bitwarden 家庭"
   },
   "sponsoredFamiliesEligible": {
-    "message": "您和您的家人有资格享受免费的 Bitwarden 家庭版计划。即使您不在公司上班，您也可以使用个人电子邮件兑换此计划，以保护您的数据安全。"
+    "message": "您和您的家人有资格享受免费的 Bitwarden 家庭版计划。即使您不在公司上班，您也可以使用个人电子邮箱兑换此计划，以保护您的数据安全。"
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在公司上班也能确保您的数据安全。"
@@ -6073,7 +6073,7 @@
     "message": "您想兑换哪一个免费家庭邀请？"
   },
   "sponsoredFamiliesEmail": {
-    "message": "输入您的个人电子邮件以兑换 Bitwarden 家庭"
+    "message": "输入您的个人电子邮箱以兑换 Bitwarden 家庭"
   },
   "sponsoredFamiliesLeaveCopy": {
     "message": "如果您移除邀请或邀请被赞助组织移除，您的家庭赞助将在下一个续费日到期。"
@@ -6529,7 +6529,7 @@
     "message": "生成用户名"
   },
   "generateEmail": {
-    "message": "生成电子邮件地址"
+    "message": "生成电子邮箱"
   },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
@@ -6569,14 +6569,14 @@
     "message": "用户名类型"
   },
   "plusAddressedEmail": {
-    "message": "附加地址电子邮件",
+    "message": "附加地址电子邮箱",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "使用您的电子邮件提供商的子地址功能。"
+    "message": "使用您的电子邮箱提供商的子地址功能。"
   },
   "catchallEmail": {
-    "message": "Catch-all 电子邮件"
+    "message": "Catch-all 电子邮箱"
   },
   "catchallEmailDesc": {
     "message": "使用您的域名配置的 Catch-all 收件箱。"
@@ -6615,7 +6615,7 @@
     "message": "未知项目，你可能需要申请权限才能访问这个项目。"
   },
   "cannotSponsorSelf": {
-    "message": "您不能为已启用的账户兑换。请输入其他电子邮件地址。"
+    "message": "您不能为活动账户兑换。请输入其他电子邮箱。"
   },
   "revokeWhenExpired": {
     "message": "$DATE$ 到期",
@@ -6665,13 +6665,13 @@
     "description": "This text is displayed if an organization's billing is managed by a Provider. It tells the user to contact the Provider for assistance."
   },
   "forwardedEmail": {
-    "message": "转发的电子邮件别名"
+    "message": "转发的电子邮箱别名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部转发服务生成一个电子邮件别名。"
+    "message": "使用外部转发服务生成一个电子邮箱别名。"
   },
   "forwarderDomainName": {
-    "message": "电子邮件域名",
+    "message": "电子邮箱域名",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
@@ -6731,7 +6731,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "无法获取 $SERVICENAME$ 电子邮件账户 ID。",
+    "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -6794,13 +6794,13 @@
     "message": "启用设备验证"
   },
   "deviceVerificationDesc": {
-    "message": "登录未识别的设备时，验证码会发送到您的电子邮箱"
+    "message": "登录未识别的设备时，验证码会发送到您的电子邮箱地址"
   },
   "updatedDeviceVerification": {
     "message": "已更新设备验证"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "确定要开启设备验证吗？验证码邮件将发送到 $EMAIL$",
+    "message": "确定要开启设备验证吗？验证码电子邮件将发送到：$EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6873,7 +6873,7 @@
     "message": "必须输入内容。"
   },
   "inputEmail": {
-    "message": "输入的不是电子邮件地址。"
+    "message": "输入的不是电子邮箱地址。"
   },
   "inputMinLength": {
     "message": "至少输入 $COUNT$ 个字符。",
@@ -6921,10 +6921,10 @@
     }
   },
   "multipleInputEmails": {
-    "message": "一个或多个电子邮件地址无效"
+    "message": "一个或多个电子邮箱无效"
   },
   "tooManyEmails": {
-    "message": "您一次只能提交最多 $COUNT$ 个电子邮件地址",
+    "message": "您一次只能提交最多 $COUNT$ 个电子邮箱",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8339,10 +8339,10 @@
     "message": "登录已批准"
   },
   "userEmailMissing": {
-    "message": "缺少用户电子邮件"
+    "message": "缺少用户电子邮箱"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "未找到活动的用户电子邮件。您将被注销。"
+    "message": "未找到活动的用户电子邮箱。您将被注销。"
   },
   "deviceTrusted": {
     "message": "设备已信任"
@@ -8604,7 +8604,7 @@
     "message": "感谢您注册 Bitwarden 机密管理器！"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "我们已经发送了一封确认邮件到 "
+    "message": "我们已经发送了一封确认电子邮件到 "
   },
   "sorryToSeeYouGo": {
     "message": "很遗憾看到您离开！请分享您取消的原因，以帮助改进 Bitwarden。",
@@ -9284,7 +9284,7 @@
     "message": "没有可列出的客户"
   },
   "providerBillingEmailHint": {
-    "message": "此电子邮件地址将用于接收与此供应商相关的所有账单",
+    "message": "此电子邮箱地址将用于接收与此提供商相关的所有账单",
     "description": "A hint that shows up on the Provider setup page to inform the admin the billing email will receive the provider's invoices."
   },
   "upgradeOrganizationEnterprise": {
@@ -9726,10 +9726,10 @@
     "message": "对于如密码之类的敏感数据，请使用隐藏型字段"
   },
   "checkBoxHelpText": {
-    "message": "如果您想自动勾选表单复选框（例如记住电子邮件地址），请使用复选框型"
+    "message": "如果您想自动勾选表单复选框（例如记住电子邮箱），请使用复选框型字段"
   },
   "linkedHelpText": {
-    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段。"
+    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段"
   },
   "linkedLabelHelpText": {
     "message": "输入字段的 html ID、名称、aria-label 或占位符。"
@@ -9885,22 +9885,22 @@
     "message": "描述符代码"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "重要通知"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "设置两步登录"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮箱发送一个代码，以验证来自新设备的登录。"
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "您能可靠地访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -9909,16 +9909,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "不，我不能"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "是的，我可以可靠地访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "开启两步登录"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "更改账户电子邮箱"
   },
   "removeMembers": {
     "message": "移除成员"
@@ -9957,7 +9957,7 @@
     "message": "正在验证"
   },
   "claimedDomainsDesc": {
-    "message": "声明一个域名，以拥有电子邮件地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
+    "message": "声明一个域名，以拥有电子邮箱地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
   },
   "invalidDomainNameClaimMessage": {
     "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目才能声明。"

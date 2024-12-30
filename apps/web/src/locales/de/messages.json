@@ -3883,7 +3883,7 @@
     "message": "Browser aktualisieren"
   },
   "generatingRiskInsights": {
-    "message": "Deine Risikoübersicht wird generiert..."
+    "message": "Dein Risiko-Überblick wird generiert..."
   },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
@@ -9888,13 +9888,13 @@
     "message": "Wichtiger Hinweis"
   },
   "setupTwoStepLogin": {
-    "message": "Richte die zweistufige Anmeldung ein"
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden wird einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten ab Februar 2025 zu überprüfen."
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "Du kannst die zweistufige Anmeldung als eine alternative Methode einrichten, um deinen Account zu schützen, oder ändere deine E-Mail-Adresse zu einer, auf die du zugreifen kannst."
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
   },
   "remindMeLater": {
     "message": "Erinnere mich später"
@@ -9915,10 +9915,10 @@
     "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
   },
   "turnOnTwoStepLogin": {
-    "message": "Aktiviere die zweistufige Anmeldung"
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
   },
   "changeAcctEmail": {
-    "message": "Ändere die E-Mail-Adresse des Kontos"
+    "message": "E-Mail-Adresse des Kontos ändern"
   },
   "removeMembers": {
     "message": "Mitglieder entfernen"
@@ -10003,7 +10003,7 @@
     }
   },
   "domainClaimed": {
-    "message": "Beanspruchte Domain"
+    "message": "Domain beansprucht"
   },
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
