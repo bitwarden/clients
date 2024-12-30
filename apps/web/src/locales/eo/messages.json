@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Ĉiuj aplikaĵoj"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -39,7 +39,7 @@
     "message": "Cannot restore organization access"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Ĉiuj aplikaĵoj ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -416,7 +416,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Vi",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -572,7 +572,7 @@
     "message": "Sekura noto"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH-ŝlosilo"
   },
   "typeLoginPlural": {
     "message": "Salutoj"
@@ -605,7 +605,7 @@
     "message": "Plena Nomo"
   },
   "address": {
-    "message": "Address"
+    "message": "Adreso"
   },
   "address1": {
     "message": "Adreso 1"
@@ -677,7 +677,7 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Nova",
     "description": "for adding new items"
   },
   "item": {
@@ -1117,7 +1117,7 @@
     "message": "Saluti"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Ensaluti en Bitwarden"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1254,10 +1254,10 @@
     "message": "Retpoŝta Adreso"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Via trezorejo estas ŝlosita"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Via konto estas ŝlosita"
   },
   "uuid": {
     "message": "UUID"
