@@ -27,6 +27,9 @@ export class ResellerWarningService {
     // Check for past due warning first (highest priority)
     if (this.shouldShowPastDueWarning(organizationBillingMetadata)) {
       const gracePeriodEnd = this.getGracePeriodEndDate(organizationBillingMetadata.invoiceDueDate);
+      if (!gracePeriodEnd) {
+        return null;
+      }
       return {
         type: "warning",
         message: this.i18nService.t(
@@ -39,6 +42,11 @@ export class ResellerWarningService {
 
     // Check for open invoice warning
     if (this.shouldShowInvoiceWarning(organizationBillingMetadata)) {
+      const invoiceCreatedDate = organizationBillingMetadata.invoiceCreatedDate;
+      const invoiceDueDate = organizationBillingMetadata.invoiceDueDate;
+      if (!invoiceCreatedDate || !invoiceDueDate) {
+        return null;
+      }
       return {
         type: "info",
         message: this.i18nService.t(
@@ -52,6 +60,11 @@ export class ResellerWarningService {
 
     // Check for renewal warning
     if (this.shouldShowRenewalWarning(organizationBillingMetadata)) {
+      const subPeriodEndDate = organizationBillingMetadata.subPeriodEndDate;
+      if (!subPeriodEndDate) {
+        return null;
+      }
+
       return {
         type: "info",
         message: this.i18nService.t(
@@ -68,7 +81,10 @@ export class ResellerWarningService {
   private shouldShowRenewalWarning(
     organizationBillingMetadata: OrganizationBillingMetadataResponse,
   ): boolean {
-    if (!organizationBillingMetadata.hasSubscription) {
+    if (
+      !organizationBillingMetadata.hasSubscription ||
+      !organizationBillingMetadata.subPeriodEndDate
+    ) {
       return false;
     }
     const renewalDate = new Date(organizationBillingMetadata.subPeriodEndDate);
@@ -81,7 +97,10 @@ export class ResellerWarningService {
   private shouldShowInvoiceWarning(
     organizationBillingMetadata: OrganizationBillingMetadataResponse,
   ): boolean {
-    if (!organizationBillingMetadata.hasOpenInvoice) {
+    if (
+      !organizationBillingMetadata.hasOpenInvoice ||
+      !organizationBillingMetadata.invoiceDueDate
+    ) {
       return false;
     }
     const invoiceDueDate = new Date(organizationBillingMetadata.invoiceDueDate);
@@ -91,7 +110,10 @@ export class ResellerWarningService {
   private shouldShowPastDueWarning(
     organizationBillingMetadata: OrganizationBillingMetadataResponse,
   ): boolean {
-    if (!organizationBillingMetadata.hasOpenInvoice) {
+    if (
+      !organizationBillingMetadata.hasOpenInvoice ||
+      !organizationBillingMetadata.invoiceDueDate
+    ) {
       return false;
     }
     const invoiceDueDate = new Date(organizationBillingMetadata.invoiceDueDate);
@@ -99,6 +121,9 @@ export class ResellerWarningService {
   }
 
   private getGracePeriodEndDate(dueDate: Date): Date {
+    if (!dueDate) {
+      return null;
+    }
     const gracePeriodEnd = new Date(dueDate);
     gracePeriodEnd.setDate(gracePeriodEnd.getDate() + this.GRACE_PERIOD_DAYS);
     return gracePeriodEnd;
