@@ -120,7 +120,7 @@ export class ResellerWarningService {
     return invoiceDueDate <= new Date() && !organizationBillingMetadata.isSubscriptionUnpaid;
   }
 
-  private getGracePeriodEndDate(dueDate: Date): Date {
+  private getGracePeriodEndDate(dueDate: Date | null): Date | null {
     if (!dueDate) {
       return null;
     }
@@ -129,7 +129,10 @@ export class ResellerWarningService {
     return gracePeriodEnd;
   }
 
-  private formatDate(date: Date | string): string {
+  private formatDate(date: Date | null): string {
+    if (!date) {
+      return "N/A";
+    }
     return new Date(date).toLocaleDateString();
   }
 }
