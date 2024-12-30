@@ -490,6 +490,7 @@ jobs:
               git cherry-pick --strategy-option=theirs -x $SOURCE_COMMIT
               git push -u origin $destination_branch
             fi
+          }
 
           # Cherry-pick from 'main' into 'rc'
           cherry_pick browser main rc
