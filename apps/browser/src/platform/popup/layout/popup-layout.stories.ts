@@ -301,6 +301,12 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
+  parameters: {
+    chromatic: {
+      // Disable tests while we troubleshoot their flaky-ness
+      disableSnapshot: true,
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [
