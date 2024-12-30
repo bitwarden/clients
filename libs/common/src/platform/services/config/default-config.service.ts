@@ -132,6 +132,11 @@ export class DefaultConfigService implements ConfigService {
     serverConfig: ServerConfig | null,
     flag: Flag,
   ) {
+    // bodge the extension refresh flag since it's only partially removed
+    if (flag === "extension-refresh") {
+      return true;
+    }
+
     if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
       return DefaultFeatureFlagValue[flag];
     }
