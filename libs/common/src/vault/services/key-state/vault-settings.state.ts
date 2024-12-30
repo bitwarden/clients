@@ -25,3 +25,12 @@ export const SHOW_IDENTITIES_CURRENT_TAB = new UserKeyDefinition<boolean>(
     clearOn: [], // do not clear user settings
   },
 );
+
+export const CLICK_ITEMS_AUTOFILL_VAULT_VIEW = new UserKeyDefinition<boolean>(
+  VAULT_SETTINGS_DISK,
+  "clickItemsToAutofillOnVaultView",
+  {
+    deserializer: (obj) => obj,
+    clearOn: [], // do not clear user settings
+  },
+);

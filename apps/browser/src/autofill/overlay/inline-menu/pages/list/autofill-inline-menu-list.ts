@@ -5,7 +5,7 @@ import "lit/polyfill-support.js";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
@@ -1186,7 +1186,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (cipher.login?.totpField && cipher.login?.totp) {
-      return this.buildTotpElement(cipher.login?.totp, cipher.login?.username);
+      return this.buildTotpElement(cipher.login?.totp, cipher.login?.username, cipher.reprompt);
     }
     const subTitleText = this.getSubTitleText(cipher);
     const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
@@ -1214,7 +1214,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param totp - The TOTP code to display.
    */
 
-  private buildTotpElement(totpCode: string, username?: string): HTMLDivElement | null {
+  private buildTotpElement(
+    totpCode: string,
+    username: string,
+    reprompt: CipherRepromptType,
+  ): HTMLDivElement | null {
     if (!totpCode) {
       return null;
     }
@@ -1236,8 +1240,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const totpCodeSpan = document.createElement("span");
-    totpCodeSpan.classList.add("cipher-subtitle");
-    totpCodeSpan.textContent = formattedTotpCode;
+    totpCodeSpan.classList.toggle("cipher-subtitle");
+    totpCodeSpan.classList.toggle("masked-totp", !!reprompt);
+    totpCodeSpan.textContent = reprompt ? "●●●●●●" : formattedTotpCode;
     totpCodeSpan.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
     totpCodeSpan.setAttribute("data-testid", "totp-code");
     containerElement.appendChild(totpCodeSpan);
