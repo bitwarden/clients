@@ -16,10 +16,10 @@ jobs:
         include:
           - app_name: browser
             crowdin_project_id: "268134"
-          - app_name: desktop
-            crowdin_project_id: "299360"
-          - app_name: web
-            crowdin_project_id: "308189"
+          # - app_name: desktop
+          #   crowdin_project_id: "299360"
+          # - app_name: web
+          #   crowdin_project_id: "308189"
     steps:
       - name: Generate GH App token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
