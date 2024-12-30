@@ -1,12 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NOOP_COMMAND_SUFFIX } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -19,6 +21,7 @@ describe("context-menu", () => {
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let accountService: MockProxy<AccountService>;
 
   let removeAllSpy: jest.SpyInstance<void, [callback?: () => void]>;
   let createSpy: jest.SpyInstance<
@@ -34,6 +37,7 @@ describe("context-menu", () => {
     i18nService = mock();
     logService = mock();
     billingAccountProfileStateService = mock();
+    accountService = mock();
 
     removeAllSpy = jest
       .spyOn(chrome.contextMenus, "removeAll")
@@ -53,8 +57,15 @@ describe("context-menu", () => {
       i18nService,
       logService,
       billingAccountProfileStateService,
+      accountService,
     );
     autofillSettingsService.enableContextMenu$ = of(true);
+    accountService.activeAccount$ = of({
+      id: "userId" as UserId,
+      email: "",
+      emailVerified: false,
+      name: undefined,
+    });
   });
 
   afterEach(() => jest.resetAllMocks());
@@ -69,7 +80,7 @@ describe("context-menu", () => {
     });
 
     it("has menu enabled, but does not have premium", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
@@ -77,7 +88,7 @@ describe("context-menu", () => {
     });
 
     it("has menu enabled and has premium", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
@@ -131,16 +142,15 @@ describe("context-menu", () => {
     });
 
     it("create entry for each cipher piece", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       await sut.loadOptions("TEST_TITLE", "1", createCipher());
 
-      // One for autofill, copy username, copy password, and copy totp code
       expect(createSpy).toHaveBeenCalledTimes(4);
     });
 
     it("creates a login/unlock item for each context menu action option when user is not authenticated", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       await sut.loadOptions("TEST_TITLE", "NOOP");
 

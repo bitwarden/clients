@@ -1,6 +1,7 @@
 import { Directive, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { of, Subject, switchMap, takeUntil } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 /**
@@ -16,16 +17,24 @@ export class PremiumDirective implements OnInit, OnDestroy {
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.directiveIsDestroyed$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          account
+            ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+            : of(false),
+        ),
+        takeUntil(this.directiveIsDestroyed$),
+      )
       .subscribe((premium: boolean) => {
         if (premium) {
-          this.viewContainer.clear();
-        } else {
           this.viewContainer.createEmbeddedView(this.templateRef);
+        } else {
+          this.viewContainer.clear();
         }
       });
   }
