@@ -18,12 +18,14 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultUiOnboardingService } from "../../services/vault-ui-onboarding.service";
-import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from "../vault-v2";
+
 import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
-} from "../vault-v2/new-item-dropdown/new-item-dropdown-v2.component";
-import { VaultHeaderV2Component } from "../vault-v2/vault-header/vault-header-v2.component";
+} from "./new-item-dropdown/new-item-dropdown-v2.component";
+import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
+
+import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
 enum VaultState {
   Empty,

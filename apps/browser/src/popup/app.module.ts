@@ -56,25 +56,6 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
-import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
-import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
-import { CollectionsComponent } from "../vault/popup/components/vault/collections.component";
-import { CurrentTabComponent } from "../vault/popup/components/vault/current-tab.component";
-import { PasswordHistoryComponent } from "../vault/popup/components/vault/password-history.component";
-import { ShareComponent } from "../vault/popup/components/vault/share.component";
-import { VaultFilterComponent } from "../vault/popup/components/vault/vault-filter.component";
-import { VaultItemsComponent } from "../vault/popup/components/vault/vault-items.component";
-import { VaultSelectComponent } from "../vault/popup/components/vault/vault-select.component";
-import { ViewCustomFieldsComponent } from "../vault/popup/components/vault/view-custom-fields.component";
-import { ViewComponent } from "../vault/popup/components/vault/view.component";
-import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
-import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
-import { FoldersComponent } from "../vault/popup/settings/folders.component";
-import { SyncComponent } from "../vault/popup/settings/sync.component";
-import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -129,39 +110,23 @@ import "../platform/popup/locales";
     ExtensionAnonLayoutWrapperComponent,
   ],
   declarations: [
-    ActionButtonsComponent,
-    AddEditComponent,
-    AddEditCustomFieldsComponent,
     AppComponent,
-    AttachmentsComponent,
-    CipherRowComponent,
-    VaultItemsComponent,
-    CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    CurrentTabComponent,
     EnvironmentComponent,
     ExcludedDomainsV1Component,
     Fido2CipherRowV1Component,
     Fido2UseBrowserLinkV1Component,
-    FolderAddEditComponent,
-    FoldersComponent,
-    VaultFilterComponent,
     HintComponent,
     HomeComponent,
     LoginViaAuthRequestComponentV1,
     LoginComponentV1,
     LoginDecryptionOptionsComponentV1,
     NotificationsSettingsV1Component,
-    AppearanceComponent,
-    PasswordHistoryComponent,
     PremiumComponent,
     RegisterComponent,
     SetPasswordComponent,
-    VaultSettingsComponent,
-    ShareComponent,
     SsoComponentV1,
-    SyncComponent,
     TabsV2Component,
     TwoFactorComponent,
     TwoFactorOptionsComponent,
@@ -169,10 +134,7 @@ import "../platform/popup/locales";
     UserVerificationComponent,
     AccountSecurityComponentV1,
     VaultTimeoutInputComponent,
-    ViewComponent,
-    ViewCustomFieldsComponent,
     RemovePasswordComponent,
-    VaultSelectComponent,
     Fido2V1Component,
     AutofillV1Component,
     EnvironmentSelectorComponent,
