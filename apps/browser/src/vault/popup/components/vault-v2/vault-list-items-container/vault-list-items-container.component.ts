@@ -125,6 +125,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   showAutofillButton: boolean;
 
   /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   */
+  @Input({ transform: booleanAttribute })
+  primaryActionAutofill: boolean;
+
+  /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
