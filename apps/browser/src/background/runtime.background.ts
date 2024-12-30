@@ -249,9 +249,7 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-        }
+        await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         break;
       }
       case "addToLockedVaultPendingNotifications":
@@ -278,9 +276,7 @@ export default class RuntimeBackground {
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
 
-          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-            await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          }
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
       case "openPopup":
