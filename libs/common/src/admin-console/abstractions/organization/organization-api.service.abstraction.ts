@@ -57,7 +57,7 @@ export class OrganizationApiServiceAbstraction {
   updateSecretsManagerSubscription: (
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
   updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
   verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;
