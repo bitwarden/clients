@@ -26,15 +26,14 @@ export class ResellerWarningService {
 
     // Check for past due warning first (highest priority)
     if (this.shouldShowPastDueWarning(organizationBillingMetadata)) {
-      const gracePeriodEnd = organizationBillingMetadata.invoiceDueDate
-        ? this.getGracePeriodEndDate(organizationBillingMetadata.invoiceDueDate)
-        : null;
+      const gracePeriodEnd = this.getGracePeriodEndDate(organizationBillingMetadata.invoiceDueDate);
+      const formattedGracePeriodEnd = gracePeriodEnd ? this.formatDate(gracePeriodEnd) : "";
       return {
         type: "warning",
         message: this.i18nService.t(
           "resellerPastDueWarning",
           organization.providerName,
-          gracePeriodEnd ? this.formatDate(gracePeriodEnd) : "",
+          formattedGracePeriodEnd,
         ),
       } as ResellerWarning;
     }
@@ -54,12 +53,15 @@ export class ResellerWarningService {
 
     // Check for renewal warning
     if (this.shouldShowRenewalWarning(organizationBillingMetadata)) {
+      const formattedSubPeriodEndDate = organizationBillingMetadata.subPeriodEndDate
+        ? this.formatDate(organizationBillingMetadata.subPeriodEndDate)
+        : "";
       return {
         type: "info",
         message: this.i18nService.t(
           "resellerRenewalWarning",
           organization.providerName,
-          this.formatDate(organizationBillingMetadata.subPeriodEndDate ?? ""),
+          formattedSubPeriodEndDate,
         ),
       } as ResellerWarning;
     }
