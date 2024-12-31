@@ -454,9 +454,6 @@
   "length": {
     "message": "Luzera"
   },
-  "passwordMinLength": {
-    "message": "Pasahitzaren gutxieneko luzera"
-  },
   "uppercase": {
     "message": "Letra larria (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Gutxieneko karaktere bereziak"
-  },
-  "avoidAmbChar": {
-    "message": "Saihestu karaktere anbiguoak",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Erakutsi identitateak fitxa orrian, erraz auto-betetzeko."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Hustu arbela",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Mugitu erakundera"
-  },
-  "share": {
-    "message": "Partekatu"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ $ORGNAME$-ra mugituta",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klonatu"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Erakundeko politika batek edo gehiagok sortzailearen konfigurazioari eragiten diote."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Send-ak bilatu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Gehitu Send-a",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Testua"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Sarbide kopuru maximoa gaindituta",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Iraungita"
-  },
-  "pendingDeletion": {
-    "message": "Ezabatzea egiteke"
   },
   "passwordProtected": {
     "message": "Pasahitz babestua"
@@ -2472,23 +2447,8 @@
     "message": "Editatu Send-a",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Zein Send mota da hau?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Send hau deskribatzeko izena.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Bidali nahi duzun fitxategia."
-  },
   "deletionDate": {
     "message": "Ezabatze data"
-  },
-  "deletionDateDesc": {
-    "message": "Send-a betiko ezabatuko da zehaztutako datan eta orduan.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Iraungitze data"
-  },
-  "expirationDateDesc": {
-    "message": "Hala ezartzen bada, Send honetarako sarbidea zehaztutako egunean eta orduan amaituko da.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "Egun 1"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Pertsonalizatua"
   },
-  "maximumAccessCount": {
-    "message": "Sarbide kopuru maximoa"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Hala ezartzen bada, erabiltzaileak ezin izango dira Send honetara sartu gehienezko sarbide kopurura iritsi ondoren.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Nahi izanez gero, pasahitza eskatu erabiltzaileak Send honetara sar daitezen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Send honi buruzko ohar pribatuak.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Desgaitu Send hau inor sar ez dadin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Gordetzean, kopiatu Send honen esteka arbelean.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Bidali nahi duzun testua."
-  },
-  "sendHideText": {
-    "message": "Ezkutatu Send-eko testu hau, modu lehenetsian.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Uneko sarbide kopurua"
   },
   "createSend": {
     "message": "Sortu Send berria",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Hasi aurretik"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Data aukeratzeko egutegi modua erabiltzeko",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "klikatu hemen",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "leihoa irekitzeko.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Iraungitze data ez da baliozkoa."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Akatsa gertatu da ezabatze eta iraungitze datak gordetzean."
   },
-  "hideEmail": {
-    "message": "Ezkutatu nire emaila hartzaileei."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Erakundeko politika batek edo gehiagok Send-eko aukerei eragiten diote."
   },
   "passwordPrompt": {
     "message": "Berriro eskatu pasahitz nagusia"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Akatsa"
   },
-  "regenerateUsername": {
-    "message": "Berrezarri erabiltzaile izena"
-  },
   "generateUsername": {
     "message": "Sortu erabiltzaile izena"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Erabiltzaile izen mota"
-  },
   "plusAddressedEmail": {
     "message": "Atzizkidun emaila",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Webgune izena"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Zer sortu nahi duzu?"
-  },
-  "passwordType": {
-    "message": "Pasahitz mota"
   },
   "service": {
     "message": "Zerbitzua"
