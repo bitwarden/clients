@@ -1,4 +1,4 @@
-<p class="tw-text-center" bitTypography="body1" tabindex="0">
+<p class="tw-text-center" bitTypography="body1">
   {{ "newDeviceVerificationNoticeContentPage2" | i18n }}
 </p>
 
@@ -40,7 +40,8 @@
     linkType="primary"
     (click)="remindMeLaterSelect()"
     data-testid="remind-me-later"
-    tabindex="0"
+    href="#"
+    appStopClick
   >
     {{ "remindMeLater" | i18n }}
   </a>
