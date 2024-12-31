@@ -8,6 +8,7 @@ import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/reque
 import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
 import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
 
+import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
 import { OrganizationBillingMetadataResponse } from "../../billing/models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../../billing/models/response/plan.response";
@@ -73,5 +74,9 @@ export abstract class BillingApiServiceAbstraction {
   verifyOrganizationBankAccount: (
     organizationId: string,
     request: VerifyBankAccountRequest,
+  ) => Promise<void>;
+  restartSubscription: (
+    organizationId: string,
+    request: OrganizationCreateRequest,
   ) => Promise<void>;
 }

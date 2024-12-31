@@ -6,6 +6,7 @@ export class OrganizationBillingMetadataResponse extends BaseResponse {
   isOnSecretsManagerStandalone: boolean;
   isSubscriptionUnpaid: boolean;
   hasSubscription: boolean;
+  isSubscriptionCanceled: boolean;
 
   constructor(response: any) {
     super(response);
@@ -14,5 +15,6 @@ export class OrganizationBillingMetadataResponse extends BaseResponse {
     this.isOnSecretsManagerStandalone = this.getResponseProperty("IsOnSecretsManagerStandalone");
     this.isSubscriptionUnpaid = this.getResponseProperty("IsSubscriptionUnpaid");
     this.hasSubscription = this.getResponseProperty("HasSubscription");
+    this.isSubscriptionCanceled = this.getResponseProperty("IsSubscriptionCanceled");
   }
 }
