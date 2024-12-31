@@ -454,9 +454,6 @@
   "length": {
     "message": "طول"
   },
-  "passwordMinLength": {
-    "message": "حداقل طول گذرواژه"
-  },
   "uppercase": {
     "message": "حروف بزرگ (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "حداقل حرف خاص"
-  },
-  "avoidAmbChar": {
-    "message": "از کاراکترهای مبهم اجتناب کن",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "موارد هویتی را در صفحه برگه برای پر کردن خودکار آسان فهرست کن."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "پاکسازی کلیپ بورد",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "انتقال به سازمان"
-  },
-  "share": {
-    "message": "اشتراک گذاری"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ منتقل شد به $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "شبیه سازی"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "یک یا چند سیاست سازمان بر تنظیمات تولید کننده شما تأثیر می‌گذارد."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "جستجوی ارسال‌ها",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "افزودن ارسال",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "متن"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "به حداکثر تعداد دسترسی رسیده است",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "منقضی شده"
-  },
-  "pendingDeletion": {
-    "message": "در انتظار حذف"
   },
   "passwordProtected": {
     "message": "محافظت ‌شده با کلمه عبور"
@@ -2472,23 +2447,8 @@
     "message": "ویرایش ارسال",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "این چه نوع ارسالی است؟",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "یک نام دوستانه برای توصیف این ارسال.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "پرونده ای که می‌خواهید ارسال کنید."
-  },
   "deletionDate": {
     "message": "تاریخ حذف"
-  },
-  "deletionDateDesc": {
-    "message": "ارسال در تاریخ و ساعت مشخص شده برای همیشه حذف خواهد شد.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "تاريخ انقضاء"
-  },
-  "expirationDateDesc": {
-    "message": "در صورت تنظیم، دسترسی به این ارسال در تاریخ و ساعت مشخص شده منقضی می‌شود.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "۱ روز"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "سفارشی"
   },
-  "maximumAccessCount": {
-    "message": "تعداد دسترسی حداکثر"
-  },
-  "maximumAccessCountDesc": {
-    "message": "در صورت تنظیم، با رسیدن به حداکثر تعداد دسترسی، کاربران دیگر نمی‌توانند به این ارسال دسترسی پیدا کنند.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "به صورت اختیاری برای دسترسی کاربران به این ارسال به یک کلمه عبور نیاز دارید.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "یادداشت های خصوصی در مورد این ارسال.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "این ارسال را غیرفعال کنید تا کسی نتواند به آن دسترسی پیدا کند.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "پس از ذخیره، این پیوند ارسال را به کلیپ بورد کپی کن.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "متنی که می‌خواهید ارسال کنید."
-  },
-  "sendHideText": {
-    "message": "متن این ارسال را به طور پیش فرض پنهان کن.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "تعداد دسترسی فعلی"
   },
   "createSend": {
     "message": "ارسال جدید",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "قبل از اینکه شروع کنی"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "برای استفاده از انتخابگر تاریخ به سبک تقویم",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "اینجا کلیک کنید",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "برای خروج از پنجره خود.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "تاریخ انقضاء ارائه شده معتبر نیست."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "هنگام ذخیره حذف و تاریخ انقضاء شما خطایی روی داد."
   },
-  "hideEmail": {
-    "message": "نشانی ایمیلم را از گیرندگان مخفی کن."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "یک یا چند سیاست سازمان بر گزینه های ارسال شما تأثیر می‌گذارد."
   },
   "passwordPrompt": {
     "message": "درخواست مجدد کلمه عبور اصلی"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "خطا"
   },
-  "regenerateUsername": {
-    "message": "ایجاد مجدد نام کاربری"
-  },
   "generateUsername": {
     "message": "ایجاد نام کاربری"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "نوع نام کاربری"
-  },
   "plusAddressedEmail": {
     "message": "به علاوه نشانی ایمیل داده شده",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "نام وب‌سایت"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "چه چیزی دوست دارید تولید کنید؟"
-  },
-  "passwordType": {
-    "message": "نوع کلمه عبور"
   },
   "service": {
     "message": "سرویس"

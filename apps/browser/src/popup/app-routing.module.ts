@@ -81,7 +81,6 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -395,12 +394,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(PremiumComponent, PremiumV2Component, {
+  {
     path: "premium",
-    component: PremiumComponent,
+    component: PremiumV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
     path: "appearance",
     canActivate: [authGuard],

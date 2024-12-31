@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2024.12.5",
+  "version": "2025.1.0",
   "scripts": {
     "build": "npm run build:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 webpack",
