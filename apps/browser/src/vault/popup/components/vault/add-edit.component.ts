@@ -26,7 +26,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../autofill/fido2/services/browser-fido2-user-interface.service";
@@ -74,6 +74,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
     configService: ConfigService,
     private fido2UserVerificationService: Fido2UserVerificationService,
     cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -94,6 +95,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
     );
   }
 

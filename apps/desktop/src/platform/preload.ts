@@ -67,13 +67,6 @@ const sshAgent = {
   clearKeys: async () => {
     return await ipcRenderer.invoke("sshagent.clearkeys");
   },
-  importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
-    const res = await ipcRenderer.invoke("sshagent.importkey", {
-      privateKey: key,
-      password: password,
-    });
-    return res;
-  },
 };
 
 const powermonitor = {

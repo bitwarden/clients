@@ -100,15 +100,6 @@ export class MainSshAgentService {
         return await sshagent.generateKeypair(keyAlgorithm);
       },
     );
-    ipcMain.handle(
-      "sshagent.importkey",
-      async (
-        event: any,
-        { privateKey, password }: { privateKey: string; password?: string },
-      ): Promise<sshagent.SshKeyImportResult> => {
-        return sshagent.importKey(privateKey, password);
-      },
-    );
 
     ipcMain.handle("sshagent.lock", async (event: any) => {
       if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {

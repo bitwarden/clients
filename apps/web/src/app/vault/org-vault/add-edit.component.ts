@@ -23,7 +23,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -59,6 +59,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     configService: ConfigService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -81,6 +82,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       configService,
       billingAccountProfileStateService,
       cipherAuthorizationService,
+      toastService,
     );
   }
 

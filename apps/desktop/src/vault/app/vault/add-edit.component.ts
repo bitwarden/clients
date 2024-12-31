@@ -3,8 +3,6 @@
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { sshagent as sshAgent } from "desktop_native/napi";
-import { lastValueFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -24,7 +22,6 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SshKeyPasswordPromptComponent } from "@bitwarden/importer/ui";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
@@ -56,7 +53,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
-    private toastService: ToastService,
+    toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
   ) {
     super(
@@ -78,6 +75,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
     );
   }
 
@@ -169,66 +167,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
         message: this.i18nService.t("sshKeyGenerated"),
       });
     }
-  }
-
-  async importSshKeyFromClipboard(password: string = "") {
-    const key = await this.platformUtilsService.readFromClipboard();
-    const parsedKey = await ipc.platform.sshAgent.importKey(key, password);
-    if (parsedKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("invalidSshKey"),
-      });
-      return;
-    }
-
-    switch (parsedKey.status) {
-      case sshAgent.SshKeyImportStatus.ParsingError:
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("invalidSshKey"),
-        });
-        return;
-      case sshAgent.SshKeyImportStatus.UnsupportedKeyType:
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("sshKeyTypeUnsupported"),
-        });
-        return;
-      case sshAgent.SshKeyImportStatus.PasswordRequired:
-      case sshAgent.SshKeyImportStatus.WrongPassword:
-        if (password !== "") {
-          this.toastService.showToast({
-            variant: "error",
-            title: "",
-            message: this.i18nService.t("sshKeyWrongPassword"),
-          });
-        } else {
-          password = await this.getSshKeyPassword();
-          await this.importSshKeyFromClipboard(password);
-        }
-        return;
-      default:
-        this.cipher.sshKey.privateKey = parsedKey.sshKey.privateKey;
-        this.cipher.sshKey.publicKey = parsedKey.sshKey.publicKey;
-        this.cipher.sshKey.keyFingerprint = parsedKey.sshKey.keyFingerprint;
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("sshKeyPasted"),
-        });
-    }
-  }
-
-  async getSshKeyPassword(): Promise<string> {
-    const dialog = this.dialogService.open<string>(SshKeyPasswordPromptComponent, {
-      ariaModal: true,
-    });
-
-    return await lastValueFrom(dialog.closed);
   }
 
   async typeChange() {

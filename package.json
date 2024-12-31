@@ -154,7 +154,7 @@
     "@angular/platform-browser": "17.3.12",
     "@angular/platform-browser-dynamic": "17.3.12",
     "@angular/router": "17.3.12",
-    "@bitwarden/sdk-internal": "0.2.0-main.38",
+    "@bitwarden/sdk-internal": "0.2.0-main.47",
     "@electron/fuses": "1.8.0",
     "@koa/multer": "3.0.2",
     "@koa/router": "13.1.0",
