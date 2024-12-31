@@ -208,6 +208,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private extensionRefreshEnabled: boolean;
+  private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
@@ -270,6 +271,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
+    );
+
+    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
+      FeatureFlag.ResellerManagedOrgAlert,
     );
 
     this.trashCleanupWarning = this.i18nService.t(
@@ -619,7 +624,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.resellerWarning$ = organization$.pipe(
-      filter((org) => org.isOwner),
+      filter((org) => org.isOwner && this.resellerManagedOrgAlert),
       switchMap((org) =>
         from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
           map((metadata) => ({ org, metadata })),
