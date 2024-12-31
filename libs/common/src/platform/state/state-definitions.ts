@@ -180,5 +180,8 @@ export const VAULT_BROWSER_UI_ONBOARDING = new StateDefinition("vaultBrowserUiOn
 export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
   "newDeviceVerificationNotice",
   "disk",
+  {
+    web: "disk-local",
+  },
 );
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");

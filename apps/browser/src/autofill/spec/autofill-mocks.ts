@@ -241,7 +241,7 @@ export function createInitAutofillInlineMenuListMessageMock(
       createAutofillOverlayCipherDataMock(4, {
         icon: { imageEnabled: false, image: "", fallbackImage: "", icon: "" },
       }),
-      createAutofillOverlayCipherDataMock(5, { login: { totp: "123456", totpField: true } }),
+      createAutofillOverlayCipherDataMock(5),
       createAutofillOverlayCipherDataMock(6),
       createAutofillOverlayCipherDataMock(7),
       createAutofillOverlayCipherDataMock(8),
