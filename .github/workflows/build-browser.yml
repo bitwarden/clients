@@ -115,7 +115,7 @@ jobs:
 
 
   build-source:
-    name: Build Browser Source
+    name: Build browser source
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -235,12 +235,12 @@ jobs:
           node --version
           npm --version
 
-      - name: Download Browser Source
+      - name: Download browser source
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: browser-source-${{ env._BUILD_NUMBER }}.zip
 
-      - name: Unzip Browser Source Artifact
+      - name: Unzip browser source artifact
         run: |
           unzip browser-source.zip
           rm browser-source.zip
@@ -249,7 +249,7 @@ jobs:
         run: npm ci
         working-directory: browser-source/
 
-      - name: Download SDK Artifacts
+      - name: Download SDK artifacts
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
@@ -267,7 +267,7 @@ jobs:
         working-directory: browser-source/
         run: npm link ../sdk-internal
 
-      - name: Build Extension
+      - name: Build extension
         run: npm run ${{ matrix.npm_command }}
         working-directory: browser-source/apps/browser
 
