@@ -4,15 +4,15 @@ import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/mod
 import { PreviewInvoiceResponse } from "@bitwarden/common/billing/models/response/preview-invoice.response";
 
 export abstract class TaxServiceAbstraction {
-  getCountries: () => CountryListItem[];
+  abstract getCountries(): CountryListItem[];
 
-  isCountrySupported: (country: string) => Promise<boolean>;
+  abstract isCountrySupported(country: string): Promise<boolean>;
 
-  previewIndividualInvoice: (
+  abstract previewIndividualInvoice(
     request: PreviewIndividualInvoiceRequest,
-  ) => Promise<PreviewInvoiceResponse>;
+  ): Promise<PreviewInvoiceResponse>;
 
-  previewOrganizationInvoice: (
+  abstract previewOrganizationInvoice(
     request: PreviewOrganizationInvoiceRequest,
-  ) => Promise<PreviewInvoiceResponse>;
+  ): Promise<PreviewInvoiceResponse>;
 }
