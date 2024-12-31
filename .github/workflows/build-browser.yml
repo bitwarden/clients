@@ -192,31 +192,31 @@ jobs:
           - name: "chrome"
             npm_command: "dist:chrome"
             archive_name: "dist-chrome.zip"
-            artifact_name: "dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "dist-chrome-MV3"
           - name: "edge"
             npm_command: "dist:edge"
             archive_name: "dist-edge.zip"
-            artifact_name: "dist-edge-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "dist-edge"
           - name: "edge-mv3"
             npm_command: "dist:edge:mv3"
             archive_name: "dist-edge.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-edge-MV3"
           - name: "firefox"
             npm_command: "dist:firefox"
             archive_name: "dist-firefox.zip"
-            artifact_name: "dist-firefox-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "dist-firefox"
           - name: "firefox-mv3"
             npm_command: "dist:firefox:mv3"
             archive_name: "dist-firefox.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
           - name: "opera"
             npm_command: "dist:opera"
             archive_name: "dist-opera.zip"
-            artifact_name: "dist-opera-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "dist-opera"
           - name: "opera-mv3"
             npm_command: "dist:opera:mv3"
             archive_name: "dist-opera.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-opera-MV3"
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -277,7 +277,7 @@ jobs:
       - name: Upload extension artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{ matrix.archive_name }}
           if-no-files-found: error
 
