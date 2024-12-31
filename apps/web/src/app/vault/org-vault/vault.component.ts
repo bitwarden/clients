@@ -599,7 +599,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
-    //this.resellerWarning1$.pipe(takeUntil(this.destroy$)).subscribe();
 
     this.freeTrial$ = combineLatest([
       organization$,
