@@ -88,7 +88,7 @@
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
-    "chromatic": "11.20.0",
+    "chromatic": "11.20.2",
     "concurrently": "9.1.0",
     "copy-webpack-plugin": "12.0.2",
     "cross-env": "7.0.3",
