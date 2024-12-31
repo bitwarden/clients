@@ -192,7 +192,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
-  protected resellerWarning: ResellerWarning;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -619,14 +618,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    this.resellerWarning$ = combineLatest([organization$]).pipe(
-      filter(([org]) => org.isOwner),
-      switchMap(([org]) =>
-        combineLatest([of(org), this.billingApiService.getOrganizationBillingMetadata(org.id)]),
+    this.resellerWarning$ = organization$.pipe(
+      filter((org) => org.isOwner),
+      switchMap((org) =>
+        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
+          map((metadata) => ({ org, metadata })),
+        ),
       ),
-      map(([org, organizationMetaData]) => {
-        return this.resellerWarningService.getWarning(org, organizationMetaData);
-      }),
+      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
     );
 
     firstSetup$
