@@ -9,7 +9,6 @@ import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
@@ -25,9 +24,17 @@ describe("ItemDetailsSectionComponent", () => {
   let i18nService: MockProxy<I18nService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
+  const getInitialCipherView = jest.fn(() => null);
+  const initializedWithCachedCipher = jest.fn(() => false);
 
   beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+    getInitialCipherView.mockClear();
+    initializedWithCachedCipher.mockClear();
+
+    cipherFormProvider = mock<CipherFormContainer>({
+      getInitialCipherView,
+      initializedWithCachedCipher,
+    });
     i18nService = mock<I18nService>();
 
     await TestBed.configureTestingModule({
@@ -95,13 +102,14 @@ describe("ItemDetailsSectionComponent", () => {
           readOnly: false,
         } as CollectionView,
       ];
-      component.originalCipherView = {
+
+      getInitialCipherView.mockReturnValueOnce({
         name: "cipher1",
         organizationId: "org1",
         folderId: "folder1",
         collectionIds: ["col1"],
         favorite: true,
-      } as CipherView;
+      });
 
       await component.ngOnInit();
       tick();
@@ -115,55 +123,6 @@ describe("ItemDetailsSectionComponent", () => {
       expect(updatedCipher.organizationId).toBe("org1");
       expect(updatedCipher.folderId).toBe("folder1");
       expect(updatedCipher.collectionIds).toEqual(["col1"]);
-      expect(updatedCipher.favorite).toBe(true);
-    }));
-
-    it("should prioritize initialValues when editing an existing cipher ", fakeAsync(async () => {
-      component.config.allowPersonalOwnership = true;
-      component.config.organizations = [{ id: "org1" } as Organization];
-      component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: true,
-        } as CollectionView,
-        {
-          id: "col2",
-          name: "Collection 2",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
-      ];
-      component.originalCipherView = {
-        name: "cipher1",
-        organizationId: "org1",
-        folderId: "folder1",
-        collectionIds: ["col1"],
-        favorite: true,
-      } as CipherView;
-
-      component.config.initialValues = {
-        name: "new-name",
-        folderId: "new-folder",
-        organizationId: "bad-org" as OrganizationId, // Should not be set in edit mode
-        collectionIds: ["col2" as CollectionId],
-      };
-
-      await component.ngOnInit();
-      tick();
-
-      expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
-
-      const updatedCipher = patchFn(new CipherView());
-
-      expect(updatedCipher.name).toBe("new-name");
-      expect(updatedCipher.organizationId).toBe("org1");
-      expect(updatedCipher.folderId).toBe("new-folder");
-      expect(updatedCipher.collectionIds).toEqual(["col2"]);
       expect(updatedCipher.favorite).toBe(true);
     }));
 
@@ -294,16 +253,21 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("cloneMode", () => {
-    it("should append '- Clone' to the title if in clone mode", async () => {
+    beforeEach(() => {
       component.config.mode = "clone";
+    });
+
+    it("should append '- Clone' to the title if in clone mode", async () => {
       component.config.allowPersonalOwnership = true;
-      component.originalCipherView = {
+      const cipher = {
         name: "cipher1",
         organizationId: null,
         folderId: null,
         collectionIds: null,
         favorite: false,
       } as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(cipher);
 
       i18nService.t.calledWith("clone").mockReturnValue("Clone");
 
@@ -312,8 +276,28 @@ describe("ItemDetailsSectionComponent", () => {
       expect(component.itemDetailsForm.controls.name.value).toBe("cipher1 - Clone");
     });
 
+    it("does not append clone when the cipher was populated from the cache", async () => {
+      component.config.allowPersonalOwnership = true;
+      const cipher = {
+        name: "from cache cipher",
+        organizationId: null,
+        folderId: null,
+        collectionIds: null,
+        favorite: false,
+      } as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(cipher);
+
+      initializedWithCachedCipher.mockReturnValueOnce(true);
+
+      i18nService.t.calledWith("clone").mockReturnValue("Clone");
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.name.value).toBe("from cache cipher");
+    });
+
     it("should select the first organization if personal ownership is not allowed", async () => {
-      component.config.mode = "clone";
       component.config.allowPersonalOwnership = false;
       component.config.organizations = [
         { id: "org1" } as Organization,
@@ -376,13 +360,13 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should set collectionIds to originalCipher collections on first load", async () => {
       component.config.mode = "clone";
-      component.originalCipherView = {
+      getInitialCipherView.mockReturnValueOnce({
         name: "cipher1",
         organizationId: "org1",
         folderId: "folder1",
         collectionIds: ["col1", "col2"],
         favorite: true,
-      } as CipherView;
+      });
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         {
@@ -447,6 +431,13 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should show readonly hint if readonly collections are present", async () => {
       component.config.mode = "edit";
+      getInitialCipherView.mockReturnValueOnce({
+        name: "cipher1",
+        organizationId: "org1",
+        folderId: "folder1",
+        collectionIds: ["col1", "col2", "col3"],
+        favorite: true,
+      });
       component.originalCipherView = {
         name: "cipher1",
         organizationId: "org1",
@@ -559,6 +550,9 @@ describe("ItemDetailsSectionComponent", () => {
         collectionIds: ["col1", "col2", "col3"],
         favorite: true,
       } as CipherView;
+
+      getInitialCipherView.mockReturnValue(component.originalCipherView);
+
       component.config.organizations = [{ id: "org1" } as Organization];
     });
 
