@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -12,9 +11,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { EncString, EncryptService, SymmetricCryptoKey } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../browser/browser-api";
 import { MemoryStoragePortMessage } from "../storage/port-messages";

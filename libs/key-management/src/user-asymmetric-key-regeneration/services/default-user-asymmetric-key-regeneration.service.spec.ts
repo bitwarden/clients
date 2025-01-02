@@ -3,11 +3,8 @@ import { of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -15,9 +12,12 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { EncryptService } from "@bitwarden/key-management";
 import { BitwardenClient, VerifyAsymmetricKeysResponse } from "@bitwarden/sdk-internal";
 
-import { KeyService } from "../../abstractions/key.service";
+import { KeyService } from "../../cryptography/abstractions/key.service";
+import { EncryptedString } from "../../cryptography/domain/enc-string";
+import { SymmetricCryptoKey } from "../../cryptography/domain/symmetric-crypto-key";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 
 import { DefaultUserAsymmetricKeysRegenerationService } from "./default-user-asymmetric-key-regeneration.service";

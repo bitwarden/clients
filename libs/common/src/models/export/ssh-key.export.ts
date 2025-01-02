@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SshKeyView as SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../../../key-management/src/cryptography/domain/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 
 import { safeGetString } from "./utils";

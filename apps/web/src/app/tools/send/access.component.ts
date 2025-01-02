@@ -6,12 +6,11 @@ import { ActivatedRoute } from "@angular/router";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { RegisterRouteService } from "@bitwarden/auth/common";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
@@ -20,7 +19,7 @@ import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-ac
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { NoItemsModule, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { SymmetricCryptoKey, KeyService } from "@bitwarden/key-management";
 import { ExpiredSendIcon } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../shared";

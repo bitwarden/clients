@@ -10,15 +10,18 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import {
+  EncryptionType,
+  SymmetricCryptoKey,
+  EncString,
+  EncryptService,
+  KdfType,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 

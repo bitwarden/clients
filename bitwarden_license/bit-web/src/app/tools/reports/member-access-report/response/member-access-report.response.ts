@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { Guid } from "@bitwarden/common/types/guid";
+import { EncString } from "@bitwarden/key-management";
 
 export class MemberAccessDetails extends BaseResponse {
   collectionId: string;

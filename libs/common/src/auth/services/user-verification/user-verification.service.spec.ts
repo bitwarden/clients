@@ -7,15 +7,13 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { KdfConfig, KeyService, HashPurpose, KdfConfigService } from "@bitwarden/key-management";
 
-import { KdfConfigService } from "../../../../../key-management/src/abstractions/kdf-config.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { VaultTimeoutSettingsService } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { HashPurpose } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";

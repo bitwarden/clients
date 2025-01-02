@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron";
 
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/key-management";
 
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 

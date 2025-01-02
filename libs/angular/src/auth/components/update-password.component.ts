@@ -17,11 +17,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncString, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
 

@@ -3,8 +3,8 @@
 import { spawn } from "child_process";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
+import { EncString } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
 import { isFlatpak, isLinux, isSnapStore } from "../../utils";

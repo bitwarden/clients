@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
 
-import { EncryptedString, EncString } from "../../../common/src/platform/models/domain/enc-string";
 import { ActiveUserState, GlobalState, StateProvider } from "../../../common/src/platform/state";
 import { UserId } from "../../../common/src/types/guid";
+import { EncryptedString, EncString } from "../cryptography/domain/enc-string";
 
 import {
   BIOMETRIC_UNLOCK_ENABLED,

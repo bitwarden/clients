@@ -52,11 +52,9 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
   EnvironmentService,
   Urls,
@@ -88,6 +86,8 @@ import {
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  EncryptService,
+  ProcessReloadServiceAbstraction,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
   BiometricsService,

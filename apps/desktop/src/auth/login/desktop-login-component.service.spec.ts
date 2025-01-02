@@ -4,7 +4,7 @@ import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,

@@ -5,9 +5,8 @@ import {
   OrganizationUserConfirmRequest,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { Response } from "../../models/response";
 

@@ -16,7 +16,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -27,7 +26,7 @@ import {
   ORGANIZATION_INVITE_DISK,
 } from "@bitwarden/common/platform/state";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationInvite } from "./organization-invite";
 

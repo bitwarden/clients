@@ -15,14 +15,12 @@ import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enum
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { SymmetricCryptoKey, EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";

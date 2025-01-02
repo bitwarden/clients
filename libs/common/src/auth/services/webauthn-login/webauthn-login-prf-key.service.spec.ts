@@ -1,6 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 
 import { WebAuthnLoginPrfKeyService } from "./webauthn-login-prf-key.service";
 

@@ -11,10 +11,7 @@ import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/p
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
   StateProvider,
@@ -22,7 +19,12 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  EncString,
+  KeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
 

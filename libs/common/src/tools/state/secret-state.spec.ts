@@ -2,13 +2,13 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, from, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../key-management/src/cryptography/domain/enc-string";
 import {
   FakeStateProvider,
   makeEncString,
   mockAccountServiceWith,
   awaitAsync,
 } from "../../../spec";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { GENERATOR_DISK } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";

@@ -22,9 +22,7 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -33,7 +31,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { KeyService } from "@bitwarden/key-management";
+import { EncString, EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";

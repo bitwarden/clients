@@ -3,15 +3,18 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  KeySuffixOptions,
+  HashPurpose,
+} from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { HashPurpose } from "../../../platform/enums";
-import { KeySuffixOptions } from "../../../platform/enums/key-suffix-options.enum";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { AccountService } from "../../abstractions/account.service";

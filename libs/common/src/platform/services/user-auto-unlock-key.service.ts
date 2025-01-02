@@ -1,6 +1,6 @@
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService, KeySuffixOptions } from "@bitwarden/key-management";
+
 import { UserId } from "../../types/guid";
-import { KeySuffixOptions } from "../enums";
 
 // TODO: this is a half measure improvement which allows us to reduce some side effects today (keyService.getUserKey setting user key in memory if auto key exists)
 // but ideally, in the future, we would be able to put this logic into the keyService

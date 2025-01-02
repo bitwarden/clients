@@ -6,7 +6,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,7 +17,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { AttachmentsComponent as BaseAttachmentsComponent } from "../individual-vault/attachments.component";
 

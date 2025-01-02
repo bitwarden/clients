@@ -1,8 +1,8 @@
 import { Component, inject } from "@angular/core";
 
 import { SetPasswordComponent as BaseSetPasswordComponent } from "@bitwarden/angular/auth/components/set-password.component";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { EncString } from "@bitwarden/key-management";
 
 import { RouterService } from "../core";
 

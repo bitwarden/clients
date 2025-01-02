@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyGenerationService, KeyService, SymmetricCryptoKey } from "@bitwarden/key-management";
+
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -9,8 +10,6 @@ import { Organization } from "../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { KeyGenerationService } from "../../platform/services/key-generation.service";
 import { OrganizationId, UserId } from "../../types/guid";
 import { MasterKey } from "../../types/key";
 import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user-key.request";

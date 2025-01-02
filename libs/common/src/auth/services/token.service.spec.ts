@@ -2,16 +2,15 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
+import { KeyGenerationService, EncryptService } from "@bitwarden/key-management";
 
+import { SymmetricCryptoKey } from "../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";

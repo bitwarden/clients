@@ -4,11 +4,11 @@ import * as crypto from "crypto";
 
 import * as forge from "node-forge";
 
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { SymmetricCryptoKey } from "@bitwarden/key-management";
 
 export class NodeCryptoFunctionService implements CryptoFunctionService {
   pbkdf2(

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../../../key-management/src/cryptography/domain/enc-string";
 
 import { safeGetString } from "./utils";
 

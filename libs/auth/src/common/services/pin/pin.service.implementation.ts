@@ -4,13 +4,9 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   PIN_DISK,
   PIN_MEMORY,
@@ -19,7 +15,15 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, PinKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  KeyGenerationService,
+  KdfConfig,
+  KdfConfigService,
+  EncryptedString,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
 

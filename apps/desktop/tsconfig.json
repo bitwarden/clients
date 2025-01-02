@@ -46,5 +46,5 @@
     "strictTemplates": true,
     "preserveWhitespaces": true
   },
-  "include": ["src", "../../libs/common/src/platform/services/**/*.worker.ts"]
+  "include": ["src", "../../libs/common/src/key-management/services/*.worker.ts"]
 }

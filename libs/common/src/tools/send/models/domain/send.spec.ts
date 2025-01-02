@@ -1,11 +1,9 @@
 import { mock } from "jest-mock-extended";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
+import { SymmetricCryptoKey, EncryptService, KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
-import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";

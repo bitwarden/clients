@@ -9,6 +9,6 @@
   ],
   "include": [
     "../../apps/web/src/connectors/*.ts",
-    "../../libs/common/src/platform/services/**/*.worker.ts"
+    "../../libs/common/src/key-management/services/*.worker.ts"
   ]
 }

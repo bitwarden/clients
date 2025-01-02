@@ -29,7 +29,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -55,7 +54,7 @@ import {
   ToastService,
   LinkModule,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {

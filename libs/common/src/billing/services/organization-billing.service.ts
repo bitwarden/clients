@@ -13,16 +13,14 @@ import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, EncryptService, EncString } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { OrgKey } from "../../types/key";
 import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";

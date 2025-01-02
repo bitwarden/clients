@@ -1,10 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 
 import { RotateableKeySet } from "@bitwarden/auth/common";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, SymmetricCryptoKey, KeyService } from "@bitwarden/key-management";
 
 @Injectable({ providedIn: "root" })
 export class RotateableKeySetService {

@@ -13,7 +13,6 @@ import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ci
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -23,7 +22,7 @@ import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.req
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import {
   AscendoCsvImporter,

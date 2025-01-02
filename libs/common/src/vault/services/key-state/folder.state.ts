@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { DeriveDefinition, FOLDER_DISK, UserKeyDefinition } from "../../../platform/state";
 import { FolderService } from "../../abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../models/data/folder.data";

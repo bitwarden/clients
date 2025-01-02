@@ -1,4 +1,4 @@
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "../../../cryptography/domain/enc-string";
 
 export class KeyRegenerationRequest {
   userPublicKey: string;

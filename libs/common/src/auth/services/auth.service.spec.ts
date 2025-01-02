@@ -1,7 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService, SymmetricCryptoKey } from "@bitwarden/key-management";
+
 import {
   FakeAccountService,
   makeStaticByteArray,
@@ -12,7 +13,6 @@ import { ApiService } from "../../abstractions/api.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { TokenService } from "../abstractions/token.service";

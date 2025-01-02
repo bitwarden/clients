@@ -50,17 +50,13 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
   LogService,
   LogService as LogServiceAbstraction,
@@ -90,6 +86,10 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  EncryptService,
+  KeyGenerationService as KeyGenerationServiceAbstraction,
+  DefaultProcessReloadService,
+  ProcessReloadServiceAbstraction,
   KdfConfigService,
   KeyService,
   KeyService as KeyServiceAbstraction,
@@ -103,9 +103,10 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
+import { ElectronKeyService } from "../../key-management/services/electron-key.service";
+import { RendererCryptoFunctionService } from "../../key-management/services/renderer-crypto-function.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { ElectronKeyService } from "../../platform/services/electron-key.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import {
   ELECTRON_SUPPORTS_SECURE_STORAGE,
@@ -129,7 +130,6 @@ import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service
 import { DesktopThemeStateService } from "./desktop-theme.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
-import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 

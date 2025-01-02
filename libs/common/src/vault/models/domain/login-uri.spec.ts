@@ -1,10 +1,10 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
+import { EncryptService, EncString } from "@bitwarden/key-management";
+
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";

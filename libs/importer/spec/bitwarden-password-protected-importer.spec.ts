@@ -2,11 +2,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import { EncryptService, KdfType, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenPasswordProtectedImporter,

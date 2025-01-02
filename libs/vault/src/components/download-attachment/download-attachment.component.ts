@@ -8,17 +8,15 @@ import { NEVER, switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { EncArrayBuffer, EncryptService, KeyService } from "@bitwarden/key-management";
 
 @Component({
   standalone: true,

@@ -22,13 +22,11 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -41,7 +39,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { EncArrayBuffer, EncryptService, KeyService } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "ViewComponent";

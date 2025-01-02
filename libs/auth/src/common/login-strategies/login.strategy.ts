@@ -25,7 +25,6 @@ import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -33,6 +32,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
+  EncryptService,
   KeyService,
   Argon2KdfConfig,
   PBKDF2KdfConfig,

@@ -5,9 +5,7 @@ import {
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, EncString, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";

@@ -56,17 +56,16 @@ import {
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/services/web-crypto-function.service";
 import {
   AnimationControlService,
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -85,7 +84,6 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   DerivedStateProvider,
   GlobalStateProvider,
@@ -110,6 +108,8 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  KeyGenerationService,
+  EncryptService,
   KdfConfigService,
   KeyService,
   BiometricStateService,

@@ -10,9 +10,9 @@ import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/ab
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
+import { EncString } from "@bitwarden/key-management";
 
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";

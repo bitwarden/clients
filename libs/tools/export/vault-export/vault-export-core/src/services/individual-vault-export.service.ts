@@ -5,9 +5,8 @@ import { firstValueFrom, map } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -16,7 +15,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncryptService, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvIndividualExportType,

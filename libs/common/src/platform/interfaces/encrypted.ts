@@ -1,4 +1,4 @@
-import { EncryptionType } from "../enums";
+import { EncryptionType } from "@bitwarden/key-management";
 
 export interface Encrypted {
   encryptionType?: EncryptionType;

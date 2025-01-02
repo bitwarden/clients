@@ -12,11 +12,10 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { SymmetricCryptoKey, HashPurpose } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";

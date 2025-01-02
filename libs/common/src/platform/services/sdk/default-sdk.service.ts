@@ -20,6 +20,7 @@ import {
   DeviceType as SdkDeviceType,
 } from "@bitwarden/sdk-internal";
 
+import { EncryptedString } from "../../../../../key-management/src/cryptography/domain/enc-string";
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
@@ -30,7 +31,6 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
-import { EncryptedString } from "../../models/domain/enc-string";
 
 export class DefaultSdkService implements SdkService {
   private sdkClientCache = new Map<UserId, Observable<BitwardenClient>>();

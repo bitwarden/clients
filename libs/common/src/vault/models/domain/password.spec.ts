@@ -1,5 +1,8 @@
+import {
+  EncryptedString,
+  EncString,
+} from "../../../../../key-management/src/cryptography/domain/enc-string";
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 

@@ -2,10 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/key-management";
+
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 

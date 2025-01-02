@@ -1,13 +1,15 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportRequest } from "../models/requests/sm-import.request";

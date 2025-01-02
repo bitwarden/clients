@@ -5,13 +5,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../../common/spec";
 import { AddyIo, Fastmail, FirefoxRelay } from "../integration";

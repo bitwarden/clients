@@ -4,8 +4,8 @@ import { Injectable } from "@angular/core";
 
 import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { EncString } from "@bitwarden/key-management";
 import {
   getPermissionList,
   convertToPermission,

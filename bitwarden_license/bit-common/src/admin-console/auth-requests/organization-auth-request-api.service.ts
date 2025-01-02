@@ -1,6 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/key-management";
 
 import { AdminAuthRequestUpdateRequest } from "./admin-auth-request-update.request";
 import { BulkDenyAuthRequestsRequest } from "./bulk-deny-auth-requests.request";

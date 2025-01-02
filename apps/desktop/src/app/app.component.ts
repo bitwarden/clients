@@ -34,7 +34,6 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -54,7 +53,11 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  ProcessReloadServiceAbstraction,
+  KeyService,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";

@@ -25,7 +25,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -38,6 +37,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  KeySuffixOptions,
   KeyService,
   BiometricStateService,
   UserAsymmetricKeysRegenerationService,

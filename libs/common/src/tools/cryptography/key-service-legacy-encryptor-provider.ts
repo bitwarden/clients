@@ -12,9 +12,8 @@ import {
   takeWhile,
 } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import {
   OrganizationBound,

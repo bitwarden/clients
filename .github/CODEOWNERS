@@ -119,12 +119,16 @@ apps/web/src/app/layouts @bitwarden/team-design-system
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/core/biometric @bitwarden/team-key-management-dev
 
 ## Key management team files ##
 apps/desktop/src/key-management @bitwarden/team-key-management-dev
 apps/web/src/app/key-management @bitwarden/team-key-management-dev
 apps/browser/src/key-management @bitwarden/team-key-management-dev
 apps/cli/src/key-management @bitwarden/team-key-management-dev
+libs/common/src/key-management @bitwarden/team-key-management-dev
+libs/node/src/services/node-crypto-function.service.ts @bitwarden/team-key-management-dev
+libs/node/src/services/node-crypto-function.service.spec.ts @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
 
 apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev

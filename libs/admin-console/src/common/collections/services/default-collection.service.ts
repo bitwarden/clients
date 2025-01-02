@@ -3,7 +3,6 @@
 import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -18,7 +17,7 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, EncryptService } from "@bitwarden/key-management";
 
 import { CollectionService } from "../abstractions";
 import { Collection, CollectionData, CollectionView } from "../models";

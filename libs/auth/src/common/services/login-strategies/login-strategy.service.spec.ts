@@ -18,7 +18,6 @@ import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/maste
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -34,7 +33,13 @@ import {
 } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  KdfConfigService,
+  KdfType,
+  KeyService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,

@@ -5,19 +5,17 @@ import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, SymmetricCryptoKey, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";

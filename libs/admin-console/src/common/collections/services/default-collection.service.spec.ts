@@ -1,10 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import {
   FakeStateProvider,
@@ -14,7 +12,7 @@ import {
 } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { EncString, EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { CollectionData } from "../models";
 

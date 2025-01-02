@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/key-management";
 
 export class EncryptedObject {
   iv: Uint8Array;

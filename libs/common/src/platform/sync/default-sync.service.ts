@@ -7,10 +7,10 @@ import {
   CollectionData,
   CollectionDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import { KeyService } from "@bitwarden/key-management";
 
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { LogoutReason } from "../../../../auth/src/common/types";
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";

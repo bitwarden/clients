@@ -8,9 +8,8 @@ import {
 } from "@bitwarden/auth/common";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith, FakeStateProvider } from "../../../spec";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";

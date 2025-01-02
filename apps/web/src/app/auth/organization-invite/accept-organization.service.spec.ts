@@ -12,12 +12,10 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { EncString, EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { I18nService } from "../../core/i18n.service";
 

@@ -5,8 +5,8 @@ import { Observable } from "rxjs";
 import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
+import { SymmetricCryptoKey } from "../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";

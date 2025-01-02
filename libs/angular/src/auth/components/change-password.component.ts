@@ -12,11 +12,10 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncString, KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { PasswordColorText } from "../../tools/password-strength/password-strength.component";
 

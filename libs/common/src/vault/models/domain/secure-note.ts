@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SymmetricCryptoKey } from "../../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SecureNoteType } from "../../enums";
 import { SecureNoteData } from "../data/secure-note.data";
 import { SecureNoteView } from "../view/secure-note.view";

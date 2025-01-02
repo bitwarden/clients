@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../../../key-management/src/cryptography/domain/enc-string";
 import { UserId } from "../../types/guid";
 import { MasterKey, UserKey } from "../../types/key";
 import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";

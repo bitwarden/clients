@@ -8,8 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
-import { EncryptService } from "../abstractions/encrypt.service";
+import { KeyService, EncryptService } from "@bitwarden/key-management";
+
 import { I18nService } from "../abstractions/i18n.service";
 
 const nodeURL = typeof self === "undefined" ? require("url") : null;

@@ -3,9 +3,8 @@
 import { Jsonify } from "type-fest";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { EncryptService, EncString } from "@bitwarden/key-management";
 
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { OrgKey } from "../../types/key";
 import { DataPacker } from "../state/data-packer.abstraction";
 

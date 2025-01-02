@@ -9,20 +9,21 @@ import {
 } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
+  EncryptedString,
+  SymmetricCryptoKey,
+  EncryptService,
   Argon2KdfConfig,
   KdfConfig,
   PBKDF2KdfConfig,
   UserKeyRotationDataProvider,
   KeyService,
   KdfType,
+  EncString,
 } from "@bitwarden/key-management";
 
 @Injectable({

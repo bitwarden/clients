@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../../key-management/src/cryptography/domain/enc-string";
 import { DeviceType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { EncString } from "../../../platform/models/domain/enc-string";
 
 export class ProtectedDeviceResponse extends BaseResponse {
   constructor(response: Jsonify<ProtectedDeviceResponse>) {

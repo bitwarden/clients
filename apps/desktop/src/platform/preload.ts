@@ -3,7 +3,7 @@ import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/key-management";
 
 import {
   EncryptedMessageResponse,

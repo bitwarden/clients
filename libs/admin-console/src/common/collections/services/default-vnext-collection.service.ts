@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { combineLatest, filter, firstValueFrom, map } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider, DerivedState } from "@bitwarden/common/platform/state";
@@ -10,7 +9,7 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { vNextCollectionService } from "../abstractions/vnext-collection.service";
 import { Collection, CollectionData, CollectionView } from "../models";

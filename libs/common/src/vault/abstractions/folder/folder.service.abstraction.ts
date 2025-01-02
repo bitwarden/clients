@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { FolderData } from "../../models/data/folder.data";

@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SymmetricCryptoKey } from "../../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import { View } from "../../../models/view/view";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
 
 export class AttachmentView implements View {

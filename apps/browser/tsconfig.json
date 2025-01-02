@@ -49,7 +49,7 @@
   },
   "include": [
     "src",
-    "../../libs/common/src/platform/services/**/*.worker.ts",
+    "../../libs/common/src/key-management/services/*.worker.ts",
     "../../libs/common/src/autofill/constants",
     "../../libs/common/custom-matchers.d.ts"
   ]

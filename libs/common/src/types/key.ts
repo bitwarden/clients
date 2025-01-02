@@ -1,6 +1,6 @@
 import { Opaque } from "type-fest";
 
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 
 // symmetric keys
 export type DeviceKey = Opaque<SymmetricCryptoKey, "DeviceKey">;

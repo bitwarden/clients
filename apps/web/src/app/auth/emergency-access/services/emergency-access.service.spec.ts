@@ -8,16 +8,19 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import {
+  EncryptionType,
+  SymmetricCryptoKey,
+  EncString,
+  EncryptService,
+  KdfType,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";

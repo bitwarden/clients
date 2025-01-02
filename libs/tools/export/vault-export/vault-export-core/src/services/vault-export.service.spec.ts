@@ -3,11 +3,9 @@ import { BehaviorSubject } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/abstractions/crypto-function.service";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -19,11 +17,14 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  EncryptService,
+  EncryptedString,
   DEFAULT_KDF_CONFIG,
   PBKDF2KdfConfig,
   KdfConfigService,
   KeyService,
   KdfType,
+  EncString,
 } from "@bitwarden/key-management";
 
 import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";

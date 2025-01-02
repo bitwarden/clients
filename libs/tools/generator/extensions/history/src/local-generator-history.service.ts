@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { filter, map } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserKeyEncryptor } from "@bitwarden/common/tools/cryptography/user-key-encryptor";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
@@ -10,7 +9,7 @@ import { PaddedDataPacker } from "@bitwarden/common/tools/state/padded-data-pack
 import { SecretState } from "@bitwarden/common/tools/state/secret-state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CredentialAlgorithm } from "@bitwarden/generator-core";
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, KeyService } from "@bitwarden/key-management";
 
 import { GeneratedCredential } from "./generated-credential";
 import { GeneratorHistoryService } from "./generator-history.abstraction";

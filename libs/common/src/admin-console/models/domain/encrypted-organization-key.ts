@@ -1,6 +1,5 @@
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/key-management";
+
 import { OrgKey, UserPrivateKey } from "../../../types/key";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
 

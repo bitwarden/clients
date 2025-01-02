@@ -3,13 +3,14 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { KeyGenerationService, EncryptionType, EncryptService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
+import {
+  EncryptedString,
+  EncString,
+} from "../../../../../key-management/src/cryptography/domain/enc-string";
+import { SymmetricCryptoKey } from "../../../../../key-management/src/cryptography/domain/symmetric-crypto-key";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { EncryptionType } from "../../../platform/enums";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,

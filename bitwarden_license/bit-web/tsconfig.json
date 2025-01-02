@@ -44,7 +44,7 @@
     "../../apps/web/src/connectors/*.ts",
     "../../apps/web/src/**/*.stories.ts",
     "../../apps/web/src/**/*.spec.ts",
-    "../../libs/common/src/platform/services/**/*.worker.ts",
+    "../../libs/common/src/key-management/services/*.worker.ts",
 
     "src/**/*.stories.ts",
     "src/**/*.spec.ts"

@@ -1,4 +1,4 @@
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/key-management";
 
 export function safeGetString(value: string | EncString) {
   if (value == null) {

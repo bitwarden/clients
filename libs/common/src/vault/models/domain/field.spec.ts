@@ -1,5 +1,8 @@
+import {
+  EncryptedString,
+  EncString,
+} from "../../../../../key-management/src/cryptography/domain/enc-string";
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FieldType } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";

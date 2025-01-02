@@ -2,12 +2,10 @@ import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { UserId } from "@bitwarden/common/types/guid";
+import { KeyService, EncryptService, EncString } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherService } from "../../abstractions/cipher.service";

@@ -14,9 +14,8 @@ import {
 } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, BiometricsService } from "@bitwarden/key-management";
+import { KeySuffixOptions, KeyService, BiometricsService } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
 import { BrowserRouterService } from "../platform/popup/services/browser-router.service";

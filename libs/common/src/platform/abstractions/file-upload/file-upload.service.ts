@@ -1,6 +1,6 @@
+import { EncArrayBuffer } from "../../../../../key-management/src/cryptography/domain/enc-array-buffer";
+import { EncString } from "../../../../../key-management/src/cryptography/domain/enc-string";
 import { FileUploadType } from "../../enums";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
-import { EncString } from "../../models/domain/enc-string";
 
 export abstract class FileUploadService {
   abstract upload(
