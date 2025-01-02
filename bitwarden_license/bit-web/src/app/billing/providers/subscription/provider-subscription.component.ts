@@ -113,4 +113,20 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  protected getMonthlyCost(plan: ProviderPlanResponse): number {
+    return plan.cadence === "Monthly" ? plan.cost : plan.cost / 12;
+  }
+
+  protected getDiscountedMonthlyCost(plan: ProviderPlanResponse): number {
+    return ((100 - this.subscription.discountPercentage) / 100) * this.getMonthlyCost(plan);
+  }
+
+  protected getTotalMonthlyCost(): number {
+    let totalCost: number = 0;
+    for (const plan of this.subscription.plans) {
+      totalCost += this.getDiscountedMonthlyCost(plan);
+    }
+    return totalCost;
+  }
 }

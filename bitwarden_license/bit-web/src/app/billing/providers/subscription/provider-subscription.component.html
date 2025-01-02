@@ -38,12 +38,14 @@
                   }}
                 </td>
                 <td bitCell class="tw-text-right tw-py-3">
-                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /{{
-                    "month" | i18n
+                  {{
+                    ((100 - subscription.discountPercentage) / 100) * getMonthlyCost(i)
+                      | currency: "$"
                   }}
+                  / {{ "month" | i18n }}
                   <div *ngIf="subscription.discountPercentage">
                     <bit-hint class="tw-text-sm tw-line-through">
-                      {{ i.cost | currency: "$" }} /{{ "month" | i18n }}
+                      {{ getMonthlyCost(i) | currency: "$" }} / {{ "month" | i18n }}
                     </bit-hint>
                   </div>
                 </td>
@@ -52,9 +54,8 @@
               <tr bitRow>
                 <td bitCell class="tw-pl-0 tw-py-3"></td>
                 <td bitCell class="tw-text-right">
-                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /{{
-                    "month" | i18n
-                  }}
+                  <span class="tw-font-bold">Total:</span>
+                  {{ getTotalMonthlyCost() | currency: "$" }} / {{ "month" | i18n }}
                 </td>
               </tr>
             </ng-container>
