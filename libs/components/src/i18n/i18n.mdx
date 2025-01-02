@@ -1,0 +1,89 @@
+import { Meta, Story, Canvas, Primary, Controls, Source } from "@storybook/addon-docs";
+
+import * as stories from "./i18n.stories";
+
+<Meta of={stories} />
+
+# I18n with Template Wrapping
+
+The `[bit-i18n]` component is an alternative to the `i18n` pipe that supports template wrapping. It
+supports wrapping developer defined tags around parts the translated text. It allows translators to
+translate the original text more accurately and so that it still follows the grammar rules of the
+target language.
+
+The templating syntax uses numeric marker tags `<0></0>` around text that will be wrapped. The
+marker tags should numbered sequentially starting from 0. The marker tags are then matched and
+replaced by the `*bit-i18n-part` directives in the order they appear in the template.
+
+If a corresponding `*bit-i18n-part` directive is not found for a marker tag, the marker tag's
+content will be rendered as is.
+
+## Basic Example
+
+<Story of={stories.Basic} />
+
+<br />
+
+### Source
+
+```html
+<!-- basicExample in messages.json
+    "This is an example with <0>link</0> tags and <1>bold</1> tags.
+    The entire sentence can be <2>translated as a whole</2> and re-arranged according to each language's grammar rules."
+-->
+<div bit-i18n="basicExample">
+  <!-- <0></0> -->
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
+  <!-- <1></1> -->
+  <strong *bit-i18n-part="let text">{{ text }}</strong>
+  <!-- <2></2> -->
+  <a *bit-i18n-part="let text" href="#">
+    <strong>{{ text }}</strong>
+  </a>
+</div>
+```
+
+## Missing Template Example
+
+If there are not enough `*bit-i18n-part` directives to match the marker tags, the marker tags will
+be rendered as is.
+
+<Story of={stories.MissingTemplate} />
+
+<br />
+
+### Source
+
+```html
+<!-- basicExample in messages.json
+   "This is an example with <0>link</0> tags and <1>bold</1> tags.
+   The entire sentence can be <2>translated as a whole</2> and re-arranged according to each language's grammar rules."
+-->
+<div bit-i18n="basicExample">
+  <!-- <0></0> -->
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
+  <!-- <1></1> -->
+  <strong *bit-i18n-part="let text">{{ text }}</strong>
+  <!-- Missing template for <2></2> -->
+</div>
+```
+
+## Missing Template Example
+
+You can also pass arguments to the `i18nService.t()` method via the `[args]` input attribute;
+
+<Story of={stories.ArgsExample} />
+
+<br />
+
+### Source
+
+```html
+<!-- argExample in messages.json
+   `This is an example with <0>link</0> tags and $SOME_ARG$.`
+-->
+<div bit-i18n="argExample" [args]="['passed args']">
+  <!-- <0></0> -->
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
+</div>
+```
