@@ -454,9 +454,6 @@
   "length": {
     "message": "Довжина"
   },
-  "passwordMinLength": {
-    "message": "Мінімальна довжина пароля"
-  },
   "uppercase": {
     "message": "Верхній регістр (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Мінімум спеціальних символів"
-  },
-  "avoidAmbChar": {
-    "message": "Уникати неоднозначних символів",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Уникати неоднозначних символів",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Показувати список посвідчень на сторінці вкладки для легкого автозаповнення."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Перемістити до організації"
-  },
-  "share": {
-    "message": "Поділитися"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ переміщено до $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Клонувати"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "На параметри генератора впливають одна чи декілька політик організації."
-  },
   "passwordGenerator": {
     "message": "Генератор паролів"
   },
@@ -2389,14 +2379,6 @@
     "message": "Надіслати подробиці",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Шукати відправлення",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Додати відправлення",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Текст"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Типово приховувати текст"
   },
-  "maxAccessCountReached": {
-    "message": "Досягнуто максимальної кількості доступів",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Термін дії завершився"
-  },
-  "pendingDeletion": {
-    "message": "Очікується видалення"
   },
   "passwordProtected": {
     "message": "Захищено паролем"
@@ -2472,23 +2447,8 @@
     "message": "Редагування",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Який це тип відправлення?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Опис цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Файл, який ви хочете відправити."
-  },
   "deletionDate": {
     "message": "Термін дії"
-  },
-  "deletionDateDesc": {
-    "message": "Відправлення буде остаточно видалено у вказаний час.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Відправлення буде остаточно видалено у вказану дату.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Дата завершення"
-  },
-  "expirationDateDesc": {
-    "message": "Якщо встановлено, термін дії цього відправлення завершиться у вказаний час.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 день"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Власний"
   },
-  "maximumAccessCount": {
-    "message": "Максимальна кількість доступів"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Якщо встановлено, користувачі більше не зможуть отримати доступ до цього відправлення після досягнення максимальної кількості доступів.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Ви можете встановити пароль для доступу до цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "За бажання додайте пароль для отримувачів цього відправлення.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Особисті нотатки про це відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Деактивувати це відправлення для скасування доступу до нього.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Копіювати посилання цього відправлення перед збереженням.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст, який ви хочете відправити."
-  },
-  "sendHideText": {
-    "message": "Приховувати текст цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Поточна кількість доступів"
   },
   "createSend": {
     "message": "Нове відправлення",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Перед початком"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Щоб використовувати календарний стиль вибору дати",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "натисніть тут",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "щоб відкріпити ваше вікно.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Вказано недійсний термін дії."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "При збереженні дат видалення і терміну дії виникла помилка."
   },
-  "hideEmail": {
-    "message": "Приховувати мою адресу електронної пошти від отримувачів."
-  },
   "hideYourEmail": {
     "message": "Приховати адресу е-пошти від отримувачів."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "На параметри відправлень впливають одна чи декілька політик організації."
   },
   "passwordPrompt": {
     "message": "Повторний запит головного пароля"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Помилка"
   },
-  "regenerateUsername": {
-    "message": "Повторно генерувати ім'я користувача"
-  },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Тип імені користувача"
-  },
   "plusAddressedEmail": {
     "message": "Адреса е-пошти з плюсом",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Назва вебсайту"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Що ви бажаєте згенерувати?"
-  },
-  "passwordType": {
-    "message": "Тип пароля"
   },
   "service": {
     "message": "Послуга"

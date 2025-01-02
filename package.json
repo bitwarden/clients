@@ -88,7 +88,7 @@
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
-    "chromatic": "11.20.0",
+    "chromatic": "11.20.2",
     "concurrently": "9.1.0",
     "copy-webpack-plugin": "12.0.2",
     "cross-env": "7.0.3",
@@ -129,7 +129,7 @@
     "sass-loader": "16.0.4",
     "storybook": "8.4.7",
     "style-loader": "4.0.0",
-    "tailwindcss": "3.4.16",
+    "tailwindcss": "3.4.17",
     "ts-jest": "29.2.2",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
@@ -141,7 +141,7 @@
     "wait-on": "8.0.1",
     "webpack": "5.97.1",
     "webpack-cli": "5.1.4",
-    "webpack-dev-server": "5.0.4",
+    "webpack-dev-server": "5.2.0",
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {

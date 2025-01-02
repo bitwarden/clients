@@ -130,6 +130,9 @@ export const MenuOpen: Story = {
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
+  parameters: {
+    chromatic: { ignoreSelectors: [".bit-menu-panel-backdrop"] },
+  },
 };
 
 export const DefaultDialogOpen: Story = {

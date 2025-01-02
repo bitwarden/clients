@@ -12,7 +12,7 @@
     "message": "Risk Insights"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Salasanariski"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -9885,10 +9885,10 @@
     "message": "Descriptor code"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Tärkeä ilmoitus"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Määritä kaksivaiheinen kirjautuminen"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
@@ -9915,10 +9915,10 @@
     "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Muuta tilin sähköpostiosoitetta"
   },
   "removeMembers": {
     "message": "Poista jäsenet"

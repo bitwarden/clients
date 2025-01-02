@@ -454,9 +454,6 @@
   "length": {
     "message": "길이"
   },
-  "passwordMinLength": {
-    "message": "최소 비밀번호 길이"
-  },
   "uppercase": {
     "message": "대문자 (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "특수 문자 최소 개수"
-  },
-  "avoidAmbChar": {
-    "message": "모호한 문자 사용 안 함",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "모호한 문자 사용 안 함",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "간편한 자동완성을 위해 탭에 신원 항목들을 나열"
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "조직으로 이동하기"
-  },
-  "share": {
-    "message": "공유"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$이(가) $ORGNAME$(으)로 이동됨",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "복제"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다."
-  },
   "passwordGenerator": {
     "message": "비밀번호 생성기"
   },
@@ -2389,14 +2379,6 @@
     "message": "보내기 세부 정보",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": " Send 검색",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": " Send 추가",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "텍스트"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "기본적으로 텍스트 숨기기"
   },
-  "maxAccessCountReached": {
-    "message": "최대 접근 횟수 도달",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "만료됨"
-  },
-  "pendingDeletion": {
-    "message": "삭제 대기 중"
   },
   "passwordProtected": {
     "message": "비밀번호로 보호됨"
@@ -2472,23 +2447,8 @@
     "message": " Send 편집",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "어떤 유형의  Send인가요?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "이  Send을 설명할 이름",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "전송하려는 파일"
-  },
   "deletionDate": {
     "message": "삭제 날짜"
-  },
-  "deletionDateDesc": {
-    "message": "이  Send가 정해진 일시에 영구적으로 삭제됩니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "이  Send가 이 날짜에 영구적으로 삭제됩니다.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "만료 날짜"
-  },
-  "expirationDateDesc": {
-    "message": "설정할 경우, 이 Send에 대한 접근 권한이 정해진 일시에 만료됩니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1일"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "사용자 지정"
   },
-  "maximumAccessCount": {
-    "message": "최대 접근 횟수"
-  },
-  "maximumAccessCountDesc": {
-    "message": "설정할 경우, 최대 접근 횟수에 도달할 때 이 Send에 접근할 수 없게 됩니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "이 Send에 접근하기 위해 암호를 입력하도록 선택적으로 요구합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "수신자가 이 Send에 액세스할 수 있도록 비밀번호 옵션를 추가합니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "이 Send에 대한 비공개 메모",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "이 Send를 비활성화하여 아무도 접근할 수 없게 합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "저장할 때 이 Send의 링크를 클립보드에 복사합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "전송하려는 텍스트"
-  },
-  "sendHideText": {
-    "message": "이 Send의 텍스트를 기본적으로 숨김",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "현재 접근 횟수"
   },
   "createSend": {
     "message": "새 Send 생성",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "시작하기 전에"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "달력을 보고 날짜를 선택하려면",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "여기를 클릭하여",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "확장 프로그램을 새 창에서 여세요.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "제공된 만료 날짜가 유효하지 않습니다."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "삭제 날짜와 만료 날짜를 저장하는 도중 오류가 발생했습니다."
   },
-  "hideEmail": {
-    "message": "받는 사람으로부터 나의 이메일 주소 숨기기"
-  },
   "hideYourEmail": {
     "message": "사람들로부터 이메일 주소를 숨기세요."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "하나 이상의 단체 정책이 Send 설정에 영향을 미치고 있습니다."
   },
   "passwordPrompt": {
     "message": "마스터 비밀번호 재확인"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "오류"
   },
-  "regenerateUsername": {
-    "message": "아이디 재생성"
-  },
   "generateUsername": {
     "message": "아이디 생성"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "아이디 유형"
-  },
   "plusAddressedEmail": {
     "message": "추가 이메일",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "웹사이트 이름"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "무엇을 생성하실건가요?"
-  },
-  "passwordType": {
-    "message": "비밀번호 유형"
   },
   "service": {
     "message": "서비스"
