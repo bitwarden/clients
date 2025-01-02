@@ -11,6 +11,7 @@ export class ServerConfigResponse extends BaseResponse {
   server: ThirdPartyServerConfigResponse;
   environment: EnvironmentServerConfigResponse;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: PushSettingsConfigResponse;
   settings: ServerSettings;
 
   constructor(response: any) {
@@ -25,7 +26,24 @@ export class ServerConfigResponse extends BaseResponse {
     this.server = new ThirdPartyServerConfigResponse(this.getResponseProperty("Server"));
     this.environment = new EnvironmentServerConfigResponse(this.getResponseProperty("Environment"));
     this.featureStates = this.getResponseProperty("FeatureStates");
+    this.push = new PushSettingsConfigResponse(this.getResponseProperty("Push"));
     this.settings = new ServerSettings(this.getResponseProperty("Settings"));
+  }
+}
+
+export class PushSettingsConfigResponse extends BaseResponse {
+  pushTechnology: number;
+  vapidPublicKey: string;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.pushTechnology = this.getResponseProperty("PushTechnology");
+    this.vapidPublicKey = this.getResponseProperty("VapidPublicKey");
   }
 }
 
