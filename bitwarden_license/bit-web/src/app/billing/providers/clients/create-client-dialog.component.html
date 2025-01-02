@@ -43,6 +43,14 @@
             {{ "organizationName" | i18n }}
           </bit-label>
           <input type="text" bitInput formControlName="organizationName" />
+          <bit-error-summary
+            *ngIf="
+              formGroup.get('organizationName').errors?.['maxLength'] &&
+              formGroup.get('organizationName').touched
+            "
+          >
+            {{ "organizationNameMaxLength" | i18n }}
+          </bit-error-summary>
         </bit-form-field>
         <bit-form-field>
           <bit-label>

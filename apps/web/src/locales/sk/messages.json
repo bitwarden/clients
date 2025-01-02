@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Obnoviť členov"
   },
-  "revokeMembersWarning": {
-    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Claimed account: Revoke access to Bitwarden account"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unclaimed account: Revoke access to organization data"
-  },
-  "claimedAccount": {
-    "message": "Claimed account"
-  },
-  "unclaimedAccount": {
-    "message": "Unclaimed account"
-  },
-  "restoreMembersInstructions": {
-    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
-  },
   "cannotRestoreAccessError": {
     "message": "Nie je možné obnoviť prístup do organizácie"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Aktualizovať prehliadač"
+  },
+  "generatingRiskInsights": {
+    "message": "Generuje sa váš prehľad o rizikách..."
   },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Kód výpisu"
   },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastaviť dvojstupňové prihlásenie"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
+  },
   "removeMembers": {
     "message": "Odstrániť členov"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Doména privlastnená"
+  },
+  "organizationNameMaxLength": {
+    "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   }
 }

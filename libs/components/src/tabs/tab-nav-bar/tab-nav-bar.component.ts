@@ -10,6 +10,9 @@ import {
   QueryList,
 } from "@angular/core";
 
+import { TabHeaderComponent } from "../shared/tab-header.component";
+import { TabListContainerDirective } from "../shared/tab-list-container.directive";
+
 import { TabLinkComponent } from "./tab-link.component";
 
 @Component({
@@ -18,6 +21,8 @@ import { TabLinkComponent } from "./tab-link.component";
   host: {
     class: "tw-block",
   },
+  standalone: true,
+  imports: [TabHeaderComponent, TabListContainerDirective],
 })
 export class TabNavBarComponent implements AfterContentInit {
   @ContentChildren(forwardRef(() => TabLinkComponent)) tabLabels: QueryList<TabLinkComponent>;

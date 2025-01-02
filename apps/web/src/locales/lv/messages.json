@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Atjaunot dalībniekus"
   },
-  "revokeMembersWarning": {
-    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Claimed account: Revoke access to Bitwarden account"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unclaimed account: Revoke access to organization data"
-  },
-  "claimedAccount": {
-    "message": "Claimed account"
-  },
-  "unclaimedAccount": {
-    "message": "Unclaimed account"
-  },
-  "restoreMembersInstructions": {
-    "message": "Lai atjaunotu dalībnieka kontu, jādodas uz cilni \"Atsaukts\". Darbība var aizņemt dažas sekundes, un to nevar pārtraukt vai atcelt."
-  },
   "cannotRestoreAccessError": {
     "message": "Nevar atjaunot apvienības piekļuvi"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Atjaunināt pārlūku"
+  },
+  "generatingRiskInsights": {
+    "message": "Tiek veidots ieskats par riskiem..."
   },
   "updateBrowserDesc": {
     "message": "Tiek izmantots neatbalstīts tīmekļa pārlūks. Tīmekļa glabātava var nedarboties pareizi."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Apraksta kods"
   },
+  "importantNotice": {
+    "message": "Svarīgs paziņojums"
+  },
+  "setupTwoStepLogin": {
+    "message": "Iestatīt divpakāpju pieteikšanos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos no jaunām ierīcēm."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve."
+  },
+  "remindMeLater": {
+    "message": "Atgādināt man vēlāk"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Vai ir uzticama piekļuve savai e-pasta adresei $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nē, nav"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Jā, varu uzticami piekļūt savam e-pastam"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ieslēgt divpakāpju pieteikšanos"
+  },
+  "changeAcctEmail": {
+    "message": "Mainīt konta e-pasta adresi"
+  },
   "removeMembers": {
     "message": "Noņemt dalībniekus"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Domēns pieteikts"
+  },
+  "organizationNameMaxLength": {
+    "message": "Apvienības nosaukums nevar pārsniegt 50 rakstzīmes."
   }
 }

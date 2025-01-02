@@ -23,7 +23,6 @@ import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
@@ -49,7 +48,6 @@ import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
 import { HeaderComponent } from "../platform/popup/header.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
@@ -57,12 +55,6 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
-import { GeneratorComponent } from "../tools/popup/generator/generator.component";
-import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
-import { SendListComponent } from "../tools/popup/send/components/send-list.component";
-import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
-import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
-import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
 import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
@@ -88,7 +80,6 @@ import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
-import { TabsComponent } from "./tabs.component";
 
 // Register the locales for the application
 import "../platform/popup/locales";
@@ -157,27 +148,18 @@ import "../platform/popup/locales";
     VaultFilterComponent,
     HintComponent,
     HomeComponent,
-    LockComponent,
     LoginViaAuthRequestComponentV1,
     LoginComponentV1,
     LoginDecryptionOptionsComponentV1,
     NotificationsSettingsV1Component,
     AppearanceComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
-    PremiumComponent,
     RegisterComponent,
-    SendAddEditComponent,
-    SendGroupingsComponent,
-    SendListComponent,
-    SendTypeComponent,
     SetPasswordComponent,
     VaultSettingsComponent,
     ShareComponent,
     SsoComponentV1,
     SyncComponent,
-    TabsComponent,
     TabsV2Component,
     TwoFactorComponent,
     TwoFactorOptionsComponent,

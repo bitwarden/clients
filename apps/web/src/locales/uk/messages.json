@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Відновити учасників"
   },
-  "revokeMembersWarning": {
-    "message": "Учасники із заявленими та не заявленими обліковими записами матимуть різні результати після відкликання:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Заявлений обліковий запис: відкликати доступ до облікового запису Bitwarden"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Не заявлений обліковий запис: відкликати доступ до даних організації"
-  },
-  "claimedAccount": {
-    "message": "Заявлений обліковий запис"
-  },
-  "unclaimedAccount": {
-    "message": "Не заявлений обліковий запис"
-  },
-  "restoreMembersInstructions": {
-    "message": "Щоб відновити обліковий запис учасника, перейдіть на вкладку \"Відкликані\". Процес може тривати декілька секунд, і його не можна перервати чи скасувати."
-  },
   "cannotRestoreAccessError": {
     "message": "Не вдається відновити доступ до організації"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Оновити браузер"
+  },
+  "generatingRiskInsights": {
+    "message": "Генерується інформація щодо ризиків..."
   },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Код дескриптора"
   },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
   "removeMembers": {
     "message": "Вилучити учасників"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Домен заявлено"
+  },
+  "organizationNameMaxLength": {
+    "message": "Назва організації не може перевищувати 50 символів."
   }
 }

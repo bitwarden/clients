@@ -9,6 +9,7 @@ import { BitFormControlAbstraction } from "../form-control";
   selector: "input[type=checkbox][bitCheckbox]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
+  standalone: true,
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   @HostBinding("class")

@@ -14,6 +14,7 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
  */
 @Directive({
   selector: "[formGroup][bitSubmit]",
+  standalone: true,
 })
 export class BitSubmitDirective implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

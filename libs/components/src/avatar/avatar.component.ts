@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { NgIf, NgClass } from "@angular/common";
 import { Component, Input, OnChanges } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
@@ -18,6 +19,8 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 @Component({
   selector: "bit-avatar",
   template: `<img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />`,
+  standalone: true,
+  imports: [NgIf, NgClass],
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;

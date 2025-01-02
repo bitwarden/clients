@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
+// FIXME: Update this file to be type safe
 // @ts-strict-ignore
-
-import { Injectable } from "@angular/core";
 import { concatMap, first, from, map, Observable, zip } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -24,7 +22,6 @@ import {
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 
-@Injectable()
 export class RiskInsightsReportService {
   constructor(
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
@@ -290,13 +287,15 @@ export class RiskInsightsReportService {
         : newUriDetail.cipherMembers,
       atRiskMemberDetails: existingUriDetail ? existingUriDetail.atRiskMemberDetails : [],
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
+      atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
-      (reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1),
-        (reportDetail.atRiskMemberDetails = this.getUniqueMembers(
-          reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
-        ));
+      reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1;
+      reportDetail.atRiskMemberDetails = this.getUniqueMembers(
+        reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
+      );
+      reportDetail.atRiskMemberCount += reportDetail.atRiskMemberDetails.length;
     }
 
     reportDetail.memberCount = reportDetail.memberDetails.length;

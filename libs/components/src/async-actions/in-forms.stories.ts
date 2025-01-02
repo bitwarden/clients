@@ -109,20 +109,17 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [PromiseExampleComponent, ObservableExampleComponent],
+      imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
-        PromiseExampleComponent,
-        ObservableExampleComponent,
-        BitActionDirective,
-      ],
-      imports: [
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
         InputModule,
         ButtonModule,
         IconButtonModule,
+        BitActionDirective,
       ],
       providers: [
         {

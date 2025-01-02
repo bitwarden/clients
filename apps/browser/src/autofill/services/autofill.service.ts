@@ -1514,7 +1514,7 @@ export default class AutofillService implements AutofillServiceInterface {
       );
 
       return CreditCardAutoFillConstants.CardAttributesExtended.find((attributeName) => {
-        const fieldAttributeValue = field[attributeName];
+        const fieldAttributeValue = field[attributeName]?.toLocaleLowerCase();
 
         const fieldAttributeMatch = fieldAttributeValue?.match(dateFormatPattern);
         // break find as soon as a match is found

@@ -57,7 +57,6 @@ export class OrganizationLayoutComponent implements OnInit {
   showPaymentAndHistory$: Observable<boolean>;
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
-  isAccessIntelligenceFeatureEnabled = false;
   enterpriseOrganization$: Observable<boolean>;
 
   constructor(

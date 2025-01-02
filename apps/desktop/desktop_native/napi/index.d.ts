@@ -124,6 +124,58 @@ export declare namespace ipc {
 }
 export declare namespace autofill {
   export function runCommand(value: string): Promise<string>
+  export const enum UserVerification {
+    Preferred = 'preferred',
+    Required = 'required',
+    Discouraged = 'discouraged'
+  }
+  export interface PasskeyRegistrationRequest {
+    rpId: string
+    userName: string
+    userHandle: Array<number>
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    supportedAlgorithms: Array<number>
+  }
+  export interface PasskeyRegistrationResponse {
+    rpId: string
+    clientDataHash: Array<number>
+    credentialId: Array<number>
+    attestationObject: Array<number>
+  }
+  export interface PasskeyAssertionRequest {
+    rpId: string
+    credentialId: Array<number>
+    userName: string
+    userHandle: Array<number>
+    recordIdentifier?: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+  }
+  export interface PasskeyAssertionResponse {
+    rpId: string
+    userHandle: Array<number>
+    signature: Array<number>
+    clientDataHash: Array<number>
+    authenticatorData: Array<number>
+    credentialId: Array<number>
+  }
+  export class IpcServer {
+    /**
+     * Create and start the IPC server without blocking.
+     *
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
+     * @param callback This function will be called whenever a message is received from a client.
+     */
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    /** Return the path to the IPC server. */
+    getPath(): string
+    /** Stop the IPC server. */
+    stop(): void
+    completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
+    completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeError(clientId: number, sequenceNumber: number, error: string): number
+  }
 }
 export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>

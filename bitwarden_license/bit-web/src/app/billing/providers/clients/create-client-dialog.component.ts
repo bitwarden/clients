@@ -47,7 +47,7 @@ export class CreateClientDialogComponent implements OnInit {
   protected discountPercentage: number;
   protected formGroup = new FormGroup({
     clientOwnerEmail: new FormControl<string>("", [Validators.required, Validators.email]),
-    organizationName: new FormControl<string>("", [Validators.required]),
+    organizationName: new FormControl<string>("", [Validators.required, Validators.maxLength(50)]),
     seats: new FormControl<number>(null, [Validators.required, Validators.min(1)]),
   });
   protected loading = true;

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
   AfterViewInit,
@@ -19,6 +20,8 @@ let nextId = 0;
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
   preserveWhitespaces: false,
+  standalone: true,
+  imports: [NgClass],
 })
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
   id = nextId++;

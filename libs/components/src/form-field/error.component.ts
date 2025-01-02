@@ -14,6 +14,7 @@ let nextId = 0;
     class: "tw-block tw-mt-1 tw-text-danger tw-text-xs",
     "aria-live": "assertive",
   },
+  standalone: true,
 })
 export class BitErrorComponent {
   @HostBinding() id = `bit-error-${nextId++}`;

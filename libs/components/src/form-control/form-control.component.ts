@@ -1,15 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass, NgIf } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { I18nPipe } from "../shared/i18n.pipe";
+import { TypographyDirective } from "../typography/typography.directive";
 
 import { BitFormControlAbstraction } from "./form-control.abstraction";
 
 @Component({
   selector: "bit-form-control",
   templateUrl: "form-control.component.html",
+  standalone: true,
+  imports: [NgClass, TypographyDirective, NgIf, I18nPipe],
 })
 export class FormControlComponent {
   @Input() label: string;

@@ -1,14 +1,29 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { CommonModule } from "@angular/common";
 import { Component, HostBinding, Input } from "@angular/core";
 
+import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { I18nPipe } from "../../shared/i18n.pipe";
+import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
+import { DialogCloseDirective } from "../directives/dialog-close.directive";
+import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
   animations: [fadeIn],
+  standalone: true,
+  imports: [
+    CommonModule,
+    DialogTitleContainerDirective,
+    TypographyDirective,
+    BitIconButtonComponent,
+    DialogCloseDirective,
+    I18nPipe,
+  ],
 })
 export class DialogComponent {
   /** Background color */

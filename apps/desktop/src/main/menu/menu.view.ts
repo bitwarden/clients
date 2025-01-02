@@ -76,7 +76,7 @@ export class ViewMenu implements IMenubarMenu {
   private get passwordHistory(): MenuItemConstructorOptions {
     return {
       id: "passwordHistory",
-      label: this.localize("passwordHistory"),
+      label: this.localize("generatorHistory"),
       click: () => this.sendMessage("openPasswordHistory"),
       enabled: !this._isLocked,
     };

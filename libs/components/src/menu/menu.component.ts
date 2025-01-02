@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { FocusKeyManager } from "@angular/cdk/a11y";
+import { FocusKeyManager, CdkTrapFocus } from "@angular/cdk/a11y";
 import {
   Component,
   Output,
@@ -19,6 +19,8 @@ import { MenuItemDirective } from "./menu-item.directive";
   selector: "bit-menu",
   templateUrl: "./menu.component.html",
   exportAs: "menuComponent",
+  standalone: true,
+  imports: [CdkTrapFocus],
 })
 export class MenuComponent implements AfterContentInit {
   @ViewChild(TemplateRef) templateRef: TemplateRef<any>;

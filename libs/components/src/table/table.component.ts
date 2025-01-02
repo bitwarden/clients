@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { isDataSource } from "@angular/cdk/collections";
+import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
@@ -16,6 +17,7 @@ import { TableDataSource } from "./table-data-source";
 
 @Directive({
   selector: "ng-template[body]",
+  standalone: true,
 })
 export class TableBodyDirective {
   // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
@@ -25,6 +27,8 @@ export class TableBodyDirective {
 @Component({
   selector: "bit-table",
   templateUrl: "./table.component.html",
+  standalone: true,
+  imports: [CommonModule],
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {
   @Input() dataSource: TableDataSource<any>;

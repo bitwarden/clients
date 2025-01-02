@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Leden herstellen"
   },
-  "revokeMembersWarning": {
-    "message": "Leden met geclaimde en niet-geclailmde accounts krijgen verschillende resultaten bij intrekken:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Geclaimd account: Toegang tot Bitwarden-account intrekken"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Niet-geclaild account: Toegang tot organisatiegegevens intrekken"
-  },
-  "claimedAccount": {
-    "message": "Geclaimd account"
-  },
-  "unclaimedAccount": {
-    "message": "Niet-geclaimd account"
-  },
-  "restoreMembersInstructions": {
-    "message": "Om het account van een lid te herstellen, ga je naar het tabblad Ingetrokken. Het proces duurt een paar seconden om te voltooien en kan niet worden onderbroken of geannuleerd."
-  },
   "cannotRestoreAccessError": {
     "message": "Kan organisatietoegang niet herstellen"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
+  },
+  "generatingRiskInsights": {
+    "message": "Je risico-inzichten genereren..."
   },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
@@ -9899,6 +9884,42 @@
   "descriptorCode": {
     "message": "Code bankafschrift"
   },
+  "importantNotice": {
+    "message": "Belangrijke mededeling"
+  },
+  "setupTwoStepLogin": {
+    "message": "Tweestapsaanmelding instellen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
+  },
+  "remindMeLater": {
+    "message": "Herinner me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nee, dat heb ik niet"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Tweestapsaanmelding inschakelen"
+  },
+  "changeAcctEmail": {
+    "message": "E-mailadres van het account veranderen"
+  },
   "removeMembers": {
     "message": "Leden verwijderen"
   },
@@ -9983,5 +10004,8 @@
   },
   "domainClaimed": {
     "message": "Domein geverifieerd"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   }
 }

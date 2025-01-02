@@ -30,6 +30,7 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   ToastService,
   TypographyModule,
@@ -90,6 +91,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private apiService: ApiService,
     private destroyRef: DestroyRef,
     private deviceTrustService: DeviceTrustServiceAbstraction,
+    private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private keyService: KeyService,
@@ -297,5 +299,19 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   protected async requestAdminApproval() {
     this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
+  }
+
+  async logOut() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "logOut" },
+      content: { key: "logOutConfirmation" },
+      acceptButtonText: { key: "logOut" },
+      type: "warning",
+    });
+
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    if (confirmed) {
+      this.messagingService.send("logout", { userId: userId });
+    }
   }
 }

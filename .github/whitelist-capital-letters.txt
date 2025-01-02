@@ -37,7 +37,6 @@
 ./apps/browser/store/windows/AppxManifest.xml
 ./apps/browser/src/background/nativeMessaging.background.ts
 ./apps/browser/src/models/browserComponentState.ts
-./apps/browser/src/models/browserSendComponentState.ts
 ./apps/browser/src/models/browserGroupingsComponentState.ts
 ./apps/browser/src/models/biometricErrors.ts
 ./apps/browser/src/browser/safariApp.ts

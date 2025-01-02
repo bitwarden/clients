@@ -17,15 +17,15 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
+import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockV2Component,
+  LockComponent,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -43,6 +43,11 @@ import {
   TwoFactorTimeoutIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  NewDeviceVerificationNoticePageOneComponent,
+  NewDeviceVerificationNoticePageTwoComponent,
+  VaultIcons,
+} from "@bitwarden/vault";
 
 import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
@@ -54,7 +59,6 @@ import {
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
@@ -77,16 +81,10 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
-import { GeneratorComponent } from "../tools/popup/generator/generator.component";
-import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
-import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
-import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
-import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -99,10 +97,8 @@ import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
 import { CollectionsComponent } from "../vault/popup/components/vault/collections.component";
-import { CurrentTabComponent } from "../vault/popup/components/vault/current-tab.component";
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/password-history.component";
 import { ShareComponent } from "../vault/popup/components/vault/share.component";
-import { VaultFilterComponent } from "../vault/popup/components/vault/vault-filter.component";
 import { VaultItemsComponent } from "../vault/popup/components/vault/vault-items.component";
 import { VaultV2Component } from "../vault/popup/components/vault/vault-v2.component";
 import { ViewComponent } from "../vault/popup/components/vault/view.component";
@@ -124,7 +120,6 @@ import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.c
 import { RouteElevation } from "./app-routing.animations";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
-import { TabsComponent } from "./tabs.component";
 
 /**
  * Data properties acceptable for use in extension route objects
@@ -170,13 +165,6 @@ const routes: Routes = [
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  {
-    path: "lock",
-    component: LockComponent,
-    canActivate: [lockGuard()],
-    canMatch: [extensionRefreshRedirect("/lockV2")],
-    data: { elevation: 1, doNotSaveUrl: true } satisfies RouteDataProperties,
-  },
   ...twofactorRefactorSwap(
     TwoFactorComponent,
     AnonLayoutWrapperComponent,
@@ -336,15 +324,16 @@ const routes: Routes = [
   }),
   {
     path: "generator",
-    component: GeneratorComponent,
+    component: CredentialGeneratorComponent,
     canActivate: [authGuard],
     data: { elevation: 0 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(PasswordGeneratorHistoryComponent, CredentialGeneratorHistoryComponent, {
+  {
     path: "generator-history",
+    component: CredentialGeneratorHistoryComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "import",
     component: ImportBrowserV2Component,
@@ -405,12 +394,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(PremiumComponent, PremiumV2Component, {
+  {
     path: "premium",
-    component: PremiumComponent,
+    component: PremiumV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
     path: "appearance",
     canActivate: [authGuard],
@@ -422,21 +411,17 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
   {
-    path: "send-type",
-    component: SendTypeComponent,
+    path: "add-send",
+    component: SendAddEditV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
-    path: "add-send",
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(SendAddEditComponent, SendAddEditV2Component, {
+  {
     path: "edit-send",
+    component: SendAddEditV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "send-created",
     component: SendCreatedComponent,
@@ -647,8 +632,8 @@ const routes: Routes = [
         ],
       },
       {
-        path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
+        path: "lock",
+        canActivate: [lockGuard()],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -659,15 +644,19 @@ const routes: Routes = [
           elevation: 1,
           /**
            * This ensures that in a passkey flow the `/fido2?<queryParams>` URL does not get
-           * overwritten in the `BrowserRouterService` by the `/lockV2` route. This way, after
+           * overwritten in the `BrowserRouterService` by the `/lock` route. This way, after
            * unlocking, the user can be redirected back to the `/fido2?<queryParams>` URL.
+           *
+           * Also, this prevents a routing loop when using biometrics to unlock the vault in MV2 (Firefox),
+           * locking up the browser (https://bitwarden.atlassian.net/browse/PM-16116). This involves the
+           * `popup-router-cache.service` pushing the `lock` route to the history.
            */
           doNotSaveUrl: true,
         } satisfies ExtensionAnonLayoutWrapperData & RouteDataProperties,
         children: [
           {
             path: "",
-            component: LockV2Component,
+            component: LockComponent,
           },
         ],
       },
@@ -711,8 +700,37 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(TabsComponent, TabsV2Component, {
+  {
+    path: "new-device-notice",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    children: [
+      {
+        path: "",
+        component: NewDeviceVerificationNoticePageOneComponent,
+        data: {
+          pageIcon: VaultIcons.ExclamationTriangle,
+          pageTitle: {
+            key: "importantNotice",
+          },
+          hideFooter: true,
+        },
+      },
+      {
+        path: "setup",
+        component: NewDeviceVerificationNoticePageTwoComponent,
+        data: {
+          pageIcon: VaultIcons.UserLock,
+          pageTitle: {
+            key: "setupTwoStepLogin",
+          },
+        },
+      },
+    ],
+  },
+  {
     path: "tabs",
+    component: TabsV2Component,
     data: { elevation: 0 } satisfies RouteDataProperties,
     children: [
       {
@@ -722,36 +740,35 @@ const routes: Routes = [
       },
       {
         path: "current",
-        component: CurrentTabComponent,
-        canActivate: [authGuard],
-        canMatch: [extensionRefreshRedirect("/tabs/vault")],
-        data: { elevation: 0 } satisfies RouteDataProperties,
-        runGuardsAndResolvers: "always",
+        redirectTo: "/tabs/vault",
       },
-      ...extensionRefreshSwap(VaultFilterComponent, VaultV2Component, {
+      {
         path: "vault",
-        canActivate: [authGuard],
+        component: VaultV2Component,
+        canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
-      }),
-      ...extensionRefreshSwap(GeneratorComponent, CredentialGeneratorComponent, {
+      },
+      {
         path: "generator",
+        component: CredentialGeneratorComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
-      }),
+      },
       {
         path: "settings",
         component: SettingsV2Component,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
-      ...extensionRefreshSwap(SendGroupingsComponent, SendV2Component, {
+      {
         path: "send",
+        component: SendV2Component,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
-      }),
+      },
     ],
-  }),
+  },
   {
     path: "account-switcher",
     component: AccountSwitcherComponent,

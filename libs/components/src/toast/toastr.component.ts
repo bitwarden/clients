@@ -2,6 +2,8 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component } from "@angular/core";
 import { Toast as BaseToastrComponent } from "ngx-toastr";
 
+import { ToastComponent } from "./toast.component";
+
 @Component({
   template: `
     <bit-toast
@@ -22,5 +24,7 @@ import { Toast as BaseToastrComponent } from "ngx-toastr";
     ]),
   ],
   preserveWhitespaces: false,
+  standalone: true,
+  imports: [ToastComponent],
 })
 export class BitwardenToastrComponent extends BaseToastrComponent {}

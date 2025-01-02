@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
@@ -48,19 +46,19 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   ],
 })
 export class CipherViewComponent implements OnChanges, OnDestroy {
-  @Input({ required: true }) cipher: CipherView;
+  @Input({ required: true }) cipher: CipherView | null = null;
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
    */
-  @Input() collections: CollectionView[];
+  @Input() collections?: CollectionView[];
 
   /** Should be set to true when the component is used within the Admin Console */
   @Input() isAdminConsole?: boolean = false;
 
-  organization$: Observable<Organization>;
-  folder$: Observable<FolderView>;
+  organization$: Observable<Organization | undefined> | undefined;
+  folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
 
@@ -86,24 +84,38 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   }
 
   get hasCard() {
+    if (!this.cipher) {
+      return false;
+    }
+
     const { cardholderName, code, expMonth, expYear, number } = this.cipher.card;
     return cardholderName || code || expMonth || expYear || number;
   }
 
   get hasLogin() {
+    if (!this.cipher) {
+      return false;
+    }
+
     const { username, password, totp } = this.cipher.login;
     return username || password || totp;
   }
 
   get hasAutofill() {
-    return this.cipher.login?.uris.length > 0;
+    const uris = this.cipher?.login?.uris.length ?? 0;
+
+    return uris > 0;
   }
 
   get hasSshKey() {
-    return this.cipher.sshKey?.privateKey;
+    return !!this.cipher?.sshKey?.privateKey;
   }
 
   async loadCipherData() {
+    if (!this.cipher) {
+      return;
+    }
+
     // Load collections if not provided and the cipher has collectionIds
     if (
       this.cipher.collectionIds &&

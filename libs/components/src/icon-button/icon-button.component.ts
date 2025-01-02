@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
@@ -134,6 +135,8 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
+  standalone: true,
+  imports: [NgClass],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   @Input("bitIconButton") icon: string;

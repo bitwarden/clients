@@ -1,6 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
+
+import { IconButtonModule } from "../icon-button";
+import { I18nPipe } from "../shared/i18n.pipe";
 
 type BannerTypes = "premium" | "info" | "warning" | "danger";
 
@@ -14,6 +18,8 @@ const defaultIcon: Record<BannerTypes, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
+  standalone: true,
+  imports: [CommonModule, IconButtonModule, I18nPipe],
 })
 export class BannerComponent implements OnInit {
   @Input("bannerType") bannerType: BannerTypes = "info";

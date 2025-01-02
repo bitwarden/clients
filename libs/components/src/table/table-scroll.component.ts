@@ -1,6 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
+  CdkVirtualScrollViewport,
+  CdkVirtualScrollableWindow,
+  CdkFixedSizeVirtualScroll,
+  CdkVirtualForOf,
+} from "@angular/cdk/scrolling";
+import { CommonModule } from "@angular/common";
+import {
   AfterContentChecked,
   Component,
   ContentChild,
@@ -14,6 +21,7 @@ import {
   TrackByFunction,
 } from "@angular/core";
 
+import { RowDirective } from "./row.directive";
 import { TableComponent } from "./table.component";
 
 /**
@@ -42,6 +50,15 @@ export class BitRowDef {
   selector: "bit-table-scroll",
   templateUrl: "./table-scroll.component.html",
   providers: [{ provide: TableComponent, useExisting: TableScrollComponent }],
+  standalone: true,
+  imports: [
+    CommonModule,
+    CdkVirtualScrollViewport,
+    CdkVirtualScrollableWindow,
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualForOf,
+    RowDirective,
+  ],
 })
 export class TableScrollComponent
   extends TableComponent

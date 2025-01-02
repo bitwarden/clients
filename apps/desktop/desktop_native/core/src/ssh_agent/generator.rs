@@ -19,24 +19,24 @@ pub async fn generate_keypair(key_algorithm: String) -> Result<SshKey, anyhow::E
                 _ => return Err(anyhow::anyhow!("Unsupported RSA key size")),
             };
             let rsa_keypair = ssh_key::private::RsaKeypair::random(&mut rng, bits)
-                .or_else(|e| Err(anyhow::anyhow!(e.to_string())))?;
+                .map_err(|e| anyhow::anyhow!(e.to_string()))?;
 
             let private_key = ssh_key::PrivateKey::new(
                 ssh_key::private::KeypairData::from(rsa_keypair),
                 "".to_string(),
             )
-            .or_else(|e| Err(anyhow::anyhow!(e.to_string())))?;
+            .map_err(|e| anyhow::anyhow!(e.to_string()))?;
             Ok(private_key)
         }
         _ => {
             return Err(anyhow::anyhow!("Unsupported key algorithm"));
         }
     }
-    .or_else(|e| Err(anyhow::anyhow!(e.to_string())))?;
+    .map_err(|e| anyhow::anyhow!(e.to_string()))?;
 
     let private_key_openssh = key
         .to_openssh(LineEnding::LF)
-        .or_else(|e| Err(anyhow::anyhow!(e.to_string())))?;
+        .map_err(|e| anyhow::anyhow!(e.to_string()))?;
     Ok(SshKey {
         private_key: private_key_openssh.to_string(),
         public_key: key.public_key().to_string(),

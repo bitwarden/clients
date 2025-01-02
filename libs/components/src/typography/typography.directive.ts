@@ -31,6 +31,7 @@ const margins: Record<TypographyType, string[]> = {
 
 @Directive({
   selector: "[bitTypography]",
+  standalone: true,
 })
 export class TypographyDirective {
   @Input("bitTypography") bitTypography: TypographyType;

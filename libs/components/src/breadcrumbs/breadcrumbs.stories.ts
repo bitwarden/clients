@@ -25,8 +25,7 @@ export default {
   component: BreadcrumbsComponent,
   decorators: [
     moduleMetadata({
-      declarations: [BreadcrumbComponent],
-      imports: [LinkModule, MenuModule, IconButtonModule, RouterModule],
+      imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
     }),
     applicationConfig({
       providers: [

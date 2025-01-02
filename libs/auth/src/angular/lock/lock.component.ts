@@ -75,7 +75,7 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
     IconButtonModule,
   ],
 })
-export class LockV2Component implements OnInit, OnDestroy {
+export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   activeAccount: Account | null;
@@ -543,8 +543,8 @@ export class LockV2Component implements OnInit, OnDestroy {
       const previousUrl = this.lockComponentService.getPreviousUrl();
       /**
        * In a passkey flow, the `previousUrl` will still be `/fido2?<queryParams>` at this point
-       * because the `/lockV2` route doesn't save the URL in the `BrowserRouterService`. This is
-       * handled by the `doNotSaveUrl` property on the `lockV2` route in `app-routing.module.ts`.
+       * because the `/lock` route doesn't save the URL in the `BrowserRouterService`. This is
+       * handled by the `doNotSaveUrl` property on the `/lock` route in `app-routing.module.ts`.
        */
       if (previousUrl) {
         await this.router.navigateByUrl(previousUrl);
