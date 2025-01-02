@@ -3,19 +3,17 @@ import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes } from "../../constants/styles";
-import { ActionButton } from "../buttons/action-button";
+import { ActionButton } from "../../../content/components/buttons/action-button";
+import { spacing, themes } from "../../../content/components/constants/styles";
+import { Folder, User } from "../../../content/components/icons";
 import { DropdownMenu } from "../dropdown-menu";
-import { Folder, User } from "../icons";
 
 export function ButtonRow({ theme }: { theme: Theme }) {
   return html`
     <div class=${buttonRowStyles}>
       ${[
         ActionButton({
-          buttonAction: () => {
-            window.alert("action button preseed!");
-          },
+          buttonAction: () => {},
           buttonText: "Action Button",
           theme,
         }),

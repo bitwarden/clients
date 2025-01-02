@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Globe } from "../icons";
+import { Globe } from "../../../content/components/icons";
 
 /**
  * @param {string} props.color contextual color override if no icon URI is available

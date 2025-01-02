@@ -3,18 +3,21 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { createAutofillOverlayCipherDataMock } from "../../spec/autofill-mocks";
-import { NotificationBarIframeInitData, NotificationTypes } from "../abstractions/notification-bar";
+import {
+  NotificationBarIframeInitData,
+  NotificationTypes,
+} from "../../../notification/abstractions/notification-bar";
+import { createAutofillOverlayCipherDataMock } from "../../../spec/autofill-mocks";
+import { CipherItem } from "../cipher";
+import { CipherData } from "../cipher/types";
 import { themes, spacing } from "../constants/styles";
-import { CipherData } from "../types";
+import { ActionRow } from "../rows/action-row";
+import { ButtonRow } from "../rows/button-row";
+import { ItemRow } from "../rows/item-row";
 
 import { NotificationBody } from "./body";
-import { CipherItem } from "./cipher";
 import { NotificationFooter } from "./footer";
 import { NotificationHeader } from "./header";
-import { ActionRow } from "./rows/action-row";
-import { ButtonRow } from "./rows/button-row";
-import { ItemRow } from "./rows/item-row";
 
 export function NotificationContainer({
   handleCloseNotification,
@@ -43,7 +46,7 @@ export function NotificationContainer({
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
-        showBottomBorder: showBody,
+        standalone: showBody,
         isVaultLocked,
         message: headerMessage,
         theme,
@@ -60,9 +63,7 @@ export function NotificationContainer({
                   cipher,
                   notificationType: type,
                   theme,
-                  handleAction: () => {
-                    window.alert("cipher item button pressed!");
-                  },
+                  handleAction: () => {},
                 }),
               }),
             ),
@@ -80,7 +81,7 @@ export function NotificationContainer({
   `;
 }
 
-// @TODO rethink this
+// @TODO use emotion css class composition
 const notificationBodyClass = "notification-body";
 
 const notificationContainerStyles = (theme: Theme) => css`
@@ -91,6 +92,10 @@ const notificationContainerStyles = (theme: Theme) => css`
   box-shadow: -2px 4px 6px 0px #0000001a;
   background-color: ${themes[theme].background.alt};
   width: 400px;
+
+  > [class*="notification-header-"] {
+    border-radius: ${spacing["4"]} ${spacing["4"]} 0 0;
+  }
 
   > .${notificationBodyClass} {
     margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};

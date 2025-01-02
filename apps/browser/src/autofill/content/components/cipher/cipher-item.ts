@@ -1,20 +1,15 @@
 import { css } from "@emotion/css";
-// import {customElement} from 'lit/decorators.js';
-import {ContextConsumer} from '@lit/context';
 import { html } from "lit";
-
-// import { define } from "../utils/define";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { NotificationTypes } from "../../abstractions/notification-bar";
-import { spacing, themes } from "../../constants/styles";
-import { themeContext } from "../../contexts/theme";
-import { CipherData } from "../../types";
+import { spacing, themes } from "../../../content/components/constants/styles";
+import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
 
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
 import { CipherInfo } from "./cipher-info";
+import { CipherData } from "./types";
 
 const cipherIconWidth = "24px";
 
@@ -39,11 +34,6 @@ export function CipherItem({
       ${CipherAction({ handleAction, notificationType, theme })}
     </div>`;
   }
-
-  // const test = new ContextConsumer(
-  //   document.body,
-  //   {context: themeContext}
-  // );
 
   return html`
     <div class=${cipherItemStyles}>
@@ -70,6 +60,3 @@ const cipherItemStyles = css`
     max-width: calc(100% - ${cipherIconWidth} - ${spacing["2"]});
   }
 `;
-
-
-// customElements.define('cipher-item', CipherItem);

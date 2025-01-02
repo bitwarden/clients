@@ -1,8 +1,8 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { NotificationTypes } from "../../abstractions/notification-bar";
-import { BadgeButton } from "../buttons/badge-button";
-import { EditButton } from "../buttons/edit-button";
+import { BadgeButton } from "../../../content/components/buttons/badge-button";
+import { EditButton } from "../../../content/components/buttons/edit-button";
+import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
 
 export function CipherAction({
   handleAction = () => {

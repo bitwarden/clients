@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes, typography, spacing } from "../../constants/styles";
+import { themes, typography, spacing } from "../constants/styles";
 import { PencilSquare } from "../icons";
 
 export function EditButton({

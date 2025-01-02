@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../constants/styles";
+import { themes } from "./constants/styles";
 
 /*
  * `color` is an intentionally generic name, since either fill or stroke may apply, due to

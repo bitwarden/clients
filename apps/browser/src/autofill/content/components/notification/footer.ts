@@ -1,12 +1,12 @@
 import { css } from "@emotion/css";
 import { html, TemplateResult } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes } from "../constants/styles";
 
 export function NotificationFooter({
-  theme = ThemeTypes.Light,
+  theme,
   children,
 }: {
   theme: Theme;

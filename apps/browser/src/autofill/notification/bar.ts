@@ -1,5 +1,3 @@
-import { render } from "lit";
-
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -16,13 +14,8 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
 } from "./abstractions/notification-bar";
-import { NotificationContainer } from "./components/container";
 
-const useComponentBar = true;
-
-if (!useComponentBar) {
-  require("./bar.scss");
-}
+require("./bar.scss");
 
 const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
@@ -45,7 +38,12 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const { isVaultLocked } = notificationBarIframeInitData;
+  setNotificationBarTheme();
+
+  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
+    ? chrome.runtime.getURL("images/icon38_locked.png")
+    : chrome.runtime.getURL("images/icon38.png");
 
   const i18n = {
     appName: chrome.i18n.getMessage("appName"),
@@ -64,48 +62,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     cancelFilelessImport: chrome.i18n.getMessage("no"),
     lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
     startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
-
-    // @TODO move values to message catalog
-    saveAction: "Save",
-    saveAsNewLoginAction: "Save as new login",
-    updateLoginAction: "Update login",
-    saveLoginPrompt: "Save login?",
-    updateLoginPrompt: "Update existing login?",
-    loginSaveSuccess: "Login saved",
-    loginSaveSuccessDetails: "Login saved to Bitwarden.",
-    loginUpdateSuccess: "Login saved",
-    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
-    saveFailure: "Error saving",
-    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
   };
-
-  if (useComponentBar) {
-    document.body.innerHTML = "";
-    // Temporary workaround for removing required stylesheet for old notification bar experience
-    document.head.querySelectorAll('link[rel="stylesheet"]').forEach(node => node.remove());
-
-    const themeType = getTheme(globalThis, theme);
-
-    // There are other possible passed theme values, but for now, resolve to dark or light
-    const resolvedTheme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
-
-    // @TODO use context to avoid prop drilling
-    return render(
-      NotificationContainer({
-        ...notificationBarIframeInitData,
-        theme: resolvedTheme,
-        handleCloseNotification,
-        i18n,
-      }),
-      document.body,
-    );
-  }
-
-  setNotificationBarTheme();
-
-  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
 
   setupLogoLink(i18n);
 
@@ -169,7 +126,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   closeButton.title = i18n.close;
 
   const notificationType = initData.type;
-  if (notificationType === "add") {
+  if (initData.type === "add") {
     handleTypeAdd();
   } else if (notificationType === "change") {
     handleTypeChange();
@@ -179,17 +136,15 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     handleTypeFilelessImport();
   }
 
-  closeButton.addEventListener("click", handleCloseNotification);
+  closeButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    sendPlatformMessage({
+      command: "bgCloseNotificationBar",
+    });
+  });
 
   globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
-}
-
-function handleCloseNotification(e: Event) {
-  e.preventDefault();
-  sendPlatformMessage({
-    command: "bgCloseNotificationBar",
-  });
 }
 
 function handleTypeAdd() {
@@ -437,18 +392,13 @@ function setupLogoLink(i18n: Record<string, string>) {
   sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, setWebVaultUrlLink);
 }
 
-function getTheme(globalThis: any, theme: NotificationBarIframeInitData["theme"]) {
+function setNotificationBarTheme() {
+  let theme = notificationBarIframeInitData.theme;
   if (theme === ThemeTypes.System) {
-    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+    theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
       ? ThemeTypes.Dark
       : ThemeTypes.Light;
   }
-
-  return theme;
-}
-
-function setNotificationBarTheme() {
-  const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
 
   document.documentElement.classList.add(`theme_${theme}`);
 

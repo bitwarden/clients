@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { border, themes, typography, spacing } from "../../constants/styles";
+import { border, themes, typography, spacing } from "../constants/styles";
 
 export function ActionButton({
   buttonAction,

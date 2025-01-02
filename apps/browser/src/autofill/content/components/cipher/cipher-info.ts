@@ -3,10 +3,10 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes, typography } from "../../constants/styles";
-import { CipherData } from "../../types";
+import { themes, typography } from "../../../content/components/constants/styles";
 
 import { CipherInfoIndicatorIcons } from "./cipher-indicator-icons";
+import { CipherData } from "./types";
 
 export function CipherInfo({ cipher, theme }: { cipher: CipherData; theme: Theme }) {
   const { name, login } = cipher;

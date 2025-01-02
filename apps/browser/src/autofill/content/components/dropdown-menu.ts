@@ -3,8 +3,7 @@ import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { border, themes, typography, spacing } from "../constants/styles";
-
+import { border, themes, typography, spacing } from "./constants/styles";
 import { AngleDown } from "./icons";
 
 export function DropdownMenu({

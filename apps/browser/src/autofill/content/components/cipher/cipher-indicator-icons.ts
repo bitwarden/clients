@@ -3,14 +3,15 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../../constants/styles";
-import { CipherData } from "../../types";
-import { Business } from "../icons";
+import { themes } from "../../../content/components/constants/styles";
+import { Business } from "../../../content/components/icons";
+
+import { CipherData } from "./types";
 
 // @TODO support other indicator types (attachments, family orgs, etc)
 export function CipherInfoIndicatorIcons({ cipher, theme }: { cipher: CipherData; theme: Theme }) {
   // @TODO connect data source to icon checks
-  const isBusinessOrg = false;
+  const isBusinessOrg = true;
 
   const indicatorIcons = [
     ...(isBusinessOrg ? [Business({ color: themes[theme].text.muted, theme })] : []),
