@@ -169,7 +169,7 @@ jobs:
           zip -r browser-source.zip browser-source
 
       - name: Upload browser source
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
@@ -272,7 +272,7 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: ${{ matrix.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{ matrix.archive_name }}
@@ -409,7 +409,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/dist-safari.zip
