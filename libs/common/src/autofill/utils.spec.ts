@@ -86,6 +86,8 @@ function getCardExpiryDateValues() {
   // `Date` months are zero-indexed, our expiry date month inputs are one-indexed
   const currentMonth = currentDate.getMonth() + 1;
 
+  const currentDateLastMonth = new Date(currentDate.setMonth(-1));
+
   return [
     [null, null, false], // no month, no year
     [undefined, undefined, false], // no month, no year, invalid values
@@ -103,7 +105,7 @@ function getCardExpiryDateValues() {
     [`${currentMonth + 36}`, `${currentYear - 1}`, true], // even though the month value would put the date 3 years into the future when calculated with `Date`, an explicit year in the past indicates the card is expired
     [`${currentMonth}`, `${currentYear}`, false], // this year, this month (not expired until the month is over)
     [`${currentMonth}`, `${currentYear}`.slice(-2), false], // This month, this year (not expired until the month is over)
-    [`${currentMonth - 1}`, `${currentYear}`, true], // last month
+    [`${currentDateLastMonth.getMonth() + 1}`, `${currentDateLastMonth.getFullYear()}`, true], // last month
     [`${currentMonth - 1}`, `${currentYear + 1}`, false], // 11 months from now
   ];
 }

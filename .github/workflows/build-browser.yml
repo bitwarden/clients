@@ -114,8 +114,8 @@ jobs:
          fi
 
 
-  build:
-    name: Build
+  build-source:
+    name: Build browser source
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -127,7 +127,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -175,15 +175,85 @@ jobs:
           path: browser-source.zip
           if-no-files-found: error
 
+
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - locales-test
+      - build-source
+    env:
+      _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+    strategy:
+      matrix:
+        include:
+          - name: "chrome"
+            npm_command: "dist:chrome"
+            archive_name: "dist-chrome.zip"
+            artifact_name: "dist-chrome-MV3"
+          - name: "edge"
+            npm_command: "dist:edge"
+            archive_name: "dist-edge.zip"
+            artifact_name: "dist-edge"
+          - name: "edge-mv3"
+            npm_command: "dist:edge:mv3"
+            archive_name: "dist-edge.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-edge-MV3"
+          - name: "firefox"
+            npm_command: "dist:firefox"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "dist-firefox"
+          - name: "firefox-mv3"
+            npm_command: "dist:firefox:mv3"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
+          - name: "opera"
+            npm_command: "dist:opera"
+            archive_name: "dist-opera.zip"
+            artifact_name: "dist-opera"
+          - name: "opera-mv3"
+            npm_command: "dist:opera:mv3"
+            archive_name: "dist-opera.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-opera-MV3"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
+      - name: Download browser source
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: browser-source-${{ env._BUILD_NUMBER }}.zip
+
+      - name: Unzip browser source artifact
+        run: |
+          unzip browser-source.zip
+          rm browser-source.zip
+
       - name: NPM setup
         run: npm ci
         working-directory: browser-source/
 
-      - name: Download SDK Artifacts
+      - name: Download SDK artifacts
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -195,85 +265,19 @@ jobs:
       - name: Override SDK
         if: ${{ inputs.sdk_branch != '' }}
         working-directory: browser-source/
-        run: |
-          npm link ../sdk-internal
+        run: npm link ../sdk-internal
 
-      - name: Build Chrome
-        run: npm run dist:chrome
+      - name: Build extension
+        run: npm run ${{ matrix.npm_command }}
         working-directory: browser-source/apps/browser
 
-      - name: Upload Chrome MV3 artifact
+      - name: Upload extension artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-chrome.zip
+          name: ${{ matrix.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{ matrix.archive_name }}
           if-no-files-found: error
 
-      - name: Build Edge
-        run: npm run dist:edge
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Edge artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: dist-edge-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-edge.zip
-          if-no-files-found: error
-
-      - name: Build Edge (MV3)
-        run: npm run dist:edge:mv3
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Edge MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-edge.zip
-          if-no-files-found: error
-
-      - name: Build Firefox
-        run: npm run dist:firefox
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Firefox artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: dist-firefox-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-firefox.zip
-          if-no-files-found: error
-
-      - name: Build Firefox (MV3)
-        run: npm run dist:firefox:mv3
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Firefox MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-firefox-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-firefox.zip
-          if-no-files-found: error
-
-      - name: Build Opera
-        run: npm run dist:opera
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Opera artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: dist-opera-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-opera.zip
-          if-no-files-found: error
-
-      - name: Build Opera (MV3)
-        run: npm run dist:opera:mv3
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Opera MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-opera.zip
-          if-no-files-found: error
 
   build-safari:
     name: Build Safari
@@ -448,6 +452,7 @@ jobs:
           upload_sources: true
           upload_translations: false
 
+
   check-failures:
     name: Check for failures
     if: always()
@@ -455,6 +460,7 @@ jobs:
     needs:
       - setup
       - locales-test
+      - build-source
       - build
       - build-safari
       - crowdin-push
