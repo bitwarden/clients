@@ -16,7 +16,6 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -26,9 +25,9 @@ import { TrialFlowService } from "../services/trial-flow.service";
 
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
-  AdjustPaymentDialogResult,
-  openAdjustPaymentDialog,
-} from "./adjust-payment-dialog/adjust-payment-dialog.component";
+  AdjustPaymentDialogV2Component,
+  AdjustPaymentDialogV2ResultType,
+} from "./adjust-payment-dialog/adjust-payment-dialog-v2.component";
 import { TaxInfoComponent } from "./tax-info.component";
 
 @Component({
@@ -72,7 +71,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     protected platformUtilsService: PlatformUtilsService,
     private router: Router,
     private location: Location,
-    private logService: LogService,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
@@ -164,14 +162,16 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   };
 
   changePayment = async () => {
-    const dialogRef = openAdjustPaymentDialog(this.dialogService, {
+    const dialogRef = AdjustPaymentDialogV2Component.open(this.dialogService, {
       data: {
+        initialPaymentMethod: this.paymentSource !== null ? this.paymentSource.type : null,
         organizationId: this.organizationId,
-        currentType: this.paymentSource !== null ? this.paymentSource.type : null,
       },
     });
+
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === AdjustPaymentDialogResult.Adjusted) {
+
+    if (result === AdjustPaymentDialogV2ResultType.Submitted) {
       this.location.replaceState(this.location.path(), "", {});
       if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
         await this.syncService.fullSync(true);
@@ -229,10 +229,6 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
   get forOrganization() {
     return this.organizationId != null;
-  }
-
-  get headerClass() {
-    return this.forOrganization ? ["page-header"] : ["tabbed-header"];
   }
 
   get paymentSourceClasses() {

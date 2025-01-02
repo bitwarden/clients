@@ -10,7 +10,7 @@ import { RegisterFormModule } from "../../auth/register-form/register-form.modul
 import { SecretsManagerTrialFreeStepperComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial-free-stepper.component";
 import { SecretsManagerTrialPaidStepperComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial-paid-stepper.component";
 import { SecretsManagerTrialComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial.component";
-import { PaymentComponent, TaxInfoComponent } from "../../billing";
+import { TaxInfoComponent } from "../../billing";
 import { TrialBillingStepComponent } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { EnvironmentSelectorModule } from "../../components/environment-selector/environment-selector.module";
 import { SharedModule } from "../../shared";
@@ -51,7 +51,6 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     RegisterFormModule,
     OrganizationCreateModule,
     EnvironmentSelectorModule,
-    PaymentComponent,
     TaxInfoComponent,
     TrialBillingStepComponent,
     InputPasswordComponent,

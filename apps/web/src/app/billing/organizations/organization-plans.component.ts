@@ -28,7 +28,6 @@ import { ProviderResponse } from "@bitwarden/common/admin-console/models/respons
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -49,7 +48,6 @@ import { KeyService } from "@bitwarden/key-management";
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
 import { PaymentV2Component } from "../shared/payment/payment-v2.component";
-import { PaymentComponent } from "../shared/payment/payment.component";
 import { TaxInfoComponent } from "../shared/tax-info.component";
 
 interface OnSuccessArgs {
@@ -70,7 +68,6 @@ const Allowed2020PlansForLegacyProviders = [
   imports: [BillingSharedModule, OrganizationCreateModule],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
-  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
   @ViewChild(TaxInfoComponent) taxComponent: TaxInfoComponent;
 
@@ -117,7 +114,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
   discount = 0;
-  deprecateStripeSourcesAPI: boolean;
 
   protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
     FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
@@ -173,10 +169,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
-      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-    );
-
     if (this.organizationId) {
       this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
@@ -555,23 +547,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   changedCountry() {
-    if (this.deprecateStripeSourcesAPI) {
-      this.paymentV2Component.showBankAccount = this.taxComponent.country === "US";
-      if (
-        !this.paymentV2Component.showBankAccount &&
-        this.paymentV2Component.selected === PaymentMethodType.BankAccount
-      ) {
-        this.paymentV2Component.select(PaymentMethodType.Card);
-      }
-    } else {
-      this.paymentComponent.hideBank = this.taxComponent.taxFormGroup?.value.country !== "US";
-      if (
-        this.paymentComponent.hideBank &&
-        this.paymentComponent.method === PaymentMethodType.BankAccount
-      ) {
-        this.paymentComponent.method = PaymentMethodType.Card;
-        this.paymentComponent.changeMethod();
-      }
+    this.paymentV2Component.showBankAccount = this.taxComponent.country === "US";
+    if (
+      !this.paymentV2Component.showBankAccount &&
+      this.paymentV2Component.selected === PaymentMethodType.BankAccount
+    ) {
+      this.paymentV2Component.select(PaymentMethodType.Card);
     }
   }
 
@@ -668,26 +649,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod) {
-      if (this.deprecateStripeSourcesAPI) {
-        const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
-        updatePaymentMethodRequest.paymentSource = await this.paymentV2Component.tokenize();
-        const expandedTaxInfoUpdateRequest = new ExpandedTaxInfoUpdateRequest();
-        expandedTaxInfoUpdateRequest.country = this.taxComponent.country;
-        expandedTaxInfoUpdateRequest.postalCode = this.taxComponent.postalCode;
-        updatePaymentMethodRequest.taxInformation = expandedTaxInfoUpdateRequest;
-        await this.billingApiService.updateOrganizationPaymentMethod(
-          this.organizationId,
-          updatePaymentMethodRequest,
-        );
-      } else {
-        const [paymentToken, paymentMethodType] = await this.paymentComponent.createPaymentToken();
-        const paymentRequest = new PaymentRequest();
-        paymentRequest.paymentToken = paymentToken;
-        paymentRequest.paymentMethodType = paymentMethodType;
-        paymentRequest.country = this.taxComponent.taxFormGroup?.value.country;
-        paymentRequest.postalCode = this.taxComponent.taxFormGroup?.value.postalCode;
-        await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
-      }
+      const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
+      updatePaymentMethodRequest.paymentSource = await this.paymentV2Component.tokenize();
+      const expandedTaxInfoUpdateRequest = new ExpandedTaxInfoUpdateRequest();
+      expandedTaxInfoUpdateRequest.country = this.taxComponent.country;
+      expandedTaxInfoUpdateRequest.postalCode = this.taxComponent.postalCode;
+      updatePaymentMethodRequest.taxInformation = expandedTaxInfoUpdateRequest;
+      await this.billingApiService.updateOrganizationPaymentMethod(
+        this.organizationId,
+        updatePaymentMethodRequest,
+      );
     }
 
     // Backfill pub/priv key if necessary
@@ -697,10 +668,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
-    const result = await this.organizationApiService.upgrade(this.organizationId, request);
-    if (!result.success && result.paymentIntentClientSecret != null) {
-      await this.paymentComponent.handleStripeCardPayment(result.paymentIntentClientSecret, null);
-    }
+    await this.organizationApiService.upgrade(this.organizationId, request);
     return this.organizationId;
   }
 
@@ -721,14 +689,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.type === PlanType.Free) {
       request.planType = PlanType.Free;
     } else {
-      let type: PaymentMethodType;
-      let token: string;
-
-      if (this.deprecateStripeSourcesAPI) {
-        ({ type, token } = await this.paymentV2Component.tokenize());
-      } else {
-        [token, type] = await this.paymentComponent.createPaymentToken();
-      }
+      const { type, token } = await this.paymentV2Component.tokenize();
 
       request.paymentToken = token;
       request.paymentMethodType = type;

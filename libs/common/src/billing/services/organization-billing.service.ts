@@ -8,10 +8,7 @@ import {
   PlanInformation,
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
-import { BillingSourceResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -38,7 +35,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   constructor(
     private apiService: ApiService,
     private billingApiService: BillingApiServiceAbstraction,
-    private configService: ConfigService,
     private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
@@ -46,21 +42,9 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     private syncService: SyncService,
   ) {}
 
-  async getPaymentSource(
-    organizationId: string,
-  ): Promise<BillingSourceResponse | PaymentSourceResponse> {
-    const deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
-      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-    );
-
-    if (deprecateStripeSourcesAPI) {
-      const paymentMethod =
-        await this.billingApiService.getOrganizationPaymentMethod(organizationId);
-      return paymentMethod.paymentSource;
-    } else {
-      const billing = await this.organizationApiService.getBilling(organizationId);
-      return billing.paymentSource;
-    }
+  async getPaymentSource(organizationId: string): Promise<PaymentSourceResponse> {
+    const paymentMethod = await this.billingApiService.getOrganizationPaymentMethod(organizationId);
+    return paymentMethod.paymentSource;
   }
 
   async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {

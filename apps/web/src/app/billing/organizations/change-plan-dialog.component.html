@@ -334,28 +334,14 @@
         <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
         <p *ngIf="!showPayment && (paymentSource || billing?.paymentSource)">
           <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
-          {{
-            deprecateStripeSourcesAPI
-              ? paymentSource?.description
-              : billing?.paymentSource?.description
-          }}
+          {{ paymentSource?.description }}
           <span class="ml-2 tw-text-primary-600 tw-cursor-pointer" (click)="toggleShowPayment()">
             {{ "changePaymentMethod" | i18n }}
           </span>
           <a></a>
         </p>
-        <app-payment
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            !deprecateStripeSourcesAPI
-          "
-          [hideCredit]="true"
-        ></app-payment>
         <app-payment-v2
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            deprecateStripeSourcesAPI
-          "
+          *ngIf="upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()"
           [showAccountCredit]="false"
         >
         </app-payment-v2>
