@@ -17,6 +17,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogData,
+  AddEditFolderDialogResult,
 } from "./add-edit-folder-dialog.component";
 
 describe("AddEditFolderDialogComponent", () => {
@@ -115,7 +116,7 @@ describe("AddEditFolderDialogComponent", () => {
 
       expect(showToast).toHaveBeenCalledWith({
         message: "editedFolder",
-        title: null,
+        title: "",
         variant: "success",
       });
     });
@@ -125,7 +126,7 @@ describe("AddEditFolderDialogComponent", () => {
 
       await component.submit();
 
-      expect(close).toHaveBeenCalled();
+      expect(close).toHaveBeenCalledWith(AddEditFolderDialogResult.Created);
     });
 
     it("logs error if saving fails", async () => {
@@ -161,7 +162,7 @@ describe("AddEditFolderDialogComponent", () => {
 
       expect(encrypt).toHaveBeenCalledWith(
         {
-          ...dialogData.editFolderConfig.folder,
+          ...dialogData.editFolderConfig!.folder,
           name: "Edited Folder",
         },
         "",
@@ -174,9 +175,10 @@ describe("AddEditFolderDialogComponent", () => {
       expect(deleteFolder).toHaveBeenCalledWith(folderView.id);
       expect(showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
+        title: "",
         message: "deletedFolder",
       });
+      expect(close).toHaveBeenCalledWith(AddEditFolderDialogResult.Deleted);
     });
   });
 });
