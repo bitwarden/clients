@@ -293,7 +293,7 @@ export class RiskInsightsReportService {
     if (isAtRisk) {
       reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1;
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
-        reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers)
+        reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
       reportDetail.atRiskMemberCount += reportDetail.atRiskMemberDetails.length;
     }
