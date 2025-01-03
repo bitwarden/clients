@@ -1,25 +1,43 @@
 import { css, cx } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { NotificationType } from "../../../notification/abstractions/notification-bar";
+import { CipherItem } from "../cipher";
+import { CipherData } from "../cipher/types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
+import { ItemRow } from "../rows/item-row";
 
 export function NotificationBody({
+  ciphers,
   customClasses = [],
+  notificationType,
   theme = ThemeTypes.Light,
-  children,
 }: {
+  ciphers: CipherData[];
   customClasses?: string[];
+  notificationType?: NotificationType;
   theme: Theme;
-  children: TemplateResult[];
 }) {
   // @TODO get client vendor from context
   const isSafari = false;
 
   return html`
     <div class=${cx(...customClasses, notificationBodyStyles({ isSafari, theme }))}>
-      ${children}
+      ${ciphers.map((cipher) =>
+        ItemRow({
+          theme,
+          children: CipherItem({
+            cipher,
+            notificationType,
+            theme,
+            handleAction: () => {
+              // @TODO connect update or edit actions to handler
+            },
+          }),
+        }),
+      )}
     </div>
   `;
 }

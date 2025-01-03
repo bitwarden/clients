@@ -1,10 +1,11 @@
 import { css } from "@emotion/css";
 import { html } from "lit";
 
+
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes } from "../../../content/components/constants/styles";
-import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
+import { NotificationType , NotificationTypes } from "../../../notification/abstractions/notification-bar";
 
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
@@ -21,7 +22,7 @@ export function CipherItem({
 }: {
   cipher: CipherData;
   handleAction?: (e: Event) => void;
-  notificationType?: string;
+  notificationType?: NotificationType;
   theme: Theme;
 }) {
   const { icon } = cipher;

@@ -6,14 +6,11 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import {
   NotificationBarIframeInitData,
   NotificationTypes,
+  NotificationType,
 } from "../../../notification/abstractions/notification-bar";
 import { createAutofillOverlayCipherDataMock } from "../../../spec/autofill-mocks";
-import { CipherItem } from "../cipher";
 import { CipherData } from "../cipher/types";
 import { themes, spacing } from "../constants/styles";
-import { ActionRow } from "../rows/action-row";
-import { ButtonRow } from "../rows/button-row";
-import { ItemRow } from "../rows/item-row";
 
 import { NotificationBody } from "./body";
 import { NotificationFooter } from "./footer";
@@ -24,9 +21,10 @@ export function NotificationContainer({
   i18n,
   theme = ThemeTypes.Light,
   type,
-}: { handleCloseNotification: (e: Event) => void } & {
+}: NotificationBarIframeInitData & { handleCloseNotification: (e: Event) => void } & {
   i18n: { [key: string]: string };
-} & NotificationBarIframeInitData) {
+  type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
+}) {
   const headerMessage = getHeaderMessage(i18n, type);
   const showBody = true;
 
@@ -39,7 +37,6 @@ export function NotificationContainer({
       icon: { imageEnabled: true, image: "https://localhost:8443/icons/webtests.dev/icon.png" },
     },
   ] as CipherData[];
-  const itemText = type === NotificationTypes.Add && "Save as new login";
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
@@ -51,29 +48,15 @@ export function NotificationContainer({
       })}
       ${showBody
         ? NotificationBody({
-            theme,
+            ciphers,
             customClasses: [notificationBodyClass],
-            // @TODO move notificationType to `NotificationBody` component
-            children: ciphers.map((cipher) =>
-              ItemRow({
-                theme,
-                children: CipherItem({
-                  cipher,
-                  notificationType: type,
-                  theme,
-                  handleAction: () => {},
-                }),
-              }),
-            ),
+            notificationType: type,
+            theme,
           })
         : null}
       ${NotificationFooter({
         theme,
-        children: [
-          type === NotificationTypes.Change && itemText
-            ? ActionRow({ itemText, handleAction: () => {}, theme })
-            : ButtonRow({ theme }),
-        ],
+        notificationType: type,
       })}
     </div>
   `;
@@ -101,7 +84,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getHeaderMessage(i18n: { [key: string]: string }, type?: string) {
+function getHeaderMessage(i18n: { [key: string]: string }, type?: NotificationType) {
   switch (type) {
     case NotificationTypes.Add:
       return i18n.saveAsNewLoginAction;
