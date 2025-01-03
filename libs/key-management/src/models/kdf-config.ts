@@ -45,6 +45,14 @@ export class PBKDF2KdfConfig {
     }
   }
 
+  get memory(): number | undefined {
+    return undefined;
+  }
+
+  get parallelism(): number | undefined {
+    return undefined;
+  }
+
   static fromJSON(json: Jsonify<PBKDF2KdfConfig>): PBKDF2KdfConfig {
     return new PBKDF2KdfConfig(json.iterations);
   }
@@ -125,4 +133,8 @@ export class Argon2KdfConfig {
   }
 }
 
-export const DEFAULT_KDF_CONFIG = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue);
+export const DEFAULT_KDF_CONFIG = new Argon2KdfConfig(
+  Argon2KdfConfig.ITERATIONS.defaultValue,
+  Argon2KdfConfig.MEMORY.defaultValue,
+  Argon2KdfConfig.PARALLELISM.defaultValue,
+);

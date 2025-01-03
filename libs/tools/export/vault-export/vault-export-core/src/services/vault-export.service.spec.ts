@@ -18,13 +18,7 @@ import { Login } from "@bitwarden/common/vault/models/domain/login";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import {
-  DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";
 
@@ -261,12 +255,20 @@ describe("VaultExportService", () => {
         expect(exportObject.salt).toEqual("salt");
       });
 
-      it("specifies kdfIterations", () => {
-        expect(exportObject.kdfIterations).toEqual(PBKDF2KdfConfig.ITERATIONS.defaultValue);
+      it("has kdfType", () => {
+        expect(exportObject.kdfType).toEqual(DEFAULT_KDF_CONFIG.kdfType);
       });
 
-      it("has kdfType", () => {
-        expect(exportObject.kdfType).toEqual(KdfType.PBKDF2_SHA256);
+      it("specifies kdfIterations", () => {
+        expect(exportObject.kdfIterations).toEqual(DEFAULT_KDF_CONFIG.iterations);
+      });
+
+      it("specifies kdfMemory", () => {
+        expect(exportObject.kdfMemory).toEqual(DEFAULT_KDF_CONFIG.memory);
+      });
+
+      it("specifies kdfParallelism", () => {
+        expect(exportObject.kdfParallelism).toEqual(DEFAULT_KDF_CONFIG.parallelism);
       });
 
       it("has a mac property", async () => {

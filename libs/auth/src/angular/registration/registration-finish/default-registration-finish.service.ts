@@ -79,14 +79,18 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       userAsymmetricKeys[1].encryptedString,
     );
 
+    const kdfConfig = passwordInputResult.kdfConfig;
+
     const registerFinishRequest = new RegisterFinishRequest(
       email,
       passwordInputResult.masterKeyHash,
       passwordInputResult.hint,
       encryptedUserKey,
       userAsymmetricKeysRequest,
-      passwordInputResult.kdfConfig.kdfType,
-      passwordInputResult.kdfConfig.iterations,
+      kdfConfig.kdfType,
+      kdfConfig.iterations,
+      kdfConfig.memory,
+      kdfConfig.parallelism,
     );
 
     if (emailVerificationToken) {

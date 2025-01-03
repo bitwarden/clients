@@ -19,7 +19,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
 import {
   SetPasswordCredentials,
@@ -125,7 +125,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
-    kdfConfig: PBKDF2KdfConfig,
+    kdfConfig: KdfConfig,
     protectedUserKey: [UserKey, EncString],
     userId: UserId,
   ) {

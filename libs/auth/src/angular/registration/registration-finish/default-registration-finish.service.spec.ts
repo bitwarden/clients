@@ -110,8 +110,8 @@ describe("DefaultRegistrationFinishService", () => {
           },
           kdf: passwordInputResult.kdfConfig.kdfType,
           kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          kdfMemory: passwordInputResult.kdfConfig.memory,
+          kdfParallelism: passwordInputResult.kdfConfig.parallelism,
           // Web only fields should be undefined
           orgInviteToken: undefined,
           organizationUserId: undefined,
