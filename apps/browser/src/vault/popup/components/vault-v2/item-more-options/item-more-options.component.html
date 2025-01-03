@@ -18,6 +18,11 @@
         </button>
       </ng-container>
     </ng-container>
+    <ng-container *ngIf="showViewOption">
+      <button type="button" bitMenuItem (click)="onView()">
+        {{ "view" | i18n }}
+      </button>
+    </ng-container>
     <button type="button" bitMenuItem (click)="toggleFavorite()">
       {{ favoriteText | i18n }}
     </button>

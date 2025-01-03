@@ -31,7 +31,7 @@ base64 = "=0.22.1"
 byteorder = "=1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 homedir = "=0.3.4"
-libc = "=0.2.162"
+libc = "=0.2.169"
 pin-project = "=1.1.7"
 dirs = "=5.0.1"
 futures = "=0.3.31"
@@ -81,8 +81,8 @@ keytar = "=0.1.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { version = "=0.10.0", optional = true }
-security-framework = { version = "=3.0.0", optional = true }
-security-framework-sys = { version = "=2.12.0", optional = true }
+security-framework = { version = "=3.1.0", optional = true }
+security-framework-sys = { version = "=2.13.0", optional = true }
 desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]

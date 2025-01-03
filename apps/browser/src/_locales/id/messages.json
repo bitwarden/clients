@@ -454,9 +454,6 @@
   "length": {
     "message": "Panjang"
   },
-  "passwordMinLength": {
-    "message": "Panjang kata sandi minimum"
-  },
   "uppercase": {
     "message": "Huruf besar (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Spesial Minimum"
-  },
-  "avoidAmbChar": {
-    "message": "Hindari Karakter Ambigu",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Hindari karakter ambigu",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Buat tampilan daftar benda dari identitas pada halaman Tab untuk isi otomatis yang mudah."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Hapus Papan Klip",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Pindah ke Organisasi"
-  },
-  "share": {
-    "message": "Bagikan"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ pindah ke $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Duplikat"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Satu atau lebih kebijakan organisasi mempengaruhi pengaturan pembuat sandi Anda."
-  },
   "passwordGenerator": {
     "message": "Pembuat kata sandi"
   },
@@ -2389,14 +2379,6 @@
     "message": "Rincian Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Pencarian Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Tambahkan Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Teks"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Sembunyikan teks secara bawaan"
   },
-  "maxAccessCountReached": {
-    "message": "Jumlah akses maksimum tercapai",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Kedaluwarsa"
-  },
-  "pendingDeletion": {
-    "message": "Penghapusan menunggu keputusan"
   },
   "passwordProtected": {
     "message": "Dilindungi kata sandi"
@@ -2472,23 +2447,8 @@
     "message": "Edit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Jenis Send apakah ini?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Nama yang bersahabat untuk menggambarkan Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "File yang ingin Anda kirim."
-  },
   "deletionDate": {
     "message": "Tanggal Penghapusan"
-  },
-  "deletionDateDesc": {
-    "message": "Send akan dihapus secara permanen pada tanggal dan waktu yang ditentukan.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Send akan dihapus selamanya pada tanggal ini.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Tanggal habis tempo"
-  },
-  "expirationDateDesc": {
-    "message": "Jika disetel, akses ke Send ini akan berakhir pada tanggal dan waktu yang ditentukan.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 hari"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Kustom"
   },
-  "maximumAccessCount": {
-    "message": "Hitungan Akses Maksimum"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Jika disetel, pengguna tidak dapat lagi mengakses Send ini setelah jumlah akses maksimum tercapai.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Secara opsional, minta kata sandi bagi pengguna untuk mengakses Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Tambahkan kata sandi tidak wajib untuk penerima untuk mengakses Send ini.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Catatan pribadi tentang Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Nonaktifkan Send ini sehingga tidak ada yang dapat mengaksesnya.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Salin tautan Send ini ke papan klip setelah disimpan.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teks yang ingin Anda kirim."
-  },
-  "sendHideText": {
-    "message": "Sembunyikan teks Send ini secara default.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hitungan Akses Saat Ini"
   },
   "createSend": {
     "message": "Buat Send Baru",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Sebelum kamu memulai"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Untuk menggunakan pemilih tanggal gaya kalender",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "klik disini",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "untuk memunculkan jendela Anda.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Tanggal kedaluwarsa yang diberikan tidak valid."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Terjadi kesalahan saat menyimpan tanggal penghapusan dan kedaluwarsa Anda."
   },
-  "hideEmail": {
-    "message": "Sembunyikan alamat surel dari penerima."
-  },
   "hideYourEmail": {
     "message": "Sembunyikan alamat surel Anda dari penonton."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Satu atau lebih kebijakan organisasi mempengaruhi pengaturan feature Send anda."
   },
   "passwordPrompt": {
     "message": "Master password ditanyakan kembali"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Galat"
   },
-  "regenerateUsername": {
-    "message": "Buat nama pengguna baru"
-  },
   "generateUsername": {
     "message": "Buat nama pengguna baru"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Jenis nama pengguna"
-  },
   "plusAddressedEmail": {
     "message": "Surel dengan alamat plus",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Nama situs web"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Apa yang ingin Anda buat?"
-  },
-  "passwordType": {
-    "message": "Jenis kata sandi"
   },
   "service": {
     "message": "Layanan"

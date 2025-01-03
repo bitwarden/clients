@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."
+  },
+  "importantNotice": {
+    "message": "Önemli uyarı"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki adımlı girişi ayarlayın"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra hatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ adresinize sağlıklı bir şekilde erişebiliyor musunuz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Hayır, erişemiyorum"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki adımlı girişi etkinleştir"
+  },
+  "changeAcctEmail": {
+    "message": "Hesap e-postasını değiştir"
   }
 }

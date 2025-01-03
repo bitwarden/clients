@@ -1,11 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -48,6 +49,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
@@ -66,6 +69,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private organizationService: OrganizationService,
     private collectionService: CollectionService,
     private folderService: FolderService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnChanges() {
@@ -136,8 +140,14 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     if (this.cipher.folderId) {
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+
+      if (!activeUserId) {
+        return;
+      }
+
       this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId)
+        .getDecrypted$(this.cipher.folderId, activeUserId)
         .pipe(takeUntil(this.destroyed$));
     }
   }

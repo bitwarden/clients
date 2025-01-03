@@ -454,9 +454,6 @@
   "length": {
     "message": "දිග"
   },
-  "passwordMinLength": {
-    "message": "Minimum password length"
-  },
   "uppercase": {
     "message": "Uppercase (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "අවම විශේෂ"
-  },
-  "avoidAmbChar": {
-    "message": "අපැහැදිලි චරිත වලින් වළකින්න",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "List identity items on the Tab page for easy autofill."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "පසුරු පුවරුවට පැහැදිලි",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "සංවිධානය වෙත ගෙනයන්න"
-  },
-  "share": {
-    "message": "බෙදාගන්න"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ $ORGNAME$වෙත ගෙන ගියේය",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "ක්ලෝන"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "සංවිධාන ප්රතිපත්ති එකක් හෝ වැඩි ගණනක් ඔබේ උත්පාදක සැකසුම් වලට බලපායි."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "සෙවුම් යවයි",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "යවන්න එකතු කරන්න",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "පෙළ"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "මැක්ස් ප්රවේශ ගණන ළඟා",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "කල් ඉකුත්"
-  },
-  "pendingDeletion": {
-    "message": "මකාදැමීම"
   },
   "passwordProtected": {
     "message": "මුරපදය ආරක්ෂා"
@@ -2472,23 +2447,8 @@
     "message": "යැවීම සංස්කරණය",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "මෙය කුමන ආකාරයේ යවන්න ද?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "මෙම යවන්න විස්තර කිරීමට මිත්රශීලී නමක්.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "ඔබට යැවීමට අවශ්ය ගොනුව."
-  },
   "deletionDate": {
     "message": "මකාදැමීමේ දිනය"
-  },
-  "deletionDateDesc": {
-    "message": "නියම කරන ලද දිනය හා වේලාව මත Send ස්ථිරවම මකා දමනු ලැබේ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "කල් ඉකුත්වන දිනය"
-  },
-  "expirationDateDesc": {
-    "message": "සකසා ඇත්නම්, මෙම යවන්න වෙත ප්රවේශය නිශ්චිත දිනය හා වේලාව කල් ඉකුත් වනු ඇත.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "දින 1"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "අභිරුචි"
   },
-  "maximumAccessCount": {
-    "message": "උපරිම ප්රවේශ ගණන්"
-  },
-  "maximumAccessCountDesc": {
-    "message": "සකසා ඇත්නම්, උපරිම ප්රවේශ ගණන ළඟා වූ පසු පරිශීලකයින්ට මෙම Send වෙත ප්රවේශ වීමට තවදුරටත් නොහැකි වනු ඇත.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "විකල්පයක් ලෙස පරිශීලකයින්ට මෙම යවන්න වෙත ප්රවේශ වීමට මුරපදයක් අවශ්ය වේ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "මේ ගැන පෞද්ගලික සටහන් යවන්න.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "මෙය අක්රීය කරන්න යවන්න එවිට කිසිවෙකුට එයට ප්රවේශ විය නොහැක.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "සුරකින්න මත මෙම යවන්න ගේ සබැඳිය පසුරු පුවරුවට පිටපත් කරන්න.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "ඔබට යැවීමට අවශ්ය පෙළ."
-  },
-  "sendHideText": {
-    "message": "මෙම යවන්න පෙළ පෙරනිමියෙන් සඟවන්න.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "වත්මන් ප්රවේශ ගණන්"
   },
   "createSend": {
     "message": "නව යවන්න නිර්මාණය",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "ඔබ ආරම්භ කිරීමට පෙර"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "දින දර්ශනය ශෛලිය දිනය ජීව අත්බෝම්බයක් සමග භාවිතා කිරීමට",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "මෙහි ක්ලික් කරන්න",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "ඔබේ කවුළුව දිස්වේ.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "ලබා දී ඇති කල් ඉකුත්වන දිනය වලංගු නොවේ."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "ඔබගේ මකාදැමීම සහ කල් ඉකුත් වීමේ දිනයන් ඉතිරි කිරීමේ දෝෂයක් තිබුණි."
   },
-  "hideEmail": {
-    "message": "ලබන්නන්ගෙන් මගේ විද්යුත් තැපැල් ලිපිනය සඟවන්න."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "සංවිධාන ප්රතිපත්ති එකක් හෝ කිහිපයක් ඔබගේ Send විකල්පයන්ට බලපායි."
   },
   "passwordPrompt": {
     "message": "ප්රධාන මුරපදය නැවත විමසුමක්"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Error"
   },
-  "regenerateUsername": {
-    "message": "Regenerate username"
-  },
   "generateUsername": {
     "message": "Generate username"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Username type"
-  },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Website name"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
   },
   "service": {
     "message": "Service"

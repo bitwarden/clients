@@ -454,9 +454,6 @@
   "length": {
     "message": "Дължина"
   },
-  "passwordMinLength": {
-    "message": "Минимална дължина на паролата"
-  },
   "uppercase": {
     "message": "Главни букви (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Минимален брой специални знаци"
-  },
-  "avoidAmbChar": {
-    "message": "Без нееднозначни знаци",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Без нееднозначни знаци",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Показване на самоличностите в страницата с разделите, за лесно автоматично попълване."
   },
+  "clickToAutofillOnVault": {
+    "message": "Щракнете върху елементите в трезора за автоматично попълване"
+  },
   "clearClipboard": {
     "message": "Изчистване на буфера",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Преместване в организация"
-  },
-  "share": {
-    "message": "Споделяне"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ се премести в $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Клониране"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Поне една политика на организация влияе на настройките на генерирането на паролите."
-  },
   "passwordGenerator": {
     "message": "Генератор на пароли"
   },
@@ -2389,14 +2379,6 @@
     "message": "Подробности за Изпращането",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Търсене в изпратените",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Добавяне на изпращане",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Текст"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Скриване на текста по подразбиране"
   },
-  "maxAccessCountReached": {
-    "message": "Достигнат е максималният брой достъпвания",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Изтекъл"
-  },
-  "pendingDeletion": {
-    "message": "Предстои изтриване"
   },
   "passwordProtected": {
     "message": "Защита с парола"
@@ -2472,23 +2447,8 @@
     "message": "Редактиране на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Вид на изпратеното",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Описателно име за това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Файл за изпращане."
-  },
   "deletionDate": {
     "message": "Дата на изтриване"
-  },
-  "deletionDateDesc": {
-    "message": "Изпращането ще бъде окончателно изтрито на зададената дата и време.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Изпращането ще бъде окончателно изтрито на тази дата.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Срок на валидност"
-  },
-  "expirationDateDesc": {
-    "message": "При задаване — това изпращане ще се изключи на зададената дата и време.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 ден"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "По избор"
   },
-  "maximumAccessCount": {
-    "message": "Максимален брой достъпвания."
-  },
-  "maximumAccessCountDesc": {
-    "message": "При задаване — това изпращане ще се изключи след определен брой достъпвания.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Изискване на парола за достъп до това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Добавете незадължителна парола, с която получателите да имат достъп до това Изпращане.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Скрити бележки за това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Пълно спиране на това изпращане — никой няма да има достъп.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Копиране на връзката към това изпращане при запазването му.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст за изпращане."
-  },
-  "sendHideText": {
-    "message": "Стандартно текстът на това изпращане да се крие.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Текущ брой на достъпванията"
   },
   "createSend": {
     "message": "Създаване на изпращане",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Преди да почнете"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "За избор на дата от каландар",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "натиснете тук",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "за изскачащ прозорец.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Неправилна дата на валидност."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Грешка при запазване на датата на валидност и изтриване."
   },
-  "hideEmail": {
-    "message": "Скриване на е-пощата ми от получателите."
-  },
   "hideYourEmail": {
     "message": "Скриване на Вашата е-поща от получателите."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Поне една политика на организация влияе на настройките за изпращане."
   },
   "passwordPrompt": {
     "message": "Повторно запитване за главната парола"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Грешка"
   },
-  "regenerateUsername": {
-    "message": "Повторно генериране на потр. име"
-  },
   "generateUsername": {
     "message": "Генериране на потр. име"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Тип потребителско име"
-  },
   "plusAddressedEmail": {
     "message": "Адрес на е-поща с плюс",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Име на уеб сайт"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Какво бихте искали да генерирате?"
-  },
-  "passwordType": {
-    "message": "Тип парола"
   },
   "service": {
     "message": "Услуга"

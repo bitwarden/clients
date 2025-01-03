@@ -48,7 +48,6 @@ import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
 import { HeaderComponent } from "../platform/popup/header.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
@@ -155,7 +154,6 @@ import "../platform/popup/locales";
     NotificationsSettingsV1Component,
     AppearanceComponent,
     PasswordHistoryComponent,
-    PremiumComponent,
     RegisterComponent,
     SetPasswordComponent,
     VaultSettingsComponent,

@@ -34,5 +34,7 @@
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
         <string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
 	</array>
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
 </dict>
 </plist>
