@@ -55,7 +55,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Get Package Version
         id: retrieve-package-version
@@ -78,6 +78,7 @@ jobs:
         os:
           [
             { base: "linux", distro: "ubuntu-22.04" },
+            { base: "linux-musl", distro: "ubuntu-22.04" },
             { base: "mac", distro: "macos-13" }
           ]
         license_type:
@@ -97,7 +98,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Unix Vars
         run: |
@@ -139,7 +140,20 @@ jobs:
       - name: Build & Package Unix
         run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }} --quiet
 
-      - name: Zip Unix
+      - name: Zip Linux
+        if: ${{ env.LOWER_RUNNER_OS == 'linux' }}
+        run: |
+          # package MUSL build
+          mv ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}/cli-alpine bw
+          zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-musl-${{ env._PACKAGE_VERSION }}.zip ./bw
+          rm -f ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}/bw
+
+          # package glibc build
+          mv ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}/cli-linux bw
+          zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip ./bw
+
+      - name: Zip macOS
+        if: ${{ env.LOWER_RUNNER_OS == 'macos' }}
         run: |
           cd ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}
           zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip ./bw
@@ -197,7 +211,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Windows builder
         run: |
