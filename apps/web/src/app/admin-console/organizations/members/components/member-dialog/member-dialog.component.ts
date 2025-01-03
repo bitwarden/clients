@@ -94,6 +94,7 @@ export class MemberDialogComponent implements OnDestroy {
   PermissionMode = PermissionMode;
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
+  remainingSeats$: Observable<number>;
 
   protected organization$: Observable<Organization>;
   protected collectionAccessItems: AccessItemView[] = [];
@@ -260,6 +261,10 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
+
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) => organization.seats - this.params.numConfirmedMembers),
+    );
   }
 
   private setFormValidators(organization: Organization) {
