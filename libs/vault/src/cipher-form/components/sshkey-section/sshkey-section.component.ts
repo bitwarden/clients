@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import {
   CardComponent,
   FormFieldModule,
@@ -16,6 +18,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { generate_ssh_key } from "@bitwarden/sdk-internal";
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
@@ -50,20 +53,34 @@ export class SshKeySectionComponent implements OnInit {
    * leaving as just null gets inferred as `unknown`
    */
   sshKeyForm = this.formBuilder.group({
-    privateKey: null as string | null,
-    publicKey: null as string | null,
-    keyFingerprint: null as string | null,
+    privateKey: [""],
+    publicKey: [""],
+    keyFingerprint: [""],
   });
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
+    this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      const data = new SshKeyView();
+      data.privateKey = value.privateKey;
+      data.publicKey = value.publicKey;
+      data.keyFingerprint = value.keyFingerprint;
+      this.cipherFormContainer.patchCipher((cipher) => {
+        cipher.sshKey = data;
+        return cipher;
+      });
+    });
+  }
 
   ngOnInit() {
-    if (this.originalCipherView?.card) {
+    if (this.originalCipherView?.sshKey) {
       this.setInitialValues();
+    } else {
+      this.generateSshKey();
     }
 
     this.sshKeyForm.disable();
@@ -77,6 +94,15 @@ export class SshKeySectionComponent implements OnInit {
       privateKey,
       publicKey,
       keyFingerprint,
+    });
+  }
+
+  generateSshKey() {
+    const sshKey = generate_ssh_key("Ed25519");
+    this.sshKeyForm.setValue({
+      privateKey: sshKey.private_key,
+      publicKey: sshKey.public_key,
+      keyFingerprint: sshKey.key_fingerprint,
     });
   }
 }
