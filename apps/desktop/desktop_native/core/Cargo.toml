@@ -52,7 +52,7 @@ ssh-key = { version = "=0.6.7", default-features = false, features = [
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "23b50e3bbe6d56ef19ab0e98e8bb1462cb6d77ae" }
 tokio = { version = "=1.41.1", features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { version = "=0.1.15", features = ["net"] }
-tokio-util = { version = "=0.7.12", features = ["codec"] }
+tokio-util = { version = "=0.7.13", features = ["codec"] }
 thiserror = "=1.0.69"
 typenum = "=1.17.0"
 rand_chacha = "=0.3.1"
