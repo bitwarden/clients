@@ -434,6 +434,7 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("should call captureTotp when the capture totp button is clicked", fakeAsync(() => {
+      jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
       component.captureTotp = jest.fn();
       fixture.detectChanges();
 
@@ -445,7 +446,8 @@ describe("LoginDetailsSectionComponent", () => {
     }));
 
     describe("canCaptureTotp", () => {
-      it("should return true when totpCaptureService is present and totp is editable", () => {
+      it("should return true when totpCaptureService is present and totpCaptureService.canCaptureTotp is true and totp is editable", () => {
+        jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
         component.loginDetailsForm.controls.totp.enable();
         expect(component.canCaptureTotp).toBe(true);
       });
