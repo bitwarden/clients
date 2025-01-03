@@ -20,5 +20,7 @@
     }
   ],
   "flags": {},
-  "devFlags": {}
+  "devFlags": {
+    "showRiskInsightsDebug": false
+  }
 }
