@@ -153,6 +153,56 @@ describe("regenerateIfNeeded", () => {
     expect(keyService.setPrivateKey).not.toHaveBeenCalled();
   });
 
+  it("should not regenerate when user symmetric key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    keyService.userKey$.mockReturnValue(of(undefined as unknown as UserKey));
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when user's encrypted private key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    keyService.userEncryptedPrivateKey$.mockReturnValue(
+      of(undefined as unknown as EncryptedString),
+    );
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when user's public key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    apiService.getUserPublicKey.mockResolvedValue(undefined as any);
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
   it("should regenerate when private key is decryptable and invalid", async () => {
     const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
       privateKeyDecryptable: true,
