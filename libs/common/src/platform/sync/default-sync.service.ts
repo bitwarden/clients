@@ -47,7 +47,6 @@ import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
-import { sequentialize } from "../misc/sequentialize";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
@@ -99,7 +98,6 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  @sequentialize(() => "fullSync")
   override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
