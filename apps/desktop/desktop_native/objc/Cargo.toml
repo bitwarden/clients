@@ -9,7 +9,7 @@ publish = false
 default = []
 
 [dependencies]
-anyhow = "=1.0.94"
+anyhow = "=1.0.95"
 thiserror = "=1.0.69"
 tokio = "1.39.1"
 
