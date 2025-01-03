@@ -4,17 +4,22 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../../content/components/constants/styles";
-import { Business } from "../../../content/components/icons";
+import { Business, Family } from "../../../content/components/icons";
 
-import { CipherData } from "./types";
-
-// @TODO support other indicator types (attachments, family orgs, etc)
-export function CipherInfoIndicatorIcons({ cipher, theme }: { cipher: CipherData; theme: Theme }) {
-  // @TODO connect data source to icon checks
-  const isBusinessOrg = true;
-
+// @TODO connect data source to icon checks
+// @TODO support other indicator types (attachments, etc)
+export function CipherInfoIndicatorIcons({
+  isBusinessOrg,
+  isFamilyOrg,
+  theme,
+}: {
+  isBusinessOrg?: boolean;
+  isFamilyOrg?: boolean;
+  theme: Theme;
+}) {
   const indicatorIcons = [
     ...(isBusinessOrg ? [Business({ color: themes[theme].text.muted, theme })] : []),
+    ...(isFamilyOrg ? [Family({ color: themes[theme].text.muted, theme })] : []),
   ];
 
   return indicatorIcons.length
@@ -24,7 +29,7 @@ export function CipherInfoIndicatorIcons({ cipher, theme }: { cipher: CipherData
 
 const cipherInfoIndicatorIconsStyles = css`
   > svg {
-    width: 12px;
-    height: fit-content;
+    width: fit-content;
+    height: 12px;
   }
 `;

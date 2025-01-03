@@ -3,9 +3,9 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { BrandIcon } from "../brand-icon";
 import { CloseButton } from "../buttons/close-button";
 import { themes } from "../constants/styles";
+import { BrandIconContainer } from "../icons/brand-icon-container";
 
 import { NotificationHeaderMessage } from "./header-message";
 
@@ -31,7 +31,8 @@ export function NotificationHeader({
 
   return html`
     <div class=${notificationHeaderStyles({ standalone, theme })}>
-      ${showIcon ? BrandIcon({ theme }) : null} ${NotificationHeaderMessage({ message, theme })}
+      ${showIcon ? BrandIconContainer({ theme }) : null}
+      ${NotificationHeaderMessage({ message, theme })}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
     </div>
   `;

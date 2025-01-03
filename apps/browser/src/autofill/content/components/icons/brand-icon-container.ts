@@ -3,15 +3,15 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { BitwardenLogo } from "./icons";
+import { Shield } from "./shield";
 
-export function BrandIcon({ iconLink, theme }: { iconLink?: URL; theme: Theme }) {
-  const Icon = html`<div class=${iconStyles}>${BitwardenLogo({ theme })}</div>`;
+export function BrandIconContainer({ iconLink, theme }: { iconLink?: URL; theme: Theme }) {
+  const Icon = html`<div class=${brandIconContainerStyles}>${Shield({ theme })}</div>`;
 
   return iconLink ? html`<a href="${iconLink}" target="_blank" rel="noreferrer">${Icon}</a>` : Icon;
 }
 
-const iconStyles = css`
+const brandIconContainerStyles = css`
   > svg {
     width: 20px;
     height: fit-content;
