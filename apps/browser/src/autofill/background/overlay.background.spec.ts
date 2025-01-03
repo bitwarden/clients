@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -93,6 +94,7 @@ describe("OverlayBackground", () => {
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
   let autofillService: MockProxy<AutofillService>;
+  let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let environmentMock$: BehaviorSubject<CloudEnvironment>;
@@ -149,11 +151,13 @@ describe("OverlayBackground", () => {
   }
 
   beforeEach(() => {
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();

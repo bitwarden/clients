@@ -2,19 +2,20 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
-import { combineLatest, Observable, shareReplay, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, Icons, NoItemsModule } from "@bitwarden/components";
+import { BannerModule, ButtonModule, Icons, NoItemsModule } from "@bitwarden/components";
 import { VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultUiOnboardingService } from "../../services/vault-ui-onboarding.service";
@@ -45,8 +46,8 @@ enum VaultState {
     CommonModule,
     AutofillVaultListItemsComponent,
     VaultListItemsContainerComponent,
+    BannerModule,
     ButtonModule,
-    RouterLink,
     NewItemDropdownV2Component,
     ScrollingModule,
     VaultHeaderV2Component,
@@ -59,6 +60,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected loading$ = this.vaultPopupItemsService.loading$;
+  protected scriptInjectionIsBlocked = false;
+  protected showScriptInjectionIsBlockedBanner = false;
+  protected autofillTabHostname: string | null = null;
+  protected sectionIndicators: string[] = [];
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -86,6 +91,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
+    private domainSettingsService: DomainSettingsService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
     private vaultUiOnboardingService: VaultUiOnboardingService,
   ) {
     combineLatest([
@@ -110,6 +117,31 @@ export class VaultV2Component implements OnInit, OnDestroy {
             this.vaultState = null;
         }
       });
+
+    combineLatest([
+      this.domainSettingsService.blockedInteractionsUris$,
+      this.vaultPopupAutofillService.currentAutofillTab$,
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([blockedInteractionsUris, currentAutofillTab]) => {
+        if (blockedInteractionsUris && currentAutofillTab?.url?.length) {
+          const autofillTabURL = new URL(currentAutofillTab.url);
+          this.autofillTabHostname = autofillTabURL.hostname;
+          const autofillTabIsBlocked = Object.keys(blockedInteractionsUris).includes(
+            autofillTabURL.hostname,
+          );
+
+          this.scriptInjectionIsBlocked = autofillTabIsBlocked;
+
+          if (autofillTabIsBlocked) {
+            this.sectionIndicators.push("autofillDisabled");
+          }
+
+          this.showScriptInjectionIsBlockedBanner =
+            autofillTabIsBlocked &&
+            !blockedInteractionsUris[autofillTabURL.hostname]?.bannerIsDismissed;
+        }
+      });
   }
 
   async ngOnInit() {
@@ -117,4 +149,26 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {}
+
+  handleScriptInjectionIsBlockedBannerDismiss() {
+    if (!this.autofillTabHostname) {
+      return;
+    }
+
+    try {
+      void firstValueFrom(this.domainSettingsService.blockedInteractionsUris$).then(
+        (blockedURIs) => {
+          this.showScriptInjectionIsBlockedBanner = false;
+          void this.domainSettingsService.setBlockedInteractionsUris({
+            ...blockedURIs,
+            [this.autofillTabHostname as string]: { bannerIsDismissed: true },
+          });
+        },
+      );
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URI notification banner",
+      );
+    }
+  }
 }

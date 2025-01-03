@@ -3,6 +3,11 @@
     <bit-section-header>
       <h2 bitTypography="h6">
         {{ title }}
+        <i
+          *ngIf="showAutofillBlockedIndicator"
+          class="bwi bwi-info-circle"
+          [appA11yTitle]="'autofillBlockedTooltip' | i18n"
+        ></i>
       </h2>
       <button
         *ngIf="showRefresh"
