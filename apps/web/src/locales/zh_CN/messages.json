@@ -1521,7 +1521,7 @@
     "message": "确认机密导出"
   },
   "exportWarningDesc": {
-    "message": "本次导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。用完后请立即将其删除。"
+    "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "exportSecretsWarningDesc": {
     "message": "本次导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。用完后请立即将其删除。"
@@ -1716,7 +1716,7 @@
     "message": "请重新登录。"
   },
   "logBackInOthersToo": {
-    "message": "请重新登录。如果您还在使用其他 Bitwarden 应用，也请注销并重新登陆。"
+    "message": "请重新登录。如果您还在使用其他 Bitwarden 应用程序，也请注销并重新登陆。"
   },
   "changeMasterPassword": {
     "message": "修改主密码"
@@ -2018,7 +2018,7 @@
     "message": "添加自定义域名"
   },
   "newCustomDomainDesc": {
-    "message": "输入用逗号分隔的域名列表。只能输入「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android 应用程序与其他网站域名关联。"
+    "message": "输入用逗号分隔的域名列表。只能输入「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android App 与其他网站域名关联。"
   },
   "customDomainX": {
     "message": "自定义域名 $INDEX$",
@@ -2135,7 +2135,7 @@
     }
   },
   "continueToExternalUrlDesc": {
-    "message": "您将离开 Bitwarden 并将在新窗口中启动一个外部网站。"
+    "message": "您将离开 Bitwarden 并将在新窗口中打开一个外部网站。"
   },
   "twoStepContinueToBitwardenUrlTitle": {
     "message": "前往 bitwarden.com 吗？"
@@ -2180,13 +2180,13 @@
     "message": "保存表单。"
   },
   "twoFactorYubikeyWarning": {
-    "message": "由于平台的限制，YubiKey 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 YubiKey 时可以访问您的账户。支持的平台："
+    "message": "由于平台限制，YubiKey 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 YubiKey 时可以访问您的账户。支持的平台："
   },
   "twoFactorYubikeySupportUsb": {
     "message": "具有可使用 YubiKey 的 USB 端口的设备上的网页版密码库、桌面应用程序、CLI 以及浏览器扩展。"
   },
   "twoFactorYubikeySupportMobile": {
-    "message": "具有 NFC 功能或可使用 YubiKey 的数据端口的设备上的移动应用程序。"
+    "message": "具有 NFC 功能或可使用 YubiKey 的数据端口的设备上的移动 App。"
   },
   "yubikeyX": {
     "message": "YubiKey $INDEX$",
@@ -2231,7 +2231,7 @@
     "message": "禁用全部钥匙"
   },
   "twoFactorDuoDesc": {
-    "message": "输入 Duo 管理面板提供的 Bitwarden 应用信息。"
+    "message": "输入 Duo 管理面板提供的 Bitwarden 应用程序信息。"
   },
   "twoFactorDuoClientId": {
     "message": "Client ID"
@@ -2282,7 +2282,7 @@
     "message": "保存表单。"
   },
   "twoFactorU2fWarning": {
-    "message": "由于平台的限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
+    "message": "由于平台限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
   },
   "twoFactorU2fSupportWeb": {
     "message": "桌面/笔记本电脑上支持 U2F 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页版密码库和浏览器扩展。"
@@ -2297,7 +2297,7 @@
     "message": "读取安全钥匙时出现问题，请重试。"
   },
   "twoFactorWebAuthnWarning": {
-    "message": "由于平台限制，无法在所有 Bitwarden 应用程序中使用 WebAuthn。您应该启用另一个两步登录提供程序，以便在 WebAuthn 无法使用时可以访问您的账户。支持的平台有："
+    "message": "由于平台限制，WebAuthn 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在 WebAuthn 无法使用时可以访问您的账户。支持的平台有："
   },
   "twoFactorWebAuthnSupportWeb": {
     "message": "桌面/笔记本电脑上支持 WebAuthn 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
@@ -4286,7 +4286,7 @@
     "message": "为了提高安全性，我们更改了加密方案。请在下方输入您的主密码以立即更新您的加密密钥。"
   },
   "updateEncryptionKeyWarning": {
-    "message": "更新加密密钥后，您需要注销所有正在使用的 Bitwarden 应用（比如移动 App 或者浏览器扩展）后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但是，可能会有所延迟。"
+    "message": "更新加密密钥后，您需要注销所有正在使用的 Bitwarden 应用程序（比如移动 App 或者浏览器扩展）后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但是，可能会有所延迟。"
   },
   "updateEncryptionKeyExportWarning": {
     "message": "您保存的任何已加密导出也将变为无效。"
@@ -4707,7 +4707,7 @@
     "message": "包括 VAT/GST 信息（可选）"
   },
   "taxIdNumber": {
-    "message": "VAT/GST 税号"
+    "message": "VAT/GST 税务 ID"
   },
   "taxInfoUpdated": {
     "message": "税务信息已更新。"
@@ -8061,7 +8061,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "主密码长度最少为 $LENGTH$ 个字符。",
+    "message": "主密码长度必须至少为 $LENGTH$ 个字符。",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -9058,7 +9058,7 @@
     "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
   },
   "integrationCardTooltip": {
-    "message": "启动 $INTEGRATION$ 实施指南。",
+    "message": "打开 $INTEGRATION$ 实施指南。",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9270,6 +9270,18 @@
   },
   "updatedTaxInformation": {
     "message": "更新了税务信息"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "无效的税务 ID，如有疑问，请联系支持。"
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "我们无法验证您的税务 ID，如有疑问，请联系支持。"
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "无效的税务 ID，如有疑问，请联系支持。"
+  },
+  "billingPreviewInvoiceError": {
+    "message": "预览账单时出错。请稍后再试。"
   },
   "unverified": {
     "message": "未验证"
@@ -9891,7 +9903,7 @@
     "message": "设置两步登录"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮箱发送一个代码，以验证来自新设备的登录。"
+    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
@@ -9900,7 +9912,7 @@
     "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可靠地访问您的电子邮箱 $EMAIL$ 吗？",
+    "message": "您能正常访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -9912,7 +9924,7 @@
     "message": "不，我不能"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以可靠地访问我的电子邮箱"
+    "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
     "message": "开启两步登录"
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
+  },
+  "resellerRenewalWarning": {
+    "message": "您的订阅即将续订。为确保服务不中断，请在 $RENEWAL_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "您的订阅账单已于 $ISSUED_DATE$ 开具。为确保服务不中断，请在 $DUE_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "您的订阅账单尚未支付。为确保服务不中断，请在 $GRACE_PERIOD_END$ 之前联系 $RESELLER$ 确认您的续订。",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

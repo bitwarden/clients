@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Ažurirane porezne informacije"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
+  },
   "unverified": {
     "message": "Nepotvrđeno"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
+  },
+  "resellerRenewalWarning": {
+    "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Za tvoju je pretplatu $ISSUED_DATE$ izdana faktura. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Faktura za tvoju pretplatu nije plaćena. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnovu prije $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

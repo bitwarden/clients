@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Informações fiscais atualizadas"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Número de identificação fiscal inválido. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Não foi possível validar o seu número de identificação fiscal. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Número de identificação fiscal inválido. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Ocorreu um erro ao pré-visualizar a fatura. Por favor, tente novamente mais tarde."
+  },
   "unverified": {
     "message": "Não verificado"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "O nome da organização não pode exceder 50 caracteres."
+  },
+  "resellerRenewalWarning": {
+    "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "A fatura da sua subscrição foi emitida a $ISSUED_DATE$. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "A fatura da sua subscrição não foi paga. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

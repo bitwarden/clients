@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Frissített adó információ"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Érvénytelen az adóazonosító. Ha úgy gondoljuk, hogy ez hiba, forduljunk az ügyfélszolgálathoz."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Nem lehetett ellenőrizni az adóazonosítót. Ha úgy gondoljuk, hogy ez hiba, forduljunk az ügyfélszolgálathoz."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Érvénytelen az adóazonosító. Ha úgy gondoljuk, hogy ez hiba, forduljunk az ügyfélszolgálathoz."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Hiba történt a számla előnézete közben. Próbáljuk újra később."
+  },
   "unverified": {
     "message": "Nem ellenőrzött"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
+  },
+  "resellerRenewalWarning": {
+    "message": "Az előfizetés hamarosan megújul. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $RENEWAL_DATE$ előtt.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Az előfizetésről szóló számla kiállítása $ISSUED_DATE$ napon történt. A megszakítás nélküli szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $DUE_DATE$ előtt.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Az előfizetésről szóló számla nem lett kfizetve. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $GRACE_PERIOD_END$ előtt.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }
