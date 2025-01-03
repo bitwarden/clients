@@ -1709,6 +1709,9 @@
   "loggedOutWarning": {
     "message": "Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
+  "loggedOutWarning1": {
+    "message": "Proceeding will log you out on all other devices requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour. This session will stay active."
+  },
   "emailChanged": {
     "message": "Email saved"
   },
@@ -1718,11 +1721,17 @@
   "logBackInOthersToo": {
     "message": "Please log back in. If you are using other Bitwarden applications log out and back in to those as well."
   },
+  "logBackInOnJustOthers": {
+    "message": "Log back in on your other devices"
+  },
   "changeMasterPassword": {
     "message": "Change master password"
   },
   "masterPasswordChanged": {
     "message": "Master password saved"
+  },
+  "masterPasswordChangedDesc": {
+    "message": "Your master password was updated successfully and all other devices were logged out."
   },
   "currentMasterPass": {
     "message": "Current master password"
@@ -10023,6 +10032,12 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "rotationCompletedTitle": {
+    "message": "Key rotation successful"
+  },
+  "rotationCompletedDesc": {
+    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
   "resellerRenewalWarning": {
     "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
