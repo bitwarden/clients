@@ -957,12 +957,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
     };
 
+    const allFields = this.formFieldElements;
+    const allFieldsRect = [];
+
+    for (const key of allFields.keys()) {
+      const rect = await this.getMostRecentlyFocusedFieldRects(key);
+      allFieldsRect.push({ ...allFields.get(key), rect }); // Add the combined result to the array
+    }
+
     await this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
+      allFieldsRect,
     });
   }
 
-  /**
+  /**his.formFieldElements
    * Gets the bounding client rects for the most recently focused field. This method will
    * attempt to use an intersection observer to get the most recently focused field's
    * bounding client rects. If the intersection observer is not supported, or the
