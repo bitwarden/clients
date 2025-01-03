@@ -1,26 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderUserAcceptRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-accept.request";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-accept-provider",
   templateUrl: "accept-provider.component.html",
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
-  providerName: string;
-  providerId: string;
-  providerUserId: string;
-  providerInviteToken: string;
+  providerName!: string;
+  providerId!: string;
+  providerUserId!: string;
+  providerInviteToken!: string;
 
   failedMessage = "providerInviteAcceptFailed";
 
@@ -32,10 +29,10 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
     route: ActivatedRoute,
     authService: AuthService,
     private apiService: ApiService,
+    private toastService: ToastService,
     platformUtilService: PlatformUtilsService,
-    registerRouteService: RegisterRouteService,
   ) {
-    super(router, platformUtilService, i18nService, route, authService, registerRouteService);
+    super(router, platformUtilService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params) {
@@ -47,12 +44,13 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
       qParams.providerUserId,
       request,
     );
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      this.i18nService.t("providerInviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("inviteAccepted"),
+      message: this.i18nService.t("providerInviteAcceptedDesc"),
+    });
+
     this.router.navigate(["/vault"]);
   }
 
@@ -64,25 +62,12 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
   }
 
   async register() {
-    let queryParams: Params;
-    let registerRoute = await firstValueFrom(this.registerRoute$);
-    if (registerRoute === "/register") {
-      queryParams = {
-        email: this.email,
-      };
-    } else if (registerRoute === "/signup") {
-      // We have to override the base component route as we don't need users to
-      // complete email verification if they are coming directly an emailed invite.
-      registerRoute = "/finish-signup";
-      queryParams = {
+    await this.router.navigate(["/signup"], {
+      queryParams: {
         email: this.email,
         providerUserId: this.providerUserId,
         providerInviteToken: this.providerInviteToken,
-      };
-    }
-
-    await this.router.navigate([registerRoute], {
-      queryParams: queryParams,
+      },
     });
   }
 }

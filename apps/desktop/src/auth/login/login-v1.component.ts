@@ -11,7 +11,6 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -78,7 +77,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
     private configService: ConfigService,
   ) {
@@ -101,7 +99,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLogin = () => {
@@ -210,7 +207,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       return;
     }
 
-    await super.submit();
+    await super.submitLogin();
     if (this.captchaSiteKey) {
       const content = document.getElementById("content") as HTMLDivElement;
       content.setAttribute("style", "width:335px");
@@ -228,7 +225,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     }
 
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+    await this.ssoLoginService.setSsoEmail(this.loggedEmail);
 
     // Generate necessary sso params
     const passwordOptions: any = {

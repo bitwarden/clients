@@ -339,17 +339,9 @@ export class SsoComponent implements OnInit {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string) {
-    const emailVerification = await this.configService.getFeatureFlag(
-      FeatureFlag.EmailVerification,
-    );
-
-    if (emailVerification) {
-      this.changePasswordRoute = "set-password-jit";
-    }
-
     await this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginChangePasswordNavigate,
-      [this.changePasswordRoute],
+      ["set-password-jit"],
       {
         queryParams: {
           identifier: orgIdentifier,

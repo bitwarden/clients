@@ -7,12 +7,12 @@
       href="https://www.bitwarden.com/products/send?source=web-vault"
       target="_blank"
       rel="noreferrer"
-      >Bitwarden Send</a
+    >Bitwarden Send</a
     >
     {{ "sendAccessTaglineOr" | i18n }}
-    <a bitLink [routerLink]="registerRoute$ | async" target="_blank" rel="noreferrer">{{
-      "sendAccessTaglineSignUp" | i18n
-    }}</a>
+    <a bitLink routerLink="/signup" target="_blank" rel="noreferrer">{{
+        "sendAccessTaglineSignUp" | i18n
+      }}</a>
     {{ "sendAccessTaglineTryToday" | i18n }}
   </p>
 </div>

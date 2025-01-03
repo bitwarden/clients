@@ -1,7 +1,5 @@
 import { Component } from "@angular/core";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
-
 import { SharedModule } from "../../shared";
 
 @Component({
@@ -11,7 +9,5 @@ import { SharedModule } from "../../shared";
   imports: [SharedModule],
 })
 export class SendAccessExplainerComponent {
-  // TODO: remove when email verification flag is removed
-  registerRoute$ = this.registerRouteService.registerRoute$();
-  constructor(private registerRouteService: RegisterRouteService) {}
+  constructor() {}
 }

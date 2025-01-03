@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -14,7 +12,6 @@ import { OrganizationSponsorshipRedeemRequest } from "@bitwarden/common/admin-co
 import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/pre-validate-sponsorship.response";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -48,22 +45,20 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
   badToken = false;
 
-  token: string;
-  existingFamilyOrganizations: Organization[];
-  existingFamilyOrganizations$: Observable<Organization[]>;
+  token!: string;
+  existingFamilyOrganizations$!: Observable<Organization[]>;
 
   showNewOrganization = false;
-  _organizationPlansComponent: OrganizationPlansComponent;
-  preValidateSponsorshipResponse: PreValidateSponsorshipResponse;
+  preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
+
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -85,7 +80,6 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
           variant: "error",
           title: null,
           message: this.i18nService.t("sponsoredFamiliesAcceptFailed"),
-          timeout: 10000,
         });
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -131,7 +125,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       }
     });
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
-      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId;
+      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId ?? "";
     });
   }
 

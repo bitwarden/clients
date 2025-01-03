@@ -21,7 +21,10 @@ export class OrganizationInvite {
     return Object.assign(new OrganizationInvite(), json);
   }
 
-  static fromParams(params: Params): OrganizationInvite | null {
+  static fromParams(params: Params | null): OrganizationInvite {
+    // Conversation topic:
+    // What if the query parameters we passed in are null? How do we outwardly communicate
+    // that this happened?
     if (params == null) {
       return null;
     }

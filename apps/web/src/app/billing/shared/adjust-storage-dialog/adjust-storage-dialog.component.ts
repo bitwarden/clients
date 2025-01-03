@@ -100,7 +100,6 @@ export class AdjustStorageDialogComponent {
         variant: "warning",
         title: null,
         message: this.i18nService.t("couldNotChargeCardPayInvoice"),
-        timeout: 10000,
       });
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

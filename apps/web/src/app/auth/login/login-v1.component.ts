@@ -3,7 +3,7 @@
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
@@ -11,7 +11,6 @@ import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstrac
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -72,7 +71,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
   ) {
     super(
@@ -94,7 +92,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
@@ -105,7 +102,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   };
 
   private async submitFormHelper(showToast: boolean) {
-    await super.submit(showToast);
+    await super.submitLogin(showToast);
   }
 
   async ngOnInit() {
@@ -178,17 +175,14 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   }
 
   async goToRegister() {
-    // TODO: remove when email verification flag is removed
-    const registerRoute = await firstValueFrom(this.registerRoute$);
-
     if (this.emailFormControl.valid) {
-      await this.router.navigate([registerRoute], {
+      await this.router.navigate(["/signup"], {
         queryParams: { email: this.emailFormControl.value },
       });
       return;
     }
 
-    await this.router.navigate([registerRoute]);
+    await this.router.navigate(["/signup"]);
   }
 
   protected override async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {

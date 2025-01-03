@@ -2,7 +2,7 @@
   <form
     id="login-page"
     #form
-    (ngSubmit)="submit()"
+    (ngSubmit)="submitLogin()"
     [appApiAction]="formPromise"
     [formGroup]="formGroup"
     attr.aria-hidden="{{ showingModal }}"
@@ -50,7 +50,7 @@
         </div>
         <div class="sub-options">
           <p class="no-margin">{{ "newAroundHere" | i18n }}</p>
-          <button type="button" class="text text-primary" [routerLink]="registerRoute$ | async">
+          <button type="button" class="text text-primary" routerLink="/signup">
             {{ "createAccount" | i18n }}
           </button>
         </div>
@@ -113,7 +113,7 @@
           <div class="buttons-row">
             <button type="submit" class="btn primary block" [disabled]="form.loading">
               <b [hidden]="form.loading"
-                ><i class="bwi bwi-sign-in" aria-hidden="true"></i>
+              ><i class="bwi bwi-sign-in" aria-hidden="true"></i>
                 {{ "loginWithMasterPassword" | i18n }}</b
               >
               <i class="bwi bwi-spinner bwi-spin" [hidden]="!form.loading" aria-hidden="true"></i>

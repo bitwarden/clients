@@ -45,7 +45,7 @@ export class ToastComponent {
   message: string | string[];
 
   /** An optional title to display over the message. */
-  @Input() title: string;
+  @Input() title: string | null;
 
   /**
    * The percent width of the progress bar, from 0-100

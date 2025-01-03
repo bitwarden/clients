@@ -115,10 +115,7 @@ const routes: Routes = [
       {
         path: "register",
         component: TrialInitiationComponent,
-        canActivate: [
-          canAccessFeature(FeatureFlag.EmailVerification, false, "/signup", false),
-          unauthGuardFn(),
-        ],
+        canActivate: [unauthGuardFn()],
         data: { titleId: "createAccount" } satisfies RouteDataProperties,
       },
       {
@@ -347,7 +344,7 @@ const routes: Routes = [
     children: [
       {
         path: "signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationUserAddIcon,
           pageTitle: {
@@ -372,7 +369,7 @@ const routes: Routes = [
       },
       {
         path: "finish-signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationLockAltIcon,
           titleId: "setAStrongPassword",
@@ -406,7 +403,6 @@ const routes: Routes = [
       },
       {
         path: "set-password-jit",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
         component: SetPasswordJitComponent,
         data: {
           pageTitle: {
@@ -419,7 +415,7 @@ const routes: Routes = [
       },
       {
         path: "signup-link-expired",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationExpiredLinkIcon,
           pageTitle: {
@@ -656,7 +652,7 @@ const routes: Routes = [
       },
       {
         path: "trial-initiation",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,
@@ -667,7 +663,7 @@ const routes: Routes = [
       },
       {
         path: "secrets-manager-trial-initiation",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,

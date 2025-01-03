@@ -20,6 +20,15 @@ export type ToastOptions = {
 export class ToastService {
   constructor(private toastrService: ToastrService) {}
 
+  /**
+   * This will present the toast to a user.
+   *
+   * Note: The toast will be displayed for a minimum of 5 seconds if no timeout is provided in
+   * the options.
+   *
+   * @param options Options for toasts. If no timeout is specified an appropriate duration will be
+   *                calculated on the size of the message being displayed.
+   */
   showToast(options: ToastOptions): void {
     const toastrConfig: Partial<IndividualConfig> = {
       payload: {

@@ -1,13 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
-import { RegisterRouteService } from "@bitwarden/auth/common";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -43,26 +39,23 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccessComponent implements OnInit {
-  protected send: SendAccessView;
+  protected send!: SendAccessView;
   protected sendType = SendType;
   protected loading = true;
   protected passwordRequired = false;
-  protected formPromise: Promise<SendAccessResponse>;
-  protected password: string;
+  protected formPromise!: Promise<SendAccessResponse>;
+  protected password!: string;
   protected unavailable = false;
   protected error = false;
   protected hideEmail = false;
-  protected decKey: SymmetricCryptoKey;
-  protected accessRequest: SendAccessRequest;
+  protected decKey!: SymmetricCryptoKey;
+  protected accessRequest!: SendAccessRequest;
   protected expiredSendIcon = ExpiredSendIcon;
 
   protected formGroup = this.formBuilder.group({});
 
-  // TODO: remove when email verification flag is removed
-  registerRoute$ = this.registerRouteService.registerRoute$();
-
-  private id: string;
-  private key: string;
+  private id!: string;
+  private key!: string;
 
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
@@ -71,8 +64,6 @@ export class AccessComponent implements OnInit {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
-    private configService: ConfigService,
-    private registerRouteService: RegisterRouteService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
     protected formBuilder: FormBuilder,
   ) {}
@@ -119,7 +110,7 @@ export class AccessComponent implements OnInit {
         );
         this.accessRequest.password = Utils.fromBufferToB64(passwordHash);
       }
-      let sendResponse: SendAccessResponse = null;
+      let sendResponse: SendAccessResponse;
       if (this.loading) {
         sendResponse = await this.sendApiService.postSendAccess(this.id, this.accessRequest);
       } else {

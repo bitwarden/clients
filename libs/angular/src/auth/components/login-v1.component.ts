@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationSkipped, Router } from "@angular/router";
@@ -10,11 +8,9 @@ import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
   PasswordLoginCredentials,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -38,17 +34,17 @@ import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
 @Directive()
 export class LoginComponentV1 extends CaptchaProtectedComponent implements OnInit, OnDestroy {
-  @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
+  @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput!: ElementRef;
 
   showPassword = false;
-  formPromise: Promise<AuthResult>;
+  formPromise!: Promise<AuthResult>;
 
-  onSuccessfulLogin: () => Promise<any>;
-  onSuccessfulLoginNavigate: (userId: UserId) => Promise<any>;
-  onSuccessfulLoginTwoFactorNavigate: () => Promise<any>;
-  onSuccessfulLoginForceResetNavigate: () => Promise<any>;
+  onSuccessfulLogin!: () => Promise<any>;
+  onSuccessfulLoginNavigate!: (userId: UserId) => Promise<any>;
+  onSuccessfulLoginTwoFactorNavigate!: () => Promise<any>;
+  onSuccessfulLoginForceResetNavigate!: () => Promise<any>;
 
-  showLoginWithDevice: boolean;
+  showLoginWithDevice!: boolean;
   validatedEmail = false;
   paramEmailSet = false;
 
@@ -56,7 +52,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     return this.formGroup.controls.email;
   }
 
-  formGroup = this.formBuilder.group({
+  formGroup = this.formBuilder.nonNullable.group({
     email: ["", [Validators.required, Validators.email]],
     masterPassword: [
       "",
@@ -67,15 +63,9 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
-  // TODO: remove when email verification flag is removed
-  protected registerRoute$ = this.registerRouteService.registerRoute$();
   protected forcePasswordResetRoute = "update-temp-password";
 
   protected destroy$ = new Subject<void>();
-
-  get loggedEmail() {
-    return this.formGroup.value.email;
-  }
 
   constructor(
     protected devicesApiService: DevicesApiServiceAbstraction,
@@ -95,8 +85,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     protected route: ActivatedRoute,
     protected loginEmailService: LoginEmailServiceAbstraction,
     protected ssoLoginService: SsoLoginServiceAbstraction,
-    protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    protected registerRouteService: RegisterRouteService,
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
@@ -145,9 +133,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     this.destroy$.complete();
   }
 
-  async submit(showToast = true) {
-    const data = this.formGroup.value;
-
+  async submitLogin(showToast = true) {
     await this.setupCaptcha();
 
     this.formGroup.markAllAsTouched();
@@ -170,10 +156,10 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
     try {
       const credentials = new PasswordLoginCredentials(
-        data.email,
-        data.masterPassword,
+        this.formGroup.controls.email.value,
+        this.formGroup.controls.masterPassword.value,
         this.captchaToken,
-        null,
+        undefined,
       );
 
       this.formPromise = this.loginStrategyService.logIn(credentials);
@@ -231,12 +217,16 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
   togglePassword() {
     this.showPassword = !this.showPassword;
-    if (this.ngZone.isStable) {
-      document.getElementById("masterPassword").focus();
+    const masterPasswordElement = document.getElementById("masterPassword");
+
+    if (masterPasswordElement) {
+      if (this.ngZone.isStable) {
+        masterPasswordElement.focus();
+      } else {
+        this.ngZone.onStable.pipe(take(1)).subscribe(() => masterPasswordElement.focus());
+      }
     } else {
-      this.ngZone.onStable
-        .pipe(take(1))
-        .subscribe(() => document.getElementById("masterPassword").focus());
+      this.logService.warning("Element with ID 'masterPassword' not found.");
     }
   }
 
@@ -254,7 +244,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
   async launchSsoBrowser(clientId: string, ssoRedirectUri: string) {
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+    await this.ssoLoginService.setSsoEmail(this.formGroup.controls.email.value);
 
     // Generate necessary sso params
     const passwordOptions: any = {
@@ -295,12 +285,20 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
   }
 
   async validateEmail() {
+    const email = this.formGroup.get("email");
+    if (!email) {
+      this.logService.warning(
+        `No email in form group when attempting to ${this.validateEmail.name}`,
+      );
+      return;
+    }
+
     this.formGroup.controls.email.markAsTouched();
-    const emailValid = this.formGroup.get("email").valid;
+    const emailValid = email.valid;
 
     if (emailValid) {
       this.toggleValidateEmail(true);
-      await this.getLoginWithDevice(this.loggedEmail);
+      await this.getLoginWithDevice(this.formGroup.controls["email"].value);
     }
   }
 
@@ -347,8 +345,8 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
   }
 
   protected async saveEmailSettings() {
-    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
-    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
+    this.loginEmailService.setLoginEmail(this.formGroup.controls["email"].value);
+    this.loginEmailService.setRememberEmail(this.formGroup.controls["rememberEmail"].value);
     await this.loginEmailService.saveEmailSettings();
   }
 
@@ -366,8 +364,8 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     return true;
   }
 
-  private getErrorToastMessage() {
-    const error: AllValidationErrors = this.formValidationErrorService
+  private getErrorToastMessage(): string {
+    const error: AllValidationErrors | undefined = this.formValidationErrorService
       .getFormValidationErrors(this.formGroup.controls)
       .shift();
 
@@ -380,9 +378,12 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
         default:
           return this.i18nService.t(this.errorTag(error));
       }
+    } else {
+      this.logService.warning(
+        "formValidationErrorService produced no errors even when the form is invalid.",
+      );
+      return this.i18nService.t("errorOccurred");
     }
-
-    return;
   }
 
   private errorTag(error: AllValidationErrors): string {
