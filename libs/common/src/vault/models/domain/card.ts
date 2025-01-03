@@ -37,7 +37,11 @@ export class Card extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<CardView> {
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<CardView> {
     return this.decryptObj(
       new CardView(),
       {
@@ -50,6 +54,7 @@ export class Card extends Domain {
       },
       orgId,
       encKey,
+      "DomainType: Card; " + context,
     );
   }
 

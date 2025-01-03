@@ -114,7 +114,7 @@ export class EncryptServiceImplementation implements EncryptService {
       const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
       if (!macsEqual) {
         this.logMacFailed(
-          "[Encrypt service] MAC comparison failed. Key or payload has changed. Key type " +
+          "[Encrypt service] decryptToUtf8 MAC comparison failed. Key or payload has changed. Key type " +
             encryptionTypeName(key.encType) +
             "Payload type " +
             encryptionTypeName(encString.encryptionType) +
@@ -128,7 +128,11 @@ export class EncryptServiceImplementation implements EncryptService {
     return await this.cryptoFunctionService.aesDecryptFast(fastParams, "cbc");
   }
 
-  async decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array> {
+  async decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptContext: string = "no context",
+  ): Promise<Uint8Array> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -145,7 +149,9 @@ export class EncryptServiceImplementation implements EncryptService {
         "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
           encryptionTypeName(key.encType) +
           " Payload type " +
-          encryptionTypeName(encThing.encryptionType),
+          encryptionTypeName(encThing.encryptionType) +
+          " Decrypt context: " +
+          decryptContext,
       );
       return null;
     }
@@ -155,7 +161,9 @@ export class EncryptServiceImplementation implements EncryptService {
         "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
           encryptionTypeName(key.encType) +
           " Payload type " +
-          encryptionTypeName(encThing.encryptionType),
+          encryptionTypeName(encThing.encryptionType) +
+          " Decrypt context: " +
+          decryptContext,
       );
       return null;
     }
@@ -167,11 +175,13 @@ export class EncryptServiceImplementation implements EncryptService {
       const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
       if (computedMac === null) {
         this.logMacFailed(
-          "[Encrypt service] Failed to compute MAC." +
+          "[Encrypt service#decryptToBytes] Failed to compute MAC." +
             " Key type " +
             encryptionTypeName(key.encType) +
             " Payload type " +
-            encryptionTypeName(encThing.encryptionType),
+            encryptionTypeName(encThing.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
         );
         return null;
       }
@@ -179,11 +189,13 @@ export class EncryptServiceImplementation implements EncryptService {
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
         this.logMacFailed(
-          "[Encrypt service] MAC comparison failed. Key or payload has changed." +
+          "[Encrypt service#decryptToBytes]: MAC comparison failed. Key or payload has changed." +
             " Key type " +
             encryptionTypeName(key.encType) +
             " Payload type " +
-            encryptionTypeName(encThing.encryptionType),
+            encryptionTypeName(encThing.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
         );
         return null;
       }

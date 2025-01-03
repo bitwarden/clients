@@ -13,7 +13,11 @@ export abstract class EncryptService {
     key: SymmetricCryptoKey,
     decryptContext?: string,
   ): Promise<string>;
-  abstract decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array>;
+  abstract decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptContext?: string,
+  ): Promise<Uint8Array>;
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
   abstract resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey;

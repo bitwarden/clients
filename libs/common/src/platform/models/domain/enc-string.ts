@@ -156,7 +156,7 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null): Promise<string> {
+  async decrypt(orgId: string, key: SymmetricCryptoKey = null, context?: string): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }
@@ -181,20 +181,28 @@ export class EncString implements Encrypted {
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key, keyContext);
+      this.decryptedValue = await encryptService.decryptToUtf8(
+        this,
+        key,
+        keyContext == null ? context : `${keyContext}${context || ""}`,
+      );
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
   }
 
-  async decryptWithKey(key: SymmetricCryptoKey, encryptService: EncryptService) {
+  async decryptWithKey(
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+    context: string = "domain-withkey",
+  ): Promise<string> {
     try {
       if (key == null) {
         throw new Error("No key to decrypt EncString");
       }
 
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key, "domain-withkey");
+      this.decryptedValue = await encryptService.decryptToUtf8(this, key, context);
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }
