@@ -1,7 +1,7 @@
 <form [formGroup]="confirmForm" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading">
     <span bitDialogTitle>
-      {{ "trustUserEmergencyAccess" | i18n }}
+      {{ "trustOrganization" | i18n }}
       <small class="tw-text-muted">{{ params.name }}</small>
     </span>
     <div bitDialogContent>
@@ -19,15 +19,10 @@
       <p bitTypography="body1">
         <code>{{ fingerprint }}</code>
       </p>
-
-      <bit-form-control>
-        <input type="checkbox" bitCheckbox formControlName="dontAskAgain" />
-        <bit-label> {{ "dontAskFingerprintAgain" | i18n }}</bit-label>
-      </bit-form-control>
     </div>
     <div bitDialogFooter>
       <button type="submit" buttonType="primary" bitButton bitFormButton>
-        <span>{{ "confirm" | i18n }}</span>
+        <span>{{ "trust" | i18n }}</span>
       </button>
       <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
         {{ "cancel" | i18n }}

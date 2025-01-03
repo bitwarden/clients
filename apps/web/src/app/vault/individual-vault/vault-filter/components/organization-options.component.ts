@@ -15,6 +15,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -23,6 +24,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
@@ -60,6 +62,8 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private keyService: KeyService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -185,6 +189,8 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         this.logService,
         this.userVerificationService,
         this.toastService,
+        this.keyService,
+        this.accountService,
       );
     } else {
       // Remove reset password

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -26,9 +26,17 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { Argon2KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 
+import {
+  OrganizationTrustComponent,
+  OrganizationTrustDialogResult,
+} from "../../admin-console/organizations/manage/organization-trust.component";
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
 import { EmergencyAccessService } from "../../auth/emergency-access";
+import {
+  EmergencyAccessConfirmComponent,
+  EmergencyAccessConfirmDialogResult,
+} from "../../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 
 import { MasterPasswordUnlockDataRequest } from "./request/master-password-unlock-data.request";
 import { RotateUserAccountKeysRequest } from "./request/rotate-user-account-keys.request";
@@ -164,20 +172,77 @@ export class UserKeyRotationService {
       request.sends = rotatedSends;
     }
 
+    const emergencyAccessGrantees = await this.emergencyAccessService.getPublicKeys();
+    for (const details of emergencyAccessGrantees) {
+      this.logService.info("[Userkey rotation] Emergency access grantee: " + details.name);
+      this.logService.info(
+        "[Userkey rotation] Emergency access grantee fingerprint: " +
+          (await this.keyService.getFingerprint(details.granteeId, details.publicKey)).join("-"),
+      );
+
+      const dialogRef = EmergencyAccessConfirmComponent.open(this.dialogService, {
+        data: {
+          name: details.name,
+          emergencyAccessId: details.id,
+          userId: details.granteeId,
+          publicKey: details.publicKey,
+        },
+      });
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
+        this.logService.info("[Userkey rotation] Emergency access grantee confirmed");
+      } else {
+        this.logService.info("[Userkey rotation] Emergency access grantee not confirmed");
+        throw new Error("Emergency access grantee not confirmed, aborting user key rotation");
+      }
+    }
+    const trustedUserPublicKeys = emergencyAccessGrantees.map((d) => d.publicKey);
     const rotatedEmergencyAccessKeys = await this.emergencyAccessService.getRotatedData(
-      originalUserKey,
       newUnencryptedUserKey,
+      trustedUserPublicKeys,
       user.id,
     );
     if (rotatedEmergencyAccessKeys != null) {
       request.emergencyAccessKeys = rotatedEmergencyAccessKeys;
     }
 
+    const orgs = await this.resetPasswordService.getPublicKeys();
+    for (const organization of orgs) {
+      this.logService.info(
+        "[Userkey rotation] Reset password organization: " + organization.orgName,
+      );
+      this.logService.info(
+        "[Userkey rotation] Trusted organization public key: " + organization.publicKey,
+      );
+      const fingerprint = await this.keyService.getFingerprint(
+        organization.orgId,
+        organization.publicKey,
+      );
+      this.logService.info(
+        "[Userkey rotation] Trusted organization fingerprint: " + fingerprint.join("-"),
+      );
+
+      const dialogRef = OrganizationTrustComponent.open(this.dialogService, {
+        data: {
+          name: organization.orgName,
+          orgId: organization.orgId,
+          publicKey: organization.publicKey,
+        },
+      });
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === OrganizationTrustDialogResult.Trusted) {
+        this.logService.info("[Userkey rotation] Organization trusted");
+      } else {
+        this.logService.info("[Userkey rotation] Organization not trusted");
+        throw new Error("Organization not trusted, aborting user key rotation");
+      }
+    }
+    const trustedOrgPublicKeys = orgs.map((d) => d.publicKey);
     // Note: Reset password keys request model has user verification
     // properties, but the rotation endpoint uses its own MP hash.
     const rotatedResetPasswordKeys = await this.resetPasswordService.getRotatedData(
       originalUserKey,
-      newUnencryptedUserKey,
+      trustedOrgPublicKeys,
       user.id,
     );
     if (rotatedResetPasswordKeys != null) {
@@ -319,20 +384,24 @@ export class UserKeyRotationService {
       request.sends = rotatedSends;
     }
 
+    const emergencyAccessGrantees = await this.emergencyAccessService.getPublicKeys();
+    const trustedUserPublicKeys = emergencyAccessGrantees.map((d) => d.publicKey);
     const rotatedEmergencyAccessKeys = await this.emergencyAccessService.getRotatedData(
-      originalUserKey,
       newUserKey,
+      trustedUserPublicKeys,
       user.id,
     );
     if (rotatedEmergencyAccessKeys != null) {
       request.emergencyAccessKeys = rotatedEmergencyAccessKeys;
     }
 
+    const orgs = await this.resetPasswordService.getPublicKeys();
+    const trustedOrgPublicKeys = orgs.map((d) => d.publicKey);
     // Note: Reset password keys request model has user verification
     // properties, but the rotation endpoint uses its own MP hash.
     const rotatedResetPasswordKeys = await this.resetPasswordService.getRotatedData(
-      originalUserKey,
       newUserKey,
+      trustedOrgPublicKeys,
       user.id,
     );
     if (rotatedResetPasswordKeys != null) {

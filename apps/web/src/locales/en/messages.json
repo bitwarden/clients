@@ -10039,6 +10039,15 @@
   "rotationCompletedDesc": {
     "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
+  "trustUserEmergencyAccess": {
+    "message": "Trust and confirm user"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
   "resellerRenewalWarning": {
     "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
