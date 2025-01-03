@@ -7,6 +7,7 @@ import { Router } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -19,7 +20,11 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CanDeleteCipherDirective,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -35,6 +40,7 @@ import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/va
     MenuModule,
     IconButtonModule,
     TypographyModule,
+    DecryptionFailureDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -105,6 +111,13 @@ export class TrashListItemsContainerComponent {
   }
 
   async onViewCipher(cipher: CipherView) {
+    if (cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return;
+    }
+
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
       return;

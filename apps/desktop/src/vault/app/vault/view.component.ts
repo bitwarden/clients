@@ -25,6 +25,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -32,7 +33,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "ViewComponent";
 
@@ -98,6 +99,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
   }
   ngOnInit() {
     super.ngOnInit();
+
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
@@ -117,6 +119,13 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
 
   async ngOnChanges() {
     await super.load();
+
+    if (this.cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [this.cipherId as CipherId],
+      });
+      return;
+    }
   }
 
   viewHistory() {

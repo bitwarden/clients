@@ -29,8 +29,10 @@ import {
   map,
   shareReplay,
   switchMap,
+  take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -75,6 +77,7 @@ import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
@@ -144,6 +147,7 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -357,15 +361,21 @@ export class VaultComponent implements OnInit, OnDestroy {
       filter$,
       this.currentSearchText$,
     ]).pipe(
-      filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      withLatestFrom(this.cipherService.failedToDecryptCiphers$), // Not in combineLatest to avoid redundant emissions
+      filter(
+        ([[ciphers, filter], failedCiphers]) =>
+          ciphers != undefined && filter != undefined && failedCiphers != undefined,
+      ),
+      concatMap(async ([[ciphers, filter, searchText], failedCiphers]) => {
         const filterFunction = createFilterFunction(filter);
+        // Append any failed to decrypt ciphers to the top of the cipher list
+        const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
+          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
         }
 
-        return ciphers.filter(filterFunction);
+        return allCiphers.filter(filterFunction);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -436,6 +446,17 @@ export class VaultComponent implements OnInit, OnDestroy {
                 action = "view";
               }
 
+              if (action == "showFailedToDecrypt") {
+                DecryptionFailureDialogComponent.open(this.dialogService, {
+                  cipherIds: [cipherId as CipherId],
+                });
+                await this.router.navigate([], {
+                  queryParams: { itemId: null, cipherId: null, action: null },
+                  queryParamsHandling: "merge",
+                });
+                return;
+              }
+
               if (action === "view") {
                 await this.viewCipherById(cipherId);
               } else {
@@ -457,6 +478,20 @@ export class VaultComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    firstSetup$
+      .pipe(
+        switchMap(() => this.cipherService.failedToDecryptCiphers$),
+        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
 
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
 

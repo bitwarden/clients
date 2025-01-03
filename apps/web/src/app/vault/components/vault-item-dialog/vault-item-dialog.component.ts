@@ -38,6 +38,7 @@ import {
   CipherFormGenerationService,
   CipherFormModule,
   CipherViewComponent,
+  DecryptionFailureDialogComponent,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -112,6 +113,7 @@ export enum VaultItemDialogResult {
     CipherAttachmentsComponent,
     AsyncActionsModule,
     ItemModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
@@ -245,6 +247,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.cipher = await this.getDecryptedCipherView(this.formConfig);
 
     if (this.cipher) {
+      if (this.cipher.decryptionFailure) {
+        this.dialogService.open(DecryptionFailureDialogComponent, {
+          data: { cipherIds: [this.cipher.id] },
+        });
+        this.dialogRef.close();
+        return;
+      }
+
       this.collections = this.formConfig.collections.filter((c) =>
         this.cipher.collectionIds?.includes(c.id),
       );

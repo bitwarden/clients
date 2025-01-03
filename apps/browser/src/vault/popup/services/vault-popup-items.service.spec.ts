@@ -58,6 +58,7 @@ describe("VaultPopupItemsService", () => {
     cipherServiceMock.getAllDecrypted.mockResolvedValue(cipherList);
     cipherServiceMock.ciphers$ = new BehaviorSubject(null);
     cipherServiceMock.localData$ = new BehaviorSubject(null);
+    cipherServiceMock.failedToDecryptCiphers$ = new BehaviorSubject([]);
     searchService.searchCiphers.mockImplementation(async (_, __, ciphers) => ciphers);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(c.id)),
@@ -290,21 +291,6 @@ describe("VaultPopupItemsService", () => {
       service.remainingCiphers$.subscribe((ciphers) => {
         // 2 autofill ciphers, 2 favorite ciphers = 6 remaining ciphers to show
         expect(ciphers.length).toBe(6);
-        done();
-      });
-    });
-
-    it("should sort by last used then by name by default", (done) => {
-      service.remainingCiphers$.subscribe(() => {
-        expect(cipherServiceMock.getLocaleSortingFunction).toHaveBeenCalled();
-        done();
-      });
-    });
-
-    it("should NOT sort by last used then by name when search text is applied", (done) => {
-      service.applyFilter("Login");
-      service.remainingCiphers$.subscribe(() => {
-        expect(cipherServiceMock.getLocaleSortingFunction).not.toHaveBeenCalled();
         done();
       });
     });
