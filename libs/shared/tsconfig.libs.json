@@ -20,6 +20,7 @@
       "@bitwarden/importer/core": ["../importer/src"],
       "@bitwarden/importer/ui": ["../importer/src/components"],
       "@bitwarden/key-management": ["../key-management/src"],
+      "@bitwarden/key-management/angular": ["../key-management/src/angular"],
       "@bitwarden/platform": ["../platform/src"],
       "@bitwarden/send-ui": ["../tools/send/send-ui/src"],
       "@bitwarden/tools-card": ["../tools/card/src"],

@@ -2,11 +2,6 @@ import { inject } from "@angular/core";
 import { combineLatest, defer, map, Observable } from "rxjs";
 
 import {
-  BiometricsDisableReason,
-  LockComponentService,
-  UnlockOptions,
-} from "@bitwarden/auth/angular";
-import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -16,6 +11,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService } from "@bitwarden/key-management";
+import {
+  BiometricsDisableReason,
+  LockComponentService,
+  UnlockOptions,
+} from "@bitwarden/key-management/angular";
 
 export class DesktopLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
