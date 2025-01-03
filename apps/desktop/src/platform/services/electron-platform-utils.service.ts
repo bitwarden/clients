@@ -10,8 +10,6 @@ import {
 
 import { ClipboardWriteMessage } from "../types/clipboard";
 
-export const ELECTRON_SUPPORTS_SECURE_STORAGE = true;
-
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   constructor(
     protected i18nService: I18nService,
@@ -134,7 +132,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   supportsSecureStorage(): boolean {
-    return ELECTRON_SUPPORTS_SECURE_STORAGE;
+    // When using windows portable it's expected that all data is stored in the local `data.json` file
+    // if things instead get saved into Windows Credential Manager and then the user tries to move
+    // their Bitwarden executable to another computer they would be unable to unlock.
+    return !ipc.platform.isWindowsPortable;
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {

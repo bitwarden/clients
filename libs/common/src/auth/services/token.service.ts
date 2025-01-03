@@ -9,6 +9,7 @@ import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
@@ -131,7 +132,7 @@ export class TokenService implements TokenServiceAbstraction {
     // this service into the AccountService, we will make a circular dependency
     private singleUserStateProvider: SingleUserStateProvider,
     private globalStateProvider: GlobalStateProvider,
-    private readonly platformSupportsSecureStorage: boolean,
+    private readonly platforUtilsService: PlatformUtilsService,
     private secureStorageService: AbstractStorageService,
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
@@ -262,7 +263,7 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   private async getOrCreateAccessTokenKey(userId: UserId): Promise<AccessTokenKey> {
-    if (!this.platformSupportsSecureStorage) {
+    if (!this.platforUtilsService.supportsSecureStorage()) {
       throw new Error("Platform does not support secure storage. Cannot obtain access token key.");
     }
 
@@ -417,7 +418,7 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear all locations to avoid the need to require those parameters.
 
-    if (this.platformSupportsSecureStorage) {
+    if (this.platforUtilsService.supportsSecureStorage()) {
       // Always clear the access token key when clearing the access token
       // The next set of the access token will create a new access token key
       await this.clearAccessTokenKey(userId);
@@ -450,7 +451,7 @@ export class TokenService implements TokenServiceAbstraction {
       return null;
     }
 
-    if (this.platformSupportsSecureStorage) {
+    if (this.platforUtilsService.supportsSecureStorage()) {
       let accessTokenKey: AccessTokenKey;
       try {
         accessTokenKey = await this.getAccessTokenKey(userId);
@@ -627,7 +628,7 @@ export class TokenService implements TokenServiceAbstraction {
       return refreshTokenDisk;
     }
 
-    if (this.platformSupportsSecureStorage) {
+    if (this.platforUtilsService.supportsSecureStorage()) {
       try {
         const refreshTokenSecureStorage = await this.getStringFromSecureStorage(
           userId,
@@ -663,7 +664,7 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear all locations to avoid the need to require those parameters
 
-    if (this.platformSupportsSecureStorage) {
+    if (this.platforUtilsService.supportsSecureStorage()) {
       await this.secureStorageService.remove(
         `${userId}${this.refreshTokenSecureStorageKey}`,
         this.getSecureStorageOptions(userId),
@@ -1086,7 +1087,7 @@ export class TokenService implements TokenServiceAbstraction {
     ) {
       return TokenStorageLocation.Memory;
     } else {
-      if (useSecureStorage && this.platformSupportsSecureStorage) {
+      if (useSecureStorage && this.platforUtilsService.supportsSecureStorage()) {
         return TokenStorageLocation.SecureStorage;
       }
 

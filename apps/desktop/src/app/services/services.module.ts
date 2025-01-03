@@ -13,7 +13,6 @@ import {
   OBSERVABLE_MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   WINDOW,
-  SUPPORTS_SECURE_STORAGE,
   SYSTEM_THEME_OBSERVABLE,
   SafeInjectionToken,
   DEFAULT_VAULT_TIMEOUT,
@@ -107,10 +106,7 @@ import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
-import {
-  ELECTRON_SUPPORTS_SECURE_STORAGE,
-  ElectronPlatformUtilsService,
-} from "../../platform/services/electron-platform-utils.service";
+import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessageSender } from "../../platform/services/electron-renderer-message.sender";
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
@@ -168,13 +164,6 @@ const safeProviders: SafeProvider[] = [
     provide: PlatformUtilsServiceAbstraction,
     useClass: ElectronPlatformUtilsService,
     deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
-  }),
-  safeProvider({
-    // We manually override the value of SUPPORTS_SECURE_STORAGE here to avoid
-    // the TokenService having to inject the PlatformUtilsService which introduces a
-    // circular dependency on Desktop only.
-    provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,

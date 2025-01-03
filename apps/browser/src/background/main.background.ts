@@ -589,7 +589,7 @@ export default class MainBackground {
     this.tokenService = new TokenService(
       this.singleUserStateProvider,
       this.globalStateProvider,
-      this.platformUtilsService.supportsSecureStorage(),
+      this.platformUtilsService,
       this.secureStorageService,
       this.keyGenerationService,
       this.encryptService,

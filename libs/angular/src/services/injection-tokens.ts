@@ -45,7 +45,6 @@ export const LOGOUT_CALLBACK = new SafeInjectionToken<
 export const LOCKED_CALLBACK = new SafeInjectionToken<(userId?: string) => Promise<void>>(
   "LOCKED_CALLBACK",
 );
-export const SUPPORTS_SECURE_STORAGE = new SafeInjectionToken<boolean>("SUPPORTS_SECURE_STORAGE");
 export const LOCALES_DIRECTORY = new SafeInjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new SafeInjectionToken<string>("SYSTEM_LANGUAGE");
 export const LOG_MAC_FAILURES = new SafeInjectionToken<boolean>("LOG_MAC_FAILURES");

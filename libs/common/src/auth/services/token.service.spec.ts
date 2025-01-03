@@ -8,6 +8,7 @@ import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
@@ -3011,10 +3012,13 @@ describe("TokenService", () => {
 
   // Helpers
   function createTokenService(supportsSecureStorage: boolean) {
+    const platformUtilsService = mock<PlatformUtilsService>();
+    platformUtilsService.supportsSecureStorage.mockReturnValue(supportsSecureStorage);
+
     return new TokenService(
       singleUserStateProvider,
       globalStateProvider,
-      supportsSecureStorage,
+      platformUtilsService,
       secureStorageService,
       keyGenerationService,
       encryptService,
