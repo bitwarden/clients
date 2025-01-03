@@ -16,9 +16,9 @@ export function CipherIcon({
   uri,
 }: {
   color: string;
-  uri: string;
   size: string;
   theme: Theme;
+  uri?: string;
 }) {
   const iconClass = cipherIconStyle({ width: size });
 

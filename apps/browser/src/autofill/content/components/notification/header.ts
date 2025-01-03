@@ -14,14 +14,12 @@ const { css } = createEmotion({
 });
 
 export function NotificationHeader({
-  isVaultLocked,
   message,
   standalone,
   theme,
   handleCloseNotification,
 }: {
-  isVaultLocked: boolean;
-  message: string;
+  message?: string;
   standalone: boolean;
   theme: Theme;
   handleCloseNotification: (e: Event) => void;
@@ -32,7 +30,7 @@ export function NotificationHeader({
   return html`
     <div class=${notificationHeaderStyles({ standalone, theme })}>
       ${showIcon ? BrandIconContainer({ theme }) : null}
-      ${NotificationHeaderMessage({ message, theme })}
+      ${message ? NotificationHeaderMessage({ message, theme }) : null}
       ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
     </div>
   `;

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { html } from "lit";
 
-import { Theme } from "@bitwarden/common/platform/enums";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import {
   NotificationBarIframeInitData,
@@ -22,13 +22,12 @@ import { NotificationHeader } from "./header";
 export function NotificationContainer({
   handleCloseNotification,
   i18n,
-  isVaultLocked,
-  theme,
+  theme = ThemeTypes.Light,
   type,
 }: { handleCloseNotification: (e: Event) => void } & {
   i18n: { [key: string]: string };
 } & NotificationBarIframeInitData) {
-  const headerMessage = getHeaderMessage(type, i18n);
+  const headerMessage = getHeaderMessage(i18n, type);
   const showBody = true;
 
   // @TODO remove mock ciphers for development
@@ -40,14 +39,13 @@ export function NotificationContainer({
       icon: { imageEnabled: true, image: "https://localhost:8443/icons/webtests.dev/icon.png" },
     },
   ] as CipherData[];
-  const itemText = type === NotificationTypes.Add ? "Save as new login" : null;
+  const itemText = type === NotificationTypes.Add && "Save as new login";
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         standalone: showBody,
-        isVaultLocked,
         message: headerMessage,
         theme,
       })}
@@ -72,7 +70,7 @@ export function NotificationContainer({
       ${NotificationFooter({
         theme,
         children: [
-          type === NotificationTypes.Change
+          type === NotificationTypes.Change && itemText
             ? ActionRow({ itemText, handleAction: () => {}, theme })
             : ButtonRow({ theme }),
         ],
@@ -103,7 +101,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getHeaderMessage(type: string, i18n: { [key: string]: string }) {
+function getHeaderMessage(i18n: { [key: string]: string }, type?: string) {
   switch (type) {
     case NotificationTypes.Add:
       return i18n.saveAsNewLoginAction;
@@ -114,6 +112,6 @@ function getHeaderMessage(type: string, i18n: { [key: string]: string }) {
     case NotificationTypes.FilelessImport:
       return "";
     default:
-      return null;
+      return undefined;
   }
 }

@@ -21,11 +21,11 @@ export function CipherItem({
 }: {
   cipher: CipherData;
   handleAction?: (e: Event) => void;
-  notificationType: string;
+  notificationType?: string;
   theme: Theme;
 }) {
   const { icon } = cipher;
-  const uri = icon.imageEnabled && icon.image;
+  const uri = (icon.imageEnabled && icon.image) || undefined;
 
   let cipherActionButton = null;
 

@@ -8,7 +8,7 @@ import { AngleDown } from "./icons";
 
 export function DropdownMenu({
   buttonText,
-  icon = null,
+  icon,
   disabled = false,
   selectAction,
   theme,
@@ -20,14 +20,13 @@ export function DropdownMenu({
   theme: Theme;
 }) {
   // @TODO placeholder/will not work; make stateful
-  let showDropdown = false;
+  const showDropdown = false;
   const handleButtonClick = (event: Event) => {
-    if (!disabled) {
-      // show dropdown
-      showDropdown = !showDropdown;
-
-      this.requestUpdate();
-    }
+    // if (!disabled) {
+    //   // show dropdown
+    //   showDropdown = !showDropdown;
+    //   this.requestUpdate();
+    // }
   };
 
   const dropdownMenuItems: TemplateResult[] = [];
@@ -40,7 +39,7 @@ export function DropdownMenu({
         class=${dropdownButtonStyles({ disabled, theme })}
         @click=${handleButtonClick}
       >
-        ${icon}
+        ${icon ?? null}
         <span class=${dropdownButtonTextStyles}>${buttonText}</span>
         ${AngleDown({ color: themes[theme].text.muted, theme })}
       </button>
