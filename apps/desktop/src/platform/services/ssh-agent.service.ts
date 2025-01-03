@@ -126,6 +126,9 @@ export class SshAgentService implements OnDestroy {
             if (application == "") {
               application = this.i18nService.t("unknownApplication");
             }
+            const isAgentForwarding = message.isAgentForwarding as boolean;
+            const isSignRequest = message.isSignRequest as boolean;
+            const isGitSignRequest = message.isGitSignRequest as boolean;
 
             if (isListRequest) {
               const sshCiphers = ciphers.filter(
@@ -156,6 +159,9 @@ export class SshAgentService implements OnDestroy {
               this.dialogService,
               cipher.name,
               application,
+              isAgentForwarding,
+              isSignRequest,
+              isGitSignRequest,
             );
 
             const result = await firstValueFrom(dialogRef.closed);

@@ -2,8 +2,17 @@
   <bit-dialog>
     <div class="tw-font-semibold" bitDialogTitle>{{ "sshkeyApprovalTitle" | i18n }}</div>
     <div bitDialogContent>
+      <app-callout
+        type="warning"
+        title="{{ 'agentForwardingWarningTitle' | i18n }}"
+        *ngIf="params.isAgentForwarding"
+      >
+        {{ 'agentForwardingWarningText' | i18n }}
+      </app-callout>
+
       <b>{{params.applicationName}}</b> {{ "sshkeyApprovalMessageInfix" | i18n }}
-      <b>{{params.cipherName}}</b>.
+      <b>{{params.cipherName}}</b>
+      {{ "sshkeyApprovalMessageSuffix" | i18n }} {{ params.action | i18n }}
     </div>
     <div bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary">

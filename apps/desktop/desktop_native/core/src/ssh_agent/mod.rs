@@ -19,6 +19,8 @@ mod peercred_unix_listener_stream;
 pub mod generator;
 pub mod importer;
 pub mod peerinfo;
+mod request_parser;
+
 #[derive(Clone)]
 pub struct BitwardenDesktopAgent {
     keystore: ssh_agent::KeyStore,
@@ -36,19 +38,43 @@ pub struct SshAgentUIRequest {
     pub cipher_id: Option<String>,
     pub process_name: String,
     pub is_list: bool,
+    pub is_sig: bool,
+    pub is_git: bool,
+    pub is_forwarding: bool,
 }
 
 impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
-    async fn confirm(&self, ssh_key: Key, info: &peerinfo::models::PeerInfo) -> bool {
+    async fn confirm(&self, ssh_key: Key, data: &[u8], info: &peerinfo::models::PeerInfo) -> bool {
         if !self.is_running() {
             println!("[BitwardenDesktopAgent] Agent is not running, but tried to call confirm");
             return false;
         }
 
         let request_id = self.get_request_id().await;
+        let request_data = request_parser::parse_request(data);
+        if let Err(e) = request_data {
+            println!("[SSH Agent] Error while parsing request: {}", e);
+            return false;
+        }
+        let request_data = request_data.unwrap();
+        let is_sig = match request_data {
+            request_parser::SshAgentSignRequest::SshSigRequest(_) => true,
+            request_parser::SshAgentSignRequest::SignRequest(_) => false,
+        };
+        let is_git = is_sig
+            && match request_data {
+                request_parser::SshAgentSignRequest::SshSigRequest(ref req) => {
+                    req.namespace == "git"
+                }
+                _ => false,
+            };
+
         println!(
-            "[SSH Agent] Confirming request from application: {}",
-            info.process_name()
+            "[SSH Agent] Confirming request from application: {}, is_forwarding: {}, is_sshsig: {}, is_git: {}",
+            info.process_name(),
+            info.is_forwarding(),
+            is_sig,
+            is_git
         );
 
         let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
@@ -58,6 +84,9 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
                 cipher_id: Some(ssh_key.cipher_uuid.clone()),
                 process_name: info.process_name().to_string(),
                 is_list: false,
+                is_sig,
+                is_git,
+                is_forwarding: info.is_forwarding(),
             })
             .await
             .expect("Should send request to ui");
@@ -82,6 +111,9 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
             cipher_id: None,
             process_name: info.process_name().to_string(),
             is_list: true,
+            is_sig: false,
+            is_git: false,
+            is_forwarding: info.is_forwarding(),
         };
         self.show_ui_request_tx
             .send(message)
@@ -93,6 +125,17 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
             }
         }
         false
+    }
+
+    async fn set_is_forwarding(
+        &self,
+        is_forwarding: bool,
+        connection_info: &peerinfo::models::PeerInfo,
+    ) -> () {
+        // is_forwarding can only be added but never removed from a connection
+        if is_forwarding {
+            connection_info.set_forwarding(is_forwarding);
+        }
     }
 }
 
