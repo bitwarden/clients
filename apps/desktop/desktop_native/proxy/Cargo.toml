@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 anyhow = "=1.0.94"
-desktop_core = { path = "../core", default-features = false }
+desktop_core = { path = "../core" }
 futures = "=0.3.31"
 log = "=0.4.22"
 simplelog = "=0.12.2"
