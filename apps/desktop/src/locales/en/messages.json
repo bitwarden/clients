@@ -3430,5 +3430,11 @@
   },
   "changeAcctEmail": {
     "message": "Change account email"
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   }
 }
