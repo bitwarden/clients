@@ -31,6 +31,10 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
+    if (this.legacyCiphersEnabled) {
+      return super.decryptItems(items, key);
+    }
+
     if (items == null || items.length < 1) {
       return [];
     }

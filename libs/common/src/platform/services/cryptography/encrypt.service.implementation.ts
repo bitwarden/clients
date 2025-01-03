@@ -14,6 +14,8 @@ import { EncryptedObject } from "../../models/domain/encrypted-object";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 export class EncryptServiceImplementation implements EncryptService {
+  protected legacyCiphersEnabled: boolean = false;
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
@@ -27,6 +29,14 @@ export class EncryptServiceImplementation implements EncryptService {
 
     if (plainValue == null) {
       return Promise.resolve(null);
+    }
+
+    if (
+      !this.legacyCiphersEnabled &&
+      (key.encType === EncryptionType.AesCbc128_HmacSha256_B64 ||
+        key.encType === EncryptionType.AesCbc256_B64)
+    ) {
+      throw new Error("Legacy ciphers are disabled.");
     }
 
     let plainBuf: Uint8Array;
@@ -46,6 +56,14 @@ export class EncryptServiceImplementation implements EncryptService {
   async encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (
+      !this.legacyCiphersEnabled &&
+      (key.encType === EncryptionType.AesCbc128_HmacSha256_B64 ||
+        key.encType === EncryptionType.AesCbc256_B64)
+    ) {
+      throw new Error("Legacy ciphers are disabled.");
     }
 
     const encValue = await this.aesEncrypt(plainValue, key);
@@ -75,6 +93,14 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     key = this.resolveLegacyKey(key, encString);
+
+    if (
+      (!this.legacyCiphersEnabled || encString.mac == null) &&
+      (key.encType === EncryptionType.AesCbc128_HmacSha256_B64 ||
+        key.encType === EncryptionType.AesCbc256_B64)
+    ) {
+      throw new Error("Legacy ciphers are disabled.");
+    }
 
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encString?.mac == null) {
@@ -138,6 +164,14 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     key = this.resolveLegacyKey(key, encThing);
+
+    if (
+      (!this.legacyCiphersEnabled || encThing.macBytes == null) &&
+      (key.encType === EncryptionType.AesCbc128_HmacSha256_B64 ||
+        key.encType === EncryptionType.AesCbc256_B64)
+    ) {
+      throw new Error("Legacy ciphers are disabled.");
+    }
 
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encThing.macBytes == null) {
@@ -296,5 +330,10 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     return key;
+  }
+
+  setLegacyCiphersEnabled(enabled: boolean): void {
+    this.logService.info("[Encrypt service] Legacy ciphers enabled: " + enabled);
+    this.legacyCiphersEnabled = enabled;
   }
 }

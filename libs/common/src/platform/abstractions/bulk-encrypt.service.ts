@@ -7,4 +7,5 @@ export abstract class BulkEncryptService {
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]>;
+  abstract setLegacyCiphersEnabled(enabled: boolean): void;
 }

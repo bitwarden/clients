@@ -5,6 +5,8 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -40,6 +42,8 @@ export class MigrateFromLegacyEncryptionComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private folderApiService: FolderApiServiceAbstraction,
+    private encryptService: EncryptService,
+    private bulkEncryptService: BulkEncryptService,
   ) {}
 
   submit = async () => {
@@ -60,9 +64,12 @@ export class MigrateFromLegacyEncryptionComponent {
     const masterPassword = this.formGroup.value.masterPassword;
 
     try {
+      this.encryptService.setLegacyCiphersEnabled(true);
+      this.bulkEncryptService.setLegacyCiphersEnabled(true);
       await this.syncService.fullSync(false, true);
-
       await this.keyRotationService.rotateUserKeyAndEncryptedData(masterPassword, activeUser);
+      this.encryptService.setLegacyCiphersEnabled(false);
+      this.bulkEncryptService.setLegacyCiphersEnabled(false);
 
       this.toastService.showToast({
         variant: "success",

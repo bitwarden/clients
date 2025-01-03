@@ -32,4 +32,11 @@ export class FallbackBulkEncryptService implements BulkEncryptService {
   async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {
     this.featureFlagEncryptService = featureFlagEncryptService;
   }
+
+  setLegacyCiphersEnabled(enabled: boolean): void {
+    if (this.featureFlagEncryptService != null) {
+      this.featureFlagEncryptService.setLegacyCiphersEnabled(enabled);
+    }
+    this.encryptService.setLegacyCiphersEnabled(enabled);
+  }
 }

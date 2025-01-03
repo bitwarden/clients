@@ -5,12 +5,14 @@ import { Jsonify } from "type-fest";
 
 import { BulkEncryptService } from "../../abstractions/bulk-encrypt.service";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
+import { EncryptService } from "../../abstractions/encrypt.service";
 import { LogService } from "../../abstractions/log.service";
 import { Decryptable } from "../../interfaces/decryptable.interface";
 import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
 import { Utils } from "../../misc/utils";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
+import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 import { getClassInitializer } from "./get-class-initializer";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
@@ -24,10 +26,19 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
 
   private clear$ = new Subject<void>();
 
+  private isLegacyCiphersEnabled = false;
+  private encryptService: EncryptService;
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
-  ) {}
+  ) {
+    this.encryptService = new EncryptServiceImplementation(
+      cryptoFunctionService,
+      logService,
+      false,
+    );
+  }
 
   /**
    * Decrypts items using a web worker if the environment supports it.
@@ -37,6 +48,10 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
+    if (this.isLegacyCiphersEnabled) {
+      return await this.encryptService.decryptItems(items, key);
+    }
+
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -162,5 +177,10 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     if (this.timeout != null) {
       clearTimeout(this.timeout);
     }
+  }
+
+  setLegacyCiphersEnabled(enabled: boolean): void {
+    this.isLegacyCiphersEnabled = enabled;
+    this.encryptService.setLegacyCiphersEnabled(enabled);
   }
 }

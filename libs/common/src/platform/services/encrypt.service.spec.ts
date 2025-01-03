@@ -40,9 +40,10 @@ describe("EncryptService", () => {
       beforeEach(() => {
         cryptoFunctionService.randomBytes.calledWith(16).mockResolvedValueOnce(iv as CsprngArray);
         cryptoFunctionService.aesEncrypt.mockResolvedValue(encryptedData);
+        encryptService.setLegacyCiphersEnabled(false);
       });
 
-      it("using a key which supports mac", async () => {
+      it("accept using a legacy key which supports mac when legacy ciphers are enabled", async () => {
         const key = mock<SymmetricCryptoKey>();
         const encType = EncryptionType.AesCbc128_HmacSha256_B64;
         key.encType = encType;
@@ -50,7 +51,7 @@ describe("EncryptService", () => {
         key.macKey = makeStaticByteArray(16, 20);
 
         cryptoFunctionService.hmac.mockResolvedValue(mac);
-
+        encryptService.setLegacyCiphersEnabled(true);
         const actual = await encryptService.encryptToBytes(plainValue, key);
 
         expect(actual.encryptionType).toEqual(encType);
@@ -62,13 +63,27 @@ describe("EncryptService", () => {
         );
       });
 
-      it("using a key which doesn't support mac", async () => {
+      it("reject using a legacy key which supports mac when legacy ciphers are not enabled", async () => {
+        const key = mock<SymmetricCryptoKey>();
+        const encType = EncryptionType.AesCbc128_HmacSha256_B64;
+        key.encType = encType;
+
+        key.macKey = makeStaticByteArray(16, 20);
+
+        cryptoFunctionService.hmac.mockResolvedValue(mac);
+        await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
+          "Legacy ciphers are disabled",
+        );
+      });
+
+      it("accept using a key which doesn't support mac when legacy ciphers are enabled", async () => {
         const key = mock<SymmetricCryptoKey>();
         const encType = EncryptionType.AesCbc256_B64;
         key.encType = encType;
 
         key.macKey = null;
 
+        encryptService.setLegacyCiphersEnabled(true);
         const actual = await encryptService.encryptToBytes(plainValue, key);
 
         expect(cryptoFunctionService.hmac).not.toBeCalled();
@@ -78,6 +93,17 @@ describe("EncryptService", () => {
         expect(actual.macBytes).toBeNull();
         expect(actual.dataBytes).toEqualBuffer(encryptedData);
         expect(actual.buffer.byteLength).toEqual(1 + iv.byteLength + encryptedData.byteLength);
+      });
+
+      it("reject using a key which doesn't support mac when legacy ciphers are not enabled", async () => {
+        const key = mock<SymmetricCryptoKey>();
+        const encType = EncryptionType.AesCbc256_B64;
+        key.encType = encType;
+
+        key.macKey = null;
+        await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
+          "Legacy ciphers are disabled",
+        );
       });
     });
   });
@@ -157,6 +183,7 @@ describe("EncryptService", () => {
       key.encType = EncryptionType.AesCbc256_B64;
       cryptoFunctionService.compare.mockResolvedValue(true);
 
+      encryptService.setLegacyCiphersEnabled(true);
       const actual = await encryptService.decryptToBytes(encBuffer, key);
 
       expect(actual).toBeNull();
