@@ -3,7 +3,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -11,7 +10,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
 import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../../../tools/reports/pages/exposed-passwords-report.component";
@@ -30,21 +30,23 @@ export class ExposedPasswordsReportComponent
   constructor(
     cipherService: CipherService,
     auditService: AuditService,
-    modalService: ModalService,
+    dialogService: DialogService,
     organizationService: OrganizationService,
     private route: ActivatedRoute,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    cipherFormService: CipherFormConfigService,
   ) {
     super(
       cipherService,
       auditService,
       organizationService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       i18nService,
       syncService,
+      cipherFormService,
     );
   }
 
