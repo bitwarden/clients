@@ -151,6 +151,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       return;
     }
 
+    this.logService.info("Notification:", notification);
+
     switch (notification.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherUpdate:
