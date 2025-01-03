@@ -112,8 +112,8 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import {
   KdfConfigService,
   KeyService,
-  BiometricStateService,
   BiometricsService,
+  DefaultKeyService,
 } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -126,7 +126,6 @@ import { AutofillService as AutofillServiceAbstraction } from "../../autofill/se
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
-import { BrowserKeyService } from "../../key-management/browser-key.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
@@ -232,11 +231,9 @@ const safeProviders: SafeProvider[] = [
       stateService: StateService,
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
-      biometricStateService: BiometricStateService,
-      biometricsService: BiometricsService,
       kdfConfigService: KdfConfigService,
     ) => {
-      const keyService = new BrowserKeyService(
+      const keyService = new DefaultKeyService(
         pinService,
         masterPasswordService,
         keyGenerationService,
@@ -247,8 +244,6 @@ const safeProviders: SafeProvider[] = [
         stateService,
         accountService,
         stateProvider,
-        biometricStateService,
-        biometricsService,
         kdfConfigService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
@@ -265,8 +260,6 @@ const safeProviders: SafeProvider[] = [
       StateService,
       AccountServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      BiometricsService,
       KdfConfigService,
     ],
   }),

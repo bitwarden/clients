@@ -1,36 +1,136 @@
 import { Injectable } from "@angular/core";
 
-import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsService, BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
 
-import { BrowserBiometricsService } from "./browser-biometrics.service";
+import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
+import { BrowserApi } from "../../platform/browser/browser-api";
 
 @Injectable()
-export class BackgroundBrowserBiometricsService extends BrowserBiometricsService {
-  constructor(private nativeMessagingBackground: () => NativeMessagingBackground) {
+export class BackgroundBrowserBiometricsService extends BiometricsService {
+  constructor(
+    private nativeMessagingBackground: () => NativeMessagingBackground,
+    private logService: LogService,
+  ) {
     super();
   }
 
-  async authenticateBiometric(): Promise<boolean> {
-    const responsePromise = this.nativeMessagingBackground().getResponse();
-    await this.nativeMessagingBackground().send({ command: "biometricUnlock" });
-    const response = await responsePromise;
-    return response.response === "unlocked";
+  async authenticateWithBiometrics(): Promise<boolean> {
+    try {
+      await this.ensureConnected();
+
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.Unlock,
+        });
+        return response.response == "unlocked";
+      } else {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.AuthenticateWithBiometrics,
+        });
+        return response.response;
+      }
+    } catch (e) {
+      this.logService.info("Biometric authentication failed", e);
+      return false;
+    }
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
-    const responsePromise = this.nativeMessagingBackground().getResponse();
-    await this.nativeMessagingBackground().send({ command: "biometricUnlockAvailable" });
-    const response = await responsePromise;
-    return response.response === "available";
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      return BiometricsStatus.NativeMessagingPermissionMissing;
+    }
+
+    try {
+      await this.ensureConnected();
+
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.IsAvailable,
+        });
+        const resp =
+          response.response == "available"
+            ? BiometricsStatus.Available
+            : BiometricsStatus.HardwareUnavailable;
+        return resp;
+      } else {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.GetBiometricsStatus,
+        });
+
+        if (response.response) {
+          return response.response;
+        }
+      }
+      return BiometricsStatus.Available;
+    } catch (e) {
+      return BiometricsStatus.DesktopDisconnected;
+    }
   }
 
-  async biometricsNeedsSetup(): Promise<boolean> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    try {
+      await this.ensureConnected();
+
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.Unlock,
+        });
+        if (response.response == "unlocked") {
+          return response.userKeyB64;
+        } else {
+          return null;
+        }
+      } else {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          userId: userId,
+        });
+        if (response.response) {
+          return response.userKeyB64;
+        } else {
+          return null;
+        }
+      }
+    } catch (e) {
+      this.logService.info("Biometric unlock for user failed", e);
+      throw new Error("Biometric unlock failed");
+    }
+  }
+
+  async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    try {
+      await this.ensureConnected();
+
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        return await this.getBiometricsStatus();
+      }
+
+      return (
+        await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.GetBiometricsStatusForUser,
+          userId: id,
+        })
+      ).response;
+    } catch (e) {
+      return BiometricsStatus.DesktopDisconnected;
+    }
+  }
+
+  // the first time we call, this might use an outdated version of the protocol, so we drop the response
+  private async ensureConnected() {
+    if (!this.nativeMessagingBackground().connected) {
+      await this.nativeMessagingBackground().callCommand({
+        command: BiometricsCommands.IsAvailable,
+      });
+    }
+  }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
     return false;
   }
 
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSetup(): Promise<void> {}
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 }
