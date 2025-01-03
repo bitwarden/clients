@@ -8,7 +8,6 @@ command: bitwarden.sh
 finish-args:
   - --share=ipc
   - --share=network
-  - --socket=wayland
   - --socket=x11
   - --device=dri
   - --env=XDG_CURRENT_DESKTOP=Unity
@@ -39,5 +38,4 @@ modules:
         commands:
           - ulimit -c 0
           - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
-          - exec zypak-wrapper /app/bin/bitwarden-app --ozone-platform-hint=auto
-            --enable-features=WaylandWindowDecorations "$@"
+          - exec zypak-wrapper /app/bin/bitwarden-app "$@"
