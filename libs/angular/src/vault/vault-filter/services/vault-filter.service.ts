@@ -4,13 +4,11 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom, from, map, mergeMap, Observable } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import {
-  isMember,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -33,12 +31,13 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
 
   constructor(
-    protected organizationService: OrganizationService,
+    protected organizationService: vNextOrganizationService,
     protected folderService: FolderService,
     protected cipherService: CipherService,
     protected collectionService: CollectionService,
     protected policyService: PolicyService,
     protected stateProvider: StateProvider,
+    private accountService: AccountService,
   ) {}
 
   async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
@@ -50,9 +49,12 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async buildOrganizations(): Promise<Organization[]> {
-    let organizations = await this.organizationService.getAll();
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    let organizations = await firstValueFrom(this.organizationService.organizations$(userId));
     if (organizations != null) {
-      organizations = organizations.filter(isMember).sort((a, b) => a.name.localeCompare(b.name));
+      organizations = organizations
+        .filter((o) => o.isMember)
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     return organizations;

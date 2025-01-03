@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, from, zip, Observable } from "rxjs";
+import { firstValueFrom, map, from, zip } from "rxjs";
+
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { EventCollectionService as EventCollectionServiceAbstraction } from "../../abstractions/event/event-collection.service";
 import { EventUploadService } from "../../abstractions/event/event-upload.service";
-import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
@@ -17,20 +19,18 @@ import { CipherView } from "../../vault/models/view/cipher.view";
 import { EVENT_COLLECTION } from "./key-definitions";
 
 export class EventCollectionService implements EventCollectionServiceAbstraction {
-  private orgIds$: Observable<string[]>;
-
   constructor(
     private cipherService: CipherService,
     private stateProvider: StateProvider,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private eventUploadService: EventUploadService,
     private authService: AuthService,
     private accountService: AccountService,
-  ) {
-    this.orgIds$ = this.organizationService.organizations$.pipe(
-      map((orgs) => orgs?.filter((o) => o.useEvents)?.map((x) => x.id) ?? []),
-    );
-  }
+  ) {}
+
+  private getOrgIds = (orgs: Organization[]): string[] => {
+    return orgs?.filter((o) => o.useEvents)?.map((x) => x.id) ?? [];
+  };
 
   /** Adds an event to the active user's event collection
    *  @param eventType the event type to be added
@@ -49,7 +49,8 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
       return;
     }
 
-    const events$ = this.orgIds$.pipe(
+    const events$ = this.organizationService.organizations$(userId).pipe(
+      map((orgs) => this.getOrgIds(orgs)),
       map((orgs) =>
         ciphers
           .filter((c) => orgs.includes(c.organizationId))
@@ -122,8 +123,13 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
   ): Promise<boolean> {
     const cipher$ = from(this.cipherService.get(cipherId));
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const orgIds$ = this.organizationService
+      .organizations$(userId)
+      .pipe(map((orgs) => this.getOrgIds(orgs)));
+
     const [authStatus, orgIds, cipher] = await firstValueFrom(
-      zip(this.authService.activeAccountStatus$, this.orgIds$, cipher$),
+      zip(this.authService.activeAccountStatus$, orgIds$, cipher$),
     );
 
     // The user must be authorized

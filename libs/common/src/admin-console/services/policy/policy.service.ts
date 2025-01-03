@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { UserKeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
 import { PolicyId, UserId } from "../../../types/guid";
-import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "../../abstractions/organization/vnext.organization.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -31,7 +31,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
 
   constructor(
     private stateProvider: StateProvider,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
   ) {}
 
   get$(policyType: PolicyType): Observable<Policy> {
@@ -39,7 +39,11 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
 
-    return combineLatest([filteredPolicies$, this.organizationService.organizations$]).pipe(
+    const organizations$ = this.stateProvider.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+    );
+
+    return combineLatest([filteredPolicies$, organizations$]).pipe(
       map(
         ([policies, organizations]) =>
           this.enforcedPolicyFilter(policies, organizations)?.at(0) ?? null,
@@ -53,7 +57,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
 
-    return combineLatest([filteredPolicies$, this.organizationService.getAll$(userId)]).pipe(
+    return combineLatest([filteredPolicies$, this.organizationService.organizations$(userId)]).pipe(
       map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
     );
   }

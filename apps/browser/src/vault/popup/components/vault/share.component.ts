@@ -4,7 +4,7 @@ import { first } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ShareComponent as BaseShareComponent } from "@bitwarden/angular/components/share.component";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,7 +25,7 @@ export class ShareComponent extends BaseShareComponent implements OnInit {
     cipherService: CipherService,
     private route: ActivatedRoute,
     private router: Router,
-    organizationService: OrganizationService,
+    organizationService: vNextOrganizationService,
     accountService: AccountService,
   ) {
     super(

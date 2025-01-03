@@ -4,7 +4,7 @@ import { map, Observable } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { vNextInternalOrganizationServiceAbstraction } from "../../abstractions/organization/vnext.organization.service";
+import { vNextInternalOrganizationServiceAbstraction } from "../../abstractions/organization/vnext.organization.service.abstraction";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 

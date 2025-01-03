@@ -3,6 +3,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -12,7 +13,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
-import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { KeysRequest } from "../../models/request/keys.request";
@@ -64,7 +64,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private keyGenerationService: KeyGenerationService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
@@ -122,7 +122,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async getManagingOrganization(userId?: UserId): Promise<Organization> {
-    const orgs = await this.organizationService.getAll(userId);
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     return orgs.find(
       (o) =>
         o.keyConnectorEnabled &&

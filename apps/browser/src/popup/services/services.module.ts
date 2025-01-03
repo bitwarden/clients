@@ -32,8 +32,8 @@ import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarde
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { DefaultvNextOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-vnext-organization.service";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
@@ -376,7 +376,7 @@ const safeProviders: SafeProvider[] = [
     provide: VaultFilterService,
     useClass: VaultFilterService,
     deps: [
-      OrganizationService,
+      DefaultvNextOrganizationService,
       FolderServiceAbstraction,
       CipherService,
       CollectionService,

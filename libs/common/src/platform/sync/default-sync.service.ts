@@ -8,11 +8,11 @@ import {
   CollectionDetailsResponse,
 } from "@bitwarden/admin-console/common";
 
+import { vNextInternalOrganizationServiceAbstraction } from "../..//admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
-import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -72,7 +72,7 @@ export class DefaultSyncService extends CoreSyncService {
     stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
-    private organizationService: InternalOrganizationServiceAbstraction,
+    private organizationService: vNextInternalOrganizationServiceAbstraction,
     sendApiService: SendApiService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private avatarService: AvatarService,

@@ -14,7 +14,7 @@ import {
   UserApiLoginCredentials,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -68,7 +68,7 @@ export class LoginCommand {
     protected syncService: SyncService,
     protected keyConnectorService: KeyConnectorService,
     protected policyApiService: PolicyApiServiceAbstraction,
-    protected orgService: OrganizationService,
+    protected orgService: vNextOrganizationService,
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
   ) {}

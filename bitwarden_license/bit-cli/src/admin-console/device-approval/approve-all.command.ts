@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests";
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
@@ -13,7 +14,8 @@ import { ServiceContainer } from "../../service-container";
 export class ApproveAllCommand {
   constructor(
     private organizationAuthRequestService: OrganizationAuthRequestService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
   ) {}
 
   async run(organizationId: string): Promise<Response> {
@@ -25,7 +27,12 @@ export class ApproveAllCommand {
       return Response.badRequest("`" + organizationId + "` is not a GUID.");
     }
 
-    const organization = await firstValueFrom(this.organizationService.get$(organizationId));
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizations) => organizations.find((o) => o.id === organizationId))),
+    );
     if (!organization?.canManageUsersPassword) {
       return Response.error(
         "You do not have permission to approve pending device authorization requests.",
@@ -58,6 +65,7 @@ export class ApproveAllCommand {
     return new ApproveAllCommand(
       serviceContainer.organizationAuthRequestService,
       serviceContainer.organizationService,
+      serviceContainer.accountService,
     );
   }
 }
