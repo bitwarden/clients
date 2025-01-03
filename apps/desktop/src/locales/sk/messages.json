@@ -3396,22 +3396,22 @@
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
   },
   "importantNotice": {
-    "message": "Dôležité upozornenie"
+    "message": "Important notice"
   },
   "setupTwoStepLogin": {
-    "message": "Nastavenie dvojstupňového prihlásenia"
+    "message": "Set up two-step login"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Pripomenúť neskôr"
+    "message": "Remind me later"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Do you have reliable access to your email, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3420,15 +3420,15 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nie, nemám"
+    "message": "No, I do not"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Zapnúť dvojstupňové prihlásenie"
+    "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "Zmeniť e-mail účtu"
+    "message": "Change account email"
   }
 }

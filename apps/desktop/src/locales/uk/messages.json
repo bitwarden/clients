@@ -3396,22 +3396,22 @@
     "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
   },
   "importantNotice": {
-    "message": "Важлива інформація"
+    "message": "Important notice"
   },
   "setupTwoStepLogin": {
-    "message": "Налаштувати двоетапну перевірку"
+    "message": "Set up two-step login"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Нагадати пізніше"
+    "message": "Remind me later"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "message": "Do you have reliable access to your email, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3420,15 +3420,15 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ні, не маю"
+    "message": "No, I do not"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+    "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Увімкнути двоетапну перевірку"
+    "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "Змінити адресу е-пошти"
+    "message": "Change account email"
   }
 }

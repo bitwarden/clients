@@ -3396,22 +3396,22 @@
     "message": "Datoteka spremljena na uređaj. Upravljaj u preuzimanjima svog uređaja."
   },
   "importantNotice": {
-    "message": "Važna napomena"
+    "message": "Important notice"
   },
   "setupTwoStepLogin": {
-    "message": "Postavi dvostruku autentifikaciju"
+    "message": "Set up two-step login"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa."
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti."
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Podsjeti me kasnije"
+    "message": "Remind me later"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Imaš li pouzdan pristup svojoj e-pošti: $EMAIL$?",
+    "message": "Do you have reliable access to your email, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3420,15 +3420,15 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemam"
+    "message": "No, I do not"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Da, pouzdano mogu pristupiti svojoj e-pošti"
+    "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Uključi prijavu dvostrukom autentifikacijom"
+    "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "Promjeni e-poštu računa"
+    "message": "Change account email"
   }
 }

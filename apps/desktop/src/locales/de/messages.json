@@ -3396,22 +3396,22 @@
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
   },
   "importantNotice": {
-    "message": "Wichtiger Hinweis"
+    "message": "Important notice"
   },
   "setupTwoStepLogin": {
-    "message": "Zwei-Faktor-Authentifizierung einrichten"
+    "message": "Set up two-step login"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Erinnere mich später"
+    "message": "Remind me later"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "message": "Do you have reliable access to your email, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3420,15 +3420,15 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nein, habe ich nicht"
+    "message": "No, I do not"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+    "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+    "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "E-Mail-Adresse des Kontos ändern"
+    "message": "Change account email"
   }
 }
