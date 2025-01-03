@@ -65,7 +65,6 @@ import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-req
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
-import { AccountSecurityComponent as AccountSecurityV1Component } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
@@ -351,11 +350,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(AccountSecurityV1Component, AccountSecurityComponent, {
+  {
     path: "account-security",
+    component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
     path: "notifications",
     canActivate: [authGuard],
