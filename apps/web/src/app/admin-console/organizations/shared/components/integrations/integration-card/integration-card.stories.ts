@@ -1,13 +1,12 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { importProvidersFrom } from "@angular/core";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { I18nMockService } from "@bitwarden/components";
 
-import { SharedModule } from "../../../shared.module";
+import { PreloadedEnglishI18nModule } from "../../../../../../core/tests";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
@@ -17,15 +16,11 @@ export default {
   title: "Web/Integration Layout/Integration Card",
   component: IntegrationCardComponent,
   decorators: [
+    applicationConfig({
+      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+    }),
     moduleMetadata({
-      imports: [SharedModule],
       providers: [
-        {
-          provide: I18nService,
-          useFactory: () => {
-            return new I18nMockService({});
-          },
-        },
         {
           provide: ThemeStateService,
           useClass: MockThemeService,

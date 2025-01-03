@@ -4,7 +4,7 @@ import { Component, Input } from "@angular/core";
 
 import { IntegrationType } from "@bitwarden/common/enums";
 
-import { SharedModule } from "../../../shared.module";
+import { SharedModule } from "../../../../../../shared/shared.module";
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
 import { Integration } from "../models";
 

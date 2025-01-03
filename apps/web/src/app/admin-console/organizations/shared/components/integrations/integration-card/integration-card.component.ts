@@ -15,7 +15,7 @@ import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-t
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
-import { SharedModule } from "../../../shared.module";
+import { SharedModule } from "../../../../../../shared/shared.module";
 
 @Component({
   selector: "app-integration-card",

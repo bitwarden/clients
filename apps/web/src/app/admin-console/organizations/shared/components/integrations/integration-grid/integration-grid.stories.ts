@@ -1,14 +1,13 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { importProvidersFrom } from "@angular/core";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { IntegrationType } from "@bitwarden/common/enums";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { I18nMockService } from "@bitwarden/components";
 
-import { SharedModule } from "../../../shared.module";
+import { PreloadedEnglishI18nModule } from "../../../../../../core/tests";
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
 import { IntegrationGridComponent } from "../integration-grid/integration-grid.component";
 
@@ -18,18 +17,12 @@ export default {
   title: "Web/Integration Layout/Integration Grid",
   component: IntegrationGridComponent,
   decorators: [
+    applicationConfig({
+      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+    }),
     moduleMetadata({
-      imports: [IntegrationCardComponent, SharedModule],
+      imports: [IntegrationCardComponent],
       providers: [
-        {
-          provide: I18nService,
-          useFactory: () => {
-            return new I18nMockService({
-              integrationCardAriaLabel: "Go to integration",
-              integrationCardTooltip: "Go to integration",
-            });
-          },
-        },
         {
           provide: ThemeStateService,
           useClass: MockThemeService,
