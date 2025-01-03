@@ -40,6 +40,15 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:!tw-text-contrast",
     ...focusRing,
   ],
+  success: [
+    "tw-bg-transparent",
+    "tw-border-success-600",
+    "!tw-text-success",
+    "hover:tw-bg-success-600",
+    "hover:tw-border-success-600",
+    "hover:!tw-text-contrast",
+    ...focusRing,
+  ],
   unstyled: [],
 };
 
