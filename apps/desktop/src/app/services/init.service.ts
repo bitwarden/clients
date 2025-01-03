@@ -21,6 +21,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { SshAgentService } from "../../platform/services/ssh-agent.service";
 import { VersionService } from "../../platform/services/version.service";
@@ -47,6 +48,7 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
+    private desktopSettingsService: DesktopSettingsService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -79,6 +81,7 @@ export class InitService {
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("os_" + this.platformUtilsService.getDeviceString());
       this.themingService.applyThemeChangesTo(this.document);
+      await this.desktopSettingsService.resetInModalMode();
 
       this.versionService.init();
 
