@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Component({
   selector: "app-security",
@@ -9,7 +10,10 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 export class SecurityComponent implements OnInit {
   showChangePassword = true;
 
-  constructor(private userVerificationService: UserVerificationService) {}
+  constructor(
+    private userVerificationService: UserVerificationService,
+    private configService: ConfigService,
+  ) {}
 
   async ngOnInit() {
     this.showChangePassword = await this.userVerificationService.hasMasterPassword();
