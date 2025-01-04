@@ -56,8 +56,9 @@ export abstract class SyncService {
   abstract syncUpsertFolder(
     notification: SyncFolderNotification,
     isEdit: boolean,
+    userId: UserId,
   ): Promise<boolean>;
-  abstract syncDeleteFolder(notification: SyncFolderNotification): Promise<boolean>;
+  abstract syncDeleteFolder(notification: SyncFolderNotification, userId: UserId): Promise<boolean>;
   abstract syncUpsertCipher(
     notification: SyncCipherNotification,
     isEdit: boolean,

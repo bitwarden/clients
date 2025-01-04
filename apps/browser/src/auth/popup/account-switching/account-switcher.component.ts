@@ -10,9 +10,7 @@ import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeou
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AvatarModule,
@@ -25,7 +23,6 @@ import {
 
 import { enableAccountSwitching } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { HeaderComponent } from "../../../platform/popup/header.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
@@ -44,7 +41,6 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
     AvatarModule,
     PopupPageComponent,
     PopupHeaderComponent,
-    HeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,
     AccountComponent,
@@ -58,7 +54,6 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   loading = false;
   activeUserCanLock = false;
-  extensionRefreshFlag = false;
   enableAccountSwitching = true;
 
   constructor(
@@ -70,7 +65,6 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private router: Router,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private authService: AuthService,
-    private configService: ConfigService,
     private lockService: LockService,
   ) {}
 
@@ -109,9 +103,6 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.enableAccountSwitching = enableAccountSwitching();
-    this.extensionRefreshFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
 
     const availableVaultTimeoutActions = await firstValueFrom(
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),

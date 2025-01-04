@@ -35,7 +35,14 @@
 </a>
 
 <div class="tw-flex tw-justify-center tw-mt-6" *ngIf="!permanentFlagEnabled">
-  <a bitLink linkType="primary" (click)="remindMeLaterSelect()" data-testid="remind-me-later">
+  <a
+    bitLink
+    linkType="primary"
+    (click)="remindMeLaterSelect()"
+    data-testid="remind-me-later"
+    href="#"
+    appStopClick
+  >
     {{ "remindMeLater" | i18n }}
   </a>
 </div>
