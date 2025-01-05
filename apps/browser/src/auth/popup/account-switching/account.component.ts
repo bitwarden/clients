@@ -19,7 +19,6 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
-  @Input() extensionRefreshFlag: boolean = false;
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(

@@ -1005,7 +1005,7 @@
     "message": "Показувати список посвідчень на сторінці вкладки для легкого автозаповнення."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
