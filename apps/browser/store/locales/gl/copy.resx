@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – Xestor de contrasinais</value>
+    <value>Xestor de Contrasinais Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>En casa, no traballo ou mentres estás a viaxar, Bitwarden protexe doadamente todos os teus contrasinais, chaves de paso, e información sensíbel.</value>
+    <value>En casa, no traballo ou en movemento, Bitwarden protexe doadamente todos os teus contrasinais, chaves de paso, e información sensíbel.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Recoñecido como o mellor xestor de contrasinais por PCMag, WIRED, The Verge, CNET, G2 e moito máis.
@@ -181,7 +181,7 @@ As solucións de xestión de credenciais cifradas de extremo a extremo de Bitwar
     <value>Autocompleta rapidamente os teus datos de acceso en calquera páxina web que visites</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>A túa caixa forte tamén é facilmente accesible desde o menú de clic dereito</value>
+    <value>A túa caixa forte tamén é facilmente accesible dende o menú de clic dereito</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Xera automaticamente contrasinais fortes, aleatorias e seguras</value>

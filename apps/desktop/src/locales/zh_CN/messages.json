@@ -107,7 +107,7 @@
     "message": "编辑项目"
   },
   "emailAddress": {
-    "message": "电子邮件地址"
+    "message": "电子邮箱地址"
   },
   "verificationCodeTotp": {
     "message": "验证码 (TOTP)"
@@ -172,7 +172,7 @@
     "message": "许可证号码"
   },
   "email": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "phone": {
     "message": "电话"
@@ -709,7 +709,7 @@
     "message": "设置"
   },
   "accountEmail": {
-    "message": "账户邮件地址"
+    "message": "账户电子邮箱"
   },
   "requestHint": {
     "message": "请求提示"
@@ -718,22 +718,22 @@
     "message": "请求密码提示"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "输入您的账户电子邮件地址，您的密码提示将发送给您"
+    "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
   "passwordHint": {
     "message": "密码提示"
   },
   "enterEmailToGetHint": {
-    "message": "请输入您账户的电子邮件地址来接收主密码提示。"
+    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
   },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
   },
   "emailRequired": {
-    "message": "必须填写电子邮件地址。"
+    "message": "必须填写电子邮箱地址。"
   },
   "invalidEmail": {
-    "message": "无效的电子邮件地址。"
+    "message": "无效的电子邮箱地址。"
   },
   "masterPasswordRequired": {
     "message": "必须填写主密码。"
@@ -770,7 +770,7 @@
     "message": "您已登录！"
   },
   "masterPassSent": {
-    "message": "我们已经为您发送了包含主密码提示的邮件。"
+    "message": "我们已经为您发送了包含主密码提示的电子邮件。"
   },
   "unexpectedError": {
     "message": "发生意外错误。"
@@ -812,7 +812,7 @@
     "message": "请输入您的验证器 App 中的 6 位数验证码。"
   },
   "enterVerificationCodeEmail": {
-    "message": "请输入发送给电子邮件 $EMAIL$ 的 6 位数验证码。",
+    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -868,7 +868,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "为您的组织使用 Duo Security 的 Duo 移动应用、短信、电话或 U2F 安全钥匙来进行验证。",
+    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
@@ -878,7 +878,7 @@
     "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的帐户。"
   },
   "emailTitle": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "emailDescV2": {
     "message": "输入发送到您的电子邮箱的代码。"
@@ -1058,7 +1058,7 @@
     "message": "转到网页版密码库"
   },
   "getMobileApp": {
-    "message": "获取手机应用"
+    "message": "获取移动应用程序"
   },
   "getBrowserExtension": {
     "message": "获取浏览器扩展"
@@ -1181,37 +1181,37 @@
     "message": "显示网站图标"
   },
   "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
+    "message": "在每个登录项目旁边显示可识别的图像。"
   },
   "enableMinToTray": {
     "message": "最小化到托盘图标"
   },
   "enableMinToTrayDesc": {
-    "message": "最小化窗口后，在系统托盘中显示一个图标。"
+    "message": "最小化窗口后，在系统托盘中显示图标。"
   },
   "enableMinToMenuBar": {
     "message": "最小化到菜单栏"
   },
   "enableMinToMenuBarDesc": {
-    "message": "最小化窗口后，改为在菜单栏中显示一个图标。"
+    "message": "最小化窗口后，改为在菜单栏中显示图标。"
   },
   "enableCloseToTray": {
     "message": "关闭到托盘图标"
   },
   "enableCloseToTrayDesc": {
-    "message": "关闭窗口后，在系统托盘中显示一个图标。"
+    "message": "关闭窗口后，在系统托盘中显示图标。"
   },
   "enableCloseToMenuBar": {
     "message": "关闭到菜单栏"
   },
   "enableCloseToMenuBarDesc": {
-    "message": "关闭窗口后，改为在菜单栏中显示一个图标。"
+    "message": "关闭窗口后，改为在菜单栏中显示图标。"
   },
   "enableTray": {
     "message": "显示托盘图标"
   },
   "enableTrayDesc": {
-    "message": "始终在系统托盘中显示一个图标。"
+    "message": "始终在系统托盘中显示图标。"
   },
   "startToTray": {
     "message": "启动到托盘图标"
@@ -1320,7 +1320,7 @@
     "description": "Copy credit card number"
   },
   "copyEmail": {
-    "message": "复制电子邮件地址"
+    "message": "复制电子邮箱"
   },
   "copySecurityCode": {
     "message": "复制安全码",
@@ -1635,7 +1635,7 @@
     "description": "ex. Register as an accessibility user at hcaptcha.com"
   },
   "copyPasteLink": {
-    "message": "复制链接并粘贴在下方以便发送到你的电子邮箱"
+    "message": "复制发送到您电子邮箱的链接然后粘贴在下方"
   },
   "enterhCaptchaUrl": {
     "message": "输入 URL 以加载 hCaptcha 的无障碍 Cookie",
@@ -1814,7 +1814,7 @@
     "message": "服务条款"
   },
   "privacyPolicy": {
-    "message": "隐私条款"
+    "message": "隐私政策"
   },
   "unsavedChangesConfirmation": {
     "message": "确定要离开吗？如果您现在离开，您当前的信息不会被保存。"
@@ -1957,13 +1957,13 @@
     "message": "取消订阅"
   },
   "atAnyTime": {
-    "message": "随时"
+    "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若继续，代表您同意"
   },
   "and": {
-    "message": "以及"
+    "message": "和"
   },
   "acceptPolicies": {
     "message": "选中此框表示您同意："
@@ -2225,19 +2225,19 @@
     "message": "验证 WebAuthn"
   },
   "hideEmail": {
-    "message": "对收件人隐藏我的电子邮件地址。"
+    "message": "对收件人隐藏我的电子邮箱地址。"
   },
   "sendOptionsPolicyInEffect": {
     "message": "一个或多个组织策略正在影响您的 Send 设置。"
   },
   "emailVerificationRequired": {
-    "message": "需要验证电子邮件"
+    "message": "需要验证电子邮箱"
   },
   "emailVerifiedV2": {
     "message": "电子邮箱已验证"
   },
   "emailVerificationRequiredDesc": {
-    "message": "您必须验证您的电子邮件才能使用此功能。"
+    "message": "您必须验证电子邮箱才能使用此功能。"
   },
   "passwordPrompt": {
     "message": "主密码重新提示"
@@ -2478,7 +2478,7 @@
     "message": "生成用户名"
   },
   "generateEmail": {
-    "message": "生成电子邮件地址"
+    "message": "生成电子邮箱"
   },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
@@ -2518,14 +2518,14 @@
     "message": "用户名类型"
   },
   "plusAddressedEmail": {
-    "message": "附加地址电子邮件",
+    "message": "附加地址电子邮箱",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "使用您的电子邮件供应商的子地址功能。"
+    "message": "使用您的电子邮箱提供商的子地址功能。"
   },
   "catchallEmail": {
-    "message": "Catch-all 电子邮件"
+    "message": "Catch-all 电子邮箱"
   },
   "catchallEmailDesc": {
     "message": "使用您的域名配置的 Catch-all 收件箱。"
@@ -2552,13 +2552,13 @@
     "message": "搜索我的密码库"
   },
   "forwardedEmail": {
-    "message": "转发的电子邮件别名"
+    "message": "转发的电子邮箱别名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部转发服务生成一个电子邮件别名。"
+    "message": "使用外部转发服务生成一个电子邮箱别名。"
   },
   "forwarderDomainName": {
-    "message": "电子邮件域名",
+    "message": "电子邮箱域名",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
@@ -2618,7 +2618,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "无法获取 $SERVICENAME$ 电子邮件账户 ID。",
+    "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -2699,7 +2699,7 @@
     "message": "正登录为"
   },
   "rememberEmail": {
-    "message": "记住电子邮件地址"
+    "message": "记住电子邮箱"
   },
   "notYou": {
     "message": "不是您吗？"
@@ -2833,7 +2833,7 @@
     "message": "已请求登录"
   },
   "creatingAccountOn": {
-    "message": "正创建账户于"
+    "message": "创建账户至"
   },
   "checkYourEmail": {
     "message": "检查您的电子邮箱"
@@ -2851,7 +2851,7 @@
     "message": "返回"
   },
   "toEditYourEmailAddress": {
-    "message": "编辑您的电子邮件地址。"
+    "message": "编辑您的电子邮箱地址。"
   },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
@@ -2908,7 +2908,7 @@
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
   "deviceApprovalRequiredV2": {
-    "message": "已请求设备批准"
+    "message": "需要设备批准"
   },
   "selectAnApprovalOptionBelow": {
     "message": "在下方选择一个批准选项"
@@ -2963,10 +2963,10 @@
     "message": "登录已批准"
   },
   "userEmailMissing": {
-    "message": "缺少用户电子邮件"
+    "message": "缺少用户电子邮箱"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "未找到活动的用户电子邮件。您将被注销。"
+    "message": "未找到活动的用户电子邮箱。您将被注销。"
   },
   "deviceTrusted": {
     "message": "设备已信任"
@@ -3026,14 +3026,14 @@
     }
   },
   "multipleInputEmails": {
-    "message": "一个或多个电子邮件地址无效"
+    "message": "一个或多个电子邮箱无效"
   },
   "inputTrimValidator": {
     "message": "输入不能只包含空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "inputEmail": {
-    "message": "输入的不是电子邮件地址。"
+    "message": "输入的不是电子邮箱地址。"
   },
   "fieldsNeedAttention": {
     "message": "上面的 $COUNT$ 个字段需要您注意。",
@@ -3369,7 +3369,7 @@
     "message": "拒绝"
   },
   "sshkeyApprovalTitle": {
-    "message": "确认 SSH 密钥使用"
+    "message": "确认 SSH 密钥的使用方式"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "正在请求访问"
@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
+  },
+  "importantNotice": {
+    "message": "重要通知"
+  },
+  "setupTwoStepLogin": {
+    "message": "设置两步登录"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮箱发送一个代码，以验证来自新设备的登录。"
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
+  },
+  "remindMeLater": {
+    "message": "稍后提醒我"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "您能可靠地访问您的电子邮箱 $EMAIL$ 吗？",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "不，我不能"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "是的，我可以可靠地访问我的电子邮箱"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "开启两步登录"
+  },
+  "changeAcctEmail": {
+    "message": "更改账户电子邮箱"
   }
 }

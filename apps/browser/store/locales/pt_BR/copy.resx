@@ -121,52 +121,54 @@
     <value>Gerenciador de Senhas Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Em casa, no trabalho, ou em qualquer lugar, o Bitwarden protege facilmente todas as suas senhas, senhas e informações confidenciais.</value>
+    <value>Em casa, no trabalho, ou em qualquer lugar, o Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Reconhecido como o melhor gerenciador de senhas por "PCMag", 'WIRED', 'The Verge', 'CNET', 'G2', entre outros!
 
 PROTEJA A SUA VIDA DIGITAL
-Deixe a sua vida digital segura e se proteja contra violações de dados gerando e salvando senhas únicas e fortes para cada conta pessoal. Mantendo tudo isso em um cofre encriptografado de ponta a ponta que apenas você pode acessar.
+Deixe a sua vida digital segura e se proteja contra violações de dados gerando e salvando senhas únicas e fortes para cada conta pessoal. Mantendo tudo isso em um cofre criptografado de ponta a ponta em que apenas você pode acessar.
 
 ACESSE OS SEUS DADOS, EM QUALQUER LUGAR, HORA E DISPOSITIVO
 Gerencie, armazene, proteja e compartilhe senhas facilmente entre dispositivos ilimitados e sem restrições.
 
 TODOS DEVERIAM TEM FERRAMENTAS PARA SE PROTEGER ONLINE
-Utilize Bitwarden de graça sem anuncios ou venda dos seus dados. A Bitwarden acredita que todos deveriam ter a opção de estar seguro online. Planos Premium oferecem recursos mais avançados.
+Utilize Bitwarden de graça sem anúncios ou venda dos seus dados. A Bitwarden acredita que todos deveriam ter a opção de estar seguro online. Nossos planos Premium oferecem recursos mais avançados.
 
 EMPODERE O SEUS TIMES COM BITWARDEN
-Os Planos para times e empresas vem com recursos profissionais para negócios. Alguns exemplos inculuem integração SSO, Auto-hospedagem, integração de diretório e provisionamento SCIM, políticas globais, acesso API, registro de eventos e mais.
+Os planos para times e empresas vêm com recursos profissionais para negócios. Alguns exemplos incluem integração SSO, auto-hospedagem, integração de diretório e provisionamento SCIM, políticas globais, acesso API, registro de eventos e mais.
 
-Utilizer Bitwarn para proteger os seus empregados e compartilhar informações sensíveis para os colegas.
+Utilize o Bitwarden para proteger os seus colaboradores e compartilhar informações sensíveis com seus colegas.
 
 Mais razões para escolher Bitwarden:
 
-Senhas encriptografadas por classe de palavras são protegidas com criptografia de ponta a ponta avançada (AES-256 bit, salted hashtag, and PBKDF2 SHA-256), então os seus dados ficam seguros e privados.
+Criptografia mundialmente reconhecida
+Suas senhas são protegidas com avançada criptografia ponta a ponta (AES-256, salted hashtag, e PBKDF2 SHA-256) para que os seus dados estejam seguros e privados.
 
 Auditoria de Terceiros
-Bitwarden regularmente conduz auditorias de terceiros com notáveis empresas de segurança. Essas audições anuais incluem qualificação e penetração do código fonte através de IPs da Bitwarden, servidores e aplicações WEB.
+A Bitwarden regularmente conduz auditorias de terceiros com notáveis empresas de segurança. Essas auditorias anuais incluem qualificação do código fonte e testes de invasão contra os IPs da Bitwarden, servidores e aplicações web.
 
 2FA Avançado
-Proteja o seu login com um autenticador de doisfatores, códigos de email ou credenciais FIDO2 WebAuthn como chave de segurança por hardware ou chave de acesso.
+Proteja o seu login com um autenticador de dois fatores, códigos de email ou credenciais FIDO2 WebAuthn como chave de segurança por hardware ou chave de acesso.
 
 Envio Bitwarden
-Transmita dados diretamente para outros enquanto mantem segurança de encriptografia ponta a ponta e limitando exposição.
+Transmita dados diretamente para outras pessoas enquanto mantém a segurança da criptografia ponta a ponta para limitar sua exposição.
 
 Gerador integrado
-Crie senhas grandes, complexas e diferentes e nomes de usuário unicos para cada site que visitar. Integre com provedores de email para privacidade adicional
+Crie diferentes senhas fortes e complexas e nomes de usuário únicos para cada site que visitar. Integre com provedores de email para privacidade adicional.
 
 Tradutores globais
-As traduções da Bitwarden estão disponíveis para mais de 60 líguas, traduzidas pela comunidade global através do Crowdin.
+As traduções da Bitwarden estão disponíveis para mais de 60 línguas, traduzidas pela comunidade global através do Crowdin.
 
 Aplicações Multi-Plataforma
-Proteja e compartilhe conteúdo sensível dentro do Vault da Bitwarden de qualquer navegador, dispositivo móvel, ou desktop OS, entre outros.
+Proteja e compartilhe conteúdo confidencial dentro do Vault da Bitwarden de qualquer navegador, dispositivo móvel, desktop, entre outros.
 
-Bitwarden protege mais do que apenas soluções em gerenciamento de credenciais de senhas encriptografadas ponta a ponta, Bitwarden empodera organizações para proteger qualquer coisa, incluindo segredos de desenvolvedor e chaves de acesso.
-Visite Bitwarden.com para aprender mais sobre Bitwarden Secrets Manager e Bitwarden Passwordless.dev!</value>
+Bitwarden protege mais do que apenas senhas
+Com nossas soluções em gerenciamento de credenciais criptografadas ponta a ponta, a Bitwarden empodera organizações para proteger qualquer informação, incluindo senhas de desenvolvedor e chaves de acesso. Visite Bitwarden.com para aprender mais sobre Bitwarden Secrets Manager e Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Em casa, no trabalho, ou em qualquer lugar, o Bitwarden protege facilmente todas as suas senhas, senhas e informações confidenciais.</value>
+    <value>Em casa, no trabalho ou em qualquer lugar, a Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sincronize e acesse o seu cofre através de múltiplos dispositivos</value>

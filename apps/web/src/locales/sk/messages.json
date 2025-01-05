@@ -3883,7 +3883,7 @@
     "message": "Aktualizovať prehliadač"
   },
   "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+    "message": "Generuje sa váš prehľad o rizikách..."
   },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
@@ -9885,22 +9885,22 @@
     "message": "Kód výpisu"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Dôležité upozornenie"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Nastaviť dvojstupňové prihlásenie"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -9909,16 +9909,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Zapnúť dvojstupňové prihlásenie"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Zmeniť e-mail účtu"
   },
   "removeMembers": {
     "message": "Odstrániť členov"

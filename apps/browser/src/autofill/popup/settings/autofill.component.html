@@ -120,7 +120,7 @@
           />
           <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control disableMargin>
+        <bit-form-control>
           <input
             bitCheckbox
             id="showIdentitiesSuggestions"
@@ -130,6 +130,18 @@
           />
           <bit-label for="showIdentitiesSuggestions" class="tw-whitespace-normal">
             {{ "showIdentitiesInVaultView" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="clickToAutofill"
+            type="checkbox"
+            (change)="updateClickItemsVaultView()"
+            [(ngModel)]="clickItemsVaultView"
+          />
+          <bit-label for="clickToAutofill" class="tw-whitespace-normal">
+            {{ "clickToAutofillOnVault" | i18n }}
           </bit-label>
         </bit-form-control>
       </bit-card>

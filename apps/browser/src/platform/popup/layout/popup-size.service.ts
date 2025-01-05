@@ -7,6 +7,8 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
+import BrowserPopupUtils from "../browser-popup-utils";
+
 /**
  *
  * Value represents width in pixels
@@ -25,10 +27,12 @@ const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK
 });
 
 /**
- * Updates the extension popup width based on a user setting
+ * Handles sizing the popup based on available width/height, which can be affected by
+ * user default zoom level.
+ * Updates the extension popup width based on a user setting.
  **/
 @Injectable({ providedIn: "root" })
-export class PopupWidthService {
+export class PopupSizeService {
   private static readonly LocalStorageKey = "bw-popup-width";
   private readonly state = inject(GlobalStateProvider).get(POPUP_WIDTH_KEY_DEF);
 
@@ -41,15 +45,31 @@ export class PopupWidthService {
   }
 
   /** Begin listening for state changes */
-  init() {
+  async init() {
     this.width$.subscribe((width: PopupWidthOption) => {
-      PopupWidthService.setStyle(width);
-      localStorage.setItem(PopupWidthService.LocalStorageKey, width);
+      PopupSizeService.setStyle(width);
+      localStorage.setItem(PopupSizeService.LocalStorageKey, width);
     });
+
+    const isInChromeTab = await BrowserPopupUtils.isInTab();
+
+    if (!BrowserPopupUtils.inPopup(window) || isInChromeTab) {
+      window.document.body.classList.add("body-full");
+    } else if (window.innerHeight < 400) {
+      window.document.body.classList.add("body-xxs");
+    } else if (window.innerHeight < 500) {
+      window.document.body.classList.add("body-xs");
+    } else if (window.innerHeight < 600) {
+      window.document.body.classList.add("body-sm");
+    }
   }
 
   private static setStyle(width: PopupWidthOption) {
+    if (!BrowserPopupUtils.inPopup(window)) {
+      return;
+    }
     const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
+
     document.body.style.minWidth = `${pxWidth}px`;
   }
 
@@ -57,7 +77,7 @@ export class PopupWidthService {
    * To keep the popup size from flickering on bootstrap, we store the width in `localStorage` so we can quickly & synchronously reference it.
    **/
   static initBodyWidthFromLocalStorage() {
-    const storedValue = localStorage.getItem(PopupWidthService.LocalStorageKey);
+    const storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
     this.setStyle(storedValue as any);
   }
 }
