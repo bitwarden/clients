@@ -208,19 +208,19 @@
     "message": "Une nouvelle clé SSH a été générée"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Le mot de passe saisi est incorrect."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importer"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirmez le mot de passe"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Entrez le mot de passe de la clé SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Entrez le mot de passe"
   },
   "sshAgentUnlockRequired": {
     "message": "Veuillez déverrouiller votre coffre pour approuver la demande de clé SSH."
@@ -1393,13 +1393,13 @@
     "message": "Historique du mot de passe"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historique du générateur"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Effacer l'historique du générateur"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer ?"
   },
   "clear": {
     "message": "Effacer",
@@ -1409,13 +1409,13 @@
     "message": "Aucun mot de passe à afficher."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Effacer l'historique"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Rien à afficher"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Vous n'avez rien généré récemment"
   },
   "undo": {
     "message": "Annuler"
@@ -2869,7 +2869,7 @@
     "message": "Vérifier les brèches de données connues pour ce mot de passe"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Connecté !"
   },
   "important": {
     "message": "Important :"
@@ -2902,16 +2902,16 @@
     "message": "Une mise à jour des paramètres est recommandée"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Mémorisez cet appareil pour faciliter les futures connexions"
   },
   "deviceApprovalRequired": {
     "message": "L'approbation de l'appareil est requise. Sélectionnez une option d'approbation ci-dessous:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Autorisation de l'appareil requise"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Sélectionnez une option d'approbation ci-dessous"
   },
   "rememberThisDevice": {
     "message": "Se souvenir de cet appareil"
@@ -2966,7 +2966,7 @@
     "message": "E-mail de l'utilisateur manquant"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Courriel utilisateur actif introuvable. Déconnexion en cours."
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"
@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Fichier enregistré sur l'appareil. Gérez à partir des téléchargements de votre appareil."
+  },
+  "importantNotice": {
+    "message": "Avis important"
+  },
+  "setupTwoStepLogin": {
+    "message": "Configurer l'identification à deux facteurs"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden enverra un code au courriel de votre compte pour vérifier les connexions depuis de nouveaux appareils à partir de février 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Vous pouvez configurer l'identification à deux facteurs comme un moyen alternatif de protéger votre compte ou de changer votre adresse courriel à une autre à laquelle vous pouvez accéder."
+  },
+  "remindMeLater": {
+    "message": "Me le rappeler plus tard"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Avez-vous un accès fiable à votre courriel $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Non, je ne l'ai pas"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Oui, je peux accéder à mon courriel de manière fiable"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Activer l'identification à deux facteurs"
+  },
+  "changeAcctEmail": {
+    "message": "Changer le courriel du compte"
   }
 }

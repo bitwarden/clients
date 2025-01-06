@@ -212,19 +212,23 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable =
-            status !== BiometricsStatus.DesktopDisconnected &&
-            status !== BiometricsStatus.NotEnabledInConnectedDesktopApp;
+            (status !== BiometricsStatus.DesktopDisconnected &&
+              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
+            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
-          if (status === BiometricsStatus.DesktopDisconnected) {
+          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextDesktopDisconnected",
             );
-          } else if (status === BiometricsStatus.NotEnabledInConnectedDesktopApp) {
+          } else if (
+            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+            !biometricSettingAvailable
+          ) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextNotEnabledInDesktop",
               activeAccount.email,

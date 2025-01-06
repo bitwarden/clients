@@ -208,19 +208,19 @@
     "message": "أُنشئ مفتاح SSH جديد"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "كلمة المرور التي أدخلتها غير صحيحة."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "استيراد"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "تأكيد كلمة المرور"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "أدخل كلمة المرور لمفتاح SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "أدخل كلمة المرور"
   },
   "sshAgentUnlockRequired": {
     "message": "الرجاء فتح المخزن الخاص بك للموافقة على طلب مفتاح SSH."
@@ -920,10 +920,10 @@
     "message": "رابط الخادم"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "مهلة المصادقة"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "انتهت مهلة جَلسة المصادقة. يرجى إعادة بَدْء عملية تسجيل الدخول."
   },
   "selfHostBaseUrl": {
     "message": "رابط خادم الاستضافة الذاتية",
@@ -1393,13 +1393,13 @@
     "message": "سجل كلمة المرور"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "سجل المولد"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "محو سجل المولد"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "إذا تابعت، سيتم حذف جميع الإدخالات بشكل دائم من سجل المولد. هل أنت متيقِّن من أنك تريد المتابعة؟"
   },
   "clear": {
     "message": "مسح",
@@ -1409,13 +1409,13 @@
     "message": "لا توجد كلمات مرور للعرض."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "مسح السجل"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "لا يوجد شيء لعرضه"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "لم تقم بتوليد أي شيء مؤخرًا"
   },
   "undo": {
     "message": "تراجع"
@@ -2481,7 +2481,7 @@
     "message": "إنشاء بريد إلكتروني"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "يجب أن تكون القيمة بين $MIN$ و $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2495,7 +2495,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " استخدم أحرف $RECOMMENDED$ أو أكثر لإنشاء كلمة مرور قوية.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2505,7 +2505,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " استخدم كلمات $RECOMMENDED$ أو أكثر لإنشاء عبارة مرور قوية.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2726,13 +2726,13 @@
     "message": "تم إرسال إشعار إلى جهازك."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "أُرسل إشعار إلى جهازك"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "تيقن من أن حسابك مفتوح وأن عبارة البصمة متطابقة على الجهاز الآخر"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "هل تحتاج إلى خيار آخر؟"
   },
   "fingerprintMatchInfo": {
     "message": "الرجاء التأكد من أن المخزن الخاص بك غير مقفل وأن عبارة بصمة الإصبع تطابق الجهاز الآخر."
@@ -2741,13 +2741,13 @@
     "message": "عبارة بصمة الإصبع"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "سيتم إعلامك بمجرد الموافقة على الطلب"
   },
   "needAnotherOption": {
     "message": "تسجيل الدخول باستخدام الجهاز يجب أن يتم إعداده في إعدادات تطبيق Bitwarden. هل تحتاج إلى خيار آخر؟"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "عرض جميع خيارات تسجيل الدخول"
   },
   "viewAllLoginOptions": {
     "message": "عرض جميع خيارات تسجيل الدخول"
@@ -2869,7 +2869,7 @@
     "message": "تحقق من خروقات البيانات المعروفة لكلمة المرور هذه"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "سجلت دخولك!"
   },
   "important": {
     "message": "مهم:"
@@ -2902,16 +2902,16 @@
     "message": "تحديث الإعدادات الموصى بها"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "تذكر هذا الجهاز لجعل تسجيلات الدخول في المستقبل سلسة"
   },
   "deviceApprovalRequired": {
     "message": "موافقة الجهاز مطلوبة. حدد خيار الموافقة أدناه:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "موافقة الجهاز مطلوبة"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "حدد خِيار الموافقة أدناه"
   },
   "rememberThisDevice": {
     "message": "تذكر هذا الجهاز"
@@ -2966,7 +2966,7 @@
     "message": "البريد الإلكتروني للمستخدم مفقود"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "لم يتم العثور على البريد الإلكتروني للمستخدم الحالي. يتم تسجيل الخروج."
   },
   "deviceTrusted": {
     "message": "الجهاز موثوق به"
@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "تم حفظ الملف على الجهاز. إدارة من تنزيلات جهازك."
+  },
+  "importantNotice": {
+    "message": "ملاحظة هامة"
+  },
+  "setupTwoStepLogin": {
+    "message": "إعداد المصادقة الثنائية"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "سيقوم Bitwarden بإرسال رمز إلى البريد الإلكتروني الخاص بحسابك للتحقق من تسجيلات الدخول من الأجهزة الجديدة ابتداء من فبراير 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "يمكنك إعداد المصادقة الثنائية كطريقة بديلة لحماية حسابك أو تغيير بريدك الإلكتروني إلى بريد يمكنك الوصول إليه."
+  },
+  "remindMeLater": {
+    "message": "ذكرني لاحقاً"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "هل لديك وصول موثوق إلى بريدك الإلكتروني، $EMAIL$؟",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "لا ليس لديّ"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "نعم، يمكنني الوصول بشكل موثوق إلى بريدي الإلكتروني"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "تفعيل المصادقة الثنائية"
+  },
+  "changeAcctEmail": {
+    "message": "تغيير البريد الإلكتروني الخاص بالحساب"
   }
 }

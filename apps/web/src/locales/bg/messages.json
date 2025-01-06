@@ -36,7 +36,7 @@
     "message": "Възстановяване на достъпа на членове"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Достъпът до организацията не може да бъде възстановен"
   },
   "allApplicationsWithCount": {
     "message": "Всички приложения ($COUNT$)",
@@ -5635,10 +5635,10 @@
     "message": "Изключени като неподходящи за това действие."
   },
   "nonCompliantMembersTitle": {
-    "message": "Non-compliant members"
+    "message": "Неизпълняващи изискванията членове"
   },
   "nonCompliantMembersError": {
-    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+    "message": "Членове, които не отговарят на изискването за Единствена организация или за Двустепенно удостоверяване не могат да бъдат възстановени, докато не изпълнят тези изисквания"
   },
   "fingerprint": {
     "message": "Отпечатък"
