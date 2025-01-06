@@ -9272,16 +9272,16 @@
     "message": "Atjaunināta nodokļu informācija"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Nederīgs nodokļu identifikators. Ja ir pārliecība, ka tā ir kļūda, lūgums sazināties ar atbalstu."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Mēs nevarējām pārbaudīt nodokļu identifikatoru. Ja ir pārliecība, ka tā ir kļūda, lūgums sazināties ar atbalstu."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Nederīgs nodokļu identifikators. Ja ir pārliecība, ka tā ir kļūda, lūgums sazināties ar atbalstu."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "Rēķina priekšskatīšanas laikā atgadījās kļūda. Lūgums vēlāk mēģināt vēlreiz."
   },
   "unverified": {
     "message": "Neapliecināts"

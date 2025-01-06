@@ -9272,13 +9272,13 @@
     "message": "Updated tax information"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Invalid Aadhaar ID, if you believe this is an error please contact support."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "We were unable to validate your Aadhaar ID, if you believe this is an error please contact support."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Invalid Aadhaar ID, if you believe this is an error please contact support."
   },
   "billingPreviewInvoiceError": {
     "message": "An error occurred while previewing the invoice. Please try again later."

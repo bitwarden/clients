@@ -428,7 +428,7 @@
     "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
-    "message": "自动生成安全可靠唯一的登录密码。"
+    "message": "自动为您的登录生成强大且唯一的密码。"
   },
   "bitWebVaultApp": {
     "message": "Bitwarden 网页 App"
@@ -888,7 +888,7 @@
     "message": "两步登录要求您从其他设备（例如安全钥匙、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "通过在 Bitwarden 网页 App 中设置两步登录，可以使您的账户更加安全。"
+    "message": "在 Bitwarden 网页 App 中设置两步登录，让您的账户更加安全。"
   },
   "twoStepLoginConfirmationTitle": {
     "message": "前往网页 App 吗？"
@@ -2123,7 +2123,7 @@
     "message": "您仍然想要填充此登录信息吗？"
   },
   "autofillIframeWarning": {
-    "message": "该表单由不同于您保存的登录的 URI 域名托管。选择「确定」以自动填充，或选择「取消」停止填充。"
+    "message": "该表单由与您保存的登录 URI 不同的域名托管。选择「确定」继续自动填充，或选择「取消」停止自动填充。"
   },
   "autofillIframeWarningTip": {
     "message": "要防止以后出现此警告，请将此站点的 URI $HOSTNAME$ 保存到您的 Bitwarden 登录项目中。",
@@ -3982,7 +3982,7 @@
     "message": "自动填充建议"
   },
   "autofillSuggestionsTip": {
-    "message": "保存此站点的登录项目用来自动填充"
+    "message": "将此站点保存为登录项目以用于自动填充"
   },
   "yourVaultIsEmpty": {
     "message": "您的密码库是空的"
