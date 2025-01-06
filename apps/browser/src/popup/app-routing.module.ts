@@ -65,7 +65,6 @@ import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-req
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
-import { AccountSecurityComponent as AccountSecurityV1Component } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
@@ -81,7 +80,6 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -352,11 +350,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(AccountSecurityV1Component, AccountSecurityComponent, {
+  {
     path: "account-security",
+    component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
     path: "notifications",
     canActivate: [authGuard],
@@ -395,12 +394,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(PremiumComponent, PremiumV2Component, {
+  {
     path: "premium",
-    component: PremiumComponent,
+    component: PremiumV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
     path: "appearance",
     canActivate: [authGuard],
@@ -714,6 +713,7 @@ const routes: Routes = [
           pageTitle: {
             key: "importantNotice",
           },
+          hideFooter: true,
         },
       },
       {

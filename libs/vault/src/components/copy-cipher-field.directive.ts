@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, HostBinding, HostListener, Input, OnChanges, Optional } from "@angular/core";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -28,9 +26,9 @@ export class CopyCipherFieldDirective implements OnChanges {
     alias: "appCopyField",
     required: true,
   })
-  action: Exclude<CopyAction, "hiddenField">;
+  action!: Exclude<CopyAction, "hiddenField">;
 
-  @Input({ required: true }) cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
 
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
@@ -52,7 +50,7 @@ export class CopyCipherFieldDirective implements OnChanges {
   @HostListener("click")
   async copy() {
     const value = this.getValueToCopy();
-    await this.copyCipherFieldService.copy(value, this.action, this.cipher);
+    await this.copyCipherFieldService.copy(value ?? "", this.action, this.cipher);
   }
 
   async ngOnChanges() {
@@ -69,7 +67,7 @@ export class CopyCipherFieldDirective implements OnChanges {
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
     if (this.menuItemDirective) {
-      this.menuItemDirective.disabled = this.disabled;
+      this.menuItemDirective.disabled = this.disabled ?? false;
     }
   }
 

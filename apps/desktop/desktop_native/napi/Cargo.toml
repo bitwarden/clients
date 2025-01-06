@@ -30,4 +30,4 @@ tokio-stream = "=0.1.15"
 windows-registry = "=0.3.0"
 
 [build-dependencies]
-napi-build = "=2.1.3"
+napi-build = "=2.1.4"

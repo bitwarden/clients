@@ -102,6 +102,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
@@ -259,12 +261,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo();
 
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     if (this.cipher == null) {
       if (this.editMode) {
         const cipher = await this.loadCipher();
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
         this.cipher = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
@@ -323,7 +323,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.fido2Credentials = null;
     }
 
-    this.folders$ = this.folderService.folderViews$;
+    this.folders$ = this.folderService.folderViews$(activeUserId);
 
     if (this.editMode && this.previousCipherId !== this.cipherId) {
       void this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, [this.cipher]);

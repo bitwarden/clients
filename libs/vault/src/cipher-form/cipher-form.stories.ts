@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { action } from "@storybook/addon-actions";
 import {
@@ -234,7 +232,7 @@ export const Edit: Story = {
     config: {
       ...defaultConfig,
       mode: "edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -245,7 +243,7 @@ export const PartialEdit: Story = {
     config: {
       ...defaultConfig,
       mode: "partial-edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -256,7 +254,7 @@ export const Clone: Story = {
     config: {
       ...defaultConfig,
       mode: "clone",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -269,7 +267,7 @@ export const NoPersonalOwnership: Story = {
       mode: "add",
       allowPersonalOwnership: false,
       originalCipher: defaultConfig.originalCipher,
-      organizations: defaultConfig.organizations,
+      organizations: defaultConfig.organizations!,
     },
   },
 };
