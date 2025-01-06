@@ -30,6 +30,7 @@
     "dist:safari:mv3": "cross-env MANIFEST_VERSION=3 npm run dist:safari",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:watch:all": "jest --watchAll"
+    "test:watch:all": "jest --watchAll",
+    "test:clearCache": "jest --clear-cache"
   }
 }

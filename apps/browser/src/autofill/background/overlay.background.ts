@@ -1519,10 +1519,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const { width, height } = this.focusedFieldData.focusedFieldRects;
     let { top, left } = this.focusedFieldData.focusedFieldRects;
     const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
-    const totpFields = this.getTotpFields();
 
-    if (this.isTotpFieldForCurrentField() && totpFields.length > 1) {
-      ({ left, top } = this.calculateTotpMultiInputButtonBounds(totpFields));
+    if (this.isTotpFieldForCurrentField()) {
+      const totpFields = this.getTotpFields();
+      if (totpFields.length > 1) {
+        ({ left, top } = this.calculateTotpMultiInputButtonBounds(totpFields));
+      }
     }
 
     let elementOffset = height * 0.37;
@@ -1565,10 +1567,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const { top, height } = this.focusedFieldData.focusedFieldRects;
     let { left, width } = this.focusedFieldData.focusedFieldRects;
-    const totpFields = this.getTotpFields();
 
-    if (this.isTotpFieldForCurrentField() && totpFields.length > 1) {
-      ({ left, width } = this.calculateTotpMultiInputMenuBounds(totpFields));
+    if (this.isTotpFieldForCurrentField()) {
+      const totpFields = this.getTotpFields();
+
+      if (totpFields.length > 1) {
+        ({ left, width } = this.calculateTotpMultiInputMenuBounds(totpFields));
+      }
     }
 
     this.inlineMenuPosition.list = {
