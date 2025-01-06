@@ -1,9 +1,9 @@
 import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest, Observable, shareReplay, switchMap } from "rxjs";
+import { combineLatest, Observable, shareReplay, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -86,11 +86,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected VaultStateEnum = VaultState;
 
+  private allFilters$ = combineLatest([
+    this.vaultPopupListFiltersService.organizations$,
+    this.vaultPopupListFiltersService.collections$,
+    this.vaultPopupListFiltersService.folders$,
+  ]);
+
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private vaultUiOnboardingService: VaultUiOnboardingService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
+    private destroyed: DestroyRef,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -118,7 +125,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.virtualScrollElement) {
-      this.vaultScrollPositionService.start(this.virtualScrollElement);
+      // The filters component can cause the size of the virtual scroll element to change,
+      // which can cause the scroll position to be land in the wrong spot. To fix this,
+      // wait until all filters are populated before restoring the scroll position.
+      this.allFilters$.pipe(take(1), takeUntilDestroyed(this.destroyed)).subscribe(() => {
+        this.vaultScrollPositionService.start(this.virtualScrollElement!);
+      });
     }
   }
 
