@@ -24,6 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -134,6 +135,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected configService: ConfigService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected toastService: ToastService,
+    private sdkService: SdkService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -349,7 +351,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.type === CipherType.SshKey &&
         (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
       ) {
-        this.generateSshKey(false);
+        await this.generateSshKey(false);
       }
     }
   }
@@ -800,7 +802,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private generateSshKey(showNotification: boolean = true) {
+  private async generateSshKey(showNotification: boolean = true) {
+    await firstValueFrom(this.sdkService.client$);
     const sshKey = generate_ssh_key("Ed25519");
     this.cipher.sshKey.privateKey = sshKey.private_key;
     this.cipher.sshKey.publicKey = sshKey.public_key;
@@ -817,7 +820,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   async typeChange() {
     if (this.cipher.type === CipherType.SshKey) {
-      this.generateSshKey();
+      await this.generateSshKey();
     }
   }
 }

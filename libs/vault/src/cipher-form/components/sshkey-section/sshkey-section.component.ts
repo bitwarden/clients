@@ -4,9 +4,11 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import {
@@ -62,6 +64,7 @@ export class SshKeySectionComponent implements OnInit {
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    private sdkService: SdkService,
   ) {
     this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
     this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
@@ -76,11 +79,11 @@ export class SshKeySectionComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     if (this.originalCipherView?.sshKey) {
       this.setInitialValues();
     } else {
-      this.generateSshKey();
+      await this.generateSshKey();
     }
 
     this.sshKeyForm.disable();
@@ -97,7 +100,8 @@ export class SshKeySectionComponent implements OnInit {
     });
   }
 
-  private generateSshKey() {
+  private async generateSshKey() {
+    await firstValueFrom(this.sdkService.client$);
     const sshKey = generate_ssh_key("Ed25519");
     this.sshKeyForm.setValue({
       privateKey: sshKey.private_key,
