@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
+  },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavenie dvojstupňového prihlásenia"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
   }
 }

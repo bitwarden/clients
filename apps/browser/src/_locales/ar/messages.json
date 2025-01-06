@@ -84,7 +84,7 @@
     "message": "انضم إلى المنظمة"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "انضم إلى $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -93,7 +93,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "أنهي الانضمام إلى هذه المؤسسة عن طريق تعيين كلمة مرور رئيسية."
   },
   "tab": {
     "message": "علامة تبويب"
@@ -120,7 +120,7 @@
     "message": "نسخ كلمة المرور"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "انسخ عبارة المرور"
   },
   "copyNote": {
     "message": "نسخ الملاحظة"
@@ -138,31 +138,31 @@
     "message": "نسخ رمز الأمان"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "انسخ الاسم"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "انسخ الشركة"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "انسخ رَقْم الضمان الاجتماعي"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "نسخ رَقْم جواز السفر"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "نسخ رَقْم الترخيص"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "نسخ المفتاح الخاص"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "نسخ المفتاح العام"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "نسخ البصمة"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "نسخ $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -171,13 +171,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "نسخ الموقع الإلكتروني"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "نسخ الملاحظات"
   },
   "fill": {
-    "message": "Fill",
+    "message": "ملء",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -193,10 +193,10 @@
     "message": "هوية التعبئة التلقائية"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "ملء رمز التحقق"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "ملء رمز التحقق",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -239,16 +239,16 @@
     "message": "إضافة عنصر"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "البريد الإلكتروني للحساب"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "طلب تلميح"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "طلب تلميح كلمة المرور"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
   "passwordHint": {
     "message": "تلميح كلمة المرور"
@@ -281,25 +281,25 @@
     "message": "تغيير كلمة المرور الرئيسية"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "هل تريد المتابعة إلى تطبيق الويب؟"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "استكشف المزيد من الميزات لحساب Bitwarden الخاص بك على تطبيق الويب."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "هل تريد المتابعة إلى مركز المساعدة؟"
   },
   "continueToHelpCenterDesc": {
-    "message": "Learn more about how to use Bitwarden on the Help Center."
+    "message": "تعرف على المزيد حول كيفية استخدام Bitwarden في مركز المساعدة."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Continue to browser extension store?"
+    "message": "هل تريد المتابعة إلى متجر إضافات المتصفح؟"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
+    "message": "ساعد الآخرين في معرفة ما إذا كان Bitwarden مناسب لهم. قم بزيارة متجر إضافات المتصفح الخاص بك واترك تقييمًا الآن."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب الخاص ب Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "عبارة بصمة الإصبع",
@@ -316,43 +316,43 @@
     "message": "تسجيل الخروج"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "حول Bitwarden"
   },
   "about": {
     "message": "عن التطبيق"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "المزيد من Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "هل تريد المتابعة إلى bitwarden.com؟"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden للأعمال التجارية"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "مصادق Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "مصادق Bitwarden يسمح لك بتخزين مفاتيح المصادقة وإنشاء رموز لمرة واحدة المستندة إلى الوقت لعمليات المصادقة الثنائية. تعرف على المزيد على موقع bitwarden.com"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "مدير الأسرار من Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "قم بتخزين وإدارة ومشاركة أسرار التطوير مع مدير الأسرار من Bitwarden. تعرف على المزيد في موقع bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
   },
   "continueToPasswordlessDotDevPageDesc": {
-    "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
+    "message": "أنشئ تجارِب تسجيل دخول سلسة وآمنة خالية من كلمات المرور التقليدية مع Passwordless.dev. تعلم المزيد على موقع bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Bitwarden للعائلات المجاني"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "أنت مؤهل للحصول على Bitwarden للعائلات المجاني. أحصل على هذا العرض اليوم عبر تطبيق الويب."
   },
   "version": {
     "message": "الإصدار"
@@ -373,22 +373,22 @@
     "message": "تحرير المجلّد"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "مجلد جديد"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "أسم المجلد"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "لا توجد مجلدات مضافة"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "أنشئ مجلدات لتنظيم عناصر المخزن الخاصة بك"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "هل أنت متأكد أنك تريد حذف هذا المجلد نهائيًا؟"
   },
   "deleteFolder": {
     "message": "حذف المجلّد"
@@ -431,7 +431,7 @@
     "message": "قم بإنشاء كلمات مرور قوية وفريدة لتسجيلات الدخول الخاصة بك."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "تطبيق ويب Bitwarden"
   },
   "importItems": {
     "message": "استيراد العناصر"
@@ -443,7 +443,7 @@
     "message": "توليد كلمة مرور"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "توليد عبارة المرور"
   },
   "regeneratePassword": {
     "message": "إعادة توليد كلمة المرور"
@@ -453,9 +453,6 @@
   },
   "length": {
     "message": "الطول"
-  },
-  "passwordMinLength": {
-    "message": "الحد الأدنى لطول كلمة السر"
   },
   "uppercase": {
     "message": "أحرف كبيرة (من A إلى Z)",
@@ -474,11 +471,11 @@
     "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
-    "message": "Include",
+    "message": "تضمين",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "تضمين أحرف ذات نسق كبير",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -486,7 +483,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "تضمين أحرف ذات نسق صغير",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -494,7 +491,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "تضمين أرقام",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -502,7 +499,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "تضمين أحرف خاصة",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -528,16 +525,12 @@
   "minSpecial": {
     "message": "الحد الأدنى من الأحرف الخاصة"
   },
-  "avoidAmbChar": {
-    "message": "تجنب الأحرف الغامضة",
-    "description": "deprecated. Use avoidAmbiguous instead."
-  },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "تجنب الأحرف المبهمة",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "طُبقت متطلبات سياسة المؤسسة على خيارات المولد الخاصة بك.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -571,19 +564,19 @@
     "message": "المفضلات"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "إزالة من المفضلة"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "تم إضافة العنصر إلى المفضلات"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "تم إزالة العنصر من المفضلات"
   },
   "notes": {
     "message": "الملاحظات"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "ملاحظة سرية"
   },
   "note": {
     "message": "الملاحظة"
@@ -604,10 +597,10 @@
     "message": "بدء"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "تشغيل الموقع"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "تشغيل الموقع $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -628,7 +621,7 @@
     "message": "الأخرى"
   },
   "unlockMethods": {
-    "message": "Unlock options"
+    "message": "فتح الخيارات"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "أعدنّ طريقة إلغاء القُفْل لتغيير إجراء مهلة المخزن الخاص بك."
@@ -637,13 +630,13 @@
     "message": "إعداد طريقة إلغاء القفل في الإعدادات"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "مهلة الجَلسة"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "مهلة الخزنة"
   },
   "otherOptions": {
-    "message": "Other options"
+    "message": "خيارات أخرى"
   },
   "rateExtension": {
     "message": "قيِّم هذه الإضافة"
@@ -658,13 +651,13 @@
     "message": "خزانتك مقفلة. قم بتأكيد هويتك للمتابعة."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "المخزن الخاص بك مقفل"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "حسابك مقفل"
   },
   "or": {
-    "message": "or"
+    "message": "أو"
   },
   "unlock": {
     "message": "إلغاء القفل"
@@ -689,7 +682,7 @@
     "message": "نفذ وقت الخزانة"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "المهلة"
   },
   "lockNow": {
     "message": "إقفل الآن"
@@ -743,16 +736,16 @@
     "message": "الأمان"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "تأكيد كلمة المرور الرئيسية"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "كلمة المرور الرئيسية"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "لا يمكن استعادة كلمة المرور الرئيسية إذا نسيتها!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "تلميح كلمة المرور الرئيسية"
   },
   "errorOccurred": {
     "message": "لقد حدث خطأ ما"
@@ -786,10 +779,10 @@
     "message": "تم إنشاء حسابك الجديد! يمكنك الآن تسجيل الدخول."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "تم إنشاء حسابك الجديد!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "لقد قمت بتسجيل الدخول!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "سجلتَ الدخول بنجاح"
@@ -804,7 +797,7 @@
     "message": "رمز التحقق مطلوب."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "تم إلغاء المصادقة أو استغرقت وقتا طويلا. الرجاء المحاولة مرة أخرى."
   },
   "invalidVerificationCode": {
     "message": "رمز التحقق غير صالح"
@@ -832,16 +825,16 @@
     "message": "مسح رمز QR للمصادقة من صفحة الويب الحالية"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "أجعل التحقق بخطوتين سلس"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden يمكنه تخزين وملء رموز التحقق بخطوتين. أنسخ وألصق المفتاح في هذا الحقل."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden يمكنه تخزين وملء رموز التحقق من خطوتين. اختر رمز الكاميرا لأخذ لقطة شاشة لرمز QR المصادق لهذا الموقع، أو أنسخ وألصق المفتاح في هذا الحقل."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "تعرف على المزيد عن المصادقين"
   },
   "copyTOTP": {
     "message": "نسخ مفتاح المصادقة (TOTP)"
@@ -850,28 +843,28 @@
     "message": "تم تسجيل الخروج"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "لقد تم تسجيل خروجك من حسابك."
   },
   "loginExpired": {
     "message": "انتهت صلاحية جلسة تسجيل الدخول الخاصة بك."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "تسجيل الدخول"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "تسجيل الدخول إلى Bitwarden"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "إعادة التسجيل"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "رابط منتهي الصَّلاحِيَة"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "الرجاء إعادة التسجيل أو حاول تسجيل الدخول."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "قد يكون لديك حساب بالفعل"
   },
   "logOutConfirmation": {
     "message": "هل أنت متأكد من أنك تريد تسجيل الخروج؟"
@@ -895,10 +888,10 @@
     "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزانة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+    "message": "اجعل حسابك أكثر أمنا من خلال إعداد تسجيل الدخول بخطوتين في تطبيق Bitwarden على الويب."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "هل تريد المتابعة إلى تطبيق الويب؟"
   },
   "editedFolder": {
     "message": "حُفظ المجلد"
@@ -941,7 +934,7 @@
     "message": "رابط جديد"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "أضف نطاق",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "قائمة عناصر الهوية في صفحة التبويب لسهولة الملء التلقائي."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "مسح الحافظة",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1053,7 +1049,7 @@
     "message": "إلغاء القفل"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "خيارات إضافية"
   },
   "enableContextMenuItem": {
     "message": "إظهار خيارات قائمة السياق"
@@ -1093,7 +1089,7 @@
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "التصدير من"
   },
   "exportVault": {
     "message": "تصدير الخزانة"
@@ -1102,13 +1098,13 @@
     "message": "صيغة الملف"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "سيكون المِلَفّ المُصدر محميًا بكلمة مرور وسيتطلب كلمة مرور المِلَفّ لفك تشفيره."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "كلمة مرور الملف"
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "ستُستخدم كلمة المرور هذه لتصدير واستيراد هذا المِلَفّ"
   },
   "accountRestrictedOptionDescription": {
     "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "الانتقال إلى مؤسسة"
-  },
-  "share": {
-    "message": "مشاركة"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ انتقل إلى $ORGNAME$",
@@ -1936,10 +1929,10 @@
     "message": "Clear history"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "لا يوجد شيء لعرضه"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "لم تقم بتوليد أي شيء مؤخرًا"
   },
   "remove": {
     "message": "إزالة"
@@ -2000,16 +1993,16 @@
     "message": "فتح باستخدام رمز PIN"
   },
   "setYourPinTitle": {
-    "message": "Set PIN"
+    "message": "تعيين رَقَم التعريف الشخصي"
   },
   "setYourPinButton": {
-    "message": "Set PIN"
+    "message": "تعيين رَقَم التعريف الشخصي"
   },
   "setYourPinCode": {
     "message": "تعيين رمز PIN الخاص بك لإلغاء قفل Bitwarden. سيتم إعادة تعيين إعدادات PIN الخاصة بك إذا قمت بتسجيل الخروج بالكامل من التطبيق."
   },
   "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+    "message": "سيتم استخدام رَقَم التعريف الشخصي الخاص بك لفتح Bitwarden بدلاً من كلمة المرور الرئيسية. سيتم حذف رَقَم التعريف الشخصي الخاص بك إذا قمت بتسجيل الخروج بالكامل من Bitwarden."
   },
   "pinRequired": {
     "message": "رمز PIN مطلوب."
@@ -2024,7 +2017,7 @@
     "message": "فتح باستخدام القياسات الحيوية"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "فتح بكلمة المرور الرئيسية"
   },
   "awaitDesktop": {
     "message": "في انتظار التأكيد من سطح المكتب"
@@ -2036,7 +2029,7 @@
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل المتصفح"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Require master password on browser restart"
+    "message": "أطلب كلمة المرور الرئيسية عند إعادة تشغيل المتصفح"
   },
   "selectOneCollection": {
     "message": "يجب عليك تحديد مجموعة واحدة على الأقل."
@@ -2047,30 +2040,27 @@
   "clone": {
     "message": "استنساخ"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "واحدة أو أكثر من سياسات المؤسسة تؤثر على إعدادات المولدات الخاصة بك."
-  },
   "passwordGenerator": {
-    "message": "Password generator"
+    "message": "مولد كلمة المرور"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "مولد اسم المستخدم"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "استخدم كلمة المرور هذه"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "استخدم اسم المستخدم هذا"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "تم توليد كلمة مرور آمنة! لا تنس أن تقوم أيضا بتحديث كلمة المرور الخاصة بك على الموقع."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "استخدام المولد",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "لإنشاء كلمة مرور فريدة قوية",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
@@ -2106,7 +2096,7 @@
     "message": "تم استعادة العنصر"
   },
   "alreadyHaveAccount": {
-    "message": "Already have an account?"
+    "message": "لديك حساب بالفعل؟"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزانتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
@@ -2118,7 +2108,7 @@
     "message": "التعبئة التلقائية والحفظ"
   },
   "fillAndSave": {
-    "message": "Fill and save"
+    "message": "عبء ثم احفظ"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "تم تعبئة العنصر تلقائياً وحفظ عنوان URI"
@@ -2199,19 +2189,19 @@
     "message": "كلمة المرور الرئيسية الجديدة لا تفي بمتطلبات السياسة العامة."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "احصل على النصائح والإعلانات وفرص البحوث من Bitwarden في صندوق الوارد الخاص بك."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "إلغاء الاشتراك"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "في أي وقت."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "عن طريق المتابعة، أنت توافق على"
   },
   "and": {
-    "message": "and"
+    "message": "و"
   },
   "acceptPolicies": {
     "message": "من خلال تحديد هذا المربع فإنك توافق على ما يلي:"
@@ -2274,7 +2264,7 @@
     "message": "عدم تطابق الحساب"
   },
   "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometric key missmatch"
+    "message": "عدم تطابق المفتاح الحيوي"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
@@ -2331,7 +2321,7 @@
     "message": "An organization policy has blocked importing items into your individual vault."
   },
   "domainsTitle": {
-    "message": "Domains",
+    "message": "النطاقات",
     "description": "A category title describing the concept of web domains"
   },
   "excludedDomains": {
@@ -2341,10 +2331,10 @@
     "message": "Bitwarden لن يطلب حفظ تفاصيل تسجيل الدخول لهذه النطاقات. يجب عليك تحديث الصفحة حتى تصبح التغييرات سارية المفعول."
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+    "message": "Bitwarden لن يطلب حفظ تفاصيل تسجيل الدخول لهذه النطافات لجميع الحسابات مسجلة الدخول. يجب عليك تحديث الصفحة لكي تصبح التغييرات نافذة المفعول."
   },
   "websiteItemLabel": {
-    "message": "Website $number$ (URI)",
+    "message": "الموقع $number$ (URI)",
     "placeholders": {
       "number": {
         "content": "$1",
@@ -2362,17 +2352,17 @@
     }
   },
   "excludedDomainsSavedSuccess": {
-    "message": "Excluded domain changes saved"
+    "message": "تم حفظ تغييرات استبعاد النطاقات"
   },
   "limitSendViews": {
     "message": "Limit views"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "لا يمكن لأحد عرض هذا الإرسال بعد الوصول إلى الحد الأقصى.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ مشاهدات متبقية",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Search Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Add Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "نص"
   },
@@ -2407,21 +2389,14 @@
     "message": "ملف"
   },
   "allSends": {
-    "message": "All Sends",
+    "message": "كل الإرسالات",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
-  },
-  "maxAccessCountReached": {
-    "message": "Max access count reached",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+    "message": "إخفاء النص بشكل افتراضي"
   },
   "expired": {
     "message": "Expired"
-  },
-  "pendingDeletion": {
-    "message": "Pending deletion"
   },
   "passwordProtected": {
     "message": "Password protected"
@@ -2472,23 +2447,8 @@
     "message": "Edit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "What type of Send is this?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "A friendly name to describe this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "The file you want to send."
-  },
   "deletionDate": {
     "message": "تاريخ الحذف"
-  },
-  "deletionDateDesc": {
-    "message": "The Send will be permanently deleted on the specified date and time.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "تاريخ انتهاء الصلاحية"
-  },
-  "expirationDateDesc": {
-    "message": "If set, access to this Send will expire on the specified date and time.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "يوم واحد"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "مُخصّص"
   },
-  "maximumAccessCount": {
-    "message": "Maximum Access Count"
-  },
-  "maximumAccessCountDesc": {
-    "message": "If set, users will no longer be able to access this Send once the maximum access count is reached.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Optionally require a password for users to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private notes about this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deactivate this Send so that no one can access it.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Copy this Send's link to clipboard upon save.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "The text you want to send."
-  },
-  "sendHideText": {
-    "message": "Hide this Send's text by default.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Current access count"
   },
   "createSend": {
     "message": "New Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "قبل أن تبدأ"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "لاستخدام منتقي التاريخ على نمط التقويم",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "انقر هنا",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "أن يخرج من النافذة.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "صلاحية تاريخ الانتهاء المقدّم غير صحيح."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "There was an error saving your deletion and expiration dates."
   },
-  "hideEmail": {
-    "message": "Hide my email address from recipients."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "One or more organization policies are affecting your Send options."
   },
   "passwordPrompt": {
     "message": "Master password re-prompt"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "خطأ"
   },
-  "regenerateUsername": {
-    "message": "إعادة إنشاء اسم المستخدم"
-  },
   "generateUsername": {
     "message": "إنشاء اسم المستخدم"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "نوع اسم المستخدم"
-  },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "اسم الموقع الإلكتروني"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "ما الذي ترغب في توليده؟"
-  },
-  "passwordType": {
-    "message": "نوع كلمة المرور"
   },
   "service": {
     "message": "الخدمة"

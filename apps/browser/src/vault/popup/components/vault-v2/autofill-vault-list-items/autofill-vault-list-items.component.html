@@ -6,4 +6,5 @@
   (onRefresh)="refreshCurrentTab()"
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : null"
   showAutofillButton
+  [primaryActionAutofill]="clickItemsToAutofillVaultView"
 ></app-vault-list-items-container>

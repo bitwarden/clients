@@ -19,8 +19,8 @@ body {
 }
 
 body {
-  min-width: 380px;
-  height: 600px !important;
+  width: 380px;
+  height: 600px;
   position: relative;
   min-height: 100vh;
   overflow: hidden;
@@ -33,18 +33,20 @@ body {
   }
 
   &.body-sm {
-    width: 375px !important;
-    height: 500px !important;
+    height: 500px;
   }
 
   &.body-xs {
-    width: 375px !important;
-    height: 300px !important;
+    height: 400px;
+  }
+
+  &.body-xxs {
+    height: 300px;
   }
 
   &.body-full {
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
   }
 }
 

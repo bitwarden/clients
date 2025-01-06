@@ -13,8 +13,7 @@ export default {
   component: BadgeListComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, BadgeModule],
-      declarations: [BadgeListComponent],
+      imports: [SharedModule, BadgeModule, BadgeListComponent],
       providers: [
         {
           provide: I18nService,
