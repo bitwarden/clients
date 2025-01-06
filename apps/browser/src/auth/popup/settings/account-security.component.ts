@@ -66,7 +66,6 @@ import { BrowserApi } from "../../../platform/browser/browser-api";
 import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
@@ -88,7 +87,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
