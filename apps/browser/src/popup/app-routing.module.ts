@@ -646,7 +646,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh, true, "/")],
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
