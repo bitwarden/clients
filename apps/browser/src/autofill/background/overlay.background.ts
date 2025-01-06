@@ -69,6 +69,7 @@ import {
   generateDomainMatchPatterns,
   generateRandomChars,
   isInvalidResponseStatusCode,
+  rectNotZero,
   specialCharacterToKeyMap,
 } from "../utils";
 
@@ -1377,8 +1378,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return null;
     }
     // Calculate the smallest left and largest right values to determine width
-    const left = Math.min(...filteredObjects.map((obj) => obj.rect.left));
-    const largestRight = Math.max(...filteredObjects.map((obj) => obj.rect.right));
+    const left = Math.min(
+      ...filteredObjects.filter((obj) => rectNotZero(obj.rect)).map((obj) => obj.rect.left),
+    );
+    const largestRight = Math.max(
+      ...filteredObjects.filter((obj) => rectNotZero(obj.rect)).map((obj) => obj.rect.right),
+    );
 
     const width = largestRight - left;
 
@@ -1514,9 +1519,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const { width, height } = this.focusedFieldData.focusedFieldRects;
     let { top, left } = this.focusedFieldData.focusedFieldRects;
     const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
+    const totpFields = this.getTotpFields();
 
-    if (this.isTotpFieldForCurrentField()) {
-      const totpFields = this.getTotpFields();
+    if (this.isTotpFieldForCurrentField() && totpFields.length > 1) {
       ({ left, top } = this.calculateTotpMultiInputButtonBounds(totpFields));
     }
 
@@ -1560,9 +1565,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const { top, height } = this.focusedFieldData.focusedFieldRects;
     let { left, width } = this.focusedFieldData.focusedFieldRects;
+    const totpFields = this.getTotpFields();
 
-    if (this.isTotpFieldForCurrentField()) {
-      const totpFields = this.getTotpFields();
+    if (this.isTotpFieldForCurrentField() && totpFields.length > 1) {
       ({ left, width } = this.calculateTotpMultiInputMenuBounds(totpFields));
     }
 
