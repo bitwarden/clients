@@ -151,6 +151,9 @@ export class CopyCipherFieldService {
    */
   async totpAllowed(cipher: CipherView): Promise<boolean> {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount?.id) {
+      return false;
+    }
     return (
       (cipher?.login?.hasTotp ?? false) &&
       (cipher.organizationUseTotp ||
