@@ -3,22 +3,22 @@
     "message": "すべてのアプリ"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "きわめて重要なアプリ"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "アクセス インテリジェンス"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "リスク分析"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "パスワードのリスク"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "危険なパスワード（強度が低い、流出済み、再利用）を、アプリをまたいで調査します。特に重要なアプリを選択して、危険なパスワードに優先対応するようユーザーに促しましょう。"
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "データの最終更新: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -33,10 +33,10 @@
     "message": "メンバーを削除"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "メンバーを復元"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "組織へのアクセスを復元できません"
   },
   "allApplicationsWithCount": {
     "message": "すべてのアプリ ($COUNT$)",
@@ -48,10 +48,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "新しいログインアイテムを作成"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "特に重要なアプリ ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -69,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "$ORG NAME$ にアプリが見つかりませんでした",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -78,22 +78,22 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "ユーザーがログイン情報を保存すると、アプリがここに表示され、リスクの高いパスワードがあれば表示されます。特に重要なアプリはマークして、パスワードを更新するようにユーザーに通知しましょう。"
   },
   "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+    "message": "重要なアプリとしてマークしたものがありません"
   },
   "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+    "message": "特に重要なアプリケーションを選択して、危険なパスワードを発見し、ユーザーにパスワードを変更するよう通知しましょう。"
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "重要なアプリをマークする"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "重要なアプリとしてマーク"
   },
   "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+    "message": "重要なアプリとしてマークされました"
   },
   "application": {
     "message": "アプリ"
@@ -102,13 +102,13 @@
     "message": "リスクがあるパスワード"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "パスワードの変更を要求する"
   },
   "totalPasswords": {
     "message": "合計パスワード数"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "アプリを検索"
   },
   "atRiskMembers": {
     "message": "リスクがあるメンバー"
@@ -469,7 +469,7 @@
     "message": "パスワードの自動生成"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "パスフレーズを生成"
   },
   "checkPassword": {
     "message": "パスワードが漏洩していないか確認する"
@@ -572,7 +572,7 @@
     "message": "セキュアメモ"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH 鍵"
   },
   "typeLoginPlural": {
     "message": "ログイン"
@@ -733,11 +733,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "パスフレーズをコピー",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "パスワードをコピーしました"
   },
   "copyUsername": {
     "message": "ユーザー名のコピー",
@@ -994,7 +994,7 @@
     "message": "Bitwarden アプリで「デバイスでログイン」の設定をする必要があります。別のオプションが必要ですか？"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "別の選択肢が必要ですか？"
   },
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
@@ -1009,13 +1009,13 @@
     "message": "別のログイン方法を使用する"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "パスキーでログイン"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "シングルサインオンを使用する"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "ようこそ"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "無効なパスキーです。もう一度やり直してください。"
@@ -1099,7 +1099,7 @@
     "message": "アカウントの作成"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden は初めてですか？"
   },
   "setAStrongPassword": {
     "message": "強力なパスワードを設定する"
@@ -1117,13 +1117,13 @@
     "message": "ログイン"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden にログイン"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "認証のタイムアウト"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "認証セッションの有効期限が切れました。ログイン操作を最初からやり直してください。"
   },
   "verifyIdentity": {
     "message": "本人確認"
@@ -1294,7 +1294,7 @@
     "message": "このコレクション内のアイテムをすべて表示する権限がありません。"
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "このコレクションの利用権限がありません"
   },
   "noCollectionsInList": {
     "message": "表示するコレクションがありません"
@@ -1321,10 +1321,10 @@
     "message": "デバイスに通知を送信しました。"
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "お使いのデバイスに通知が送信されました"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "アカウントがロック解除されていることと、フィンガープリントフレーズが他の端末と一致していることを確認してください"
   },
   "versionNumber": {
     "message": "バージョン $VERSION_NUMBER$",
@@ -1658,25 +1658,25 @@
     "message": "パスワードの履歴"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "生成履歴"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "生成履歴を消去"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "続行すると、すべてのエントリは生成履歴から完全に削除されます。続行してもよろしいですか？"
   },
   "noPasswordsInList": {
     "message": "表示するパスワードがありません"
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "履歴を消去"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "表示するものがありません"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "最近生成したものはありません"
   },
   "clear": {
     "message": "消去する",
@@ -1786,7 +1786,7 @@
     "message": "これらの操作はやり直せないため注意してください！"
   },
   "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
+    "message": "この操作は元に戻せないため注意してください！"
   },
   "deauthorizeSessions": {
     "message": "セッションの承認を取り消す"
@@ -1801,7 +1801,7 @@
     "message": "全てのセッションを無効化"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "このアカウントは $ORGANIZATIONNAME$ が所有しています",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3430,7 +3430,7 @@
     }
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "すべてのログインオプションを表示"
   },
   "viewAllLoginOptions": {
     "message": "すべてのログインオプションを表示"
@@ -3883,13 +3883,13 @@
     "message": "ブラウザを更新"
   },
   "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+    "message": "リスク分析を生成しています..."
   },
   "updateBrowserDesc": {
     "message": "サポートされていないブラウザを使用しています。ウェブ保管庫が正しく動作しないかもしれません。"
   },
   "freeTrialEndPromptCount": {
-    "message": "Your free trial ends in $COUNT$ days.",
+    "message": "無料体験はあと $COUNT$ 日で終了します。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3898,7 +3898,7 @@
     }
   },
   "freeTrialEndPromptMultipleDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "message": "$ORGANIZATION$ 様、無料体験はあと $COUNT$ 日で終了します。",
     "placeholders": {
       "count": {
         "content": "$2",
@@ -3911,7 +3911,7 @@
     }
   },
   "freeTrialEndPromptTomorrow": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
+    "message": "$ORGANIZATION$ 様、無料体験は明日で終了します。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3920,10 +3920,10 @@
     }
   },
   "freeTrialEndPromptTomorrowNoOrgName": {
-    "message": "Your free trial ends tomorrow."
+    "message": "無料体験は明日終了します。"
   },
   "freeTrialEndPromptToday": {
-    "message": "$ORGANIZATION$, your free trial ends today.",
+    "message": "$ORGANIZATION$ 様、無料体験は本日終了します。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3932,16 +3932,16 @@
     }
   },
   "freeTrialEndingTodayWithoutOrgName": {
-    "message": "Your free trial ends today."
+    "message": "無料体験は本日で終了します。"
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "支払い方法を追加するにはここをクリックしてください。"
   },
   "joinOrganization": {
     "message": "組織に参加"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$ に参加",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -4492,7 +4492,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "リクエストが承認されると通知されます"
   },
   "free": {
     "message": "無料",
@@ -4725,10 +4725,10 @@
     "message": "組織のシングルサインオンポータルを使用してログインします。開始するには組織の識別子を入力してください。"
   },
   "singleSignOnEnterOrgIdentifier": {
-    "message": "Enter your organization's SSO identifier to begin"
+    "message": "組織の SSO ID を入力して開始します"
   },
   "singleSignOnEnterOrgIdentifierText": {
-    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
+    "message": "SSO プロバイダーでログインするには、組織の SSO ID を入力して開始します。新しいデバイスからログインする際に、この SSO ID を入力する必要がある場合があります。"
   },
   "enterpriseSingleSignOn": {
     "message": "組織のシングルサインオン"
@@ -4798,7 +4798,7 @@
     "message": "ユーザーが他の組織に参加できないように制限します。"
   },
   "singleOrgPolicyDesc": {
-    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
+    "message": "メンバーに対し、他の組織への参加を制限します。ドメイン認証を有効にしている組織では、このポリシーは必須となります。"
   },
   "singleOrgBlockCreateMessage": {
     "message": "現在の組織には、複数の組織に参加することを許可していないポリシーがあります。 組織の管理者に連絡するか、別の Bitwarden アカウントから登録してください。"
@@ -4807,7 +4807,7 @@
     "message": "オーナーまたは管理者でなく、すでに他の組織のメンバーであるメンバーは組織から削除されます。"
   },
   "singleOrgPolicyMemberWarning": {
-    "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
+    "message": "ポリシーに準拠していないメンバーは、他のすべての組織から退出するまで失効状態になります。これは管理者には適用されず、管理者はコンプライアンスが満たされたメンバーを復元できます。"
   },
   "requireSso": {
     "message": "シングルサインオン認証"
@@ -5635,10 +5635,10 @@
     "message": "除外します。このアクションには適用されません。"
   },
   "nonCompliantMembersTitle": {
-    "message": "Non-compliant members"
+    "message": "非準拠のメンバー"
   },
   "nonCompliantMembersError": {
-    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+    "message": "単一組織ポリシーまたは2段階ログインポリシーに準拠していないメンバーは、ポリシー要件を遵守するまで復元できません。"
   },
   "fingerprint": {
     "message": "指紋"
@@ -6437,7 +6437,7 @@
     "message": "エンティティ ID が URL でない場合は必須です。"
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "このオファーは無効になりました。詳しくは組織の管理者にお問い合わせください。"
   },
   "openIdOptionalCustomizations": {
     "message": "オプションのカスタマイズ"
@@ -6529,10 +6529,10 @@
     "message": "ユーザー名を生成"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "メールアドレスを生成"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "値は $MIN$ から $MAX$ の間でなければなりません。",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6546,7 +6546,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " 強力なパスワードを生成するには、 $RECOMMENDED$ 文字以上を使用してください。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6556,7 +6556,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " 強力なパスフレーズを生成するには、 $RECOMMENDED$ 単語以上を使用してください。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6671,11 +6671,11 @@
     "message": "外部転送サービスを使用してメールエイリアスを生成します。"
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "メールアドレスのドメイン",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "選択したサービスでサポートされているドメインを選択してください",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -8101,16 +8101,16 @@
     "message": "ログイン開始"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "このデバイスを記憶して今後のログインをシームレスにする"
   },
   "deviceApprovalRequired": {
     "message": "デバイスの承認が必要です。以下から承認オプションを選択してください:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "デバイスの承認が必要です"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "以下の承認オプションを選択してください"
   },
   "rememberThisDevice": {
     "message": "このデバイスを記憶する"
@@ -8342,7 +8342,7 @@
     "message": "ユーザーのメールアドレスがありません"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "アクティブなユーザーメールアドレスが見つかりません。ログアウトします。"
   },
   "deviceTrusted": {
     "message": "信頼されたデバイス"
@@ -8440,10 +8440,10 @@
     "message": "組織のコレクションに関する挙動を管理します"
   },
   "limitCollectionCreationDesc": {
-    "message": "Limit collection creation to owners and admins"
+    "message": "コレクションの作成を所有者と管理者のみに制限"
   },
   "limitCollectionDeletionDesc": {
-    "message": "Limit collection deletion to owners and admins"
+    "message": "コレクションの削除を所有者と管理者のみに制限"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
@@ -8491,7 +8491,7 @@
     "message": "サーバー URL"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "自己ホスト型サーバー URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "aliasDomain": {
