@@ -51,7 +51,7 @@ describe("DesktopLoginApprovalComponentService", () => {
   it("calls ipc.auth.loginRequest with correct parameters when window is not visible", async () => {
     const title = "Log in requested";
     const email = "test@bitwarden.com";
-    const message = `Confirm login attempt for ${email}`;
+    const message = `Account access requested, confirm access attempt for ${email}`;
     const closeText = "Close";
 
     const loginApprovalComponent = { email } as LoginApprovalComponent;

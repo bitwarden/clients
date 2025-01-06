@@ -2833,7 +2833,7 @@
     "message": "This request is no longer valid."
   },
   "confirmLoginAtemptForMail": {
-    "message": "Confirm login attempt for $EMAIL$",
+    "message": "Account access requested, confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
