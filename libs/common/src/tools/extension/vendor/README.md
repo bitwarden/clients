@@ -23,7 +23,6 @@ There are 4 vendor-independent files in this directory.
 - `data.ts` - core metadata used for system initialization
 - `index.ts` - exports vendor metadata
 - `README.md` - this file
-- `type.ts` - type definitions for vendor metadata
 
 ## Vendor definitions
 

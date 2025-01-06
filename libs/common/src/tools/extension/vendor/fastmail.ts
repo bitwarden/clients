@@ -1,9 +1,8 @@
 import { Field } from "../data";
 import { Extension } from "../metadata";
-import { ExtensionMetadata } from "../type";
+import { ExtensionMetadata, VendorMetadata } from "../type";
 
 import { Vendor } from "./data";
-import { VendorMetadata } from "./type";
 
 export const Fastmail: VendorMetadata = {
   id: Vendor.fastmail,

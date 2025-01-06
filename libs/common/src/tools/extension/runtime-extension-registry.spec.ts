@@ -4,9 +4,8 @@ import { Field, Site, Permission } from "./data";
 import { ExtensionSite } from "./extension-site";
 import { DefaultFields, DefaultSites } from "./metadata";
 import { RuntimeExtensionRegistry } from "./runtime-extension-registry";
-import { ExtensionMetadata, SiteId, SiteMetadata } from "./type";
+import { ExtensionMetadata, SiteId, SiteMetadata, VendorMetadata } from "./type";
 import { Bitwarden } from "./vendor/bitwarden";
-import { VendorMetadata } from "./vendor/type";
 
 // arbitrary test entities
 const SomeSiteId: SiteId = Site.forwarder;

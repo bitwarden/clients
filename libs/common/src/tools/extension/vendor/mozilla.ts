@@ -1,10 +1,10 @@
 import { Field } from "../data";
 import { Extension } from "../metadata";
-import { ExtensionMetadata } from "../type";
+import { ExtensionMetadata, VendorMetadata } from "../type";
 
 import { Vendor } from "./data";
 
-export const Mozilla = {
+export const Mozilla: VendorMetadata = {
   id: Vendor.mozilla,
   name: "Mozilla",
 };

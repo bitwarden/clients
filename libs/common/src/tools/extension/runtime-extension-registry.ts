@@ -11,8 +11,9 @@ import {
   ProductMetadata,
   SiteMetadata,
   SiteId,
+  VendorId,
+  VendorMetadata,
 } from "./type";
-import { VendorId, VendorMetadata } from "./vendor/type";
 
 /** Tracks extension sites and the vendors that extend them in application memory. */
 export class RuntimeExtensionRegistry implements ExtensionRegistry {

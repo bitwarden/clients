@@ -1,11 +1,18 @@
+import { Opaque } from "type-fest";
+
 import { Site, Field, Permission } from "./data";
-import { VendorId, VendorMetadata } from "./vendor/type";
 
 /** well-known name for a feature extensible through an extension. */
 export type SiteId = keyof typeof Site;
 
 /** well-known name for a field surfaced from an extension site to a vendor. */
 export type FieldId = keyof typeof Field;
+
+/** Identifies a vendor extending bitwarden */
+export type VendorId = Opaque<"vendor", string>;
+
+/** uniquely identifies an extension. */
+export type ExtensionId = { site: SiteId; vendor: VendorId };
 
 /** Permission levels for metadata. */
 export type ExtensionPermission = keyof typeof Permission;
@@ -17,6 +24,15 @@ export type SiteMetadata = {
 
   /** Lists the fields disclosed by the extension to the vendor */
   availableFields: FieldId[];
+};
+
+/** The capabilities and descriptive content for an extension */
+export type VendorMetadata = {
+  /** Uniquely identifies the vendor. */
+  id: VendorId;
+
+  /** Brand name of the service providing the extension. */
+  name: string;
 };
 
 type TokenHeader =
