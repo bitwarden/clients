@@ -1,6 +1,14 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <p class="tw-text-center" bitTypography="body1">
     {{ "newDeviceVerificationNoticeContentPage1" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/help/new-device-verification/"
+      rel="noreferrer"
+      target="_blank"
+    >
+      {{ "learnMore" | i18n }}.
+    </a>
   </p>
 
   <bit-card

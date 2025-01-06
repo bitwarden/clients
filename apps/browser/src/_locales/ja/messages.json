@@ -1005,7 +1005,7 @@
     "message": "自動入力を簡単にするために、タブページに ID アイテムを表示します"
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "保管庫で、自動入力するアイテムをクリックしてください"
   },
   "clearClipboard": {
     "message": "クリップボードの消去",
@@ -4810,10 +4810,10 @@
     "message": "2段階認証を設定する"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden は2025年2月以降、新しいデバイスからのログイン時にアカウントのメールアドレスに確認コードを送信します。"
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "代わりに2段階認証によるログインでアカウントを保護するか、メールアドレスをあなたがアクセスできるものに変更できます。"
   },
   "remindMeLater": {
     "message": "後で再通知"
@@ -4831,13 +4831,13 @@
     "message": "いいえ、違います。"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "はい、メールアドレスには私が確実にアクセスできます"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "2段階認証によるログインを有効にする"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "アカウントのメールアドレスを変更する"
   },
   "extensionWidth": {
     "message": "拡張機能の幅"
