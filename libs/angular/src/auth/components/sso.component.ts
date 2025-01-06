@@ -49,7 +49,7 @@ export class SsoComponent implements OnInit {
   protected twoFactorRoute = "2fa";
   protected successRoute = "lock";
   protected trustedDeviceEncRoute = "login-initiated";
-  protected changePasswordRoute = "set-password";
+  protected changePasswordRoute = "set-password-jit";
   protected forcePasswordResetRoute = "update-temp-password";
   protected clientId: string;
   protected redirectUri: string;
@@ -340,7 +340,7 @@ export class SsoComponent implements OnInit {
   private async handleChangePasswordRequired(orgIdentifier: string) {
     await this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginChangePasswordNavigate,
-      ["set-password-jit"],
+      [this.changePasswordRoute],
       {
         queryParams: {
           identifier: orgIdentifier,
