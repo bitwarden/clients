@@ -73,9 +73,7 @@
         <i class="bwi bwi-provider" aria-hidden="true"></i> {{ "enterpriseSingleSignOn" | i18n }}
       </button>
       <div class="small">
-        <p class="no-margin">
-          {{ "loggingInAs" | i18n }} {{ this.formGroup.controls.email.value }}
-        </p>
+        <p class="no-margin">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
         <a routerLink="/home">{{ "notYou" | i18n }}</a>
       </div>
     </div>

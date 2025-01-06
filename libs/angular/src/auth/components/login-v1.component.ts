@@ -69,6 +69,10 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
   protected destroy$ = new Subject<void>();
 
+  get loggedEmail() {
+    return this.formGroup.controls.email.value;
+  }
+
   constructor(
     protected devicesApiService: DevicesApiServiceAbstraction,
     protected appIdService: AppIdService,
