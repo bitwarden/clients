@@ -349,7 +349,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.type === CipherType.SshKey &&
         (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
       ) {
-        await this.generateSshKey(false);
+        this.generateSshKey(false);
       }
     }
   }
@@ -800,7 +800,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private async generateSshKey(showNotification: boolean = true) {
+  private generateSshKey(showNotification: boolean = true) {
     const sshKey = generate_ssh_key("Ed25519");
     this.cipher.sshKey.privateKey = sshKey.private_key;
     this.cipher.sshKey.publicKey = sshKey.public_key;
@@ -817,7 +817,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   async typeChange() {
     if (this.cipher.type === CipherType.SshKey) {
-      await this.generateSshKey();
+      this.generateSshKey();
     }
   }
 }
