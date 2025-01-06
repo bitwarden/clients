@@ -454,9 +454,6 @@
   "length": {
     "message": "Hossz"
   },
-  "passwordMinLength": {
-    "message": "Minimum jelszó hosszúság"
-  },
   "uppercase": {
     "message": "Nagybetűs (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimális speciális"
-  },
-  "avoidAmbChar": {
-    "message": "Félreérthető karakterek mellőzése",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Félreérthető karakterek mellőzése",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Azonosítás elemek listázása a Fül oldalon a könnyű automatikus kitöltéshez."
   },
+  "clickToAutofillOnVault": {
+    "message": "Kattintsunk az elemekre az automatikus kitöltéshez a Széf nézetben"
+  },
   "clearClipboard": {
     "message": "Vágólap ürítése",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Áthelyezés szervezethez"
-  },
-  "share": {
-    "message": "Megosztás"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ átkerült $ORGNAME$ szervezethez",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klónozás"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Egy vagy több szervezeti szabály érinti a generátor beállításokat."
-  },
   "passwordGenerator": {
     "message": "Jelszó generátor"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send részletek",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Send keresése",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Send hozzáadása",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Szöveg"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Szöveg elrejtése alapértelmezetten"
   },
-  "maxAccessCountReached": {
-    "message": "A maximális hozzáférések száma elérésre került.",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Lejárt"
-  },
-  "pendingDeletion": {
-    "message": "Függőben lévő törlés"
   },
   "passwordProtected": {
     "message": "Jelszóval védett"
@@ -2472,23 +2447,8 @@
     "message": "Send szerkesztése",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Milyen típusú ez a Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Barátságos név a Send leírására.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "A küldendő fájl."
-  },
   "deletionDate": {
     "message": "Törlési dátum"
-  },
-  "deletionDateDesc": {
-    "message": "A Send véglegesen törölve lesz a meghatározott időpontban.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "A Send véglegesen törölve lesz ebben az időpontban.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Lejárati dátum"
-  },
-  "expirationDateDesc": {
-    "message": "Amennyiben be van állítva, a hozzáférés ehhez a Sendhez a meghatározott időpontban lejár",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 nap"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Egyedi"
   },
-  "maximumAccessCount": {
-    "message": "Maximális elérési szám"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Beállítva a Küldés elérhetetlen lesz a meghatározott hozzáférések számának elérése után.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Opcionálisan megadhatunk egy jelszót a felhasználók számára a Küldés eléréséhez. ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Személyes megjegyzések erről a Küldésről.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "A Send letiltásával senki nem férhet hozzá.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Mentéskor másoljuk a Küldés hivatkozását a vágólapra.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "A küldendő fájl."
-  },
-  "sendHideText": {
-    "message": "Alapértelmezés szerint elrejti a Küldés szövegét.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuális elérési szám"
   },
   "createSend": {
     "message": "Új Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Mielőtt belevágnánk"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Naptár-stílusú dátumválasztáshoz",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "kattintás ide",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "az ablak megnyitásához",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "A megadott lejárati idő nem érvényes."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Hiba történt a törlési és a lejárati dátum mentésekor."
   },
-  "hideEmail": {
-    "message": "Saját email cím elrejtése a címzettek elől."
-  },
   "hideYourEmail": {
     "message": "Saját email cím elrejtése a megtekintések elől."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Egy vagy több szervezeti szabály érinti a Send opciókat."
   },
   "passwordPrompt": {
     "message": "Mesterjelszó ismételt megadás"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Hiba"
   },
-  "regenerateUsername": {
-    "message": "Felhasználónév ismételt geneálása"
-  },
   "generateUsername": {
     "message": "Felhasználónév generálása"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Felhasználónév típusa"
-  },
   "plusAddressedEmail": {
     "message": "További címzési email cím",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Webhelynév"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mit szeretnénk generálni?"
-  },
-  "passwordType": {
-    "message": "Jelszótípus"
   },
   "service": {
     "message": "Szolgáltatás"

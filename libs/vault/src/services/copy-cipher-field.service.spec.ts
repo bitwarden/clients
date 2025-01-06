@@ -76,7 +76,7 @@ describe("CopyCipherFieldService", () => {
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "Username copied",
-        title: null,
+        title: "",
       });
       expect(i18nService.t).toHaveBeenCalledWith("username");
       expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Username");

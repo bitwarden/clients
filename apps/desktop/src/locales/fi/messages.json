@@ -2869,7 +2869,7 @@
     "message": "Tarkasta esiintyykö salasanaa tunnetuissa tietovuodoissa"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Kirjautuminen onnistui!"
   },
   "important": {
     "message": "Tärkeää:"
@@ -3372,7 +3372,7 @@
     "message": "Vahvista SSH-avainkäyttö"
   },
   "sshkeyApprovalMessageInfix": {
-    "message": "is requesting access to"
+    "message": "pyytää pääsyä"
   },
   "unknownApplication": {
     "message": "Sovellus"
@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Tiedosto tallennettiin laitteelle. Hallitse sitä laitteesi latauksista."
+  },
+  "importantNotice": {
+    "message": "Tärkeä ilmoitus"
+  },
+  "setupTwoStepLogin": {
+    "message": "Määritä kaksivaiheinen kirjautuminen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Muistuta myöhemmin"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
+  },
+  "changeAcctEmail": {
+    "message": "Muuta tilin sähköpostiosoitetta"
   }
 }
