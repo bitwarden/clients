@@ -2731,6 +2731,15 @@
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": ". Make sure the Fingerprint phrase matches the one below before approving"
+  },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },

@@ -17,10 +17,12 @@
         <h2 class="tw-mb-6 tw-text-xl tw-font-semibold">{{ "logInRequestSent" | i18n }}</h2>
 
         <div class="tw-text-light">
-          <p class="tw-mb-6">{{ "notificationSentDevice" | i18n }}</p>
-
           <p class="tw-mb-6">
-            {{ "fingerprintMatchInfo" | i18n }}
+            {{ "notificationSentDevicePart1" | i18n }}
+            <a routerLink="/settings/security/device-management">{{
+              "notificationSentDeviceAnchor" | i18n
+            }}</a>
+            {{ "notificationSentDevicePart2" | i18n }}
           </p>
         </div>
 

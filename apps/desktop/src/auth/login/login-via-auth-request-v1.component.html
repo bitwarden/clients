@@ -9,9 +9,12 @@
         <div class="box-content">
           <div class="box-content-row" appBoxRow>
             <div class="section">
-              <p class="section">{{ "notificationSentDevice" | i18n }}</p>
-              <p>
-                {{ "fingerprintMatchInfo" | i18n }}
+              <p class="section">
+                {{ "notificationSentDevicePart1" | i18n }}
+                <a routerLink="/settings/security/device-management">{{
+                  "notificationSentDeviceAnchor" | i18n
+                }}</a>
+                {{ "notificationSentDevicePart2" | i18n }}
               </p>
             </div>
 

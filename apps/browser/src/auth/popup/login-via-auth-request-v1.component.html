@@ -10,10 +10,12 @@
         <p class="lead">{{ "logInRequestSent" | i18n }}</p>
 
         <div>
-          <p>{{ "notificationSentDevice" | i18n }}</p>
-
           <p>
-            {{ "fingerprintMatchInfo" | i18n }}
+            {{ "notificationSentDevicePart1" | i18n }}
+            <a routerLink="/settings/security/device-management">{{
+              "notificationSentDeviceAnchor" | i18n
+            }}</a>
+            {{ "notificationSentDevicePart2" | i18n }}
           </p>
         </div>
 
