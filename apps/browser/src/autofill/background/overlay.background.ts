@@ -2275,6 +2275,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     card,
     identity,
     sender,
+    addNewCipherType,
   }: CurrentAddNewItemData) {
     const cipherView: CipherView = this.buildNewVaultItemCipherView({
       login,
@@ -2294,7 +2295,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         collectionIds: cipherView.collectionIds,
       });
 
-      await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+      await this.openAddEditVaultItemPopout(sender.tab, {
+        cipherId: cipherView.id,
+        cipherType: addNewCipherType,
+      });
       await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     } catch (error) {
       this.logService.error("Error building cipher and opening add/edit vault item popout", error);

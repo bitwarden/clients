@@ -1106,6 +1106,7 @@ export default class MainBackground {
       messageListener,
       this.accountService,
       lockService,
+      this.billingAccountProfileStateService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,

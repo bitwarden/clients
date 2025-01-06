@@ -5,11 +5,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concatMap, from, Observable, of, switchMap } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
+import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -45,6 +48,7 @@ export class PremiumV2Component {
     FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
   );
 
+  protected estimatedTax: number = 0;
   protected readonly familyPlanMaxUserCount = 6;
   protected readonly premiumPrice = 10;
   protected readonly storageGBPrice = 4;
@@ -61,6 +65,7 @@ export class PremiumV2Component {
     private syncService: SyncService,
     private toastService: ToastService,
     private tokenService: TokenService,
+    private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
@@ -91,6 +96,12 @@ export class PremiumV2Component {
         }),
       )
       .subscribe();
+
+    this.addOnFormGroup.controls.additionalStorage.valueChanges
+      .pipe(debounceTime(1000), takeUntilDestroyed())
+      .subscribe(() => {
+        this.refreshSalesTax();
+      });
   }
 
   finalizeUpgrade = async () => {
@@ -167,12 +178,6 @@ export class PremiumV2Component {
     return this.storageGBPrice * this.addOnFormGroup.value.additionalStorage;
   }
 
-  protected get estimatedTax(): number {
-    return this.taxInfoComponent?.taxRate != null
-      ? (this.taxInfoComponent.taxRate / 100) * this.subtotal
-      : 0;
-  }
-
   protected get premiumURL(): string {
     return `${this.cloudWebVaultURL}/#/settings/subscription/premium`;
   }
@@ -187,5 +192,37 @@ export class PremiumV2Component {
 
   protected async onLicenseFileSelectedChanged(): Promise<void> {
     await this.postFinalizeUpgrade();
+  }
+
+  private refreshSalesTax(): void {
+    if (!this.taxInfoComponent.country || !this.taxInfoComponent.postalCode) {
+      return;
+    }
+    const request: PreviewIndividualInvoiceRequest = {
+      passwordManager: {
+        additionalStorage: this.addOnFormGroup.value.additionalStorage,
+      },
+      taxInformation: {
+        postalCode: this.taxInfoComponent.postalCode,
+        country: this.taxInfoComponent.country,
+      },
+    };
+
+    this.taxService
+      .previewIndividualInvoice(request)
+      .then((invoice) => {
+        this.estimatedTax = invoice.taxAmount;
+      })
+      .catch((error) => {
+        this.toastService.showToast({
+          title: "",
+          variant: "error",
+          message: this.i18nService.t(error.message),
+        });
+      });
+  }
+
+  protected onTaxInformationChanged(): void {
+    this.refreshSalesTax();
   }
 }

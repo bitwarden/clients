@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,8 +19,8 @@ export class DeleteCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountProfileService: BillingAccountProfileStateService,
-    private accountService: AccountService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -106,13 +106,16 @@ export class DeleteCommand {
   }
 
   private async deleteFolder(id: string) {
-    const folder = await this.folderService.getFromState(id);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();
     }
 
     try {
-      await this.folderApiService.delete(id);
+      await this.folderApiService.delete(id, activeUserId);
       return Response.success();
     } catch (e) {
       return Response.error(e);
