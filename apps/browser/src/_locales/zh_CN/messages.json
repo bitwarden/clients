@@ -284,7 +284,7 @@
     "message": "前往网页 App 吗？"
   },
   "continueToWebAppDesc": {
-    "message": "在网页应用上探索 Bitwarden 账户的更多功能。"
+    "message": "在网页 App 上探索 Bitwarden 账户的更多功能。"
   },
   "continueToHelpCenter": {
     "message": "前往帮助中心吗？"
@@ -299,7 +299,7 @@
     "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器的扩展程序商店并留下评分。"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden 网页应用上更改您的主密码。"
+    "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
   },
   "fingerprintPhrase": {
     "message": "指纹短语",
@@ -597,7 +597,7 @@
     "message": "前往"
   },
   "launchWebsite": {
-    "message": "启动网站"
+    "message": "打开网站"
   },
   "launchWebsiteName": {
     "message": "前往 $ITEMNAME$ 的网站",
@@ -763,7 +763,7 @@
     "message": "必须填写确认主密码。"
   },
   "masterPasswordMinlength": {
-    "message": "主密码必须至少 $VALUE$ 个字符长度。",
+    "message": "主密码长度必须至少为 $VALUE$ 个字符。",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1071,7 +1071,7 @@
     "message": "主题"
   },
   "themeDesc": {
-    "message": "更改本应用程序的颜色主题。"
+    "message": "更改应用程序的颜色主题。"
   },
   "themeDescAlt": {
     "message": "更改应用程序的颜色主题。适用于所有已登录的账户。"
@@ -1133,7 +1133,7 @@
     "message": "确认密码库导出"
   },
   "exportWarningDesc": {
-    "message": "导出的密码库数据包含未加密格式。您不应该通过不安全的渠道（例如电子邮件）来存储或发送导出的文件。用完后请立即将其删除。"
+    "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
     "message": "此导出将使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
@@ -4810,7 +4810,7 @@
     "message": "设置两步登录"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮箱发送一个代码，以验证来自新设备的登录。"
+    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
@@ -4819,7 +4819,7 @@
     "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可靠地访问您的电子邮箱 $EMAIL$ 吗？",
+    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4831,7 +4831,7 @@
     "message": "不，我不能"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以可靠地访问我的电子邮箱"
+    "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
     "message": "开启两步登录"
