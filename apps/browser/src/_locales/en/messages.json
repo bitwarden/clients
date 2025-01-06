@@ -3091,6 +3091,9 @@
   "loginInitiated": {
     "message": "Login initiated"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
   },
