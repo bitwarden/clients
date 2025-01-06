@@ -172,7 +172,7 @@ type RuleName = (typeof ruleNames)[keyof typeof ruleNames];
  * `color` is an intentionally generic name here, since either fill or stroke may apply, due to
  * inconsistent SVG construction. This consequently precludes dynamic multi-colored icons here.
  */
-export const getIconColorRule = (color: string, rule: RuleName = ruleNames.fill) => `
+export const buildIconColorRule = (color: string, rule: RuleName = ruleNames.fill) => `
   ${rule}: ${color};
 `;
 

@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css";
+import createEmotion from "@emotion/css/create-instance";
 import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -9,9 +9,14 @@ import { CipherData } from "../cipher/types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 import { ItemRow } from "../rows/item-row";
 
+export const componentClassPrefix = "notification-body";
+
+const { css } = createEmotion({
+  key: componentClassPrefix,
+});
+
 export function NotificationBody({
   ciphers,
-  customClasses = [],
   notificationType,
   theme = ThemeTypes.Light,
 }: {
@@ -24,7 +29,7 @@ export function NotificationBody({
   const isSafari = false;
 
   return html`
-    <div class=${cx(...customClasses, notificationBodyStyles({ isSafari, theme }))}>
+    <div class=${notificationBodyStyles({ isSafari, theme })}>
       ${ciphers.map((cipher) =>
         ItemRow({
           theme,

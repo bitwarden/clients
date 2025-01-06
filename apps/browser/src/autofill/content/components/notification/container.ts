@@ -12,9 +12,12 @@ import { createAutofillOverlayCipherDataMock } from "../../../spec/autofill-mock
 import { CipherData } from "../cipher/types";
 import { themes, spacing } from "../constants/styles";
 
-import { NotificationBody } from "./body";
+import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
 import { NotificationFooter } from "./footer";
-import { NotificationHeader } from "./header";
+import {
+  NotificationHeader,
+  componentClassPrefix as notificationHeaderClassPrefix,
+} from "./header";
 
 export function NotificationContainer({
   handleCloseNotification,
@@ -49,7 +52,6 @@ export function NotificationContainer({
       ${showBody
         ? NotificationBody({
             ciphers,
-            customClasses: [notificationBodyClass],
             notificationType: type,
             theme,
           })
@@ -62,9 +64,6 @@ export function NotificationContainer({
   `;
 }
 
-// @TODO use emotion css class composition
-const notificationBodyClass = "notification-body";
-
 const notificationContainerStyles = (theme: Theme) => css`
   position: absolute;
   right: 20px;
@@ -74,11 +73,11 @@ const notificationContainerStyles = (theme: Theme) => css`
   background-color: ${themes[theme].background.alt};
   width: 400px;
 
-  > [class*="notification-header-"] {
+  [class*="${notificationHeaderClassPrefix}-"] {
     border-radius: ${spacing["4"]} ${spacing["4"]} 0 0;
   }
 
-  > .${notificationBodyClass} {
+  [class*="${notificationBodyClassPrefix}-"] {
     margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
     padding-right: ${spacing["3"]};
   }

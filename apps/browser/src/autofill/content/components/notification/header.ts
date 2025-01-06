@@ -1,7 +1,7 @@
 import createEmotion from "@emotion/css/create-instance";
 import { html } from "lit";
 
-import { Theme } from "@bitwarden/common/platform/enums";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { CloseButton } from "../buttons/close-button";
 import { themes } from "../constants/styles";
@@ -9,14 +9,16 @@ import { BrandIconContainer } from "../icons/brand-icon-container";
 
 import { NotificationHeaderMessage } from "./header-message";
 
+export const componentClassPrefix = "notification-header";
+
 const { css } = createEmotion({
-  key: "notification-header",
+  key: componentClassPrefix,
 });
 
 export function NotificationHeader({
   message,
   standalone,
-  theme,
+  theme = ThemeTypes.Light,
   handleCloseNotification,
 }: {
   message?: string;

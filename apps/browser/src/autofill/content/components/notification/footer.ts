@@ -3,7 +3,10 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { NotificationType , NotificationTypes } from "../../../notification/abstractions/notification-bar";
+import {
+  NotificationType,
+  NotificationTypes,
+} from "../../../notification/abstractions/notification-bar";
 import { spacing, themes } from "../constants/styles";
 import { ActionRow } from "../rows/action-row";
 import { ButtonRow } from "../rows/button-row";
