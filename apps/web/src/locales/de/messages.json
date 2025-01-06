@@ -9272,16 +9272,16 @@
     "message": "Steuerinformationen aktualisiert"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Ungültige Steuer-ID. Wenn du glaubst, dass dies ein Fehler ist, wende dich bitte an den Support."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Wir konnten deine Steuer-ID nicht überprüfen. Wenn du glaubst, dass dies ein Fehler ist, kontaktiere bitte den Support."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Ungültige Steuer-ID. Wenn du glaubst, dass dies ein Fehler ist, wende dich bitte an den Support."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "Bei der Vorschau der Rechnung ist ein Fehler aufgetreten. Bitte versuche es später erneut."
   },
   "unverified": {
     "message": "Nicht verifiziert"
@@ -10021,7 +10021,7 @@
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
   "resellerRenewalWarning": {
-    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Dein Abonnement wird bald verlängert. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$ um deine Verlängerung vor dem $RENEWAL_DATE$ zu bestätigen.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10034,7 +10034,7 @@
     }
   },
   "resellerOpenInvoiceWarning": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "message": "Eine Rechnung für dein Abonnement wurde am $ISSUED_DATE$ ausgestellt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $DUE_DATE$ zu bestätigen.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10051,7 +10051,7 @@
     }
   },
   "resellerPastDueWarning": {
-    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "message": "Die Rechnung für dein Abonnement wurde nicht bezahlt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $GRACE_PERIOD_END$ zu bestätigen.",
     "placeholders": {
       "reseller": {
         "content": "$1",

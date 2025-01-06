@@ -1006,7 +1006,7 @@
     "message": "保持此窗口打开然后按照浏览器的提示操作。"
   },
   "useADifferentLogInMethod": {
-    "message": "使用不同的登录方式"
+    "message": "使用其他登录方式"
   },
   "logInWithPasskey": {
     "message": "使用通行密钥登录"
@@ -1997,13 +1997,13 @@
     "message": "域名规则"
   },
   "domainRulesDesc": {
-    "message": "如果您在多个不同网站之间使用同一个登陆信息，您可以把这些网站标记为「通用」。Bitwarden 会为您设置「全局」域名。"
+    "message": "如果您在多个不同网站域名中使用同一个登录信息，您可以把这些网站标记为「等效」。「全局」域名是由 Bitwarden 为您预先创建的域名。"
   },
   "globalEqDomains": {
-    "message": "全局通用域名"
+    "message": "全局等效域名"
   },
   "customEqDomains": {
-    "message": "自定义通用域名"
+    "message": "自定义等效域名"
   },
   "exclude": {
     "message": "排除"
@@ -2039,7 +2039,7 @@
     "message": "强制两步登录"
   },
   "twoStepLoginDesc": {
-    "message": "在登录时要求使用额外的步骤来保护您的账户。"
+    "message": "在登录时要求执行额外的步骤来保护您的账户。"
   },
   "twoStepLoginTeamsDesc": {
     "message": "为您的组织启用两步登录。"
@@ -2055,7 +2055,7 @@
     "message": "要实施 Duo 方式的两步登录，请使用下面的选项。"
   },
   "twoStepLoginOrganizationSsoDesc": {
-    "message": "如果您已设置或计划设置 SSO，两步登录可能已经通过您的身份提供程序实施了。"
+    "message": "如果您已设置或计划设置 SSO，两步登录可能已经通过您的身份提供程序强制实施了。"
   },
   "twoStepLoginRecoveryWarning": {
     "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。如果您无法使用常规的两步登录提供程序（例如您丢失了设备），则可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您记下或打印恢复代码，并将其妥善保管。"
@@ -3294,7 +3294,7 @@
     "message": "管理员"
   },
   "adminDesc": {
-    "message": "管理组织访问权限，所有集合，成员，报告以及安全设置"
+    "message": "管理组织的访问权限，所有集合、成员、报告，以及安全设置"
   },
   "user": {
     "message": "用户"
@@ -4304,7 +4304,7 @@
     "message": "升级组织"
   },
   "upgradeOrganizationDesc": {
-    "message": "本功能对免费组织不可用。切换到付费计划以解锁更多功能。"
+    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
   },
   "createOrganizationStep1": {
     "message": "创建组织：第一步"
@@ -4514,7 +4514,7 @@
     "message": "您的 API 密钥可用于在 Bitwarden CLI 中进行身份验证。"
   },
   "userApiKeyWarning": {
-    "message": "您的 API 密钥是另一套等效的身份验证机制。请严格保密。"
+    "message": "您的 API 密钥是一种替代身份验证机制。请严格保密。"
   },
   "oauth2ClientCredentials": {
     "message": "OAuth 2.0 客户端凭据",
@@ -5998,16 +5998,16 @@
     "message": "最小入站签名算法"
   },
   "spWantAssertionsSigned": {
-    "message": "希望断言被签名"
+    "message": "要求使用签名的断言"
   },
   "spValidateCertificates": {
     "message": "验证证书"
   },
   "spUniqueEntityId": {
-    "message": "设置一个唯一的 SP 实体 ID"
+    "message": "设置专属的 SP 实体 ID"
   },
   "spUniqueEntityIdDesc": {
-    "message": "生成您的组织独有的标识符"
+    "message": "为您的组织生成专属的标识符"
   },
   "idpEntityId": {
     "message": "实体 ID"
@@ -8077,7 +8077,7 @@
     "message": "忽略"
   },
   "notAvailableForFreeOrganization": {
-    "message": "免费组织不能使用此功能。请联系您的组织所有者寻求升级。"
+    "message": "此功能不适用于免费组织。请联系您的组织所有者寻求升级。"
   },
   "smProjectSecretsNoItemsNoAccess": {
     "message": "请联系您的组织的管理员来管理此工程的机密。",
