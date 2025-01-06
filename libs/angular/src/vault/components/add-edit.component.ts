@@ -800,7 +800,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  async generateSshKey(showNotification: boolean = true) {
+  private async generateSshKey(showNotification: boolean = true) {
     const sshKey = generate_ssh_key("Ed25519");
     this.cipher.sshKey.privateKey = sshKey.private_key;
     this.cipher.sshKey.publicKey = sshKey.public_key;

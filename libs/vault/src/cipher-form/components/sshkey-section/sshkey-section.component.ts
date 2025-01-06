@@ -97,7 +97,7 @@ export class SshKeySectionComponent implements OnInit {
     });
   }
 
-  generateSshKey() {
+  private generateSshKey() {
     const sshKey = generate_ssh_key("Ed25519");
     this.sshKeyForm.setValue({
       privateKey: sshKey.private_key,
