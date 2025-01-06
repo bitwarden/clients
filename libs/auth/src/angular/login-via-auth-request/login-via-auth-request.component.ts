@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -33,7 +35,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
@@ -57,16 +58,16 @@ const matchOptions: IsActiveMatchOptions = {
   imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],
 })
 export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
-  private authRequest!: AuthRequest;
-  private authRequestKeyPair!: { publicKey: Uint8Array; privateKey: Uint8Array };
-  private authStatus!: AuthenticationStatus;
+  private authRequest: AuthRequest;
+  private authRequestKeyPair: { publicKey: Uint8Array; privateKey: Uint8Array };
+  private authStatus: AuthenticationStatus;
   private showResendNotificationTimeoutSeconds = 12;
 
   protected backToRoute = "/login";
-  protected clientType!: ClientType;
+  protected clientType: ClientType;
   protected ClientType = ClientType;
-  protected email: string | null = null;
-  protected fingerprintPhrase: string | null = null;
+  protected email: string;
+  protected fingerprintPhrase: string;
   protected showResendNotification = false;
   protected Flow = Flow;
   protected flow = Flow.StandardAuthRequest;
@@ -138,7 +139,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     // Get email from state for admin auth requests because it is available and also
     // prevents it from being lost on refresh as the loginEmailService email does not persist.
     this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email ?? null)),
+      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );
 
     if (!this.email) {
@@ -148,14 +149,13 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
     // We only allow a single admin approval request to be active at a time
     // so we must check state to see if we have an existing one or not
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id ?? null;
-    if (userId) {
-      const existingAdminAuthRequest = await this.authRequestService.getAdminAuthRequest(userId);
-      if (existingAdminAuthRequest) {
-        await this.handleExistingAdminAuthRequest(existingAdminAuthRequest, userId);
-      } else {
-        await this.startAdminAuthRequestLogin();
-      }
+    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    const existingAdminAuthRequest = await this.authRequestService.getAdminAuthRequest(userId);
+
+    if (existingAdminAuthRequest) {
+      await this.handleExistingAdminAuthRequest(existingAdminAuthRequest, userId);
+    } else {
+      await this.startAdminAuthRequestLogin();
     }
   }
 
@@ -175,7 +175,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async handleMissingEmail(): Promise<void> {
     this.toastService.showToast({
       variant: "error",
-      title: "",
+      title: null,
       message: this.i18nService.t("userEmailMissing"),
     });
 
@@ -198,10 +198,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         privateKey: this.authRequestKeyPair.privateKey,
       });
 
-      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id ?? null;
-      if (userId) {
-        await this.authRequestService.setAdminAuthRequest(adminAuthReqStorable, userId);
-      }
+      const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+      await this.authRequestService.setAdminAuthRequest(adminAuthReqStorable, userId);
 
       if (authRequestResponse.id) {
         await this.anonymousHubService.createHubConnection(authRequestResponse.id);
@@ -234,10 +232,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   }
 
   private async buildAuthRequest(authRequestType: AuthRequestType): Promise<void> {
-    if (!this.email) {
-      await this.handleMissingEmail();
-      return;
-    }
     const authRequestKeyPairArray = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
 
     this.authRequestKeyPair = {
@@ -274,7 +268,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     // has been approved and handle it if so.
 
     // Regardless, we always retrieve the auth request from the server and verify and handle status changes here as well
-    let adminAuthRequestResponse: AuthRequestResponse | undefined;
+    let adminAuthRequestResponse: AuthRequestResponse;
 
     try {
       adminAuthRequestResponse = await this.authRequestApiService.getAuthRequest(
@@ -296,12 +290,10 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     const derivedPublicKeyArrayBuffer = await this.cryptoFunctionService.rsaExtractPublicKey(
       adminAuthRequestStorable.privateKey,
     );
-    if (this.email) {
-      this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
-        this.email,
-        derivedPublicKeyArrayBuffer,
-      );
-    }
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      this.email,
+      derivedPublicKeyArrayBuffer,
+    );
 
     // Request denied
     if (adminAuthRequestResponse.isAnswered && !adminAuthRequestResponse.requestApproved) {
@@ -319,10 +311,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
     // Request still pending response from admin
     // set keypair and create hub connection so that any approvals will be received via push notification
-    this.authRequestKeyPair = {
-      privateKey: adminAuthRequestStorable.privateKey,
-      publicKey: null as unknown as Uint8Array,
-    };
+    this.authRequestKeyPair = { privateKey: adminAuthRequestStorable.privateKey, publicKey: null };
     await this.anonymousHubService.createHubConnection(adminAuthRequestStorable.id);
   }
 
@@ -428,14 +417,12 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   }
 
   private async handleAuthenticatedFlows(authRequestResponse: AuthRequestResponse) {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (!account?.id) {
-      return;
-    }
+    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+
     await this.decryptViaApprovedAuthRequest(
       authRequestResponse,
       this.authRequestKeyPair.privateKey,
-      account.id,
+      userId,
     );
   }
 
@@ -447,10 +434,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       requestId,
       authRequestResponse,
     );
-
-    if (!authRequestLoginCredentials) {
-      return;
-    }
 
     // Note: keys are set by AuthRequestLoginStrategy success handling
     const authResult = await this.loginStrategyService.logIn(authRequestLoginCredentials);
@@ -493,16 +476,13 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: "",
+      title: null,
       message: this.i18nService.t("loginApproved"),
     });
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (!activeAccount?.id) {
-      return;
-    }
     await this.deviceTrustService.trustDeviceIfRequired(activeAccount.id);
 
     await this.handleSuccessfulLoginNavigation(userId);
@@ -518,11 +498,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async buildAuthRequestLoginCredentials(
     requestId: string,
     authRequestResponse: AuthRequestResponse,
-  ): Promise<AuthRequestLoginCredentials | void> {
-    if (!this.email) {
-      await this.handleMissingEmail();
-      return;
-    }
+  ): Promise<AuthRequestLoginCredentials> {
     /**
      * See verifyAndHandleApprovedAuthReq() for flow details.
      *
@@ -544,7 +520,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         this.email,
         this.authRequest.accessCode,
         requestId,
-        null as unknown as UserKey,
+        null, // no userKey
         masterKey,
         masterKeyHash,
       );
@@ -559,8 +535,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         this.authRequest.accessCode,
         requestId,
         userKey,
-        null as unknown as MasterKey, // no masterKey
-        "", // no masterKeyHash
+        null, // no masterKey
+        null, // no masterKeyHash
       );
     }
   }
