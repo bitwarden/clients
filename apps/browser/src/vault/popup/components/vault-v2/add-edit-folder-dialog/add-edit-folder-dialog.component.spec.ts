@@ -171,7 +171,7 @@ describe("AddEditFolderDialogComponent", () => {
     it("deletes the folder", async () => {
       await component.deleteFolder();
 
-      expect(deleteFolder).toHaveBeenCalledWith(folderView.id);
+      expect(deleteFolder).toHaveBeenCalledWith(folderView.id, "");
       expect(showToast).toHaveBeenCalledWith({
         variant: "success",
         title: null,

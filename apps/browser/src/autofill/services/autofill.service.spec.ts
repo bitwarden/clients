@@ -98,7 +98,13 @@ describe("AutofillService", () => {
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
     showInlineMenuCardsMock$ = new BehaviorSubject(false);
     showInlineMenuIdentitiesMock$ = new BehaviorSubject(false);
@@ -106,10 +112,10 @@ describe("AutofillService", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     autofillSettingsService.showInlineMenuCards$ = showInlineMenuCardsMock$;
     autofillSettingsService.showInlineMenuIdentities$ = showInlineMenuIdentitiesMock$;
+    autofillSettingsService.autofillOnPageLoad$ = of(true);
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
-    configService = mock<ConfigService>();
     messageListener = mock<MessageListener>();
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
@@ -132,7 +138,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -385,6 +391,7 @@ describe("AutofillService", () => {
       );
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
+      jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
       jest
         .spyOn(autofillService, "getInlineMenuVisibility")
@@ -2937,7 +2944,9 @@ describe("AutofillService", () => {
 
     const expectedDateFormats = [
       ["mm/yyyy", "05/2024"],
+      ["mm/YYYY", "05/2024"],
       ["mm/yy", "05/24"],
+      ["MM/YY", "05/24"],
       ["yyyy/mm", "2024/05"],
       ["yy/mm", "24/05"],
       ["mm-yyyy", "05-2024"],
@@ -2946,6 +2955,7 @@ describe("AutofillService", () => {
       ["yy-mm", "24-05"],
       ["yyyymm", "202405"],
       ["yymm", "2405"],
+      ["YYMM", "2405"],
       ["mmyyyy", "052024"],
       ["mmyy", "0524"],
     ];
@@ -3875,7 +3885,7 @@ describe("AutofillService", () => {
     });
 
     describe("given a autofill field value that indicates the field is a `select` input", () => {
-      it("will not add an autofil action to the fill script if the dataValue cannot be found in the select options", () => {
+      it("will not add an autofill action to the fill script if the dataValue cannot be found in the select options", () => {
         const dataValue = "username";
         const selectField = createAutofillFieldMock({
           opid: "username-field",

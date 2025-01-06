@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -131,7 +129,7 @@ export class CopyCipherFieldService {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("valueCopied", this.i18nService.t(action.typeI18nKey)),
-      title: null,
+      title: "",
     });
 
     if (action.event !== undefined) {

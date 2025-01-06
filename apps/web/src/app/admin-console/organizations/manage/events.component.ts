@@ -131,7 +131,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   protected getUserName(r: EventResponse, userId: string) {
     if (r.installationId != null) {
-      return `Installation: ${r.installationId}`;
+      return {
+        name: `Installation: ${r.installationId}`,
+      };
     }
 
     if (userId != null) {

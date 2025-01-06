@@ -25,6 +25,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showAcctSwitcher?: boolean;
   showBackButton?: boolean;
   showLogo?: boolean;
+  hideFooter?: boolean;
 }
 
 @Component({
@@ -54,6 +55,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showReadonlyHostname: boolean;
   protected maxWidth: "md" | "3xl";
   protected hasLoggedInAccount: boolean = false;
+  protected hideFooter: boolean;
 
   protected theme: string;
   protected logo = ExtensionBitwardenLogo;
@@ -112,6 +114,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
+    this.hideFooter = Boolean(firstChildRouteData["hideFooter"]);
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
 
@@ -158,6 +161,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageIcon = data.pageIcon !== null ? data.pageIcon : null;
     }
 
+    if (data.hideFooter !== undefined) {
+      this.hideFooter = data.hideFooter !== null ? data.hideFooter : null;
+    }
+
     if (data.showReadonlyHostname !== undefined) {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
@@ -194,6 +201,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showBackButton = null;
     this.showLogo = null;
     this.maxWidth = null;
+    this.hideFooter = null;
   }
 
   ngOnDestroy() {

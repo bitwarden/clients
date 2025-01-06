@@ -120,7 +120,7 @@
           />
           <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control disableMargin>
+        <bit-form-control>
           <input
             bitCheckbox
             id="showIdentitiesSuggestions"
@@ -130,6 +130,18 @@
           />
           <bit-label for="showIdentitiesSuggestions" class="tw-whitespace-normal">
             {{ "showIdentitiesInVaultView" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="clickToAutofill"
+            type="checkbox"
+            (change)="updateClickItemsVaultView()"
+            [(ngModel)]="clickItemsVaultView"
+          />
+          <bit-label for="clickToAutofill" class="tw-whitespace-normal">
+            {{ "clickToAutofillOnVault" | i18n }}
           </bit-label>
         </bit-form-control>
       </bit-card>
@@ -269,6 +281,12 @@
           </bit-hint>
         </bit-form-field>
       </bit-card>
+    </bit-section>
+    <bit-section *ngIf="blockBrowserInjectionsByDomainEnabled">
+      <bit-item>
+        <a bit-item-content routerLink="/blocked-domains">{{ "blockedDomains" | i18n }}</a>
+        <i slot="end" class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+      </bit-item>
     </bit-section>
   </div>
 </popup-page>
