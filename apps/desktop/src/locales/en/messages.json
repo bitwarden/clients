@@ -2740,9 +2740,6 @@
   "notificationSentDevicePart2": {
     "message": ". Make sure the Fingerprint phrase matches the one below before approving"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
-  },
   "needAnotherOptionV1": {
     "message": "Need another option?"
   },

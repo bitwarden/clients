@@ -1335,9 +1335,6 @@
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
-  },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
     "placeholders": {

@@ -3088,9 +3088,6 @@
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
-  },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "You will be notified once the request is approved"
   },
