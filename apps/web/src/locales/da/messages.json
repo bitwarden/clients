@@ -9272,16 +9272,16 @@
     "message": "Opdaterede momsoplysninger"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Moms-ID kan ikke bekræftes. Mener man, at dette er en fejl, kontakt venligst supporten."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "En fejl opstod under forhåndsvisning af fakturaen. Forsøg igen senere."
   },
   "unverified": {
     "message": "Ubekræftet"

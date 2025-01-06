@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { CanDeactivateFn } from "@angular/router";
 
-import { VaultV2Component } from "../popup/components/vault/vault-v2.component";
+import { VaultV2Component } from "../popup/components/vault-v2/vault-v2.component";
 import { VaultPopupItemsService } from "../popup/services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../popup/services/vault-popup-list-filters.service";
 
