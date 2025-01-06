@@ -22,6 +22,16 @@
     </bit-no-items>
   </div>
 
+  <bit-banner
+    *ngIf="vaultState !== VaultStateEnum.Empty && showScriptInjectionIsBlockedBanner"
+    id="domain-script-injection-blocked-banner"
+    bannerType="info"
+    slot="full-width-notice"
+    (onClose)="handleScriptInjectionIsBlockedBannerDismiss()"
+  >
+    {{ "autofillBlockedNotice" | i18n }}
+  </bit-banner>
+
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container
     slot="above-scroll-area"
@@ -61,7 +71,9 @@
       cdkVirtualScrollingElement
       class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
     >
-      <app-autofill-vault-list-items></app-autofill-vault-list-items>
+      <app-autofill-vault-list-items
+        [sectionIndicators]="sectionIndicators"
+      ></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
         [ciphers]="favoriteCiphers$ | async"

@@ -12,7 +12,7 @@ import {
   Output,
   signal,
 } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -50,7 +50,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    RouterLink,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
@@ -81,6 +80,8 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     map((enabled) => (enabled ? 53 : 59)),
   );
 
+  protected showAutofillBlockedIndicator = false;
+
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch
    * @private
@@ -98,6 +99,11 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   @Input()
   title: string;
+
+  /**
+   * Indicators for the section.
+   */
+  @Input() sectionIndicators: string[] = [];
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
@@ -170,6 +176,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+
+    this.showAutofillBlockedIndicator = !!this.sectionIndicators?.find(
+      (i) => i === "autofillDisabled",
+    );
   }
 
   /**
