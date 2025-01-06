@@ -454,9 +454,6 @@
   "length": {
     "message": "Uzunluq"
   },
-  "passwordMinLength": {
-    "message": "Minimal parol uzunluğu"
-  },
   "uppercase": {
     "message": "Böyük hərf (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimum simvol"
-  },
-  "avoidAmbChar": {
-    "message": "Anlaşılmaz simvollardan çəkinin",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Anlaşılmaz xarakterlərdən çəkin",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Asan avto-doldurma üçün Vərəq səhifəsində kimlik elementlərini sadalayın."
   },
+  "clickToAutofillOnVault": {
+    "message": "Seyf görünüşündə avto-doldurmaq üçün elementlərə klikləyin"
+  },
   "clearClipboard": {
     "message": "Lövhəni təmizlə",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Təşkilata daşı"
-  },
-  "share": {
-    "message": "Paylaş"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$, $ORGNAME$ şirkətinə daşındı",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klonla"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Bir və ya daha çox təşkilat siyasəti yaradıcı ayarlarınıza təsir edir."
-  },
   "passwordGenerator": {
     "message": "Parol yaradıcı"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send detalları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "\"Send\"ləri axtar",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "\"Send\" əlavə et",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Mətn"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Mətni ilkin olaraq gizlət"
   },
-  "maxAccessCountReached": {
-    "message": "Maksimal müraciət sayına çatıldı",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Müddəti bitib"
-  },
-  "pendingDeletion": {
-    "message": "Silinməsi gözlənilir"
   },
   "passwordProtected": {
     "message": "Parolla qorunan"
@@ -2472,23 +2447,8 @@
     "message": "\"Send\"ə düzəliş et",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "\"Send\"in növü nədir?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Bu \"Send\"i açıqlayan bir ad.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Göndərmək istədiyiniz fayl."
-  },
   "deletionDate": {
     "message": "Silinmə tarixi"
-  },
-  "deletionDateDesc": {
-    "message": "\"Send\" göstərilən tarix və saatda birdəfəlik silinəcək.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Send, bu tarixdə həmişəlik silinəcək.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Bitmə tarixi"
-  },
-  "expirationDateDesc": {
-    "message": "Əgər ayarlanıbsa, göstərilən tarix və vaxtda \"Send\"ə müraciət başa çatacaq.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 gün"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Özəl"
   },
-  "maximumAccessCount": {
-    "message": "Maksimal müraciət sayı"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Əgər ayarlanıbsa, istifadəçilər maksimal müraciət sayına çatdıqdan sonra bu \"Send\"ə müraciət edə bilməyəcək.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "İstəyinizə görə istifadəçilərdən bu \"Send\"ə müraciət edərkən parol tələb edə bilərsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Alıcıların bu \"Send\"ə müraciət etməsi üçün ixtiyari bir parol əlavə edin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Bu \"Send\" ilə bağlı gizli notlar.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Heç kimin müraciət edə bilməməsi üçün bu \"Send\"i deaktiv et.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Saxladıqdan sonra \"Send\"in keçidini lövhəyə kopyala.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Göndərmək istədiyiniz mətn"
-  },
-  "sendHideText": {
-    "message": "Bu \"Send\"in mətnini ilkin olaraq gizlət",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hazırkı müraciət sayı"
   },
   "createSend": {
     "message": "Yeni \"Send\"",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Başlamazdan əvvəl"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Təqvim stilində tarix seçici istifadə etmək üçün",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "bura klikləyin",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "yeni bir pəncərə açın.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Göstərilən son istifadə tarixi yararsızdır."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Silinmə və son istifadə tarixlərini saxlayarkən xəta baş verdi."
   },
-  "hideEmail": {
-    "message": "E-poçt ünvanımı alıcılardan gizlət."
-  },
   "hideYourEmail": {
     "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Bir və ya daha çox təşkilat siyasətləri \"Send\" seçimlərinizə təsir edir."
   },
   "passwordPrompt": {
     "message": "Ana parolu təkrar soruş"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Xəta"
   },
-  "regenerateUsername": {
-    "message": "İstifadəçi adını yenidən yarat"
-  },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "İstifadəçi adı növü"
-  },
   "plusAddressedEmail": {
     "message": "Üstəgəl ünvanlı e-poçt",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Veb sayt adı"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Nə yaratmaq istəyirsiniz?"
-  },
-  "passwordType": {
-    "message": "Parol növü"
   },
   "service": {
     "message": "Xidmət"
@@ -4677,7 +4570,7 @@
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
   },
   "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+    "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
   },
   "systemDefault": {
     "message": "İlkin sistem"

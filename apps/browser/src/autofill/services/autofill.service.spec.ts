@@ -2937,7 +2937,9 @@ describe("AutofillService", () => {
 
     const expectedDateFormats = [
       ["mm/yyyy", "05/2024"],
+      ["mm/YYYY", "05/2024"],
       ["mm/yy", "05/24"],
+      ["MM/YY", "05/24"],
       ["yyyy/mm", "2024/05"],
       ["yy/mm", "24/05"],
       ["mm-yyyy", "05-2024"],
@@ -2946,6 +2948,7 @@ describe("AutofillService", () => {
       ["yy-mm", "24-05"],
       ["yyyymm", "202405"],
       ["yymm", "2405"],
+      ["YYMM", "2405"],
       ["mmyyyy", "052024"],
       ["mmyy", "0524"],
     ];
@@ -3875,7 +3878,7 @@ describe("AutofillService", () => {
     });
 
     describe("given a autofill field value that indicates the field is a `select` input", () => {
-      it("will not add an autofil action to the fill script if the dataValue cannot be found in the select options", () => {
+      it("will not add an autofill action to the fill script if the dataValue cannot be found in the select options", () => {
         const dataValue = "username";
         const selectField = createAutofillFieldMock({
           opid: "username-field",

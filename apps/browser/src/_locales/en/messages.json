@@ -1004,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "List identity items on the Tab page for easy autofill."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Clear clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
