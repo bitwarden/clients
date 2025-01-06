@@ -2772,10 +2772,10 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Are you trying to access your account?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2793,10 +2793,10 @@
     "message": "Time"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Confirm access"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Login confirmed for $EMAIL$ on $DEVICE$",
