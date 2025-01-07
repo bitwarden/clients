@@ -3889,7 +3889,7 @@
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
   },
   "freeTrialEndPromptCount": {
-    "message": "Your free trial ends in $COUNT$ days.",
+    "message": "Ваша проба се завршава за $COUNT$ дана.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3898,7 +3898,7 @@
     }
   },
   "freeTrialEndPromptMultipleDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "message": "$ORGANIZATION$, Ваша проба са завршава за $COUNT$ дана.",
     "placeholders": {
       "count": {
         "content": "$2",
@@ -3911,7 +3911,7 @@
     }
   },
   "freeTrialEndPromptTomorrow": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
+    "message": "$ORGANIZATION$, Ваша проба са завршава сутра.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3920,10 +3920,10 @@
     }
   },
   "freeTrialEndPromptTomorrowNoOrgName": {
-    "message": "Your free trial ends tomorrow."
+    "message": "Ваша бесплатна пробна се завршава сутра."
   },
   "freeTrialEndPromptToday": {
-    "message": "$ORGANIZATION$, your free trial ends today.",
+    "message": "$ORGANIZATION$, Ваша проба са завршава данас.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3932,10 +3932,10 @@
     }
   },
   "freeTrialEndingTodayWithoutOrgName": {
-    "message": "Your free trial ends today."
+    "message": "Ваша бесплатна пробна се завршава данас."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Кликните овде да додате начин плаћања."
   },
   "joinOrganization": {
     "message": "Придружи Организацију"
@@ -4492,7 +4492,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Бићете обавештени када захтев буде одобрен"
   },
   "free": {
     "message": "Бесплатно",
@@ -6529,7 +6529,7 @@
     "message": "Генериши име"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Генеришите имејл"
   },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
@@ -9018,7 +9018,7 @@
     "message": "Употребите Bitwarden Secrets Manager SDK на следећим програмским језицима да направите сопствене апликације."
   },
   "ssoDescStart": {
-    "message": "Configure",
+    "message": "Подеси",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "ssoDescEnd": {
@@ -9032,7 +9032,7 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "Configure ",
+    "message": "Подеси ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
@@ -9270,6 +9270,18 @@
   },
   "updatedTaxInformation": {
     "message": "Ажуриране пореске информације"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
     "message": "Непроверено"
@@ -9885,22 +9897,22 @@
     "message": "Descriptor code"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Важно обавештење"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Поставити дво-степенску пријаву"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Можете да подесите пријаву у два корака као алтернативни начин да заштитите свој налог или да промените свој имејл у један који можете да приступите."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Подсети ме касније"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Да ли имате поуздан приступ својим имејлом, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -9909,19 +9921,19 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Не, ненам"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Да, могу поуздано да приступим овим имејлом"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Упалити дво-степенску пријаву"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Променити имејл налога"
   },
   "removeMembers": {
-    "message": "Remove members"
+    "message": "Уклони чланове"
   },
   "claimedDomains": {
     "message": "Claimed domains"
@@ -9954,7 +9966,7 @@
     "message": "Claimed"
   },
   "domainStatusUnderVerification": {
-    "message": "Under verification"
+    "message": "Под провером"
   },
   "claimedDomainsDesc": {
     "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "resellerRenewalWarning": {
+    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }
