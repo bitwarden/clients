@@ -162,10 +162,14 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncUpsertFolder(
           notification.payload as SyncFolderNotification,
           notification.type === NotificationType.SyncFolderUpdate,
+          userId,
         );
         break;
       case NotificationType.SyncFolderDelete:
-        await this.syncService.syncDeleteFolder(notification.payload as SyncFolderNotification);
+        await this.syncService.syncDeleteFolder(
+          notification.payload as SyncFolderNotification,
+          userId,
+        );
         break;
       case NotificationType.SyncVault:
       case NotificationType.SyncCiphers:
