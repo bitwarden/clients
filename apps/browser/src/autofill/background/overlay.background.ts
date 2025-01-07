@@ -1512,7 +1512,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Gets the position of the focused field and calculates the position
    * of the inline menu button based on the focused field's position and dimensions.
    */
-  getInlineMenuButtonPosition(subFrameOffsets: SubFrameOffsetData) {
+  private getInlineMenuButtonPosition(subFrameOffsets: SubFrameOffsetData) {
     const subFrameTopOffset = subFrameOffsets?.top || 0;
     const subFrameLeftOffset = subFrameOffsets?.left || 0;
 
@@ -1561,7 +1561,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Gets the position of the focused field and calculates the position
    * of the inline menu list based on the focused field's position and dimensions.
    */
-  getInlineMenuListPosition(subFrameOffsets: SubFrameOffsetData) {
+  private getInlineMenuListPosition(subFrameOffsets: SubFrameOffsetData) {
     const subFrameTopOffset = subFrameOffsets?.top || 0;
     const subFrameLeftOffset = subFrameOffsets?.left || 0;
 
