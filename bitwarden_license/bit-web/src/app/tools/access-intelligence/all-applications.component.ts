@@ -15,7 +15,7 @@ import {
 
 // eslint-disable-next-line no-restricted-imports  -- used for dependency injection
 import {
-  CriticalAppsApiService,
+  CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
@@ -144,7 +144,7 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
-    protected criticalAppsService: CriticalAppsApiService,
+    protected criticalAppsService: CriticalAppsService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

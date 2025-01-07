@@ -8,7 +8,7 @@ import { map, switchMap } from "rxjs/operators";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   RiskInsightsDataService,
-  CriticalAppsApiService,
+  CriticalAppsService,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
@@ -73,13 +73,13 @@ export class RiskInsightsComponent implements OnInit {
     private router: Router,
     private configService: ConfigService,
     private dataService: RiskInsightsDataService,
-    private criticalAppsApiService: CriticalAppsApiService,
+    private criticalAppsService: CriticalAppsService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
     const orgId = this.route.snapshot.paramMap.get("organizationId") ?? "";
-    this.criticalApps$ = this.criticalAppsApiService.getAppsListForOrg(orgId);
+    this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(orgId);
   }
 
   async ngOnInit() {
