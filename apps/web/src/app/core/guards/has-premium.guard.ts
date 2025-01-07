@@ -6,9 +6,10 @@ import {
   CanActivateFn,
   UrlTree,
 } from "@angular/router";
-import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { switchMap, tap } from "rxjs/operators";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
@@ -24,8 +25,14 @@ export function hasPremiumGuard(): CanActivateFn {
     const router = inject(Router);
     const messagingService = inject(MessagingService);
     const billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+    const accountService = inject(AccountService);
 
-    return billingAccountProfileStateService.hasPremiumFromAnySource$.pipe(
+    return accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+          : of(false),
+      ),
       tap((userHasPremium: boolean) => {
         if (!userHasPremium) {
           messagingService.send("premiumRequired");
