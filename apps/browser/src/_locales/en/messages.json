@@ -2345,9 +2345,6 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
   },
-  "autofillBlockedTooltip": {
-    "message": "The current page is a blocked domain. Change this in settings"
-  },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
     "placeholders": {
