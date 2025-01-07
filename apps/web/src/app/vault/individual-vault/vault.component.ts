@@ -32,7 +32,6 @@ import {
   take,
   takeUntil,
   tap,
-  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -361,12 +360,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       filter$,
       this.currentSearchText$,
     ]).pipe(
-      withLatestFrom(this.cipherService.failedToDecryptCiphers$), // Not in combineLatest to avoid redundant emissions
-      filter(
-        ([[ciphers, filter], failedCiphers]) =>
-          ciphers != undefined && filter != undefined && failedCiphers != undefined,
-      ),
-      concatMap(async ([[ciphers, filter, searchText], failedCiphers]) => {
+      filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
+      concatMap(async ([ciphers, filter, searchText]) => {
+        const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
