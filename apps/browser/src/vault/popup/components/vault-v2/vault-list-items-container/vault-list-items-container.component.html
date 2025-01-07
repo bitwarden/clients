@@ -4,7 +4,7 @@
       <h2 bitTypography="h6">
         {{ title }}
         <i
-          *ngIf="showAutofillBlockedIndicator"
+          *ngIf="autofillURIIsBlocked"
           class="bwi bwi-info-circle"
           [appA11yTitle]="'autofillBlockedTooltip' | i18n"
         ></i>
@@ -83,7 +83,7 @@
           <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
           <app-item-more-options
             [cipher]="cipher"
-            [hideAutofillOptions]="showAutofillButton"
+            [hideAutofillOptions]="showAutofillButton || autofillURIIsBlocked"
             [showViewOption]="primaryActionAutofill"
           ></app-item-more-options>
         </ng-container>

@@ -42,9 +42,9 @@ export class AutofillVaultListItemsComponent implements OnInit {
   clickItemsToAutofillVaultView = false;
 
   /**
-   * Section indicator that the current tab location is blocked
+   * Flag indicating that the current tab location is blocked
    */
-  showAutofillBlockedIndicator: boolean = false;
+  autofillURIIsBlocked: boolean = false;
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.
@@ -72,13 +72,13 @@ export class AutofillVaultListItemsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.clickItemsToAutofillVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
-
-    this.showAutofillBlockedIndicator = await firstValueFrom(
+    this.autofillURIIsBlocked = await firstValueFrom(
       this.vaultPopupAutofillService.currentTabIsOnBlocklist$,
     );
+
+    this.clickItemsToAutofillVaultView =
+      !this.autofillURIIsBlocked &&
+      (await firstValueFrom(this.vaultSettingsService.clickItemsToAutofillVaultView$));
   }
 
   /**

@@ -118,10 +118,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   onRefresh = new EventEmitter<void>();
 
   /**
-   * Option to show the indicator for blocked autofill suggestions
+   * Flag indicating that the current tab location is blocked
    */
   @Input({ transform: booleanAttribute })
-  showAutofillBlockedIndicator: boolean;
+  autofillURIIsBlocked: boolean;
 
   /**
    * Option to show the autofill button for each item.
