@@ -1,0 +1,27 @@
+<bit-dialog>
+  <ng-container bitDialogTitle>
+    <span bitDialogTitle>{{ "atRiskMembersWithCount" | i18n: atRiskMembers.length }} </span>
+  </ng-container>
+  <ng-container bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <span bitTypography="body2" class="tw-text-muted">{{
+        "atRiskMembersDescription" | i18n
+      }}</span>
+      <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+        <div bitTypography="body2" class="tw-font-bold">{{ "email" | i18n }}</div>
+        <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
+      </div>
+      <ng-container *ngFor="let member of atRiskMembers">
+        <div class="tw-flex tw-justify-between tw-mt-2">
+          <div>{{ member.email }}</div>
+          <div>{{ member.atRiskPasswordCount }}</div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="secondary" type="button">
+      {{ "ok" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
