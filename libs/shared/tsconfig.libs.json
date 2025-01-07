@@ -19,7 +19,7 @@
       "@bitwarden/vault-export-ui": ["../tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/importer/core": ["../importer/src"],
       "@bitwarden/importer/ui": ["../importer/src/components"],
-      "@bitwarden/key-management": ["../key-management/src"],
+      "@bitwarden/key-management": ["../key-management/src/common"],
       "@bitwarden/key-management/angular": ["../key-management/src/angular"],
       "@bitwarden/platform": ["../platform/src"],
       "@bitwarden/send-ui": ["../tools/send/send-ui/src"],
