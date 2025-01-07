@@ -492,6 +492,28 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   get canUseBillingSync() {
     return this.userOrg.productTierType === ProductTierType.Enterprise;
   }
+
+  get canShowResellerSeatInfo(): boolean {
+    return this.userOrg.hasReseller;
+  }
+
+  get seatUsageMessage(): string {
+    if (!this.sub?.seats) {
+      return "";
+    }
+
+    const remainingSeats = this.userOrg.seats - this.sub.seats;
+
+    if (this.userOrg.hasReseller) {
+      return this.i18nService.t(
+        "seatsRemaining",
+        remainingSeats.toString(),
+        this.userOrg.seats.toString(),
+      );
+    }
+
+    return this.subscriptionDesc;
+  }
 }
 
 /**
