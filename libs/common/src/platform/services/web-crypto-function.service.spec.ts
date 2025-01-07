@@ -304,6 +304,15 @@ describe("WebCrypto Function Service", () => {
       const decValue = await cryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
+
+    it("throws if iv is not provided", async () => {
+      const cryptoFunctionService = getWebCryptoFunctionService();
+      const key = makeStaticByteArray(32);
+      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
+      await expect(() => cryptoFunctionService.aesDecrypt(data, null, key, "cbc")).rejects.toThrow(
+        "IV is required for CBC mode",
+      );
+    });
   });
 
   describe("aesDecrypt ECB mode", () => {

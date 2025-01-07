@@ -219,6 +219,15 @@ describe("NodeCrypto Function Service", () => {
       const decValue = await nodeCryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
+
+    it("throws if IV is not provided", async () => {
+      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
+      const key = makeStaticByteArray(32);
+      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
+      await expect(
+        async () => await nodeCryptoFunctionService.aesDecrypt(data, null, key, "cbc"),
+      ).rejects.toThrow("Invalid initialization vector");
+    });
   });
 
   describe("aesDecrypt ECB mode", () => {
@@ -454,7 +463,7 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = f
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const value = Utils.fromUtf8ToArray("SignMe!!");
     const key = Utils.fromUtf8ToArray("secretkey");
-    let computedMac: ArrayBuffer = null;
+    let computedMac: ArrayBuffer;
     if (fast) {
       computedMac = await cryptoFunctionService.hmacFast(value, key, algorithm);
     } else {
