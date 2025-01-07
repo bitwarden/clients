@@ -4,4 +4,7 @@
   (onClose)="handleScriptInjectionIsBlockedBannerDismiss()"
 >
   {{ "autofillBlockedNotice" | i18n }}
+  <a bitLink linkType="secondary" [routerLink]="blockedURISettingsRoute">
+    {{ "autofillBlockedNoticeGuidance" | i18n }}
+  </a>
 </bit-banner>

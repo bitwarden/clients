@@ -2340,7 +2340,10 @@
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
   "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+    "message": "Autofill is blocked for this website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "autofillBlockedTooltip": {
     "message": "The current page is a blocked domain. Change this in settings"

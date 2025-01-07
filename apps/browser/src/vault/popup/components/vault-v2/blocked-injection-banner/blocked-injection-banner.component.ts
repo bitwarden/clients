@@ -1,23 +1,33 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { BannerModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
+import {
+  BannerModule,
+  IconButtonModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
+const blockedURISettingsRoute = "/blocked-domains";
+
 @Component({
   standalone: true,
   imports: [
+    BannerModule,
     CommonModule,
+    IconButtonModule,
+    JslibModule,
+    LinkModule,
+    RouterModule,
     TypographyModule,
     VaultListItemsContainerComponent,
-    BannerModule,
-    JslibModule,
-    IconButtonModule,
   ],
   selector: "blocked-injection-banner",
   templateUrl: "blocked-injection-banner.component.html",
@@ -33,9 +43,11 @@ export class BlockedInjectionBanner implements OnInit {
    */
   protected currentTabHostname?: string;
 
+  blockedURISettingsRoute: string = blockedURISettingsRoute;
+
   constructor(
-    private vaultPopupAutofillService: VaultPopupAutofillService,
     private domainSettingsService: DomainSettingsService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
   ) {}
 
   async ngOnInit() {
