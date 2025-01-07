@@ -80,8 +80,6 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     map((enabled) => (enabled ? 53 : 59)),
   );
 
-  protected showAutofillBlockedIndicator = false;
-
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch
    * @private
@@ -101,11 +99,6 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   title: string;
 
   /**
-   * Indicators for the section.
-   */
-  @Input() sectionIndicators: string[] = [];
-
-  /**
    * Optional description for the vault list item section. Will be shown below the title even when
    * no ciphers are available.
    */
@@ -123,6 +116,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   @Output()
   onRefresh = new EventEmitter<void>();
+
+  /**
+   * Option to show the indicator for blocked autofill suggestions
+   */
+  @Input({ transform: booleanAttribute })
+  showAutofillBlockedIndicator: boolean;
 
   /**
    * Option to show the autofill button for each item.
@@ -176,10 +175,6 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
-
-    this.showAutofillBlockedIndicator = !!this.sectionIndicators?.find(
-      (i) => i === "autofillDisabled",
-    );
   }
 
   /**

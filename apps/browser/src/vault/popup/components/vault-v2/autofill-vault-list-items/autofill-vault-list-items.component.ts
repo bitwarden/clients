@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -42,9 +42,9 @@ export class AutofillVaultListItemsComponent implements OnInit {
   clickItemsToAutofillVaultView = false;
 
   /**
-   * Indicators for the section.
+   * Section indicator that the current tab location is blocked
    */
-  @Input() sectionIndicators: string[] = [];
+  showAutofillBlockedIndicator: boolean = false;
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.
@@ -74,6 +74,10 @@ export class AutofillVaultListItemsComponent implements OnInit {
   async ngOnInit() {
     this.clickItemsToAutofillVaultView = await firstValueFrom(
       this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
+
+    this.showAutofillBlockedIndicator = await firstValueFrom(
+      this.vaultPopupAutofillService.currentTabIsOnBlocklist$,
     );
   }
 
