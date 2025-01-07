@@ -41,7 +41,7 @@ import { RiskInsightsComponent } from "./risk-insights.component";
     safeProvider({
       provide: CriticalAppsService,
       useClass: CriticalAppsService,
-      deps: [ApiService, KeyService, EncryptService, CriticalAppsApiService],
+      deps: [KeyService, EncryptService, CriticalAppsApiService],
     }),
     safeProvider({
       provide: CriticalAppsApiService,
