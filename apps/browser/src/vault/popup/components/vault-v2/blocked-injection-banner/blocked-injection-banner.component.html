@@ -1,0 +1,7 @@
+<bit-banner
+  *ngIf="showScriptInjectionIsBlockedBanner"
+  bannerType="info"
+  (onClose)="handleScriptInjectionIsBlockedBannerDismiss()"
+>
+  {{ "autofillBlockedNotice" | i18n }}
+</bit-banner>

@@ -1,0 +1,74 @@
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BannerModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
+
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
+
+@Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    TypographyModule,
+    VaultListItemsContainerComponent,
+    BannerModule,
+    JslibModule,
+    IconButtonModule,
+  ],
+  selector: "blocked-injection-banner",
+  templateUrl: "blocked-injection-banner.component.html",
+})
+export class BlockedInjectionBanner implements OnInit {
+  /**
+   * Flag indicating that the banner should be shown
+   */
+  protected showScriptInjectionIsBlockedBanner = false;
+
+  /**
+   * Hostname for current tab
+   */
+  protected currentTabHostname?: string;
+
+  constructor(
+    private vaultPopupAutofillService: VaultPopupAutofillService,
+    private domainSettingsService: DomainSettingsService,
+  ) {}
+
+  async ngOnInit() {
+    this.showScriptInjectionIsBlockedBanner = await firstValueFrom(
+      this.vaultPopupAutofillService.currentTabBlockedBannerIsDismissed$,
+    );
+
+    const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+
+    const autofillTabURL = currentTab?.url && new URL(currentTab.url);
+
+    this.currentTabHostname = autofillTabURL && autofillTabURL.hostname;
+  }
+
+  handleScriptInjectionIsBlockedBannerDismiss() {
+    if (!this.currentTabHostname) {
+      return;
+    }
+
+    try {
+      void firstValueFrom(this.domainSettingsService.blockedInteractionsUris$).then(
+        (blockedURIs) => {
+          this.showScriptInjectionIsBlockedBanner = false;
+          void this.domainSettingsService.setBlockedInteractionsUris({
+            ...blockedURIs,
+            [this.currentTabHostname as string]: { bannerIsDismissed: true },
+          });
+        },
+      );
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URI notification banner",
+      );
+    }
+  }
+}

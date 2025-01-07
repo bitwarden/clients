@@ -22,6 +22,11 @@
     </bit-no-items>
   </div>
 
+  <blocked-injection-banner
+    *ngIf="vaultState !== VaultStateEnum.Empty"
+    slot="full-width-notice"
+  ></blocked-injection-banner>
+
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container
     slot="above-scroll-area"
