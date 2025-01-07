@@ -2771,15 +2771,6 @@
   "areYouTryingToAccessYourAccount": {
     "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -2798,14 +2789,8 @@
   "time": {
     "message": "Time"
   },
-  "confirmLogIn": {
-    "message": "Confirm login"
-  },
   "confirmAccess": {
     "message": "Confirm access"
-  },
-  "denyLogIn": {
-    "message": "Deny login"
   },
   "denyAccess": {
     "message": "Deny access"
@@ -2843,15 +2828,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
-  },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirm login attempt for $EMAIL$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
   },
   "accountAccessRequestedConfirmAccessAttempt": {
     "message": "Account access requested, confirm access attempt for $EMAIL$",
