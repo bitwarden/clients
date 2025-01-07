@@ -20,6 +20,7 @@ import {
   FormFieldModule,
   RadioButtonModule,
   TypographyModule,
+  LinkModule,
 } from "@bitwarden/components";
 
 import {
@@ -41,6 +42,7 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     ReactiveFormsModule,
+    LinkModule,
   ],
 })
 export class NewDeviceVerificationNoticePageOneComponent implements OnInit, AfterViewInit {
