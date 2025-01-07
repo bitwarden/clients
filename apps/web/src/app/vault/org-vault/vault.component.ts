@@ -86,6 +86,10 @@ import {
 
 import { GroupApiService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
+import {
+  ResellerWarning,
+  ResellerWarningService,
+} from "../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../core/types/free-trial";
 import { SharedModule } from "../../shared";
@@ -187,6 +191,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
+  protected resellerWarning$: Observable<ResellerWarning | null>;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -203,6 +208,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private extensionRefreshEnabled: boolean;
+  private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
@@ -259,11 +265,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private resellerWarningService: ResellerWarningService,
   ) {}
 
   async ngOnInit() {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
+    );
+
+    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
+      FeatureFlag.ResellerManagedOrgAlert,
     );
 
     this.trashCleanupWarning = this.i18nService.t(
@@ -610,6 +621,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       map(([org, sub, paymentSource]) => {
         return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
       }),
+    );
+
+    this.resellerWarning$ = organization$.pipe(
+      filter((org) => org.isOwner && this.resellerManagedOrgAlert),
+      switchMap((org) =>
+        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
+          map((metadata) => ({ org, metadata })),
+        ),
+      ),
+      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
     );
 
     firstSetup$
