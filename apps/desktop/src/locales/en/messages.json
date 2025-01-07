@@ -2771,9 +2771,6 @@
   "areYouTryingtoLogin": {
     "message": "Are you trying to log in?"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
   "logInAttemptBy": {
     "message": "Login attempt by $EMAIL$",
     "placeholders": {
