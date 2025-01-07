@@ -454,9 +454,6 @@
   "length": {
     "message": "Délka"
   },
-  "passwordMinLength": {
-    "message": "Minimální délka hesla"
-  },
   "uppercase": {
     "message": "Velká písmena (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimální počet speciálních znaků"
-  },
-  "avoidAmbChar": {
-    "message": "Nepoužívat zaměnitelné znaky",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Nepoužívat zaměnitelné znaky",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Pro snadné vyplnění zobrazí položky identit na obrazovce Karta."
   },
+  "clickToAutofillOnVault": {
+    "message": "Klepněte na položky pro automatické vyplnění v zobrazení trezoru"
+  },
   "clearClipboard": {
     "message": "Vymazat schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Přesunout do organizace"
-  },
-  "share": {
-    "message": "Sdílet"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ přesunut do $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Duplikovat"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedna nebo více zásad organizace ovlivňují nastavení generátoru."
-  },
   "passwordGenerator": {
     "message": "Generátor hesla"
   },
@@ -2389,14 +2379,6 @@
     "message": "Podrobnosti Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Prohledat Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Přidat Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Ve výchozím nastavení skrýt text"
   },
-  "maxAccessCountReached": {
-    "message": "Dosažen maximální počet přístupů",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Vypršela platnost"
-  },
-  "pendingDeletion": {
-    "message": "Čekání na smazání"
   },
   "passwordProtected": {
     "message": "Chráněno heslem"
@@ -2472,23 +2447,8 @@
     "message": "Upravit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Jakého typu je tento Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Přátelský název pro popis tohoto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Soubor, který chcete odeslat."
-  },
   "deletionDate": {
     "message": "Datum smazání"
-  },
-  "deletionDateDesc": {
-    "message": "Tento Send bude trvale smazán v určený datum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Tento Send bude trvale smazán v určené datum.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Datum vypršení platnosti"
-  },
-  "expirationDateDesc": {
-    "message": "Je-li nastaveno, přístup k tomuto Send vyprší v daný datum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 den"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Vlastní"
   },
-  "maximumAccessCount": {
-    "message": "Maximální počet přístupů"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Je-li nastaveno, uživatelé již nebudou mít přístup k tomuto Send, jakmile bude dosaženo maximálního počtu přístupů.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Volitelně vyžadovat heslo pro přístup k tomuto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Přidá volitelné heslo pro příjemce pro přístup k tomuto Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Soukromé poznámky o tomto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deaktivuje tento Send, díky čemuž k němu nebude moci nikdo přistoupit.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Zkopíruje odkaz pro sdílení tohoto Send po uložení.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Text, který chcete odeslat."
-  },
-  "sendHideText": {
-    "message": "Skrýt ve výchozím stavu text tohoto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuální počet přístupů"
   },
   "createSend": {
     "message": "Nový Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Než začnete"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Chcete-li použít k výběru data styl kalendáře",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "klepněte zde",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "pro zobrazení okna.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Uvedené datum vypršení platnosti není platné."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Došlo k chybě při ukládání datumu smzání a vypršení platnosti."
   },
-  "hideEmail": {
-    "message": "Skrýt mou e-mailovou adresu před příjemci."
-  },
   "hideYourEmail": {
     "message": "Skryje Vaši e-mailovou adresu před zobrazením."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Jedna nebo více zásad organizace ovlivňuje nastavení Send."
   },
   "passwordPrompt": {
     "message": "Zeptat se znovu na hlavní heslo"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Chyba"
   },
-  "regenerateUsername": {
-    "message": "Znovu vygenerovat uživatelské jméno"
-  },
   "generateUsername": {
     "message": "Vygenerovat uživatelské jméno"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Typ uživatelského jména"
-  },
   "plusAddressedEmail": {
     "message": "E-mailová adresa s plusem",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Název webu"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Co chcete vygenerovat?"
-  },
-  "passwordType": {
-    "message": "Typ hesla"
   },
   "service": {
     "message": "Služba"

@@ -138,11 +138,13 @@ import {
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
+import { TaxService } from "@bitwarden/common/billing/services/tax.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
@@ -460,6 +462,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DomainSettingsService,
+    useClass: DefaultDomainSettingsService,
+    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -1242,11 +1249,6 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: DomainSettingsService,
-    useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: BiometricStateService,
     useClass: DefaultBiometricStateService,
     deps: [StateProvider],
@@ -1272,9 +1274,14 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction, LogService, ToastService],
   }),
   safeProvider({
+    provide: TaxServiceAbstraction,
+    useClass: TaxService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
-    deps: [StateProvider],
+    deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,
