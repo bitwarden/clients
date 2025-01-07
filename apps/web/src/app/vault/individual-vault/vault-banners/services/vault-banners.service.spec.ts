@@ -1,20 +1,19 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
+import { BehaviorSubject, firstValueFrom, take, timeout } from "rxjs";
 
 import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { KdfConfigService, KdfType } from "@bitwarden/key-management";
 
 import {
   PREMIUM_BANNER_REPROMPT_KEY,
@@ -52,7 +51,7 @@ describe("VaultBannersService", () => {
         },
         {
           provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: hasPremiumFromAnySource$ },
+          useValue: { hasPremiumFromAnySource$: () => hasPremiumFromAnySource$ },
         },
         {
           provide: StateProvider,
@@ -96,7 +95,7 @@ describe("VaultBannersService", () => {
 
       service = TestBed.inject(VaultBannersService);
 
-      const premiumBanner$ = service.shouldShowPremiumBanner$(of(userId));
+      const premiumBanner$ = service.shouldShowPremiumBanner$(userId);
 
       // Should not emit when sync is null
       await expect(firstValueFrom(premiumBanner$.pipe(take(1), timeout(100)))).rejects.toThrow();
@@ -112,7 +111,7 @@ describe("VaultBannersService", () => {
 
       service = TestBed.inject(VaultBannersService);
 
-      expect(await firstValueFrom(service.shouldShowPremiumBanner$(of(userId)))).toBe(false);
+      expect(await firstValueFrom(service.shouldShowPremiumBanner$(userId))).toBe(false);
     });
 
     it("does not show a premium banner when they have access to premium", async () => {
@@ -121,7 +120,7 @@ describe("VaultBannersService", () => {
 
       service = TestBed.inject(VaultBannersService);
 
-      expect(await firstValueFrom(service.shouldShowPremiumBanner$(of(userId)))).toBe(false);
+      expect(await firstValueFrom(service.shouldShowPremiumBanner$(userId))).toBe(false);
     });
 
     describe("dismissing", () => {

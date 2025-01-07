@@ -44,6 +44,9 @@ page looks nice when the extension is popped out.
 - `above-scroll-area`
   - When the page content overflows, this content will be "stuck" to the top of the page upon
     scrolling.
+- `full-width-notice`
+  - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
+    container margin or padding.
 - default
   - Whatever content you want in `main`.
 
@@ -107,6 +110,30 @@ Common interactive elements to insert into the `end` slot are:
 - `app-pop-out`: shows popout button when the extension is not already popped out
 - "Add" button: this can be accomplished with the Button component and any custom functionality for
   that particular page
+
+### Notice
+
+<Canvas>
+  <Story of={stories.Notice} />
+</Canvas>
+
+Common interactive elements to insert into the `full-width-notice` slot are:
+
+- `bit-banner`: shows a full-width notice
+
+Usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n"> </popup-header>
+  <bit-banner slot="full-width-notice" bannerType="info" [showClose]="false">
+    This is an important note about these ciphers
+  </bit-banner>
+  <ng-container slot="above-scroll-area">
+    <app-vault-header-v2></app-vault-header-v2>
+  </ng-container>
+</popup-page>
+```
 
 ## Popup footer
 

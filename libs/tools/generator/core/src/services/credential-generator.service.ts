@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   BehaviorSubject,
   combineLatest,
@@ -11,11 +13,11 @@ import {
   ignoreElements,
   map,
   Observable,
+  ReplaySubject,
   share,
   skipUntil,
   switchMap,
   takeUntil,
-  takeWhile,
   withLatestFrom,
 } from "rxjs";
 import { Simplify } from "type-fest";
@@ -24,24 +26,19 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import {
   OnDependency,
   SingleUserDependency,
-  UserBound,
   UserDependency,
 } from "@bitwarden/common/tools/dependencies";
 import { IntegrationId, IntegrationMetadata } from "@bitwarden/common/tools/integration";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { anyComplete } from "@bitwarden/common/tools/rx";
-import { PaddedDataPacker } from "@bitwarden/common/tools/state/padded-data-packer";
-import { UserEncryptor } from "@bitwarden/common/tools/state/user-encryptor.abstraction";
-import { UserKeyEncryptor } from "@bitwarden/common/tools/state/user-key-encryptor";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
 
 import { Randomizer } from "../abstractions";
 import {
@@ -97,8 +94,7 @@ export class CredentialGeneratorService {
     private readonly policyService: PolicyService,
     private readonly apiService: ApiService,
     private readonly i18nService: I18nService,
-    private readonly encryptService: EncryptService,
-    private readonly keyService: KeyService,
+    private readonly encryptorProvider: LegacyEncryptorProvider,
     private readonly accountService: AccountService,
   ) {}
 
@@ -273,21 +269,6 @@ export class CredentialGeneratorService {
     return info;
   }
 
-  private encryptor$(userId: UserId) {
-    const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    const encryptor$ = this.keyService.userKey$(userId).pipe(
-      // complete when the account locks
-      takeWhile((key) => !!key),
-      map((key) => {
-        const encryptor = new UserKeyEncryptor(userId, this.encryptService, key, packer);
-
-        return { userId, encryptor } satisfies UserBound<"encryptor", UserEncryptor>;
-      }),
-    );
-
-    return encryptor$;
-  }
-
   /** Get the settings for the provided configuration
    * @param configuration determines which generator's settings are loaded
    * @param dependencies.userId$ identifies the user to which the settings are bound.
@@ -307,10 +288,15 @@ export class CredentialGeneratorService {
       filter((userId) => !!userId),
       distinctUntilChanged(),
       switchMap((userId) => {
+        const singleUserId$ = new BehaviorSubject(userId);
+        const singleUserEncryptor$ = this.encryptorProvider.userEncryptor$(OPTIONS_FRAME_SIZE, {
+          singleUserId$,
+        });
+
         const state$ = new UserStateSubject(
           configuration.settings.account,
           (key) => this.stateProvider.getUser(userId, key),
-          { constraints$, singleUserEncryptor$: this.encryptor$(userId) },
+          { constraints$, singleUserEncryptor$ },
         );
         return state$;
       }),
@@ -333,15 +319,23 @@ export class CredentialGeneratorService {
   async preferences(
     dependencies: SingleUserDependency,
   ): Promise<UserStateSubject<CredentialPreference>> {
-    const userId = await firstValueFrom(
-      dependencies.singleUserId$.pipe(filter((userId) => !!userId)),
-    );
+    const singleUserId$ = new ReplaySubject<UserId>(1);
+    dependencies.singleUserId$
+      .pipe(
+        filter((userId) => !!userId),
+        distinctUntilChanged(),
+      )
+      .subscribe(singleUserId$);
+    const singleUserEncryptor$ = this.encryptorProvider.userEncryptor$(OPTIONS_FRAME_SIZE, {
+      singleUserId$,
+    });
+    const userId = await firstValueFrom(singleUserId$);
 
     // FIXME: enforce policy
     const subject = new UserStateSubject(
       PREFERENCES,
       (key) => this.stateProvider.getUser(userId, key),
-      { singleUserEncryptor$: this.encryptor$(userId) },
+      { singleUserEncryptor$ },
     );
 
     return subject;
@@ -358,16 +352,24 @@ export class CredentialGeneratorService {
     configuration: Readonly<Configuration<Settings, Policy>>,
     dependencies: SingleUserDependency,
   ) {
-    const userId = await firstValueFrom(
-      dependencies.singleUserId$.pipe(filter((userId) => !!userId)),
-    );
+    const singleUserId$ = new ReplaySubject<UserId>(1);
+    dependencies.singleUserId$
+      .pipe(
+        filter((userId) => !!userId),
+        distinctUntilChanged(),
+      )
+      .subscribe(singleUserId$);
+    const singleUserEncryptor$ = this.encryptorProvider.userEncryptor$(OPTIONS_FRAME_SIZE, {
+      singleUserId$,
+    });
+    const userId = await firstValueFrom(singleUserId$);
 
     const constraints$ = this.policy$(configuration, { userId$: dependencies.singleUserId$ });
 
     const subject = new UserStateSubject(
       configuration.settings.account,
       (key) => this.stateProvider.getUser(userId, key),
-      { constraints$, singleUserEncryptor$: this.encryptor$(userId) },
+      { constraints$, singleUserEncryptor$ },
     );
 
     return subject;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 
 import { OrganizationKeysRequest } from "./organization-keys.request";

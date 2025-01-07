@@ -64,13 +64,16 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [StoryDialogContentComponent],
+      imports: [
+        SharedModule,
+        ButtonModule,
+        DialogModule,
+        IconButtonModule,
         DialogCloseDirective,
         DialogComponent,
         DialogTitleContainerDirective,
-        StoryDialogContentComponent,
       ],
-      imports: [SharedModule, ButtonModule, DialogModule, IconButtonModule],
       providers: [
         DialogService,
         {

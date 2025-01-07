@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -93,6 +94,7 @@ describe("OverlayBackground", () => {
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
   let autofillService: MockProxy<AutofillService>;
+  let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let environmentMock$: BehaviorSubject<CloudEnvironment>;
@@ -149,11 +151,13 @@ describe("OverlayBackground", () => {
   }
 
   beforeEach(() => {
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();
@@ -928,6 +932,7 @@ describe("OverlayBackground", () => {
             login: {
               username: "username-1",
               passkey: null,
+              totpField: false,
             },
             name: "name-1",
             reprompt: loginCipher1.reprompt,
@@ -1065,6 +1070,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
               name: loginCipher1.name,
               reprompt: loginCipher1.reprompt,
@@ -1189,6 +1195,7 @@ describe("OverlayBackground", () => {
                 rpName: passkeyCipher.login.fido2Credentials[0].rpName,
                 userName: passkeyCipher.login.fido2Credentials[0].userName,
               },
+              totpField: false,
             },
           },
           {
@@ -1207,6 +1214,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1225,6 +1233,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1272,6 +1281,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1290,6 +1300,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1337,6 +1348,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1355,6 +1367,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1400,6 +1413,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
             {
@@ -1418,6 +1432,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher2.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
           ],

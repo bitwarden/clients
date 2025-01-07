@@ -1,14 +1,10 @@
 import { Injectable } from "@angular/core";
-import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
-import { filter, mergeMap, take } from "rxjs/operators";
+import { Observable, combineLatest, firstValueFrom, map, filter, mergeMap, take } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
-import { PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import {
   StateProvider,
   PREMIUM_BANNER_DISK_LOCAL,
@@ -18,6 +14,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { PBKDF2KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
 
 export enum VisibleVaultBanner {
   KDFSettings = "kdf-settings",
@@ -68,7 +65,7 @@ export class VaultBannersService {
   shouldShowPremiumBanner$(userId: UserId): Observable<boolean> {
     const premiumBannerState = this.premiumBannerState(userId);
     const premiumSources$ = combineLatest([
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
       premiumBannerState.state$,
     ]);
 

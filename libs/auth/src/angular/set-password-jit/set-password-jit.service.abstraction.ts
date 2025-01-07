@@ -1,6 +1,8 @@
-import { PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 export interface SetPasswordCredentials {
   masterKey: MasterKey;

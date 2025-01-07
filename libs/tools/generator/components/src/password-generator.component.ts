@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import {
@@ -249,7 +251,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   private toOptions(algorithms: AlgorithmInfo[]) {
     const options: Option<CredentialAlgorithm>[] = algorithms.map((algorithm) => ({
       value: algorithm.id,
-      label: this.i18nService.t(algorithm.name),
+      label: algorithm.name,
     }));
 
     return options;

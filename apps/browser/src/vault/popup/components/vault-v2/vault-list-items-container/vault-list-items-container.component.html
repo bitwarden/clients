@@ -27,12 +27,16 @@
         <button
           bit-item-content
           type="button"
-          (click)="onViewCipher(cipher)"
+          (click)="primaryActionAutofill ? doAutofill(cipher) : onViewCipher(cipher)"
           (dblclick)="launchCipher(cipher)"
-          [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
+          [appA11yTitle]="
+            (primaryActionAutofill ? 'autofillTitle' : 'viewItemTitle') | i18n: cipher.name
+          "
           class="{{ itemHeightClass }}"
         >
-          <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+          <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+            <app-vault-icon [cipher]="cipher"></app-vault-icon>
+          </div>
           <span data-testid="item-name">{{ cipher.name }}</span>
           <i
             *ngIf="cipher.organizationId"
@@ -49,13 +53,13 @@
           <span slot="secondary">{{ cipher.subTitle }}</span>
         </button>
         <ng-container slot="end">
-          <bit-item-action *ngIf="showAutofillButton">
+          <bit-item-action *ngIf="showAutofillButton && !primaryActionAutofill">
             <button
               type="button"
               bitBadge
               variant="primary"
               (click)="doAutofill(cipher)"
-              [title]="'autofillTitle' | i18n: cipher.name"
+              [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
               [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
             >
               {{ "fill" | i18n }}
@@ -75,6 +79,7 @@
           <app-item-more-options
             [cipher]="cipher"
             [hideAutofillOptions]="showAutofillButton"
+            [showViewOption]="primaryActionAutofill"
           ></app-item-more-options>
         </ng-container>
       </bit-item>

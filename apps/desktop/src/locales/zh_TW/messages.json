@@ -205,22 +205,37 @@
     "message": "RSA 4096-Bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "一組SSH金鑰已在之前生成了"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "請解鎖密碼庫以核准SSh金鑰的請求"
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "SSH金鑰請求超時"
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "啟用SSH代理"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "啟用SSBitwardenH代理以從 Bitwarden 密碼庫簽發SSH請求"
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
   },
   "premiumRequired": {
     "message": "需要進階會員資格"
@@ -308,7 +323,7 @@
     "message": "產生密碼"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "產生密碼片語"
   },
   "type": {
     "message": "類型"
@@ -446,13 +461,13 @@
     "message": "複製密碼"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "重新產生密碼片語"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "複製SSH私鑰"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "複製密碼片語",
     "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
@@ -483,11 +498,11 @@
     "message": "特殊字元 (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "包含",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "包含大寫字元",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -503,7 +518,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "包含數字",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -511,7 +526,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "包含特殊字元",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -546,11 +561,11 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "避免易混淆的字元",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "企業原則之要求已在你的產生器選項中生效",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -609,22 +624,22 @@
     "message": "建立帳戶"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "第一次使用 Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "設定一個強密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "設定密碼以完成帳號創建"
   },
   "logIn": {
     "message": "登入"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "登入 Bitwarden"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "以通行密鑰 (passkey) 登入"
   },
   "loginWithDevice": {
     "message": "Log in with device"
@@ -679,7 +694,7 @@
     "message": "加入組織"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "加入 $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -752,7 +767,7 @@
     "message": "Your new account has been created!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "你已經登入!"
   },
   "masterPassSent": {
     "message": "已寄出包含您主密碼提示的電子郵件。"
@@ -785,7 +800,7 @@
     "message": "必須填入驗證碼。"
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "驗證已被取消或時間過長。請再試一次。"
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
@@ -903,6 +918,12 @@
   },
   "baseUrl": {
     "message": "伺服器 URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
@@ -1371,12 +1392,30 @@
   "passwordHistory": {
     "message": "密碼歷史記錄"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "清除",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "沒有可列出的密碼。"
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "復原"
@@ -1694,9 +1733,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "驗證 Bitwarden。"
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "使用 Touch ID 解鎖"
@@ -2444,8 +2480,8 @@
   "generateEmail": {
     "message": "Generate email"
   },
-  "generatorBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2455,6 +2491,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -2669,14 +2725,29 @@
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
     "message": "請確保您的密碼庫已解鎖，並且指紋短語與其他裝置的一致。"
   },
   "fingerprintPhraseHeader": {
     "message": "指紋短語"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "needAnotherOption": {
     "message": "必須先在 Bitwarden 應用程式設定中開啟，才可以使用裝置登入。要改用其他選項嗎？"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "檢視所有登入選項"
@@ -2797,6 +2868,9 @@
   "checkForBreaches": {
     "message": "檢查外洩的密碼資料庫中是否包含此密碼"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "重要："
   },
@@ -2827,8 +2901,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "建議設定更新"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "裝置需要取得核准。請在下面選擇一個核准選項："
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "記住這個裝置"
@@ -2881,6 +2964,9 @@
   },
   "userEmailMissing": {
     "message": "缺少使用者電子郵件地址"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "裝置已信任"
@@ -3308,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   }
 }

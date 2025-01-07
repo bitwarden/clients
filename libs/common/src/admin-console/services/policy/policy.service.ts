@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { UserKeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
@@ -238,6 +240,9 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
       case PolicyType.PersonalOwnership:
         // individual vault policy applies to everyone except admins and owners
         return organization.isAdmin;
+      case PolicyType.FreeFamiliesSponsorshipPolicy:
+        // free Bitwarden families policy applies to everyone
+        return false;
       default:
         return organization.canManagePolicies;
     }

@@ -1,13 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { KdfConfigService } from "../../../auth/abstractions/kdf-config.service";
-import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -26,7 +23,6 @@ describe("DefaultSdkService", () => {
     let accountService!: MockProxy<AccountService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
-    let apiService!: MockProxy<ApiService>;
     let service!: DefaultSdkService;
 
     let mockClient!: MockProxy<BitwardenClient>;
@@ -38,7 +34,6 @@ describe("DefaultSdkService", () => {
       accountService = mock<AccountService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
-      apiService = mock<ApiService>();
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -50,7 +45,6 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
-        apiService,
       );
 
       mockClient = mock<BitwardenClient>();
@@ -62,6 +56,9 @@ describe("DefaultSdkService", () => {
       const userId = "user-id" as UserId;
 
       beforeEach(() => {
+        environmentService.getEnvironment$
+          .calledWith(userId)
+          .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
           [userId]: { email: "email", emailVerified: true, name: "name" } as AccountInfo,
         });

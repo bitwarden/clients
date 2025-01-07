@@ -13,7 +13,10 @@
     <bit-icon [icon]="logo"></bit-icon>
   </a>
 
-  <div class="tw-text-center tw-mb-6">
+  <div
+    class="tw-text-center tw-mb-6"
+    [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
+  >
     <div class="tw-mx-auto tw-max-w-28 sm:tw-max-w-32">
       <bit-icon [icon]="icon"></bit-icon>
     </div>

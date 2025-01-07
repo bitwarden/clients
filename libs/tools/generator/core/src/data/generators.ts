@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
@@ -369,7 +371,7 @@ export function toCredentialGeneratorConfiguration<Settings extends ApiSettings 
     settings: {
       initial: configuration.forwarder.defaultSettings,
       constraints: configuration.forwarder.settingsConstraints,
-      account: configuration.forwarder.settings,
+      account: configuration.forwarder.local.settings,
     },
     policy: {
       type: PolicyType.PasswordGenerator,

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
@@ -51,11 +53,11 @@ export class OrganizationApiServiceAbstraction {
   updatePasswordManagerSeats: (
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSecretsManagerSubscription: (
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
   updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
   verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;

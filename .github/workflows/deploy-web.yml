@@ -266,7 +266,8 @@ jobs:
       channel_id: ${{ steps.slack-message.outputs.channel_id }}
       ts: ${{ steps.slack-message.outputs.ts }}
     steps:
-      - uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
+      - name: Notify Slack with start message
+        uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
         id: slack-message
         with:
           project: Clients
@@ -419,7 +420,8 @@ jobs:
       - azure-deploy
       - artifact-check
     steps:
-      - uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
+      - name: Notify Slack with result
+        uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
         with:
           project: Clients
           environment: ${{ needs.setup.outputs.environment-name }}

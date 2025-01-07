@@ -1,7 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { map, Observable } from "rxjs";
 
-import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
@@ -16,7 +16,8 @@ export function canAccessSettingsTab(org: Organization): boolean {
     org.canManagePolicies ||
     org.canManageSso ||
     org.canManageScim ||
-    org.canAccessImportExport ||
+    org.canAccessImport ||
+    org.canAccessExport(false) || // Feature flag value doesn't matter here, providers will have access to this group anyway
     org.canManageDeviceApprovals
   );
 }
@@ -54,20 +55,6 @@ export function canAccessOrgAdmin(org: Organization): boolean {
 
 export function getOrganizationById(id: string) {
   return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
-}
-
-export function canAccessAdmin(i18nService: I18nService) {
-  return map<Organization[], Organization[]>((orgs) =>
-    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name")),
-  );
-}
-
-export function canAccessImport(i18nService: I18nService) {
-  return map<Organization[], Organization[]>((orgs) =>
-    orgs
-      .filter((org) => org.canAccessImportExport || org.canCreateNewCollections)
-      .sort(Utils.getSortFunction(i18nService, "name")),
-  );
 }
 
 /**

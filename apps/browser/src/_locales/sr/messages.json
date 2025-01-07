@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Ауто-пуњење идентитета"
   },
+  "fillVerificationCode": {
+    "message": "Пуни верификациони кôд"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Пуни верификациони кôд",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Генериши Лозинку (копирано)"
   },
@@ -447,9 +454,6 @@
   "length": {
     "message": "Дужина"
   },
-  "passwordMinLength": {
-    "message": "Минимална дужина лозинке"
-  },
   "uppercase": {
     "message": "Велика слова (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Минимално специјалних знакова"
-  },
-  "avoidAmbChar": {
-    "message": "Избегавај двосмислене карактере",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Избегавај двосмислене карактере",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Оцени овај додатак"
-  },
-  "rateExtensionDesc": {
-    "message": "Молимо вас да размотрите да нам помогнете уз добру оцену!"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш прегледач не подржава једноставно копирање у клипборду. Уместо тога копирајте га ручно."
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Прикажи ставке идентитета на страници за лакше аутоматско допуњавање."
   },
+  "clickToAutofillOnVault": {
+    "message": "Кликните на ставке за ауто-попуњавање у приказу сефа"
+  },
   "clearClipboard": {
     "message": "Обриши привремену меморију",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1125,6 +1125,10 @@
     "message": "УПОЗОРЕЊЕ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Упозорење",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Потврдите извоз сефа"
   },
@@ -1148,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Премести у организацију"
-  },
-  "share": {
-    "message": "Подели"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ премештен у $ORGNAME$",
@@ -1314,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Унесите шестоцифрени верификациони код из апликације за утврђивање аутентичности."
+  },
+  "authenticationTimeout": {
+    "message": "Истекло је време аутентификације"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
   },
   "enterVerificationCodeEmail": {
     "message": "Унесите шестоцифрени верификациони код који је послан на $EMAIL$.",
@@ -1502,19 +1509,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ако се открије образац за пријаву, извршите аутоматско попуњавање када се веб страница учита."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Пажња:$CLOSETAG$ Компромитоване или непоуздане веб локације могу да искористе ауто-попуњавање при учитавању странице.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Компромитоване или непоуздане веб локације могу да искористе ауто-пуњење при учитавању странице."
@@ -1777,7 +1771,7 @@
     "message": "SSH кључ"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "Нови $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1822,7 +1816,7 @@
     "message": "Колекције"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ колекција",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1850,6 +1844,9 @@
   },
   "secureNotes": {
     "message": "Сигурносне белешке"
+  },
+  "sshKeys": {
+    "message": "SSH Кључеви"
   },
   "clear": {
     "message": "Очисти",
@@ -2042,9 +2039,6 @@
   },
   "clone": {
     "message": "Клонирај"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Једна или више смерница организације утичу на поставке вашег генератора."
   },
   "passwordGenerator": {
     "message": "Генератор Лозинке"
@@ -2385,14 +2379,6 @@
     "message": "Детаљи Send-а",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Тражи „Send“",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Додај „Send“",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Текст"
   },
@@ -2409,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Сакриј текст подразумевано"
   },
-  "maxAccessCountReached": {
-    "message": "Достигнут максималан број приступа",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Истекло"
-  },
-  "pendingDeletion": {
-    "message": "Брисање на чекању"
   },
   "passwordProtected": {
     "message": "Заштићено лозинком"
@@ -2468,23 +2447,8 @@
     "message": "Уреди „Send“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Који је ово тип „Send“-a?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Име да се опише овај „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Датотека коју желиш да пошаљеш."
-  },
   "deletionDate": {
     "message": "Брисање после"
-  },
-  "deletionDateDesc": {
-    "message": "„Send“ ће бити трајно избрисан наведеног датума и времена.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Send ће бити трајно обрисано у наведени датум.",
@@ -2492,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Рок употребе"
-  },
-  "expirationDateDesc": {
-    "message": "Ако је постављено, приступ овом „Send“ истиче на наведени датум и време.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 дан"
@@ -2512,42 +2472,9 @@
   "custom": {
     "message": "Друго"
   },
-  "maximumAccessCount": {
-    "message": "Максималан број приступа"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Ако је постављено, корисници више неће моћи да приступе овом „Send“ када се достигне максимални број приступа.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Опционално захтевајте лозинку за приступ корисницима „Send“-у.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Додајте опционалну лозинку за примаоце да приступе овом Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Приватне белешке о овом „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Онемогућите овај „Send“ да нико не би могао да му приступи.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Након чувања, копирај УРЛ за овај „Send“ у привремену меморију.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст који желиш да пошаљеш."
-  },
-  "sendHideText": {
-    "message": "Подразумевано сакриј текст за овај „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Тренутни број приступа"
   },
   "createSend": {
     "message": "Креирај нови „Send“",
@@ -2577,7 +2504,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHours": {
-    "message": "The Send will be available to anyone with the link for the next $HOURS$ hours.",
+    "message": "Send ће бити доступан свакоме са везом у наредних $HOURS$ часова.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "hours": {
@@ -2591,7 +2518,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInDays": {
-    "message": "The Send will be available to anyone with the link for the next $DAYS$ days.",
+    "message": "Send ће бити доступан свакоме са везом у наредних $DAYS$ дана.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -2631,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Пре него што почнеш"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Да би користио бирање датума кроз календар",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "кликните овде",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "Да бисте приказали искачући прозор.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Наведени датум истека није исправан."
   },
@@ -2658,14 +2573,8 @@
   "dateParsingError": {
     "message": "Појавила се грешка при чувању датума брисања и истека."
   },
-  "hideEmail": {
-    "message": "Сакриј моју е-адресу од примаоца."
-  },
   "hideYourEmail": {
     "message": "Сакријте свој имејл од гледалаца."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Једна или више смерница организације утичу на опције „Send“-а."
   },
   "passwordPrompt": {
     "message": "Поновно тражење главне лозинке"
@@ -2880,17 +2789,14 @@
   "error": {
     "message": "Грешка"
   },
-  "regenerateUsername": {
-    "message": "Поново генериши име"
-  },
   "generateUsername": {
     "message": "Генериши име"
   },
   "generateEmail": {
     "message": "Генеришите имејл"
   },
-  "generatorBoundariesHint": {
-    "message": "Вредност мора бити између $MIN$ и $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Вредност мора бити између $MIN$ и $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2903,8 +2809,25 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Тип имена"
+  "passwordLengthRecommendationHint": {
+    "message": " Употребити $RECOMMENDED$ знакова или више да бисте генерисали јаку лозинку.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Употребити $RECOMMENDED$ речи или више да бисте генерисали јаку приступну фразу.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
     "message": "Плус имејл адресе",
@@ -2927,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Име Вашег веб-сајта"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Шта желите да генеришете?"
-  },
-  "passwordType": {
-    "message": "Тип лозинке"
   },
   "service": {
     "message": "Сервис"
@@ -3150,11 +3067,26 @@
   "resendNotification": {
     "message": "Поново послати обавештење"
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
+    "message": "Погледајте сав извештај у опције"
+  },
+  "viewAllLoginOptionsV1": {
     "message": "Погледајте сав извештај у опције"
   },
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Обавештење је послато на ваш уређај"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Уверите се да је ваш налог откључан и да се фраза отиска подудара на другом уређају"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Бићете обавештени када захтев буде одобрен"
+  },
+  "needAnotherOptionV1": {
+    "message": "Треба Вам друга опције?"
   },
   "loginInitiated": {
     "message": "Пријава је покренута"
@@ -3249,8 +3181,17 @@
   "opensInANewWindow": {
     "message": "Отвара се у новом прозору"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
+  },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Потребно је одобрење уређаја"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Изаберите опцију одобрења у наставку"
   },
   "rememberThisDevice": {
     "message": "Запамти овај уређај"
@@ -3324,6 +3265,9 @@
   },
   "userEmailMissing": {
     "message": "Недостаје имејл корисника"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Имејл активног корисника није пронађен. Одјављивање."
   },
   "deviceTrusted": {
     "message": "Уређај поуздан"
@@ -3532,6 +3476,14 @@
   "unlockAccountAria": {
     "message": "Откључајте свој налог, отвара се у новом прозору",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Једнократни верификациони кôд заснован на времену",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Преостало време до истека актуелног ТОТП-а",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Попунити акредитиве за",
@@ -3760,6 +3712,9 @@
   },
   "accessing": {
     "message": "Приступ"
+  },
+  "loggedInExclamation": {
+    "message": "Пријављено!"
   },
   "passkeyNotCopied": {
     "message": "Приступни кључ неће бити копиран"
@@ -4252,6 +4207,21 @@
   "filters": {
     "message": "Филтери"
   },
+  "filterVault": {
+    "message": "Филтер сефа"
+  },
+  "filterApplied": {
+    "message": "Примењен је један филтер"
+  },
+  "filterAppliedPlural": {
+    "message": "Примењени су $COUNT$ филтера",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Личне информације"
   },
@@ -4599,6 +4569,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Прикажи број предлога за ауто-попуњавање пријаве на икони додатка"
   },
+  "showQuickCopyActions": {
+    "message": "Приказати брзе радње копирања у Сефу"
+  },
   "systemDefault": {
     "message": "Системски подразумевано"
   },
@@ -4716,55 +4689,55 @@
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "Знак за уметање",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
-    "message": "Ampersand",
+    "message": "Знак Ampersand",
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "Знак звездица",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "Отворена заграда",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "Затворена заграда",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "Доња црта",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "Цртица",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
-    "message": "Plus",
+    "message": "Плус",
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "Једнако",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "Лева велика заграда",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "Десна велика заграда",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "Лева заграда",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "Десна заграда",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
@@ -4772,56 +4745,107 @@
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
-    "message": "Back slash",
+    "message": "Задња коса црта",
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "Две тачке",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "Тачка-запета",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "Двоструки наводници",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "Један наводник",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "Мање од",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "Веће од",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "Зарез",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
-    "message": "Period",
+    "message": "Тачка",
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "Упитник",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
-    "message": "Forward slash",
+    "message": "Коса црта",
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
-    "message": "Lowercase"
+    "message": "Мала слова"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Велика слова"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Генерисана лозинка"
+  },
+  "compactMode": {
+    "message": "Компактни режим"
+  },
+  "beta": {
+    "message": "Бета"
+  },
+  "importantNotice": {
+    "message": "Важно обавештење"
+  },
+  "setupTwoStepLogin": {
+    "message": "Поставити дво-степенску пријаву"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да подесите пријаву у два корака као алтернативни начин да заштитите свој налог или да промените свој имејл у један који можете да приступите."
+  },
+  "remindMeLater": {
+    "message": "Подсети ме касније"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Да ли имате поуздан приступ својим имејлом, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, ненам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, могу поуздано да приступим овим имејлом"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Упалити дво-степенску пријаву"
+  },
+  "changeAcctEmail": {
+    "message": "Променити имејл налога"
+  },
+  "extensionWidth": {
+    "message": "Ширина додатка"
+  },
+  "wide": {
+    "message": "Широко"
+  },
+  "extraWide": {
+    "message": "Врло широко"
   }
 }

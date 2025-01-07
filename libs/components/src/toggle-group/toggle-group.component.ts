@@ -13,6 +13,7 @@ let nextId = 0;
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",
   preserveWhitespaces: false,
+  standalone: true,
 })
 export class ToggleGroupComponent<TValue = unknown> {
   private id = nextId++;

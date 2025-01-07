@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -207,7 +209,7 @@ export class AttachmentsComponent implements OnInit {
     );
 
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.canAccessAttachments = canAccessPremium || this.cipher.organizationId != null;
 

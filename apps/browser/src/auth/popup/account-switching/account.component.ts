@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
@@ -17,7 +19,6 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
-  @Input() extensionRefreshFlag: boolean = false;
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(

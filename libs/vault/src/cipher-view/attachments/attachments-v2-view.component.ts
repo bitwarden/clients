@@ -1,9 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NEVER, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -45,16 +48,22 @@ export class AttachmentsV2ViewComponent {
     private keyService: KeyService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private stateProvider: StateProvider,
+    private accountService: AccountService,
   ) {
     this.subscribeToHasPremiumCheck();
     this.subscribeToOrgKey();
   }
 
   subscribeToHasPremiumCheck() {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntilDestroyed())
-      .subscribe((data) => {
-        this.canAccessPremium = data;
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((hasPremium) => {
+        this.canAccessPremium = hasPremium;
       });
   }
 

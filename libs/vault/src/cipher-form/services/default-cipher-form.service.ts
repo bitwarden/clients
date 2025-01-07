@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -71,7 +73,6 @@ export class DefaultCipherFormService implements CipherFormService {
       await this.cipherService.updateWithServer(
         encryptedCipher,
         config.admin || originalCollectionIds.size === 0,
-        config.mode !== "clone",
       );
 
       // Then save the new collection changes separately

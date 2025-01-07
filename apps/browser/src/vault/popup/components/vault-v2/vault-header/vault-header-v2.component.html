@@ -32,7 +32,5 @@
   [open]="initialDisclosureVisibility$ | async"
   (openChange)="toggleFilters($event)"
 >
-  <div class="tw-pt-2">
-    <app-vault-list-filters></app-vault-list-filters>
-  </div>
+  <app-vault-list-filters></app-vault-list-filters>
 </bit-disclosure>

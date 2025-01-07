@@ -76,7 +76,7 @@ export default {
 type Story = StoryObj<DialogComponent & { title: string }>;
 
 export const Default: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
@@ -140,7 +140,7 @@ export const Loading: Story = {
 };
 
 export const ScrollingContent: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
@@ -195,7 +195,7 @@ export const TabContent: Story = {
 };
 
 export const WithCards: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormGroup({
         name: new FormControl(""),

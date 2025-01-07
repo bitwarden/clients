@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, Subject } from "rxjs";
 
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";

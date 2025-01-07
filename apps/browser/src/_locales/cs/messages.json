@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automaticky vyplnit identitu"
   },
+  "fillVerificationCode": {
+    "message": "Vyplnit ověřovací kód"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Vyplnit ověřovací kód",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Vygenerovat heslo a zkopírovat do schránky"
   },
@@ -447,9 +454,6 @@
   "length": {
     "message": "Délka"
   },
-  "passwordMinLength": {
-    "message": "Minimální délka hesla"
-  },
   "uppercase": {
     "message": "Velká písmena (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimální počet speciálních znaků"
-  },
-  "avoidAmbChar": {
-    "message": "Nepoužívat zaměnitelné znaky",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Nepoužívat zaměnitelné znaky",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Ohodnotit rozšíření"
-  },
-  "rateExtensionDesc": {
-    "message": "Pomozte nám napsáním dobré recenze!"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prohlížeč nepodporuje automatické kopírování do schránky. Musíte ho zkopírovat ručně."
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Pro snadné vyplnění zobrazí položky identit na obrazovce Karta."
   },
+  "clickToAutofillOnVault": {
+    "message": "Klepněte na položky pro automatické vyplnění v zobrazení trezoru"
+  },
   "clearClipboard": {
     "message": "Vymazat schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1125,6 +1125,10 @@
     "message": "VAROVÁNÍ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Varování",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Potvrdit export trezoru"
   },
@@ -1148,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Přesunout do organizace"
-  },
-  "share": {
-    "message": "Sdílet"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ přesunut do $ORGNAME$",
@@ -1314,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Zadejte 6místný kód z ověřovací aplikace."
+  },
+  "authenticationTimeout": {
+    "message": "Časový limit ověření"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
   },
   "enterVerificationCodeEmail": {
     "message": "Zadejte 6místný kód z e-mailu, který byl zaslán na $EMAIL$.",
@@ -1502,19 +1509,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Pokud je zjištěn přihlašovací formulář, automaticky se při načítání webové stránky vyplní přihlašovací údaje."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Varování:$CLOSETAG$ Kompromitované nebo nedůvěryhodné webové stránky mohou využívat automatické vyplňování při načítání stránky.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Kompromitované nebo nedůvěryhodné webové stránky mohou zneužívat automatické vyplňování při načítání stránky."
@@ -1851,6 +1845,9 @@
   "secureNotes": {
     "message": "Zabezpečené poznámky"
   },
+  "sshKeys": {
+    "message": "SSH klíče"
+  },
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
@@ -2042,9 +2039,6 @@
   },
   "clone": {
     "message": "Duplikovat"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedna nebo více zásad organizace ovlivňují nastavení generátoru."
   },
   "passwordGenerator": {
     "message": "Generátor hesla"
@@ -2385,14 +2379,6 @@
     "message": "Podrobnosti Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Prohledat Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Přidat Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2409,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Ve výchozím nastavení skrýt text"
   },
-  "maxAccessCountReached": {
-    "message": "Dosažen maximální počet přístupů",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Vypršela platnost"
-  },
-  "pendingDeletion": {
-    "message": "Čekání na smazání"
   },
   "passwordProtected": {
     "message": "Chráněno heslem"
@@ -2468,23 +2447,8 @@
     "message": "Upravit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Jakého typu je tento Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Přátelský název pro popis tohoto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Soubor, který chcete odeslat."
-  },
   "deletionDate": {
     "message": "Datum smazání"
-  },
-  "deletionDateDesc": {
-    "message": "Tento Send bude trvale smazán v určený datum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Tento Send bude trvale smazán v určené datum.",
@@ -2492,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Datum vypršení platnosti"
-  },
-  "expirationDateDesc": {
-    "message": "Je-li nastaveno, přístup k tomuto Send vyprší v daný datum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 den"
@@ -2512,42 +2472,9 @@
   "custom": {
     "message": "Vlastní"
   },
-  "maximumAccessCount": {
-    "message": "Maximální počet přístupů"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Je-li nastaveno, uživatelé již nebudou mít přístup k tomuto Send, jakmile bude dosaženo maximálního počtu přístupů.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Volitelně vyžadovat heslo pro přístup k tomuto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Přidá volitelné heslo pro příjemce pro přístup k tomuto Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Soukromé poznámky o tomto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deaktivuje tento Send, díky čemuž k němu nebude moci nikdo přistoupit.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Zkopíruje odkaz pro sdílení tohoto Send po uložení.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Text, který chcete odeslat."
-  },
-  "sendHideText": {
-    "message": "Skrýt ve výchozím stavu text tohoto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuální počet přístupů"
   },
   "createSend": {
     "message": "Nový Send",
@@ -2631,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Než začnete"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Chcete-li použít k výběru data styl kalendáře",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "klepněte zde",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "pro zobrazení okna.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Uvedené datum vypršení platnosti není platné."
   },
@@ -2658,14 +2573,8 @@
   "dateParsingError": {
     "message": "Došlo k chybě při ukládání datumu smzání a vypršení platnosti."
   },
-  "hideEmail": {
-    "message": "Skrýt mou e-mailovou adresu před příjemci."
-  },
   "hideYourEmail": {
     "message": "Skryje Vaši e-mailovou adresu před zobrazením."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Jedna nebo více zásad organizace ovlivňuje nastavení Send."
   },
   "passwordPrompt": {
     "message": "Zeptat se znovu na hlavní heslo"
@@ -2880,17 +2789,14 @@
   "error": {
     "message": "Chyba"
   },
-  "regenerateUsername": {
-    "message": "Znovu vygenerovat uživatelské jméno"
-  },
   "generateUsername": {
     "message": "Vygenerovat uživatelské jméno"
   },
   "generateEmail": {
     "message": "Vygenerovat e-mail"
   },
-  "generatorBoundariesHint": {
-    "message": "Hodnota musí být mezi $MIN$ a $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Hodnota musí být mezi $MIN$ a $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2903,8 +2809,25 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Typ uživatelského jména"
+  "passwordLengthRecommendationHint": {
+    "message": " Použijte $RECOMMENDED$ nebo více znaků k vytvoření silného hesla.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Použijte $RECOMMENDED$ slov nebo více slov k vytvoření silné heslové fráze.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
     "message": "E-mailová adresa s plusem",
@@ -2927,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Název webu"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Co chcete vygenerovat?"
-  },
-  "passwordType": {
-    "message": "Typ hesla"
   },
   "service": {
     "message": "Služba"
@@ -3150,11 +3067,26 @@
   "resendNotification": {
     "message": "Znovu odeslat oznámení"
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
+    "message": "Zobrazit všechny volby přihlášení"
+  },
+  "viewAllLoginOptionsV1": {
     "message": "Zobrazit všechny volby přihlášení"
   },
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Na Vaše zařízení bylo odesláno oznámení"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Ujistěte se, že je Váš trezor odemčen a fráze otisku prstu se shodují s druhým zařízením"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Budete upozorněni, jakmile bude žádost schválena"
+  },
+  "needAnotherOptionV1": {
+    "message": "Potřebujete další volby?"
   },
   "loginInitiated": {
     "message": "Bylo zahájeno přihlášení"
@@ -3249,8 +3181,17 @@
   "opensInANewWindow": {
     "message": "Otevře se v novém okně"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Zapamatovat si toto zařízení pro bezproblémové budoucí přihlášení"
+  },
   "deviceApprovalRequired": {
     "message": "Vyžaduje se schválení zařízení. Vyberte možnost schválení níže:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Vyžaduje se schválení zařízení"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vyberte volbu schválení níže"
   },
   "rememberThisDevice": {
     "message": "Zapamatovat toto zařízení"
@@ -3324,6 +3265,9 @@
   },
   "userEmailMissing": {
     "message": "Chybí e-mail uživatele"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktivní uživatelský e-mail nebyl nalezen. Budete odhlášeni."
   },
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"
@@ -3532,6 +3476,14 @@
   "unlockAccountAria": {
     "message": "Odemknout účet, otevře se v novém okně",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Ověřovací kód TOTP",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Zbývající čas před vypršením aktuálního TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Vyplnit přihlašovací údaje pro",
@@ -3760,6 +3712,9 @@
   },
   "accessing": {
     "message": "Přistupování"
+  },
+  "loggedInExclamation": {
+    "message": "Přihlášeno!"
   },
   "passkeyNotCopied": {
     "message": "Přístupový klíč nebude zkopírován"
@@ -4252,6 +4207,21 @@
   "filters": {
     "message": "Filtry"
   },
+  "filterVault": {
+    "message": "Filtrovat trezor"
+  },
+  "filterApplied": {
+    "message": "Byl použit jeden filtr"
+  },
+  "filterAppliedPlural": {
+    "message": "Bylo použito $COUNT$ filtrů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Osobní údaje"
   },
@@ -4599,6 +4569,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobrazit počet návrhů automatického vyplňování přihlášení na ikoně rozšíření"
   },
+  "showQuickCopyActions": {
+    "message": "Zobrazit akce rychlé kopie v trezoru"
+  },
   "systemDefault": {
     "message": "Systémový výchozí"
   },
@@ -4823,5 +4796,56 @@
   },
   "generatedPassword": {
     "message": "Vygenerované heslo"
+  },
+  "compactMode": {
+    "message": "Kompaktní režim"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Důležité upozornění"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavit dvoufázové přihlášení"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
+  },
+  "remindMeLater": {
+    "message": "Připomenout později"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ne, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ano, ke svému e-mailu mám přístup"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnout dvoufázové přihlášení"
+  },
+  "changeAcctEmail": {
+    "message": "Změnit e-mail účtu"
+  },
+  "extensionWidth": {
+    "message": "Šířka rozšíření"
+  },
+  "wide": {
+    "message": "Šířka"
+  },
+  "extraWide": {
+    "message": "Extra široký"
   }
 }

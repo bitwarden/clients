@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -133,10 +135,10 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     if (userId == null || userId === currentUserId) {
       await this.searchService.clearIndex();
-      await this.folderService.clearCache();
       await this.collectionService.clearActiveUserCache();
     }
 
+    await this.folderService.clearDecryptedFolderState(lockingUserId);
     await this.masterPasswordService.clearMasterKey(lockingUserId);
 
     await this.stateService.setUserKeyAutoUnlock(null, { userId: lockingUserId });

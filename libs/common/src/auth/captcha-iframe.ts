@@ -2,6 +2,7 @@ import { I18nService } from "../platform/abstractions/i18n.service";
 
 import { IFrameComponent } from "./iframe-component";
 
+// TODO: PM-15162 - captcha is deprecated as part of UI refresh work
 export class CaptchaIFrame extends IFrameComponent {
   constructor(
     win: Window,

@@ -20,16 +20,16 @@
     "message": "Create Account"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "बिटवार्डन का परिचय"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "सिंगल साइन-ऑन प्रयोग करें"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "आपका पुन: स्वागत है!"
   },
   "setAStrongPassword": {
     "message": "मजबूत पासवर्ड सेट करें"
@@ -138,10 +138,10 @@
     "message": "Copy Security Code"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "नाम कॉपी करें"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "कंपनी के नाम को कॉपी करें"
   },
   "copySSN": {
     "message": "Copy Social Security number"
@@ -191,6 +191,13 @@
   },
   "autoFillIdentity": {
     "message": "स्वचालित पहचान विवरण"
+  },
+  "fillVerificationCode": {
+    "message": "Fill verification code"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Fill Verification Code",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
     "message": "Generate Password (copied)"
@@ -447,9 +454,6 @@
   "length": {
     "message": "लंबाई"
   },
-  "passwordMinLength": {
-    "message": "न्यूनतम पासवर्ड लंबाई"
-  },
   "uppercase": {
     "message": "बड़े अक्षर (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimum Special"
-  },
-  "avoidAmbChar": {
-    "message": "Avoid Ambiguous Characters",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Rate the Extension"
-  },
-  "rateExtensionDesc": {
-    "message": "कृपया एक अच्छी समीक्षा के साथ हमारी मदत करने पर विचार करें!"
   },
   "browserNotSupportClipboard": {
     "message": "आपका वेब ब्राउज़र आसान क्लिपबोर्ड कॉपीिंग का समर्थन नहीं करता है। इसके बजाय इसे मैन्युअल रूप से कॉपी करें।"
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "आसान ऑटो-फिल के लिए टैब पेज पर कार्ड आइटम सूचीबद्ध करें।"
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "क्लिपबोर्ड खाली करें",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1125,6 +1125,10 @@
     "message": "चेतावनी",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "वॉल्ट निर्यात की पुष्टि करें"
   },
@@ -1148,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "संगठन में ले जाएँ"
-  },
-  "share": {
-    "message": "शेयर करें"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ $ORGNAME$ गया ",
@@ -1314,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "अपने ऑथेंटिकेटर ऐप से 6 डिजिट वेरिफिकेशन कोड डालें।"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "enterVerificationCodeEmail": {
     "message": "Enter the 6 digit verification code that was emailed to $EMAIL$.",
@@ -1502,19 +1509,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "यदि लॉगिन फॉर्म का पता चलता है, तो वेब पेज लोड होने पर स्वचालित रूप से ऑटो-फिल करें।"
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warning:$CLOSETAG$ Compromised or untrusted websites can exploit autofill on page load.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Compromised or untrusted websites can exploit autofill on page load."
@@ -1851,6 +1845,9 @@
   "secureNotes": {
     "message": "Secure Notes"
   },
+  "sshKeys": {
+    "message": "SSH कुँजी"
+  },
   "clear": {
     "message": "खाली करें",
     "description": "To clear something out. example: To clear browser history."
@@ -2042,9 +2039,6 @@
   },
   "clone": {
     "message": "क्लोन"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "एक या एक से अधिक संगठन नीतियां आपकी जनरेटर सेटिंग को प्रभावित कर रही हैं।"
   },
   "passwordGenerator": {
     "message": "Password generator"
@@ -2385,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Sends मे खोजे",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Send जोड़ें",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "शब्द"
   },
@@ -2409,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "मैक्स एक्सेस काउंट पहुंच गया है",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": " गतावधिक"
-  },
-  "pendingDeletion": {
-    "message": "हटाना लंबित"
   },
   "passwordProtected": {
     "message": "पासवर्ड सुरक्षित है"
@@ -2468,23 +2447,8 @@
     "message": "एडिट Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "यह किस प्रकार का सेंड है?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "इस सेंड का वर्णन करने के लिए एक दोस्ताना नाम।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "वह फाइल जो आप सेंड करना चाहते हैं।"
-  },
   "deletionDate": {
     "message": "हटाने की तारीख"
-  },
-  "deletionDateDesc": {
-    "message": " यह सेंड निर्धारित तिथि और समय पर स्थायी रूप से हटा दिया जाएगा।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2492,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "समाप्ति तिथि"
-  },
-  "expirationDateDesc": {
-    "message": "यदि सेट किया जाता है, तो  यह सेंड निर्दिष्ट तिथि और समय पर समाप्त हो जाएगा।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 दिन"
@@ -2512,42 +2472,9 @@
   "custom": {
     "message": "कस्टम"
   },
-  "maximumAccessCount": {
-    "message": "अधिकतम एक्सेस काउंट"
-  },
-  "maximumAccessCountDesc": {
-    "message": "यदि सेट किया जाता है, तो अधिकतम एक्सेस काउंट तक पहुंचने के बाद उपयोगकर्ता अब इस सेंड को एक्सेस नहीं कर पाएंगे।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "वैकल्पिक रूप से उपयोगकर्ताओं को इस सेंड तक पहुंचने के लिए पासवर्ड की आवश्यकता होगी।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "इस सेंड के बारे में निजी नोट्स।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "इस सेंड को अक्षम करें ताकि कोई भी इसे एक्सेस न कर सके।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "सेव पर क्लिपबोर्ड पर इस सेंड के लिंक को कॉपी करें।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "वह टेक्स्ट जो आप सेंड करना चाहते हैं।"
-  },
-  "sendHideText": {
-    "message": "इस सेंड के टेक्स्ट को डिफ़ॉल्ट रूप से छिपाएं।",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "वर्तमान एक्सेस काउंट"
   },
   "createSend": {
     "message": "नया सेंड बनाएं",
@@ -2631,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "शुरू करने से पहले"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "कैलेंडर शैली तिथि बीनने वाले का उपयोग करने के लिए",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "यहां क्लिक करें",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "अपनी विंडो पॉप आउट करने के लिए यहां क्लिक करें।",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "प्रदान की गई समाप्ति तिथि मान्य नहीं है।"
   },
@@ -2658,14 +2573,8 @@
   "dateParsingError": {
     "message": "आपके विलोपन और समाप्ति तिथियों को सहेजने में एक त्रुटि थी।"
   },
-  "hideEmail": {
-    "message": "प्राप्तकर्ताओं से मेरा ईमेल पता छिपाएं।"
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "एक या एक से अधिक संगठन नीतियां आपके सेंड विकल्पों को प्रभावित कर रही हैं।"
   },
   "passwordPrompt": {
     "message": "मास्टर पासवर्ड रि-प्रॉम्प्ट"
@@ -2880,17 +2789,14 @@
   "error": {
     "message": "एरर"
   },
-  "regenerateUsername": {
-    "message": "Regenerate username"
-  },
   "generateUsername": {
     "message": "उपयोगकर्ता नाम बनाएँ"
   },
   "generateEmail": {
     "message": "Generate email"
   },
-  "generatorBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2903,8 +2809,25 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Username type"
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -2927,12 +2850,6 @@
   },
   "websiteName": {
     "message": "वेबसाइट का नाम"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
   },
   "service": {
     "message": "Service"
@@ -3150,11 +3067,26 @@
   "resendNotification": {
     "message": "Resend notification"
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
+  },
+  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
   },
   "loginInitiated": {
     "message": "Login initiated"
@@ -3249,8 +3181,17 @@
   "opensInANewWindow": {
     "message": "Opens in a new window"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Remember this device"
@@ -3324,6 +3265,9 @@
   },
   "userEmailMissing": {
     "message": "User email missing"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Device trusted"
@@ -3532,6 +3476,14 @@
   "unlockAccountAria": {
     "message": "Unlock your account, opens in a new window",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Fill credentials for",
@@ -3760,6 +3712,9 @@
   },
   "accessing": {
     "message": "ऐक्सेसिंग"
+  },
+  "loggedInExclamation": {
+    "message": "Logged in!"
   },
   "passkeyNotCopied": {
     "message": "Passkey will not be copied"
@@ -4252,6 +4207,21 @@
   "filters": {
     "message": "फ़िल्टर"
   },
+  "filterVault": {
+    "message": "Filter vault"
+  },
+  "filterApplied": {
+    "message": "One filter applied"
+  },
+  "filterAppliedPlural": {
+    "message": "$COUNT$ filters applied",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Personal details"
   },
@@ -4599,6 +4569,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "systemDefault": {
     "message": "System default"
   },
@@ -4823,5 +4796,56 @@
   },
   "generatedPassword": {
     "message": "Generated password"
+  },
+  "compactMode": {
+    "message": "Compact mode"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "महत्वपूर्ण सूचना"
+  },
+  "setupTwoStepLogin": {
+    "message": "टू-स्टेप लॉगइन"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "बाद में मुझे याद कराएं"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "नहीं, मैं नहीं"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "हाँ, मैं आराम से अपना ईमेल देख सकता हूँ"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "टू-स्टेप लॉगइन सक्षम करें"
+  },
+  "changeAcctEmail": {
+    "message": "अकाउंट का ईमेल बदलें"
+  },
+  "extensionWidth": {
+    "message": "Extension width"
+  },
+  "wide": {
+    "message": "Wide"
+  },
+  "extraWide": {
+    "message": "Extra wide"
   }
 }

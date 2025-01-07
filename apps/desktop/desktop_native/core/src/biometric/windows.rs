@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{ffi::c_void, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
@@ -40,6 +40,8 @@ pub struct Biometric {}
 impl super::BiometricTrait for Biometric {
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
         let h = isize::from_le_bytes(hwnd.clone().try_into().unwrap());
+
+        let h = h as *mut c_void;
         let window = HWND(h);
 
         // The Windows Hello prompt is displayed inside the application window. For best result we
@@ -86,14 +88,14 @@ impl super::BiometricTrait for Biometric {
         let bitwarden = h!("Bitwarden");
 
         let result = KeyCredentialManager::RequestCreateAsync(
-            &bitwarden,
+            bitwarden,
             KeyCredentialCreationOption::FailIfExists,
         )?
         .get()?;
 
         let result = match result.Status()? {
             KeyCredentialStatus::CredentialAlreadyExists => {
-                KeyCredentialManager::OpenAsync(&bitwarden)?.get()?
+                KeyCredentialManager::OpenAsync(bitwarden)?.get()?
             }
             KeyCredentialStatus::Success => result,
             _ => return Err(anyhow!("Failed to create key credential")),
@@ -114,12 +116,12 @@ impl super::BiometricTrait for Biometric {
         CryptographicBuffer::CopyToByteArray(&signature_buffer, &mut signature_value)?;
 
         let key = Sha256::digest(&*signature_value);
-        let key_b64 = base64_engine.encode(&key);
-        let iv_b64 = base64_engine.encode(&challenge);
+        let key_b64 = base64_engine.encode(key);
+        let iv_b64 = base64_engine.encode(challenge);
         Ok(OsDerivedKey { key_b64, iv_b64 })
     }
 
-    fn set_biometric_secret(
+    async fn set_biometric_secret(
         service: &str,
         account: &str,
         secret: &str,
@@ -131,11 +133,11 @@ impl super::BiometricTrait for Biometric {
         ))?;
 
         let encrypted_secret = encrypt(secret, &key_material, iv_b64)?;
-        crate::password::set_password(service, account, &encrypted_secret)?;
+        crate::password::set_password(service, account, &encrypted_secret).await?;
         Ok(encrypted_secret)
     }
 
-    fn get_biometric_secret(
+    async fn get_biometric_secret(
         service: &str,
         account: &str,
         key_material: Option<KeyMaterial>,
@@ -144,17 +146,17 @@ impl super::BiometricTrait for Biometric {
             "Key material is required for Windows Hello protected keys"
         ))?;
 
-        let encrypted_secret = crate::password::get_password(service, account)?;
+        let encrypted_secret = crate::password::get_password(service, account).await?;
         match CipherString::from_str(&encrypted_secret) {
             Ok(secret) => {
                 // If the secret is a CipherString, it is encrypted and we need to decrypt it.
                 let secret = decrypt(&secret, &key_material)?;
-                return Ok(secret);
+                Ok(secret)
             }
             Err(_) => {
                 // If the secret is not a CipherString, it is not encrypted and we can return it
                 //  directly.
-                return Ok(encrypted_secret);
+                Ok(encrypted_secret)
             }
         }
     }
@@ -174,7 +176,7 @@ fn focus_security_prompt() -> Result<()> {
         class_name: windows::core::PCSTR,
     ) -> retry::OperationResult<(), ()> {
         let hwnd = unsafe { FindWindowA(class_name, None) };
-        if hwnd.0 != 0 {
+        if let Ok(hwnd) = hwnd {
             set_focus(hwnd);
             return retry::OperationResult::Ok(());
         }
@@ -204,8 +206,8 @@ fn set_focus(window: HWND) {
             pressed = true;
             keybd_event(VK_MENU.0 as u8, 0, KEYEVENTF_EXTENDEDKEY, 0);
         }
-        SetForegroundWindow(window);
-        SetFocus(window);
+        let _ = SetForegroundWindow(window);
+        let _ = SetFocus(window);
         if pressed {
             keybd_event(
                 VK_MENU.0 as u8,
@@ -243,20 +245,21 @@ mod tests {
         assert_eq!(iv.len(), 16);
     }
 
-    #[test]
+    #[tokio::test]
     #[cfg(feature = "manual_test")]
-    fn test_prompt() {
+    async fn test_prompt() {
         <Biometric as BiometricTrait>::prompt(
             vec![0, 0, 0, 0, 0, 0, 0, 0],
             String::from("Hello from Rust"),
         )
+        .await
         .unwrap();
     }
 
-    #[test]
+    #[tokio::test]
     #[cfg(feature = "manual_test")]
-    fn test_available() {
-        assert!(<Biometric as BiometricTrait>::available().unwrap())
+    async fn test_available() {
+        assert!(<Biometric as BiometricTrait>::available().await.unwrap())
     }
 
     #[test]
@@ -273,7 +276,7 @@ mod tests {
 
         match secret {
             CipherString::AesCbc256_B64 { iv, data: _ } => {
-                assert_eq!(iv_b64, base64_engine.encode(&iv));
+                assert_eq!(iv_b64, base64_engine.encode(iv));
             }
             _ => panic!("Invalid cipher string"),
         }
@@ -290,9 +293,9 @@ mod tests {
         assert_eq!(decrypt(&secret, &key_material).unwrap(), "secret")
     }
 
-    #[test]
-    fn get_biometric_secret_requires_key() {
-        let result = <Biometric as BiometricTrait>::get_biometric_secret("", "", None);
+    #[tokio::test]
+    async fn get_biometric_secret_requires_key() {
+        let result = <Biometric as BiometricTrait>::get_biometric_secret("", "", None).await;
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -300,29 +303,29 @@ mod tests {
         );
     }
 
-    #[test]
-    fn get_biometric_secret_handles_unencrypted_secret() {
-        scopeguard::defer! {
-            crate::password::delete_password("test", "test").unwrap();
-        }
+    #[tokio::test]
+    async fn get_biometric_secret_handles_unencrypted_secret() {
         let test = "test";
         let secret = "password";
         let key_material = KeyMaterial {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, secret).unwrap();
+        crate::password::set_password(test, test, secret)
+            .await
+            .unwrap();
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
+                .await
                 .unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, secret);
     }
 
-    #[test]
-    fn get_biometric_secret_handles_encrypted_secret() {
-        scopeguard::defer! {
-            crate::password::delete_password("test", "test").unwrap();
-        }
+    #[tokio::test]
+    async fn get_biometric_secret_handles_encrypted_secret() {
         let test = "test";
         let secret =
             CipherString::from_str("0.l9fhDUP/wDJcKwmEzcb/3w==|uP4LcqoCCj5FxBDP77NV6Q==").unwrap(); // output from test_encrypt
@@ -330,17 +333,24 @@ mod tests {
             os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
             client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
         };
-        crate::password::set_password(test, test, &secret.to_string()).unwrap();
+        crate::password::set_password(test, test, &secret.to_string())
+            .await
+            .unwrap();
 
         let result =
             <Biometric as BiometricTrait>::get_biometric_secret(test, test, Some(key_material))
+                .await
                 .unwrap();
+        crate::password::delete_password("test", "test")
+            .await
+            .unwrap();
         assert_eq!(result, "secret");
     }
 
-    #[test]
-    fn set_biometric_secret_requires_key() {
-        let result = <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "");
+    #[tokio::test]
+    async fn set_biometric_secret_requires_key() {
+        let result =
+            <Biometric as BiometricTrait>::set_biometric_secret("", "", "", None, "").await;
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),

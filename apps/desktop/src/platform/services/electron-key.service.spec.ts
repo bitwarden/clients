@@ -1,8 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock } from "jest-mock-extended";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -15,7 +16,7 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { KdfConfigService, BiometricStateService } from "@bitwarden/key-management";
 
 import {
   FakeAccountService,

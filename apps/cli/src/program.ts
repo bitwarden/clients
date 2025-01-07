@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
@@ -426,7 +428,10 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.serviceContainer.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });

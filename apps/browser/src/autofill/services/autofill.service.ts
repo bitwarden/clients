@@ -1,4 +1,6 @@
-import { filter, firstValueFrom, Observable, scan, startWith } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { filter, firstValueFrom, merge, Observable, ReplaySubject, scan, startWith } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -91,6 +93,9 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param tab The tab to collect page details from
    */
   collectPageDetailsFromTab$(tab: chrome.tabs.Tab): Observable<PageDetail[]> {
+    /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
+    const pageDetailsFallback$ = new ReplaySubject<[]>(1);
+
     const pageDetailsFromTab$ = this.messageListener
       .messages$(COLLECT_PAGE_DETAILS_RESPONSE_COMMAND)
       .pipe(
@@ -112,13 +117,35 @@ export default class AutofillService implements AutofillServiceInterface {
         ),
       );
 
-    void BrowserApi.tabSendMessage(tab, {
-      tab: tab,
-      command: AutofillMessageCommand.collectPageDetails,
-      sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+    void BrowserApi.tabSendMessage(
+      tab,
+      {
+        tab: tab,
+        command: AutofillMessageCommand.collectPageDetails,
+        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+      },
+      null,
+      true,
+    ).catch(() => {
+      // When `tabSendMessage` throws an error the `pageDetailsFromTab$` will not emit,
+      // fallback to an empty array
+      pageDetailsFallback$.next([]);
     });
 
-    return pageDetailsFromTab$;
+    // Fallback to empty array when:
+    // - In Safari, `tabSendMessage` doesn't throw an error for this case.
+    // - When opening the extension directly via the URL, `tabSendMessage` doesn't always respond nor throw an error in FireFox.
+    //   Adding checks for the major 3 browsers here to be safe.
+    const urlHasBrowserProtocol = [
+      "moz-extension://",
+      "chrome-extension://",
+      "safari-web-extension://",
+    ].some((protocol) => tab.url.startsWith(protocol));
+    if (!tab.url || urlHasBrowserProtocol) {
+      pageDetailsFallback$.next([]);
+    }
+
+    return merge(pageDetailsFromTab$, pageDetailsFallback$);
   }
 
   /**
@@ -389,8 +416,9 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let totp: string | null = null;
 
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
     );
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
@@ -1487,7 +1515,7 @@ export default class AutofillService implements AutofillServiceInterface {
       );
 
       return CreditCardAutoFillConstants.CardAttributesExtended.find((attributeName) => {
-        const fieldAttributeValue = field[attributeName];
+        const fieldAttributeValue = field[attributeName]?.toLocaleLowerCase();
 
         const fieldAttributeMatch = fieldAttributeValue?.match(dateFormatPattern);
         // break find as soon as a match is found

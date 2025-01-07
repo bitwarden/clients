@@ -22,7 +22,12 @@
       "@bitwarden/common/*": ["../common/src/*"],
       "@bitwarden/angular/*": ["../angular/src/*"],
       "@bitwarden/platform": ["../platform/src"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

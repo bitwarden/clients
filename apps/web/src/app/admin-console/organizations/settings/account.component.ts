@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -10,7 +12,6 @@ import { OrganizationCollectionManagementUpdateRequest } from "@bitwarden/common
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -40,8 +41,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
 
-  limitCollectionCreationDeletionSplitFeatureFlagIsEnabled: boolean;
-
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
     orgName: this.formBuilder.control(
@@ -57,16 +56,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     ),
   });
 
-  // Deprecated. Delete with https://bitwarden.atlassian.net/browse/PM-10863
   protected collectionManagementFormGroup = this.formBuilder.group({
-    limitCollectionCreationDeletion: this.formBuilder.control({ value: false, disabled: true }),
-    allowAdminAccessToAllCollectionItems: this.formBuilder.control({
-      value: false,
-      disabled: true,
-    }),
-  });
-
-  protected collectionManagementFormGroup_VNext = this.formBuilder.group({
     limitCollectionCreation: this.formBuilder.control({ value: false, disabled: false }),
     limitCollectionDeletion: this.formBuilder.control({ value: false, disabled: false }),
     allowAdminAccessToAllCollectionItems: this.formBuilder.control({
@@ -98,11 +88,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
 
-    this.configService
-      .getFeatureFlag$(FeatureFlag.LimitCollectionCreationDeletionSplit)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => (this.limitCollectionCreationDeletionSplitFeatureFlagIsEnabled = x));
-
     this.route.params
       .pipe(
         switchMap((params) => this.organizationService.get$(params.organizationId)),
@@ -123,16 +108,6 @@ export class AccountComponent implements OnInit, OnDestroy {
         this.canEditSubscription = organization.canEditSubscription;
         this.canUseApi = organization.useApi;
 
-        // Disabling these fields for self hosted orgs is deprecated
-        // This block can be completely removed as part of
-        // https://bitwarden.atlassian.net/browse/PM-10863
-        if (!this.limitCollectionCreationDeletionSplitFeatureFlagIsEnabled) {
-          if (!this.selfHosted) {
-            this.collectionManagementFormGroup.get("limitCollectionCreationDeletion").enable();
-            this.collectionManagementFormGroup.get("allowAdminAccessToAllCollectionItems").enable();
-          }
-        }
-
         // Update disabled states - reactive forms prefers not using disabled attribute
         if (!this.selfHosted) {
           this.formGroup.get("orgName").enable();
@@ -152,18 +127,11 @@ export class AccountComponent implements OnInit, OnDestroy {
           orgName: this.org.name,
           billingEmail: this.org.billingEmail,
         });
-        if (this.limitCollectionCreationDeletionSplitFeatureFlagIsEnabled) {
-          this.collectionManagementFormGroup_VNext.patchValue({
-            limitCollectionCreation: this.org.limitCollectionCreation,
-            limitCollectionDeletion: this.org.limitCollectionDeletion,
-            allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
-          });
-        } else {
-          this.collectionManagementFormGroup.patchValue({
-            limitCollectionCreationDeletion: this.org.limitCollectionCreationDeletion,
-            allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
-          });
-        }
+        this.collectionManagementFormGroup.patchValue({
+          limitCollectionCreation: this.org.limitCollectionCreation,
+          limitCollectionDeletion: this.org.limitCollectionDeletion,
+          allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
+        });
 
         this.loading = false;
       });
@@ -211,24 +179,13 @@ export class AccountComponent implements OnInit, OnDestroy {
   };
 
   submitCollectionManagement = async () => {
-    // Early exit if self-hosted
-    if (this.selfHosted && !this.limitCollectionCreationDeletionSplitFeatureFlagIsEnabled) {
-      return;
-    }
     const request = new OrganizationCollectionManagementUpdateRequest();
-    if (this.limitCollectionCreationDeletionSplitFeatureFlagIsEnabled) {
-      request.limitCollectionCreation =
-        this.collectionManagementFormGroup_VNext.value.limitCollectionCreation;
-      request.limitCollectionDeletion =
-        this.collectionManagementFormGroup_VNext.value.limitCollectionDeletion;
-      request.allowAdminAccessToAllCollectionItems =
-        this.collectionManagementFormGroup_VNext.value.allowAdminAccessToAllCollectionItems;
-    } else {
-      request.limitCreateDeleteOwnerAdmin =
-        this.collectionManagementFormGroup.value.limitCollectionCreationDeletion;
-      request.allowAdminAccessToAllCollectionItems =
-        this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
-    }
+    request.limitCollectionCreation =
+      this.collectionManagementFormGroup.value.limitCollectionCreation;
+    request.limitCollectionDeletion =
+      this.collectionManagementFormGroup.value.limitCollectionDeletion;
+    request.allowAdminAccessToAllCollectionItems =
+      this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 

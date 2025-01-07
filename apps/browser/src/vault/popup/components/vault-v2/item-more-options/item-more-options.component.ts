@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
@@ -43,6 +45,13 @@ export class ItemMoreOptionsComponent implements OnInit {
   get cipher() {
     return this._cipher$.value;
   }
+
+  /**
+   * Flag to show view item menu option. Used when something else is
+   * assigned as the primary action for the item, such as autofill.
+   */
+  @Input({ transform: booleanAttribute })
+  showViewOption: boolean;
 
   /**
    * Flag to hide the autofill menu options. Used for items that are
@@ -107,6 +116,16 @@ export class ItemMoreOptionsComponent implements OnInit {
 
   async doAutofillAndSave() {
     await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
+  }
+
+  async onView() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/view-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: this.cipher.type },
+    });
   }
 
   /**

@@ -188,7 +188,7 @@ export const Required: Story = {
         <bit-label>Label</bit-label>
         <input bitInput required placeholder="Placeholder" />
       </bit-form-field>
-  
+
       <bit-form-field [formGroup]="formObj">
         <bit-label>FormControl</bit-label>
         <input bitInput formControlName="required" placeholder="Placeholder" />
@@ -198,7 +198,7 @@ export const Required: Story = {
 };
 
 export const Hint: Story = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: {
       formObj: formObj,
       ...args,
@@ -266,7 +266,7 @@ export const Readonly: Story = {
             <bit-form-field>
               <bit-label>Textarea <span slot="end" bitBadge variant="success">Premium</span></bit-label>
               <textarea bitInput rows="3" readonly class="tw-resize-none">Row1
-Row2 
+Row2
 Row3</textarea>
             </bit-form-field>
 
@@ -359,7 +359,7 @@ export const PartiallyDisabledButtonInputGroup: Story = {
 };
 
 export const Select: Story = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-form-field>
@@ -375,7 +375,7 @@ export const Select: Story = {
 };
 
 export const AdvancedSelect: Story = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-form-field>
@@ -420,7 +420,7 @@ export const FileInput: Story = {
 };
 
 export const Textarea: Story = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-form-field>

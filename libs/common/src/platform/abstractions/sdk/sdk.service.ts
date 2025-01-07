@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { BitwardenClient } from "@bitwarden/sdk-internal";
@@ -5,11 +7,6 @@ import { BitwardenClient } from "@bitwarden/sdk-internal";
 import { UserId } from "../../../types/guid";
 
 export abstract class SdkService {
-  /**
-   * Check if the SDK is supported in the current environment.
-   */
-  supported$: Observable<boolean>;
-
   /**
    * Retrieve the version of the SDK.
    */
@@ -33,6 +30,4 @@ export abstract class SdkService {
    * @param userId
    */
   abstract userClient$(userId: UserId): Observable<BitwardenClient>;
-
-  abstract failedToInitialize(category: string, error?: Error): Promise<void>;
 }

@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -19,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -67,7 +68,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     organizationService: OrganizationService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
@@ -88,7 +88,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       logService,
       passwordRepromptService,
       organizationService,
-      sendApiService,
       dialogService,
       window,
       datePipe,
@@ -100,6 +99,14 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
   async ngOnInit() {
     await super.ngOnInit();
     await this.load();
+
+    // https://bitwarden.atlassian.net/browse/PM-10413
+    // cannot generate ssh keys so block creation
+    if (this.type === CipherType.SshKey && this.cipherId == null) {
+      this.type = CipherType.Login;
+      this.cipher.type = CipherType.Login;
+    }
+
     this.viewOnly = !this.cipher.edit && this.editMode;
     // remove when all the title for all clients are updated to New Item
     if (this.cloneMode || !this.editMode) {
@@ -109,9 +116,14 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.hasPasswordHistory = this.cipher.hasPasswordHistory;
     this.cleanUp();
 
-    this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a.id)),
     );
+
+    this.canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    );
+
     if (this.showTotp()) {
       await this.totpUpdateCode();
       const interval = this.totpService.getTimeInterval(this.cipher.login.totp);

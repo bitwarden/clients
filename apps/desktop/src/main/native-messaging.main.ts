@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { existsSync, promises as fs } from "fs";
 import { homedir, userInfo } from "os";
 import * as path from "path";

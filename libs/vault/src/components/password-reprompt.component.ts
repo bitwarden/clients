@@ -49,6 +49,12 @@ export class PasswordRepromptComponent {
   ) {}
 
   submit = async () => {
+    // Exit early when a master password is not provided.
+    // The form field required error will be shown to users in these cases.
+    if (!this.formGroup.value.masterPassword) {
+      return;
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
 
     if (userId == null) {

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
@@ -58,7 +60,6 @@ import { BrowserApi } from "../../../platform/browser/browser-api";
 import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
@@ -80,7 +81,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -215,7 +215,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     this.form.controls.vaultTimeoutAction.valueChanges
       .pipe(
-        startWith(initialValues.vaultTimeoutAction), // emit to init pairwise
         map(async (value) => {
           await this.saveVaultTimeoutAction(value);
         }),
@@ -439,10 +438,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
       const successful = await this.trySetupBiometrics();
       this.form.controls.biometric.setValue(successful);
+      await this.biometricStateService.setBiometricUnlockEnabled(successful);
       if (!successful) {
-        await this.biometricStateService.setBiometricUnlockEnabled(false);
         await this.biometricStateService.setFingerprintValidated(false);
       }
+    } else {
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 

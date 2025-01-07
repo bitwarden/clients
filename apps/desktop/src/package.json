@@ -2,7 +2,7 @@
   "name": "@bitwarden/desktop",
   "productName": "Bitwarden",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2024.11.1",
+  "version": "2025.1.0",
   "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",
   "license": "GPL-3.0",
@@ -12,7 +12,6 @@
     "url": "git+https://github.com/bitwarden/clients.git"
   },
   "dependencies": {
-    "@bitwarden/desktop-napi": "file:../desktop_native/napi",
-    "argon2": "0.41.1"
+    "@bitwarden/desktop-napi": "file:../desktop_native/napi"
   }
 }

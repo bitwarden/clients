@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import type { BitwardenClient } from "@bitwarden/sdk-internal";
 
@@ -62,33 +65,20 @@ async function load() {
  * Works both in popup and service worker.
  */
 export class BrowserSdkClientFactory implements SdkClientFactory {
+  constructor(private logService: LogService) {}
+
   async createSdkClient(
     ...args: ConstructorParameters<typeof BitwardenClient>
   ): Promise<BitwardenClient> {
-    try {
-      await loadWithTimeout();
-    } catch (error) {
-      throw new Error(`Failed to load: ${error.message}`);
-    }
+    const startTime = performance.now();
+    await load();
 
-    return Promise.resolve((globalThis as any).init_sdk(...args));
+    const endTime = performance.now();
+
+    const instance = (globalThis as any).init_sdk(...args);
+
+    this.logService.info("WASM SDK loaded in", Math.round(endTime - startTime), "ms");
+
+    return instance;
   }
 }
-
-const loadWithTimeout = async () => {
-  return new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error("Operation timed out after 1 second"));
-    }, 1000);
-
-    load()
-      .then(() => {
-        clearTimeout(timer);
-        resolve();
-      })
-      .catch((error) => {
-        clearTimeout(timer);
-        reject(error);
-      });
-  });
-};

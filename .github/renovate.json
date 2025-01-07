@@ -10,7 +10,7 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] DevOps:"
+      "commitMessagePrefix": "[deps] BRE:"
     },
     {
       "matchManagers": ["cargo"],
@@ -38,6 +38,10 @@
     {
       "groupName": "macOS/iOS bindings",
       "matchPackageNames": ["core-foundation", "security-framework", "security-framework-sys"]
+    },
+    {
+      "groupName": "zbus",
+      "matchPackageNames": ["zbus", "zbus_polkit"]
     },
     {
       "matchPackageNames": [
@@ -75,11 +79,6 @@
         "concurrently",
         "cross-env",
         "del",
-        "gulp",
-        "gulp-if",
-        "gulp-json-editor",
-        "gulp-replace",
-        "gulp-zip",
         "nord",
         "patch-package",
         "prettier",

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -109,9 +111,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     try {
       this.formGroup.markAllAsTouched();
 
-      const formIsValid = this.formGroup.valid && this.manageTaxInformationComponent.touch();
-
-      if (!formIsValid) {
+      if (!this.manageTaxInformationComponent.validate() || !this.formGroup.valid) {
         return;
       }
 
@@ -129,14 +129,11 @@ export class SetupComponent implements OnInit, OnDestroy {
 
       request.taxInfo.country = taxInformation.country;
       request.taxInfo.postalCode = taxInformation.postalCode;
-
-      if (taxInformation.includeTaxId) {
-        request.taxInfo.taxId = taxInformation.taxId;
-        request.taxInfo.line1 = taxInformation.line1;
-        request.taxInfo.line2 = taxInformation.line2;
-        request.taxInfo.city = taxInformation.city;
-        request.taxInfo.state = taxInformation.state;
-      }
+      request.taxInfo.taxId = taxInformation.taxId;
+      request.taxInfo.line1 = taxInformation.line1;
+      request.taxInfo.line2 = taxInformation.line2;
+      request.taxInfo.city = taxInformation.city;
+      request.taxInfo.state = taxInformation.state;
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
 

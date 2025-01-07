@@ -4,6 +4,20 @@
   </button>
 </app-header>
 
+<p class="tw-text-muted tw-w-2/5" *ngIf="accountDeprovisioningEnabled$ | async">
+  {{ "claimedDomainsDesc" | i18n }}
+  <a
+    bitLink
+    target="_blank"
+    rel="noreferrer"
+    appA11yTitle="{{ 'learnMore' | i18n }}"
+    href="https://bitwarden.com/help/claimed-accounts/"
+    slot="end"
+  >
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</p>
+
 <ng-container *ngIf="loading">
   <i
     class="bwi bwi-spinner bwi-spin text-muted"
@@ -40,10 +54,16 @@
             </td>
             <td bitCell>
               <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
-                "domainStatusUnverified" | i18n
+                ((accountDeprovisioningEnabled$ | async)
+                  ? "domainStatusUnderVerification"
+                  : "domainStatusUnverified"
+                ) | i18n
               }}</span>
               <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
-                "domainStatusVerified" | i18n
+                ((accountDeprovisioningEnabled$ | async)
+                  ? "domainStatusClaimed"
+                  : "domainStatusVerified"
+                ) | i18n
               }}</span>
             </td>
             <td bitCell class="tw-text-muted">
@@ -70,7 +90,10 @@
                   type="button"
                 >
                   <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                  {{ "verifyDomain" | i18n }}
+                  {{
+                    ((accountDeprovisioningEnabled$ | async) ? "claimDomain" : "verifyDomain")
+                      | i18n
+                  }}
                 </button>
                 <button bitMenuItem (click)="deleteDomain(orgDomain.id)" type="button">
                   <span class="tw-text-danger">

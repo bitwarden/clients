@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
 import { EncryptService } from "../../abstractions/encrypt.service";

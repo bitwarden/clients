@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -104,6 +106,9 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
           title: this.i18nService.t("errorOccured"),
           message: this.i18nService.t("offerNoLongerValid"),
         });
+
+        await this.router.navigate(["/"]);
+        return;
       } else {
         this.badToken = !this.preValidateSponsorshipResponse.isTokenValid;
       }

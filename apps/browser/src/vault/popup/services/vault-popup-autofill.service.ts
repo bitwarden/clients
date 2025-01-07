@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -10,7 +12,6 @@ import {
   startWith,
   Subject,
   switchMap,
-  timeout,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -75,9 +76,7 @@ export class VaultPopupAutofillService {
       if (!tab) {
         return of([]);
       }
-      return this.autofillService
-        .collectPageDetailsFromTab$(tab)
-        .pipe(timeout({ first: 1500, with: () => of([]) }));
+      return this.autofillService.collectPageDetailsFromTab$(tab);
     }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );

@@ -13,8 +13,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      declarations: [ToggleGroupComponent, ToggleComponent],
-      imports: [BadgeModule],
+      imports: [BadgeModule, ToggleGroupComponent, ToggleComponent],
     }),
   ],
   parameters: {

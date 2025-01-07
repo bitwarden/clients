@@ -121,6 +121,10 @@ export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web
 export const ANIMATION_DISK = new StateDefinition("animation", "disk");
 export const TASK_SCHEDULER_DISK = new StateDefinition("taskScheduler", "disk");
 
+// Design System
+
+export const POPUP_STYLE_DISK = new StateDefinition("popupStyle", "disk");
+
 // Secrets Manager
 
 export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
@@ -146,6 +150,9 @@ export const COLLECTION_DATA = new StateDefinition("collection", "disk", {
   web: "memory",
 });
 export const FOLDER_DISK = new StateDefinition("folder", "disk", { web: "memory" });
+export const FOLDER_MEMORY = new StateDefinition("decryptedFolders", "memory", {
+  browser: "memory-large-object",
+});
 export const VAULT_FILTER_DISK = new StateDefinition("vaultFilter", "disk", {
   web: "disk-local",
 });
@@ -176,4 +183,8 @@ export const VAULT_BROWSER_UI_ONBOARDING = new StateDefinition("vaultBrowserUiOn
 export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
   "newDeviceVerificationNotice",
   "disk",
+  {
+    web: "disk-local",
+  },
 );
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");

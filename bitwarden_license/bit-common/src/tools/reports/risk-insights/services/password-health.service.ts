@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";

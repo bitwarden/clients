@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -45,7 +47,7 @@ export class CreateClientDialogComponent implements OnInit {
   protected discountPercentage: number;
   protected formGroup = new FormGroup({
     clientOwnerEmail: new FormControl<string>("", [Validators.required, Validators.email]),
-    organizationName: new FormControl<string>("", [Validators.required]),
+    organizationName: new FormControl<string>("", [Validators.required, Validators.maxLength(50)]),
     seats: new FormControl<number>(null, [Validators.required, Validators.min(1)]),
   });
   protected loading = true;
@@ -67,7 +69,7 @@ export class CreateClientDialogComponent implements OnInit {
     switch (selected) {
       case true: {
         return [
-          "tw-group",
+          "tw-group/plan-card-container",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",

@@ -11,7 +11,15 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -56,6 +64,9 @@ const sshAgent = {
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");
   },
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
   importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
     const res = await ipcRenderer.invoke("sshagent.importkey", {
       privateKey: key,
@@ -96,8 +107,8 @@ const nativeMessaging = {
 
 const crypto = {
   argon2: (
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
+    password: Uint8Array,
+    salt: Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number,
@@ -137,6 +148,7 @@ export default {
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),

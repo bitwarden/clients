@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Identität automatisch ausfüllen"
   },
+  "fillVerificationCode": {
+    "message": "Verifizierungscode ausfüllen"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Verifizierungscode ausfüllen",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Passwort generieren (kopiert)"
   },
@@ -447,9 +454,6 @@
   "length": {
     "message": "Länge"
   },
-  "passwordMinLength": {
-    "message": "Minimale Passwortlänge"
-  },
   "uppercase": {
     "message": "Großbuchstaben (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Mindestanzahl Sonderzeichen"
-  },
-  "avoidAmbChar": {
-    "message": "Mehrdeutige Zeichen vermeiden",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Mehrdeutige Zeichen vermeiden",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Erweiterung bewerten"
-  },
-  "rateExtensionDesc": {
-    "message": "Wir würden uns freuen, wenn du uns mit einer positiven Bewertung helfen könntest!"
   },
   "browserNotSupportClipboard": {
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Identitäten-Einträge auf der Tab Seite anzeigen, um das Auto-Ausfüllen zu vereinfachen."
   },
+  "clickToAutofillOnVault": {
+    "message": "Klicke auf Einträge zum automatischen Ausfüllen in der Tresor-Ansicht"
+  },
   "clearClipboard": {
     "message": "Zwischenablage leeren",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1125,6 +1125,10 @@
     "message": "ACHTUNG",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Warnung",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Tresor-Export bestätigen"
   },
@@ -1148,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "In Organisation verschieben"
-  },
-  "share": {
-    "message": "Teilen"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ verschoben nach $ORGNAME$",
@@ -1314,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Gib den 6-stelligen Verifizierungscode aus deiner Authenticator App ein."
+  },
+  "authenticationTimeout": {
+    "message": "Authentifizierungs-Timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
   "enterVerificationCodeEmail": {
     "message": "Gib den 6-stelligen Bestätigungscode ein, der an $EMAIL$ gesendet wurde.",
@@ -1502,19 +1509,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Wenn eine Anmeldemaske erkannt wird, die Zugangsdaten automatisch ausfüllen während die Webseite lädt."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Warnung:$CLOSETAG$ Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden einer Seite missbrauchen.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden der Seite ausnutzen."
@@ -1851,6 +1845,9 @@
   "secureNotes": {
     "message": "Sichere Notizen"
   },
+  "sshKeys": {
+    "message": "SSH-Schlüssel"
+  },
   "clear": {
     "message": "Löschen",
     "description": "To clear something out. example: To clear browser history."
@@ -2042,9 +2039,6 @@
   },
   "clone": {
     "message": "Duplizieren"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Generator-Einstellungen."
   },
   "passwordGenerator": {
     "message": "Passwort-Generator"
@@ -2385,14 +2379,6 @@
     "message": "Send-Details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Sends suchen",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Send hinzufügen",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2409,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Text standardmäßig ausblenden"
   },
-  "maxAccessCountReached": {
-    "message": "Maximale Zugriffsanzahl erreicht",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Abgelaufen"
-  },
-  "pendingDeletion": {
-    "message": "Ausstehende Löschung"
   },
   "passwordProtected": {
     "message": "Passwortgeschützt"
@@ -2468,23 +2447,8 @@
     "message": "Send bearbeiten",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Welche Art von Send ist das?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Ein eigener Name, um dieses Send zu beschreiben.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Die Datei, die du senden möchtest."
-  },
   "deletionDate": {
     "message": "Löschdatum"
-  },
-  "deletionDateDesc": {
-    "message": "Das Send wird am angegebenen Datum zur angegebenen Uhrzeit dauerhaft gelöscht.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
@@ -2492,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Ablaufdatum"
-  },
-  "expirationDateDesc": {
-    "message": "Falls aktiviert, verfällt der Zugriff auf dieses Send am angegebenen Datum zur angegebenen Uhrzeit.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 Tag"
@@ -2512,42 +2472,9 @@
   "custom": {
     "message": "Benutzerdefiniert"
   },
-  "maximumAccessCount": {
-    "message": "Maximale Zugriffsanzahl"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Falls aktiviert, können Benutzer nicht mehr auf dieses Send zugreifen, sobald die maximale Zugriffsanzahl erreicht ist.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Optional ein Passwort verlangen, damit Benutzer auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private Notizen zu diesem Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Dieses Send deaktivieren, damit niemand darauf zugreifen kann.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Kopiere den Send-Link beim Speichern in die Zwischenablage.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Der Text, den du senden möchtest."
-  },
-  "sendHideText": {
-    "message": "Send-Text standardmäßig ausblenden.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuelle Zugriffsanzahl"
   },
   "createSend": {
     "message": "Neues Send",
@@ -2631,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Bevor du beginnst"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Um einen Kalender-Datumsauswahl zu verwenden",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "hier klicken",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "zum Öffnen in einem neuen Fenster.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Das angegebene Verfallsdatum ist nicht gültig."
   },
@@ -2658,14 +2573,8 @@
   "dateParsingError": {
     "message": "Es gab einen Fehler beim Speichern deiner Lösch- und Verfallsdaten."
   },
-  "hideEmail": {
-    "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
-  },
   "hideYourEmail": {
     "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Send Einstellungen."
   },
   "passwordPrompt": {
     "message": "Master-Passwort erneut abfragen"
@@ -2880,17 +2789,14 @@
   "error": {
     "message": "Fehler"
   },
-  "regenerateUsername": {
-    "message": "Benutzername neu generieren"
-  },
   "generateUsername": {
     "message": "Benutzername generieren"
   },
   "generateEmail": {
     "message": "E-Mail generieren"
   },
-  "generatorBoundariesHint": {
-    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen",
+  "spinboxBoundariesHint": {
+    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2903,8 +2809,25 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Benutzernamenstyp"
+  "passwordLengthRecommendationHint": {
+    "message": " Verwende $RECOMMENDED$ oder mehr Zeichen, um ein starkes Passwort zu generieren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Verwende $RECOMMENDED$ oder mehr Wörter, um eine starke Passphrase zu generieren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
     "message": "Plus-adressierte E-Mail-Adresse",
@@ -2927,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Websitename"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Was möchtest du generieren?"
-  },
-  "passwordType": {
-    "message": "Passworttyp"
   },
   "service": {
     "message": "Dienst"
@@ -3150,11 +3067,26 @@
   "resendNotification": {
     "message": "Benachrichtigung erneut senden"
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
+    "message": "Alle Anmeldeoptionen anzeigen"
+  },
+  "viewAllLoginOptionsV1": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
+  },
+  "needAnotherOptionV1": {
+    "message": "Brauchst du eine andere Option?"
   },
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
@@ -3249,8 +3181,17 @@
   "opensInANewWindow": {
     "message": "Wird in einem neuen Fenster geöffnet"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
+  },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Geräte-Genehmigung erforderlich"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Wähle unten eine Genehmigungsoption aus"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -3324,6 +3265,9 @@
   },
   "userEmailMissing": {
     "message": "E-Mail-Adresse des Benutzers fehlt"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktive Benutzer-E-Mail-Adresse nicht gefunden. Du wirst abgemeldet."
   },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
@@ -3532,6 +3476,14 @@
   "unlockAccountAria": {
     "message": "Dein Konto entsperren, öffnet sich in einem neuen Fenster",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Zeitbasierter einmaliger Passwort-Verifizierungscode",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Verbleibende Zeit bis zum Ablauf des aktuellen TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Zugangsdaten ausfüllen für",
@@ -3760,6 +3712,9 @@
   },
   "accessing": {
     "message": "Zugriff auf"
+  },
+  "loggedInExclamation": {
+    "message": "Angemeldet!"
   },
   "passkeyNotCopied": {
     "message": "Passkey wird nicht kopiert"
@@ -4252,6 +4207,21 @@
   "filters": {
     "message": "Filter"
   },
+  "filterVault": {
+    "message": "Tresor filtern"
+  },
+  "filterApplied": {
+    "message": "Ein Filter angewendet"
+  },
+  "filterAppliedPlural": {
+    "message": "$COUNT$ Filter angewendet",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Persönliche Details"
   },
@@ -4599,6 +4569,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Vorschläge zum Auto-Ausfüllen von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
+  "showQuickCopyActions": {
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
+  },
   "systemDefault": {
     "message": "Systemstandard"
   },
@@ -4823,5 +4796,56 @@
   },
   "generatedPassword": {
     "message": "Generiertes Passwort"
+  },
+  "compactMode": {
+    "message": "Kompaktmodus"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+  },
+  "changeAcctEmail": {
+    "message": "E-Mail-Adresse des Kontos ändern"
+  },
+  "extensionWidth": {
+    "message": "Breite der Erweiterung"
+  },
+  "wide": {
+    "message": "Breit"
+  },
+  "extraWide": {
+    "message": "Extra breit"
   }
 }

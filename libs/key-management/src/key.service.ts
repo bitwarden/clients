@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as bigInt from "big-integer";
 import {
   NEVER,
@@ -17,9 +19,7 @@ import { ProfileOrganizationResponse } from "../../common/src/admin-console/mode
 import { ProfileProviderOrganizationResponse } from "../../common/src/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../common/src/admin-console/models/response/profile-provider.response";
 import { AccountService } from "../../common/src/auth/abstractions/account.service";
-import { KdfConfigService } from "../../common/src/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
-import { KdfConfig } from "../../common/src/auth/models/domain/kdf-config";
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
 import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
@@ -54,11 +54,13 @@ import {
 } from "../../common/src/types/key";
 import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
 
+import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
   UserPrivateKeyDecryptionFailedError,
 } from "./abstractions/key.service";
+import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
