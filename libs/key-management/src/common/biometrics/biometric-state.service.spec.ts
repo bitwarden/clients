@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import {
   FakeAccountService,
   mockAccountServiceWith,

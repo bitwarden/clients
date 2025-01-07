@@ -2,9 +2,9 @@ import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { KeyService } from "@bitwarden/key-management";
 
 import { UserDecryptionOptions } from "../../../../auth/src/common/models/domain/user-decryption-options";
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../spec/fake-state";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
