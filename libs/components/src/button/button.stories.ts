@@ -86,16 +86,15 @@ export const DisabledWithAttribute: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <ng-container *ngIf="disabled">
+      @if (disabled) {
         <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
         <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
         <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
-      </ng-container>
-      <ng-container *ngIf="!disabled">
+      } @else {
         <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
         <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
         <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
-      </ng-container>
+      }
     `,
   }),
   args: {
