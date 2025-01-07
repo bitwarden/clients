@@ -152,6 +152,7 @@ export default {
           provide: TotpCaptureService,
           useValue: {
             captureTotpSecret: () => Promise.resolve("some-value"),
+            canCaptureTotp: () => true,
           },
         },
         {
