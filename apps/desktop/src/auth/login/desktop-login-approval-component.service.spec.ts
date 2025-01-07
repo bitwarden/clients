@@ -59,7 +59,7 @@ describe("DesktopLoginApprovalComponentService", () => {
       switch (key) {
         case "logInRequested":
           return title;
-        case "confirmLoginAtemptForMail":
+        case "accountAccessRequestedConfirmAccessAttempt":
           return message;
         case "close":
           return closeText;

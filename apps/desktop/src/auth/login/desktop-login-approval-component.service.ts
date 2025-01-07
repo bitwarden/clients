@@ -20,7 +20,7 @@ export class DesktopLoginApprovalComponentService
     if (!isVisible) {
       await ipc.auth.loginRequest(
         this.i18nService.t("logInRequested"),
-        this.i18nService.t("confirmLoginAtemptForMail", email),
+        this.i18nService.t("accountAccessRequestedConfirmAccessAttempt", email),
         this.i18nService.t("close"),
       );
     }
