@@ -453,6 +453,7 @@ export class VaultComponent implements OnInit, OnDestroy {
                 await this.router.navigate([], {
                   queryParams: { itemId: null, cipherId: null, action: null },
                   queryParamsHandling: "merge",
+                  replaceUrl: true,
                 });
                 return;
               }
