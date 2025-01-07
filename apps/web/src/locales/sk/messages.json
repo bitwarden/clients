@@ -9272,16 +9272,16 @@
     "message": "Aktualizované daňové informácie"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Neplatne číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Nepodarilo sa nám overiť vaše číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Neplatne číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "Pri vytváraní náhľadu faktúry nastala chyba. Prosím skúste to neskor."
   },
   "unverified": {
     "message": "Neoverený"
@@ -10021,7 +10021,7 @@
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   },
   "resellerRenewalWarning": {
-    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Vaše predplatné sa čoskoro obnoví. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie pred $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10034,7 +10034,7 @@
     }
   },
   "resellerOpenInvoiceWarning": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "message": "Faktúra za vaše predplatné bola vystavená dňa $ISSUED_DATE$. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie predplatného pred $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10051,7 +10051,7 @@
     }
   },
   "resellerPastDueWarning": {
-    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "message": "Faktúra za vaše predplatné nebola uhradená. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie pred $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",

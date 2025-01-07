@@ -695,7 +695,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -807,6 +806,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
     );
 
     this.themeStateService = new DefaultThemeStateService(
@@ -957,6 +961,7 @@ export default class MainBackground {
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
+      this.domainSettingsService,
       this.platformUtilsService,
       this.logService,
     );
