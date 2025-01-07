@@ -19,7 +19,13 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CanDeleteCipherDirective,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
+
+import { PopupCipherView } from "../../views/popup-cipher.view";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -34,6 +40,7 @@ import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/va
     CanDeleteCipherDirective,
     MenuModule,
     IconButtonModule,
+    OrgIconDirective,
     TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,7 +50,7 @@ export class TrashListItemsContainerComponent {
    * The list of trashed items to display.
    */
   @Input()
-  ciphers: CipherView[] = [];
+  ciphers: PopupCipherView[] = [];
 
   @Input()
   headerText: string;
@@ -57,6 +64,18 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private router: Router,
   ) {}
+
+  /**
+   * The tooltip text for the organization icon for ciphers that belong to an organization.
+   * @param cipher
+   */
+  orgIconTooltip(cipher: PopupCipherView) {
+    if (cipher.collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", cipher.collectionIds.length);
+    }
+
+    return cipher.collections[0]?.name;
+  }
 
   async restore(cipher: CipherView) {
     try {
