@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { UnlockOptions } from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
@@ -12,6 +11,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+import { UnlockOptions } from "@bitwarden/key-management/angular";
 
 import { DesktopLockComponentService } from "./desktop-lock-component.service";
 

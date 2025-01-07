@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { UnlockOptions } from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
@@ -11,8 +10,9 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+import { UnlockOptions } from "@bitwarden/key-management/angular";
 
-import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
+import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { ExtensionLockComponentService } from "./extension-lock-component.service";
 
