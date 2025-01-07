@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
+import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
@@ -26,7 +26,7 @@ import { BitFormFieldControl } from "./form-field-control";
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
   standalone: true,
-  imports: [BitErrorComponent, I18nPipe],
+  imports: [NgClass, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {
   @ContentChild(BitFormFieldControl) input: BitFormFieldControl;

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { coerceNumberProperty } from "@angular/cdk/coercion";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -31,7 +32,13 @@ let nextId = 0;
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
   standalone: true,
-  imports: [TabHeaderComponent, TabListContainerDirective, TabListItemDirective, TabBodyComponent],
+  imports: [
+    NgTemplateOutlet,
+    TabHeaderComponent,
+    TabListContainerDirective,
+    TabListItemDirective,
+    TabBodyComponent,
+  ],
 })
 export class TabGroupComponent
   implements AfterContentChecked, AfterContentInit, AfterViewInit, OnDestroy

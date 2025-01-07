@@ -1,3 +1,4 @@
+import { AsyncPipe } from "@angular/common";
 import {
   AfterContentInit,
   booleanAttribute,
@@ -26,7 +27,7 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
   standalone: true,
-  imports: [NavItemComponent, IconButtonModule, I18nPipe],
+  imports: [AsyncPipe, NavItemComponent, IconButtonModule, I18nPipe],
   preserveWhitespaces: false,
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
