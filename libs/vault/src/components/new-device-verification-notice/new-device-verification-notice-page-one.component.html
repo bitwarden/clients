@@ -1,6 +1,9 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <p class="tw-text-center" bitTypography="body1">
     {{ "newDeviceVerificationNoticeContentPage1" | i18n }}
+    <a bitLink (click)="navigateToNewDeviceVerificationHelp($event)" href="#">
+      {{ "learnMore" | i18n }}.
+    </a>
   </p>
 
   <bit-card

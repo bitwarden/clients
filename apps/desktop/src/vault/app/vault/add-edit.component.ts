@@ -208,6 +208,9 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
           });
         } else {
           password = await this.getSshKeyPassword();
+          if (password === "") {
+            return;
+          }
           await this.importSshKeyFromClipboard(password);
         }
         return;

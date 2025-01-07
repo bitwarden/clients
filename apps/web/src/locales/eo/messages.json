@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Ĉiuj aplikaĵoj"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -39,7 +39,7 @@
     "message": "Cannot restore organization access"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Ĉiuj aplikaĵoj ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -416,7 +416,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Vi",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -572,7 +572,7 @@
     "message": "Sekura noto"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH-ŝlosilo"
   },
   "typeLoginPlural": {
     "message": "Salutoj"
@@ -605,7 +605,7 @@
     "message": "Plena Nomo"
   },
   "address": {
-    "message": "Address"
+    "message": "Adreso"
   },
   "address1": {
     "message": "Adreso 1"
@@ -677,7 +677,7 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Nova",
     "description": "for adding new items"
   },
   "item": {
@@ -1117,7 +1117,7 @@
     "message": "Saluti"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Ensaluti en Bitwarden"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1254,10 +1254,10 @@
     "message": "Retpoŝta Adreso"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Via trezorejo estas ŝlosita"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Via konto estas ŝlosita"
   },
   "uuid": {
     "message": "UUID"
@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Updated tax information"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
+  },
   "unverified": {
     "message": "Unverified"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "resellerRenewalWarning": {
+    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

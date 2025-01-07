@@ -25,7 +25,6 @@ import {
   LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
-  LockComponent,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -45,6 +44,7 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockComponent } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -67,7 +67,6 @@ import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-req
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
-import { AccountSecurityComponent as AccountSecurityV1Component } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
@@ -78,12 +77,12 @@ import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
+import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -97,28 +96,16 @@ import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
-import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
-import { CollectionsComponent } from "../vault/popup/components/vault/collections.component";
-import { PasswordHistoryComponent } from "../vault/popup/components/vault/password-history.component";
-import { ShareComponent } from "../vault/popup/components/vault/share.component";
-import { VaultItemsComponent } from "../vault/popup/components/vault/vault-items.component";
-import { VaultV2Component } from "../vault/popup/components/vault/vault-v2.component";
-import { ViewComponent } from "../vault/popup/components/vault/view.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
+import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
-import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
-import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
-import { FoldersComponent } from "../vault/popup/settings/folders.component";
-import { SyncComponent } from "../vault/popup/settings/sync.component";
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
-import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
 import { RouteElevation } from "./app-routing.animations";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
@@ -291,56 +278,43 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "ciphers",
-    component: VaultItemsComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  ...extensionRefreshSwap(ViewComponent, ViewV2Component, {
     path: "view-cipher",
+    component: ViewV2Component,
     canActivate: [authGuard],
     data: {
       // Above "trash"
       elevation: 3,
     } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(PasswordHistoryComponent, PasswordHistoryV2Component, {
+  },
+  {
     path: "cipher-password-history",
+    component: PasswordHistoryV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
+  },
+  {
     path: "add-cipher",
+    component: AddEditV2Component,
     canActivate: [authGuard, debounceNavigationGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
     runGuardsAndResolvers: "always",
-  }),
-  ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
+  },
+  {
     path: "edit-cipher",
+    component: AddEditV2Component,
     canActivate: [authGuard, debounceNavigationGuard()],
     data: {
       // Above "trash"
       elevation: 3,
     } satisfies RouteDataProperties,
     runGuardsAndResolvers: "always",
-  }),
-  {
-    path: "share-cipher",
-    component: ShareComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "collections",
-    component: CollectionsComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  ...extensionRefreshSwap(AttachmentsComponent, AttachmentsV2Component, {
     path: "attachments",
+    component: AttachmentsV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "generator",
     component: CredentialGeneratorComponent,
@@ -370,65 +344,58 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(AccountSecurityV1Component, AccountSecurityComponent, {
+  {
     path: "account-security",
+    component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
     path: "notifications",
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(VaultSettingsComponent, VaultSettingsV2Component, {
+  {
     path: "vault-settings",
+    component: VaultSettingsV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(FoldersComponent, FoldersV2Component, {
+  },
+  {
     path: "folders",
+    component: FoldersV2Component,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
-  }),
-  {
-    path: "add-folder",
-    component: FolderAddEditComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "edit-folder",
-    component: FolderAddEditComponent,
+    path: "blocked-domains",
+    component: BlockedDomainsComponent,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
-    path: "sync",
-    component: SyncComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 2 } satisfies RouteDataProperties,
   },
   ...extensionRefreshSwap(ExcludedDomainsV1Component, ExcludedDomainsComponent, {
     path: "excluded-domains",
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   }),
-  ...extensionRefreshSwap(PremiumComponent, PremiumV2Component, {
+  {
     path: "premium",
-    component: PremiumComponent,
+    component: PremiumV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
+  },
+  {
     path: "appearance",
+    component: AppearanceV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
-  ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
+  },
+  {
     path: "clone-cipher",
+    component: AddEditV2Component,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "add-send",
     component: SendAddEditV2Component,
@@ -704,7 +671,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh, true, "/")],
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -732,6 +699,7 @@ const routes: Routes = [
           pageTitle: {
             key: "importantNotice",
           },
+          hideFooter: true,
         },
       },
       {
