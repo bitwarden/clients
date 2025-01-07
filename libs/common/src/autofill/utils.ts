@@ -64,25 +64,32 @@ export function isCardExpired(cipherCard: CardView): boolean {
 
     const now = new Date();
     const normalizedYear = normalizeExpiryYearFormat(expYear);
+    const parsedYear = parseInt(normalizedYear, 10);
 
-    // If the card year is before the current year, don't bother checking the month
-    if (normalizedYear && parseInt(normalizedYear, 10) < now.getFullYear()) {
+    const expiryYearIsBeforeThisYear = parsedYear < now.getFullYear();
+    const expiryYearIsAfterThisYear = parsedYear > now.getFullYear();
+
+    // If the expiry year is before the current year, skip checking the month, since it must be expired
+    if (normalizedYear && expiryYearIsBeforeThisYear) {
       return true;
+    }
+
+    // If the expiry year is after the current year, skip checking the month, since it cannot be expired
+    if (normalizedYear && expiryYearIsAfterThisYear) {
+      return false;
     }
 
     if (normalizedYear && expMonth) {
       const parsedMonthInteger = parseInt(expMonth, 10);
+      const parsedMonthIsInvalid = !parsedMonthInteger || isNaN(parsedMonthInteger);
 
-      const parsedMonth = isNaN(parsedMonthInteger)
-        ? 0
-        : // Add a month floor of 0 to protect against an invalid low month value of "0" or negative integers
-          Math.max(
-            // `Date` months are zero-indexed
-            parsedMonthInteger - 1,
-            0,
-          );
+      // If the parsed month value is 0, we don't know when the expiry passes this year, so treat it as expired
+      if (parsedMonthIsInvalid) {
+        return true;
+      }
 
-      const parsedYear = parseInt(normalizedYear, 10);
+      // `Date` months are zero-indexed
+      const parsedMonth = parsedMonthInteger - 1;
 
       // First day of the next month
       const cardExpiry = new Date(parsedYear, parsedMonth + 1, 1);

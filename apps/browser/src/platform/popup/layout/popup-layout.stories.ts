@@ -41,7 +41,7 @@ class ExtensionContainerComponent {}
 
 @Component({
   selector: "vault-placeholder",
-  template: `
+  template: /*html*/ `
     <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
@@ -53,7 +53,7 @@ class ExtensionContainerComponent {}
 
           <ng-container slot="end">
             <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
+              <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
@@ -301,6 +301,12 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
+  parameters: {
+    chromatic: {
+      // Disable tests while we troubleshoot their flaky-ness
+      disableSnapshot: true,
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [

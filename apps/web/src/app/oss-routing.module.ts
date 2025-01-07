@@ -12,7 +12,6 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
-import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -26,7 +25,6 @@ import {
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockV2Component,
   LockIcon,
   TwoFactorTimeoutIcon,
   UserLockIcon,
@@ -41,6 +39,7 @@ import {
   LoginDecryptionOptionsComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockComponent } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -56,7 +55,6 @@ import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizatio
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
-import { LockComponent } from "./auth/lock.component";
 import { LoginDecryptionOptionsComponentV1 } from "./auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "./auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "./auth/login/login-via-auth-request-v1.component";
@@ -509,44 +507,23 @@ const routes: Routes = [
           },
         },
       },
-      ...extensionRefreshSwap(
-        LockComponent,
-        LockV2Component,
-        {
-          path: "lock",
-          canActivate: [deepLinkGuard(), lockGuard()],
-          children: [
-            {
-              path: "",
-              component: LockComponent,
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "yourVaultIsLockedV2",
-            },
-            pageIcon: LockIcon,
-            showReadonlyHostname: true,
-          } satisfies AnonLayoutWrapperData,
-        },
-        {
-          path: "lock",
-          canActivate: [deepLinkGuard(), lockGuard()],
-          children: [
-            {
-              path: "",
-              component: LockV2Component,
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "yourVaultIsLockedV2",
-            },
-            pageIcon: LockIcon,
-            showReadonlyHostname: true,
-          } satisfies AnonLayoutWrapperData,
-        },
-      ),
+      {
+        path: "lock",
+        canActivate: [deepLinkGuard(), lockGuard()],
+        children: [
+          {
+            path: "",
+            component: LockComponent,
+          },
+        ],
+        data: {
+          pageTitle: {
+            key: "yourVaultIsLockedV2",
+          },
+          pageIcon: LockIcon,
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+      },
       {
         path: "2fa",
         canActivate: [unauthGuardFn()],

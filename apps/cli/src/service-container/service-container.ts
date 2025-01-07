@@ -483,7 +483,29 @@ export class ServiceContainer {
 
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
+    );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
@@ -550,7 +572,6 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.apiService,
       customUserAgent,
     );
 
@@ -576,28 +597,11 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
-
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
@@ -864,19 +868,5 @@ export class ServiceContainer {
     }
 
     this.inited = true;
-
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      let supported = false;
-      try {
-        supported = await firstValueFrom(this.sdkService.supported$);
-      } catch (e) {
-        // Do nothing.
-      }
-
-      if (!supported) {
-        this.sdkService.failedToInitialize("cli").catch((e) => this.logService.error(e));
-      }
-    }
   }
 }

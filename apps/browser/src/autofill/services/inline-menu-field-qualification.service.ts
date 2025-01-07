@@ -151,14 +151,17 @@ export class InlineMenuFieldQualificationService
   private totpFieldAutocompleteValue = "one-time-code";
   private inlineMenuFieldQualificationFlagSet = false;
   private inlineMenuTotpFeatureFlag = false;
+  private premiumEnabled = false;
 
   constructor() {
     void Promise.all([
       sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
       sendExtensionMessage("getInlineMenuTotpFeatureFlag"),
-    ]).then(([fieldQualificationFlag, totpFeatureFlag]) => {
+      sendExtensionMessage("getUserPremiumStatus"),
+    ]).then(([fieldQualificationFlag, totpFeatureFlag, premiumStatus]) => {
       this.inlineMenuFieldQualificationFlagSet = !!fieldQualificationFlag?.result;
       this.inlineMenuTotpFeatureFlag = !!totpFeatureFlag?.result;
+      this.premiumEnabled = !!premiumStatus?.result;
     });
   }
 
@@ -174,10 +177,11 @@ export class InlineMenuFieldQualificationService
     }
 
     /**
-     * Autofill does not fill password type totp input fields
+     * Totp inline menu is available only for premium users.
      */
-    if (this.inlineMenuTotpFeatureFlag) {
+    if (this.inlineMenuTotpFeatureFlag && this.premiumEnabled) {
       const isTotpField = this.isTotpField(field);
+      // Autofill does not fill totp inputs with a "password" `type` attribute value
       const passwordType = field.type === "password";
       if (isTotpField && !passwordType) {
         return true;
