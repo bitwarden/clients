@@ -24,7 +24,7 @@ export class VaultFilterService extends BaseVaultFilterService {
     collectionService: CollectionService,
     policyService: PolicyService,
     stateProvider: StateProvider,
-    private accountService: AccountService,
+    accountService: AccountService,
   ) {
     super(
       organizationService,
@@ -33,6 +33,7 @@ export class VaultFilterService extends BaseVaultFilterService {
       collectionService,
       policyService,
       stateProvider,
+      accountService,
     );
     this.vaultFilter.myVaultOnly = false;
     this.vaultFilter.selectedOrganizationId = null;

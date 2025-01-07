@@ -695,7 +695,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -739,7 +738,6 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.apiService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -794,6 +792,8 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -808,6 +808,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
     );
 
     this.themeStateService = new DefaultThemeStateService(
@@ -958,6 +963,7 @@ export default class MainBackground {
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
+      this.domainSettingsService,
       this.platformUtilsService,
       this.logService,
     );
@@ -1105,6 +1111,7 @@ export default class MainBackground {
       messageListener,
       this.accountService,
       lockService,
+      this.billingAccountProfileStateService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1224,6 +1231,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1312,23 +1320,6 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
-
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      let supported = false;
-      let error: Error;
-      try {
-        supported = await firstValueFrom(this.sdkService.supported$);
-      } catch (e) {
-        error = e;
-      }
-
-      if (!supported) {
-        this.sdkService
-          .failedToInitialize("background", error)
-          .catch((e) => this.logService.error(e));
-      }
-    }
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {

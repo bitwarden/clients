@@ -101,9 +101,9 @@ import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-l
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
 import { flagEnabled } from "../../platform/flags";
-import { DesktopFido2UserInterfaceService } from "../../platform/services/desktop-fido2-user-interface.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";

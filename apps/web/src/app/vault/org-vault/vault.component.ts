@@ -86,6 +86,10 @@ import {
 
 import { GroupApiService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
+import {
+  ResellerWarning,
+  ResellerWarningService,
+} from "../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../core/types/free-trial";
 import { SharedModule } from "../../shared";
@@ -105,6 +109,10 @@ import {
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+} from "../individual-vault/attachments-v2.component";
+import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
@@ -119,7 +127,6 @@ import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.com
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import { AddEditComponent } from "./add-edit.component";
-import { AttachmentsComponent } from "./attachments.component";
 import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
@@ -184,6 +191,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
+  protected resellerWarning$: Observable<ResellerWarning | null>;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -200,6 +208,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private extensionRefreshEnabled: boolean;
+  private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
@@ -256,11 +265,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private resellerWarningService: ResellerWarningService,
   ) {}
 
   async ngOnInit() {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
+    );
+
+    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
+      FeatureFlag.ResellerManagedOrgAlert,
     );
 
     this.trashCleanupWarning = this.i18nService.t(
@@ -609,6 +623,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
+    this.resellerWarning$ = organization$.pipe(
+      filter((org) => org.isOwner && this.resellerManagedOrgAlert),
+      switchMap((org) =>
+        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
+          map((metadata) => ({ org, metadata })),
+        ),
+      ),
+      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
+    );
+
     firstSetup$
       .pipe(
         switchMap(() => this.refresh$),
@@ -761,29 +785,18 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let madeAttachmentChanges = false;
-
-    const [modal] = await this.modalService.openViewRef(
-      AttachmentsComponent,
-      this.attachmentsModalRef,
-      (comp) => {
-        comp.organization = this.organization;
-        comp.cipherId = cipher.id;
-        comp.onUploadedAttachment
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => (madeAttachmentChanges = true));
-        comp.onDeletedAttachment
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => (madeAttachmentChanges = true));
-      },
-    );
-
-    modal.onClosed.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      if (madeAttachmentChanges) {
-        this.refresh();
-      }
-      madeAttachmentChanges = false;
+    const dialogRef = AttachmentsV2Component.open(this.dialogService, {
+      cipherId: cipher.id as CipherId,
     });
+
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (
+      result.action === AttachmentDialogResult.Removed ||
+      result.action === AttachmentDialogResult.Uploaded
+    ) {
+      this.refresh();
+    }
   }
 
   async addCipher(cipherType?: CipherType) {

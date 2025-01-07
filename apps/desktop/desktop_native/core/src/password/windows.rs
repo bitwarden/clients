@@ -42,7 +42,7 @@ pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         .to_string_lossy()
     };
 
-    Ok(String::from(password))
+    Ok(password)
 }
 
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {

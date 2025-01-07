@@ -4,14 +4,16 @@ import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -181,7 +183,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Flag to indicate if the user has access to attachments via a premium subscription.
    * @protected
    */
-  protected canAccessAttachments$ = this.billingAccountProfileStateService.hasPremiumFromAnySource$;
+  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
@@ -237,6 +243,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private premiumUpgradeService: PremiumUpgradePromptService,
     private cipherAuthorizationService: CipherAuthorizationService,
     private apiService: ApiService,
+    private eventCollectionService: EventCollectionService,
   ) {
     this.updateTitle();
   }
@@ -256,6 +263,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher,
         [this.params.activeCollectionId],
         this.params.isAdminConsoleAction,
+      );
+
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientViewed,
+        this.cipher.id,
+        false,
+        this.cipher.organizationId,
       );
     }
 
@@ -419,19 +433,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     switch (type) {
       case CipherType.Login:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLowerCase());
+        this.title = this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
         break;
       case CipherType.Card:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeCard").toLowerCase());
+        this.title = this.i18nService.t(partOne, this.i18nService.t("typeCard"));
         break;
       case CipherType.Identity:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
+        this.title = this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
         break;
       case CipherType.SecureNote:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
+        this.title = this.i18nService.t(partOne, this.i18nService.t("note"));
         break;
       case CipherType.SshKey:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLowerCase());
+        this.title = this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
         break;
     }
   }

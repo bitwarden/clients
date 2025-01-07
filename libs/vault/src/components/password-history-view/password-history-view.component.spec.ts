@@ -46,6 +46,7 @@ describe("PasswordHistoryViewComponent", () => {
 
     fixture = TestBed.createComponent(PasswordHistoryViewComponent);
     component = fixture.componentInstance;
+    component.cipher = mockCipher;
     fixture.detectChanges();
   });
 
@@ -60,8 +61,8 @@ describe("PasswordHistoryViewComponent", () => {
     beforeEach(async () => {
       mockCipher.passwordHistory = [password1, password2];
 
-      mockCipherService.get.mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) });
-      await component.ngOnInit();
+      component.cipher = mockCipher;
+      component.ngOnInit();
       fixture.detectChanges();
     });
 

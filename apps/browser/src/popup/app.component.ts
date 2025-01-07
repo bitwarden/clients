@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
@@ -11,9 +10,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -25,12 +22,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { flagEnabled } from "../platform/flags";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
-import { PopupWidthService } from "../platform/popup/layout/popup-width.service";
 import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
-import { BrowserSendStateService } from "../tools/popup/services/browser-send-state.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
@@ -47,7 +41,6 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);
   private compactModeService = inject(PopupCompactModeService);
-  private widthService = inject(PopupWidthService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -61,7 +54,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private router: Router,
     private stateService: StateService,
-    private browserSendStateService: BrowserSendStateService,
     private vaultBrowserStateService: VaultBrowserStateService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -72,38 +64,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private animationControlService: AnimationControlService,
-    private logService: LogService,
-    private sdkService: SdkService,
-  ) {
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$.pipe(takeUntilDestroyed()).subscribe({
-        next: (supported) => {
-          if (!supported) {
-            this.logService.debug("SDK is not supported");
-            this.sdkService
-              .failedToInitialize("popup", undefined)
-              .catch((e) => this.logService.error(e));
-          } else {
-            this.logService.debug("SDK is supported");
-          }
-        },
-        error: (e: unknown) => {
-          this.sdkService
-            .failedToInitialize("popup", e as Error)
-            .catch((e) => this.logService.error(e));
-          this.logService.error(e);
-        },
-      });
-    }
-  }
+  ) {}
 
   async ngOnInit() {
     initPopupClosedListener();
     await this.viewCacheService.init();
 
     this.compactModeService.init();
-    this.widthService.init();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur
@@ -271,8 +238,6 @@ export class AppComponent implements OnInit, OnDestroy {
     await Promise.all([
       this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
       this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
-      this.browserSendStateService.setBrowserSendComponentState(null),
-      this.browserSendStateService.setBrowserSendTypeComponentState(null),
     ]);
   }
 
