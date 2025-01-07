@@ -1,42 +1,43 @@
 import { mock } from "jest-mock-extended";
 import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
-
-import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
+import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
+import {
+  USER_ENCRYPTED_PRIVATE_KEY,
+  USER_EVER_HAD_USER_KEY,
+  USER_KEY,
+} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { VAULT_TIMEOUT } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.state";
 import {
   awaitAsync,
   makeEncString,
   makeStaticByteArray,
   makeSymmetricCryptoKey,
-} from "../../common/spec";
-import { FakeAccountService, mockAccountServiceWith } from "../../common/spec/fake-account-service";
-import { FakeActiveUserState, FakeSingleUserState } from "../../common/spec/fake-state";
-import { FakeStateProvider } from "../../common/spec/fake-state-provider";
-import { FakeMasterPasswordService } from "../../common/src/auth/services/master-password/fake-master-password.service";
-import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
-import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
-import { LogService } from "../../common/src/platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../common/src/platform/abstractions/platform-utils.service";
-import { StateService } from "../../common/src/platform/abstractions/state.service";
-import { Encrypted } from "../../common/src/platform/interfaces/encrypted";
-import { Utils } from "../../common/src/platform/misc/utils";
-import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
-import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";
-import { USER_ENCRYPTED_PROVIDER_KEYS } from "../../common/src/platform/services/key-state/provider-keys.state";
-import {
-  USER_ENCRYPTED_PRIVATE_KEY,
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "../../common/src/platform/services/key-state/user-key.state";
-import { UserKeyDefinition } from "../../common/src/platform/state";
-import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
-import { CsprngArray } from "../../common/src/types/csprng";
-import { OrganizationId, UserId } from "../../common/src/types/guid";
-import { UserKey, MasterKey } from "../../common/src/types/key";
-import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
+  FakeAccountService,
+  mockAccountServiceWith,
+  FakeStateProvider,
+  FakeActiveUserState,
+  FakeSingleUserState,
+} from "@bitwarden/common/spec";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";

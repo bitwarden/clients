@@ -2,9 +2,12 @@
 // @ts-strict-ignore
 import { firstValueFrom, Observable } from "rxjs";
 
+import {
+  KDF_CONFIG_DISK,
+  StateProvider,
+  UserKeyDefinition,
+} from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/src/types/guid";
-
-import { KDF_CONFIG_DISK, StateProvider, UserKeyDefinition } from "../../common/src/platform/state";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { KdfType } from "./enums/kdf-type.enum";

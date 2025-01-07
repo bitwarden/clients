@@ -1,10 +1,10 @@
-import { EncryptedString } from "../../../common/src/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import {
   KeyDefinition,
   BIOMETRIC_SETTINGS_DISK,
   UserKeyDefinition,
-} from "../../../common/src/platform/state";
-import { UserId } from "../../../common/src/types/guid";
+} from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.
