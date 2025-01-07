@@ -4,7 +4,7 @@ import * as forge from "node-forge";
 import { Utils } from "../../platform/misc/utils";
 import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
-import { DecryptParameters } from "../models/domain/decrypt-parameters";
+import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -243,8 +243,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     iv: string,
     mac: string | null,
     key: SymmetricCryptoKey,
-  ): DecryptParameters<string> {
-    const p = new DecryptParameters<string>();
+  ): CbcDecryptParameters<string> {
+    const p = {} as CbcDecryptParameters<string>;
     if (key.meta != null) {
       p.encKey = key.meta.encKeyByteString;
       p.macKey = key.meta.macKeyByteString;
@@ -277,7 +277,12 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return p;
   }
 
-  aesDecryptFast(parameters: DecryptParameters<string>, mode: "cbc" | "ecb"): Promise<string> {
+  aesDecryptFast({
+    mode,
+    parameters,
+  }:
+    | { mode: "cbc"; parameters: CbcDecryptParameters<string> }
+    | { mode: "ecb"; parameters: EcbDecryptParameters<string> }): Promise<string> {
     const decipher = (forge as any).cipher.createDecipher(
       this.toWebCryptoAesMode(mode),
       parameters.encKey,
@@ -302,10 +307,11 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   ): Promise<Uint8Array> {
     if (mode === "ecb") {
       // Web crypto does not support AES-ECB mode, so we need to do this in forge.
-      const params = new DecryptParameters<string>();
-      params.data = this.toByteString(data);
-      params.encKey = this.toByteString(key);
-      const result = await this.aesDecryptFast(params, "ecb");
+      const parameters: EcbDecryptParameters<string> = {
+        data: this.toByteString(data),
+        encKey: this.toByteString(key),
+      };
+      const result = await this.aesDecryptFast({ mode: "ecb", parameters });
       return Utils.fromByteStringToArray(result);
     }
     const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
