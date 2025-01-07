@@ -7,6 +7,8 @@ import { Router } from "@angular/router";
 import { BehaviorSubject, firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -43,15 +45,12 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
-import { PinServiceAbstraction } from "../../common/abstractions";
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
-
 import {
   UnlockOption,
   LockComponentService,
   UnlockOptions,
   UnlockOptionValue,
-} from "./lock-component.service";
+} from "../services/lock-component.service";
 
 const BroadcasterSubscriptionId = "LockComponent";
 

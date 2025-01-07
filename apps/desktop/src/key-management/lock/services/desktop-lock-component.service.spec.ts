@@ -2,22 +2,35 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { BiometricsDisableReason, UnlockOptions } from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService } from "@bitwarden/key-management";
+import { BiometricsDisableReason, UnlockOptions } from "@bitwarden/key-management/angular";
 
-import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
+import { DesktopLockComponentService } from "./desktop-lock-component.service";
 
-import { ExtensionLockComponentService } from "./extension-lock-component.service";
+// ipc mock global
+const isWindowVisibleMock = jest.fn();
+const biometricEnabledMock = jest.fn();
+(global as any).ipc = {
+  keyManagement: {
+    biometric: {
+      enabled: biometricEnabledMock,
+    },
+  },
+  platform: {
+    isWindowVisible: isWindowVisibleMock,
+  },
+};
 
-describe("ExtensionLockComponentService", () => {
-  let service: ExtensionLockComponentService;
+describe("DesktopLockComponentService", () => {
+  let service: DesktopLockComponentService;
 
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
@@ -25,7 +38,6 @@ describe("ExtensionLockComponentService", () => {
   let pinService: MockProxy<PinServiceAbstraction>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let keyService: MockProxy<KeyService>;
-  let routerService: MockProxy<BrowserRouterService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -34,11 +46,10 @@ describe("ExtensionLockComponentService", () => {
     pinService = mock<PinServiceAbstraction>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     keyService = mock<KeyService>();
-    routerService = mock<BrowserRouterService>();
 
     TestBed.configureTestingModule({
       providers: [
-        ExtensionLockComponentService,
+        DesktopLockComponentService,
         {
           provide: UserDecryptionOptionsServiceAbstraction,
           useValue: userDecryptionOptionsService,
@@ -63,58 +74,66 @@ describe("ExtensionLockComponentService", () => {
           provide: KeyService,
           useValue: keyService,
         },
-        {
-          provide: BrowserRouterService,
-          useValue: routerService,
-        },
       ],
     });
 
-    service = TestBed.inject(ExtensionLockComponentService);
+    service = TestBed.inject(DesktopLockComponentService);
   });
 
   it("instantiates", () => {
     expect(service).not.toBeFalsy();
   });
 
-  describe("getPreviousUrl", () => {
-    it("returns the previous URL", () => {
-      routerService.getPreviousUrl.mockReturnValue("previousUrl");
-      expect(service.getPreviousUrl()).toBe("previousUrl");
+  // getBiometricsError
+  describe("getBiometricsError", () => {
+    it("returns null when given null", () => {
+      const result = service.getBiometricsError(null);
+      expect(result).toBeNull();
+    });
+
+    it("returns null when given an unknown error", () => {
+      const result = service.getBiometricsError({ message: "unknown" });
+      expect(result).toBeNull();
     });
   });
 
-  describe("getBiometricsError", () => {
-    it("returns a biometric error description when given a valid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "startDesktop",
-        }),
-      ).toBe("startDesktopDesc");
-    });
-
-    it("returns null when given an invalid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "invalidError",
-        }),
-      ).toBeNull();
-    });
-
-    it("returns null when given a null input", () => {
-      expect(service.getBiometricsError(null)).toBeNull();
+  describe("getPreviousUrl", () => {
+    it("returns null", () => {
+      const result = service.getPreviousUrl();
+      expect(result).toBeNull();
     });
   });
 
   describe("isWindowVisible", () => {
-    it("throws an error", async () => {
-      await expect(service.isWindowVisible()).rejects.toThrow("Method not implemented.");
+    it("returns the window visibility", async () => {
+      isWindowVisibleMock.mockReturnValue(true);
+      const result = await service.isWindowVisible();
+      expect(result).toBe(true);
     });
   });
 
   describe("getBiometricsUnlockBtnText", () => {
-    it("returns the biometric unlock button text", () => {
-      expect(service.getBiometricsUnlockBtnText()).toBe("unlockWithBiometrics");
+    it("returns the correct text for Mac OS", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+      const result = service.getBiometricsUnlockBtnText();
+      expect(result).toBe("unlockWithTouchId");
+    });
+
+    it("returns the correct text for Windows", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      const result = service.getBiometricsUnlockBtnText();
+      expect(result).toBe("unlockWithWindowsHello");
+    });
+
+    it("returns the correct text for Linux", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
+      const result = service.getBiometricsUnlockBtnText();
+      expect(result).toBe("unlockWithPolkit");
+    });
+
+    it("throws an error for an unsupported platform", () => {
+      platformUtilsService.getDevice.mockReturnValue("unsupported" as any);
+      expect(() => service.getBiometricsUnlockBtnText()).toThrowError("Unsupported platform");
     });
   });
 
@@ -123,6 +142,7 @@ describe("ExtensionLockComponentService", () => {
       hasMasterPassword: boolean;
       osSupportsBiometric: boolean;
       biometricLockSet: boolean;
+      biometricReady: boolean;
       hasBiometricEncryptedUserKeyStored: boolean;
       platformSupportsSecureStorage: boolean;
       pinDecryptionAvailable: boolean;
@@ -136,6 +156,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: true,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: true,
         },
@@ -159,6 +180,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: true,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: true,
         },
@@ -182,6 +204,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: true,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: true,
           platformSupportsSecureStorage: false,
           pinDecryptionAvailable: false,
         },
@@ -205,6 +228,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: true,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: false,
+          biometricReady: true,
           platformSupportsSecureStorage: false,
           pinDecryptionAvailable: false,
         },
@@ -222,12 +246,37 @@ describe("ExtensionLockComponentService", () => {
         },
       ],
       [
+        // Biometrics not available: biometric not ready
+        {
+          hasMasterPassword: false,
+          osSupportsBiometric: true,
+          biometricLockSet: true,
+          hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: false,
+          platformSupportsSecureStorage: true,
+          pinDecryptionAvailable: false,
+        },
+        {
+          masterPassword: {
+            enabled: false,
+          },
+          pin: {
+            enabled: false,
+          },
+          biometrics: {
+            enabled: false,
+            disableReason: BiometricsDisableReason.SystemBiometricsUnavailable,
+          },
+        },
+      ],
+      [
         // Biometrics not available: biometric lock not set
         {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: false,
           hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -251,6 +300,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: true,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: false,
+          biometricReady: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -274,6 +324,7 @@ describe("ExtensionLockComponentService", () => {
           osSupportsBiometric: false,
           biometricLockSet: true,
           hasBiometricEncryptedUserKeyStored: true,
+          biometricReady: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -310,6 +361,7 @@ describe("ExtensionLockComponentService", () => {
       platformUtilsService.supportsSecureStorage.mockReturnValue(
         mockInputs.platformSupportsSecureStorage,
       );
+      biometricEnabledMock.mockResolvedValue(mockInputs.biometricReady);
 
       //  PIN
       pinService.isPinDecryptionAvailable.mockResolvedValue(mockInputs.pinDecryptionAvailable);
