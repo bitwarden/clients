@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -18,6 +18,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -114,6 +115,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
     private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -235,9 +237,15 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.cipherService.failedToDecryptCiphers$
+    // Store a reference to the current active account during page init
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+    // Combine with the activeAccount$ to ensure we only show the dialog for the current account from ngOnInit.
+    // The account switching process updates the cipherService before Vault is destroyed and would cause duplicate emissions
+    combineLatest([this.accountService.activeAccount$, this.cipherService.failedToDecryptCiphers$])
       .pipe(
-        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter(([account]) => account.id === activeAccount.id),
+        map(([_, ciphers]) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
         takeUntil(this.componentIsDestroyed$),
