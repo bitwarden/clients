@@ -202,8 +202,11 @@ export default class RuntimeBackground {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
       }
       case "getUserPremiumStatus": {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
         const result = await firstValueFrom(
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
         );
         return result;
       }

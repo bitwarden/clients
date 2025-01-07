@@ -6,10 +6,12 @@ import { BehaviorSubject } from "rxjs";
 
 import { CopyClickDirective } from "@bitwarden/angular/directives/copy-click.directive";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,6 +28,17 @@ describe("LoginCredentialsViewComponent", () => {
   let fixture: ComponentFixture<LoginCredentialsViewComponent>;
 
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(true);
+  const mockAccount = {
+    id: "test-user-id" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+    type: 0,
+    status: 0,
+    kdf: 0,
+    kdfIterations: 0,
+  };
+  const activeAccount$ = new BehaviorSubject(mockAccount);
 
   const cipher = {
     id: "cipher-id",
@@ -48,8 +61,11 @@ describe("LoginCredentialsViewComponent", () => {
       providers: [
         {
           provide: BillingAccountProfileStateService,
-          useValue: mock<BillingAccountProfileStateService>({ hasPremiumFromAnySource$ }),
+          useValue: mock<BillingAccountProfileStateService>({
+            hasPremiumFromAnySource$: () => hasPremiumFromAnySource$,
+          }),
         },
+        { provide: AccountService, useValue: mock<AccountService>({ activeAccount$ }) },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>({ collect }) },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },

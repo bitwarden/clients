@@ -327,7 +327,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -365,7 +365,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ScriptInjectorService,
     useClass: BrowserScriptInjectorService,
-    deps: [PlatformUtilsService, LogService],
+    deps: [DomainSettingsService, PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: VaultTimeoutService,

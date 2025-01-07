@@ -255,4 +255,16 @@
       {{ "showIdentitiesCurrentTabDesc" | i18n }}
     </div>
   </div>
+  <div class="box list" *ngIf="blockBrowserInjectionsByDomainEnabled">
+    <div class="box-content single-line">
+      <button
+        type="button"
+        class="box-content-row box-content-row-flex text-default"
+        routerLink="/blocked-domains"
+      >
+        <div class="row-main">{{ "blockedDomains" | i18n }}</div>
+        <i class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
 </main>
