@@ -18,19 +18,25 @@ import { map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
   ButtonModule,
   CompactModeService,
+  DialogService,
   IconButtonModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -55,6 +61,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ItemMoreOptionsComponent,
     OrgIconDirective,
     ScrollingModule,
+    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -125,6 +132,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   showAutofillButton: boolean;
 
   /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   */
+  @Input({ transform: booleanAttribute })
+  primaryActionAutofill: boolean;
+
+  /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
@@ -152,6 +165,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     private cipherService: CipherService,
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
+    private dialogService: DialogService,
   ) {}
 
   async ngAfterViewInit() {
@@ -203,6 +217,13 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
+          if (cipher.decryptionFailure) {
+            DecryptionFailureDialogComponent.open(this.dialogService, {
+              cipherIds: [cipher.id as CipherId],
+            });
+            return;
+          }
+
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
             return;
