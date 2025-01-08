@@ -4,7 +4,7 @@ import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -40,6 +40,7 @@ import {
   CipherFormGenerationService,
   CipherFormModule,
   CipherViewComponent,
+  DecryptionFailureDialogComponent,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -114,6 +115,7 @@ export enum VaultItemDialogResult {
     CipherAttachmentsComponent,
     AsyncActionsModule,
     ItemModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
@@ -183,7 +185,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Flag to indicate if the user has access to attachments via a premium subscription.
    * @protected
    */
-  protected canAccessAttachments$ = this.billingAccountProfileStateService.hasPremiumFromAnySource$;
+  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
@@ -248,6 +254,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.cipher = await this.getDecryptedCipherView(this.formConfig);
 
     if (this.cipher) {
+      if (this.cipher.decryptionFailure) {
+        this.dialogService.open(DecryptionFailureDialogComponent, {
+          data: { cipherIds: [this.cipher.id] },
+        });
+        this.dialogRef.close();
+        return;
+      }
+
       this.collections = this.formConfig.collections.filter((c) =>
         this.cipher.collectionIds?.includes(c.id),
       );

@@ -117,4 +117,8 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
       },
     );
   }
+
+  async deactivateDevice(deviceId: string): Promise<void> {
+    await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, true, false);
+  }
 }

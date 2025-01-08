@@ -12,6 +12,7 @@ export class DeviceView implements View {
   type: DeviceType;
   creationDate: string;
   revisionDate: string;
+  response: DeviceResponse;
 
   constructor(deviceResponse: DeviceResponse) {
     Object.assign(this, deviceResponse);
