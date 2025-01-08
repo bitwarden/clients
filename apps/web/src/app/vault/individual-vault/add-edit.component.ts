@@ -21,13 +21,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -73,6 +74,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -93,6 +96,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
