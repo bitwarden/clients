@@ -27,10 +27,15 @@
         <button
           bit-item-content
           type="button"
-          (click)="primaryActionAutofill ? doAutofill(cipher) : onViewCipher(cipher)"
+          (click)="
+            primaryActionAutofill && !currentURIIsBlocked
+              ? doAutofill(cipher)
+              : onViewCipher(cipher)
+          "
           (dblclick)="launchCipher(cipher)"
           [appA11yTitle]="
-            (primaryActionAutofill ? 'autofillTitle' : 'viewItemTitle') | i18n: cipher.name
+            (primaryActionAutofill && !currentURIIsBlocked ? 'autofillTitle' : 'viewItemTitle')
+              | i18n: cipher.name
           "
           class="{{ itemHeightClass }}"
         >

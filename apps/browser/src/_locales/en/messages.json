@@ -3993,9 +3993,6 @@
   "passkeyRemoved": {
     "message": "Passkey removed"
   },
-  "autofillSuggestions": {
-    "message": "Autofill suggestions"
-  },
   "itemSuggestions": {
     "message": "Suggested items"
   },

@@ -13,7 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { Router } from "@angular/router";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -120,8 +120,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Flag indicating that the current tab location is blocked
    */
-  @Input({ transform: booleanAttribute })
-  currentURIIsBlocked: boolean;
+  currentURIIsBlocked: boolean = false;
 
   /**
    * Option to show the autofill button for each item.
@@ -175,6 +174,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+
+    this.currentURIIsBlocked = await firstValueFrom(
+      this.vaultPopupAutofillService.currentTabIsOnBlocklist$,
+    );
   }
 
   /**

@@ -5,7 +5,12 @@ import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import {
+  IconButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -17,9 +22,11 @@ import { VaultListItemsContainerComponent } from "../vault-list-items-container/
   standalone: true,
   imports: [
     CommonModule,
+    SectionComponent,
     TypographyModule,
     VaultListItemsContainerComponent,
     JslibModule,
+    SectionHeaderComponent,
     IconButtonModule,
   ],
   selector: "app-autofill-vault-list-items",
@@ -40,11 +47,6 @@ export class AutofillVaultListItemsComponent implements OnInit {
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
 
   clickItemsToAutofillVaultView = false;
-
-  /**
-   * Flag indicating that the current tab location is blocked
-   */
-  currentURIIsBlocked: boolean = false;
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.
@@ -72,10 +74,6 @@ export class AutofillVaultListItemsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.currentURIIsBlocked = await firstValueFrom(
-      this.vaultPopupAutofillService.currentTabIsOnBlocklist$,
-    );
-
     this.clickItemsToAutofillVaultView = await firstValueFrom(
       this.vaultSettingsService.clickItemsToAutofillVaultView$,
     );
