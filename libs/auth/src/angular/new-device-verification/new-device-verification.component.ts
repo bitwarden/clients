@@ -94,6 +94,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
+      // TODO: must use loginStrategyService here
       const authResult = await this.passwordLoginStrategy.logInNewDeviceVerification(code);
 
       if (authResult.requiresTwoFactor) {
