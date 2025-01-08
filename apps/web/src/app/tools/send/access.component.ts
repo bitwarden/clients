@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -39,23 +41,23 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccessComponent implements OnInit {
-  protected send!: SendAccessView;
+  protected send: SendAccessView;
   protected sendType = SendType;
   protected loading = true;
   protected passwordRequired = false;
-  protected formPromise!: Promise<SendAccessResponse>;
-  protected password!: string;
+  protected formPromise: Promise<SendAccessResponse>;
+  protected password: string;
   protected unavailable = false;
   protected error = false;
   protected hideEmail = false;
-  protected decKey!: SymmetricCryptoKey;
-  protected accessRequest!: SendAccessRequest;
+  protected decKey: SymmetricCryptoKey;
+  protected accessRequest: SendAccessRequest;
   protected expiredSendIcon = ExpiredSendIcon;
 
   protected formGroup = this.formBuilder.group({});
 
-  private id!: string;
-  private key!: string;
+  private id: string;
+  private key: string;
 
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
@@ -110,7 +112,7 @@ export class AccessComponent implements OnInit {
         );
         this.accessRequest.password = Utils.fromBufferToB64(passwordHash);
       }
-      let sendResponse: SendAccessResponse;
+      let sendResponse: SendAccessResponse = null;
       if (this.loading) {
         sendResponse = await this.sendApiService.postSendAccess(this.id, this.accessRequest);
       } else {
