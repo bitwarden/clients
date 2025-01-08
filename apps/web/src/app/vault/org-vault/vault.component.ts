@@ -191,6 +191,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
+  protected prevCipherId: string | null = null;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -535,29 +536,24 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        // Only process the queryParams if the dialog is not open (only when extension refresh is enabled)
-        filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
         switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
+        filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
         switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
+
           if (!cipherId) {
+            this.prevCipherId = null;
             return;
           }
+
+          if (cipherId === this.prevCipherId) {
+            return;
+          }
+
+          this.prevCipherId = cipherId;
+
           const cipher = allCiphersMap[cipherId];
-
-          if (cipher) {
-            let action = qParams.action;
-            // Default to "view" if extension refresh is enabled
-            if (action == null && this.extensionRefreshEnabled) {
-              action = "view";
-            }
-
-            if (action === "view") {
-              await this.viewCipherById(cipher);
-            } else {
-              await this.editCipherId(cipher, false);
-            }
-          } else {
+          if (!cipher) {
             this.toastService.showToast({
               variant: "error",
               title: null,
@@ -567,6 +563,18 @@ export class VaultComponent implements OnInit, OnDestroy {
               queryParams: { cipherId: null, itemId: null },
               queryParamsHandling: "merge",
             });
+            return;
+          }
+
+          let action = qParams.action;
+          if (action == null && this.extensionRefreshEnabled) {
+            action = "view";
+          }
+
+          if (action === "view") {
+            await this.viewCipherById(cipher);
+          } else {
+            await this.editCipherId(cipher, false);
           }
         }),
         takeUntil(this.destroy$),
