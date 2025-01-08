@@ -1,5 +1,7 @@
 import { Observable, defer, map } from "rxjs";
 
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+
 import { ListResponse } from "../../../models/response/list.response";
 import { DevicesServiceAbstraction } from "../../abstractions/devices/devices.service.abstraction";
 import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
@@ -15,7 +17,10 @@ import { DevicesApiServiceAbstraction } from "../../abstractions/devices-api.ser
  * (i.e., promsise --> observables are cold until subscribed to)
  */
 export class DevicesServiceImplementation implements DevicesServiceAbstraction {
-  constructor(private devicesApiService: DevicesApiServiceAbstraction) {}
+  constructor(
+    private devicesApiService: DevicesApiServiceAbstraction,
+    private appIdService: AppIdService,
+  ) {}
 
   /**
    * @description Gets the list of all devices.
@@ -64,5 +69,22 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
         deviceKeyEncryptedDevicePrivateKey,
       ),
     ).pipe(map((deviceResponse: DeviceResponse) => new DeviceView(deviceResponse)));
+  }
+
+  /**
+   * @description Deactivates a device
+   */
+  deactivateDevice$(deviceId: string): Observable<void> {
+    return defer(() => this.devicesApiService.deactivateDevice(deviceId));
+  }
+
+  /**
+   * @description Gets the current device.
+   */
+  getCurrentDevice$(): Observable<DeviceResponse> {
+    return defer(async () => {
+      const deviceIdentifier = await this.appIdService.getAppId();
+      return this.devicesApiService.getDeviceByIdentifier(deviceIdentifier);
+    });
   }
 }

@@ -136,13 +136,17 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
-      encKey = new SymmetricCryptoKey(
-        await encryptService.decryptToBytes(
-          this.key,
-          encKey,
-          `Cipher Id: ${this.id}; Content: CipherKey; IsEncryptedByOrgKey: ${this.organizationId != null}`,
-        ),
+      const keyBytes = await encryptService.decryptToBytes(
+        this.key,
+        encKey,
+        `Cipher Id: ${this.id}; Content: CipherKey; IsEncryptedByOrgKey: ${this.organizationId != null}`,
       );
+      if (keyBytes == null) {
+        model.name = "[error: cannot decrypt]";
+        model.decryptionFailure = true;
+        return model;
+      }
+      encKey = new SymmetricCryptoKey(keyBytes);
       bypassValidation = false;
     }
 
