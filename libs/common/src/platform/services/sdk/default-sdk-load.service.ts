@@ -1,7 +1,7 @@
-// eslint-disable-next-line no-restricted-imports -- TODO MDG: fix this import restriction error
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import * as sdk from "@bitwarden/sdk-internal";
 import * as module from "@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm";
+
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 
 /**
  * Directly imports the Bitwarden SDK and initializes it.
