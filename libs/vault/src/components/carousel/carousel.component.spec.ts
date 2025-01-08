@@ -56,4 +56,8 @@ describe("VaultCarouselComponent", () => {
 
     expect(heading.textContent).toBe("Second Carousel Heading");
   });
+
+  it("sets the initial focused button as the first button", () => {
+    expect(component["keyManager"]?.activeItemIndex).toBe(0);
+  });
 });

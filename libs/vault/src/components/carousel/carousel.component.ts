@@ -1,5 +1,13 @@
+import { FocusKeyManager } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ContentChildren, Input, QueryList } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ContentChildren,
+  Input,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
 
 import { ButtonModule } from "@bitwarden/components";
 
@@ -21,12 +29,15 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
     VaultCarouselButtonComponent,
   ],
 })
-export class VaultCarouselComponent {
-  protected ActiveCarouselIcon = ActiveCarouselIcon;
-  protected InactiveCarouselIcon = InactiveCarouselIcon;
-
+export class VaultCarouselComponent implements AfterViewInit {
   /** The currently selected index of the carousel. */
   protected selectedIndex = 0;
+
+  /**
+   * Focus key manager for keeping tab controls accessible.
+   * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
+   */
+  protected keyManager: FocusKeyManager<VaultCarouselButtonComponent> | null = null;
 
   /**
    * Accessible Label for the carousel
@@ -36,11 +47,25 @@ export class VaultCarouselComponent {
    */
   @Input({ required: true }) label = "";
 
-  /**  All slides within the carousel. */
+  /** All slides within the carousel. */
   @ContentChildren(VaultCarouselSlideComponent) slides!: QueryList<VaultCarouselSlideComponent>;
+
+  /** All buttons that control the carousel */
+  @ViewChildren(VaultCarouselButtonComponent)
+  carouselButtons!: QueryList<VaultCarouselButtonComponent>;
 
   /** Set the selected index of the carousel. */
   protected selectSlide(index: number) {
     this.selectedIndex = index;
+  }
+
+  ngAfterViewInit(): void {
+    this.keyManager = new FocusKeyManager(this.carouselButtons)
+      .withHorizontalOrientation("ltr")
+      .withWrap()
+      .withHomeAndEnd();
+
+    // Set the first carousel button as active, this avoids having to double tab the arrow keys on initial focus.
+    this.keyManager.setFirstItemActive();
   }
 }
