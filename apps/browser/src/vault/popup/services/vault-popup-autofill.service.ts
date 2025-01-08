@@ -85,7 +85,7 @@ export class VaultPopupAutofillService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
-  currentTabBlockedBannerIsDismissed$: Observable<boolean> = combineLatest([
+  showCurrentTabIsBlockedBanner$: Observable<boolean> = combineLatest([
     this.domainSettingsService.blockedInteractionsUris$,
     this.currentAutofillTab$,
   ]).pipe(
@@ -104,6 +104,33 @@ export class VaultPopupAutofillService {
     }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+
+  async dismissCurrentTabIsBlockedBanner() {
+    try {
+      const currentTab = await firstValueFrom(this.currentAutofillTab$);
+      const currentTabURL = currentTab?.url.length && new URL(currentTab.url);
+
+      const currentTabHostname = currentTabURL && currentTabURL.hostname;
+
+      if (!currentTabHostname) {
+        return;
+      }
+
+      const blockedURIs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
+      const tabIsBlocked = Object.keys(blockedURIs).includes(currentTabHostname);
+
+      if (tabIsBlocked) {
+        void this.domainSettingsService.setBlockedInteractionsUris({
+          ...blockedURIs,
+          [currentTabHostname as string]: { bannerIsDismissed: true },
+        });
+      }
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URI notification banner",
+      );
+    }
+  }
 
   /**
    * Observable that indicates whether autofill is allowed in the current context.
