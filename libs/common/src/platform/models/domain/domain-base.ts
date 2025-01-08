@@ -121,20 +121,22 @@ export default class Domain {
     _: Constructor<TThis> = this.constructor as Constructor<TThis>,
     objectContext: string = "No Domain Context",
   ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
-    const decryptedObjects = [];
+    const promises = [];
 
     for (const prop of encryptedProperties) {
       const value = (this as any)[prop] as EncString;
-      const decrypted = await this.decryptProperty(
-        prop,
-        value,
-        key,
-        encryptService,
-        `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
+      promises.push(
+        this.decryptProperty(
+          prop,
+          value,
+          key,
+          encryptService,
+          `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
+        ),
       );
-      decryptedObjects.push(decrypted);
     }
 
+    const decryptedObjects = await Promise.all(promises);
     const decryptedObject = decryptedObjects.reduce(
       (acc, obj) => {
         return { ...acc, ...obj };
