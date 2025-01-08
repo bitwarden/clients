@@ -113,7 +113,7 @@
         "@types/node",
         "@types/node-forge",
         "@types/node-ipc",
-        "@yao-pkg",
+        "@yao-pkg/pkg",
         "babel-loader",
         "browserslist",
         "copy-webpack-plugin",
