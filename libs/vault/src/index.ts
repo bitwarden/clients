@@ -16,5 +16,6 @@ export { DownloadAttachmentComponent } from "./components/download-attachment/do
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { NewDeviceVerificationNoticePageOneComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-one.component";
 export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-two.component";
+export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 
 export * as VaultIcons from "./icons";

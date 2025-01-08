@@ -46,6 +46,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   @Input() disabled: boolean;
   @Input() placeholder: string;
+  @Input() autocomplete: string;
 
   getFocusTarget() {
     return this.input.nativeElement;

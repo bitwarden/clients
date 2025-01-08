@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Обновена данъчна информация"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Неправилен данъчен идентификатор. Ако смятате, че това е грешка, свържете се с поддръжката."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Не успяхме да потвърдим Вашия данъчен идентификатор. Ако смятате, че това е грешка, свържете се с поддръжката."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Неправилен данъчен идентификатор. Ако смятате, че това е грешка, свържете се с поддръжката."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Възникна грешка при преглеждането на фактурата. Опитайте отново по-късно."
+  },
   "unverified": {
     "message": "Непотвърден"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
+  },
+  "resellerRenewalWarning": {
+    "message": "Вашият абонамент ще бъде подновен скоро. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Фактура за абонамента Ви беше издадена на $ISSUED_DATE$. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Фактурата за абонамента Ви не е била платена. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }
