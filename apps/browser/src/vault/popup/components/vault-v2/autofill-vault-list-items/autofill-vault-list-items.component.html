@@ -3,9 +3,9 @@
   [ciphers]="ciphers"
   [title]="'itemSuggestions' | i18n"
   [showRefresh]="showRefresh"
-  [autofillURIIsBlocked]="autofillURIIsBlocked"
+  [currentURIIsBlocked]="currentURIIsBlocked"
   (onRefresh)="refreshCurrentTab()"
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : null"
-  (showAutofillButton)="(!autofillURIIsBlocked)"
-  [primaryActionAutofill]="clickItemsToAutofillVaultView"
+  showAutofillButton
+  [primaryActionAutofill]="clickItemsToAutofillVaultView && !this.currentURIIsBlocked"
 ></app-vault-list-items-container>

@@ -121,7 +121,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * Flag indicating that the current tab location is blocked
    */
   @Input({ transform: booleanAttribute })
-  autofillURIIsBlocked: boolean;
+  currentURIIsBlocked: boolean;
 
   /**
    * Option to show the autofill button for each item.

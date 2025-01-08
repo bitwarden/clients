@@ -53,7 +53,9 @@
           <span slot="secondary">{{ cipher.subTitle }}</span>
         </button>
         <ng-container slot="end">
-          <bit-item-action *ngIf="showAutofillButton && !primaryActionAutofill">
+          <bit-item-action
+            *ngIf="showAutofillButton && !currentURIIsBlocked && !primaryActionAutofill"
+          >
             <button
               type="button"
               bitBadge
@@ -78,7 +80,7 @@
           <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
           <app-item-more-options
             [cipher]="cipher"
-            [hideAutofillOptions]="showAutofillButton || autofillURIIsBlocked"
+            [hideAutofillOptions]="showAutofillButton || currentURIIsBlocked"
             [showViewOption]="primaryActionAutofill"
           ></app-item-more-options>
         </ng-container>
