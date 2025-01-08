@@ -63,7 +63,6 @@ import {
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -107,7 +106,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  accountSwitcherEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -140,9 +138,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
