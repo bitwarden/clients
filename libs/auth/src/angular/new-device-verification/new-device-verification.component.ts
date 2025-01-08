@@ -6,8 +6,13 @@ import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DeviceVerificationRequest } from "@bitwarden/common/auth/models/request/device-verification.request";
-import { ButtonModule, FormFieldModule, IconButtonModule, LinkModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  FormFieldModule,
+  IconButtonModule,
+  LinkModule,
+} from "@bitwarden/components";
 
 import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
@@ -18,6 +23,7 @@ import { PasswordLoginStrategy } from "../../common/login-strategies/password-lo
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
     JslibModule,
     ButtonModule,
     FormFieldModule,
@@ -41,6 +47,9 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    // TODO: see two-factor.component for authing check and navigate user to login if not authenticating.
+    // TODO: Turn that into an AuthenticatingGuard
+
     // Redirect to login if session times out
     this.passwordLoginStrategy.sessionTimeout$
       .pipe(takeUntil(this.destroy$))
@@ -62,13 +71,14 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   async requestOTP() {
     this.disableRequestOTP = true;
     try {
+      // TODO: update to use resend new device verification otp endpoint
       await this.apiService.send("POST", "/accounts/request-otp", null, true, false);
     } finally {
       this.disableRequestOTP = false;
     }
   }
 
-  async submit() {
+  submit = async (): Promise<void> => {
     if (this.formGroup.invalid) {
       return;
     }
@@ -84,9 +94,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const deviceVerificationRequest = new DeviceVerificationRequest(true, code);
-      const authResult =
-        await this.passwordLoginStrategy.logInNewDeviceVerification(deviceVerificationRequest);
+      const authResult = await this.passwordLoginStrategy.logInNewDeviceVerification(code);
 
       if (authResult.requiresTwoFactor) {
         await this.router.navigate(["/2fa"]);
@@ -104,5 +112,5 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       // Handle verification error
       codeControl.setErrors({ invalid: true });
     }
-  }
+  };
 }

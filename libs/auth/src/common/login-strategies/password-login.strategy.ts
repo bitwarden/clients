@@ -7,7 +7,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { DeviceVerificationRequest } from "@bitwarden/common/auth/models/request/device-verification.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
@@ -243,11 +242,9 @@ export class PasswordLoginStrategy extends LoginStrategy {
     };
   }
 
-  async logInNewDeviceVerification(
-    deviceVerificationModel: DeviceVerificationRequest,
-  ): Promise<AuthResult> {
+  async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
     const data = this.cache.value;
-    data.tokenRequest.setDeviceVerificationOtp(deviceVerificationModel.deviceVerificationOtp);
+    data.tokenRequest.newDeviceOtp = deviceVerificationOtp;
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
