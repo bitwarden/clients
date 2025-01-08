@@ -208,19 +208,19 @@
     "message": "Uma nova chave SSH foi gerada"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Sua senha está incorreta."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importar"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirme a senha"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Digite a senha para a chave SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Insira sua senha"
   },
   "sshAgentUnlockRequired": {
     "message": "Por favor, desbloqueie seu cofre para aprovar a solicitação de chave SSH."
@@ -920,10 +920,10 @@
     "message": "URL do Servidor"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tempo de autenticação esgotado"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de login."
   },
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-host",
@@ -1393,13 +1393,13 @@
     "message": "Histórico de senhas"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Histórico do gerador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Limpar histórico do gerador"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Se continuar, todas as entradas serão permanentemente excluídas do histórico do gerador. Tem certeza que deseja continuar?"
   },
   "clear": {
     "message": "Limpar",
@@ -1409,13 +1409,13 @@
     "message": "Não existem senhas para listar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Limpar histórico"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Nada para mostrar"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Você não gerou uma senha recentemente"
   },
   "undo": {
     "message": "Desfazer"
@@ -2481,7 +2481,7 @@
     "message": "Gerar e-mail"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Valor deve ser entre $MIN$ e $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2505,7 +2505,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Utilize as palavras $RECOMMENDED$ ou mais para gerar uma frase secreta forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2726,13 +2726,13 @@
     "message": "Uma notificação foi enviada para seu dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Uma notificação foi enviada para seu dispositivo"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Certifique-se que sua conta esteja desbloqueada e que a frase de identificação corresponda à do outro dispositivo"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Precisa de outra opção?"
   },
   "fingerprintMatchInfo": {
     "message": "Por favor, certifique-se de que o seu cofre esteja desbloqueado e a frase de identificação corresponda ao outro dispositivo."
@@ -2741,13 +2741,13 @@
     "message": "Frase de identificação"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Você será notificado assim que a requisição for aprovada"
   },
   "needAnotherOption": {
     "message": "Login com dispositivo deve ser habilitado nas configurações do aplicativo móvel do Bitwarden. Necessita de outra opção?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Ver todas as opções de login"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de login"
@@ -2869,7 +2869,7 @@
     "message": "Verificar vazamentos de dados conhecidos para esta senha"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Sessão Iniciada!"
   },
   "important": {
     "message": "Importante:"
@@ -2902,16 +2902,16 @@
     "message": "Atualização de configurações recomendadas"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Lembrar deste dispositivo para permanecer conectado"
   },
   "deviceApprovalRequired": {
     "message": "Aprovação do dispositivo necessária. Selecione uma opção de aprovação abaixo:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "É necessária a aprovação do dispositivo"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Selecione uma opção de aprovação abaixo"
   },
   "rememberThisDevice": {
     "message": "Lembrar deste dispositivo"
@@ -2966,7 +2966,7 @@
     "message": "E-mail do usuário ausente"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "E-mail de usuário ativo não encontrado. Desconectando."
   },
   "deviceTrusted": {
     "message": "Dispositivo confiável"
@@ -3394,5 +3394,41 @@
   },
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Configurar login em duas etapas"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden enviará um código para o seu e-mail para verificar novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Você pode configurar o login em duas etapas como uma forma alternativa de proteger sua conta ou mudar seu e-mail para um que você possa acessar."
+  },
+  "remindMeLater": {
+    "message": "Lembre-me depois"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Você tem acesso ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, eu tenho"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar login em duas etapas"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar e-mail"
   }
 }
