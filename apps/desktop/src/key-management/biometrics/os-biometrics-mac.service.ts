@@ -3,9 +3,9 @@ import { systemPreferences } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { passwords } from "@bitwarden/desktop-napi";
 
-import { OsBiometricService } from "./desktop.biometrics.service";
+import { OsBiometricService } from "./os-biometrics.service";
 
-export default class BiometricDarwinMain implements OsBiometricService {
+export default class OsBiometricsServiceMac implements OsBiometricService {
   constructor(private i18nservice: I18nService) {}
 
   async osSupportsBiometric(): Promise<boolean> {
