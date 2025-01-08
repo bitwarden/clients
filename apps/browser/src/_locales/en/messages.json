@@ -2339,7 +2339,7 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
+  "autofillBlockedNoticeV2": {
     "message": "Autofill is blocked for this website."
   },
   "autofillBlockedNoticeGuidance": {
