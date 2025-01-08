@@ -755,11 +755,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
         ? this.activeFilter.organizationId
         : null;
-    // If the user is filtering by a collection but not by an organization, attempt get the organization ID from the collection
-    if (collectionId && !organizationId) {
-      organizationId = (await firstValueFrom(this.vaultFilterService.filteredCollections$)).find(
-        (c) => c.id === this.activeFilter.collectionId,
-      )?.organizationId;
+    // Attempt to get the organization ID from the collection if present
+    if (collectionId) {
+      const organizationIdFromCollection = (
+        await firstValueFrom(this.vaultFilterService.filteredCollections$)
+      ).find((c) => c.id === this.activeFilter.collectionId)?.organizationId;
+      if (organizationIdFromCollection) {
+        organizationId = organizationIdFromCollection;
+      }
     }
     cipherFormConfig.initialValues = {
       organizationId: organizationId as OrganizationId,
