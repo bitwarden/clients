@@ -5,7 +5,6 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
-import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
@@ -106,15 +105,6 @@ export class SendApiService implements SendApiServiceAbstraction {
     return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
   }
 
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postSendFileLegacy(data: FormData): Promise<SendResponse> {
-    const r = await this.apiService.send("POST", "/sends/file", data, true, true);
-    return new SendResponse(r);
-  }
-
   async putSend(id: string, request: SendRequest): Promise<SendResponse> {
     const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
     return new SendResponse(r);
@@ -173,9 +163,7 @@ export class SendApiService implements SendApiServiceAbstraction {
             this.generateMethods(uploadDataResponse, response),
           );
         } catch (e) {
-          if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
-            response = await this.legacyServerSendFileUpload(sendData, request);
-          } else if (e instanceof ErrorResponse) {
+          if (e instanceof ErrorResponse) {
             throw new Error((e as ErrorResponse).getSingleMessage());
           } else {
             throw e;
@@ -218,36 +206,5 @@ export class SendApiService implements SendApiServiceAbstraction {
     return () => {
       return this.deleteSend(sendId);
     };
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async legacyServerSendFileUpload(
-    sendData: [Send, EncArrayBuffer],
-    request: SendRequest,
-  ): Promise<SendResponse> {
-    const fd = new FormData();
-    try {
-      const blob = new Blob([sendData[1].buffer], { type: "application/octet-stream" });
-      fd.append("model", JSON.stringify(request));
-      fd.append("data", blob, sendData[0].file.fileName.encryptedString);
-    } catch (e) {
-      if (Utils.isNode && !Utils.isBrowser) {
-        fd.append("model", JSON.stringify(request));
-        fd.append(
-          "data",
-          Buffer.from(sendData[1].buffer) as any,
-          {
-            filepath: sendData[0].file.fileName.encryptedString,
-            contentType: "application/octet-stream",
-          } as any,
-        );
-      } else {
-        throw e;
-      }
-    }
-    return await this.postSendFileLegacy(fd);
   }
 }
