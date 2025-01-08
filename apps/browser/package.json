@@ -8,7 +8,7 @@
     "build:firefox": "cross-env BROWSER=firefox webpack",
     "build:opera": "cross-env BROWSER=opera webpack",
     "build:safari": "cross-env BROWSER=safari webpack",
-    "build:watch": "npm run build:watch:chrome",
+    "build:watch": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" npm run build:watch:chrome",
     "build:watch:chrome": "npm run build:chrome -- --watch",
     "build:watch:edge": "npm run build:edge -- --watch",
     "build:watch:firefox": "npm run build:firefox -- --watch",
