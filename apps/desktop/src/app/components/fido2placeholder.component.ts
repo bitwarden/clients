@@ -9,9 +9,17 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
     <div
       style="background:white; display:flex; justify-content: center; align-items: center; flex-direction: column"
     >
-      <h1>Select your passkey</h1>
+      <h1 style="color: black">Select your passkey</h1>
       <br />
-      <button bitButton type="button" buttonType="secondary" (click)="closeModal()">Close</button>
+      <button
+        style="color:black; padding: 10px 20px; border: 1px solid black; margin: 10px"
+        bitButton
+        type="button"
+        buttonType="secondary"
+        (click)="closeModal()"
+      >
+        Close
+      </button>
     </div>
   `,
 })
