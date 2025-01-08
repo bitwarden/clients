@@ -570,7 +570,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkLoadService,
     useClass: BrowserSdkLoadService,
-    deps: [PlatformUtilsService, ApiService, EnvironmentService, LogService],
+    deps: [LogService],
   }),
   safeProvider({
     provide: SdkClientFactory,

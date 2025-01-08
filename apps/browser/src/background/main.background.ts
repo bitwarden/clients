@@ -736,12 +736,7 @@ export default class MainBackground {
     const sdkClientFactory = flagEnabled("sdk")
       ? new BrowserSdkClientFactory()
       : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(
-      this.platformUtilsService,
-      this.apiService,
-      this.environmentService,
-      this.logService,
-    );
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
