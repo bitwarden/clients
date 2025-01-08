@@ -201,6 +201,11 @@ export class WindowMain {
     }
   }
 
+  /**
+   * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
+   * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
+   * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
+   */
   async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
