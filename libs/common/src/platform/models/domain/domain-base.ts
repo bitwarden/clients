@@ -65,6 +65,7 @@ export default class Domain {
     key: SymmetricCryptoKey = null,
     objectContext: string = "No Domain Context",
   ): Promise<T> {
+    const promises = [];
     const self: any = this;
 
     for (const prop in map) {
@@ -73,15 +74,27 @@ export default class Domain {
         continue;
       }
 
-      const mapProp = map[prop] || prop;
-      if (self[mapProp]) {
-        (viewModel as any)[prop] = await self[mapProp].decrypt(
-          orgId,
-          key,
-          `Property: ${prop}; ObjectContext: ${objectContext}`,
-        );
-      }
+      (function (theProp) {
+        const p = Promise.resolve()
+          .then(() => {
+            const mapProp = map[theProp] || theProp;
+            if (self[mapProp]) {
+              return self[mapProp].decrypt(
+                orgId,
+                key,
+                `Property: ${prop}; ObjectContext: ${objectContext}`,
+              );
+            }
+            return null;
+          })
+          .then((val: any) => {
+            (viewModel as any)[theProp] = val;
+          });
+        promises.push(p);
+      })(prop);
     }
+
+    await Promise.all(promises);
     return viewModel;
   }
 
