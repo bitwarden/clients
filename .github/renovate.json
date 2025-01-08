@@ -102,6 +102,8 @@
       "matchPackageNames": [
         "@babel/core",
         "@babel/preset-env",
+        "@bitwarden/sdk-internal",
+        "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
         "@ngtools/webpack",
@@ -186,6 +188,7 @@
       "matchPackageNames": [
         "@angular-eslint/eslint-plugin",
         "@angular-eslint/eslint-plugin-template",
+        "@angular-eslint/schematics",
         "@angular-eslint/template-parser",
         "@types/jest",
         "@typescript-eslint/eslint-plugin",
