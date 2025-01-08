@@ -121,4 +121,10 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit, Afte
 
     await this.router.navigate(["/vault"]);
   };
+
+  navigateToNewDeviceVerificationHelp(event: Event) {
+    event.preventDefault();
+
+    this.platformUtilsService.launchUri("https://bitwarden.com/help/new-device-verification/");
+  }
 }

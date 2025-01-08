@@ -74,6 +74,9 @@ const sshAgent = {
     });
     return res;
   },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
+  },
 };
 
 const powermonitor = {
@@ -87,6 +90,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;

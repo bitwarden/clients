@@ -4,6 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { WebLockComponentService } from "./web-lock-component.service";
 
@@ -86,7 +87,7 @@ describe("WebLockComponentService", () => {
         },
         biometrics: {
           enabled: false,
-          disableReason: null,
+          biometricsStatus: BiometricsStatus.PlatformUnsupported,
         },
       });
     });
