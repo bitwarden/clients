@@ -553,7 +553,18 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.prevCipherId = cipherId;
 
           const cipher = allCiphersMap[cipherId];
-          if (!cipher) {
+          if (cipher) {
+            let action = qParams.action;
+            // Default to "view" if extension refresh is enabled
+            if (action == null && this.extensionRefreshEnabled) {
+              action = "view";
+            }
+            if (action === "view") {
+              await this.viewCipherById(cipher);
+            } else {
+              await this.editCipherId(cipher, false);
+            }
+          } else {
             this.toastService.showToast({
               variant: "error",
               title: null,
@@ -563,18 +574,6 @@ export class VaultComponent implements OnInit, OnDestroy {
               queryParams: { cipherId: null, itemId: null },
               queryParamsHandling: "merge",
             });
-            return;
-          }
-
-          let action = qParams.action;
-          if (action == null && this.extensionRefreshEnabled) {
-            action = "view";
-          }
-
-          if (action === "view") {
-            await this.viewCipherById(cipher);
-          } else {
-            await this.editCipherId(cipher, false);
           }
         }),
         takeUntil(this.destroy$),
