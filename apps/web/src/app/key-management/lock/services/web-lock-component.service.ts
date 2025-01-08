@@ -6,6 +6,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
+import { BiometricsStatus } from "@bitwarden/key-management";
 import { LockComponentService, UnlockOptions } from "@bitwarden/key-management/angular";
 
 export class WebLockComponentService implements LockComponentService {
@@ -45,7 +46,7 @@ export class WebLockComponentService implements LockComponentService {
           },
           biometrics: {
             enabled: false,
-            disableReason: null,
+            biometricsStatus: BiometricsStatus.PlatformUnsupported,
           },
         };
         return unlockOpts;

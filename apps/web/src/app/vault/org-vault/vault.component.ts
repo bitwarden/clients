@@ -37,9 +37,9 @@ import {
 import {
   CollectionAdminService,
   CollectionAdminView,
-  Unassigned,
   CollectionService,
   CollectionView,
+  Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -70,16 +70,17 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
+  BannerModule,
   DialogService,
   Icons,
   NoItemsModule,
   ToastService,
-  BannerModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
@@ -133,6 +134,7 @@ import {
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { AdminConsoleCipherFormConfigService } from "./services/admin-console-cipher-form-config.service";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
@@ -555,10 +557,24 @@ export class VaultComponent implements OnInit, OnDestroy {
           const cipher = allCiphersMap[cipherId];
           if (cipher) {
             let action = qParams.action;
+
+            if (action == "showFailedToDecrypt") {
+              DecryptionFailureDialogComponent.open(this.dialogService, {
+                cipherIds: [cipherId as CipherId],
+              });
+              await this.router.navigate([], {
+                queryParams: { itemId: null, cipherId: null, action: null },
+                queryParamsHandling: "merge",
+                replaceUrl: true,
+              });
+              return;
+            }
+
             // Default to "view" if extension refresh is enabled
             if (action == null && this.extensionRefreshEnabled) {
               action = "view";
             }
+
             if (action === "view") {
               await this.viewCipherById(cipher);
             } else {

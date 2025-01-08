@@ -8,12 +8,12 @@ import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 
-import { OsBiometricService } from "./desktop.biometrics.service";
+import { OsBiometricService } from "./os-biometrics.service";
 
 const KEY_WITNESS_SUFFIX = "_witness";
 const WITNESS_VALUE = "known key";
 
-export default class BiometricWindowsMain implements OsBiometricService {
+export default class OsBiometricsServiceWindows implements OsBiometricService {
   // Use set helper method instead of direct access
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
@@ -113,13 +113,19 @@ export default class BiometricWindowsMain implements OsBiometricService {
       this._iv = keyMaterial.ivB64;
     }
 
-    return {
+    const result = {
       key_material: {
         osKeyPartB64: this._osKeyHalf,
         clientKeyPartB64: clientKeyHalfB64,
       },
       ivB64: this._iv,
     };
+
+    // napi-rs fails to convert null values
+    if (result.key_material.clientKeyPartB64 == null) {
+      delete result.key_material.clientKeyPartB64;
+    }
+    return result;
   }
 
   // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
@@ -211,10 +217,17 @@ export default class BiometricWindowsMain implements OsBiometricService {
     clientKeyPartB64: string,
   ): biometrics.KeyMaterial {
     const key = symmetricKey?.macKeyB64 ?? symmetricKey?.keyB64;
-    return {
+
+    const result = {
       osKeyPartB64: key,
       clientKeyPartB64,
     };
+
+    // napi-rs fails to convert null values
+    if (result.clientKeyPartB64 == null) {
+      delete result.clientKeyPartB64;
+    }
+    return result;
   }
 
   async osBiometricsNeedsSetup() {
