@@ -67,7 +67,6 @@ export class TrashListItemsContainerComponent {
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
-   * @param cipher
    */
   orgIconTooltip(cipher: PopupCipherView) {
     if (cipher.collectionIds.length > 1) {
