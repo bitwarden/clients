@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
@@ -78,7 +76,7 @@ export default {
 type Story = StoryObj<DialogComponent & { title: string }>;
 
 export const Default: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
@@ -142,7 +140,7 @@ export const Loading: Story = {
 };
 
 export const ScrollingContent: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
@@ -197,7 +195,7 @@ export const TabContent: Story = {
 };
 
 export const WithCards: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormGroup({
         name: new FormControl(""),

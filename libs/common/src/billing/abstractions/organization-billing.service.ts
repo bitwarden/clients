@@ -57,4 +57,9 @@ export abstract class OrganizationBillingServiceAbstraction {
   ) => Promise<OrganizationResponse>;
 
   startFree: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
+
+  restartSubscription: (
+    organizationId: string,
+    subscription: SubscriptionInformation,
+  ) => Promise<void>;
 }
