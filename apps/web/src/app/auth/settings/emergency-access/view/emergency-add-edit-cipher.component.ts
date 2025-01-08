@@ -15,12 +15,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -56,6 +57,8 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implem
     configService: ConfigService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -78,6 +81,8 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implem
       configService,
       billingAccountProfileStateService,
       cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
