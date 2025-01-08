@@ -1,4 +1,4 @@
-import { mock, mockReset, MockProxy } from "jest-mock-extended";
+import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -730,7 +730,9 @@ describe("AutofillService", () => {
 
       it("throws an error if an autofill did not occur for any of the passed pages", async () => {
         autofillOptions.tab.url = "https://a-different-url.com";
-        billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+        jest
+          .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+          .mockImplementation(() => of(true));
 
         try {
           await autofillService.doAutoFill(autofillOptions);
@@ -912,7 +914,9 @@ describe("AutofillService", () => {
     it("returns a TOTP value", async () => {
       const totpCode = "123456";
       autofillOptions.cipher.login.totp = "totp";
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
       jest.spyOn(totpService, "getCode").mockResolvedValue(totpCode);
 
@@ -925,7 +929,9 @@ describe("AutofillService", () => {
 
     it("does not return a TOTP value if the user does not have premium features", async () => {
       autofillOptions.cipher.login.totp = "totp";
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
@@ -959,7 +965,9 @@ describe("AutofillService", () => {
     it("returns a null value if the user cannot access premium and the organization does not use TOTP", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = false;
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
@@ -969,7 +977,9 @@ describe("AutofillService", () => {
     it("returns a null value if the user has disabled `auto TOTP copy`", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = true;
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
       jest.spyOn(totpService, "getCode");
 

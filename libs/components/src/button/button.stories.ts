@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Meta, StoryObj } from "@storybook/angular";
 
 import { ButtonComponent } from "./button.component";
@@ -107,13 +105,13 @@ export const DisabledWithAttribute: Story = {
 };
 
 export const Block: Story = {
-  render: (args: ButtonComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
         <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
-  
+
         <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
         <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
       </span>
