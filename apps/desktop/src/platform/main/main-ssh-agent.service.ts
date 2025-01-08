@@ -24,7 +24,23 @@ export class MainSshAgentService {
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
-  ) {}
+  ) {
+    ipcMain.handle(
+      "sshagent.generatekey",
+      async (event: any, { keyAlgorithm }: { keyAlgorithm: string }): Promise<sshagent.SshKey> => {
+        return await sshagent.generateKeypair(keyAlgorithm);
+      },
+    );
+    ipcMain.handle(
+      "sshagent.importkey",
+      async (
+        event: any,
+        { privateKey, password }: { privateKey: string; password?: string },
+      ): Promise<sshagent.SshKeyImportResult> => {
+        return sshagent.importKey(privateKey, password);
+      },
+    );
+  }
 
   init() {
     // handle sign request passing to UI
@@ -92,21 +108,6 @@ export class MainSshAgentService {
       "sshagent.signrequestresponse",
       async (event: any, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
         this.requestResponses.push({ requestId, accepted, timestamp: new Date() });
-      },
-    );
-    ipcMain.handle(
-      "sshagent.generatekey",
-      async (event: any, { keyAlgorithm }: { keyAlgorithm: string }): Promise<sshagent.SshKey> => {
-        return await sshagent.generateKeypair(keyAlgorithm);
-      },
-    );
-    ipcMain.handle(
-      "sshagent.importkey",
-      async (
-        event: any,
-        { privateKey, password }: { privateKey: string; password?: string },
-      ): Promise<sshagent.SshKeyImportResult> => {
-        return sshagent.importKey(privateKey, password);
       },
     );
 
