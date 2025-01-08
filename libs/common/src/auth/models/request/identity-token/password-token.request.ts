@@ -13,12 +13,9 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
     public captchaResponse: string,
     protected twoFactor: TokenTwoFactorRequest,
     device?: DeviceRequest,
+    public newDeviceOtp?: string,
   ) {
     super(twoFactor, device);
-  }
-
-  setDeviceVerificationOtp(otp: string) {
-    this.deviceVerificationOtp = otp;
   }
 
   toIdentityToken(clientId: ClientType) {
@@ -32,8 +29,8 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
       obj.captchaResponse = this.captchaResponse;
     }
 
-    if (this.deviceVerificationOtp) {
-      obj.deviceVerificationOtp = this.deviceVerificationOtp;
+    if (this.newDeviceOtp) {
+      obj.newDeviceOtp = this.newDeviceOtp;
     }
 
     return obj;
@@ -51,6 +48,4 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
         : undefined,
     });
   }
-
-  private deviceVerificationOtp?: string;
 }
