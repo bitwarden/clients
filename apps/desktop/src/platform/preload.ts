@@ -71,6 +71,9 @@ const sshAgent = {
     });
     return res;
   },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
+  },
 };
 
 const powermonitor = {
