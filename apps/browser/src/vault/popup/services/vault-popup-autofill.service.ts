@@ -82,6 +82,7 @@ export class VaultPopupAutofillService {
 
       return false;
     }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   currentTabBlockedBannerIsDismissed$: Observable<boolean> = combineLatest([
@@ -101,6 +102,7 @@ export class VaultPopupAutofillService {
 
       return false;
     }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   /**
