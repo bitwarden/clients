@@ -23,7 +23,7 @@ jobs:
     name: Setup
     runs-on: ubuntu-22.04
     outputs:
-      release-version: ${{ steps.version.outputs.version }}
+      release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -40,7 +40,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@main
+        uses: bitwarden/gh-actions/release_version-check@main
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -118,7 +118,7 @@ jobs:
 
       - name: Rename build artifacts
         env:
-          PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+          PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
           mv browser-source.zip browser-source-$PACKAGE_VERSION.zip
           mv dist-chrome.zip dist-chrome-$PACKAGE_VERSION.zip
@@ -130,14 +130,14 @@ jobs:
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
-          artifacts: 'browser-source-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-chrome-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-opera-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-firefox-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-edge-${{ needs.setup.outputs.release-version }}.zip'
+          artifacts: 'browser-source-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-opera-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-firefox-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-edge-${{ needs.setup.outputs.release_version }}.zip'
           commit: ${{ github.sha }}
-          tag: "browser-v${{ needs.setup.outputs.release-version }}"
-          name: "Browser v${{ needs.setup.outputs.release-version }}"
+          tag: "browser-v${{ needs.setup.outputs.release_version }}"
+          name: "Browser v${{ needs.setup.outputs.release_version }}"
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
