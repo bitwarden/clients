@@ -368,20 +368,20 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).update(() => {
       const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
 
-      for (const org of orgs) {
+      orgs.forEach((org) => {
         encOrgKeyData[org.id] = {
           type: "organization",
           key: org.key,
         };
-      }
+      });
 
-      for (const org of providerOrgs) {
+      providerOrgs.forEach((org) => {
         encOrgKeyData[org.id] = {
           type: "provider",
           providerId: org.providerId,
           key: org.key,
         };
-      }
+      });
       return encOrgKeyData;
     });
   }
