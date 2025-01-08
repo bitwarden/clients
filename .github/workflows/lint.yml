@@ -54,6 +54,9 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Lint unowned dependencies
+        run: npm run lint:dep-ownership
+
       - name: Run linter
         run: |
           npm ci
