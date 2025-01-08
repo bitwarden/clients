@@ -10,6 +10,7 @@ export class OrganizationBillingMetadataResponse extends BaseResponse {
   invoiceDueDate: Date | null;
   invoiceCreatedDate: Date | null;
   subPeriodEndDate: Date | null;
+  isSubscriptionCanceled: boolean;
 
   constructor(response: any) {
     super(response);
@@ -23,6 +24,7 @@ export class OrganizationBillingMetadataResponse extends BaseResponse {
     this.invoiceDueDate = this.parseDate(this.getResponseProperty("InvoiceDueDate"));
     this.invoiceCreatedDate = this.parseDate(this.getResponseProperty("InvoiceCreatedDate"));
     this.subPeriodEndDate = this.parseDate(this.getResponseProperty("SubPeriodEndDate"));
+    this.isSubscriptionCanceled = this.getResponseProperty("IsSubscriptionCanceled");
   }
 
   private parseDate(dateString: any): Date | null {
