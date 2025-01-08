@@ -66,12 +66,14 @@
         [title]="'favorites' | i18n"
         [ciphers]="favoriteCiphers$ | async"
         id="favorites"
+        collapsibleKey="favorites"
       ></app-vault-list-items-container>
       <app-vault-list-items-container
         [title]="'allItems' | i18n"
         [ciphers]="remainingCiphers$ | async"
         id="allItems"
         disableSectionMargin
+        collapsibleKey="allItems"
       ></app-vault-list-items-container>
     </div>
   </ng-container>

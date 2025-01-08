@@ -9,7 +9,9 @@ import {
   EventEmitter,
   inject,
   Input,
+  OnInit,
   Output,
+  Signal,
   signal,
 } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
@@ -24,6 +26,8 @@ import {
   BadgeModule,
   ButtonModule,
   CompactModeService,
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
   IconButtonModule,
   ItemModule,
   SectionComponent,
@@ -35,6 +39,7 @@ import { OrgIconDirective, PasswordRepromptService } from "@bitwarden/vault";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
@@ -55,13 +60,21 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ItemMoreOptionsComponent,
     OrgIconDirective,
     ScrollingModule,
+    DisclosureComponent,
+    DisclosureTriggerForDirective,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
 })
-export class VaultListItemsContainerComponent implements AfterViewInit {
+export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
+  private vaultPopupSectionService = inject(VaultPopupSectionService);
+
+  /**
+   * Indicates whether the section should be open or closed if collapsibleKey is provided
+   */
+  protected sectionOpenState: Signal<boolean> | undefined;
 
   /**
    * The class used to set the height of a bit item's inner content.
@@ -98,6 +111,15 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   @Input()
   title: string;
+
+  /**
+   * Optionally allow the items to be collapsed.
+   *
+   * The key must be added to the state definition in `vault-popup-section.service.ts` since the
+   * collapsed state is stored locally.
+   */
+  @Input()
+  collapsibleKey: "favorites" | "allItems" | undefined;
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
@@ -159,6 +181,16 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
   ) {}
+
+  ngOnInit(): void {
+    if (!this.collapsibleKey) {
+      return;
+    }
+
+    this.sectionOpenState = this.vaultPopupSectionService.getOpenDisplayStateForSection(
+      this.collapsibleKey,
+    );
+  }
 
   async ngAfterViewInit() {
     const autofillShortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
@@ -223,5 +255,16 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       },
       cipher.canLaunch ? 200 : 0,
     );
+  }
+
+  /**
+   * Update section open/close state based on user action
+   */
+  async toggleSectionOpen() {
+    if (!this.collapsibleKey) {
+      return;
+    }
+
+    await this.vaultPopupSectionService.updateSectionOpenStoredState(this.collapsibleKey);
   }
 }
