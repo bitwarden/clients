@@ -1,14 +1,14 @@
 <section aria-roledescription="carousel" [attr.aria-label]="label">
   <vault-carousel-content [content]="slides.get(selectedIndex)?.content"></vault-carousel-content>
-  <div class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-4">
-    <button
+  <div
+    class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-4"
+    role="tablist"
+    (keydown)="keyManager.onKeydown($event)"
+  >
+    <vault-carousel-button
       *ngFor="let slide of slides; let i = index"
-      type="button"
-      class="tw-h-6 tw-w-6 tw-p-0 tw-flex tw-items-center tw-justify-center tw-border tw-border-solid tw-rounded-lg tw-transition tw-bg-transparent tw-border-transparent hover:tw-border-primary-600 focus-visible:tw-border-primary-600 focus-visible:tw-outline-none"
-      (click)="selectSlide(i)"
-    >
-      <bit-icon *ngIf="i === selectedIndex" [icon]="ActiveCarouselIcon"></bit-icon>
-      <bit-icon *ngIf="i !== selectedIndex" [icon]="InactiveCarouselIcon"></bit-icon>
-    </button>
+      [isActive]="i === selectedIndex"
+      (onClick)="selectSlide(i)"
+    ></vault-carousel-button>
   </div>
 </section>

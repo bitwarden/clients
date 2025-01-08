@@ -1,0 +1,12 @@
+<button
+  #btn
+  type="button"
+  role="tab"
+  class="tw-h-6 tw-w-6 tw-p-0 tw-flex tw-items-center tw-justify-center tw-border tw-border-solid tw-rounded-lg tw-transition tw-bg-transparent tw-border-transparent hover:tw-border-primary-600 focus-visible:tw-border-primary-600 focus-visible:tw-outline-none"
+  [attr.aria-selected]="isActive"
+  [attr.tabindex]="isActive ? 0 : -1"
+  (click)="onClick.emit()"
+>
+  <bit-icon *ngIf="isActive" [icon]="ActiveCarouselIcon"></bit-icon>
+  <bit-icon *ngIf="!isActive" [icon]="InactiveCarouselIcon"></bit-icon>
+</button>

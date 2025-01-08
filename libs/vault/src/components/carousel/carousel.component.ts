@@ -3,13 +3,11 @@ import { Component, ContentChildren, Input, QueryList } from "@angular/core";
 
 import { ButtonModule } from "@bitwarden/components";
 
-import { BitIconComponent } from "../../../../components/src/icon/icon.component";
 import { IconModule } from "../../../../components/src/icon/icon.module";
 
+import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
-import { ActiveCarouselIcon } from "./icons/active-carousel";
-import { InactiveCarouselIcon } from "./icons/inactive-carousel";
 
 @Component({
   selector: "vault-carousel",
@@ -19,8 +17,8 @@ import { InactiveCarouselIcon } from "./icons/inactive-carousel";
     CommonModule,
     ButtonModule,
     IconModule,
-    BitIconComponent,
     VaultCarouselContentComponent,
+    VaultCarouselButtonComponent,
   ],
 })
 export class VaultCarouselComponent {
