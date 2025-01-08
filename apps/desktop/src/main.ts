@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import * as path from "path";
 
-import { app, ipcMain } from "electron";
+import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -257,12 +257,7 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
-    ipcMain.handle("sshagent.init", async (event: any, message: any) => {
-      if (this.sshAgentService == null) {
-        this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
-        this.sshAgentService.init();
-      }
-    });
+    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
     new EphemeralValueStorageService();
     new SSOLocalhostCallbackService(this.environmentService, this.messagingService);

@@ -40,6 +40,14 @@ export class MainSshAgentService {
         return sshagent.importKey(privateKey, password);
       },
     );
+
+    ipcMain.handle("sshagent.init", async (event: any, message: any) => {
+      this.init();
+    });
+
+    ipcMain.handle("sshagent.isloaded", async (event: any) => {
+      return this.agentState != null;
+    });
   }
 
   init() {
