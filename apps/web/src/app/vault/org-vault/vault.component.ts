@@ -32,7 +32,6 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -536,10 +535,9 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() => this.route.queryParams),
         // Only process the queryParams if the dialog is not open (only when extension refresh is enabled)
         filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
-        withLatestFrom(allCipherMap$, allCollections$, organization$),
+        switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
         switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
           if (!cipherId) {
