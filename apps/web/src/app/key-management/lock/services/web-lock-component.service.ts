@@ -1,12 +1,12 @@
 import { inject } from "@angular/core";
 import { map, Observable } from "rxjs";
 
-import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
 import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
+import { LockComponentService, UnlockOptions } from "@bitwarden/key-management/angular";
 
 export class WebLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
