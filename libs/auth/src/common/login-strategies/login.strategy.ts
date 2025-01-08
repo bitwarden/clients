@@ -126,10 +126,10 @@ export abstract class LoginStrategy {
       return [await this.processTwoFactorResponse(response), response];
     } else if (response instanceof IdentityCaptchaResponse) {
       return [await this.processCaptchaResponse(response), response];
-    } else if (response instanceof IdentityDeviceVerificationResponse) {
-      return [await this.processDeviceVerificationResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
       return [await this.processTokenResponse(response), response];
+    } else if (response instanceof IdentityDeviceVerificationResponse) {
+      return [await this.processDeviceVerificationResponse(response), response];
     }
 
     throw new Error("Invalid response object.");
@@ -370,6 +370,9 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult> {
     const result = new AuthResult();
     result.requiresDeviceVerification = true;
+
+    // Extend cached data with captcha bypass token if it came back.
+    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
 
     // TODO: remove
     // console.log("processDeviceVerificationResponse");
