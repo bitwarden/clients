@@ -75,10 +75,12 @@
     },
     {
       "matchPackageNames": [
+        "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",
         "cross-env",
         "del",
+        "lit",
         "nord",
         "patch-package",
         "prettier",
