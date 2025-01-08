@@ -241,9 +241,9 @@ export class ApiService implements ApiServiceAbstraction {
       // TODO: remove
       // console.log(responseJson);
       // TEMPORARY: Force device verification for testing
-      return new IdentityDeviceVerificationResponse({
-        DeviceVerified: false,
-      });
+      // return new IdentityDeviceVerificationResponse({
+      //   DeviceVerified: false,
+      // });
 
       if (response.status === 200) {
         return new IdentityTokenResponse(responseJson);
@@ -259,7 +259,10 @@ export class ApiService implements ApiServiceAbstraction {
         Object.keys(responseJson.HCaptcha_SiteKey).length
       ) {
         return new IdentityCaptchaResponse(responseJson);
-      } else if (response.status === 400 && responseJson.DeviceVerified === false) {
+      } else if (
+        response.status === 400 &&
+        responseJson?.ErrorModel?.Message === "new device verification required"
+      ) {
         return new IdentityDeviceVerificationResponse(responseJson);
       }
     }
