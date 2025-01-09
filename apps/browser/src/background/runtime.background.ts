@@ -13,11 +13,12 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { BiometricsCommands } from "@bitwarden/key-management";
 
-import { MessageListener, isExternalMessage } from "../../../../libs/common/src/platform/messaging";
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
@@ -71,8 +72,10 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "biometricUnlock",
-        "biometricUnlockAvailable",
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
         "getInlineMenuTotpFeatureFlag",
@@ -185,13 +188,17 @@ export default class RuntimeBackground {
             break;
         }
         break;
-      case "biometricUnlock": {
-        const result = await this.main.biometricsService.authenticateBiometric();
-        return result;
+      case BiometricsCommands.AuthenticateWithBiometrics: {
+        return await this.main.biometricsService.authenticateWithBiometrics();
       }
-      case "biometricUnlockAvailable": {
-        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
-        return result;
+      case BiometricsCommands.GetBiometricsStatus: {
+        return await this.main.biometricsService.getBiometricsStatus();
+      }
+      case BiometricsCommands.UnlockWithBiometricsForUser: {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case BiometricsCommands.GetBiometricsStatusForUser: {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
