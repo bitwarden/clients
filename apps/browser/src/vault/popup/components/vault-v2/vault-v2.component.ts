@@ -90,11 +90,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected VaultStateEnum = VaultState;
 
-  private allFilters$ = combineLatest([
-    this.vaultPopupListFiltersService.organizations$,
-    this.vaultPopupListFiltersService.collections$,
-    this.vaultPopupListFiltersService.folders$,
-  ]);
+  private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
