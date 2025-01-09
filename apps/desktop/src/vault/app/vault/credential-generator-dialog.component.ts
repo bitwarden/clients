@@ -1,6 +1,6 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, NgZone } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -14,7 +14,7 @@ import {
   CredentialGeneratorHistoryDialogComponent,
   GeneratorModule,
 } from "@bitwarden/generator-components";
-import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 type CredentialGeneratorParams = {
@@ -39,15 +39,19 @@ type CredentialGeneratorParams = {
 })
 export class CredentialGeneratorDialogComponent {
   credentialValue?: string;
-  buttonLabel: string;
+  buttonLabel?: string;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
-    private generatorService: CredentialGeneratorService,
-  ) {
-    this.buttonLabel = this.generatorService.algorithm(this.data.type).dialog;
-  }
+    private zone: NgZone,
+  ) {}
+
+  algorithm = (selected: AlgorithmInfo) => {
+    this.zone.run(() => {
+      this.buttonLabel = selected.useGeneratedValue;
+    });
+  };
 
   applyCredentials = () => {
     this.data.onCredentialGenerated(this.credentialValue);

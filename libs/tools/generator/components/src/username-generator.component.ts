@@ -79,6 +79,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
 
+  /** emits algorithm info when the selected algorithm changes */
+  @Output()
+  readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
+
   /** Removes bottom margin from internal elements */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
@@ -157,10 +161,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.userId$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, userId, algorithm]) => {
         this.generatorHistoryService
           .track(userId, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -172,6 +176,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.onGenerated.next(generated);
           this.value$.next(generated.credential);
+          this.onAlgorithm.next(algorithm);
         });
       });
 
