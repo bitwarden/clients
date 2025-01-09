@@ -4,6 +4,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@
 
 import { BitIconComponent } from "@bitwarden/components/src/icon/icon.component";
 
+import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.component";
 import { ActiveCarouselIcon } from "../icons/active-carousel";
 import { InactiveCarouselIcon } from "../icons/inactive-carousel";
 
@@ -14,6 +15,9 @@ import { InactiveCarouselIcon } from "../icons/inactive-carousel";
   imports: [NgIf, BitIconComponent],
 })
 export class VaultCarouselButtonComponent implements FocusableOption {
+  /** Slide component that is associated with the individual button */
+  @Input({ required: true }) slide!: VaultCarouselSlideComponent;
+
   @ViewChild("btn", { static: true }) button!: ElementRef<HTMLButtonElement>;
   protected ActiveCarouselIcon = ActiveCarouselIcon;
   protected InactiveCarouselIcon = InactiveCarouselIcon;

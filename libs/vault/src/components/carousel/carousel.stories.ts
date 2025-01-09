@@ -22,16 +22,28 @@ export const Default: Story = {
     props: args,
     template: `
       <vault-carousel label="Storybook Demo">
-        <vault-carousel-slide>
+        <vault-carousel-slide label="First Slide">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">First Carousel Heading</h2>
             <p bitTypography="body1">First Carousel Content</p>
           </div>
         </vault-carousel-slide>
-        <vault-carousel-slide>
+        <vault-carousel-slide label="Second Slide">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">Second Carousel Heading</h2>
             <p bitTypography="body1">Second Carousel Content</p>
+          </div>
+        </vault-carousel-slide>
+        <vault-carousel-slide label="Third Slide">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">Third Carousel Heading</h2>
+            <p bitTypography="body1">Third Carousel Content</p>
+          </div>
+        </vault-carousel-slide>
+        <vault-carousel-slide label="Fourth Slide">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">Fourth Carousel Heading</h2>
+            <p bitTypography="body1">Fourth Carousel Content</p>
           </div>
         </vault-carousel-slide>
       </vault-carousel>
@@ -44,13 +56,13 @@ export const KeyboardNavigation: Story = {
     props: args,
     template: `
       <vault-carousel label="Storybook Demo">
-        <vault-carousel-slide>
+        <vault-carousel-slide label="Focusable Content">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">First Carousel Heading</h2>
             <button bitButton buttonType="primary">Button</button>
           </div>
         </vault-carousel-slide>
-        <vault-carousel-slide noFocusableChildren>
+        <vault-carousel-slide noFocusableChildren label="No Focusable Content">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">Second Carousel Heading</h2>
             <p bitTypography="body1">With no focusable elements, the entire slide should be focusable</p>

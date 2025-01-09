@@ -8,6 +8,9 @@ import { Component, Input, OnInit, TemplateRef, ViewChild, ViewContainerRef } fr
   standalone: true,
 })
 export class VaultCarouselSlideComponent implements OnInit {
+  /** `aria-label` that is assigned to the carousel toggle. */
+  @Input({ required: true }) label!: string;
+
   /**
    * Should be set to true when the slide has no focusable elements.
    *
