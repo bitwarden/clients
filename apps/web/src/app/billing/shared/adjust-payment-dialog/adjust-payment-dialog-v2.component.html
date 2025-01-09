@@ -5,7 +5,12 @@
       [showBankAccount]="!!organizationId"
       [initialPaymentMethod]="initialPaymentMethod"
     ></app-payment-v2>
-    <app-tax-info (onCountryChanged)="onCountryChanged()"></app-tax-info>
+    <app-manage-tax-information
+      *ngIf="taxInformation"
+      [showTaxIdField]="showTaxIdField"
+      [startWith]="taxInformation"
+      (taxInformationChanged)="taxInformationChanged($event)"
+    />
   </ng-container>
   <ng-container bitDialogFooter>
     <button type="submit" bitButton bitFormButton buttonType="primary" [bitAction]="submit">

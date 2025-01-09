@@ -1,14 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
+import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ActiveUserState, DerivedState, StateProvider } from "../../../platform/state";
+import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
@@ -21,11 +21,18 @@ import { FolderWithIdRequest } from "../../models/request/folder-with-id.request
 import { FOLDER_DECRYPTED_FOLDERS, FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
 
 export class FolderService implements InternalFolderServiceAbstraction {
-  folders$: Observable<Folder[]>;
-  folderViews$: Observable<FolderView[]>;
+  /**
+   * Ensures we reuse the same observable stream for each userId rather than
+   * creating a new one on each folderViews$ call.
+   */
+  private folderViewCache = new Map<UserId, Observable<FolderView[]>>();
 
-  private encryptedFoldersState: ActiveUserState<Record<string, FolderData>>;
-  private decryptedFoldersState: DerivedState<FolderView[]>;
+  /**
+   * Used to force the folderviews$ Observable to re-emit with a provided value.
+   * Required because shareReplay with refCount: false maintains last emission.
+   * Used during cleanup to force emit empty arrays, ensuring stale data isn't retained.
+   */
+  private forceFolderViews: Record<UserId, Subject<FolderView[]>> = {};
 
   constructor(
     private keyService: KeyService,
@@ -33,23 +40,44 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private i18nService: I18nService,
     private cipherService: CipherService,
     private stateProvider: StateProvider,
-  ) {
-    this.encryptedFoldersState = this.stateProvider.getActive(FOLDER_ENCRYPTED_FOLDERS);
-    this.decryptedFoldersState = this.stateProvider.getDerived(
-      this.encryptedFoldersState.state$,
-      FOLDER_DECRYPTED_FOLDERS,
-      { folderService: this, keyService: this.keyService },
-    );
+  ) {}
 
-    this.folders$ = this.encryptedFoldersState.state$.pipe(
-      map((folderData) => Object.values(folderData).map((f) => new Folder(f))),
-    );
+  folders$(userId: UserId): Observable<Folder[]> {
+    return this.encryptedFoldersState(userId).state$.pipe(
+      map((folders) => {
+        if (folders == null) {
+          return [];
+        }
 
-    this.folderViews$ = this.decryptedFoldersState.state$;
+        return Object.values(folders).map((f) => new Folder(f));
+      }),
+    );
   }
 
-  async clearCache(): Promise<void> {
-    await this.decryptedFoldersState.forceValue([]);
+  /**
+   * Returns an Observable of decrypted folder views for the given userId.
+   * Uses folderViewCache to maintain a single Observable instance per user,
+   * combining normal folder state updates with forced updates.
+   */
+  folderViews$(userId: UserId): Observable<FolderView[]> {
+    if (!this.folderViewCache.has(userId)) {
+      if (!this.forceFolderViews[userId]) {
+        this.forceFolderViews[userId] = new Subject<FolderView[]>();
+      }
+
+      const observable = merge(
+        this.forceFolderViews[userId],
+        this.encryptedFoldersState(userId).state$.pipe(
+          switchMap((folderData) => {
+            return this.decryptFolders(userId, folderData);
+          }),
+        ),
+      ).pipe(shareReplay({ refCount: false, bufferSize: 1 }));
+
+      this.folderViewCache.set(userId, observable);
+    }
+
+    return this.folderViewCache.get(userId);
   }
 
   // TODO: This should be moved to EncryptService or something
@@ -60,29 +88,29 @@ export class FolderService implements InternalFolderServiceAbstraction {
     return folder;
   }
 
-  async get(id: string): Promise<Folder> {
-    const folders = await firstValueFrom(this.folders$);
+  async get(id: string, userId: UserId): Promise<Folder> {
+    const folders = await firstValueFrom(this.folders$(userId));
 
     return folders.find((folder) => folder.id === id);
   }
 
-  getDecrypted$(id: string): Observable<FolderView | undefined> {
-    return this.folderViews$.pipe(
+  getDecrypted$(id: string, userId: UserId): Observable<FolderView | undefined> {
+    return this.folderViews$(userId).pipe(
       map((folders) => folders.find((folder) => folder.id === id)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
 
-  async getAllFromState(): Promise<Folder[]> {
-    return await firstValueFrom(this.folders$);
+  async getAllFromState(userId: UserId): Promise<Folder[]> {
+    return await firstValueFrom(this.folders$(userId));
   }
 
   /**
    * @deprecated For the CLI only
    * @param id id of the folder
    */
-  async getFromState(id: string): Promise<Folder> {
-    const folder = await this.get(id);
+  async getFromState(id: string, userId: UserId): Promise<Folder> {
+    const folder = await this.get(id, userId);
     if (!folder) {
       return null;
     }
@@ -93,12 +121,13 @@ export class FolderService implements InternalFolderServiceAbstraction {
   /**
    * @deprecated Only use in CLI!
    */
-  async getAllDecryptedFromState(): Promise<FolderView[]> {
-    return await firstValueFrom(this.folderViews$);
+  async getAllDecryptedFromState(userId: UserId): Promise<FolderView[]> {
+    return await firstValueFrom(this.folderViews$(userId));
   }
 
-  async upsert(folderData: FolderData | FolderData[]): Promise<void> {
-    await this.encryptedFoldersState.update((folders) => {
+  async upsert(folderData: FolderData | FolderData[], userId: UserId): Promise<void> {
+    await this.clearDecryptedFolderState(userId);
+    await this.encryptedFoldersState(userId).update((folders) => {
       if (folders == null) {
         folders = {};
       }
@@ -120,24 +149,31 @@ export class FolderService implements InternalFolderServiceAbstraction {
     if (!folders) {
       return;
     }
-
+    await this.clearDecryptedFolderState(userId);
     await this.stateProvider.getUser(userId, FOLDER_ENCRYPTED_FOLDERS).update(() => {
       const newFolders: Record<string, FolderData> = { ...folders };
       return newFolders;
     });
   }
 
-  async clear(userId?: UserId): Promise<void> {
+  async clearDecryptedFolderState(userId: UserId): Promise<void> {
     if (userId == null) {
-      await this.encryptedFoldersState.update(() => ({}));
-      await this.decryptedFoldersState.forceValue([]);
-    } else {
-      await this.stateProvider.getUser(userId, FOLDER_ENCRYPTED_FOLDERS).update(() => ({}));
+      throw new Error("User ID is required.");
     }
+
+    await this.setDecryptedFolders([], userId);
   }
 
-  async delete(id: string | string[]): Promise<any> {
-    await this.encryptedFoldersState.update((folders) => {
+  async clear(userId: UserId): Promise<void> {
+    this.forceFolderViews[userId]?.next([]);
+
+    await this.encryptedFoldersState(userId).update(() => ({}));
+    await this.clearDecryptedFolderState(userId);
+  }
+
+  async delete(id: string | string[], userId: UserId): Promise<any> {
+    await this.clearDecryptedFolderState(userId);
+    await this.encryptedFoldersState(userId).update((folders) => {
       if (folders == null) {
         return;
       }
@@ -164,23 +200,9 @@ export class FolderService implements InternalFolderServiceAbstraction {
         }
       }
       if (updates.length > 0) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.cipherService.upsert(updates.map((c) => c.toCipherData()));
+        await this.cipherService.upsert(updates.map((c) => c.toCipherData()));
       }
     }
-  }
-
-  async decryptFolders(folders: Folder[]) {
-    const decryptFolderPromises = folders.map((f) => f.decrypt());
-    const decryptedFolders = await Promise.all(decryptFolderPromises);
-
-    decryptedFolders.sort(Utils.getSortFunction(this.i18nService, "name"));
-
-    const noneFolder = new FolderView();
-    noneFolder.name = this.i18nService.t("noneFolder");
-    decryptedFolders.push(noneFolder);
-    return decryptedFolders;
   }
 
   async getRotatedData(
@@ -193,7 +215,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     }
 
     let encryptedFolders: FolderWithIdRequest[] = [];
-    const folders = await firstValueFrom(this.folderViews$);
+    const folders = await firstValueFrom(this.folderViews$(userId));
     if (!folders) {
       return encryptedFolders;
     }
@@ -204,5 +226,64 @@ export class FolderService implements InternalFolderServiceAbstraction {
       }),
     );
     return encryptedFolders;
+  }
+
+  /**
+   * Decrypts the folders for a user.
+   * @param userId the user id
+   * @param folderData encrypted folders
+   * @returns a list of decrypted folders
+   */
+  private async decryptFolders(
+    userId: UserId,
+    folderData: Record<string, FolderData>,
+  ): Promise<FolderView[]> {
+    // Check if the decrypted folders are already cached
+    const decrypted = await firstValueFrom(
+      this.stateProvider.getUser(userId, FOLDER_DECRYPTED_FOLDERS).state$,
+    );
+    if (decrypted?.length) {
+      return decrypted;
+    }
+
+    if (folderData == null) {
+      return [];
+    }
+
+    const folders = Object.values(folderData).map((f) => new Folder(f));
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      return [];
+    }
+
+    const decryptFolderPromises = folders.map((f) =>
+      f.decryptWithKey(userKey, this.encryptService),
+    );
+    const decryptedFolders = await Promise.all(decryptFolderPromises);
+    decryptedFolders.sort(Utils.getSortFunction(this.i18nService, "name"));
+
+    const noneFolder = new FolderView();
+    noneFolder.name = this.i18nService.t("noneFolder");
+    decryptedFolders.push(noneFolder);
+
+    // Cache the decrypted folders
+    await this.setDecryptedFolders(decryptedFolders, userId);
+    return decryptedFolders;
+  }
+
+  /**
+   * @returns a SingleUserState for the encrypted folders.
+   */
+  private encryptedFoldersState(userId: UserId) {
+    return this.stateProvider.getUser(userId, FOLDER_ENCRYPTED_FOLDERS);
+  }
+
+  /**
+   * Sets the decrypted folders state for a user.
+   * @param folders the decrypted folders
+   * @param userId the user id
+   */
+  private async setDecryptedFolders(folders: FolderView[], userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(FOLDER_DECRYPTED_FOLDERS, folders, userId);
   }
 }

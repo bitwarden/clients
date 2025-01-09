@@ -1,15 +1,23 @@
 export enum BiometricAction {
-  EnabledForUser = "enabled",
-  OsSupported = "osSupported",
   Authenticate = "authenticate",
-  NeedsSetup = "needsSetup",
+  GetStatus = "status",
+
+  UnlockForUser = "unlockForUser",
+  GetStatusForUser = "statusForUser",
+  SetKeyForUser = "setKeyForUser",
+  RemoveKeyForUser = "removeKeyForUser",
+
+  SetClientKeyHalf = "setClientKeyHalf",
+
   Setup = "setup",
-  CanAutoSetup = "canAutoSetup",
+
+  GetShouldAutoprompt = "getShouldAutoprompt",
+  SetShouldAutoprompt = "setShouldAutoprompt",
 }
 
 export type BiometricMessage = {
   action: BiometricAction;
-  keySuffix?: string;
   key?: string;
   userId?: string;
+  data?: any;
 };

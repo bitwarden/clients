@@ -15,6 +15,7 @@ import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/tools/repor
 // eslint-disable-next-line no-restricted-imports -- used for dependency injection
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
@@ -56,6 +57,7 @@ export class RiskInsightsComponent implements OnInit {
 
   isCriticalAppsFeatureEnabled: boolean = false;
   criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
+  showDebugTabs: boolean = false;
 
   appsCount: number = 0;
   criticalAppsCount: number = 0;
@@ -86,6 +88,8 @@ export class RiskInsightsComponent implements OnInit {
     this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
     );
+
+    this.showDebugTabs = devFlagEnabled("showRiskInsightsDebug");
 
     this.route.paramMap
       .pipe(
