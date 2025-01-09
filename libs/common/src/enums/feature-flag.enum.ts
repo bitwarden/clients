@@ -27,6 +27,7 @@ export enum FeatureFlag {
   SSHKeyVaultItem = "ssh-key-vault-item",
   SSHAgent = "ssh-agent",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
+  BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
   CipherKeyEncryption = "cipher-key-encryption",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
@@ -43,6 +44,7 @@ export enum FeatureFlag {
   PM11360RemoveProviderExportPermission = "pm-11360-remove-provider-export-permission",
   PM12443RemovePagingLogic = "pm-12443-remove-paging-logic",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
+  ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -80,6 +82,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHKeyVaultItem]: FALSE,
   [FeatureFlag.SSHAgent]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
+  [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
@@ -96,6 +99,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM11360RemoveProviderExportPermission]: FALSE,
   [FeatureFlag.PM12443RemovePagingLogic]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
+  [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -90,6 +90,8 @@ export class VaultPopupItemsService {
     tap(() => this._ciphersLoading$.next()),
     waitUntilSync(this.syncService),
     switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted())),
+    withLatestFrom(this.cipherService.failedToDecryptCiphers$),
+    map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -164,15 +166,12 @@ export class VaultPopupItemsService {
 
   /**
    * List of favorite ciphers that are not currently suggested for autofill.
-   * Ciphers are sorted by last used date, then by name.
+   * Ciphers are sorted by name.
    */
   favoriteCiphers$: Observable<PopupCipherView[]> = this.autoFillCiphers$.pipe(
     withLatestFrom(this._filteredCipherList$),
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
-    ),
-    map((ciphers) =>
-      ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)),
     ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
@@ -192,11 +191,6 @@ export class VaultPopupItemsService {
       ciphers.filter(
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
-    ),
-    withLatestFrom(this._hasSearchText$),
-    map(([ciphers, hasSearchText]) =>
-      // Do not sort alphabetically when there is search text, default to the search service scoring
-      hasSearchText ? ciphers : ciphers.sort(this.cipherService.getLocaleSortingFunction()),
     ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );

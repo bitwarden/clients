@@ -248,7 +248,7 @@
     "message": "請求密碼提示"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "輸入您帳戶的電子郵件，您的密碼提示會傳送給您"
+    "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
   "passwordHint": {
     "message": "密碼提示"
@@ -454,9 +454,6 @@
   "length": {
     "message": "長度"
   },
-  "passwordMinLength": {
-    "message": "最小密碼長度"
-  },
   "uppercase": {
     "message": "大寫 (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "最少符號位數"
-  },
-  "avoidAmbChar": {
-    "message": "避免易混淆的字元",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -647,9 +640,6 @@
   },
   "rateExtension": {
     "message": "為本套件評分"
-  },
-  "rateExtensionDesc": {
-    "message": "請給予我們好評！"
   },
   "browserNotSupportClipboard": {
     "message": "您的瀏覽器不支援剪貼簿簡單複製，請手動複製。"
@@ -1014,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "於分頁頁面顯示身分以便於自動填入。"
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "清除剪貼簿",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1159,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "移動至組織 "
-  },
-  "share": {
-    "message": "共用"
   },
   "movedItemToOrg": {
     "message": "已將 $ITEMNAME$ 移動至 $ORGNAME$",
@@ -2050,9 +2040,6 @@
   "clone": {
     "message": "克隆"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "一個或多個組織原則正影響密碼產生器設定。"
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2392,14 +2379,6 @@
     "message": "Send 詳細資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "搜尋 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "新增 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "文字"
   },
@@ -2416,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "默認隱藏文字"
   },
-  "maxAccessCountReached": {
-    "message": "已達最大存取次數",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "已逾期"
-  },
-  "pendingDeletion": {
-    "message": "等待刪除"
   },
   "passwordProtected": {
     "message": "密碼保護"
@@ -2475,23 +2447,8 @@
     "message": "編輯 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "這是什麽類型的 Send？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "用於描述此 Send 的易記名稱。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "您想要傳送的檔案。"
-  },
   "deletionDate": {
     "message": "刪除日期"
-  },
-  "deletionDateDesc": {
-    "message": "此 Send 將在指定的日期和時間後被永久刪除。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "此 Send 將在指定的日期後被永久刪除。",
@@ -2499,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "逾期日期"
-  },
-  "expirationDateDesc": {
-    "message": "如果設定此選項，對此 Send 的存取將在指定的日期和時間後逾期。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 天"
@@ -2519,42 +2472,9 @@
   "custom": {
     "message": "自訂"
   },
-  "maximumAccessCount": {
-    "message": "最大存取次數"
-  },
-  "maximumAccessCountDesc": {
-    "message": "如果設定此選項，當達到最大存取次數時，使用者將無法再次存取此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "選用功能。使用者需提供密碼才能存取此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "新增一個用於收件人存取此 Send 的可選密碼。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "關於此 Send 的私人備註。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "停用此 Send 以阻止任何人存取。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "儲存時複製此 Send 的連結至剪貼簿。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "您想要傳送的文字。"
-  },
-  "sendHideText": {
-    "message": "預設隱藏此 Send 的文字。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "目前存取次數"
   },
   "createSend": {
     "message": "建立新 Send",
@@ -2638,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "在開始之前"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "使用行事曆樣式的日期選擇器",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "點選此處",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "要彈出至視窗。",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "指定的逾期日期無效。"
   },
@@ -2665,14 +2573,8 @@
   "dateParsingError": {
     "message": "儲存刪除日期和逾期日期時發生錯誤。"
   },
-  "hideEmail": {
-    "message": "對收件人隱藏我的電子郵件地址。"
-  },
   "hideYourEmail": {
     "message": "對查看者隱藏您的電子郵件地址。"
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "一個或多個組織原則正影響您的 Send 選項。"
   },
   "passwordPrompt": {
     "message": "重新詢問主密碼"
@@ -2887,9 +2789,6 @@
   "error": {
     "message": "錯誤"
   },
-  "regenerateUsername": {
-    "message": "重新產生使用者名稱"
-  },
   "generateUsername": {
     "message": "產生使用者名稱"
   },
@@ -2930,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "使用者名稱類型"
-  },
   "plusAddressedEmail": {
     "message": "加號地址電子郵件",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2954,12 +2850,6 @@
   },
   "websiteName": {
     "message": "網站名稱"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "您想要產生什麼？"
-  },
-  "passwordType": {
-    "message": "密碼類型"
   },
   "service": {
     "message": "服務"
@@ -4679,6 +4569,9 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "systemDefault": {
     "message": "System default"
   },
@@ -4909,6 +4802,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   },
   "extensionWidth": {
     "message": "Extension width"

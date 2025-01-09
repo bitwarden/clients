@@ -4,8 +4,7 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Inject, Component } from "@angular/core";
 
-import { CipherId } from "@bitwarden/common/types/guid";
-import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, DialogModule, DialogService } from "@bitwarden/components";
 import { PasswordHistoryViewComponent } from "@bitwarden/vault";
 
@@ -15,7 +14,7 @@ import { SharedModule } from "../../shared/shared.module";
  * The parameters for the password history dialog.
  */
 export interface ViewPasswordHistoryDialogParams {
-  cipherId: CipherId;
+  cipher: CipherView;
 }
 
 /**
@@ -35,14 +34,9 @@ export interface ViewPasswordHistoryDialogParams {
 })
 export class PasswordHistoryComponent {
   /**
-   * The ID of the cipher to display the password history for.
+   * The cipher to display the password history for.
    */
-  cipherId: CipherId;
-
-  /**
-   * The password history for the cipher.
-   */
-  history: PasswordHistoryView[] = [];
+  cipher: CipherView;
 
   /**
    * The constructor for the password history dialog component.
@@ -54,9 +48,9 @@ export class PasswordHistoryComponent {
     private dialogRef: DialogRef<PasswordHistoryComponent>,
   ) {
     /**
-     * Set the cipher ID from the parameters.
+     * Set the cipher from the parameters.
      */
-    this.cipherId = params.cipherId;
+    this.cipher = params.cipher;
   }
 
   /**

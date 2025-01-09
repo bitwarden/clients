@@ -1,7 +1,6 @@
-use glob::glob;
-
 #[cfg(target_os = "macos")]
 fn main() {
+    use glob::glob;
     let mut builder = cc::Build::new();
 
     // Auto compile all .m files in the src/native directory
