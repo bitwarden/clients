@@ -21,19 +21,19 @@ export abstract class ExtensionRegistry {
    *  `registerSite` drops a registration and trims its allowed fields to only
    *  those indicated in the allow list.
    */
-  registerSite: (meta: SiteMetadata) => this;
+  abstract registerSite: (meta: SiteMetadata) => this;
 
   /** List all registered extension sites with their extension permission, if any.
    *  @returns a list of all extension sites. `permission` is defined when the site
    *    is associated with an extension permission.
    */
-  sites: () => { site: SiteMetadata; permission?: ExtensionPermission }[];
+  abstract sites: () => { site: SiteMetadata; permission?: ExtensionPermission }[];
 
   /** Get a site's metadata
    *  @param site identifies a site registration
    *  @return the site's metadata or `undefined` if the site isn't registered.
    */
-  site: (site: SiteId) => SiteMetadata | undefined;
+  abstract site: (site: SiteId) => SiteMetadata | undefined;
 
   /** Registers a vendor providing an extension.
    *  Each vendor may only be registered once. Calls after the first for
@@ -42,19 +42,19 @@ export abstract class ExtensionRegistry {
    *  @param meta - configures the extension site
    *  @return self for method chaining.
    */
-  registerVendor: (meta: VendorMetadata) => this;
+  abstract registerVendor: (meta: VendorMetadata) => this;
 
   /** List all registered vendors with their permissions, if any.
    *  @returns a list of all extension sites. `permission` is defined when the site
    *    is associated with an extension permission.
    */
-  vendors: () => { vendor: VendorMetadata; permission?: ExtensionPermission }[];
+  abstract vendors: () => { vendor: VendorMetadata; permission?: ExtensionPermission }[];
 
   /** Get a vendor's metadata
    *  @param site identifies a vendor registration
    *  @return the vendor's metadata or `undefined` if the vendor isn't registered.
    */
-  vendor: (vendor: VendorId) => VendorMetadata | undefined;
+  abstract vendor: (vendor: VendorId) => VendorMetadata | undefined;
 
   /** Registers an extension provided by a vendor to an extension site.
    *  The vendor and site MUST be registered before the extension.
@@ -64,17 +64,17 @@ export abstract class ExtensionRegistry {
    *  @param meta - configures the extension site
    *  @return self for method chaining.
    */
-  registerExtension: (meta: ExtensionMetadata) => this;
+  abstract registerExtension: (meta: ExtensionMetadata) => this;
 
   /** Get an extensions metadata
    *  @param site identifies the extension's site
    *  @param vendor identifies the extension's vendor
    *  @return the extension's metadata or `undefined` if the extension isn't registered.
    */
-  extension: (site: SiteId, vendor: VendorId) => ExtensionMetadata | undefined;
+  abstract extension: (site: SiteId, vendor: VendorId) => ExtensionMetadata | undefined;
 
   /** List all registered extensions and their permissions */
-  extensions: () => ReadonlyArray<{
+  abstract extensions: () => ReadonlyArray<{
     extension: ExtensionMetadata;
     permissions: ExtensionPermission[];
   }>;
@@ -85,20 +85,20 @@ export abstract class ExtensionRegistry {
    *  @param permission the permission for the collection
    *  @return self for method chaining.
    */
-  setPermission: (set: ExtensionSet, permission: ExtensionPermission) => this;
+  abstract setPermission: (set: ExtensionSet, permission: ExtensionPermission) => this;
 
   /** Retrieves the current permission for the given extension set or `undefined` if
    *  a permission doesn't exist.
    */
-  permission: (set: ExtensionSet) => ExtensionPermission | undefined;
+  abstract permission: (set: ExtensionSet) => ExtensionPermission | undefined;
 
   /** Returns all registered extension rules. */
-  permissions: () => { set: ExtensionSet; permission: ExtensionPermission }[];
+  abstract permissions: () => { set: ExtensionSet; permission: ExtensionPermission }[];
 
   /** Creates a point-in-time snapshot of the registry's contents with extension
    *  permissions applied for the provided SiteId.
    *  @param id identifies the extension site to create.
    *  @returns the extension site, or `undefined` if the site is not registered.
    */
-  build: (id: SiteId) => ExtensionSite | undefined;
+  abstract build: (id: SiteId) => ExtensionSite | undefined;
 }
