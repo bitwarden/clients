@@ -32,15 +32,6 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {
-  /** The currently selected index of the carousel. */
-  protected selectedIndex = 0;
-
-  /**
-   * Focus key manager for keeping tab controls accessible.
-   * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
-   */
-  protected keyManager: FocusKeyManager<VaultCarouselButtonComponent> | null = null;
-
   /**
    * Accessible Label for the carousel
    *
@@ -60,6 +51,15 @@ export class VaultCarouselComponent implements AfterViewInit {
   /** All buttons that control the carousel */
   @ViewChildren(VaultCarouselButtonComponent)
   carouselButtons!: QueryList<VaultCarouselButtonComponent>;
+
+  /** The currently selected index of the carousel. */
+  protected selectedIndex = 0;
+
+  /**
+   * Focus key manager for keeping tab controls accessible.
+   * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
+   */
+  protected keyManager: FocusKeyManager<VaultCarouselButtonComponent> | null = null;
 
   /** Set the selected index of the carousel. */
   protected selectSlide(index: number) {
