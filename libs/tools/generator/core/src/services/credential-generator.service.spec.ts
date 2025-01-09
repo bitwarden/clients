@@ -74,6 +74,7 @@ const SomeNameKey = "passphraseKey";
 const SomeGenerateKey = "generateKey";
 const SomeGeneratedValueKey = "generatedValueKey";
 const SomeCopyKey = "copyKey";
+const SomeDialogKey = "dialogKey";
 
 // fake the configuration
 const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePolicy> = {
@@ -83,6 +84,7 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
   generateKey: SomeGenerateKey,
   generatedValueKey: SomeGeneratedValueKey,
   copyKey: SomeCopyKey,
+  dialogKey: SomeDialogKey,
   onlyOnRequest: false,
   request: [],
   engine: {
