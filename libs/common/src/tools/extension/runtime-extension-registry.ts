@@ -215,7 +215,7 @@ export class RuntimeExtensionRegistry implements ExtensionRegistry {
         this.vendorPermissions.get(extension.product.vendor.id),
         this.sitePermissions.get(extension.site.id),
         this.allPermission,
-      ];
+      ].filter((p) => !!p);
 
       extensions.push({ extension, permissions });
     }
