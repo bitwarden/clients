@@ -16,7 +16,6 @@ mod platform_ssh_agent;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod peercred_unix_listener_stream;
 
-pub mod generator;
 pub mod importer;
 pub mod peerinfo;
 #[derive(Clone)]
@@ -129,7 +128,7 @@ impl BitwardenDesktopAgent {
             .store(true, std::sync::atomic::Ordering::Relaxed);
 
         for (key, name, cipher_id) in new_keys.iter() {
-            match parse_key_safe(&key) {
+            match parse_key_safe(key) {
                 Ok(private_key) => {
                     let public_key_bytes = private_key
                         .public_key()
@@ -187,10 +186,8 @@ impl BitwardenDesktopAgent {
             return 0;
         }
 
-        let request_id = self
-            .request_id
-            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        request_id
+        self.request_id
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     }
 
     pub fn is_running(&self) -> bool {

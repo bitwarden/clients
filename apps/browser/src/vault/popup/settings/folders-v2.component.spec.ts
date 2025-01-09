@@ -4,10 +4,13 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService } from "@bitwarden/components";
@@ -52,8 +55,9 @@ describe("FoldersV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: FolderService, useValue: { folderViews$ } },
+        { provide: FolderService, useValue: { folderViews$: () => folderViews$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     })
       .overrideComponent(FoldersV2Component, {

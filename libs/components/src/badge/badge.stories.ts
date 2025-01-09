@@ -1,15 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { BadgeDirective } from "./badge.directive";
+import { BadgeComponent } from "./badge.component";
 
 export default {
   title: "Component Library/Badge",
-  component: BadgeDirective,
+  component: BadgeComponent,
   decorators: [
     moduleMetadata({
-      imports: [CommonModule],
-      declarations: [BadgeDirective],
+      imports: [CommonModule, BadgeComponent],
     }),
   ],
   args: {
@@ -22,9 +21,9 @@ export default {
       url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A16956",
     },
   },
-} as Meta<BadgeDirective>;
+} as Meta<BadgeComponent>;
 
-type Story = StoryObj<BadgeDirective>;
+type Story = StoryObj<BadgeComponent>;
 
 export const Variants: Story = {
   render: (args) => ({

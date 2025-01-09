@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Gendan medlemmer"
   },
-  "revokeMembersWarning": {
-    "message": "Medlemmer med hævdede og uhævdede konti vil have forskellige resultater ved ophævning:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Hævdet konto: Ophæv adgang til Bitwarden-konto"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Uhævdet konto: Ophæv adgang til organisationsdata"
-  },
-  "claimedAccount": {
-    "message": "Hævdet konto"
-  },
-  "unclaimedAccount": {
-    "message": "Uhævdet konto"
-  },
-  "restoreMembersInstructions": {
-    "message": "For at gendanne et medlems konto, gå til fanen Ophævet. Processen kan tage et par sekunder at fuldføre og kan ikke afbrydes eller annulleres."
-  },
   "cannotRestoreAccessError": {
     "message": "Kan ikke gendanne organisationsadgang"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Opdatér browser"
+  },
+  "generatingRiskInsights": {
+    "message": "Genererer risikoindsigter..."
   },
   "updateBrowserDesc": {
     "message": "Du bruger en ikke-understøttet webbrowser. Web-boksen fungerer muligvis ikke korrekt."
@@ -9286,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Opdaterede momsoplysninger"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Moms-ID kan ikke bekræftes. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "En fejl opstod under forhåndsvisning af fakturaen. Forsøg igen senere."
+  },
   "unverified": {
     "message": "Ubekræftet"
   },
@@ -9899,6 +9896,42 @@
   "descriptorCode": {
     "message": "Beskrivelseskode"
   },
+  "importantNotice": {
+    "message": "Vigtig notits"
+  },
+  "setupTwoStepLogin": {
+    "message": "Opsæt totrins-login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
+  },
+  "remindMeLater": {
+    "message": "Påmind senere"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nej, muligvis ikke"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, e-mailadressen kan pålideligt tilgås"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Slå totrins-login til"
+  },
+  "changeAcctEmail": {
+    "message": "Skift kontoe-mailadresse"
+  },
   "removeMembers": {
     "message": "Fjern medlemmer"
   },
@@ -9983,5 +10016,51 @@
   },
   "domainClaimed": {
     "message": "Domæne registreret"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organisationsnavn må ikke overstige 50 tegn."
+  },
+  "resellerRenewalWarning": {
+    "message": "Abonnementet fornyes snart. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "En faktura for abonnementet er udstedt pr. $ISSUED_DATE$. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Fakturaen for abonnementet er ikke blevet betalt. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

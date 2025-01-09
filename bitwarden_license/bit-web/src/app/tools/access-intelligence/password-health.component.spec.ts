@@ -3,15 +3,8 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import {
-  MemberCipherDetailsApiService,
-  PasswordHealthService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { RiskInsightsReportService } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TableModule } from "@bitwarden/components";
 import { LooseComponentsModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -28,19 +21,8 @@ describe("PasswordHealthComponent", () => {
       imports: [PasswordHealthComponent, PipesModule, TableModule, LooseComponentsModule],
       declarations: [],
       providers: [
-        { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: RiskInsightsReportService, useValue: mock<RiskInsightsReportService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: AuditService, useValue: mock<AuditService>() },
-        { provide: ApiService, useValue: mock<ApiService>() },
-        { provide: MemberCipherDetailsApiService, useValue: mock<MemberCipherDetailsApiService>() },
-        {
-          provide: PasswordStrengthServiceAbstraction,
-          useValue: mock<PasswordStrengthServiceAbstraction>(),
-        },
-        {
-          provide: PasswordHealthService,
-          useValue: mock<PasswordHealthService>(),
-        },
         {
           provide: ActivatedRoute,
           useValue: {

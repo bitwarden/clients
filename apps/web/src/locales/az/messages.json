@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Üzvləri bərpa et"
   },
-  "revokeMembersWarning": {
-    "message": "İddia edilən və edilməyən hesablara aid üzvlər, ləğv edildikdə fərqli nəticələrlə üzləşəcəklər:"
-  },
-  "claimedAccountRevoke": {
-    "message": "İddia edilən hesab: Bitwarden hesabına müraciəti ləğv et"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "İddia edilməyən hesab: Təşkilat datasına müraciəti ləğv et"
-  },
-  "claimedAccount": {
-    "message": "İddia edilən hesab"
-  },
-  "unclaimedAccount": {
-    "message": "İddia edilməyən hesab"
-  },
-  "restoreMembersInstructions": {
-    "message": "Bir üzvün hesabını bərpa etmək üçün Ləğv edildi vərəqinə gedin. Prosesin tamamlanması bir neçə saniyə çəkə bilər və yarımçıq kəsilə və ya ləğv edilə bilməz."
-  },
   "cannotRestoreAccessError": {
     "message": "Təşkilat müraciəti bərpa edilə bilmir"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Brauzeri güncəllə"
+  },
+  "generatingRiskInsights": {
+    "message": "Risk təhlilləriniz yaradılır..."
   },
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
@@ -9286,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Güncəlllənən vergi məlumatı"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Yararsız vergi kimliyi, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Vergi kimliyi nömrənizi doğrulaya bilmədik, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Yararsız vergi kimliyi, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Faktura önizləməsi zamanı bir xəta baş verdi. Lütfən daha sonra yenidən sınayın."
+  },
   "unverified": {
     "message": "Doğrulanmayıb"
   },
@@ -9899,6 +9896,42 @@
   "descriptorCode": {
     "message": "Açıqlayıcı kod"
   },
+  "importantNotice": {
+    "message": "Vacib bildiriş"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki addımlı girişi qur"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra xatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Xeyr, edə bilmirəm"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki addımlı girişi işə sal"
+  },
+  "changeAcctEmail": {
+    "message": "Hesabın e-poçtunu dəyişdir"
+  },
   "removeMembers": {
     "message": "Üzvləri çıxart"
   },
@@ -9982,6 +10015,52 @@
     }
   },
   "domainClaimed": {
-    "message": "Domain claimed"
+    "message": "Domen götürüldü"
+  },
+  "organizationNameMaxLength": {
+    "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
+  },
+  "resellerRenewalWarning": {
+    "message": "Abunəliyiniz tezliklə yenilənəcək. Kəsintisiz xidməti təmin etmək və yeniləməni $RENEWAL_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Abunəliyinizə aid faktura $ISSUED_DATE$ tarixində təqdim edildi. Kəsintisiz xidməti təmin etmək və yeniləməni $DUE_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Abunəliyinizə aid faktura üzrə ödəniş edilmədi. Kəsintisiz xidməti təmin etmək və yeniləməni $GRACE_PERIOD_END$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

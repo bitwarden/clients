@@ -35,24 +35,6 @@
   "restoreMembers": {
     "message": "Відновити учасників"
   },
-  "revokeMembersWarning": {
-    "message": "Учасники із заявленими та не заявленими обліковими записами матимуть різні результати після відкликання:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Заявлений обліковий запис: відкликати доступ до облікового запису Bitwarden"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Не заявлений обліковий запис: відкликати доступ до даних організації"
-  },
-  "claimedAccount": {
-    "message": "Заявлений обліковий запис"
-  },
-  "unclaimedAccount": {
-    "message": "Не заявлений обліковий запис"
-  },
-  "restoreMembersInstructions": {
-    "message": "Щоб відновити обліковий запис учасника, перейдіть на вкладку \"Відкликані\". Процес може тривати декілька секунд, і його не можна перервати чи скасувати."
-  },
   "cannotRestoreAccessError": {
     "message": "Не вдається відновити доступ до організації"
   },
@@ -3899,6 +3881,9 @@
   },
   "updateBrowser": {
     "message": "Оновити браузер"
+  },
+  "generatingRiskInsights": {
+    "message": "Генерується інформація щодо ризиків..."
   },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
@@ -9286,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Податкову інформацію оновлено"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Не вдалося перевірити ваш ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Під час перегляду рахунку виникла помилка. Повторіть спробу пізніше."
+  },
   "unverified": {
     "message": "Не перевірений"
   },
@@ -9899,6 +9896,42 @@
   "descriptorCode": {
     "message": "Код дескриптора"
   },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
   "removeMembers": {
     "message": "Вилучити учасників"
   },
@@ -9983,5 +10016,51 @@
   },
   "domainClaimed": {
     "message": "Домен заявлено"
+  },
+  "organizationNameMaxLength": {
+    "message": "Назва організації не може перевищувати 50 символів."
+  },
+  "resellerRenewalWarning": {
+    "message": "Ваша передплата невдовзі поновиться. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Рахунок за вашу передплату випущено $ISSUED_DATE$. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Рахунок за вашу передплату ще не сплачено. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }
