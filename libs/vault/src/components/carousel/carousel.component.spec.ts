@@ -11,13 +11,13 @@ import { VaultCarouselComponent } from "./carousel.component";
   imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
   template: `
     <vault-carousel label="Storybook Demo">
-      <vault-carousel-slide>
+      <vault-carousel-slide label="First Slide">
         <h1>First Carousel Heading</h1>
       </vault-carousel-slide>
-      <vault-carousel-slide>
+      <vault-carousel-slide label="Second Slide">
         <h1>Second Carousel Heading</h1>
       </vault-carousel-slide>
-      <vault-carousel-slide>
+      <vault-carousel-slide label="Third Slide">
         <h1>Third Carousel Heading</h1>
       </vault-carousel-slide>
     </vault-carousel>
@@ -59,5 +59,15 @@ describe("VaultCarouselComponent", () => {
 
   it("sets the initial focused button as the first button", () => {
     expect(component["keyManager"]?.activeItemIndex).toBe(0);
+  });
+
+  it('emits "slideChange" event when slide changes', () => {
+    jest.spyOn(component.slideChange, "emit");
+
+    const thirdSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+
+    thirdSlideButton.nativeElement.click();
+
+    expect(component.slideChange.emit).toHaveBeenCalledWith(2);
   });
 });

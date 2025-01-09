@@ -4,7 +4,9 @@ import {
   AfterViewInit,
   Component,
   ContentChildren,
+  EventEmitter,
   Input,
+  Output,
   QueryList,
   ViewChildren,
 } from "@angular/core";
@@ -47,6 +49,11 @@ export class VaultCarouselComponent implements AfterViewInit {
    */
   @Input({ required: true }) label = "";
 
+  /**
+   * Emits the index of of the newly selected slide.
+   */
+  @Output() slideChange = new EventEmitter<number>();
+
   /** All slides within the carousel. */
   @ContentChildren(VaultCarouselSlideComponent) slides!: QueryList<VaultCarouselSlideComponent>;
 
@@ -57,6 +64,7 @@ export class VaultCarouselComponent implements AfterViewInit {
   /** Set the selected index of the carousel. */
   protected selectSlide(index: number) {
     this.selectedIndex = index;
+    this.slideChange.emit(index);
   }
 
   ngAfterViewInit(): void {
