@@ -4,9 +4,9 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@
 
 import { BitIconComponent } from "@bitwarden/components/src/icon/icon.component";
 
+import { ActiveCarouselIcon } from "../carousel-icons/active-carousel";
+import { InactiveCarouselIcon } from "../carousel-icons/inactive-carousel";
 import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.component";
-import { ActiveCarouselIcon } from "../icons/active-carousel";
-import { InactiveCarouselIcon } from "../icons/inactive-carousel";
 
 @Component({
   selector: "vault-carousel-button",
