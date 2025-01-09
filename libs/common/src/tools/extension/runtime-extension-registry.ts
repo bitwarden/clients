@@ -210,7 +210,9 @@ export class RuntimeExtensionRegistry implements ExtensionRegistry {
       this.sitePermissions.get(site),
       this.vendorPermissions.get(vendor),
       this.allPermission,
-    ].filter((p) => !!p!);
+      // Need to cast away `undefined` because typescript isn't
+      // aware that the filter eliminates undefined elements
+    ].filter((p) => !!p) as ExtensionPermission[];
 
     return permissions;
   }
