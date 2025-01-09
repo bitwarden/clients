@@ -382,7 +382,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           key: org.key,
         };
       });
-
       return encOrgKeyData;
     });
   }
@@ -891,6 +890,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await this.encryptService.decryptToBytes(
       new EncString(encryptedPrivateKey),
       key,
+      "Content: Encrypted Private Key",
     )) as UserPrivateKey;
   }
 

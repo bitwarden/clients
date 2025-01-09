@@ -3363,10 +3363,10 @@
     "message": "SSO girişi için açık port bulunamadı."
   },
   "authorize": {
-    "message": "Authorize"
+    "message": "Yetkilendir"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Reddet"
   },
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
