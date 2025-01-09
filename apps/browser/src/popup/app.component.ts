@@ -21,12 +21,11 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
-import { PopupWidthService } from "../platform/popup/layout/popup-width.service";
 import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
-import { BrowserSendStateService } from "../tools/popup/services/browser-send-state.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
@@ -43,7 +42,6 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);
   private compactModeService = inject(PopupCompactModeService);
-  private widthService = inject(PopupWidthService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -57,7 +55,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private router: Router,
     private stateService: StateService,
-    private browserSendStateService: BrowserSendStateService,
     private vaultBrowserStateService: VaultBrowserStateService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -68,6 +65,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private animationControlService: AnimationControlService,
+    private biometricStateService: BiometricStateService,
   ) {}
 
   async ngOnInit() {
@@ -75,7 +73,6 @@ export class AppComponent implements OnInit, OnDestroy {
     await this.viewCacheService.init();
 
     this.compactModeService.init();
-    this.widthService.init();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur
@@ -139,6 +136,7 @@ export class AppComponent implements OnInit, OnDestroy {
           } else if (msg.command === "reloadProcess") {
             if (this.platformUtilsService.isSafari()) {
               window.setTimeout(() => {
+                this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
             }
@@ -243,8 +241,6 @@ export class AppComponent implements OnInit, OnDestroy {
     await Promise.all([
       this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
       this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
-      this.browserSendStateService.setBrowserSendComponentState(null),
-      this.browserSendStateService.setBrowserSendTypeComponentState(null),
     ]);
   }
 

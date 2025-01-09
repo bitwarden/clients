@@ -24,7 +24,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   LoginComponentService,
   SetPasswordJitService,
-  LockComponentService,
   SsoComponentService,
   DefaultSsoComponentService,
 } from "@bitwarden/auth/angular";
@@ -96,13 +95,16 @@ import {
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
+import { LockComponentService } from "@bitwarden/key-management/angular";
 
 import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
-import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
+import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
@@ -118,7 +120,6 @@ import { I18nRendererService } from "../../platform/services/i18n.renderer.servi
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
-import { DesktopLockComponentService } from "../../services/desktop-lock-component.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
@@ -142,7 +143,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
     provide: BiometricsService,
-    useClass: ElectronBiometricsService,
+    useClass: RendererBiometricsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: DesktopBiometricsService,
+    useClass: RendererBiometricsService,
     deps: [],
   }),
   safeProvider(NativeMessagingService),
@@ -241,6 +247,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       BiometricStateService,
       AccountServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -302,6 +309,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       BiometricStateService,
       KdfConfigService,
+      DesktopBiometricsService,
     ],
   }),
   safeProvider({

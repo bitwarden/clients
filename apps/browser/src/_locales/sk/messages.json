@@ -454,9 +454,6 @@
   "length": {
     "message": "Dĺžka"
   },
-  "passwordMinLength": {
-    "message": "Minimálna dĺžka hesla"
-  },
   "uppercase": {
     "message": "Veľké písmená (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimum špeciálnych znakov"
-  },
-  "avoidAmbChar": {
-    "message": "Vyhnúť sa zameniteľným znakom",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Vyhnúť sa zameniteľným znakom",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Zoznam položiek identity na stránke \"Aktuálna karta\" na jednoduché automatické vypĺňanie."
   },
+  "clickToAutofillOnVault": {
+    "message": "Kliknutím na položku v trezore automaticky vyplniť"
+  },
   "clearClipboard": {
     "message": "Vymazať schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Presunúť do organizácie"
-  },
-  "share": {
-    "message": "Zdieľať"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ presunuté do $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Klonovať"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedno alebo viac nastavení organizácie ovplyvňujú vaše nastavenia generátora."
-  },
   "passwordGenerator": {
     "message": "Generátor hesla"
   },
@@ -2389,14 +2379,6 @@
     "message": "Podrobnosti o Sende",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Hľadať Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Pridať Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "V predvolenom nastavení skryť text"
   },
-  "maxAccessCountReached": {
-    "message": "Bol dosiahnutý maximálny počet prístupov",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Expirované"
-  },
-  "pendingDeletion": {
-    "message": "Čakajúce odstránenie"
   },
   "passwordProtected": {
     "message": "Chránené heslom"
@@ -2472,23 +2447,8 @@
     "message": "Upraviť Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Aký typ Sendu to je?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Priateľský názov pre popísanie tohto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Súbor, ktorý chcete odoslať."
-  },
   "deletionDate": {
     "message": "Dátum odstránenia"
-  },
-  "deletionDateDesc": {
-    "message": "Send bude natrvalo odstránený v zadaný dátum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Send bude natrvalo odstránený v tento deň.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Dátum exspirácie"
-  },
-  "expirationDateDesc": {
-    "message": "Ak je nastavené, prístup k tomuto Sendu vyprší v zadaný dátum a čas.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 deň"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Vlastné"
   },
-  "maximumAccessCount": {
-    "message": "Maximálny počet prístupov"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Ak je nastavené, používatelia už nebudú mať prístup k tomuto Sendu po dosiahnutí maximálneho počtu prístupov.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Voliteľne môžete vyžadovať heslo pre používateľov na prístup k tomuto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Pridajte voliteľné heslo pre príjemcov na prístup k tomuto Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Zabezpečená poznámka o tomto Sende.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Vypnúť tento Send, aby k nemu nikto nemal prístup.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Pri uložení kopírovať odkaz na Send do schránky.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Text, ktorý chcete odoslať."
-  },
-  "sendHideText": {
-    "message": "Predvolene skryť text tohto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Súčasný počet prístupov"
   },
   "createSend": {
     "message": "Vytvoriť nový Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Skôr než začnete"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Ak chcete použiť pre výber dátumu štýl kalendára",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "kliknite sem",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "a vysunie sa.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Uvedený dátum exspirácie nie je platný."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "Pri ukladaní dátumov odstránenia a vypršania platnosti sa vyskytla chyba."
   },
-  "hideEmail": {
-    "message": "Skryť moju emailovú adresu pred príjemcami."
-  },
   "hideYourEmail": {
     "message": "Skryť moju e-mailovú adresu pri zobrazení."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send."
   },
   "passwordPrompt": {
     "message": "Znova zadajte hlavné heslo"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Chyba"
   },
-  "regenerateUsername": {
-    "message": "Vygenerovať nové používateľské meno"
-  },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Typ používateľského mena"
-  },
   "plusAddressedEmail": {
     "message": "E-mail s plusovým aliasom",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Názov stránky"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Čo by ste chceli vygenerovať?"
-  },
-  "passwordType": {
-    "message": "Typ hesla"
   },
   "service": {
     "message": "Služba"

@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Ažurirane porezne informacije"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
+  },
   "unverified": {
     "message": "Nepotvrđeno"
   },
@@ -9885,22 +9897,22 @@
     "message": "Šifra uplate"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Važna napomena"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Postavi dvostruku autentifikaciju"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Podsjeti me kasnije"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Imaš li pouzdan pristup svojoj e-pošti: $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -9909,16 +9921,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Ne, nemam"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Da, pouzdano mogu pristupiti svojoj e-pošti"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Uključi prijavu dvostrukom autentifikacijom"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Promjeni e-poštu računa"
   },
   "removeMembers": {
     "message": "Ukloni članove"
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
+  },
+  "resellerRenewalWarning": {
+    "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Za tvoju je pretplatu $ISSUED_DATE$ izdana faktura. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Faktura za tvoju pretplatu nije plaćena. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnovu prije $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

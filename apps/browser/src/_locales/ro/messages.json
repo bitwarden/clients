@@ -454,9 +454,6 @@
   "length": {
     "message": "Lungime"
   },
-  "passwordMinLength": {
-    "message": "Lungimea minimă a parolei"
-  },
   "uppercase": {
     "message": "Litere mari (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -527,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minim de caractere speciale"
-  },
-  "avoidAmbChar": {
-    "message": "Se evită caracterele ambigue",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -1011,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Listați elementelor de identitate de pe pagina Filă pentru a facilita completarea automată."
   },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
   "clearClipboard": {
     "message": "Golire clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1156,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Mutare la organizație"
-  },
-  "share": {
-    "message": "Partajare"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ mutat la $ORGNAME$",
@@ -2047,9 +2040,6 @@
   "clone": {
     "message": "Clonare"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Una sau mai multe politici organizaționale vă afectează setările generatorului."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -2389,14 +2379,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Căutare Send-uri",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Adăugare Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2413,15 +2395,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "S-a atins numărul maxim de accesări",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Expirat"
-  },
-  "pendingDeletion": {
-    "message": "Ștergere în așteptare"
   },
   "passwordProtected": {
     "message": "Protejat cu parolă"
@@ -2472,23 +2447,8 @@
     "message": "Editare Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Ce fel de Send este acesta?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Un nume prietenos pentru a descrie acest Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Fișierul pe care doriți să-l trimiteți."
-  },
   "deletionDate": {
     "message": "Data ștergerii"
-  },
-  "deletionDateDesc": {
-    "message": "Send-ul va fi șters definitiv la data și ora specificate.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2496,10 +2456,6 @@
   },
   "expirationDate": {
     "message": "Data expirării"
-  },
-  "expirationDateDesc": {
-    "message": "Dacă este setat, accesul la acest Send va expira la data și ora specificate.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 zi"
@@ -2516,42 +2472,9 @@
   "custom": {
     "message": "Personalizat"
   },
-  "maximumAccessCount": {
-    "message": "Număr maxim de accesări"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Dacă este configurat, utilizatorii nu vor mai putea accesa acest Send când a fost atins numărul maxim de accesări.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Opțional, este necesară o parolă pentru ca utilizatorii să acceseze acest Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Note private despre acest Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Dezactivați acest Send pentru ca nimeni să nu-l poată accesa.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Copiază acest link de Send în clipboard la salvare.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Textul pe care doriți să-l trimiteți."
-  },
-  "sendHideText": {
-    "message": "Ascunde în mod implicit textul acestui Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Numărul actual de accesări"
   },
   "createSend": {
     "message": "Nou Send",
@@ -2635,18 +2558,6 @@
   "sendFileCalloutHeader": {
     "message": "Înainte de a începe"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Pentru a utiliza un selector de date în stil calendar,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "faceți clic aici",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "pentru ca fereastra dvs să apară.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Data de expirare furnizată nu este validă."
   },
@@ -2662,14 +2573,8 @@
   "dateParsingError": {
     "message": "A survenit o eroare la salvarea datelor de ștergere și de expirare."
   },
-  "hideEmail": {
-    "message": "Ascundeți adresa mea de e-mail de la destinatari."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Una sau mai multe politici organizaționale vă afectează opțiunile Send-ului."
   },
   "passwordPrompt": {
     "message": "Re-solicitare parolă principală"
@@ -2884,9 +2789,6 @@
   "error": {
     "message": "Eroare"
   },
-  "regenerateUsername": {
-    "message": "Regenerare nume de utilizator"
-  },
   "generateUsername": {
     "message": "Generare nume de utilizator"
   },
@@ -2927,9 +2829,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Tip de nume de utilizator"
-  },
   "plusAddressedEmail": {
     "message": "E-mail Plus adresat",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2951,12 +2850,6 @@
   },
   "websiteName": {
     "message": "Nume website"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Ce doriți să generați?"
-  },
-  "passwordType": {
-    "message": "Tip de parolă"
   },
   "service": {
     "message": "Serviciu"

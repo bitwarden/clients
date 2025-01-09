@@ -5,6 +5,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { OrganizationSmSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-sm-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -104,6 +106,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
+    private internalOrganizationService: InternalOrganizationServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -157,10 +160,19 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
       ? this.formGroup.value.maxAutoscaleServiceAccounts
       : null;
 
-    await this.organizationApiService.updateSecretsManagerSubscription(
+    const response = await this.organizationApiService.updateSecretsManagerSubscription(
       this.organizationId,
       request,
     );
+
+    const organization = await this.internalOrganizationService.get(this.organizationId);
+
+    const organizationData = new OrganizationData(response, {
+      isMember: organization.isMember,
+      isProviderUser: organization.isProviderUser,
+    });
+
+    await this.internalOrganizationService.upsert(organizationData);
 
     this.toastService.showToast({
       variant: "success",
