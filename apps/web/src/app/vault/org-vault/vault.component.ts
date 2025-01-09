@@ -1175,6 +1175,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === collection.id) {
+        // Clear the cipher cache to clear the deleted collection from the cipher state
+        await this.cipherService.clear();
         void this.router.navigate([], {
           queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
