@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <p>{{ "deviceListDescription" | i18n }}</p>
+  <p>{{ "deviceListDescriptionTemp" | i18n }}</p>
 
   <div *ngIf="loading" class="tw-flex tw-justify-center tw-items-center tw-p-4">
     <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
@@ -63,13 +63,14 @@
         }}</span>
       </td>
       <td bitCell>{{ row.firstLogin | date: "medium" }}</td>
-      <td bitCell>
+      <!-- <td bitCell>
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
           [bitMenuTriggerFor]="optionsMenu"
         ></button>
         <bit-menu #optionsMenu>
+          Remove device button to be re-added later when we have per device session de-authentication. 
           <button
             type="button"
             bitMenuItem
@@ -82,7 +83,7 @@
             </span>
           </button>
         </bit-menu>
-      </td>
+      </td> -->
     </ng-template>
   </bit-table-scroll>
 </bit-container>

@@ -3,8 +3,4 @@
  */
 
 export { LockComponent } from "./lock/components/lock.component";
-export {
-  LockComponentService,
-  BiometricsDisableReason,
-  UnlockOptions,
-} from "./lock/services/lock-component.service";
+export { LockComponentService, UnlockOptions } from "./lock/services/lock-component.service";

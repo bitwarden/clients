@@ -462,6 +462,7 @@ describe("keyService", () => {
       expect(encryptService.decryptToBytes).toHaveBeenCalledWith(
         fakeEncryptedUserPrivateKey,
         userKey,
+        "Content: Encrypted Private Key",
       );
 
       expect(userPrivateKey).toBe(fakeDecryptedUserPrivateKey);
