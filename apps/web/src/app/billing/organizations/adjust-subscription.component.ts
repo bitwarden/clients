@@ -5,6 +5,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { OrganizationSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
@@ -34,6 +36,7 @@ export class AdjustSubscription implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private internalOrganizationService: InternalOrganizationServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -64,7 +67,20 @@ export class AdjustSubscription implements OnInit, OnDestroy {
       this.additionalSeatCount,
       this.adjustSubscriptionForm.value.newMaxSeats,
     );
-    await this.organizationApiService.updatePasswordManagerSeats(this.organizationId, request);
+
+    const response = await this.organizationApiService.updatePasswordManagerSeats(
+      this.organizationId,
+      request,
+    );
+
+    const organization = await this.internalOrganizationService.get(this.organizationId);
+
+    const organizationData = new OrganizationData(response, {
+      isMember: organization.isMember,
+      isProviderUser: organization.isProviderUser,
+    });
+
+    await this.internalOrganizationService.upsert(organizationData);
 
     this.toastService.showToast({
       variant: "success",

@@ -544,3 +544,20 @@ export const specialCharacterToKeyMap: Record<string, string> = {
   "?": "questionCharacterDescriptor",
   "/": "forwardSlashCharacterDescriptor",
 };
+
+/**
+ * Checks if all the values corresponding to the specified keys in an object are null.
+ * If no keys are specified, checks all keys in the object.
+ *
+ * @param obj - The object to check.
+ * @param keys - An optional array of keys to check in the object. Defaults to all keys.
+ * @returns Returns true if all values for the specified keys (or all keys if none are provided) are null; otherwise, false.
+ */
+export function areKeyValuesNull<T extends Record<string, any>>(
+  obj: T,
+  keys?: Array<keyof T>,
+): boolean {
+  const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
+
+  return keysToCheck.every((key) => obj[key] == null);
+}

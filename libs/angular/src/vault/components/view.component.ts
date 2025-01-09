@@ -79,6 +79,8 @@ export class ViewComponent implements OnDestroy, OnInit {
   private previousCipherId: string;
   private passwordReprompted = false;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
@@ -141,14 +143,12 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
 
     const cipher = await this.cipherService.get(this.cipherId);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     this.cipher = await cipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
     this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
@@ -158,7 +158,7 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     if (this.cipher.folderId) {
       this.folder = await (
-        await firstValueFrom(this.folderService.folderViews$)
+        await firstValueFrom(this.folderService.folderViews$(activeUserId))
       ).find((f) => f.id == this.cipher.folderId);
     }
 

@@ -83,7 +83,7 @@ export class MigrateFromLegacyEncryptionComponent {
         });
 
         if (deleteFolders) {
-          await this.folderApiService.deleteAll();
+          await this.folderApiService.deleteAll(activeUser.id);
           await this.syncService.fullSync(true, true);
           await this.submit();
           return;

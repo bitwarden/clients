@@ -63,10 +63,8 @@ import {
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
@@ -88,7 +86,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -109,7 +106,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  accountSwitcherEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -142,9 +138,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -212,19 +206,23 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable =
-            status !== BiometricsStatus.DesktopDisconnected &&
-            status !== BiometricsStatus.NotEnabledInConnectedDesktopApp;
+            (status !== BiometricsStatus.DesktopDisconnected &&
+              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
+            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
-          if (status === BiometricsStatus.DesktopDisconnected) {
+          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextDesktopDisconnected",
             );
-          } else if (status === BiometricsStatus.NotEnabledInConnectedDesktopApp) {
+          } else if (
+            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+            !biometricSettingAvailable
+          ) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextNotEnabledInDesktop",
               activeAccount.email,

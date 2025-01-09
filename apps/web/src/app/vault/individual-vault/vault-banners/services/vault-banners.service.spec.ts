@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -21,7 +22,8 @@ describe("VaultBannersService", () => {
   let service: VaultBannersService;
   const isSelfHost = jest.fn().mockReturnValue(false);
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
-  const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
+  const userId = "user-id" as UserId;
+  const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
   const getEmailVerified = jest.fn().mockResolvedValue(true);
   const hasMasterPassword = jest.fn().mockResolvedValue(true);
   const getKdfConfig = jest
@@ -44,15 +46,15 @@ describe("VaultBannersService", () => {
         },
         {
           provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: hasPremiumFromAnySource$ },
+          useValue: { hasPremiumFromAnySource$: () => hasPremiumFromAnySource$ },
         },
         {
           provide: StateProvider,
           useValue: fakeStateProvider,
         },
         {
-          provide: PlatformUtilsService,
-          useValue: { isSelfHost },
+          provide: AccountService,
+          useValue: mockAccountServiceWith(userId),
         },
         {
           provide: TokenService,

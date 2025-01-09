@@ -695,7 +695,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -770,7 +769,10 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.devicesService = new DevicesServiceImplementation(this.devicesApiService);
+    this.devicesService = new DevicesServiceImplementation(
+      this.devicesApiService,
+      this.appIdService,
+    );
 
     this.authRequestService = new AuthRequestService(
       this.appIdService,
@@ -793,6 +795,8 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -807,6 +811,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
     );
 
     this.themeStateService = new DefaultThemeStateService(
@@ -956,6 +965,7 @@ export default class MainBackground {
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
+      this.domainSettingsService,
       this.platformUtilsService,
       this.logService,
     );
@@ -1104,6 +1114,7 @@ export default class MainBackground {
       messageListener,
       this.accountService,
       lockService,
+      this.billingAccountProfileStateService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1223,6 +1234,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
