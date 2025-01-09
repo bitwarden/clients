@@ -217,10 +217,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
 
     const result = await strategy.logIn(ownedCredentials as any);
 
-    if (result != null && !result.requiresTwoFactor) {
+    if (result != null && !result.requiresTwoFactor && !result.requiresDeviceVerification) {
       await this.clearCache();
     } else {
-      // Cache the strategy data so we can attempt again later with 2fa. Cache supports different contexts
+      // Cache the strategy data so we can attempt again later with 2fa or device verification
       await this.loginStrategyCacheState.update((_) => strategy.exportCache());
       await this.startSessionTimeout();
     }
@@ -251,6 +251,43 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       return result;
     } catch (e) {
       // API exceptions are okay, but if there are any unhandled client-side errors then clear cache to be safe
+      if (!(e instanceof ErrorResponse)) {
+        await this.clearCache();
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Sends a token request to the server with the provided device verification OTP.
+   * Returns an error if no session data is found or if the current login strategy does not support device verification.
+   * @param deviceVerificationOtp The OTP to send to the server for device verification.
+   * @returns The result of the token request.
+   */
+  async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
+    if (!(await this.isSessionValid())) {
+      throw new Error(this.i18nService.t("sessionTimeout"));
+    }
+
+    const strategy = await firstValueFrom(this.loginStrategy$);
+    if (strategy == null) {
+      throw new Error("No login strategy found.");
+    }
+
+    if (!("logInNewDeviceVerification" in strategy)) {
+      throw new Error("Current login strategy does not support device verification.");
+    }
+
+    try {
+      const result = await strategy.logInNewDeviceVerification(deviceVerificationOtp);
+
+      // Only clear cache if device verification succeeds
+      if (result !== null && !result.requiresDeviceVerification) {
+        await this.clearCache();
+      }
+      return result;
+    } catch (e) {
+      // Clear the cache if there is an unhandled client-side error
       if (!(e instanceof ErrorResponse)) {
         await this.clearCache();
       }

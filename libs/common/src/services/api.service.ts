@@ -160,6 +160,12 @@ export class ApiService implements ApiServiceAbstraction {
   private isWebClient = false;
   private isDesktopClient = false;
 
+  /**
+   * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
+   */
+  private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
+    "new device verification required";
+
   constructor(
     private tokenService: TokenService,
     private platformUtilsService: PlatformUtilsService,
@@ -238,13 +244,6 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     if (responseJson != null) {
-      // TODO: remove
-      // console.log(responseJson);
-      // TEMPORARY: Force device verification for testing
-      // return new IdentityDeviceVerificationResponse({
-      //   DeviceVerified: false,
-      // });
-
       if (response.status === 200) {
         return new IdentityTokenResponse(responseJson);
       } else if (
@@ -261,7 +260,7 @@ export class ApiService implements ApiServiceAbstraction {
         return new IdentityCaptchaResponse(responseJson);
       } else if (
         response.status === 400 &&
-        responseJson?.ErrorModel?.Message === "new device verification required"
+        responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
       ) {
         return new IdentityDeviceVerificationResponse(responseJson);
       }

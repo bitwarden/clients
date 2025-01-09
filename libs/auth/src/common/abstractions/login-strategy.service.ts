@@ -47,7 +47,6 @@ export abstract class LoginStrategyServiceAbstraction {
    * Auth Request. Otherwise, it will return null.
    */
   getAuthRequestId: () => Promise<string | null>;
-
   /**
    * Sends a token request to the server using the provided credentials.
    */
@@ -77,4 +76,8 @@ export abstract class LoginStrategyServiceAbstraction {
    * Emits true if the two factor session has expired.
    */
   twoFactorTimeout$: Observable<boolean>;
+  /**
+   * Sends a token request to the server with the provided device verification OTP.
+   */
+  logInNewDeviceVerification: (deviceVerificationOtp: string) => Promise<AuthResult>;
 }

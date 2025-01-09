@@ -1,7 +1,7 @@
 export class DeviceVerificationRequest {
   unknownDeviceVerificationEnabled: boolean;
 
-  constructor(unknownDeviceVerificationEnabled: boolean, deviceVerificationOtp?: string) {
+  constructor(unknownDeviceVerificationEnabled: boolean) {
     this.unknownDeviceVerificationEnabled = unknownDeviceVerificationEnabled;
   }
 }

@@ -20,7 +20,5 @@
     }
   ],
   "flags": {},
-  "devFlags": {
-    "configRetrievalIntervalMs": 10000
-  }
+  "devFlags": {}
 }
