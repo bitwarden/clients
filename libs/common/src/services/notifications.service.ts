@@ -89,7 +89,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       .withHubProtocol(new signalRMsgPack.MessagePackHubProtocol() as signalR.IHubProtocol)
       // .configureLogging(signalR.LogLevel.Trace)
       .build();
-    ``;
+
     this.signalrConnection.on("ReceiveMessage", (data: any) =>
       this.processNotification(new NotificationResponse(data)),
     );
