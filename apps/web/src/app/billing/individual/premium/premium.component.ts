@@ -1,13 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
+import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -39,6 +44,9 @@ export class PremiumComponent implements OnInit {
   protected addonForm = new FormGroup({
     additionalStorage: new FormControl(0, [Validators.max(99), Validators.min(0)]),
   });
+
+  private estimatedTax: number = 0;
+
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -50,9 +58,21 @@ export class PremiumComponent implements OnInit {
     private environmentService: EnvironmentService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
+    private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
+
+    this.addonForm.controls.additionalStorage.valueChanges
+      .pipe(debounceTime(1000), takeUntilDestroyed())
+      .subscribe(() => {
+        this.refreshSalesTax();
+      });
   }
   protected setSelectedFile(event: Event) {
     const fileInputEl = <HTMLInputElement>event.target;
@@ -61,7 +81,10 @@ export class PremiumComponent implements OnInit {
   }
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
-    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(account.id))
+    ) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/user-subscription"]);
@@ -154,12 +177,42 @@ export class PremiumComponent implements OnInit {
   }
 
   get taxCharges(): number {
-    return this.taxInfoComponent != null && this.taxInfoComponent.taxRate != null
-      ? (this.taxInfoComponent.taxRate / 100) * this.subtotal
-      : 0;
+    return this.estimatedTax;
   }
 
   get total(): number {
     return this.subtotal + this.taxCharges || 0;
+  }
+
+  private refreshSalesTax(): void {
+    if (!this.taxInfoComponent.country || !this.taxInfoComponent.postalCode) {
+      return;
+    }
+    const request: PreviewIndividualInvoiceRequest = {
+      passwordManager: {
+        additionalStorage: this.addonForm.value.additionalStorage,
+      },
+      taxInformation: {
+        postalCode: this.taxInfoComponent.postalCode,
+        country: this.taxInfoComponent.country,
+      },
+    };
+
+    this.taxService
+      .previewIndividualInvoice(request)
+      .then((invoice) => {
+        this.estimatedTax = invoice.taxAmount;
+      })
+      .catch((error) => {
+        this.toastService.showToast({
+          title: "",
+          variant: "error",
+          message: this.i18nService.t(error.message),
+        });
+      });
+  }
+
+  protected onTaxInformationChanged(): void {
+    this.refreshSalesTax();
   }
 }

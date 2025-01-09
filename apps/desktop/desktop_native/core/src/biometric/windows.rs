@@ -103,7 +103,7 @@ impl super::BiometricTrait for Biometric {
 
         let done = Arc::new(AtomicBool::new(false));
         let done_clone = done.clone();
-        let focus_future = std::thread::spawn(move || loop {
+        let _ = std::thread::spawn(move || loop {
             if !done_clone.load(std::sync::atomic::Ordering::Relaxed) {
                 focus_security_prompt();
                 std::thread::sleep(std::time::Duration::from_millis(500));
@@ -114,7 +114,6 @@ impl super::BiometricTrait for Biometric {
 
         let signature = async_operation.get();
         done.store(true, std::sync::atomic::Ordering::Relaxed);
-        focus_future.join().unwrap();
         let signature = signature?;
 
         if signature.Status()? != KeyCredentialStatus::Success {

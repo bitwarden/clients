@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Обновление сведений о налогах"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Недействительный ID, если вы считаете, что это ошибка, обратитесь в службу поддержки."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Мы не смогли подтвердить ваш ID, если вы считаете, что это ошибка, обратитесь в службу поддержки."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Недействительный ID, если вы считаете, что это ошибка, обратитесь в службу поддержки."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "При подготовке счета произошла ошибка. Пожалуйста, повторите попытку позже."
+  },
   "unverified": {
     "message": "Неверифицирован"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Название организации не может превышать 50 символов."
+  },
+  "resellerRenewalWarning": {
+    "message": "Ваша подписка скоро будет продлена. Чтобы гарантировать непрерывность сервиса, свяжитесь с $RESELLER$ для подтверждения продления до $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Счет за вашу подписку был выставлен $ISSUED_DATE$. Чтобы гарантировать непрерывность сервиса, свяжитесь с $RESELLER$, чтобы подтвердить продление подписки до $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Счет за вашу подписку не был оплачен. Чтобы гарантировать непрерывность сервиса, свяжитесь с $RESELLER$ для подтверждения продления до $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }
