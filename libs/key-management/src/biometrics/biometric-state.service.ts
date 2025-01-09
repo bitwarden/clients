@@ -14,6 +14,7 @@ import {
   PROMPT_AUTOMATICALLY,
   PROMPT_CANCELLED,
   FINGERPRINT_VALIDATED,
+  LAST_PROCESS_RELOAD,
 } from "./biometric.state";
 
 export abstract class BiometricStateService {
@@ -106,6 +107,10 @@ export abstract class BiometricStateService {
    */
   abstract setFingerprintValidated(validated: boolean): Promise<void>;
 
+  abstract updateLastProcessReload(): Promise<void>;
+
+  abstract getLastProcessReload(): Promise<Date>;
+
   abstract logout(userId: UserId): Promise<void>;
 }
 
@@ -117,6 +122,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
   private promptCancelledState: GlobalState<Record<UserId, boolean>>;
   private promptAutomaticallyState: ActiveUserState<boolean>;
   private fingerprintValidatedState: GlobalState<boolean>;
+  private lastProcessReloadState: GlobalState<Date>;
   biometricUnlockEnabled$: Observable<boolean>;
   encryptedClientKeyHalf$: Observable<EncString | undefined>;
   requirePasswordOnStart$: Observable<boolean>;
@@ -124,6 +130,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
   promptCancelled$: Observable<boolean>;
   promptAutomatically$: Observable<boolean>;
   fingerprintValidated$: Observable<boolean>;
+  lastProcessReload$: Observable<Date>;
 
   constructor(private stateProvider: StateProvider) {
     this.biometricUnlockEnabledState = this.stateProvider.getActive(BIOMETRIC_UNLOCK_ENABLED);
@@ -159,6 +166,9 @@ export class DefaultBiometricStateService implements BiometricStateService {
 
     this.fingerprintValidatedState = this.stateProvider.getGlobal(FINGERPRINT_VALIDATED);
     this.fingerprintValidated$ = this.fingerprintValidatedState.state$.pipe(map(Boolean));
+
+    this.lastProcessReloadState = this.stateProvider.getGlobal(LAST_PROCESS_RELOAD);
+    this.lastProcessReload$ = this.lastProcessReloadState.state$;
   }
 
   async setBiometricUnlockEnabled(enabled: boolean): Promise<void> {
@@ -269,6 +279,14 @@ export class DefaultBiometricStateService implements BiometricStateService {
 
   async setFingerprintValidated(validated: boolean): Promise<void> {
     await this.fingerprintValidatedState.update(() => validated);
+  }
+
+  async updateLastProcessReload(): Promise<void> {
+    await this.lastProcessReloadState.update(() => new Date());
+  }
+
+  async getLastProcessReload(): Promise<Date> {
+    return await firstValueFrom(this.lastProcessReload$);
   }
 }
 
