@@ -95,3 +95,14 @@ export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
     deserializer: (obj) => obj,
   },
 );
+
+/**
+ * Last process reload time
+ */
+export const LAST_PROCESS_RELOAD = new KeyDefinition<Date>(
+  BIOMETRIC_SETTINGS_DISK,
+  "lastProcessReload",
+  {
+    deserializer: (obj) => new Date(obj),
+  },
+);
