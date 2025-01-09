@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -54,15 +54,6 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // TODO: this should be an AuthenticatingGuard
-    // Check if we have a valid login session
-    const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
-    if (authType === null) {
-      this.logService.error("No active login session found.");
-      void this.router.navigate(["/login"]);
-      return;
-    }
-
     // Redirect to login if session times out
     this.passwordLoginStrategy.sessionTimeout$
       .pipe(takeUntil(this.destroy$))

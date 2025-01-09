@@ -3,3 +3,4 @@ export * from "./lock.guard";
 export * from "./redirect.guard";
 export * from "./tde-decryption-required.guard";
 export * from "./unauth.guard";
+export * from "./new-device-verification.guard";

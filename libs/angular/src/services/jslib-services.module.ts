@@ -1466,6 +1466,7 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
 ];
+
 @NgModule({
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
