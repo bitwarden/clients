@@ -36,6 +36,7 @@ const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
   profiles: {
     [Profile.account]: {
       type: "core",
+      weight: 200,
       storage: {
         key: "subaddressGeneratorSettings",
         target: "object",

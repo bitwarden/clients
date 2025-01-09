@@ -16,6 +16,7 @@ import { GeneratorMetadata } from "../generator-metadata";
 const passphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
   id: Algorithm.passphrase,
   category: Type.password,
+  weight: 110,
   i18nKeys: {
     name: "passphrase",
     generateCredential: "generatePassphrase",

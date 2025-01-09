@@ -15,6 +15,7 @@ import { GeneratorMetadata } from "../generator-metadata";
 const catchall: GeneratorMetadata<CatchallGenerationOptions> = deepFreeze({
   id: Algorithm.catchall,
   category: Type.email,
+  weight: 210,
   i18nKeys: {
     name: "catchallEmail",
     description: "catchallEmailDesc",

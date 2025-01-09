@@ -16,6 +16,7 @@ import { GeneratorMetadata } from "../generator-metadata";
 const password: GeneratorMetadata<PasswordGenerationOptions> = deepFreeze({
   id: Algorithm.password,
   category: Type.password,
+  weight: 100,
   i18nKeys: {
     name: "password",
     generateCredential: "generatePassword",

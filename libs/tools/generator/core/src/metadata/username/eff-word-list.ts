@@ -15,6 +15,7 @@ import { GeneratorMetadata } from "../generator-metadata";
 const effWordList: GeneratorMetadata<EffUsernameGenerationOptions> = deepFreeze({
   id: Algorithm.username,
   category: Type.username,
+  weight: 400,
   i18nKeys: {
     name: "randomWord",
     generateCredential: "generateUsername",
