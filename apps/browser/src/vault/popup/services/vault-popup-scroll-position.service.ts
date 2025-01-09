@@ -35,8 +35,7 @@ export class VaultPopupScrollPositionService {
     if (this.scrollPosition) {
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(async () => {
-        // `?? 0` is only to make typescript happy. It shouldn't happen with the above truthy check for `this.scrollPosition`.
-        virtualScrollElement.scrollTo({ top: this.scrollPosition ?? 0, behavior: "instant" });
+        virtualScrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
       });
     }
 
