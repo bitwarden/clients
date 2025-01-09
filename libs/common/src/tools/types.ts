@@ -28,6 +28,11 @@ type NumberConstraints = {
   /** maximum number value. When absent, min value is unbounded. */
   max?: number;
 
+  /** recommended value. This is the value bitwarden recommends
+   *  to the user as an appropriate value.
+   */
+  recommendation?: number;
+
   /** requires the number be a multiple of the step value;
    *  this field must be a positive number. +0 and Infinity are
    *  prohibited. When absent, any number is accepted.

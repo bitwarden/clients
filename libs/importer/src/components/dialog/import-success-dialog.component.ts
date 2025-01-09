@@ -75,7 +75,7 @@ export class ImportSuccessDialogComponent implements OnInit {
       list.push({ icon: "sticky-note", type: "typeSecureNote", count: secureNotes });
     }
     if (sshKeys > 0) {
-      list.push({ icon: "key", type: "typeSSHKey", count: sshKeys });
+      list.push({ icon: "key", type: "typeSshKey", count: sshKeys });
     }
     if (this.data.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: this.data.folders.length });

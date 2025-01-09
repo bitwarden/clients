@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
 
@@ -51,14 +53,12 @@ window.addEventListener("load", async () => {
  */
 function redirectToDuoFrameless(redirectUrl: string) {
   const validateUrl = new URL(redirectUrl);
+  const validDuoUrl =
+    validateUrl.protocol === "https:" &&
+    (validateUrl.hostname.endsWith(".duosecurity.com") ||
+      validateUrl.hostname.endsWith(".duofederal.com"));
 
-  if (
-    validateUrl.protocol !== "https:" ||
-    !(
-      validateUrl.hostname.endsWith("duosecurity.com") ||
-      validateUrl.hostname.endsWith("duofederal.com")
-    )
-  ) {
+  if (!validDuoUrl) {
     throw new Error("Invalid redirect URL");
   }
 

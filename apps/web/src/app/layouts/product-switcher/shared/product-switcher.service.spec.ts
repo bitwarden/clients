@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -110,7 +112,12 @@ describe("ProductSwitcherService", () => {
 
       it("is included in bento when there is an organization with SM", async () => {
         organizationService.organizations$ = of([
-          { id: "1234", canAccessSecretsManager: true, enabled: true },
+          {
+            id: "1234",
+            canAccessSecretsManager: true,
+            enabled: true,
+            canAccessExport: (_) => true,
+          },
         ] as Organization[]);
 
         initiateService();
@@ -220,8 +227,20 @@ describe("ProductSwitcherService", () => {
       router.url = "/sm/4243";
 
       organizationService.organizations$ = of([
-        { id: "23443234", canAccessSecretsManager: true, enabled: true, name: "Org 2" },
-        { id: "4243", canAccessSecretsManager: true, enabled: true, name: "Org 32" },
+        {
+          id: "23443234",
+          canAccessSecretsManager: true,
+          enabled: true,
+          name: "Org 2",
+          canAccessExport: (_) => true,
+        },
+        {
+          id: "4243",
+          canAccessSecretsManager: true,
+          enabled: true,
+          name: "Org 32",
+          canAccessExport: (_) => true,
+        },
       ] as Organization[]);
 
       initiateService();

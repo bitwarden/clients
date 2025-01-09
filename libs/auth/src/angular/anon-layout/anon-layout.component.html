@@ -1,18 +1,22 @@
-<!-- The calc() reductions are to account for browser/desktop headers -->
 <main
-  class="tw-flex tw-w-full tw-mx-auto tw-flex-col tw-gap-7 tw-bg-background-alt tw-px-8 tw-pb-4 tw-text-main"
+  class="tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-px-6 tw-pt-6 tw-pb-4 tw-text-main"
   [ngClass]="{
-    'tw-pt-0': decreaseTopPadding,
-    'tw-pt-8': !decreaseTopPadding,
     'tw-min-h-screen': clientType === 'web',
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <a *ngIf="!hideLogo" [routerLink]="['/']" class="tw-w-[128px] [&>*]:tw-align-top">
+  <a
+    *ngIf="!hideLogo"
+    [routerLink]="['/']"
+    class="tw-w-[128px] tw-block tw-mb-12 [&>*]:tw-align-top"
+  >
     <bit-icon [icon]="logo"></bit-icon>
   </a>
 
-  <div class="tw-text-center">
+  <div
+    class="tw-text-center tw-mb-6"
+    [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
+  >
     <div class="tw-mx-auto tw-max-w-28 sm:tw-max-w-32">
       <bit-icon [icon]="icon"></bit-icon>
     </div>
@@ -36,14 +40,14 @@
     [ngClass]="{ 'tw-max-w-md': maxWidth === 'md', 'tw-max-w-3xl': maxWidth === '3xl' }"
   >
     <div
-      class="tw-rounded-2xl tw-mb-9 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      class="tw-rounded-2xl tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
     >
       <ng-content></ng-content>
     </div>
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
 
-  <footer *ngIf="!hideFooter" class="tw-text-center">
+  <footer *ngIf="!hideFooter" class="tw-text-center tw-mt-6">
     <div *ngIf="showReadonlyHostname" bitTypography="body2">
       {{ "accessing" | i18n }} {{ hostname }}
     </div>

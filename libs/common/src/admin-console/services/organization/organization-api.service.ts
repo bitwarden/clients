@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -159,27 +161,29 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   async updatePasswordManagerSeats(
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
-  ): Promise<void> {
-    return this.apiService.send(
+  ): Promise<ProfileOrganizationResponse> {
+    const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/subscription",
       request,
       true,
-      false,
+      true,
     );
+    return new ProfileOrganizationResponse(r);
   }
 
   async updateSecretsManagerSubscription(
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
-  ): Promise<void> {
-    return this.apiService.send(
+  ): Promise<ProfileOrganizationResponse> {
+    const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/sm-subscription",
       request,
       true,
-      false,
+      true,
     );
+    return new ProfileOrganizationResponse(r);
   }
 
   async updateSeats(id: string, request: SeatRequest): Promise<PaymentResponse> {

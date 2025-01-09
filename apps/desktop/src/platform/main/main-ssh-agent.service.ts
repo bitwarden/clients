@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ipcMain } from "electron";
 import { concatMap, delay, filter, firstValueFrom, from, race, take, timer } from "rxjs";
 
@@ -22,12 +24,30 @@ export class MainSshAgentService {
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
-  ) {}
+  ) {
+    ipcMain.handle(
+      "sshagent.importkey",
+      async (
+        event: any,
+        { privateKey, password }: { privateKey: string; password?: string },
+      ): Promise<sshagent.SshKeyImportResult> => {
+        return sshagent.importKey(privateKey, password);
+      },
+    );
+
+    ipcMain.handle("sshagent.init", async (event: any, message: any) => {
+      this.init();
+    });
+
+    ipcMain.handle("sshagent.isloaded", async (event: any) => {
+      return this.agentState != null;
+    });
+  }
 
   init() {
     // handle sign request passing to UI
     sshagent
-      .serve(async (err: Error, cipherId: string) => {
+      .serve(async (err: Error, cipherId: string, isListRequest: boolean, processName: string) => {
         // clear all old (> SIGN_TIMEOUT) requests
         this.requestResponses = this.requestResponses.filter(
           (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
@@ -37,7 +57,9 @@ export class MainSshAgentService {
         const id_for_this_request = this.request_id;
         this.messagingService.send("sshagent.signrequest", {
           cipherId,
+          isListRequest,
           requestId: id_for_this_request,
+          processName,
         });
 
         const result = await firstValueFrom(
@@ -79,7 +101,7 @@ export class MainSshAgentService {
     ipcMain.handle(
       "sshagent.setkeys",
       async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
-        if (this.agentState != null) {
+        if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
           sshagent.setKeys(this.agentState, keys);
         }
       },
@@ -90,25 +112,16 @@ export class MainSshAgentService {
         this.requestResponses.push({ requestId, accepted, timestamp: new Date() });
       },
     );
-    ipcMain.handle(
-      "sshagent.generatekey",
-      async (event: any, { keyAlgorithm }: { keyAlgorithm: string }): Promise<sshagent.SshKey> => {
-        return await sshagent.generateKeypair(keyAlgorithm);
-      },
-    );
-    ipcMain.handle(
-      "sshagent.importkey",
-      async (
-        event: any,
-        { privateKey, password }: { privateKey: string; password?: string },
-      ): Promise<sshagent.SshKeyImportResult> => {
-        return sshagent.importKey(privateKey, password);
-      },
-    );
 
     ipcMain.handle("sshagent.lock", async (event: any) => {
-      if (this.agentState != null) {
+      if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
         sshagent.lock(this.agentState);
+      }
+    });
+
+    ipcMain.handle("sshagent.clearkeys", async (event: any) => {
+      if (this.agentState != null) {
+        sshagent.clearKeys(this.agentState);
       }
     });
   }

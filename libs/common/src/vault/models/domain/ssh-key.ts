@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -30,7 +32,11 @@ export class SshKey extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SshKeyView> {
+  decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<SshKeyView> {
     return this.decryptObj(
       new SshKeyView(),
       {
@@ -40,6 +46,7 @@ export class SshKey extends Domain {
       },
       orgId,
       encKey,
+      "DomainType: SshKey; " + context,
     );
   }
 

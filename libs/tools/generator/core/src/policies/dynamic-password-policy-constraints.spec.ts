@@ -1,28 +1,36 @@
-import { DefaultPasswordBoundaries, DefaultPasswordGenerationOptions, Policies } from "../data";
+import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
+
+import { Generators } from "../data";
+import { PasswordGeneratorSettings } from "../types";
 
 import { AtLeastOne, Zero } from "./constraints";
 import { DynamicPasswordPolicyConstraints } from "./dynamic-password-policy-constraints";
 
+const accoutSettings = Generators.password.settings.account as ObjectKey<PasswordGeneratorSettings>;
+const defaultOptions = accoutSettings.initial;
+const disabledPolicy = Generators.password.policy.disabledValue;
+const someConstraints = Generators.password.settings.constraints;
+
 describe("DynamicPasswordPolicyConstraints", () => {
   describe("constructor", () => {
     it("uses default boundaries when the policy is disabled", () => {
-      const { constraints } = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const { constraints } = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
 
       expect(constraints.policyInEffect).toBeFalsy();
-      expect(constraints.length).toEqual(DefaultPasswordBoundaries.length);
+      expect(constraints.length).toEqual(someConstraints.length);
       expect(constraints.lowercase).toBeUndefined();
       expect(constraints.uppercase).toBeUndefined();
       expect(constraints.number).toBeUndefined();
       expect(constraints.special).toBeUndefined();
       expect(constraints.minLowercase).toBeUndefined();
       expect(constraints.minUppercase).toBeUndefined();
-      expect(constraints.minNumber).toEqual(DefaultPasswordBoundaries.minDigits);
-      expect(constraints.minSpecial).toEqual(DefaultPasswordBoundaries.minSpecialCharacters);
+      expect(constraints.minNumber).toEqual(someConstraints.minNumber);
+      expect(constraints.minSpecial).toEqual(someConstraints.minSpecial);
     });
 
     it("1 <= minLowercase when the policy requires lowercase", () => {
-      const policy = { ...Policies.Password.disabledValue, useLowercase: true };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useLowercase: true };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.lowercase.readonly).toEqual(true);
@@ -31,8 +39,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("1 <= minUppercase when the policy requires uppercase", () => {
-      const policy = { ...Policies.Password.disabledValue, useUppercase: true };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useUppercase: true };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.uppercase.readonly).toEqual(true);
@@ -41,8 +49,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("1 <= minNumber <= 9 when the policy requires a number", () => {
-      const policy = { ...Policies.Password.disabledValue, useNumbers: true };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useNumbers: true };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.number.readonly).toEqual(true);
@@ -51,8 +59,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("1 <= minSpecial <= 9 when the policy requires a special character", () => {
-      const policy = { ...Policies.Password.disabledValue, useSpecial: true };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useSpecial: true };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.special.readonly).toEqual(true);
@@ -61,8 +69,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("numberCount <= minNumber <= 9 when the policy requires numberCount", () => {
-      const policy = { ...Policies.Password.disabledValue, useNumbers: true, numberCount: 2 };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useNumbers: true, numberCount: 2 };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.number.readonly).toEqual(true);
@@ -71,8 +79,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("specialCount <= minSpecial <= 9 when the policy requires specialCount", () => {
-      const policy = { ...Policies.Password.disabledValue, useSpecial: true, specialCount: 2 };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, useSpecial: true, specialCount: 2 };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.special.readonly).toEqual(true);
@@ -81,16 +89,16 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("uses the policy's minimum length when the policy defines one", () => {
-      const policy = { ...Policies.Password.disabledValue, minLength: 10 };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const policy = { ...disabledPolicy, minLength: 10 };
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       expect(constraints.policyInEffect).toBeTruthy();
-      expect(constraints.length).toEqual({ min: 10, max: 128 });
+      expect(constraints.length).toEqual({ ...someConstraints.length, min: 10 });
     });
 
     it("overrides the minimum length when it is less than the sum of minimums", () => {
       const policy = {
-        ...Policies.Password.disabledValue,
+        ...disabledPolicy,
         useUppercase: true,
         useLowercase: true,
         useNumbers: true,
@@ -98,24 +106,27 @@ describe("DynamicPasswordPolicyConstraints", () => {
         useSpecial: true,
         specialCount: 5,
       };
-      const { constraints } = new DynamicPasswordPolicyConstraints(policy);
+      const { constraints } = new DynamicPasswordPolicyConstraints(policy, someConstraints);
 
       // lower + upper + number + special = 1 + 1 + 5 + 5 = 12
-      expect(constraints.length).toEqual({ min: 12, max: 128 });
+      expect(constraints.length).toEqual({ ...someConstraints.length, min: 12 });
     });
   });
 
   describe("calibrate", () => {
     it("copies the boolean constraints into the calibration", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints({
-        ...Policies.Password.disabledValue,
-        useUppercase: true,
-        useLowercase: true,
-        useNumbers: true,
-        useSpecial: true,
-      });
+      const dynamic = new DynamicPasswordPolicyConstraints(
+        {
+          ...disabledPolicy,
+          useUppercase: true,
+          useLowercase: true,
+          useNumbers: true,
+          useSpecial: true,
+        },
+        someConstraints,
+      );
 
-      const calibrated = dynamic.calibrate(DefaultPasswordGenerationOptions);
+      const calibrated = dynamic.calibrate(defaultOptions);
 
       expect(calibrated.constraints.uppercase).toEqual(dynamic.constraints.uppercase);
       expect(calibrated.constraints.lowercase).toEqual(dynamic.constraints.lowercase);
@@ -126,12 +137,15 @@ describe("DynamicPasswordPolicyConstraints", () => {
     it.each([[true], [false], [undefined]])(
       "outputs at least 1 constraint when the state's lowercase flag is true and useLowercase is %p",
       (useLowercase) => {
-        const dynamic = new DynamicPasswordPolicyConstraints({
-          ...Policies.Password.disabledValue,
-          useLowercase,
-        });
+        const dynamic = new DynamicPasswordPolicyConstraints(
+          {
+            ...disabledPolicy,
+            useLowercase,
+          },
+          someConstraints,
+        );
         const state = {
-          ...DefaultPasswordGenerationOptions,
+          ...defaultOptions,
           lowercase: true,
         };
 
@@ -142,9 +156,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     );
 
     it("outputs the `minLowercase` constraint when the state's lowercase flag is true and policy is disabled", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         lowercase: true,
       };
 
@@ -154,9 +168,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("disables the minLowercase constraint when the state's lowercase flag is false", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         lowercase: false,
       };
 
@@ -168,12 +182,15 @@ describe("DynamicPasswordPolicyConstraints", () => {
     it.each([[true], [false], [undefined]])(
       "outputs at least 1 constraint when the state's uppercase flag is true and useUppercase is %p",
       (useUppercase) => {
-        const dynamic = new DynamicPasswordPolicyConstraints({
-          ...Policies.Password.disabledValue,
-          useUppercase,
-        });
+        const dynamic = new DynamicPasswordPolicyConstraints(
+          {
+            ...disabledPolicy,
+            useUppercase,
+          },
+          someConstraints,
+        );
         const state = {
-          ...DefaultPasswordGenerationOptions,
+          ...defaultOptions,
           uppercase: true,
         };
 
@@ -184,9 +201,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     );
 
     it("disables the minUppercase constraint when the state's uppercase flag is false", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         uppercase: false,
       };
 
@@ -196,9 +213,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("outputs the minNumber constraint when the state's number flag is true", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         number: true,
       };
 
@@ -208,9 +225,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("outputs the zero constraint when the state's number flag is false", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         number: false,
       };
 
@@ -220,9 +237,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("outputs the minSpecial constraint when the state's special flag is true", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         special: true,
       };
 
@@ -232,9 +249,9 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("outputs the zero constraint when the state's special flag is false", () => {
-      const dynamic = new DynamicPasswordPolicyConstraints(Policies.Password.disabledValue);
+      const dynamic = new DynamicPasswordPolicyConstraints(disabledPolicy, someConstraints);
       const state = {
-        ...DefaultPasswordGenerationOptions,
+        ...defaultOptions,
         special: false,
       };
 

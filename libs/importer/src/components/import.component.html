@@ -80,7 +80,13 @@
       <bit-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
         <ng-container *ngIf="format === 'bitwardencsv' || format === 'bitwardenjson'">
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/export-your-data/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/export-your-data/"
+          >
             https://bitwarden.com/help/export-your-data/</a
           >
         </ng-container>
@@ -379,6 +385,15 @@
         <ng-container *ngIf="format === 'protonpass'">
           In the ProtonPass browser extension, go to Settings > Export. Export without PGP
           encryption and save the zip file.
+        </ng-container>
+        <ng-container *ngIf="format === 'passwordxpcsv'">
+          Select Database &rarr; Export to file... menu. &rarr; Within the export options, ensure
+          Folder names and Column titles is checked. &rarr; Press Browse... button and choose the
+          target file and set it's type to CSV file.
+        </ng-container>
+        <ng-container *ngIf="format === 'netwrixpasswordsecure'">
+          Open the FullClient, go to the Main Menu and select Export. Start the export passwords
+          wizard and follow the instructions to export a CSV file.
         </ng-container>
       </bit-callout>
       <import-lastpass

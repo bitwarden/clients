@@ -7,58 +7,14 @@ const { AngularWebpackPlugin } = require("@ngtools/webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
+const manifest = require("./webpack/manifest");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
 }
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
-const browser = process.env.BROWSER;
-
-function modifyManifestV3(buffer) {
-  if (manifestVersion === 2 || !browser) {
-    return buffer;
-  }
-
-  const manifest = JSON.parse(buffer.toString());
-
-  if (browser === "chrome") {
-    // Remove unsupported properties
-    delete manifest.applications;
-    delete manifest.sidebar_action;
-    delete manifest.commands._execute_sidebar_action;
-
-    return JSON.stringify(manifest, null, 2);
-  }
-
-  // Update the background script reference to be an event page
-  const backgroundScript = manifest.background.service_worker;
-  delete manifest.background.service_worker;
-  manifest.background.scripts = [backgroundScript];
-
-  // Remove unsupported properties
-  delete manifest.content_security_policy.sandbox;
-  delete manifest.sandbox;
-  delete manifest.applications;
-
-  manifest.permissions = manifest.permissions.filter((permission) => permission !== "offscreen");
-
-  if (browser === "safari") {
-    delete manifest.sidebar_action;
-    delete manifest.commands._execute_sidebar_action;
-    delete manifest.optional_permissions;
-    manifest.permissions.push("nativeMessaging");
-  }
-
-  if (browser === "firefox") {
-    delete manifest.storage;
-    manifest.optional_permissions = manifest.optional_permissions.filter(
-      (permission) => permission !== "privacy",
-    );
-  }
-
-  return JSON.stringify(manifest, null, 2);
-}
+const browser = process.env.BROWSER ?? "chrome";
 
 console.log(`Building Manifest Version ${manifestVersion} app`);
 
@@ -142,9 +98,10 @@ const requiredPlugins = [
 
 const plugins = [
   new HtmlWebpackPlugin({
-    template: "./src/popup/index.html",
+    template: "./src/popup/index.ejs",
     filename: "popup/index.html",
     chunks: ["popup/polyfills", "popup/vendor-angular", "popup/vendor", "popup/main"],
+    browser: browser,
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/notification/bar.html",
@@ -178,13 +135,11 @@ const plugins = [
   }),
   new CopyWebpackPlugin({
     patterns: [
-      manifestVersion == 3
-        ? {
-            from: "./src/manifest.v3.json",
-            to: "manifest.json",
-            transform: (content) => modifyManifestV3(content),
-          }
-        : "./src/manifest.json",
+      {
+        from: manifestVersion == 3 ? "./src/manifest.v3.json" : "./src/manifest.json",
+        to: "manifest.json",
+        transform: manifest.transform(browser),
+      },
       { from: "./src/managed_schema.json", to: "managed_schema.json" },
       { from: "./src/_locales", to: "_locales" },
       { from: "./src/images", to: "images" },

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
@@ -24,6 +26,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
+  /**
+   * Observable that emits an array of cipherViews that failed to decrypt. Does not emit until decryption has completed.
+   *
+   * An empty array indicates that all ciphers were successfully decrypted.
+   */
+  failedToDecryptCiphers$: Observable<CipherView[]>;
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,

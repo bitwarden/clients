@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
@@ -70,9 +72,5 @@ export class DesktopLoginComponentService
         message: this.i18nService.t("ssoError"),
       });
     }
-  }
-
-  isLoginViaAuthRequestSupported(): boolean {
-    return true;
   }
 }

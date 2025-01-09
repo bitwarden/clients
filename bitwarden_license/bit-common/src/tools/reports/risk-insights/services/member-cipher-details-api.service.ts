@@ -1,8 +1,10 @@
+import { Injectable } from "@angular/core";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { MemberCipherDetailsResponse } from "../response/member-cipher-details.response";
 
+@Injectable()
 export class MemberCipherDetailsApiService {
   constructor(private apiService: ApiService) {}
 
@@ -21,7 +23,6 @@ export class MemberCipherDetailsApiService {
       true,
     );
 
-    const listResponse = new ListResponse(response, MemberCipherDetailsResponse);
-    return listResponse.data.map((r) => new MemberCipherDetailsResponse(r));
+    return response;
   }
 }

@@ -1,4 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject, merge, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -21,7 +24,8 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   AnonLayoutWrapperDataService,
   LoginComponentService,
-  LockComponentService,
+  SsoComponentService,
+  LoginDecryptionOptionsService,
 } from "@bitwarden/auth/angular";
 import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -34,7 +38,6 @@ import {
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -103,18 +106,27 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  BiometricsService,
+  DefaultKeyService,
+} from "@bitwarden/key-management";
+import { LockComponentService } from "@bitwarden/key-management/angular";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
+import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
+import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
-import { BrowserKeyService } from "../../key-management/browser-key.service";
+import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
@@ -122,6 +134,7 @@ import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sen
 /* eslint-enable no-restricted-imports */
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
+import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
@@ -137,9 +150,7 @@ import { BrowserStorageServiceProvider } from "../../platform/storage/browser-st
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { ExtensionLockComponentService } from "../../services/extension-lock-component.service";
 import { ForegroundVaultTimeoutService } from "../../services/vault-timeout/foreground-vault-timeout.service";
-import { BrowserSendStateService } from "../../tools/popup/services/browser-send-state.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
@@ -167,6 +178,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
+  safeProvider(InlineMenuFieldQualificationService),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,
@@ -219,11 +231,9 @@ const safeProviders: SafeProvider[] = [
       stateService: StateService,
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
-      biometricStateService: BiometricStateService,
-      biometricsService: BiometricsService,
       kdfConfigService: KdfConfigService,
     ) => {
-      const keyService = new BrowserKeyService(
+      const keyService = new DefaultKeyService(
         pinService,
         masterPasswordService,
         keyGenerationService,
@@ -234,8 +244,6 @@ const safeProviders: SafeProvider[] = [
         stateService,
         accountService,
         stateProvider,
-        biometricStateService,
-        biometricsService,
         kdfConfigService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
@@ -252,8 +260,6 @@ const safeProviders: SafeProvider[] = [
       StateService,
       AccountServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      BiometricsService,
       KdfConfigService,
     ],
   }),
@@ -314,7 +320,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -352,7 +358,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ScriptInjectorService,
     useClass: BrowserScriptInjectorService,
-    deps: [PlatformUtilsService, LogService],
+    deps: [DomainSettingsService, PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: VaultTimeoutService,
@@ -460,11 +466,6 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: BrowserSendStateService,
-    useClass: BrowserSendStateService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: MessageListener,
     useFactory: (subject: Subject<Message<Record<string, unknown>>>, ngZone: NgZone) =>
       new MessageListener(
@@ -566,8 +567,9 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: flagEnabled("sdk") ? BrowserSdkClientFactory : NoopSdkClientFactory,
-    deps: [],
+    useFactory: (logService: LogService) =>
+      flagEnabled("sdk") ? new BrowserSdkClientFactory(logService) : new NoopSdkClientFactory(),
+    deps: [LogService],
   }),
   safeProvider({
     provide: LoginEmailService,
@@ -578,6 +580,21 @@ const safeProviders: SafeProvider[] = [
     provide: ExtensionAnonLayoutWrapperDataService,
     useClass: ExtensionAnonLayoutWrapperDataService,
     deps: [],
+  }),
+  safeProvider({
+    provide: CompactModeService,
+    useExisting: PopupCompactModeService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SsoComponentService,
+    useClass: ExtensionSsoComponentService,
+    deps: [SyncService, AuthService, EnvironmentService, I18nServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: LoginDecryptionOptionsService,
+    useClass: ExtensionLoginDecryptionOptionsService,
+    deps: [MessagingServiceAbstraction, Router],
   }),
 ];
 

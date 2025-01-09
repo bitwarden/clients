@@ -1,0 +1,41 @@
+<div class="tw-text-center">
+  <ng-container *ngIf="flow === Flow.StandardAuthRequest">
+    <p>{{ "makeSureYourAccountIsUnlockedAndTheFingerprintEtc" | i18n }}</p>
+
+    <div class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</div>
+    <code class="tw-text-code">{{ fingerprintPhrase }}</code>
+
+    <button
+      *ngIf="showResendNotification"
+      type="button"
+      bitButton
+      block
+      buttonType="secondary"
+      class="tw-mt-4"
+      (click)="startStandardAuthRequestLogin()"
+    >
+      {{ "resendNotification" | i18n }}
+    </button>
+
+    <div *ngIf="clientType !== ClientType.Browser" class="tw-mt-4">
+      <span>{{ "needAnotherOptionV1" | i18n }}</span>
+      <a [routerLink]="backToRoute" bitLink linkType="primary">{{
+        "viewAllLogInOptions" | i18n
+      }}</a>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="flow === Flow.AdminAuthRequest">
+    <p>{{ "youWillBeNotifiedOnceTheRequestIsApproved" | i18n }}</p>
+
+    <div class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</div>
+    <code class="tw-text-code">{{ fingerprintPhrase }}</code>
+
+    <div class="tw-mt-4">
+      <span>{{ "troubleLoggingIn" | i18n }}</span>
+      <a [routerLink]="backToRoute" bitLink linkType="primary">{{
+        "viewAllLogInOptions" | i18n
+      }}</a>
+    </div>
+  </ng-container>
+</div>

@@ -25,13 +25,14 @@
       <span class="tw-font-bold">{{ "datePasswordUpdated" | i18n }}:</span>
       {{ cipher.passwordRevisionDisplayDate | date: "medium" }}
     </p>
-    <a
+    <button
       *ngIf="cipher.hasPasswordHistory && isLogin"
-      class="tw-font-bold tw-no-underline tw-cursor-pointer tw-text-primary-600"
       (click)="viewPasswordHistory()"
       bitTypography="body2"
+      bitLink
+      type="button"
     >
       {{ "passwordHistory" | i18n }}
-    </a>
+    </button>
   </bit-card>
 </bit-section>

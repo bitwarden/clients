@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -74,7 +76,7 @@ export class ViewMenu implements IMenubarMenu {
   private get passwordHistory(): MenuItemConstructorOptions {
     return {
       id: "passwordHistory",
-      label: this.localize("passwordHistory"),
+      label: this.localize("generatorHistory"),
       click: () => this.sendMessage("openPasswordHistory"),
       enabled: !this._isLocked,
     };

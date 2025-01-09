@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -29,6 +31,7 @@ import {
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
+import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
@@ -41,7 +44,7 @@ import {
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
-import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
+import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -259,11 +262,12 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
-  async postAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
+  // TODO: PM-9724: Remove legacy auth request methods when we remove legacy LoginViaAuthRequestV1Components
+  async postAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/", request, false, true);
     return new AuthRequestResponse(r);
   }
-  async postAdminAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
+  async postAdminAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
     return new AuthRequestResponse(r);
   }
@@ -1680,8 +1684,10 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async postPreValidateSponsorshipToken(sponsorshipToken: string): Promise<boolean> {
-    const r = await this.send(
+  async postPreValidateSponsorshipToken(
+    sponsorshipToken: string,
+  ): Promise<PreValidateSponsorshipResponse> {
+    const response = await this.send(
       "POST",
       "/organization/sponsorship/validate-token?sponsorshipToken=" +
         encodeURIComponent(sponsorshipToken),
@@ -1689,7 +1695,8 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return r as boolean;
+
+    return new PreValidateSponsorshipResponse(response);
   }
 
   async postRedeemSponsorship(
@@ -1941,7 +1948,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 

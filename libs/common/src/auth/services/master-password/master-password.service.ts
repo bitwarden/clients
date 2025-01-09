@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -178,10 +180,18 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     let decUserKey: Uint8Array;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      decUserKey = await this.encryptService.decryptToBytes(userKey, masterKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        masterKey,
+        "Content: User Key; Encrypting Key: Master Key",
+      );
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
       const newKey = await this.keyGenerationService.stretchKey(masterKey);
-      decUserKey = await this.encryptService.decryptToBytes(userKey, newKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        newKey,
+        "Content: User Key; Encrypting Key: Stretched Master Key",
+      );
     } else {
       throw new Error("Unsupported encryption type.");
     }

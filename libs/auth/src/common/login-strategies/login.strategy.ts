@@ -1,16 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BehaviorSubject, filter, firstValueFrom, timeout } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
@@ -30,10 +30,15 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  Argon2KdfConfig,
+  PBKDF2KdfConfig,
+  KdfConfigService,
+  KdfType,
+} from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {

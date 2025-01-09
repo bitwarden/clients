@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
@@ -8,24 +10,13 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import {
-  catchError,
-  filter,
-  firstValueFrom,
-  map,
-  of,
-  Subject,
-  takeUntil,
-  timeout,
-  withLatestFrom,
-} from "rxjs";
+import { filter, firstValueFrom, map, Subject, takeUntil, timeout, withLatestFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -50,7 +41,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
@@ -62,13 +52,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
+import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { LoginApprovalComponent } from "../auth/login/login-approval.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
-import { flagEnabled } from "../platform/flags";
 import { PremiumComponent } from "../vault/app/accounts/premium.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
@@ -165,28 +154,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
-    private sdkService: SdkService,
     private organizationService: OrganizationService,
-  ) {
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$
-        .pipe(
-          takeUntilDestroyed(),
-          catchError(() => {
-            return of(false);
-          }),
-        )
-        .subscribe((supported) => {
-          if (!supported) {
-            this.logService.debug("SDK is not supported");
-            this.sdkService.failedToInitialize("desktop").catch((e) => this.logService.error(e));
-          } else {
-            this.logService.debug("SDK is supported");
-          }
-        });
-    }
-  }
+  ) {}
 
   ngOnInit() {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
@@ -324,10 +293,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.deleteAccount();
             break;
           case "openPasswordHistory":
-            await this.openModal<PasswordGeneratorHistoryComponent>(
-              PasswordGeneratorHistoryComponent,
-              this.passwordHistoryRef,
-            );
+            await this.openGeneratorHistory();
             break;
           case "showToast":
             this.toastService._showToast(message);
@@ -556,6 +522,21 @@ export class AppComponent implements OnInit, OnDestroy {
     this.modal.onClosed.subscribe(() => {
       this.modal = null;
     });
+  }
+
+  async openGeneratorHistory() {
+    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.GeneratorToolsModernization,
+    );
+    if (isGeneratorSwapEnabled) {
+      await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
+      return;
+    }
+
+    await this.openModal<PasswordGeneratorHistoryComponent>(
+      PasswordGeneratorHistoryComponent,
+      this.passwordHistoryRef,
+    );
   }
 
   private async updateAppMenu() {

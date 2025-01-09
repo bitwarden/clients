@@ -2,7 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -24,7 +23,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-ti
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";

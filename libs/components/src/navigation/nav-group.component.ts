@@ -1,5 +1,7 @@
+import { CommonModule } from "@angular/common";
 import {
   AfterContentInit,
+  booleanAttribute,
   Component,
   ContentChildren,
   EventEmitter,
@@ -10,13 +12,22 @@ import {
   SkipSelf,
 } from "@angular/core";
 
+import { IconButtonModule } from "../icon-button";
+import { I18nPipe } from "../shared/i18n.pipe";
+
 import { NavBaseComponent } from "./nav-base.component";
+import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
   selector: "bit-nav-group",
   templateUrl: "./nav-group.component.html",
-  providers: [{ provide: NavBaseComponent, useExisting: NavGroupComponent }],
+  providers: [
+    { provide: NavBaseComponent, useExisting: NavGroupComponent },
+    { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
+  ],
+  standalone: true,
+  imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
   @ContentChildren(NavBaseComponent, {
@@ -39,6 +50,12 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
    */
   @Input()
   open = false;
+
+  /**
+   * Automatically hide the nav group if there are no child buttons
+   */
+  @Input({ transform: booleanAttribute })
+  hideIfEmpty = false;
 
   @Output()
   openChange = new EventEmitter<boolean>();

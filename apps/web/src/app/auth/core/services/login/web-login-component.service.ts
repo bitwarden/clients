@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -16,7 +18,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { flagEnabled } from "../../../../../utils/flags";
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -45,10 +46,6 @@ export class WebLoginComponentService
       ssoLoginService,
     );
     this.clientType = this.platformUtilsService.getClientType();
-  }
-
-  isLoginViaAuthRequestSupported(): boolean {
-    return flagEnabled("showPasswordless");
   }
 
   async getOrgPolicies(): Promise<PasswordPolicies | null> {

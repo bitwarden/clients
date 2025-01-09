@@ -8,12 +8,111 @@ import { awaitAsync, trackEmissions } from "../../spec";
 
 import {
   anyComplete,
+  errorOnChange,
   distinctIfShallowMatch,
   on,
   ready,
   reduceCollection,
   withLatestReady,
 } from "./rx";
+
+describe("errorOnChange", () => {
+  it("emits a single value when the input emits only once", async () => {
+    const source$ = new Subject<number>();
+    const results: number[] = [];
+    source$.pipe(errorOnChange()).subscribe((v) => results.push(v));
+
+    source$.next(1);
+
+    expect(results).toEqual([1]);
+  });
+
+  it("emits when the input emits", async () => {
+    const source$ = new Subject<number>();
+    const results: number[] = [];
+    source$.pipe(errorOnChange()).subscribe((v) => results.push(v));
+
+    source$.next(1);
+    source$.next(1);
+
+    expect(results).toEqual([1, 1]);
+  });
+
+  it("errors when the input errors", async () => {
+    const source$ = new Subject<number>();
+    const expected = {};
+    let error: any = null;
+    source$.pipe(errorOnChange()).subscribe({ error: (v: unknown) => (error = v) });
+
+    source$.error(expected);
+
+    expect(error).toBe(expected);
+  });
+
+  it("completes when the input completes", async () => {
+    const source$ = new Subject<number>();
+    let complete: boolean = false;
+    source$.pipe(errorOnChange()).subscribe({ complete: () => (complete = true) });
+
+    source$.complete();
+
+    expect(complete).toBeTrue();
+  });
+
+  it("errors when the input changes", async () => {
+    const source$ = new Subject<number>();
+    let error: any = null;
+    source$.pipe(errorOnChange()).subscribe({ error: (v: unknown) => (error = v) });
+
+    source$.next(1);
+    source$.next(2);
+
+    expect(error).toEqual({ expectedValue: 1, actualValue: 2 });
+  });
+
+  it("emits when the extracted value remains constant", async () => {
+    type Foo = { foo: string };
+    const source$ = new Subject<Foo>();
+    const results: Foo[] = [];
+    source$.pipe(errorOnChange((v) => v.foo)).subscribe((v) => results.push(v));
+
+    source$.next({ foo: "bar" });
+    source$.next({ foo: "bar" });
+
+    expect(results).toEqual([{ foo: "bar" }, { foo: "bar" }]);
+  });
+
+  it("errors when an extracted value changes", async () => {
+    type Foo = { foo: string };
+    const source$ = new Subject<Foo>();
+    let error: any = null;
+    source$.pipe(errorOnChange((v) => v.foo)).subscribe({ error: (v: unknown) => (error = v) });
+
+    source$.next({ foo: "bar" });
+    source$.next({ foo: "baz" });
+
+    expect(error).toEqual({ expectedValue: "bar", actualValue: "baz" });
+  });
+
+  it("constructs an error when the extracted value changes", async () => {
+    type Foo = { foo: string };
+    const source$ = new Subject<Foo>();
+    let error: any = null;
+    source$
+      .pipe(
+        errorOnChange(
+          (v) => v.foo,
+          (expected, actual) => ({ expected, actual }),
+        ),
+      )
+      .subscribe({ error: (v: unknown) => (error = v) });
+
+    source$.next({ foo: "bar" });
+    source$.next({ foo: "baz" });
+
+    expect(error).toEqual({ expected: "bar", actual: "baz" });
+  });
+});
 
 describe("reduceCollection", () => {
   it.each([[null], [undefined], [[]]])(

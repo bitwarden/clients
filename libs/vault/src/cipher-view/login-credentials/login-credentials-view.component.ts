@@ -1,16 +1,26 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input } from "@angular/core";
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
-  CardComponent,
   ColorPasswordModule,
   FormFieldModule,
   IconButtonModule,
@@ -35,7 +45,6 @@ type TotpCodeValues = {
   imports: [
     CommonModule,
     JslibModule,
-    CardComponent,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
@@ -57,6 +66,11 @@ export class LoginCredentialsViewComponent {
   }
   private _cipher$ = new BehaviorSubject<CipherView>(null);
 
+  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
   allowTotpGeneration: Observable<boolean> = combineLatest([
     this.billingAccountProfileStateService.hasPremiumFromAnySource$,
     this._cipher$.pipe(filter((c) => c != null)),
@@ -77,6 +91,7 @@ export class LoginCredentialsViewComponent {
     private i18nService: I18nService,
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {

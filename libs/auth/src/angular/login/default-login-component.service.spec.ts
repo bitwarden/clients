@@ -63,12 +63,6 @@ describe("DefaultLoginComponentService", () => {
     });
   });
 
-  describe("isLoginViaAuthRequestSupported", () => {
-    it("returns false by default", () => {
-      expect(service.isLoginViaAuthRequestSupported()).toBe(false);
-    });
-  });
-
   describe("isLoginWithPasskeySupported", () => {
     it("returns true when clientType is Web", () => {
       service["clientType"] = ClientType.Web;

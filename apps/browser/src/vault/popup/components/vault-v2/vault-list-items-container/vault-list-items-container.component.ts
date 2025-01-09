@@ -1,24 +1,42 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  AfterViewInit,
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  signal,
+} from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
+import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
-  BitItemHeight,
-  BitItemHeightClass,
   ButtonModule,
+  CompactModeService,
+  DialogService,
   IconButtonModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -43,14 +61,32 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ItemMoreOptionsComponent,
     OrgIconDirective,
     ScrollingModule,
+    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
 })
-export class VaultListItemsContainerComponent {
-  protected ItemHeightClass = BitItemHeightClass;
-  protected ItemHeight = BitItemHeight;
+export class VaultListItemsContainerComponent implements AfterViewInit {
+  private compactModeService = inject(CompactModeService);
+
+  /**
+   * The class used to set the height of a bit item's inner content.
+   */
+  protected readonly itemHeightClass = `tw-h-[52px]`;
+
+  /**
+   * The height of a bit item in pixels. Includes any margin, padding, or border. Used by the virtual scroll
+   * to estimate how many items can be displayed at once and how large the virtual container should be.
+   * Needs to be updated if the item height or spacing changes.
+   *
+   * Default: 52px + 1px border + 6px bottom margin = 59px
+   *
+   * Compact mode: 52px + 1px border = 53px
+   */
+  protected readonly itemHeight$ = this.compactModeService.enabled$.pipe(
+    map((enabled) => (enabled ? 53 : 59)),
+  );
 
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch
@@ -96,6 +132,12 @@ export class VaultListItemsContainerComponent {
   showAutofillButton: boolean;
 
   /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   */
+  @Input({ transform: booleanAttribute })
+  primaryActionAutofill: boolean;
+
+  /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
@@ -114,13 +156,29 @@ export class VaultListItemsContainerComponent {
     return cipher.collections[0]?.name;
   }
 
+  protected autofillShortcutTooltip = signal<string | undefined>(undefined);
+
   constructor(
     private i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
     private router: Router,
+    private platformUtilsService: PlatformUtilsService,
+    private dialogService: DialogService,
   ) {}
+
+  async ngAfterViewInit() {
+    const autofillShortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
+
+    if (autofillShortcut === "") {
+      this.autofillShortcutTooltip.set(undefined);
+    } else {
+      const autofillTitle = this.i18nService.t("autoFill");
+
+      this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
+    }
+  }
 
   /**
    * Launches the login cipher in a new browser tab.
@@ -159,6 +217,13 @@ export class VaultListItemsContainerComponent {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
+          if (cipher.decryptionFailure) {
+            DecryptionFailureDialogComponent.open(this.dialogService, {
+              cipherIds: [cipher.id as CipherId],
+            });
+            return;
+          }
+
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
             return;

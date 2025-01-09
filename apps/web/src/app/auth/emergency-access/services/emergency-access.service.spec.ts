@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 
@@ -8,14 +10,14 @@ import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType, KdfType } from "@bitwarden/common/platform/enums";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfType, KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -115,14 +117,7 @@ describe("EmergencyAccessService", () => {
         const granteeId = "grantee-id";
         const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
-        const mockPublicKeyB64 = "some-public-key-in-base64";
-
-        // const publicKey = Utils.fromB64ToArray(publicKeyB64);
-
-        const mockUserPublicKeyResponse = new UserKeyResponse({
-          UserId: granteeId,
-          PublicKey: mockPublicKeyB64,
-        });
+        const publicKey = new Uint8Array(64);
 
         const mockUserPublicKeyEncryptedUserKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
@@ -130,14 +125,13 @@ describe("EmergencyAccessService", () => {
         );
 
         keyService.getUserKey.mockResolvedValueOnce(mockUserKey);
-        apiService.getUserPublicKey.mockResolvedValueOnce(mockUserPublicKeyResponse);
 
         encryptService.rsaEncrypt.mockResolvedValueOnce(mockUserPublicKeyEncryptedUserKey);
 
         emergencyAccessApiService.postEmergencyAccessConfirm.mockResolvedValueOnce();
 
         // Act
-        await emergencyAccessService.confirm(id, granteeId);
+        await emergencyAccessService.confirm(id, granteeId, publicKey);
 
         // Assert
         expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {

@@ -1,0 +1,13 @@
+<bit-dialog dialogSize="large" background="alt" #dialog>
+  <span bitDialogTitle aria-live="polite">
+    {{ title }}
+  </span>
+  <div bitDialogContent #dialogContent>
+    <app-cipher-view [cipher]="cipher"></app-cipher-view>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

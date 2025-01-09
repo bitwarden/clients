@@ -314,7 +314,7 @@ describe("EnvironmentService", () => {
 
       await switchUser(testUser);
 
-      const env = await sut.getEnvironment();
+      const env = await firstValueFrom(sut.getEnvironment$());
       expect(env.getHostname()).toBe(expectedHost);
     });
 
@@ -325,7 +325,7 @@ describe("EnvironmentService", () => {
       setGlobalData(region, new EnvironmentUrls());
       setUserData(Region.US, new EnvironmentUrls());
 
-      const env = await sut.getEnvironment();
+      const env = await firstValueFrom(sut.getEnvironment$());
       expect(env.getHostname()).toBe(expectedHost);
     });
 
@@ -338,7 +338,7 @@ describe("EnvironmentService", () => {
         setGlobalData(region, new EnvironmentUrls());
         setUserData(Region.US, new EnvironmentUrls());
 
-        const env = await sut.getEnvironment(testUser);
+        const env = await firstValueFrom(sut.getEnvironment$(testUser));
         expect(env.getHostname()).toBe(expectedHost);
       },
     );
@@ -355,7 +355,7 @@ describe("EnvironmentService", () => {
 
         await switchUser(testUser);
 
-        const env = await sut.getEnvironment(alternateTestUser);
+        const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
         expect(env.getHostname()).toBe(expectedHost);
       },
     );
@@ -366,7 +366,7 @@ describe("EnvironmentService", () => {
       setGlobalData(Region.SelfHosted, globalSelfHostUrls);
       setUserData(Region.EU, new EnvironmentUrls());
 
-      const env = await sut.getEnvironment();
+      const env = await firstValueFrom(sut.getEnvironment$());
       expect(env.getHostname()).toBe("base.example.com");
     });
 
@@ -377,7 +377,7 @@ describe("EnvironmentService", () => {
       setGlobalData(Region.SelfHosted, globalSelfHostUrls);
       setUserData(Region.EU, new EnvironmentUrls());
 
-      const env = await sut.getEnvironment();
+      const env = await firstValueFrom(sut.getEnvironment$());
       expect(env.getHostname()).toBe("vault.example.com");
     });
 
@@ -391,7 +391,7 @@ describe("EnvironmentService", () => {
 
       await switchUser(testUser);
 
-      const env = await sut.getEnvironment(alternateTestUser);
+      const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
       expect(env.getHostname()).toBe("base.example.com");
     });
   });

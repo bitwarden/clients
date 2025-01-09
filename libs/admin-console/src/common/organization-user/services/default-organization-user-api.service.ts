@@ -369,4 +369,18 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       false,
     );
   }
+
+  async deleteManyOrganizationUsers(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/delete-account",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
 }

@@ -4,10 +4,9 @@ import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfType, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenPasswordProtectedImporter,

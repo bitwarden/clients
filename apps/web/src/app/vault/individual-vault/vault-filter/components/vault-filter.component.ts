@@ -1,17 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService } from "@bitwarden/components";
 
+import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -68,6 +72,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.SecureNote) {
       return "searchSecureNote";
     }
+    if (this.activeFilter.cipherType === CipherType.SshKey) {
+      return "searchSshKey";
+    }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";
     }
@@ -84,6 +91,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
+  private trialFlowService = inject(TrialFlowService);
+
   constructor(
     protected vaultFilterService: VaultFilterService,
     protected policyService: PolicyService,
@@ -91,6 +100,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected platformUtilsService: PlatformUtilsService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
+    protected configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -118,13 +128,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         this.i18nService.t("disabledOrganizationFilterError"),
       );
       const metadata = await this.billingApiService.getOrganizationBillingMetadata(orgNode.node.id);
-      if (metadata.isSubscriptionUnpaid) {
-        const confirmed = await this.promptForPaymentNavigation(orgNode.node);
-        if (confirmed) {
-          await this.navigateToPaymentMethod(orgNode.node.id);
-        }
-      }
-      return;
+      await this.trialFlowService.handleUnpaidSubscriptionDialog(orgNode.node, metadata);
     }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
@@ -135,32 +139,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.vaultFilterService.setOrganizationFilter(orgNode.node);
     await this.vaultFilterService.expandOrgFilter();
   };
-
-  private async promptForPaymentNavigation(org: Organization): Promise<boolean> {
-    if (!org?.isOwner) {
-      await this.dialogService.openSimpleDialog({
-        title: this.i18nService.t("suspendedOrganizationTitle", org?.name),
-        content: { key: "suspendedUserOrgMessage" },
-        type: "danger",
-        acceptButtonText: this.i18nService.t("close"),
-        cancelButtonText: null,
-      });
-      return false;
-    }
-    return await this.dialogService.openSimpleDialog({
-      title: this.i18nService.t("suspendedOrganizationTitle", org?.name),
-      content: { key: "suspendedOwnerOrgMessage" },
-      type: "danger",
-      acceptButtonText: this.i18nService.t("continue"),
-      cancelButtonText: this.i18nService.t("close"),
-    });
-  }
-
-  private async navigateToPaymentMethod(orgId: string) {
-    await this.router.navigate(["organizations", `${orgId}`, "billing", "payment-method"], {
-      state: { launchPaymentModalAutomatically: true },
-    });
-  }
 
   applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {
     const filter = this.activeFilter;
@@ -255,13 +233,16 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         type: CipherType.SecureNote,
         icon: "bwi-sticky-note",
       },
-      {
+    ];
+
+    if (await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem)) {
+      allTypeFilters.push({
         id: "sshKey",
         name: this.i18nService.t("typeSshKey"),
         type: CipherType.SshKey,
         icon: "bwi-key",
-      },
-    ];
+      });
+    }
 
     const typeFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.buildTypeTree(

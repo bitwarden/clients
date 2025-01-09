@@ -2,6 +2,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { DashlaneCsvImporter } from "../src/importers";
 
+import { credentialsData_otpUrl } from "./test-data/dashlane-csv/credentials-otpurl.csv";
 import { credentialsData } from "./test-data/dashlane-csv/credentials.csv";
 import { identityData } from "./test-data/dashlane-csv/id.csv";
 import { multiplePersonalInfoData } from "./test-data/dashlane-csv/multiple-personal-info.csv";
@@ -28,6 +29,14 @@ describe("Dashlane CSV Importer", () => {
     const uriView = cipher.login.uris.shift();
     expect(uriView.uri).toEqual("https://www.example.com");
     expect(cipher.notes).toEqual("some note for example.com");
+  });
+
+  it("should parse login with totp when given otpUrl instead of otpSecret", async () => {
+    const result = await importer.parse(credentialsData_otpUrl);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers.shift();
+    expect(cipher.login.totp).toEqual("anotherTOTPSeed");
   });
 
   it("should parse an item and create a folder", async () => {

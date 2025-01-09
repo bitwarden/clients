@@ -10,5 +10,6 @@ import { Component } from "@angular/core";
       "tw-h-16 tw-pl-4 tw-bg-background-alt tw-flex tw-items-end tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300",
   },
   template: `<ng-content></ng-content>`,
+  standalone: true,
 })
 export class TabHeaderComponent {}

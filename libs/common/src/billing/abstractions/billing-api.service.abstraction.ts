@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
@@ -6,6 +8,7 @@ import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/reque
 import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
 import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
 
+import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
 import { OrganizationBillingMetadataResponse } from "../../billing/models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../../billing/models/response/plan.response";
@@ -71,5 +74,10 @@ export abstract class BillingApiServiceAbstraction {
   verifyOrganizationBankAccount: (
     organizationId: string,
     request: VerifyBankAccountRequest,
+  ) => Promise<void>;
+
+  restartSubscription: (
+    organizationId: string,
+    request: OrganizationCreateRequest,
   ) => Promise<void>;
 }

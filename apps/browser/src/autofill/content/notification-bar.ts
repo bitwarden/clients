@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ServerConfig } from "../../../../../libs/common/src/platform/abstractions/config/server-config";
 import {
   AddLoginMessageData,

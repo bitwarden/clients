@@ -6,6 +6,7 @@
   <div bitDialogContent>
     <p>&copy; Bitwarden Inc. 2015-{{ year }}</p>
     <p class="user-select">{{ "version" | i18n }}: {{ version$ | async }}</p>
+    <p class="user-select">SDK: {{ sdkVersion$ | async }}</p>
     <ng-container *ngIf="data$ | async as data">
       <p *ngIf="data.isCloud">
         {{ "serverVersion" | i18n }}: {{ data.serverConfig?.version }}

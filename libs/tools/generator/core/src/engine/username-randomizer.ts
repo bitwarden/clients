@@ -6,6 +6,9 @@ import { CredentialGenerator, EffUsernameGenerationOptions, GeneratedCredential 
 import { Randomizer } from "./abstractions";
 import { WordsRequest } from "./types";
 
+/** The number of digits used when generating an Eff username with a number. */
+const NUMBER_OF_DIGITS = 4;
+
 /** Generation algorithms that produce randomized usernames */
 export class UsernameRandomizer implements CredentialGenerator<EffUsernameGenerationOptions> {
   /** Instantiates the username randomizer
@@ -51,7 +54,7 @@ export class UsernameRandomizer implements CredentialGenerator<EffUsernameGenera
   async generate(_request: GenerationRequest, settings: EffUsernameGenerationOptions) {
     if (isEffUsernameGenerationOptions(settings)) {
       const username = await this.randomWords({
-        digits: settings.wordIncludeNumber ? 1 : 0,
+        digits: settings.wordIncludeNumber ? NUMBER_OF_DIGITS : 0,
         casing: settings.wordCapitalize ? "TitleCase" : "lowercase",
       });
 

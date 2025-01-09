@@ -1,4 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass } from "@angular/common";
 import { Component, HostBinding, Input, OnInit } from "@angular/core";
 
 import type { SortDirection, SortFn } from "./table-data-source";
@@ -12,6 +15,8 @@ import { TableComponent } from "./table.component";
       <i class="bwi tw-ml-2" [ngClass]="icon"></i>
     </button>
   `,
+  standalone: true,
+  imports: [NgClass],
 })
 export class SortableComponent implements OnInit {
   /**
@@ -97,7 +102,6 @@ export class SortableComponent implements OnInit {
 
   get classList() {
     return [
-      "tw-group",
       "tw-min-w-max",
 
       // Offset to border and padding

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
 import { firstValueFrom, map } from "rxjs";
 
@@ -11,7 +13,6 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -22,7 +23,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvOrgExportType,

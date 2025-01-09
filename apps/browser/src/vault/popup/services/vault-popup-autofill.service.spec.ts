@@ -5,6 +5,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -19,6 +20,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutoFillOptions,
   AutofillService,
@@ -46,6 +48,8 @@ describe("VaultPopupAutofillService", () => {
   const mockPasswordRepromptService = mock<PasswordRepromptService>();
   const mockCipherService = mock<CipherService>();
   const mockMessagingService = mock<MessagingService>();
+  const mockInlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const mockLogService = mock<LogService>();
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -53,6 +57,12 @@ describe("VaultPopupAutofillService", () => {
   beforeEach(() => {
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
+    jest
+      .spyOn(mockInlineMenuFieldQualificationService, "isFieldForCreditCardForm")
+      .mockReturnValue(true);
+    jest
+      .spyOn(mockInlineMenuFieldQualificationService, "isFieldForIdentityForm")
+      .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
 
@@ -69,6 +79,14 @@ describe("VaultPopupAutofillService", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: InlineMenuFieldQualificationService,
+          useValue: mockInlineMenuFieldQualificationService,
+        },
+        {
+          provide: LogService,
+          useValue: mockLogService,
         },
       ],
     });

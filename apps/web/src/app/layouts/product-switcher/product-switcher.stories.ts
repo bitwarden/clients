@@ -171,7 +171,13 @@ export const WithSM: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: false, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: false,
+        canAccessSecretsManager: true,
+        enabled: true,
+        canAccessExport: (_) => false,
+      },
     ] as Organization[],
     mockProviders: [],
   },
@@ -181,7 +187,13 @@ export const WithSMAndAC: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+        canAccessExport: (_) => false,
+      },
     ] as Organization[],
     mockProviders: [],
   },
@@ -191,7 +203,13 @@ export const WithAllOptions: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+        canAccessExport: (_) => false,
+      },
     ] as Organization[],
     mockProviders: [{ id: "provider-a" }] as Provider[],
   },

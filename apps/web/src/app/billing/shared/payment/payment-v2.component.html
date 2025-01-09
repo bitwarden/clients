@@ -80,9 +80,9 @@
   </ng-container>
   <!-- Bank Account -->
   <ng-container *ngIf="showBankAccount && usingBankAccount">
-    <app-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-      {{ "verifyBankAccountInitialDesc" | i18n }} {{ "verifyBankAccountFailureWarning" | i18n }}
-    </app-callout>
+    <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
+      {{ "verifyBankAccountWithStatementDescriptorWarning" | i18n }}
+    </bit-callout>
     <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4" formGroupName="bankInformation">
       <bit-form-field class="tw-col-span-1" disableMargin>
         <bit-label>{{ "routingNumber" | i18n }}</bit-label>

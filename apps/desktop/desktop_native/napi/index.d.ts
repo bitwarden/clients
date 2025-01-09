@@ -6,8 +6,6 @@
 export declare namespace passwords {
   /** Fetch the stored password from the keychain. */
   export function getPassword(service: string, account: string): Promise<string>
-  /** Fetch the stored password from the keychain that was stored with Keytar. */
-  export function getPasswordKeytar(service: string, account: string): Promise<string>
   /** Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /** Delete the stored password from the keychain. */
@@ -69,12 +67,13 @@ export declare namespace sshagent {
     status: SshKeyImportStatus
     sshKey?: SshKey
   }
-  export function serve(callback: (err: Error | null, arg: string) => any): Promise<SshAgentState>
+  export function serve(callback: (err: Error | null, arg0: string | undefined | null, arg1: boolean, arg2: string) => any): Promise<SshAgentState>
   export function stop(agentState: SshAgentState): void
+  export function isRunning(agentState: SshAgentState): boolean
   export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
   export function lock(agentState: SshAgentState): void
   export function importKey(encodedKey: string, password: string): SshKeyImportResult
-  export function generateKeypair(keyAlgorithm: string): Promise<SshKey>
+  export function clearKeys(agentState: SshAgentState): void
   export class SshAgentState {   }
 }
 export declare namespace processisolations {
@@ -109,6 +108,8 @@ export declare namespace ipc {
      * @param callback This function will be called whenever a message is received from a client.
      */
     static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
+    /** Return the path to the IPC server. */
+    getPath(): string
     /** Stop the IPC server. */
     stop(): void
     /**
@@ -119,4 +120,62 @@ export declare namespace ipc {
      */
     send(message: string): number
   }
+}
+export declare namespace autofill {
+  export function runCommand(value: string): Promise<string>
+  export const enum UserVerification {
+    Preferred = 'preferred',
+    Required = 'required',
+    Discouraged = 'discouraged'
+  }
+  export interface PasskeyRegistrationRequest {
+    rpId: string
+    userName: string
+    userHandle: Array<number>
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    supportedAlgorithms: Array<number>
+  }
+  export interface PasskeyRegistrationResponse {
+    rpId: string
+    clientDataHash: Array<number>
+    credentialId: Array<number>
+    attestationObject: Array<number>
+  }
+  export interface PasskeyAssertionRequest {
+    rpId: string
+    credentialId: Array<number>
+    userName: string
+    userHandle: Array<number>
+    recordIdentifier?: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+  }
+  export interface PasskeyAssertionResponse {
+    rpId: string
+    userHandle: Array<number>
+    signature: Array<number>
+    clientDataHash: Array<number>
+    authenticatorData: Array<number>
+    credentialId: Array<number>
+  }
+  export class IpcServer {
+    /**
+     * Create and start the IPC server without blocking.
+     *
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
+     * @param callback This function will be called whenever a message is received from a client.
+     */
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    /** Return the path to the IPC server. */
+    getPath(): string
+    /** Stop the IPC server. */
+    stop(): void
+    completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
+    completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeError(clientId: number, sequenceNumber: number, error: string): number
+  }
+}
+export declare namespace crypto {
+  export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }

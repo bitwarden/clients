@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
@@ -8,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ToastService } from "@bitwarden/components";
 
 import { ApiService } from "../../abstractions/api.service";
+import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { BillingApiServiceAbstraction } from "../../billing/abstractions";
 import { PaymentMethodType } from "../../billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "../../billing/models/request/expanded-tax-info-update.request";
@@ -206,6 +209,19 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/billing/payment-method/verify-bank-account",
+      request,
+      true,
+      false,
+    );
+  }
+
+  async restartSubscription(
+    organizationId: string,
+    request: OrganizationCreateRequest,
+  ): Promise<void> {
+    return await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/billing/restart-subscription",
       request,
       true,
       false,

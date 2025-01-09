@@ -10,7 +10,7 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] DevOps:"
+      "commitMessagePrefix": "[deps] BRE:"
     },
     {
       "matchManagers": ["cargo"],
@@ -38,6 +38,10 @@
     {
       "groupName": "macOS/iOS bindings",
       "matchPackageNames": ["core-foundation", "security-framework", "security-framework-sys"]
+    },
+    {
+      "groupName": "zbus",
+      "matchPackageNames": ["zbus", "zbus_polkit"]
     },
     {
       "matchPackageNames": [
@@ -71,15 +75,12 @@
     },
     {
       "matchPackageNames": [
+        "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",
         "cross-env",
         "del",
-        "gulp",
-        "gulp-if",
-        "gulp-json-editor",
-        "gulp-replace",
-        "gulp-zip",
+        "lit",
         "nord",
         "patch-package",
         "prettier",
@@ -103,6 +104,8 @@
       "matchPackageNames": [
         "@babel/core",
         "@babel/preset-env",
+        "@bitwarden/sdk-internal",
+        "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
         "@ngtools/webpack",
@@ -114,7 +117,7 @@
         "@types/node",
         "@types/node-forge",
         "@types/node-ipc",
-        "@yao-pkg",
+        "@yao-pkg/pkg",
         "babel-loader",
         "browserslist",
         "copy-webpack-plugin",
@@ -134,6 +137,7 @@
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typescript",
+        "typescript-strict-plugin",
         "webpack",
         "webpack-cli",
         "webpack-dev-server",
@@ -150,12 +154,13 @@
         "@angular/cdk",
         "@angular/cli",
         "@angular/common",
-        "@angular/compiler",
         "@angular/compiler-cli",
+        "@angular/compiler",
         "@angular/core",
         "@angular/forms",
+        "@angular/platform-browser-dynamic",
+        "@angular/platform-browser",
         "@angular/platform",
-        "@angular/compiler",
         "@angular/router",
         "@compodoc/compodoc",
         "@ng-select/ng-select",
@@ -163,8 +168,11 @@
         "@storybook/addon-actions",
         "@storybook/addon-designs",
         "@storybook/addon-essentials",
+        "@storybook/addon-interactions",
         "@storybook/addon-links",
         "@storybook/angular",
+        "@storybook/manager-api",
+        "@storybook/theming",
         "@types/react",
         "autoprefixer",
         "bootstrap",
@@ -187,7 +195,9 @@
       "matchPackageNames": [
         "@angular-eslint/eslint-plugin",
         "@angular-eslint/eslint-plugin-template",
+        "@angular-eslint/schematics",
         "@angular-eslint/template-parser",
+        "@angular/elements",
         "@types/jest",
         "@typescript-eslint/eslint-plugin",
         "@typescript-eslint/parser",
@@ -200,6 +210,7 @@
         "eslint-plugin-storybook",
         "eslint-plugin-tailwindcss",
         "husky",
+        "jest-extended",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",

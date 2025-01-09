@@ -9,7 +9,7 @@ export type OrgIconSize = "default" | "small" | "large";
   selector: "[appOrgIcon]",
 })
 export class OrgIconDirective {
-  @Input({ required: true }) tierType: ProductTierType;
+  @Input({ required: true }) tierType!: ProductTierType;
   @Input() size?: OrgIconSize = "default";
 
   constructor(

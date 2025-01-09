@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 import { RouterModule } from "@angular/router";
@@ -31,7 +33,14 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() showReadonlyHostname: boolean;
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
-  @Input() decreaseTopPadding: boolean = false;
+
+  /**
+   * Max width of the title area content
+   *
+   * @default null
+   */
+  @Input() titleAreaMaxWidth?: "md";
+
   /**
    * Max width of the layout content
    *
@@ -58,6 +67,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   async ngOnInit() {
     this.maxWidth = this.maxWidth ?? "md";
+    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? null;
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 

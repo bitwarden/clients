@@ -1,7 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 // required to avoid linting errors when there are no flags
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SharedFlags = {
-  showPasswordless?: boolean;
   sdk?: boolean;
   prereleaseBuild?: boolean;
 };
@@ -12,6 +13,7 @@ export type SharedDevFlags = {
   noopNotifications: boolean;
   skipWelcomeOnInstall: boolean;
   configRetrievalIntervalMs: number;
+  showRiskInsightsDebug: boolean;
 };
 
 function getFlags<T>(envFlags: string | T): T {
