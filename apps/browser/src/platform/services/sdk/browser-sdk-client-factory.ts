@@ -1,4 +1,5 @@
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import * as sdk from "@bitwarden/sdk-internal";
 import type { BitwardenClient } from "@bitwarden/sdk-internal";
 
 /**
@@ -10,7 +11,7 @@ export class BrowserSdkClientFactory implements SdkClientFactory {
   async createSdkClient(
     ...args: ConstructorParameters<typeof BitwardenClient>
   ): Promise<BitwardenClient> {
-    const instance = (globalThis as any).init_sdk(...args);
+    const instance = new sdk.BitwardenClient(...args);
 
     return instance;
   }

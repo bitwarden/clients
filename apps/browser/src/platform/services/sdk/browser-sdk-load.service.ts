@@ -3,6 +3,10 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 
 import { BrowserApi } from "../../browser/browser-api";
 
+export type GlobalWithWasmInit = typeof globalThis & {
+  initSdk: () => void;
+};
+
 // https://stackoverflow.com/a/47880734
 const supported = (() => {
   try {
@@ -28,32 +32,32 @@ let loadingPromise: Promise<any> | undefined;
 if (BrowserApi.isManifestVersion(3)) {
   if (supported) {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is supported in this environment");
+    console.info("WebAssembly is supported in this environment");
     loadingPromise = import("./wasm");
   } else {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is not supported in this environment");
+    console.info("WebAssembly is not supported in this environment");
     loadingPromise = import("./fallback");
   }
 }
 
 // Manifest v2 expects dynamic imports to prevent timing issues.
-async function importModule() {
+async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
   if (BrowserApi.isManifestVersion(3)) {
     // Ensure we have loaded the module
     await loadingPromise;
-    return;
-  }
-
-  if (supported) {
+  } else if (supported) {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is supported in this environment");
+    console.info("WebAssembly is supported in this environment");
     await import("./wasm");
   } else {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is not supported in this environment");
+    console.info("WebAssembly is not supported in this environment");
     await import("./fallback");
   }
+
+  // the wasm and fallback imports mutate globalThis to add the initSdk function
+  return (globalThis as GlobalWithWasmInit).initSdk;
 }
 
 export class BrowserSdkLoadService implements SdkLoadService {
@@ -61,7 +65,7 @@ export class BrowserSdkLoadService implements SdkLoadService {
 
   async load(): Promise<void> {
     const startTime = performance.now();
-    await importModule();
+    await importModule().then((initSdk) => initSdk());
     const endTime = performance.now();
 
     this.logService.info(`WASM SDK loaded in ${Math.round(endTime - startTime)}ms`);
