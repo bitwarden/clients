@@ -1,6 +1,6 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject, NgZone } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -44,13 +44,10 @@ export class CredentialGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
-    private zone: NgZone,
   ) {}
 
   algorithm = (selected: AlgorithmInfo) => {
-    this.zone.run(() => {
-      this.buttonLabel = selected.useGeneratedValue;
-    });
+    this.buttonLabel = selected.useGeneratedValue;
   };
 
   applyCredentials = () => {
