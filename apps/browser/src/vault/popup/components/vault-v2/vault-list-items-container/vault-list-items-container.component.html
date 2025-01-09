@@ -1,10 +1,10 @@
 <bit-section *ngIf="ciphers?.length > 0 || description" [disableMargin]="disableSectionMargin">
   <ng-container *ngIf="collapsibleKey">
     <button
-      class="tw-group/vault-section-header hover:tw-bg-secondary-100 tw-pl-1 tw-w-full focus-visible:tw-outline-none focus-visible:tw-rounded-md focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      class="tw-group/vault-section-header hover:tw-bg-secondary-100 tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-rounded-md focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
       [ngClass]="{
-        'tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid tw-border-b-secondary-300':
-          sectionOpenState() === false,
+        'tw-border-b-secondary-300': sectionOpenState() === false,
+        'tw-border-b-transparent': sectionOpenState() === true,
       }"
       type="button"
       [bitDisclosureTriggerFor]="disclosureRef"
@@ -13,7 +13,7 @@
       <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
     </button>
     <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
-    <bit-disclosure #disclosureRef [open]="sectionOpenState()">
+    <bit-disclosure #disclosureRef [open]="sectionOpenState()" (openChange)="rerenderViewport()">
       <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
     </bit-disclosure>
   </ng-container>
@@ -73,8 +73,10 @@
 
 <ng-template #itemGroup>
   <bit-item-group>
-    <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async">
-      <!-- class="tw-overflow-visible [&>.cdk-virtual-scroll-content-wrapper]:[contain:layout_style]" -->
+    <cdk-virtual-scroll-viewport
+      [itemSize]="itemHeight$ | async"
+      class="tw-overflow-visible [&>.cdk-virtual-scroll-content-wrapper]:[contain:layout_style]"
+    >
       <bit-item *cdkVirtualFor="let cipher of ciphers">
         <button
           bit-item-content

@@ -106,11 +106,14 @@ export class VaultPopupSectionService {
    *
    * @param sectionKey section key
    */
-  async updateSectionOpenStoredState(sectionKey: keyof PopupSectionOpen): Promise<void> {
+  async updateSectionOpenStoredState(
+    sectionKey: keyof PopupSectionOpen,
+    open: boolean,
+  ): Promise<void> {
     await this.sectionOpenStateProvider.update((currentState) => {
       return {
         ...(currentState ?? INITIAL_OPEN),
-        [sectionKey]: !this.sectionOpenDisplayState()[sectionKey],
+        [sectionKey]: open,
       };
     });
 
@@ -118,7 +121,7 @@ export class VaultPopupSectionService {
       if (prev !== null) {
         return {
           ...prev,
-          [sectionKey]: this.sectionOpenStoredState()[sectionKey],
+          [sectionKey]: open,
         };
       }
 

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ScrollingModule } from "@angular/cdk/scrolling";
+import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -13,6 +13,7 @@ import {
   Output,
   Signal,
   signal,
+  ViewChild,
 } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { map } from "rxjs";
@@ -70,6 +71,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+
+  @ViewChild(CdkVirtualScrollViewport, { static: false }) viewPort: CdkVirtualScrollViewport;
+  @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
 
   /**
    * Indicates whether the section should be open or closed if collapsibleKey is provided
@@ -265,6 +269,21 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    await this.vaultPopupSectionService.updateSectionOpenStoredState(this.collapsibleKey);
+    await this.vaultPopupSectionService.updateSectionOpenStoredState(
+      this.collapsibleKey,
+      this.disclosure.open,
+    );
+  }
+
+  /**
+   * Force virtual scroll to update its viewport size to avoid display bugs
+   *
+   * Angular CDK scroll has a bug when used with conditional rendering:
+   * https://github.com/angular/components/issues/24362
+   */
+  protected rerenderViewport() {
+    setTimeout(() => {
+      this.viewPort.checkViewportSize();
+    });
   }
 }
