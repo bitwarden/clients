@@ -81,7 +81,7 @@ export class VaultPopupSectionService {
    * Indicates the current open/close display state of each section, accounting for temporary
    * non-persisted overrides.
    */
-  sectionOpenDisplayState: Signal<PopupSectionOpen> = computed(() => ({
+  sectionOpenDisplayState: Signal<Partial<PopupSectionOpen>> = computed(() => ({
     ...this.sectionOpenStoredState(),
     ...this.temporaryStateOverride(),
   }));
@@ -91,10 +91,8 @@ export class VaultPopupSectionService {
    *
    * @param sectionKey section key
    */
-  getOpenDisplayStateForSection(sectionKey: keyof PopupSectionOpen): Signal<boolean> {
-    return computed(() =>
-      this.sectionOpenDisplayState() ? this.sectionOpenDisplayState()[sectionKey] : null,
-    );
+  getOpenDisplayStateForSection(sectionKey: keyof PopupSectionOpen): Signal<boolean | undefined> {
+    return computed(() => this.sectionOpenDisplayState()?.[sectionKey]);
   }
 
   /**
