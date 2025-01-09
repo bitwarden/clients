@@ -1,5 +1,7 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { TypographyModule } from "@bitwarden/components";
+
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 import { VaultCarouselComponent } from "./carousel.component";
 
@@ -8,7 +10,7 @@ export default {
   component: VaultCarouselComponent,
   decorators: [
     moduleMetadata({
-      imports: [VaultCarouselSlideComponent],
+      imports: [VaultCarouselSlideComponent, TypographyModule],
     }),
   ],
 } as Meta;
@@ -20,8 +22,18 @@ export const Default: Story = {
     props: args,
     template: `
       <vault-carousel label="Storybook Demo">
-        <vault-carousel-slide>First Carousel Content</vault-carousel-slide>
-        <vault-carousel-slide>Second Carousel Content</vault-carousel-slide>
+        <vault-carousel-slide>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">First Carousel Heading</h2>
+            <p bitTypography="body1">First Carousel Content</p>
+          </div>
+        </vault-carousel-slide>
+        <vault-carousel-slide>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">Second Carousel Heading</h2>
+            <p bitTypography="body1">Second Carousel Content</p>
+          </div>
+        </vault-carousel-slide>
       </vault-carousel>
     `,
   }),
