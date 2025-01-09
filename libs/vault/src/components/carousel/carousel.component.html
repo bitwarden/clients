@@ -1,7 +1,12 @@
-<section aria-roledescription="carousel" [attr.aria-label]="label">
+<section
+  aria-roledescription="carousel"
+  [attr.aria-label]="label"
+  [ngStyle]="{ height: height ?? undefined }"
+  class="tw-flex tw-flex-col tw-gap-4"
+>
   <vault-carousel-content [content]="slides.get(selectedIndex)?.content"></vault-carousel-content>
   <div
-    class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-4"
+    class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto"
     role="tablist"
     (keydown)="keyManager.onKeydown($event)"
   >

@@ -21,7 +21,7 @@ export const Default: Story = {
   render: (args: any) => ({
     props: args,
     template: `
-      <vault-carousel label="Storybook Demo">
+      <vault-carousel label="Storybook Demo" height="19rem">
         <vault-carousel-slide label="First Slide">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">First Carousel Heading</h2>
@@ -37,6 +37,8 @@ export const Default: Story = {
         <vault-carousel-slide label="Third Slide">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">Third Carousel Heading</h2>
+            <p bitTypography="body1">Third Carousel Content</p>
+            <p bitTypography="body1">Third Carousel Content</p>
             <p bitTypography="body1">Third Carousel Content</p>
           </div>
         </vault-carousel-slide>

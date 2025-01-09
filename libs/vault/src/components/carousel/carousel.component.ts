@@ -41,6 +41,13 @@ export class VaultCarouselComponent implements AfterViewInit {
   @Input({ required: true }) label = "";
 
   /**
+   * Slides that have differing heights can cause the carousel controls to jump.
+   * Provide a height value of the tallest slide to prevent this.
+   * The value should be in `rem`.
+   */
+  @Input() height?: `${number}rem` | undefined;
+
+  /**
    * Emits the index of of the newly selected slide.
    */
   @Output() slideChange = new EventEmitter<number>();
