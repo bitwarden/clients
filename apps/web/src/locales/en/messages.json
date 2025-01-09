@@ -123,7 +123,7 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into Priority Access Intelligence with weak, exposed, or reused passwords."
+    "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
