@@ -1005,7 +1005,7 @@
     "message": "Pokaż elementy tożsamości na stronie głównej, aby ułatwić autouzupełnianie."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Kliknij na dane logowania, aby autouzupełnić w widoku Sejfu"
   },
   "clearClipboard": {
     "message": "Wyczyść schowek",

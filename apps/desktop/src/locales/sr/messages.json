@@ -208,19 +208,19 @@
     "message": "Генерисан је нови SSH кључ"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Лозинка коју сте унели није тачна."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Увоз"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Потврда лозинке"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Унети лозинку за SSH кључ."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Унесите лозинку"
   },
   "sshAgentUnlockRequired": {
     "message": "Откључајте свој сеф да бисте одобрили захтев за SSH кључ."
@@ -920,10 +920,10 @@
     "message": "УРЛ Сервера"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Истекло је време аутентификације"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
   },
   "selfHostBaseUrl": {
     "message": "УРЛ сервера који се самостално хостује",
@@ -1393,13 +1393,13 @@
     "message": "Историја Лозинке"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Генератор историје"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Испразнити генератор историје"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Ако наставите, сви уноси ће бити трајно избрисани из генератора историје. Да ли сте сигурни да желите да наставите?"
   },
   "clear": {
     "message": "Очисти",
@@ -1409,13 +1409,13 @@
     "message": "Нема лозинки за приказивање."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Обриши историју"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ништа за приказ"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Недавно нисте ништа генерисали"
   },
   "undo": {
     "message": "Опозови"
@@ -2481,7 +2481,7 @@
     "message": "Генеришите имејл"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Вредност мора бити између $MIN$ и $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2495,7 +2495,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Употребити $RECOMMENDED$ знакова или више да бисте генерисали јаку лозинку.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2505,7 +2505,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Употребити $RECOMMENDED$ речи или више да бисте генерисали јаку приступну фразу.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2726,13 +2726,13 @@
     "message": "Обавештење је послато на ваш уређај."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Обавештење је послато на ваш уређај"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Уверите се да је ваш налог откључан и да се фраза отиска подудара на другом уређају"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Треба Вам друга опција?"
   },
   "fingerprintMatchInfo": {
     "message": "Уверите се да је ваш сеф откључан и да се фраза отиска прста подудара на другом уређају."
@@ -2741,13 +2741,13 @@
     "message": "Сигурносна фраза сефа"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Бићете обавештени када захтев буде одобрен"
   },
   "needAnotherOption": {
     "message": "Пријава помоћу уређаја мора бити подешена у подешавањима Bitwarden апликације. Потребна је друга опција?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Погледајте сав извештај у опције"
   },
   "viewAllLoginOptions": {
     "message": "Погредајте све опције пријављивања"
@@ -2869,7 +2869,7 @@
     "message": "Проверите познате упада података за ову лозинку"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Пријављено!"
   },
   "important": {
     "message": "Важно:"
@@ -2902,16 +2902,16 @@
     "message": "Препоручено ажурирање поставки"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
   },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потребно је одобрење уређаја"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Изаберите опцију одобрења у наставку"
   },
   "rememberThisDevice": {
     "message": "Запамти овај уређај"
@@ -2966,7 +2966,7 @@
     "message": "Недостаје имејл корисника"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Имејл активног корисника није пронађен. Одјављивање."
   },
   "deviceTrusted": {
     "message": "Уређај поуздан"

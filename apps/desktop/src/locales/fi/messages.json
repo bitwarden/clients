@@ -2729,7 +2729,7 @@
     "message": "Laitteeseesi lähetettiin ilmoitus"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen"
   },
   "needAnotherOptionV1": {
     "message": "Tarvitsetko toisen vaihtoehdon?"
@@ -3402,7 +3402,7 @@
     "message": "Määritä kaksivaiheinen kirjautuminen"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden lähettää tilisi sähköpostiosoitteeseen koodin, jolla voit vahvistaa kirjautumiset uusista laitteista helmikuusta 2025 alkaen."
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."

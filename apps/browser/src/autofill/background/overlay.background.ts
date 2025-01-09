@@ -66,6 +66,7 @@ import { InlineMenuFormFieldData } from "../services/abstractions/autofill-overl
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
+  areKeyValuesNull,
   generateDomainMatchPatterns,
   generateRandomChars,
   isInvalidResponseStatusCode,
@@ -556,6 +557,28 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
+
+      switch (cipher.type) {
+        case CipherType.Card:
+          if (areKeyValuesNull(cipher.card)) {
+            continue;
+          }
+          break;
+
+        case CipherType.Identity:
+          if (areKeyValuesNull(cipher.identity)) {
+            continue;
+          }
+          break;
+
+        case CipherType.Login:
+          if (
+            areKeyValuesNull(cipher.login, ["username", "password", "totp", "fido2Credentials"])
+          ) {
+            continue;
+          }
+          break;
+      }
       if (!this.focusedFieldMatchesFillType(cipher.type)) {
         continue;
       }
@@ -2275,6 +2298,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     card,
     identity,
     sender,
+    addNewCipherType,
   }: CurrentAddNewItemData) {
     const cipherView: CipherView = this.buildNewVaultItemCipherView({
       login,
@@ -2294,7 +2318,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         collectionIds: cipherView.collectionIds,
       });
 
-      await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+      await this.openAddEditVaultItemPopout(sender.tab, {
+        cipherId: cipherView.id,
+        cipherType: addNewCipherType,
+      });
       await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     } catch (error) {
       this.logService.error("Error building cipher and opening add/edit vault item popout", error);

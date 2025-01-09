@@ -46,6 +46,11 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
 
+  /**
+   * Flag to indicate if the cipher decryption failed.
+   */
+  decryptionFailure = false;
+
   constructor(c?: Cipher) {
     if (!c) {
       return;

@@ -1,10 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Observable, firstValueFrom } from "rxjs";
+import { Observable, firstValueFrom, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
@@ -36,12 +37,19 @@ export class MoreFromBitwardenPageV2Component {
 
   constructor(
     private dialogService: DialogService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
     private organizationService: OrganizationService,
     private familiesPolicyService: FamiliesPolicyService,
+    private accountService: AccountService,
   ) {
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+          : of(false),
+      ),
+    );
     this.familySponsorshipAvailable$ = this.organizationService.familySponsorshipAvailable$;
     this.hasSingleEnterpriseOrg$ = this.familiesPolicyService.hasSingleEnterpriseOrg$();
     this.isFreeFamilyPolicyEnabled$ = this.familiesPolicyService.isFreeFamilyPolicyEnabled$();

@@ -9271,6 +9271,18 @@
   "updatedTaxInformation": {
     "message": "Податкову інформацію оновлено"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Не вдалося перевірити ваш ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Під час перегляду рахунку виникла помилка. Повторіть спробу пізніше."
+  },
   "unverified": {
     "message": "Не перевірений"
   },
@@ -10007,5 +10019,48 @@
   },
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
+  },
+  "resellerRenewalWarning": {
+    "message": "Ваша передплата невдовзі поновиться. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Рахунок за вашу передплату випущено $ISSUED_DATE$. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Рахунок за вашу передплату ще не сплачено. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

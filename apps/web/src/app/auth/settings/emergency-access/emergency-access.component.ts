@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { lastValueFrom, Observable, firstValueFrom } from "rxjs";
+import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -72,8 +73,13 @@ export class EmergencyAccessComponent implements OnInit {
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private toastService: ToastService,
     private apiService: ApiService,
+    private accountService: AccountService,
   ) {
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
 
   async ngOnInit() {
