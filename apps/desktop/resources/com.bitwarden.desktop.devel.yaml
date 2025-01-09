@@ -33,7 +33,11 @@ modules:
       - install bitwarden.sh /app/bin/bitwarden.sh
     sources:
       - type: dir
+        only-arches: [x86_64]
         path: ../dist/linux-unpacked
+      - type: dir
+        only-arches: [aarch64]
+        path: ../dist/linux-arm64-unpacked
       - type: script
         dest-filename: bitwarden.sh
         commands:
