@@ -205,17 +205,23 @@ export class RuntimeExtensionRegistry implements ExtensionRegistry {
     }
   }
 
+  private getPermissions(site: SiteId, vendor: VendorId): ExtensionPermission[] {
+    const permissions = [
+      this.sitePermissions.get(site),
+      this.vendorPermissions.get(vendor),
+      this.allPermission,
+    ].filter((p) => !!p!);
+
+    return permissions;
+  }
+
   extensions(): ReadonlyArray<{
     extension: ExtensionMetadata;
     permissions: ExtensionPermission[];
   }> {
     const extensions = [];
     for (const extension of this.extensionRegistrations) {
-      const permissions = [
-        this.vendorPermissions.get(extension.product.vendor.id),
-        this.sitePermissions.get(extension.site.id),
-        this.allPermission,
-      ].filter((p) => !!p);
+      const permissions = this.getPermissions(extension.site.id, extension.product.vendor.id);
 
       extensions.push({ extension, permissions });
     }
@@ -236,11 +242,7 @@ export class RuntimeExtensionRegistry implements ExtensionRegistry {
     const extensions = new Map<VendorId, ExtensionMetadata>();
     const entries = this.extensionsBySiteByVendor.get(id)?.entries() ?? ([] as const);
     for (const [vendor, index] of entries) {
-      const permissions = [
-        this.vendorPermissions.get(vendor),
-        this.sitePermissions.get(id),
-        this.allPermission,
-      ];
+      const permissions = this.getPermissions(id, vendor);
 
       const extension = evaluate(permissions, this.extensionRegistrations[index]);
       if (extension) {
