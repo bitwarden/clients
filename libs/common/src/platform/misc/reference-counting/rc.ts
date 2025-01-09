@@ -15,9 +15,9 @@ export class Rc<T extends Freeable> {
   }
 
   /**
-   * Use this function when you want to use it. This will guarantee
-   * that you have a reference to the value and it won't be freed until
-   * your reference goes out of scope.
+   * Use this function when you want to use the underlying object.
+   * This will guarantee that you have a reference to the object
+   * and that it won't be freed until your reference goes out of scope.
    *
    * @example
    * ```typescript
