@@ -21,6 +21,7 @@ import { map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -29,13 +30,18 @@ import {
   CompactModeService,
   DisclosureComponent,
   DisclosureTriggerForDirective,
+  DialogService,
   IconButtonModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -63,6 +69,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
+    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -184,6 +191,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     private cipherService: CipherService,
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {
@@ -245,6 +253,13 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
+          if (cipher.decryptionFailure) {
+            DecryptionFailureDialogComponent.open(this.dialogService, {
+              cipherIds: [cipher.id as CipherId],
+            });
+            return;
+          }
+
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
             return;
