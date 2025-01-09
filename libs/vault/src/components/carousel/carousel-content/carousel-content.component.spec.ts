@@ -47,4 +47,12 @@ describe("VaultCarouselContentComponent", () => {
 
     expect(carouselContent.nativeElement.textContent).toBe("Test Template Content");
   });
+
+  it("sets aria attributes for screen readers", () => {
+    const carouselContent = fixture.debugElement.query(By.directive(VaultCarouselContentComponent));
+    const wrappingDiv = carouselContent.nativeElement.querySelector("div");
+
+    expect(wrappingDiv.getAttribute("aria-live")).toBe("polite");
+    expect(wrappingDiv.getAttribute("aria-atomic")).toBe("false");
+  });
 });
