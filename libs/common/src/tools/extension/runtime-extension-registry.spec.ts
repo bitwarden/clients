@@ -35,6 +35,9 @@ const JustTrustUsExtension: ExtensionMetadata = deepFreeze({
   requestedFields: [],
 });
 
+// In the following tests, not-null assertions (`!`) indicate that
+// the returned object should never be null or undefined given
+// the conditions defined within the test case
 describe("RuntimeExtensionRegistry", () => {
   describe("registerSite", () => {
     it("registers an extension site", () => {
@@ -96,14 +99,14 @@ describe("RuntimeExtensionRegistry", () => {
         availableFields: [SomeSite.availableFields, "ignored" as any],
       };
 
-      const { availableFields } = registry.registerSite(ignored).site(SomeSiteId);
+      const { availableFields } = registry.registerSite(ignored).site(SomeSiteId)!;
 
       expect(availableFields).toEqual(SomeSite.availableFields);
     });
 
     it("freezes the site definition", () => {
       const registry = new RuntimeExtensionRegistry(DefaultSites, []);
-      const site = registry.registerSite(SomeSite).site(SomeSiteId);
+      const site = registry.registerSite(SomeSite).site(SomeSiteId)!;
 
       // reassigning `availableFields` throws b/c the object is frozen
       expect(() => (site.availableFields = [Field.domain])).toThrow();
@@ -490,7 +493,7 @@ describe("RuntimeExtensionRegistry", () => {
       registry.registerSite(SomeSite).registerVendor(SomeVendor);
 
       const internedSite = registry.site(SomeSiteId);
-      const result = registry.registerExtension(SomeExtension).extension(SomeSiteId, SomeVendorId);
+      const result = registry.registerExtension(SomeExtension).extension(SomeSiteId, SomeVendorId)!;
 
       expect(result.site).toBe(internedSite);
     });
@@ -500,7 +503,7 @@ describe("RuntimeExtensionRegistry", () => {
       registry.registerSite(SomeSite).registerVendor(SomeVendor);
 
       const internedVendor = registry.vendor(SomeVendorId);
-      const result = registry.registerExtension(SomeExtension).extension(SomeSiteId, SomeVendorId);
+      const result = registry.registerExtension(SomeExtension).extension(SomeSiteId, SomeVendorId)!;
 
       expect(result.product.vendor).toBe(internedVendor);
     });
@@ -508,7 +511,7 @@ describe("RuntimeExtensionRegistry", () => {
     it("freezes the extension metadata", () => {
       const registry = new RuntimeExtensionRegistry(DefaultSites, []);
       registry.registerSite(SomeSite).registerVendor(SomeVendor).registerExtension(SomeExtension);
-      const extension = registry.extension(SomeSiteId, SomeVendorId);
+      const extension = registry.extension(SomeSiteId, SomeVendorId)!;
 
       // field assignments & mutation functions throw b/c the object is frozen
       expect(() => ((extension.site as any) = SomeSite)).toThrow();
@@ -593,7 +596,7 @@ describe("RuntimeExtensionRegistry", () => {
         const registry = new RuntimeExtensionRegistry(DefaultSites, []);
         registry.registerSite(SomeSite).registerVendor(SomeVendor);
 
-        const result = registry.build(SomeSiteId);
+        const result = registry.build(SomeSiteId)!;
 
         expect(result.extensions.size).toBe(0);
       });
@@ -603,7 +606,7 @@ describe("RuntimeExtensionRegistry", () => {
         registry.registerSite(SomeSite).registerVendor(SomeVendor).registerExtension(SomeExtension);
         const expected = registry.extension(SomeSiteId, SomeVendorId);
 
-        const result = registry.build(SomeSiteId);
+        const result = registry.build(SomeSiteId)!;
 
         expect(result).toBeInstanceOf(ExtensionSite);
         expect(result.extensions.get(SomeVendorId)).toBe(expected);
@@ -629,7 +632,7 @@ describe("RuntimeExtensionRegistry", () => {
             .setPermission({ all: true }, Permission.default);
           const expected = registry.extension(SomeSiteId, SomeVendorId);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result.extensions.get(SomeVendorId)).toBe(expected);
         });
@@ -645,7 +648,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ site: SomeSiteId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
           },
@@ -662,7 +665,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ site: SomeSiteId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
@@ -679,7 +682,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ vendor: SomeVendorId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
           },
@@ -696,7 +699,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ vendor: SomeVendorId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
@@ -714,7 +717,7 @@ describe("RuntimeExtensionRegistry", () => {
             .registerExtension(SomeExtension)
             .setPermission({ all: true }, Permission.none);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result).toBeInstanceOf(ExtensionSite);
           expect(result.extensions.size).toBe(0);
@@ -729,7 +732,7 @@ describe("RuntimeExtensionRegistry", () => {
           registry.setPermission({ all: true }, allPermission);
           registry.setPermission({ site: SomeSiteId }, permission);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
         });
@@ -745,7 +748,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ site: SomeSiteId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
@@ -760,7 +763,7 @@ describe("RuntimeExtensionRegistry", () => {
           registry.setPermission({ all: true }, allPermission);
           registry.setPermission({ vendor: SomeVendorId }, permission);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
         });
@@ -776,7 +779,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ vendor: SomeVendorId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
@@ -795,7 +798,7 @@ describe("RuntimeExtensionRegistry", () => {
             .setPermission({ all: true }, Permission.default);
           const expected = registry.extension(SomeSiteId, SomeVendorId);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result).toBeInstanceOf(ExtensionSite);
           expect(result.extensions.get(SomeVendorId)).toBe(expected);
@@ -812,7 +815,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ site: SomeSiteId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
           },
@@ -827,7 +830,7 @@ describe("RuntimeExtensionRegistry", () => {
           registry.setPermission({ all: true }, allPermission);
           registry.setPermission({ site: SomeSiteId }, permission);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result.extensions.size).toBe(0);
         });
@@ -843,7 +846,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ vendor: SomeVendorId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.get(SomeVendorId)).toEqual(SomeExtension);
           },
@@ -858,7 +861,7 @@ describe("RuntimeExtensionRegistry", () => {
           registry.setPermission({ all: true }, allPermission);
           registry.setPermission({ vendor: SomeVendorId }, permission);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result.extensions.size).toBe(0);
         });
@@ -875,7 +878,7 @@ describe("RuntimeExtensionRegistry", () => {
             .registerExtension(SomeExtension)
             .setPermission({ all: true }, Permission.deny);
 
-          const result = registry.build(SomeSiteId);
+          const result = registry.build(SomeSiteId)!;
 
           expect(result).toBeInstanceOf(ExtensionSite);
           expect(result.extensions.size).toBe(0);
@@ -892,7 +895,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ site: SomeSiteId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
@@ -909,7 +912,7 @@ describe("RuntimeExtensionRegistry", () => {
             registry.setPermission({ all: true }, allPermission);
             registry.setPermission({ vendor: SomeVendorId }, permission);
 
-            const result = registry.build(SomeSiteId);
+            const result = registry.build(SomeSiteId)!;
 
             expect(result.extensions.size).toBe(0);
           },
